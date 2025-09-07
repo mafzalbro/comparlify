@@ -160,7 +160,7 @@ function CategoryButton({ category, selectedCategory }: { category: ToolCategory
     )
 }
 
-export default function ToolsPage({ searchParams }: { searchParams?: { category?: string } }) {
+export default async function ToolsPage({ searchParams }: { searchParams?: { category?: string } }) {
   const selectedCategory = searchParams?.category || 'All';
 
   const filteredTools =
