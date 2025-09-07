@@ -127,13 +127,13 @@ export default async function ComparePage({
                         name="search"
                         placeholder="Search by keyword..."
                         className="pl-10"
-                        defaultValue={searchParams.search}
+                        defaultValue={search}
                         />
                     </div>
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="sort">Sort By</Label>
-                    <Select name="sort" defaultValue={searchParams.sort ?? 'newest'}>
+                    <Select name="sort" defaultValue={sort ?? 'newest'}>
                         <SelectTrigger id="sort">
                         <SelectValue placeholder="Sort by" />
                         </SelectTrigger>

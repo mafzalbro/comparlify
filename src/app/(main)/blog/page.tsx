@@ -105,13 +105,13 @@ export default async function BlogPage({
                 name="search"
                 placeholder="Search by title or keyword..."
                 className="pl-10"
-                defaultValue={searchParams.search}
+                defaultValue={search}
               />
             </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="sort">Sort By</Label>
-            <Select name="sort" defaultValue={searchParams.sort ?? 'newest'}>
+            <Select name="sort" defaultValue={sort ?? 'newest'}>
               <SelectTrigger id="sort">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
@@ -124,7 +124,7 @@ export default async function BlogPage({
           </div>
            <div className="space-y-2">
             <Label htmlFor="author">Author</Label>
-            <Select name="author" defaultValue={searchParams.author ?? 'all'}>
+            <Select name="author" defaultValue={author ?? 'all'}>
               <SelectTrigger id="author">
                 <SelectValue placeholder="All Authors" />
               </SelectTrigger>

@@ -96,9 +96,10 @@ export default async function AdminUsersPage({
     sortOrder?: 'asc' | 'desc';
   };
 }) {
-  const users = await getUsers(searchParams);
+  const { search, role, sortBy, sortOrder } = searchParams;
+  const users = await getUsers({ search, role, sortBy, sortOrder });
 
-  const baseUrl = `/admin/users?search=${searchParams.search || ''}&role=${searchParams.role || ''}`;
+  const baseUrl = `/admin/users?search=${search || ''}&role=${role || 'all'}`;
 
   return (
     <div>
@@ -119,13 +120,13 @@ export default async function AdminUsersPage({
                   name="search"
                   placeholder="Search by name or email..."
                   className="pl-10"
-                  defaultValue={searchParams.search}
+                  defaultValue={search}
                 />
               </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="role">Filter by Role</Label>
-              <Select name="role" defaultValue={searchParams.role ?? 'all'}>
+              <Select name="role" defaultValue={role ?? 'all'}>
                 <SelectTrigger id="role">
                   <SelectValue placeholder="All Roles" />
                 </SelectTrigger>
@@ -152,10 +153,10 @@ export default async function AdminUsersPage({
             <TableRow>
               <TableHead>User</TableHead>
               <TableHead>
-                  <SortableHeader column="role" label="Role" currentSortBy={searchParams.sortBy} currentSortOrder={searchParams.sortOrder} baseUrl={baseUrl} />
+                  <SortableHeader column="role" label="Role" currentSortBy={sortBy} currentSortOrder={sortOrder} baseUrl={baseUrl} />
               </TableHead>
               <TableHead>
-                 <SortableHeader column="createdAt" label="Joined" currentSortBy={searchParams.sortBy} currentSortOrder={searchParams.sortOrder} baseUrl={baseUrl} />
+                 <SortableHeader column="createdAt" label="Joined" currentSortBy={sortBy} currentSortOrder={sortOrder} baseUrl={baseUrl} />
               </TableHead>
             </TableRow>
           </TableHeader>
