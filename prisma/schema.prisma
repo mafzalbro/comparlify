@@ -1,11 +1,15 @@
-datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
-}
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
   provider        = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-1.1.x"]
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model User {
@@ -13,31 +17,37 @@ model User {
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Platform {
   id          Int               @id @default(autoincrement())
   name        String            @unique
   website     String
-  description String
+  description String            @db.Text
   logoUrl     String
   features    PlatformFeature[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 }
 
 model Feature {
-  id        Int               @id @default(autoincrement())
-  name      String            @unique
-  platforms PlatformFeature[]
+  id          Int               @id @default(autoincrement())
+  name        String            @unique
+  platforms   PlatformFeature[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 }
 
 model PlatformFeature {
-  id         Int      @id @default(autoincrement())
-  platform   Platform @relation(fields: [platformId], references: [id])
-  platformId Int
-  feature    Feature  @relation(fields: [featureId], references: [id])
-  featureId  Int
-  hasFeature Boolean
-  details    String?
+  platformId  Int
+  featureId   Int
+  hasFeature  Boolean
+  details     String?           @db.Text
+  platform    Platform          @relation(fields: [platformId], references: [id])
+  feature     Feature           @relation(fields: [featureId], references: [id])
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 
-  @@unique([platformId, featureId])
+  @@id([platformId, featureId])
 }
