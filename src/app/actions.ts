@@ -1,15 +1,13 @@
 'use server';
 
 import { z } from 'zod';
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { redirect } from 'next/navigation';
 
 import { generateTitle } from '@/ai/flows/ai-title-generator';
 import { aiQueryComparlifyChatbot, AIQueryComparlifyChatbotInput } from '@/ai/flows/ai-query-comparlify-chatbot';
 import { createSession, deleteSession } from '@/lib/auth';
-
-const prisma = new PrismaClient();
 
 // --- Title Generator Action ---
 

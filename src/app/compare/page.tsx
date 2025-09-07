@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/lib/prisma';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -18,8 +18,6 @@ import {
 } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-
-const prisma = new PrismaClient();
 
 async function getComparisonData() {
   const platforms = await prisma.platform.findMany({
