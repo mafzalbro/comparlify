@@ -47,11 +47,11 @@ export async function getChatbotResponse(input: AIQueryComparlifyChatbotInput) {
   }
 
   try {
-    const { output } = await aiQueryComparlifyChatbot(validatedFields.data);
-    if (!output) {
+    const chatbotResponse = await aiQueryComparlifyChatbot(validatedFields.data);
+    if (!chatbotResponse) {
       throw new Error("No response from AI");
     }
-    return { response: output.response, error: false };
+    return { response: chatbotResponse.response, error: false };
   } catch (error) {
     console.error(error);
     return { response: 'Sorry, I am having trouble connecting. Please try again later.', error: true };
