@@ -115,10 +115,10 @@ export default async function ComparePage({
           </p>
         </div>
 
-        <Card className="mb-12 p-4 md:p-6 shadow-lg">
+        <Card className="mb-12 p-4 md:p-6 shadow-lg bg-card/60">
           <form className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                <div className="md:col-span-1 space-y-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                <div className="lg:col-span-2 space-y-2">
                     <Label htmlFor="search">Search</Label>
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -144,7 +144,7 @@ export default async function ComparePage({
                         </SelectContent>
                     </Select>
                 </div>
-                <div className="flex items-end gap-2">
+                <div className="lg:col-span-2 flex items-end gap-2">
                     <Button type="submit" className="w-full">
                         Apply Filters
                     </Button>
@@ -155,7 +155,7 @@ export default async function ComparePage({
             </div>
              <div className="space-y-2 pt-2">
                  <Label className="block mb-2 font-medium">Filter by Platform</Label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-8 gap-x-4 gap-y-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-x-4 gap-y-2">
                 {allPlatforms.map(platform => (
                     <div key={platform.id} className="flex items-center gap-2">
                         <Checkbox 
