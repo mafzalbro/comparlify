@@ -13,7 +13,7 @@ const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/compare', label: 'Comparisons' },
   { href: '/blog', label: 'Blog' },
-  { href: '/tools/title-generator', label: 'Tools' },
+  { href: '/tools', label: 'Tools' },
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
 ];
@@ -27,7 +27,7 @@ export default function Header() {
       href={href}
       className={cn(
         'text-sm font-medium transition-colors hover:text-primary',
-        pathname === href ? 'text-primary' : 'text-muted-foreground'
+        pathname.startsWith(href) && href !== '/' || pathname === href ? 'text-primary' : 'text-muted-foreground'
       )}
       onClick={() => setSheetOpen(false)}
     >

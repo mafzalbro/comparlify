@@ -32,7 +32,7 @@ export default function Footer() {
               <ul className="space-y-2">
                 <li><Link href="/compare" className="text-sm text-muted-foreground hover:text-primary">Comparisons</Link></li>
                 <li><Link href="/blog" className="text-sm text-muted-foreground hover:text-primary">Blog</Link></li>
-                <li><Link href="/tools/title-generator" className="text-sm text-muted-foreground hover:text-primary">Tools</Link></li>
+                <li><Link href="/tools" className="text-sm text-muted-foreground hover:text-primary">Tools</Link></li>
               </ul>
             </div>
             <div>

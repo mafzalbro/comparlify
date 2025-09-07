@@ -56,7 +56,7 @@ export default function TitleGeneratorPage() {
               <CardTitle className="font-headline">Describe Your Course</CardTitle>
               <CardDescription>
                 Enter a detailed description of your course content below. The more detail you provide, the better the title suggestions will be.
-              </CardDescription>
+              </Description>
             </CardHeader>
             <CardContent>
               <div className="grid w-full items-center gap-4">
@@ -69,7 +69,7 @@ export default function TitleGeneratorPage() {
                     rows={8}
                     required
                   />
-                  {state.error?.courseDescription && (
+                  {typeof state.error === 'object' && state.error?.courseDescription && (
                     <p className="text-sm text-destructive">{state.error.courseDescription[0]}</p>
                   )}
                 </div>
@@ -91,11 +91,11 @@ export default function TitleGeneratorPage() {
             </Alert>
         )}
         
-        {state.error && !state.error.courseDescription && (
+        {typeof state.error === 'string' && (
              <Alert variant="destructive" className="mt-8">
                 <AlertTitle>Error</AlertTitle>
                 <AlertDescription>
-                    {typeof state.error === 'string' ? state.error : 'An unexpected error occurred.'}
+                    {state.error}
                 </AlertDescription>
             </Alert>
         )}
