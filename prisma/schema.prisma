@@ -37,23 +37,23 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
   email         String?   @unique
   emailVerified DateTime?
   image         String?
-  onboarded     Boolean   @default(false)
   role          Role      @default(USER)
+  onboarded     Boolean   @default(false)
   accounts      Account[]
   sessions      Session[]
   posts         Post[]
-  reviews       Review[]
-}
-
-enum Role {
-  USER
-  ADMIN
+  comments      Comment[]
 }
 
 model VerificationToken {
@@ -64,108 +64,128 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// --- App Specific Models ---
+model Post {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String
+  content     String   @db.Text
+  image       String
+  dataAiHint  String?
+  published   Boolean  @default(false)
+  author      User     @relation(fields: [authorId], references: [id])
+  authorId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  nextId      String?  @unique
+
+  next     Post? @relation("PostNavigation", fields: [nextId], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  previous Post? @relation("PostNavigation")
+
+  comments Comment[]
+}
 
 model Platform {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  website     String
-  description String   @db.Text
-  logoUrl     String
-  rating      Float?
-  features    PlatformFeature[]
-  reviews     Review[]
-  comparisonsA Comparison[] @relation("PlatformA")
-  comparisonsB Comparison[] @relation("PlatformB")
+  id              String             @id @default(cuid())
+  name            String             @unique
+  website         String
+  description     String             @db.Text
+  logoUrl         String
+  rating          Float?
+  easeOfUse       Float?
+  featuresRating  Float?
+  support         Float?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  features        PlatformFeature[]
+  reviews         Review[]
+  comparisonsA    Comparison[]       @relation("PlatformA")
+  comparisonsB    Comparison[]       @relation("PlatformB")
 }
 
 model FeatureCategory {
-  id          String    @id @default(cuid())
-  name        String    @unique
-  features    Feature[]
+  id        String    @id @default(cuid())
+  name      String    @unique
+  features  Feature[]
+  createdAt DateTime  @default(now())
 }
 
 model Feature {
-  id            String    @id @default(cuid())
-  name          String    @unique
-  categoryId    String
-  category      FeatureCategory @relation(fields: [categoryId], references: [id])
-  platforms     PlatformFeature[]
+  id          String            @id @default(cuid())
+  name        String            @unique
+  categoryId  String
+  category    FeatureCategory   @relation(fields: [categoryId], references: [id])
+  platforms   PlatformFeature[]
+  createdAt   DateTime          @default(now())
 }
 
-
 model PlatformFeature {
-  platformId  String
-  featureId   String
-  hasFeature  Boolean
-  details     String? @db.Text
-  platform    Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
-  feature     Feature  @relation(fields: [featureId], references: [id], onDelete: Cascade)
+  platformId String
+  featureId  String
+  hasFeature Boolean
+  details    String?   @db.Text
+  platform   Platform  @relation(fields: [platformId], references: [id], onDelete: Cascade)
+  feature    Feature   @relation(fields: [featureId], references: [id], onDelete: Cascade)
 
   @@id([platformId, featureId])
 }
 
-model Post {
-    id        String   @id @default(cuid())
-    title     String
-    slug      String   @unique
-    description String @db.Text
-    content   String   @db.LongText
-    image     String
-    dataAiHint String?
-    published Boolean  @default(false)
-
-    authorId  String
-    author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-}
-
 model Review {
   id          String   @id @default(cuid())
-  rating      Int
-  content     String   @db.Text
   platformId  String
-  platform    Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
   userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating      Int
+  title       String
+  content     String   @db.Text
   createdAt   DateTime @default(now())
+  platform    Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@unique([platformId, userId])
 }
 
 model Comparison {
-  id            String   @id @default(cuid())
-  slug          String   @unique
-  title         String
-  summary       String   @db.Text
-  content       String   @db.LongText
-  published     Boolean  @default(false)
-  
-  platformAId   String
-  platformBId   String
-  platformA     Platform @relation("PlatformA", fields: [platformAId], references: [id], onDelete: Cascade)
-  platformB     Platform @relation("PlatformB", fields: [platformBId], references: [id], onDelete: Cascade)
-
-  faqs          ComparisonFAQ[]
-  facts         Fact[]
-
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-
-model ComparisonFAQ {
-  id            String     @id @default(cuid())
-  question      String
-  answer        String     @db.Text
-  comparisonId  String
-  comparison    Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+  id           String           @id @default(cuid())
+  title        String
+  slug         String           @unique
+  summary      String           @db.Text
+  introduction String           @db.Text
+  conclusion   String           @db.Text
+  published    Boolean          @default(false)
+  platformAId  String
+  platformBId  String
+  platformA    Platform         @relation("PlatformA", fields: [platformAId], references: [id], onDelete: Cascade)
+  platformB    Platform         @relation("PlatformB", fields: [platformBId], references: [id], onDelete: Cascade)
+  facts        Fact[]
+  faqs         ComparisonFAQ[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
 }
 
 model Fact {
-  id            String     @id @default(cuid())
-  text          String     @db.Text
-  platform      String // "A", "B", or "Both"
-  comparisonId  String
-  comparison    Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+  id             String     @id @default(cuid())
+  comparisonId   String
+  title          String
+  platformAValue String
+  platformBValue String
+  comparison     Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
 }
 
+model ComparisonFAQ {
+  id           String     @id @default(cuid())
+  comparisonId String
+  question     String
+  answer       String     @db.Text
+  comparison   Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  authorId  String
+  postId    String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+}

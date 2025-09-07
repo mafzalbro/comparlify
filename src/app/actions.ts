@@ -1,3 +1,4 @@
+
 "use server";
 
 import { z } from "zod";
@@ -22,6 +23,7 @@ import { generateSocialMediaPost } from "@/ai/flows/ai-social-media-post-generat
 import { generateFaqs } from "@/ai/flows/ai-faq-generator";
 import { generateAnalogy } from "@/ai/flows/ai-analogy-generator";
 import { auth } from "@/lib/auth";
+import type { Post } from "@prisma/client";
 
 // --- User Onboarding Action ---
 export async function markUserAsOnboarded() {
@@ -631,6 +633,28 @@ export async function generateAnalogyAction(
 
 // --- Blog Post Actions ---
 
+export async function getPostPreview(slug: string): Promise<Post | null> {
+    return prisma.post.findUnique({
+        where: { slug },
+        select: {
+            id: true,
+            slug: true,
+            title: true,
+            description: true,
+            image: true,
+            dataAiHint: true,
+            // Non-sensitive fields only
+            published: false, // Explicitly exclude sensitive fields
+            authorId: false,
+            createdAt: false,
+            updatedAt: false,
+            nextId: false,
+            content: false,
+        }
+    });
+}
+
+
 const postSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters long"),
   slug: z.string().min(3, "Slug must be at least 3 characters long"),
@@ -710,6 +734,45 @@ export async function deletePost(id: string) {
     return { error: "Failed to delete post." };
   }
   redirect("/admin/blog");
+}
+
+// --- Comment Action ---
+const commentSchema = z.object({
+    content: z.string().min(1, "Comment cannot be empty.").max(1000, "Comment is too long."),
+    postId: z.string(),
+});
+
+export async function addComment(formData: FormData) {
+    const session = await auth();
+    if (!session?.user?.id) {
+        return { error: "You must be logged in to comment." };
+    }
+
+    const validatedFields = commentSchema.safeParse({
+        content: formData.get("content"),
+        postId: formData.get("postId"),
+    });
+
+    if (!validatedFields.success) {
+        return { error: "Invalid comment data." };
+    }
+
+    try {
+        await prisma.comment.create({
+            data: {
+                content: validatedFields.data.content,
+                postId: validatedFields.data.postId,
+                authorId: session.user.id,
+            },
+        });
+        const post = await prisma.post.findUnique({ where: { id: validatedFields.data.postId }, select: { slug: true }});
+        if (post) {
+          revalidatePath(`/blog/${post.slug}`);
+        }
+    } catch (error) {
+        console.error(error);
+        return { error: "Failed to add comment." };
+    }
 }
 
 
