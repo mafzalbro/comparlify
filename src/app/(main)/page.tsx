@@ -133,7 +133,7 @@ export default function Home() {
       
       <Parallax bgImage="https://picsum.photos/1920/1080?random=hero" bgImageAlt="hero background" strength={300}>
         <section className="relative w-full overflow-hidden h-[70vh] flex items-center justify-center">
-            <div className="absolute inset-0 bg-black/50" />
+            <div className="absolute inset-0 bg-gradient-to-t from-transparent to-black/50" />
             <div className="container relative z-20 flex flex-col items-center justify-center text-center px-4 md:px-6 text-white">
             <div className="inline-block rounded-full bg-primary/20 px-4 py-1.5 text-sm font-medium text-primary mb-4 backdrop-blur-sm">
                 The Ultimate Co-pilot for Course Creators
