@@ -1,33 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Cookie } from 'lucide-react';
+import { useCookie } from '@/hooks/use-cookie';
 
 export function CookieConsentBanner() {
-  const [showBanner, setShowBanner] = useState(false);
+  const [consent, setConsent] = useCookie('cookie-consent', 'false');
 
-  useEffect(() => {
-    // Check if the cookie consent has been given
-    const consent = document.cookie.split(';').some((item) => item.trim().startsWith('cookie-consent='));
-    if (!consent) {
-      setShowBanner(true);
-    }
-  }, []);
-
-  const handleAccept = () => {
-    // Set cookie to expire in 1 year
-    const expiryDate = new Date();
-    expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-    document.cookie = `cookie-consent=true; path=/; expires=${expiryDate.toUTCString()}; SameSite=Lax; Secure`;
-    setShowBanner(false);
-  };
-
-  if (!showBanner) {
+  if (consent === 'true') {
     return null;
   }
+
+  const handleAccept = () => {
+    setConsent('true');
+  };
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 p-4 animate-fade-in-up">
