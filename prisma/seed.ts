@@ -158,11 +158,10 @@ async function main() {
   }
   console.log("Seeded platforms and their features.");
 
-
   // Find the admin user to associate posts with.
   // If the admin user does not exist, the posts will not be created.
   const adminUser = await prisma.user.findUnique({
-    where: { email: 'mafzalbro@gmail.com' },
+    where: { email: "mafzalbro@gmail.com" },
   });
 
   if (adminUser) {
@@ -252,6 +251,6 @@ export const seed = async () => {
     .catch(async (e) => {
       console.error(e);
       await prisma.$disconnect();
-      process.exit(1);
+      // process.exit(1);
     });
 };

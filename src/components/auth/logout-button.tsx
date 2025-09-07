@@ -1,6 +1,8 @@
 'use client';
 
-import { logout } from "@/app/actions";
+import { signOut } from "next-auth/react";
+// import { signOut } from "@/lib/auth";
+// import { logout } from "@/app/actions";
 import { useTransition } from "react";
 
 export function LogoutButton({ children }: { children: React.ReactNode }) {
@@ -8,7 +10,8 @@ export function LogoutButton({ children }: { children: React.ReactNode }) {
 
     const handleClick = () => {
         startTransition(async () => {
-            await logout();
+            // await logout();
+            signOut({ redirectTo: "/" });
         });
     };
 

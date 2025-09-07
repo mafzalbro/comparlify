@@ -11,17 +11,19 @@ import {
     SidebarGroup,
     SidebarGroupLabel,
     SidebarFooter
-  } from "@/components/ui/sidebar";
+} from "@/components/ui/sidebar";
 import { Home, Settings, Table, PenSquare, LogOut, BookText } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogoutButton } from "@/components/auth/logout-button";
-  
-  export default function AdminLayout({
+import Link from "next/link";
+import { signOut } from "@/lib/auth";
+
+export default function AdminLayout({
     children,
-  }: {
+}: {
     children: React.ReactNode;
-  }) {
+}) {
     return (
         <SidebarProvider>
             <Sidebar>
@@ -31,53 +33,63 @@ import { LogoutButton } from "@/components/auth/logout-button";
                 <SidebarContent>
                     <SidebarMenu>
                         <SidebarMenuItem>
-                            <SidebarMenuButton href="/admin" tooltip="Dashboard">
-                                <Home />
-                                Dashboard
-                            </SidebarMenuButton>
+                            <Link href="/admin">
+                                <SidebarMenuButton tooltip="Dashboard">
+                                    <Home />
+                                    Dashboard
+                                </SidebarMenuButton>
+                            </Link>
                         </SidebarMenuItem>
                         <SidebarGroup>
                             <SidebarGroupLabel>Manage</SidebarGroupLabel>
-                             <SidebarMenuItem>
-                                <SidebarMenuButton href="/admin/blog" tooltip="Blog">
-                                    <BookText />
-                                    Blog
-                                </SidebarMenuButton>
+                            <SidebarMenuItem>
+                                <Link href="/admin/blog">
+                                    <SidebarMenuButton tooltip="Blog">
+                                        <BookText />
+                                        Blog
+                                    </SidebarMenuButton>
+                                </Link>
                             </SidebarMenuItem>
                             <SidebarMenuItem>
-                                <SidebarMenuButton href="/admin/platforms" tooltip="Platforms">
-                                    <Table />
-                                    Platforms
-                                </SidebarMenuButton>
+                                <Link href="/admin/platforms">
+                                    <SidebarMenuButton tooltip="Platforms">
+                                        <Table />
+                                        Platforms
+                                    </SidebarMenuButton>
+                                </Link>
                             </SidebarMenuItem>
                             <SidebarMenuItem>
-                                <SidebarMenuButton href="/admin/features" tooltip="Features" disabled>
+                                {/* <Link href="/admin/features"> */}
+                                <SidebarMenuButton tooltip="Features" disabled>
                                     <PenSquare />
                                     Features
                                 </SidebarMenuButton>
+                                {/* </Link> */}
                             </SidebarMenuItem>
                         </SidebarGroup>
                     </SidebarMenu>
                 </SidebarContent>
                 <SidebarFooter>
-                     <SidebarMenu>
+                    <SidebarMenu>
                         <SidebarMenuItem>
-                             <SidebarMenuButton href="/admin/settings" tooltip="Settings" disabled>
+                            {/* <Link href="/admin/settings"> */}
+                            <SidebarMenuButton tooltip="Settings" disabled>
                                 <Settings />
                                 Settings
                             </SidebarMenuButton>
+                            {/* </Link> */}
                         </SidebarMenuItem>
-                         <SidebarMenuItem>
-                           <LogoutButton>
-                             <SidebarMenuButton tooltip="Logout" isRequesting>
-                                <LogOut />
-                                Logout
-                            </SidebarMenuButton>
-                           </LogoutButton>
+                        <SidebarMenuItem>
+                            <LogoutButton>
+                                <SidebarMenuButton tooltip="Logout">
+                                    <LogOut />
+                                    Logout
+                                </SidebarMenuButton>
+                            </LogoutButton>
                         </SidebarMenuItem>
                         <SidebarMenuItem>
                             <div className="flex items-center gap-2 p-2">
-                                 <Avatar>
+                                <Avatar>
                                     <AvatarImage src="https://picsum.photos/100/100?random=admin" alt="Admin" data-ai-hint="person photo" />
                                     <AvatarFallback>A</AvatarFallback>
                                 </Avatar>
@@ -87,7 +99,7 @@ import { LogoutButton } from "@/components/auth/logout-button";
                                 </div>
                             </div>
                         </SidebarMenuItem>
-                     </SidebarMenu>
+                    </SidebarMenu>
                 </SidebarFooter>
             </Sidebar>
             <SidebarInset>
@@ -101,4 +113,4 @@ import { LogoutButton } from "@/components/auth/logout-button";
             </SidebarInset>
         </SidebarProvider>
     );
-  }
+}
