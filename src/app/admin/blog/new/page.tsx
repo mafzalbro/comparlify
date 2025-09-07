@@ -1,3 +1,5 @@
+'use client';
+
 import { PostForm } from '../_components/post-form';
 
 export default function NewPostPage() {

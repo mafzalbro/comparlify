@@ -1,23 +1,31 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import { PlatformForm } from '../../_components/platform-form';
+import { EditPlatformPageClient } from './page-client';
 
 async function getPlatform(id: string) {
   const platform = await prisma.platform.findUnique({
     where: { id },
     include: {
-        features: true
-    }
+      features: true,
+    },
   });
   return platform;
+}
+
+async function getFeatures() {
+    return prisma.feature.findMany({ include: { category: true }, orderBy: { category: { name: 'asc' } } });
+}
+
+async function getFeatureCategories() {
+    return prisma.featureCategory.findMany({ orderBy: { name: 'asc' } });
 }
 
 export default async function EditPlatformPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   const [platform, features, featureCategories] = await Promise.all([
     getPlatform(params.id),
-    prisma.feature.findMany({ include: { category: true }, orderBy: { category: { name: 'asc' } } }),
-    prisma.featureCategory.findMany({ orderBy: { name: 'asc' } })
+    getFeatures(),
+    getFeatureCategories()
   ]);
 
   if (!platform) {
@@ -25,9 +33,10 @@ export default async function EditPlatformPage(props: { params: Promise<{ id: st
   }
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">Edit Platform</h1>
-      <PlatformForm platform={platform} features={features} featureCategories={featureCategories} />
-    </div>
+    <EditPlatformPageClient
+      platform={platform}
+      features={features}
+      featureCategories={featureCategories}
+    />
   );
 }

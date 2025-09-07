@@ -1,12 +1,11 @@
-import { ComparisonForm } from '../_components/comparison-form';
+import { NewComparisonPageClient } from './page-client';
 import prisma from '@/lib/prisma';
 
+async function getPlatforms() {
+  return prisma.platform.findMany();
+}
+
 export default async function NewComparisonPage() {
-  const platforms = await prisma.platform.findMany();
-  return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">Create New Comparison</h1>
-      <ComparisonForm platforms={platforms} />
-    </div>
-  );
+  const platforms = await getPlatforms();
+  return <NewComparisonPageClient platforms={platforms} />;
 }

@@ -1,6 +1,6 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import { PostForm } from '../../_components/post-form';
+import { EditPostPageClient } from './page-client';
 
 async function getPost(id: string) {
   const post = await prisma.post.findUnique({
@@ -17,10 +17,5 @@ export default async function EditPostPage(props: { params: Promise<{ id: string
     notFound();
   }
 
-  return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">Edit Post</h1>
-      <PostForm post={post} />
-    </div>
-  );
+  return <EditPostPageClient post={post} />;
 }
