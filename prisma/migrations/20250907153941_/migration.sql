@@ -26,6 +26,7 @@ CREATE TABLE `Account` (
     `id_token` TEXT NULL,
     `session_state` VARCHAR(191) NULL,
 
+    INDEX `Account_userId_idx`(`userId`),
     UNIQUE INDEX `Account_provider_providerAccountId_key`(`provider`, `providerAccountId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -38,12 +39,13 @@ CREATE TABLE `Session` (
     `expires` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `Session_sessionToken_key`(`sessionToken`),
+    INDEX `Session_userId_idx`(`userId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `VerificationToken` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` VARCHAR(191) NOT NULL,
     `identifier` VARCHAR(191) NOT NULL,
     `token` VARCHAR(191) NOT NULL,
     `expires` DATETIME(3) NOT NULL,
@@ -54,11 +56,13 @@ CREATE TABLE `VerificationToken` (
 
 -- CreateTable
 CREATE TABLE `Platform` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `website` VARCHAR(191) NOT NULL,
     `description` TEXT NOT NULL,
-    `logoUrl` VARCHAR(191) NULL,
+    `logoUrl` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `Platform_name_key`(`name`),
     PRIMARY KEY (`id`)
@@ -66,8 +70,10 @@ CREATE TABLE `Platform` (
 
 -- CreateTable
 CREATE TABLE `Feature` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `Feature_name_key`(`name`),
     PRIMARY KEY (`id`)
@@ -75,22 +81,33 @@ CREATE TABLE `Feature` (
 
 -- CreateTable
 CREATE TABLE `PlatformFeature` (
-    `platformId` INTEGER NOT NULL,
-    `featureId` INTEGER NOT NULL,
-    `hasFeature` BOOLEAN NOT NULL,
+    `id` VARCHAR(191) NOT NULL,
+    `platformId` VARCHAR(191) NOT NULL,
+    `featureId` VARCHAR(191) NOT NULL,
+    `hasFeature` BOOLEAN NOT NULL DEFAULT false,
     `details` VARCHAR(191) NULL,
 
-    PRIMARY KEY (`platformId`, `featureId`)
+    INDEX `PlatformFeature_platformId_idx`(`platformId`),
+    INDEX `PlatformFeature_featureId_idx`(`featureId`),
+    UNIQUE INDEX `PlatformFeature_platformId_featureId_key`(`platformId`, `featureId`),
+    PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- AddForeignKey
-ALTER TABLE `Account` ADD CONSTRAINT `Account_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+-- CreateTable
+CREATE TABLE `Post` (
+    `id` VARCHAR(191) NOT NULL,
+    `title` VARCHAR(191) NOT NULL,
+    `slug` VARCHAR(191) NOT NULL,
+    `description` TEXT NOT NULL,
+    `content` TEXT NOT NULL,
+    `image` VARCHAR(191) NOT NULL,
+    `dataAiHint` VARCHAR(191) NOT NULL,
+    `published` BOOLEAN NOT NULL DEFAULT false,
+    `authorId` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
 
--- AddForeignKey
-ALTER TABLE `Session` ADD CONSTRAINT `Session_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `PlatformFeature` ADD CONSTRAINT `PlatformFeature_platformId_fkey` FOREIGN KEY (`platformId`) REFERENCES `Platform`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `PlatformFeature` ADD CONSTRAINT `PlatformFeature_featureId_fkey` FOREIGN KEY (`featureId`) REFERENCES `Feature`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+    UNIQUE INDEX `Post_slug_key`(`slug`),
+    INDEX `Post_authorId_idx`(`authorId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
