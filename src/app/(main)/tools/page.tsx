@@ -109,8 +109,8 @@ export default function ToolsPage({ searchParams }: { searchParams?: { category?
       <div
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
       >
-        {filteredTools.map((tool) => (
-          <div key={tool.slug}>
+        {filteredTools.map((tool, index) => (
+          <div key={tool.slug} className="animate-fade-in-up" style={{ animationDelay: `${index * 150}ms`, animationFillMode: 'both' }}>
             <Card className="flex flex-col h-full group overflow-hidden transform hover:-translate-y-1 transition-transform duration-300 shadow-md hover:shadow-xl">
               <CardHeader>
                 <div className="flex items-start justify-between">
