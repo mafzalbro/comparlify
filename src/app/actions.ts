@@ -1,7 +1,7 @@
 'use server';
 
 import { z } from 'zod';
-import prisma from '@/lib/prisma';
+import db from '@/lib/db';
 import bcrypt from 'bcryptjs';
 import { redirect } from 'next/navigation';
 
@@ -89,24 +89,24 @@ export async function registerUser(prevState: AuthFormState, formData: FormData)
   }
   
   const { email, password } = validatedFields.data;
+  const connection = await db.getConnection();
 
   try {
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
+    // Check if user exists
+    const [existingUsers]: [any[], any] = await connection.execute('SELECT * FROM `User` WHERE `email` = ?', [email]);
+    if (existingUsers.length > 0) {
       return { error: 'An account with this email already exists.', success: false };
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-      },
-    });
+    // Create user
+    await connection.execute('INSERT INTO `User` (`email`, `password`) VALUES (?, ?)', [email, hashedPassword]);
 
   } catch (error) {
     console.error(error);
     return { error: 'Could not create account. Please try again.', success: false };
+  } finally {
+    connection.release();
   }
   
   redirect('/login');
@@ -127,9 +127,12 @@ export async function loginUser(prevState: AuthFormState, formData: FormData): P
     }
 
     const { email, password } = validatedFields.data;
+    const connection = await db.getConnection();
 
     try {
-        const user = await prisma.user.findUnique({ where: { email } });
+        const [users]: [any[], any] = await connection.execute('SELECT * FROM `User` WHERE `email` = ?', [email]);
+        const user = users[0];
+
         if (!user) {
             return { error: 'Invalid email or password.', success: false };
         }
@@ -144,6 +147,8 @@ export async function loginUser(prevState: AuthFormState, formData: FormData): P
     } catch (error) {
         console.error(error);
         return { error: 'An unexpected error occurred. Please try again.', success: false };
+    } finally {
+        connection.release();
     }
 
     redirect('/admin');
