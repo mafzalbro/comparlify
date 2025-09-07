@@ -18,6 +18,15 @@ import {
 } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import type { Metadata } from 'next';
+import { generateSeoMetadata } from '@/lib/seo';
+
+export const metadata: Metadata = generateSeoMetadata({
+    title: 'Platform Comparison',
+    description: "We've analyzed the top course creation platforms so you don't have to. Find the perfect fit for your business.",
+    path: '/compare'
+});
+
 
 async function getComparisonData() {
   const platforms = await prisma.platform.findMany({

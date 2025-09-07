@@ -24,6 +24,14 @@ import {
   ListChecks,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import type { Metadata } from 'next';
+import { generateSeoMetadata } from '@/lib/seo';
+
+export const metadata: Metadata = generateSeoMetadata({
+    title: 'AI Creator Tools',
+    description: 'A suite of intelligent tools designed to streamline your course creation workflow, from outlining content to marketing.',
+    path: '/tools'
+});
 
 type ToolCategory = 'Content Creation' | 'Marketing' | 'Productivity' | 'Engagement' | 'Curriculum Design';
 

@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import prisma from '@/lib/prisma';
 import { MarkdownContent } from '@/components/markdown-content';
+import type { Metadata } from 'next';
+import { generateSeoMetadata } from '@/lib/seo';
 
 export async function generateStaticParams() {
   const posts = await prisma.post.findMany({ where: { published: true } });
@@ -22,6 +24,22 @@ async function getPostBySlug(slug: string) {
     });
     return post;
 }
+
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const post = await getPostBySlug(params.slug);
+
+  if (!post) {
+    return {};
+  }
+
+  return generateSeoMetadata({
+    title: post.title,
+    description: post.description,
+    image: post.image.replace('400/250', '800/400'),
+    path: `/blog/${post.slug}`,
+  });
+}
+
 
 export default async function BlogPostPage({ params }: { params: { slug: string } }) {
   const post = await getPostBySlug(params.slug);

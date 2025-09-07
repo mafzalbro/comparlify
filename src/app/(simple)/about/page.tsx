@@ -1,4 +1,12 @@
 import Image from 'next/image';
+import type { Metadata } from 'next';
+import { generateSeoMetadata } from '@/lib/seo';
+
+export const metadata: Metadata = generateSeoMetadata({
+    title: 'About Us',
+    description: 'Empowering course creators with clarity and confidence. Learn about the mission behind Comparlify.',
+    path: '/about'
+});
 
 export default function AboutPage() {
   return (

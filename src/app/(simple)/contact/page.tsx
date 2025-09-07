@@ -3,6 +3,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Mail, Phone, MapPin } from "lucide-react"
+import type { Metadata } from 'next';
+import { generateSeoMetadata } from '@/lib/seo';
+
+export const metadata: Metadata = generateSeoMetadata({
+    title: 'Contact Us',
+    description: "Get in touch with the Comparlify team. We'd love to hear from you!",
+    path: '/contact'
+});
 
 export default function ContactPage() {
   return (

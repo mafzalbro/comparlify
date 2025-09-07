@@ -10,6 +10,14 @@ import {
 } from '@/components/ui/card';
 import { ArrowRight } from 'lucide-react';
 import prisma from '@/lib/prisma';
+import type { Metadata } from 'next';
+import { generateSeoMetadata } from '@/lib/seo';
+
+export const metadata: Metadata = generateSeoMetadata({
+    title: 'Creator Insights Blog',
+    description: 'Actionable advice, deep dives, and growth strategies for the modern course creator.',
+    path: '/blog'
+});
 
 async function getBlogPosts() {
     const posts = await prisma.post.findMany({
