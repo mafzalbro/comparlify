@@ -1,12 +1,12 @@
 'use client';
 
-import { useActionState } from 'react';
+import React from 'react';
 import { loginUser } from '@/app/actions';
 import { AuthForm } from '@/components/auth/auth-form';
 
 export default function LoginPage() {
   const initialState = { error: null, success: false };
-  const [state, formAction] = useActionState(loginUser, initialState);
+  const [state, formAction] = React.useActionState(loginUser, initialState);
 
   return (
     <div className="container py-16 md:py-24 px-4 md:px-6">

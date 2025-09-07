@@ -1,4 +1,6 @@
 export default function PrivacyPage() {
+  const lastUpdated = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
   return (
     <div className="container py-16 md:py-24 px-4 md:px-6 prose">
       <div className="mx-auto max-w-3xl">
@@ -7,7 +9,7 @@ export default function PrivacyPage() {
             Privacy Policy
           </h1>
           <p className="mt-4 text-lg text-muted-foreground">
-            Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+            Last updated: {lastUpdated}
           </p>
         </div>
 

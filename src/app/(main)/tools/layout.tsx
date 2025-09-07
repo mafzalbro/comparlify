@@ -4,7 +4,6 @@ export default function ToolsLayout({
   children: React.ReactNode;
 }) {
   return (
-      <main className="flex-1 bg-secondary/50">{children}</main>
+      <div className="bg-secondary/50 flex-1">{children}</div>
   );
 }
-    

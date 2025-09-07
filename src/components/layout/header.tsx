@@ -1,11 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Bot } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/logo';
 
@@ -19,7 +18,6 @@ const navLinks = [
 ];
 
 export default function Header() {
-  const pathname = usePathname();
   const [isSheetOpen, setSheetOpen] = useState(false);
 
   const NavLink = ({ href, label }: { href: string; label: string }) => (
@@ -27,7 +25,7 @@ export default function Header() {
       href={href}
       className={cn(
         'text-sm font-medium transition-colors hover:text-primary',
-        pathname.startsWith(href) && href !== '/' || pathname === href ? 'text-primary' : 'text-muted-foreground'
+        'text-muted-foreground'
       )}
       onClick={() => setSheetOpen(false)}
     >

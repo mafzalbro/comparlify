@@ -1,12 +1,8 @@
 
-'use client';
-
-import { useState } from 'react';
 import Link from 'next/link';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -20,7 +16,6 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { motion } from 'framer-motion';
 
 type ToolCategory = 'Content Creation' | 'Marketing' | 'Productivity';
 
@@ -74,8 +69,17 @@ const categories: ToolCategory[] = [
   'Productivity',
 ];
 
-export default function ToolsPage() {
-  const [selectedCategory, setSelectedCategory] = useState<ToolCategory | 'All'>('All');
+function CategoryButton({ category, selectedCategory }: { category: ToolCategory | 'All', selectedCategory: string }) {
+    const isSelected = category.toLowerCase() === selectedCategory.toLowerCase() || (selectedCategory === 'all' && category === 'All');
+    return (
+        <Button asChild variant={isSelected ? 'default' : 'ghost'} className="rounded-md">
+            <Link href={category === 'All' ? '/tools' : `/tools?category=${category}`}>{category}</Link>
+        </Button>
+    )
+}
+
+export default function ToolsPage({ searchParams }: { searchParams?: { category?: string } }) {
+  const selectedCategory = searchParams?.category || 'All';
 
   const filteredTools =
     selectedCategory === 'All'
@@ -95,32 +99,18 @@ export default function ToolsPage() {
 
       <div className="flex justify-center mb-12">
         <div className="flex flex-wrap gap-2 bg-muted p-2 rounded-lg">
-           <Button
-            variant={selectedCategory === 'All' ? 'default' : 'ghost'}
-            onClick={() => setSelectedCategory('All')}
-            className="rounded-md"
-          >
-            All
-          </Button>
+           <CategoryButton category="All" selectedCategory={selectedCategory} />
           {categories.map((category) => (
-            <Button
-              key={category}
-              variant={selectedCategory === category ? 'default' : 'ghost'}
-              onClick={() => setSelectedCategory(category)}
-              className="rounded-md"
-            >
-              {category}
-            </Button>
+            <CategoryButton key={category} category={category} selectedCategory={selectedCategory} />
           ))}
         </div>
       </div>
 
-      <motion.div
-        layout
+      <div
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
       >
         {filteredTools.map((tool) => (
-          <motion.div layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} key={tool.slug}>
+          <div key={tool.slug}>
             <Card className="flex flex-col h-full group overflow-hidden transform hover:-translate-y-1 transition-transform duration-300 shadow-md hover:shadow-xl">
               <CardHeader>
                 <div className="flex items-start justify-between">
@@ -143,9 +133,9 @@ export default function ToolsPage() {
                 </Button>
               </div>
             </Card>
-          </motion.div>
+          </div>
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 }

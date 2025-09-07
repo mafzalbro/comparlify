@@ -3,5 +3,5 @@ export default function CompareLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <main className="flex-1">{children}</main>;
+  return <>{children}</>;
 }

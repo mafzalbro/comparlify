@@ -22,8 +22,6 @@ import {
   Scaling,
   Users,
 } from 'lucide-react';
-import Header from '@/components/layout/header';
-import Footer from '@/components/layout/footer';
 
 const features = [
   {
@@ -81,8 +79,7 @@ const testimonials = [
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col">
-      <main className="flex-1">
+    <>
         {/* Hero Section */}
         <section className="relative h-[80vh] min-h-[600px] w-full overflow-hidden bg-background">
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent z-10" />
@@ -266,7 +263,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-      </main>
-    </div>
+    </>
   );
 }
