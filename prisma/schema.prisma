@@ -1,14 +1,16 @@
+
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
   provider        = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-3.0.x"]
+  binaryTargets   = ["native", "debian-openssl-3.0.x"]
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
   relationMode = "prisma"
 }
 
@@ -17,7 +19,6 @@ model User {
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model Platform {
@@ -32,22 +33,20 @@ model Platform {
 }
 
 model Feature {
-  id          Int               @id @default(autoincrement())
-  name        String            @unique
-  platforms   PlatformFeature[]
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  id        Int               @id @default(autoincrement())
+  name      String            @unique
+  platforms PlatformFeature[]
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
 }
 
 model PlatformFeature {
-  platformId  Int
-  featureId   Int
-  hasFeature  Boolean
-  details     String?           @db.Text
-  platform    Platform          @relation(fields: [platformId], references: [id])
-  feature     Feature           @relation(fields: [featureId], references: [id])
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  platform   Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+  platformId Int
+  feature    Feature  @relation(fields: [featureId], references: [id], onDelete: Cascade)
+  featureId  Int
+  hasFeature Boolean
+  details    String?  @db.Text
 
   @@id([platformId, featureId])
 }
