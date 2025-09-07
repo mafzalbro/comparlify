@@ -1,3 +1,6 @@
+
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -21,34 +24,14 @@ import {
   Lightbulb,
   Scaling,
   Users,
+  BarChart,
+  BrainCircuit,
+  LayoutPanelLeft,
 } from 'lucide-react';
-
-const features = [
-  {
-    icon: <CheckCircle className="h-10 w-10 text-primary" />,
-    title: 'Unbiased Comparisons',
-    description:
-      'Get in-depth, data-driven comparisons of the top platforms for course creation, so you can choose with confidence.',
-  },
-  {
-    icon: <Lightbulb className="h-10 w-10 text-primary" />,
-    title: 'AI-Powered Tools',
-    description:
-      'From generating catchy titles to optimizing your content, our AI tools are designed to save you time and boost your success.',
-  },
-  {
-    icon: <Scaling className="h-10 w-10 text-primary" />,
-    title: 'Growth Strategies',
-    description:
-      'Access our regularly updated blog for expert tips, marketing strategies, and insights to scale your course business.',
-  },
-  {
-    icon: <Users className="h-10 w-10 text-primary" />,
-    title: 'Community Insights',
-    description:
-      'Learn from the experiences of other course creators. Our community-driven data provides real-world perspectives.',
-  },
-];
+import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { cn } from '@/lib/utils';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const testimonials = [
   {
@@ -77,119 +60,186 @@ const testimonials = [
   },
 ];
 
+const fadeIn = {
+  initial: { opacity: 0, y: 30 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.7, ease: "easeOut" },
+};
+
+const staggerContainer = {
+    animate: {
+        transition: {
+            staggerChildren: 0.1,
+        },
+    },
+};
+
+const whyChooseUsTabs = [
+    {
+        value: 'comparisons',
+        title: 'Unbiased Comparisons',
+        Icon: BarChart,
+        description: 'Get in-depth, data-driven comparisons of the top platforms for course creation. We dig into the details so you can choose with absolute confidence.',
+        image: 'https://picsum.photos/500/500?random=10',
+        dataAiHint: 'data chart graph',
+    },
+    {
+        value: 'ai-tools',
+        title: 'Powerful AI Tools',
+        Icon: BrainCircuit,
+        description: 'From generating catchy titles to outlining entire courses, our suite of AI tools is designed to save you time and spark your creativity.',
+        image: 'https://picsum.photos/500/500?random=11',
+        dataAiHint: 'abstract technology circuit',
+    },
+    {
+        value: 'strategies',
+        title: 'Growth Strategies',
+        Icon: Scaling,
+        description: 'Access our regularly updated blog for expert tips, marketing strategies, and insights to help you scale your course business effectively.',
+        image: 'https://picsum.photos/500/500?random=12',
+        dataAiHint: 'business growth chart',
+    }
+]
+
 export default function Home() {
   return (
     <>
         {/* Hero Section */}
-        <section className="relative h-[80vh] min-h-[600px] w-full overflow-hidden bg-background">
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent z-10" />
-          <Image
-            src="https://picsum.photos/1920/1080"
-            alt="A creative workspace for a course creator"
-            data-ai-hint="creative workspace"
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="relative z-20 flex h-full items-center justify-center text-center">
-            <div className="container px-4 md:px-6">
-              <div className="mx-auto max-w-3xl space-y-6">
-                <h1 className="font-headline text-5xl font-bold tracking-tight text-foreground md:text-7xl animate-fade-in-up">
-                  Stop Guessing.
-                  <br />
-                  <span className="text-primary">Start Growing.</span>
-                </h1>
-                <p className="text-lg text-muted-foreground md:text-xl animate-fade-in-up animation-delay-200">
-                  Comparlify provides course creators with the tools, comparisons,
-                  and insights needed to build a successful online business.
-                </p>
-                <div className="animate-fade-in-up animation-delay-400">
+        <section className="relative w-full overflow-hidden bg-background py-32 md:py-48">
+             <div className="absolute inset-0 bg-grid-slate-900/[0.04] bg-[bottom_1px_center] dark:bg-grid-slate-400/[0.05] dark:bg-bottom dark:border-b dark:border-slate-100/5" style={{ maskImage: 'linear-gradient(to bottom, transparent, black, transparent)', WebkitMaskImage: 'linear-gradient(to bottom, transparent, black, transparent)'}}></div>
+             <div className="absolute inset-0 bg-gradient-to-b from-background via-background/80 to-background z-10" />
+
+            <motion.div
+                initial="initial"
+                animate="animate"
+                variants={staggerContainer}
+                className="container relative z-20 flex flex-col items-center justify-center text-center px-4 md:px-6"
+            >
+                <motion.div variants={fadeIn} className="inline-block rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary mb-4">
+                    The Ultimate Co-pilot for Course Creators
+                </motion.div>
+                <motion.h1 
+                    variants={fadeIn}
+                    className="font-headline text-5xl font-bold tracking-tight text-foreground sm:text-6xl md:text-7xl"
+                >
+                    Build, Market & Sell
+                    <br />
+                    <span className="text-primary">Smarter, Not Harder</span>
+                </motion.h1>
+                <motion.p
+                    variants={fadeIn}
+                    className="mt-6 text-lg text-muted-foreground md:text-xl max-w-2xl"
+                >
+                  Comparlify provides the tools, comparisons, and insights you need to turn your expertise into a thriving online business.
+                </motion.p>
+                <motion.div
+                    variants={fadeIn}
+                    className="mt-8 flex flex-wrap justify-center gap-4"
+                >
                   <Button asChild size="lg" className="group">
-                    <Link href="/#features">
-                      Explore Features
+                    <Link href="/tools">
+                      Explore AI Tools
                       <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                     </Link>
                   </Button>
-                </div>
-              </div>
-            </div>
-          </div>
+                   <Button asChild size="lg" variant="outline">
+                    <Link href="/compare">
+                      Compare Platforms
+                    </Link>
+                  </Button>
+                </motion.div>
+            </motion.div>
         </section>
 
-        {/* Features Section */}
-        <section id="features" className="py-16 md:py-24 bg-background">
-          <div className="container px-4 md:px-6">
-            <div className="mx-auto max-w-3xl text-center mb-12">
-              <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
-                Everything You Need to Succeed
-              </h2>
-              <p className="mt-4 text-lg text-muted-foreground">
-                We've built a suite of tools and resources specifically for course
-                creators like you.
-              </p>
-            </div>
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-              {features.map((feature, index) => (
-                <Card
-                  key={feature.title}
-                  className="bg-card/80 backdrop-blur-sm border-2 border-accent/20 hover:border-accent/50 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl"
-                  style={{ animationDelay: `${index * 150}ms`, animationFillMode: 'both' }}
+        {/* Why Choose Us Section */}
+        <section id="why-us" className="py-16 md:py-24 bg-secondary/30">
+            <div className="container px-4 md:px-6">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.5 }}
+                    transition={{ duration: 0.6 }}
+                    className="mx-auto max-w-3xl text-center mb-12"
                 >
-                  <CardHeader className="items-center text-center">
-                    {feature.icon}
-                    <CardTitle className="font-headline text-2xl mt-4">
-                      {feature.title}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-center text-muted-foreground">
-                    {feature.description}
-                  </CardContent>
-                </Card>
-              ))}
+                    <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
+                        Your All-In-One Creator Hub
+                    </h2>
+                    <p className="mt-4 text-lg text-muted-foreground">
+                        Stop juggling dozens of apps. Get everything you need to succeed from a single, powerful dashboard.
+                    </p>
+                </motion.div>
+                
+                <Tabs defaultValue="comparisons" className="w-full">
+                    <motion.div
+                         initial={{ opacity: 0, y: 20 }}
+                         whileInView={{ opacity: 1, y: 0 }}
+                         viewport={{ once: true, amount: 0.5 }}
+                         transition={{ duration: 0.6, delay: 0.2 }}
+                    >
+                    <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 h-auto">
+                        {whyChooseUsTabs.map(tab => (
+                             <TabsTrigger key={tab.value} value={tab.value} className="h-full flex flex-col md:flex-row items-center gap-3 p-4 text-base md:text-sm">
+                                <tab.Icon className="h-6 w-6"/> {tab.title}
+                            </TabsTrigger>
+                        ))}
+                    </TabsList>
+                    </motion.div>
+                    
+                    {whyChooseUsTabs.map(tab => (
+                        <TabsContent key={tab.value} value={tab.value}>
+                           <motion.div
+                                key={tab.value}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 0.5 }}
+                                className="mt-8 bg-card p-8 rounded-xl shadow-lg"
+                           >
+                            <div className="grid items-center gap-12 lg:grid-cols-2">
+                                <div className="space-y-4">
+                                    <div className="bg-primary/20 p-3 rounded-full w-max">
+                                        <tab.Icon className="h-8 w-8 text-primary" />
+                                    </div>
+                                    <h3 className="font-headline text-3xl font-bold text-foreground">{tab.title}</h3>
+                                    <p className="text-lg text-muted-foreground">{tab.description}</p>
+                                    <Button asChild className="group">
+                                        <Link href={tab.value === 'comparisons' ? '/compare' : (tab.value === 'ai-tools' ? '/tools' : '/blog')}>
+                                            Learn More <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                                        </Link>
+                                    </Button>
+                                </div>
+                                <motion.div
+                                     initial={{ scale: 0.9, opacity: 0 }}
+                                     whileInView={{ scale: 1, opacity: 1 }}
+                                     viewport={{ once: true }}
+                                     transition={{ duration: 0.6, delay: 0.2 }}
+                                >
+                                    <Image
+                                        src={tab.image}
+                                        alt={tab.title}
+                                        data-ai-hint={tab.dataAiHint}
+                                        width={500}
+                                        height={500}
+                                        className="w-full h-auto object-cover rounded-lg shadow-xl"
+                                    />
+                                </motion.div>
+                            </div>
+                           </motion.div>
+                        </TabsContent>
+                    ))}
+                </Tabs>
             </div>
-          </div>
         </section>
         
-        {/* AI Tools Spotlight */}
-        <section className="py-16 md:py-24 bg-secondary/50">
-          <div className="container px-4 md:px-6">
-            <div className="grid items-center gap-12 lg:grid-cols-2">
-              <div className="space-y-4">
-                <div className="inline-block rounded-lg bg-primary/20 px-3 py-1 text-sm font-medium text-primary">
-                  AI-Powered
-                </div>
-                <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
-                  Generate Catchy Titles in Seconds
-                </h2>
-                <p className="text-lg text-muted-foreground">
-                  Struggling with the perfect course title? Our AI Title Generator creates engaging, SEO-friendly titles based on your course description. Capture attention and attract more students effortlessly.
-                </p>
-                <Button asChild size="lg" className="group">
-                  <Link href="/tools/title-generator">
-                    Try Title Generator
-                    <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                  </Link>
-                </Button>
-              </div>
-              <div className="rounded-xl overflow-hidden shadow-2xl">
-                 <Image
-                    src="https://picsum.photos/600/400"
-                    alt="AI Title Generator interface"
-                    data-ai-hint="abstract technology"
-                    width={600}
-                    height={400}
-                    className="w-full h-auto object-cover"
-                  />
-              </div>
-            </div>
-          </div>
-        </section>
-
-
         {/* Testimonials Section */}
         <section className="py-16 md:py-24 bg-background">
           <div className="container px-4 md:px-6">
-            <div className="mx-auto max-w-3xl text-center mb-12">
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.5 }}
+                transition={{ duration: 0.6 }}
+                className="mx-auto max-w-3xl text-center mb-12"
+            >
               <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
                 Loved by Creators Worldwide
               </h2>
@@ -197,13 +247,19 @@ export default function Home() {
                 Don't just take our word for it. Here's what creators are saying
                 about Comparlify.
               </p>
-            </div>
+            </motion.div>
+            <motion.div
+                 initial={{ opacity: 0, y: 20 }}
+                 whileInView={{ opacity: 1, y: 0 }}
+                 viewport={{ once: true, amount: 0.5 }}
+                 transition={{ duration: 0.6, delay: 0.2 }}
+            >
             <Carousel
               opts={{
                 align: 'start',
                 loop: true,
               }}
-              className="w-full max-w-4xl mx-auto"
+              className="w-full max-w-6xl mx-auto"
             >
               <CarouselContent>
                 {testimonials.map((testimonial, index) => (
@@ -211,9 +267,9 @@ export default function Home() {
                     key={index}
                     className="md:basis-1/2 lg:basis-1/3"
                   >
-                    <div className="p-1 h-full">
-                      <Card className="flex flex-col justify-between h-full p-6 bg-card/80">
-                        <blockquote className="text-muted-foreground mb-6">
+                    <div className="p-2 h-full">
+                      <Card className="flex flex-col justify-between h-full p-6 bg-card/80 shadow-md">
+                        <blockquote className="text-muted-foreground mb-6 text-base">
                           "{testimonial.quote}"
                         </blockquote>
                         <div className="flex items-center gap-4">
@@ -235,33 +291,40 @@ export default function Home() {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="left-[-50px]" />
-              <CarouselNext className="right-[-50px]" />
+              <CarouselPrevious className="left-[-20px] md:left-[-50px]" />
+              <CarouselNext className="right-[-20px] md:right-[-50px]" />
             </Carousel>
+            </motion.div>
           </div>
         </section>
 
         {/* Final CTA */}
-        <section className="py-20 md:py-32 bg-secondary/50">
-          <div className="container px-4 md:px-6 text-center">
-            <div className="mx-auto max-w-2xl">
-              <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
-                Ready to Elevate Your Course Business?
-              </h2>
-              <p className="mt-4 text-lg text-muted-foreground">
-                Join thousands of successful creators. Access all our tools and
-                resources for free.
-              </p>
-              <div className="mt-8">
-                <Button size="lg" className="group" asChild>
-                  <Link href="/register">
-                    Sign Up for Free
-                    <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </div>
+        <section className="py-20 md:py-32 bg-secondary/30">
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.5 }}
+                transition={{ duration: 0.6 }}
+                className="container px-4 md:px-6 text-center"
+            >
+                <div className="mx-auto max-w-2xl">
+                <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
+                    Ready to Elevate Your Course Business?
+                </h2>
+                <p className="mt-4 text-lg text-muted-foreground">
+                    Join thousands of successful creators. Access all our tools and
+                    resources for free.
+                </p>
+                <div className="mt-8">
+                    <Button size="lg" className="group" asChild>
+                    <Link href="/register">
+                        Sign Up for Free
+                        <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                    </Link>
+                    </Button>
+                </div>
+                </div>
+            </motion.div>
         </section>
     </>
   );
