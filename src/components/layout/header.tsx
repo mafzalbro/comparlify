@@ -17,6 +17,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { LogOut, UserCircle } from 'lucide-react';
 import { MobileNav } from './mobile-nav';
+import { ThemeToggle } from '../theme-toggle';
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -58,7 +59,8 @@ export default function Header() {
             ))}
           </nav>
         </div>
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-2">
+           <ThemeToggle />
           {status === 'loading' ? (
             <div className="h-9 w-20 animate-pulse rounded-md bg-muted" />
           ) : session ? (
@@ -100,7 +102,8 @@ export default function Header() {
             </Button>
           )}
         </div>
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center gap-2">
+          <ThemeToggle />
           {isClient && <MobileNav navLinks={navLinks} session={session} />}
         </div>
       </div>
