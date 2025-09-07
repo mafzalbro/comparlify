@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useFormStatus } from 'react';
+import { useActionState } from 'react';
 import { generateCourseTitleAction } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Lightbulb, Loader2, Sparkles } from 'lucide-react';
+import { useFormStatus } from 'react-dom';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -43,11 +44,11 @@ export default function TitleGeneratorPage() {
     <div className="container py-12 md:py-20">
       <div className="mx-auto max-w-2xl">
         <div className="text-center mb-10">
-            <Lightbulb className="mx-auto h-12 w-12 text-primary mb-4" />
-            <h1 className="font-headline text-4xl md:text-5xl font-bold text-foreground">AI Title Generator</h1>
-            <p className="mt-4 text-lg text-muted-foreground">
-                Craft the perfect title for your course. Let our AI do the hard work!
-            </p>
+          <Lightbulb className="mx-auto h-12 w-12 text-primary mb-4" />
+          <h1 className="font-headline text-4xl md:text-5xl font-bold text-foreground">AI Title Generator</h1>
+          <p className="mt-4 text-lg text-muted-foreground">
+            Craft the perfect title for your course. Let our AI do the hard work!
+          </p>
         </div>
 
         <Card className="shadow-lg">
@@ -82,22 +83,22 @@ export default function TitleGeneratorPage() {
         </Card>
 
         {state.courseTitle && (
-            <Alert className="mt-8 bg-green-50 border-green-200 text-green-800 dark:bg-green-950 dark:border-green-800 dark:text-green-300">
-                <Sparkles className="h-5 w-5 text-green-500 dark:text-green-400" />
-                <AlertTitle className="font-bold text-green-900 dark:text-green-200">Generated Title Suggestion</AlertTitle>
-                <AlertDescription>
-                    {state.courseTitle}
-                </AlertDescription>
-            </Alert>
+          <Alert className="mt-8 bg-green-50 border-green-200 text-green-800 dark:bg-green-950 dark:border-green-800 dark:text-green-300">
+            <Sparkles className="h-5 w-5 text-green-500 dark:text-green-400" />
+            <AlertTitle className="font-bold text-green-900 dark:text-green-200">Generated Title Suggestion</AlertTitle>
+            <AlertDescription>
+              {state.courseTitle}
+            </AlertDescription>
+          </Alert>
         )}
-        
+
         {typeof state.error === 'string' && (
-             <Alert variant="destructive" className="mt-8">
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>
-                    {state.error}
-                </AlertDescription>
-            </Alert>
+          <Alert variant="destructive" className="mt-8">
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>
+              {state.error}
+            </AlertDescription>
+          </Alert>
         )}
       </div>
     </div>

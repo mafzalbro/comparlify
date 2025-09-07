@@ -1,7 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
-  binaryTargets   = ["native", "debian-openssl-3.0.x"]
-  previewFeatures = ["relationJoins"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -19,28 +17,28 @@ model User {
 }
 
 model Feature {
-  id                Int               @id @default(autoincrement())
-  name              String            @unique
-  platforms         PlatformFeature[]
+  id        Int               @id @default(autoincrement())
+  name      String            @unique
+  platforms PlatformFeature[]
 }
 
 model Platform {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
+  id          Int               @id @default(autoincrement())
+  name        String            @unique
   website     String
-  description String   @db.Text
+  description String            @db.Text
   logoUrl     String?
   features    PlatformFeature[]
 }
 
 model PlatformFeature {
-  platformId  Int
-  featureId   Int
-  hasFeature  Boolean
-  details     String?  @db.Text
+  platformId Int
+  featureId  Int
+  hasFeature Boolean
+  details    String? @db.Text
 
-  platform    Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
-  feature     Feature  @relation(fields: [featureId], references: [id], onDelete: Cascade)
+  platform Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+  feature  Feature  @relation(fields: [featureId], references: [id], onDelete: Cascade)
 
   @@id([platformId, featureId])
 }
