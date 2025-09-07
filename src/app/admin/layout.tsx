@@ -12,7 +12,7 @@ import {
     SidebarGroupLabel,
     SidebarFooter
 } from "@/components/ui/sidebar";
-import { Home, Settings, Table, PenSquare, LogOut, BookText, GitCompareArrows } from "lucide-react";
+import { Home, Settings, Table, PenSquare, LogOut, BookText, GitCompareArrows, Users } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogoutButton } from "@/components/auth/logout-button";
@@ -63,6 +63,14 @@ export default function AdminLayout({
                                     <SidebarMenuButton tooltip="Platforms">
                                         <Table />
                                         Platforms
+                                    </SidebarMenuButton>
+                                </Link>
+                            </SidebarMenuItem>
+                             <SidebarMenuItem>
+                                <Link href="/admin/users">
+                                    <SidebarMenuButton tooltip="Users">
+                                        <Users />
+                                        Users
                                     </SidebarMenuButton>
                                 </Link>
                             </SidebarMenuItem>
