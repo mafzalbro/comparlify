@@ -34,7 +34,6 @@ import { WelcomeOnboarding } from '@/components/welcome-onboarding';
 import type { Post, User } from '@prisma/client';
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { Parallax } from 'react-parallax';
 
 
 const testimonials = [
@@ -132,37 +131,41 @@ export default function Home() {
     <>
       {showOnboarding && <WelcomeOnboarding user={session.user} />}
       
-      <Parallax bgImage="https://picsum.photos/1920/1080?random=hero" bgImageAlt="hero background" strength={300}>
-        <section className="relative w-full overflow-hidden h-[70vh] flex items-center justify-center">
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
-            <div className="container relative z-20 flex flex-col items-center justify-center text-center px-4 md:px-6 text-foreground">
-            <div className="inline-block rounded-full bg-primary/20 px-4 py-1.5 text-sm font-medium text-primary mb-4 backdrop-blur-sm">
-                The Ultimate Co-pilot for Course Creators
-            </div>
-            <h1 className="font-headline text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl">
-                Build, Market & Sell
-                <br />
-                <span className="text-primary">Smarter, Not Harder</span>
-            </h1>
-            <p className="mt-6 text-lg md:text-xl max-w-2xl">
-                Comparlify provides the tools, comparisons, and insights you need to turn your expertise into a thriving online business.
-            </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-4">
-                <Button asChild size="lg" className="group">
-                <Link href="/tools">
-                    Explore AI Tools
-                    <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                </Link>
-                </Button>
-                <Button asChild size="lg" variant="outline">
-                <Link href="/compare">
-                    Compare Platforms
-                </Link>
-                </Button>
-            </div>
-            </div>
-        </section>
-      </Parallax>
+      <section className="relative w-full h-[70vh] flex items-center justify-center overflow-hidden">
+        <Image 
+          src="https://picsum.photos/1920/1080?random=hero" 
+          alt="hero background" 
+          fill
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
+        <div className="container relative z-10 flex flex-col items-center justify-center text-center px-4 md:px-6 text-foreground">
+        <div className="inline-block rounded-full bg-primary/20 px-4 py-1.5 text-sm font-medium text-primary mb-4 backdrop-blur-sm">
+            The Ultimate Co-pilot for Course Creators
+        </div>
+        <h1 className="font-headline text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl">
+            Build, Market & Sell
+            <br />
+            <span className="text-primary">Smarter, Not Harder</span>
+        </h1>
+        <p className="mt-6 text-lg md:text-xl max-w-2xl">
+            Comparlify provides the tools, comparisons, and insights you need to turn your expertise into a thriving online business.
+        </p>
+        <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <Button asChild size="lg" className="group">
+            <Link href="/tools">
+                Explore AI Tools
+                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+            </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+            <Link href="/compare">
+                Compare Platforms
+            </Link>
+            </Button>
+        </div>
+        </div>
+    </section>
 
       {/* Why Choose Us Section */}
       <section id="why-us" className="py-16 md:py-24 bg-secondary/30">
