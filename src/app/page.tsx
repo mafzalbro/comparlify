@@ -82,7 +82,6 @@ const testimonials = [
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative h-[80vh] min-h-[600px] w-full overflow-hidden bg-background">
@@ -266,7 +265,7 @@ export default function Home() {
           </div>
         </section>
       </main>
-      <Footer />
     </div>
   );
 }
+    
