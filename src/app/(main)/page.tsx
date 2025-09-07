@@ -96,7 +96,7 @@ const whyChooseUsTabs = [
         title: 'Unbiased Comparisons',
         Icon: BarChart,
         description: 'Get in-depth, data-driven comparisons of the top platforms for course creation. We dig into the details so you can choose with absolute confidence.',
-        image: 'https://picsum.photos/500/500?random=10',
+        image: 'https://picsum.photos/400/400?random=10',
         dataAiHint: 'data chart graph',
     },
     {
@@ -104,7 +104,7 @@ const whyChooseUsTabs = [
         title: 'Powerful AI Tools',
         Icon: BrainCircuit,
         description: 'From generating catchy titles to outlining entire courses, our suite of AI tools is designed to save you time and spark your creativity.',
-        image: 'https://picsum.photos/500/500?random=11',
+        image: 'https://picsum.photos/400/400?random=11',
         dataAiHint: 'abstract technology circuit',
     },
     {
@@ -112,7 +112,7 @@ const whyChooseUsTabs = [
         title: 'Growth Strategies',
         Icon: Scaling,
         description: 'Access our regularly updated blog for expert tips, marketing strategies, and insights to help you scale your course business effectively.',
-        image: 'https://picsum.photos/500/500?random=12',
+        image: 'https://picsum.photos/400/400?random=12',
         dataAiHint: 'business growth chart',
     }
 ]
@@ -231,7 +231,7 @@ export default function Home() {
                                     </div>
                                     <h3 className="font-headline text-3xl font-bold text-foreground">{tab.title}</h3>
                                     <p className="text-lg text-muted-foreground">{tab.description}</p>
-                                    <Button asChild className="group">
+                                    <Button asChild className="group rounded-full">
                                         <Link href={tab.value === 'comparisons' ? '/compare' : (tab.value === 'ai-tools' ? '/tools' : '/blog')}>
                                             Learn More <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                                         </Link>
@@ -247,8 +247,8 @@ export default function Home() {
                                         src={tab.image}
                                         alt={tab.title}
                                         data-ai-hint={tab.dataAiHint}
-                                        width={500}
-                                        height={500}
+                                        width={400}
+                                        height={400}
                                         className="w-full h-auto object-cover rounded-lg shadow-xl"
                                     />
                                 </motion.div>
