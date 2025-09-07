@@ -1,51 +1,38 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
 generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+model Platform {
+  id          Int               @id @default(autoincrement())
+  name        String            @unique
+  website     String
+  description String
+  logoUrl     String
+  features    PlatformFeature[]
 }
 
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+model Feature {
+  id        Int               @id @default(autoincrement())
+  name      String            @unique
+  platforms PlatformFeature[]
 }
 
-model Comparison {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  title       String
-  description String   @db.Text
-  content     Json
-  published   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
+model PlatformFeature {
+  id         Int      @id @default(autoincrement())
+  platform   Platform @relation(fields: [platformId], references: [id])
+  platformId Int
+  feature    Feature  @relation(fields: [featureId], references: [id])
+  featureId  Int
+  hasFeature Boolean
+  details    String?
 
-model Post {
-  id        String   @id @default(cuid())
-  slug      String   @unique
-  title     String
-  content   String   @db.Text
-  published Boolean  @default(false)
-  authorId  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model ChatMessage {
-  id        String   @id @default(cuid())
-  role      String // 'user' or 'assistant'
-  content   String   @db.Text
-  createdAt DateTime @default(now())
-  userId    String?
+  @@unique([platformId, featureId])
 }
