@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart } from "lucide-react";
+import { BarChart, PenSquare, Table, Lightbulb } from "lucide-react";
 
 export default function AdminDashboardPage() {
     return (
