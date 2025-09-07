@@ -47,8 +47,12 @@ export default function Header() {
           </nav>
         </div>
         <div className="hidden md:flex items-center gap-4">
-          <Button variant="ghost">Log in</Button>
-          <Button>Sign Up</Button>
+          <Button variant="ghost" asChild>
+            <Link href="/login">Log in</Link>
+          </Button>
+          <Button asChild>
+            <Link href="/register">Sign Up</Link>
+          </Button>
         </div>
         <div className="md:hidden">
           <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
@@ -67,8 +71,12 @@ export default function Header() {
                   ))}
                 </nav>
                 <div className="mt-8 flex flex-col gap-4">
-                  <Button variant="ghost">Log in</Button>
-                  <Button>Sign Up</Button>
+                  <Button variant="ghost" asChild>
+                    <Link href="/login">Log in</Link>
+                  </Button>
+                  <Button asChild>
+                    <Link href="/register">Sign Up</Link>
+                  </Button>
                 </div>
               </div>
             </SheetContent>

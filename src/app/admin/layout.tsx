@@ -12,9 +12,10 @@ import {
     SidebarGroupLabel,
     SidebarFooter
   } from "@/components/ui/sidebar";
-import { Home, Settings, Table, PenSquare } from "lucide-react";
+import { Home, Settings, Table, PenSquare, LogOut } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { LogoutButton } from "@/components/auth/logout-button";
   
   export default function AdminLayout({
     children,
@@ -59,6 +60,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
                                 <Settings />
                                 Settings
                             </SidebarMenuButton>
+                        </SidebarMenuItem>
+                         <SidebarMenuItem>
+                           <LogoutButton>
+                             <SidebarMenuButton tooltip="Logout" isRequesting>
+                                <LogOut />
+                                Logout
+                            </SidebarMenuButton>
+                           </LogoutButton>
                         </SidebarMenuItem>
                         <SidebarMenuItem>
                             <div className="flex items-center gap-2 p-2">

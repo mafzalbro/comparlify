@@ -256,9 +256,11 @@ export default function Home() {
                 resources for free.
               </p>
               <div className="mt-8">
-                <Button size="lg" className="group">
-                  Sign Up for Free
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                <Button size="lg" className="group" asChild>
+                  <Link href="/register">
+                    Sign Up for Free
+                    <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                  </Link>
                 </Button>
               </div>
             </div>
@@ -268,4 +270,3 @@ export default function Home() {
     </div>
   );
 }
-    
