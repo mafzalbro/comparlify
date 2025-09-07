@@ -1,6 +1,4 @@
 
-'use client';
-
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -30,10 +28,10 @@ import {
     BarChart,
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { WelcomeOnboarding } from '@/components/welcome-onboarding';
 import type { Post, User } from '@prisma/client';
-import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { auth } from '@/lib/auth';
+import prisma from '@/lib/prisma';
+import { HomePageClient } from '@/components/home-page-client';
 
 
 const testimonials = [
@@ -119,17 +117,23 @@ const whyChooseUsTabs = [
 
 type PostWithAuthor = Post & { author: User };
 
+async function getRecentPosts(): Promise<PostWithAuthor[]> {
+    return prisma.post.findMany({
+        where: { published: true },
+        orderBy: { createdAt: 'desc' },
+        take: 3,
+        include: { author: true },
+    });
+}
 
-export default function Home() {
-    const { data: session } = useSession();
-    const showOnboarding = session?.user && !session.user.onboarded;
 
-    // Data will be fetched on the client side, or passed in as props later.
-    const [recentPosts, setRecentPosts] = useState<PostWithAuthor[]>([]);
+export default async function Home() {
+    const session = await auth();
+    const recentPosts = await getRecentPosts();
 
     return (
         <>
-            {showOnboarding && <WelcomeOnboarding user={session.user} />}
+            <HomePageClient session={session} />
 
             <section className="relative w-full min-h-[70vh] py-10 flex items-center justify-center overflow-hidden">
                 <Image
