@@ -56,7 +56,7 @@ export default function TitleGeneratorPage() {
               <CardTitle className="font-headline">Describe Your Course</CardTitle>
               <CardDescription>
                 Enter a detailed description of your course content below. The more detail you provide, the better the title suggestions will be.
-              </Description>
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid w-full items-center gap-4">
