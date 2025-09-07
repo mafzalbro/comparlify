@@ -1,18 +1,48 @@
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Mail, Phone, MapPin } from "lucide-react"
-import type { Metadata } from 'next';
-import { generateSeoMetadata } from '@/lib/seo';
+'use client';
 
-export const metadata: Metadata = generateSeoMetadata({
-    title: 'Contact Us',
-    description: "Get in touch with the Comparlify team. We'd love to hear from you!",
-    path: '/contact'
-});
+import { useActionState, useEffect, useRef } from 'react';
+import { useFormStatus } from 'react-dom';
+import { sendContactMessageAction } from '@/app/actions';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Mail, Phone, MapPin, Loader2, Send, CheckCircle, AlertTriangle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" className="w-full" disabled={pending}>
+      {pending ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Sending...
+        </>
+      ) : (
+        <>
+          <Send className="mr-2 h-4 w-4" />
+          Send Message
+        </>
+      )}
+    </Button>
+  );
+}
 
 export default function ContactPage() {
+  const formRef = useRef<HTMLFormElement>(null);
+  const [state, formAction] = useActionState(sendContactMessageAction, {
+    error: null,
+    success: false,
+  });
+
+   useEffect(() => {
+    if (state.success) {
+      formRef.current?.reset();
+    }
+  }, [state.success]);
+
+
   return (
     <div className="container py-16 md:py-24 px-4 md:px-6">
       <div className="mx-auto max-w-4xl">
@@ -58,20 +88,44 @@ export default function ContactPage() {
             </div>
           </div>
           
-          <form className="space-y-6 bg-card p-8 rounded-lg shadow-md">
+          <form ref={formRef} action={formAction} className="space-y-6 bg-card p-8 rounded-lg shadow-md">
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
-              <Input id="name" placeholder="Your Name" />
+              <Input id="name" name="name" placeholder="Your Name" required />
+              {state.error?.name && <p className="text-sm text-destructive">{state.error.name[0]}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="you@example.com" />
+              <Input id="email" name="email" type="email" placeholder="you@example.com" required />
+               {state.error?.email && <p className="text-sm text-destructive">{state.error.email[0]}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="message">Message</Label>
-              <Textarea id="message" placeholder="How can we help you?" rows={5} />
+              <Textarea id="message" name="message" placeholder="How can we help you?" rows={5} required />
+               {state.error?.message && <p className="text-sm text-destructive">{state.error.message[0]}</p>}
             </div>
-            <Button type="submit" className="w-full">Send Message</Button>
+
+            {state.success && (
+                <Alert variant="default" className="bg-green-50 border-green-200 text-green-800 dark:bg-green-950 dark:border-green-800 dark:text-green-300">
+                    <CheckCircle className="h-4 w-4 !text-green-500" />
+                    <AlertTitle>Success!</AlertTitle>
+                    <AlertDescription>
+                        Your message has been sent successfully. We'll get back to you soon.
+                    </AlertDescription>
+                </Alert>
+            )}
+
+            {typeof state.error === 'string' && (
+                 <Alert variant="destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>
+                        {state.error}
+                    </AlertDescription>
+                </Alert>
+            )}
+
+            <SubmitButton />
           </form>
         </div>
       </div>

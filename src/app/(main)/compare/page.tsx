@@ -117,8 +117,8 @@ export default async function ComparePage({
 
         <Card className="mb-12 p-4 md:p-6 shadow-lg bg-card/60">
           <form className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
-                <div className="lg:col-span-2 space-y-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
+                <div className="space-y-2">
                     <Label htmlFor="search">Search</Label>
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -144,7 +144,7 @@ export default async function ComparePage({
                         </SelectContent>
                     </Select>
                 </div>
-                <div className="lg:col-span-2 flex items-end gap-2">
+                <div className="flex items-end gap-2">
                     <Button type="submit" className="w-full">
                         Apply Filters
                     </Button>
