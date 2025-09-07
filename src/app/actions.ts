@@ -711,3 +711,70 @@ export async function deletePost(id: string) {
   }
   redirect("/admin/blog");
 }
+
+
+// --- Comparison Actions ---
+
+const comparisonSchema = z.object({
+  title: z.string().min(3),
+  slug: z.string().min(3),
+  summary: z.string().min(10),
+  platformAId: z.string(),
+  platformBId: z.string(),
+  introduction: z.string().min(20),
+  conclusion: z.string().min(20),
+  published: z.preprocess((val) => val === "on", z.boolean()),
+}).refine(data => data.platformAId !== data.platformBId, {
+    message: "Platform A and Platform B cannot be the same.",
+    path: ["platformBId"],
+});
+
+export async function createComparison(formData: FormData) {
+  const validatedFields = comparisonSchema.safeParse(Object.fromEntries(formData.entries()));
+
+  if (!validatedFields.success) {
+    return { error: validatedFields.error.flatten().fieldErrors };
+  }
+
+  try {
+    await prisma.comparison.create({ data: validatedFields.data });
+    revalidatePath('/admin/comparisons');
+    revalidatePath('/compare');
+  } catch (error) {
+    return { error: 'Failed to create comparison.' };
+  }
+
+  redirect('/admin/comparisons');
+}
+
+export async function updateComparison(id: string, formData: FormData) {
+  const validatedFields = comparisonSchema.safeParse(Object.fromEntries(formData.entries()));
+
+  if (!validatedFields.success) {
+    return { error: validatedFields.error.flatten().fieldErrors };
+  }
+
+  try {
+    await prisma.comparison.update({
+      where: { id },
+      data: validatedFields.data,
+    });
+    revalidatePath('/admin/comparisons');
+    revalidatePath(`/compare/${validatedFields.data.slug}`);
+  } catch (error) {
+    return { error: 'Failed to update comparison.' };
+  }
+
+  redirect('/admin/comparisons');
+}
+
+export async function deleteComparison(id: string) {
+  try {
+    await prisma.comparison.delete({ where: { id } });
+    revalidatePath('/admin/comparisons');
+    revalidatePath('/compare');
+  } catch (error) {
+    return { error: 'Failed to delete comparison.' };
+  }
+  redirect('/admin/comparisons');
+}
