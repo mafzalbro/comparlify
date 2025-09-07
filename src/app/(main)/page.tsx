@@ -146,18 +146,18 @@ export default async function Home() {
              */}
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
                 <div className="container relative z-10 flex flex-col items-center justify-center text-center px-4 md:px-6 text-foreground">
-                    <div className="inline-block rounded-full bg-primary/20 px-4 py-1.5 text-sm font-medium text-primary mb-4 backdrop-blur-sm">
+                    <div className="inline-block rounded-full bg-primary/20 px-4 py-1.5 text-sm font-medium text-primary mb-4 backdrop-blur-sm animate-fade-in-up">
                         The Ultimate Co-pilot for Course Creators
                     </div>
-                    <h1 className="font-headline text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl">
+                    <h1 className="font-headline text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl animate-fade-in-up animation-delay-200">
                         Build, Market & Sell
                         <br />
                         <span className="text-primary">Smarter, Not Harder</span>
                     </h1>
-                    <p className="mt-6 text-lg md:text-xl max-w-2xl">
+                    <p className="mt-6 text-lg md:text-xl max-w-2xl animate-fade-in-up animation-delay-400">
                         Comparlify provides the tools, comparisons, and insights you need to turn your expertise into a thriving online business.
                     </p>
-                    <div className="mt-8 flex flex-wrap justify-center gap-4">
+                    <div className="mt-8 flex flex-wrap justify-center gap-4 animate-fade-in-up animation-delay-600">
                         <Button asChild size="lg" className="group">
                             <Link href="/tools">
                                 Explore AI Tools
@@ -177,7 +177,7 @@ export default async function Home() {
             <section id="why-us" className="py-16 md:py-24 bg-secondary/30">
                 <div className="container px-4 md:px-6">
                     <div
-                        className="mx-auto max-w-3xl text-center mb-12"
+                        className="mx-auto max-w-3xl text-center mb-12 animate-fade-in-up"
                     >
                         <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
                             Your All-In-One Creator Hub
@@ -187,7 +187,7 @@ export default async function Home() {
                         </p>
                     </div>
 
-                    <Tabs defaultValue="comparisons" className="w-full">
+                    <Tabs defaultValue="comparisons" className="w-full animate-fade-in-up animation-delay-200">
                         <div>
                             <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 h-auto">
                                 {whyChooseUsTabs.map(tab => (
@@ -239,7 +239,7 @@ export default async function Home() {
             <section className="py-16 md:py-24 bg-background">
                 <div className="container px-4 md:px-6">
                     <div
-                        className="mx-auto max-w-3xl text-center mb-12"
+                        className="mx-auto max-w-3xl text-center mb-12 animate-fade-in-up"
                     >
                         <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
                             Supercharge Your Workflow
@@ -253,7 +253,7 @@ export default async function Home() {
                         className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4"
                     >
                         {featuredTools.map((tool, index) => (
-                            <div key={index}>
+                            <div key={index} className="animate-fade-in-up" style={{ animationDelay: `${index * 150}ms`}}>
                                 <Card className="bg-card/60 backdrop-blur-lg border border-border/20 flex h-full transform flex-col items-center p-6 text-center transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl">
                                     <div className="mb-4 rounded-full bg-primary/20 p-4">
                                         <tool.Icon className="h-8 w-8 text-primary" />
@@ -277,7 +277,7 @@ export default async function Home() {
                 <section className="py-16 md:py-24 bg-secondary/30">
                     <div className="container px-4 md:px-6">
                         <div
-                            className="mx-auto max-w-3xl text-center mb-12"
+                            className="mx-auto max-w-3xl text-center mb-12 animate-fade-in-up"
                         >
                             <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
                                 Creator Insights
@@ -289,10 +289,10 @@ export default async function Home() {
                         <div
                             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
                         >
-                            {recentPosts.map((post) => {
+                            {recentPosts.map((post, index) => {
                                 const readTime = Math.ceil(post.content.split(/\s+/).length / 200);
                                 return (
-                                    <div key={post.slug}>
+                                    <div key={post.slug} className="animate-fade-in-up" style={{ animationDelay: `${index * 150}ms`}}>
                                         <Card className="bg-card/60 backdrop-blur-lg border border-border/20 flex flex-col overflow-hidden group h-full">
                                             <div className="relative overflow-hidden aspect-[16/10]">
                                                 <Link href={`/blog/${post.slug}`} className="block">
@@ -338,7 +338,7 @@ export default async function Home() {
             <section className="py-16 md:py-24 bg-background">
                 <div className="container px-4 md:px-6">
                     <div
-                        className="mx-auto max-w-3xl text-center mb-12"
+                        className="mx-auto max-w-3xl text-center mb-12 animate-fade-in-up"
                     >
                         <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
                             Loved by Creators Worldwide
@@ -349,6 +349,7 @@ export default async function Home() {
                         </p>
                     </div>
                     <div
+                     className="animate-fade-in-up animation-delay-200"
                     >
                         <Carousel
                             opts={{
@@ -397,7 +398,7 @@ export default async function Home() {
             {/* Final CTA */}
             <section className="py-20 md:py-32 bg-secondary/30">
                 <div
-                    className="container px-4 md:px-6 text-center"
+                    className="container px-4 md:px-6 text-center animate-fade-in-up"
                 >
                     <div className="mx-auto max-w-2xl">
                         <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
