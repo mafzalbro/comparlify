@@ -86,16 +86,17 @@ const SortableHeader = ({
     )
 }
 
-export default async function AdminUsersPage({
-  searchParams,
-}: {
-  searchParams: {
-    search?: string;
-    role?: Role | 'all';
-    sortBy?: keyof User;
-    sortOrder?: 'asc' | 'desc';
-  };
-}) {
+export default async function AdminUsersPage(
+  props: {
+    searchParams: Promise<{
+      search?: string;
+      role?: Role | 'all';
+      sortBy?: keyof User;
+      sortOrder?: 'asc' | 'desc';
+    }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const { search, role, sortBy, sortOrder } = searchParams;
   const users = await getUsers({ search, role, sortBy, sortOrder });
 

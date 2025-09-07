@@ -9,7 +9,8 @@ async function getComparison(id: string) {
   return comparison;
 }
 
-export default async function EditComparisonPage({ params }: { params: { id: string } }) {
+export default async function EditComparisonPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const [comparison, platforms] = await Promise.all([
     getComparison(params.id),
     prisma.platform.findMany()
