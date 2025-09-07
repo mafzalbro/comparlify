@@ -977,8 +977,21 @@ const platformSchema = z.object({
     support: z.coerce.number().min(0).max(5).optional(),
 });
 
+type PlatformActionState = {
+    error: {
+        name?: string[];
+        website?: string[];
+        logoUrl?: string[];
+        description?: string[];
+        rating?: string[];
+        easeOfUse?: string[];
+        featuresRating?: string[];
+        support?: string[];
+    } | string | null;
+}
 
-export async function createPlatform(prevState: any, formData: FormData) {
+
+export async function createPlatform(prevState: PlatformActionState, formData: FormData) {
   const validatedFields = platformSchema.safeParse(Object.fromEntries(formData.entries()));
 
   if (!validatedFields.success) {
@@ -999,7 +1012,7 @@ export async function createPlatform(prevState: any, formData: FormData) {
 }
 
 
-export async function updatePlatform(id: string, prevState: any, formData: FormData) {
+export async function updatePlatform(id: string, prevState: PlatformActionState, formData: FormData) {
   const formDataObj = Object.fromEntries(formData.entries());
   
   const validatedFields = platformSchema.safeParse(formDataObj);

@@ -75,12 +75,12 @@ export default function AdminLayout({
                                 </Link>
                             </SidebarMenuItem>
                             <SidebarMenuItem>
-                                {/* <Link href="/admin/features"> */}
-                                <SidebarMenuButton tooltip="Features" disabled>
-                                    <PenSquare />
-                                    Features
-                                </SidebarMenuButton>
-                                {/* </Link> */}
+                                <Link href="#">
+                                    <SidebarMenuButton tooltip="Features" disabled>
+                                        <PenSquare />
+                                        Features
+                                    </SidebarMenuButton>
+                                </Link>
                             </SidebarMenuItem>
                         </SidebarGroup>
                     </SidebarMenu>
@@ -88,12 +88,12 @@ export default function AdminLayout({
                 <SidebarFooter>
                     <SidebarMenu>
                         <SidebarMenuItem>
-                            {/* <Link href="/admin/settings"> */}
-                            <SidebarMenuButton tooltip="Settings" disabled>
-                                <Settings />
-                                Settings
-                            </SidebarMenuButton>
-                            {/* </Link> */}
+                            <Link href="#">
+                                <SidebarMenuButton tooltip="Settings" disabled>
+                                    <Settings />
+                                    Settings
+                                </SidebarMenuButton>
+                            </Link>
                         </SidebarMenuItem>
                         <SidebarMenuItem>
                             <LogoutButton>

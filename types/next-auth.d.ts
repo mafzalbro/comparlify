@@ -1,15 +1,25 @@
-import NextAuth, { type DefaultSession } from 'next-auth';
+import { type DefaultSession } from 'next-auth';
+import type { Role } from '@prisma/client';
 
 declare module 'next-auth' {
+  /**
+   * Returned by `auth`, `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
+   */
   interface Session {
     user: {
-      role: 'USER' | 'ADMIN';
+      /** The user's role. */
+      role: Role;
+      /** The user's onboarding status. */
       onboarded: boolean;
+      /**
+       * By default, TypeScript merges new interface properties.
+       * Ref: https://www.typescriptlang.org/docs/handbook/declaration-merging.html
+       */
     } & DefaultSession['user'];
   }
 
   interface User {
-    role: 'USER' | 'ADMIN';
-    onboarded: boolean;
+      role: Role;
+      onboarded: boolean;
   }
 }

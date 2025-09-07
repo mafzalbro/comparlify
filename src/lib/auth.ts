@@ -3,7 +3,8 @@ import { PrismaAdapter } from '@auth/prisma-adapter';
 import Google from 'next-auth/providers/google';
 import GitHub from 'next-auth/providers/github';
 import prisma from './prisma';
-import type { Adapter } from 'next-auth/adapters';
+import type { Adapter, AdapterUser } from 'next-auth/adapters';
+import type { User as DbUser } from '@prisma/client';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma) as Adapter,
@@ -18,7 +19,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async session({ session, user }) {
+    async session({ session, user }: { session: any, user: AdapterUser | DbUser }) {
       if (user.email === 'mafzalbro@gmail.com' && user.role !== 'ADMIN') {
         user.role = 'ADMIN';
         await prisma.user.update({
@@ -31,7 +32,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       session.user.onboarded = user.onboarded;
       return session;
     },
-    async signIn({ user, account, profile }) {
+    async signIn({ user }) {
       if (user.email === 'mafzalbro@gmail.com') {
          const dbUser = await prisma.user.findUnique({
            where: { email: user.email },
@@ -43,7 +44,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                data: { role: 'ADMIN' },
              });
            }
-           user.role = 'ADMIN';
          }
       }
       return true;
@@ -61,6 +61,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   pages: {
     signIn: '/login',
-    // error: '/auth/error', // Optional: Custom error page
   },
 });
