@@ -32,7 +32,7 @@ async function getUsers({
   sortOrder,
 }: {
   search?: string;
-  role?: Role;
+  role?: Role | 'all';
   sortBy?: keyof User;
   sortOrder?: 'asc' | 'desc';
 }) {
@@ -96,10 +96,7 @@ export default async function AdminUsersPage({
     sortOrder?: 'asc' | 'desc';
   };
 }) {
-  const users = await getUsers({
-      ...searchParams,
-      role: searchParams.role === 'all' ? undefined : searchParams.role,
-  });
+  const users = await getUsers(searchParams);
 
   const baseUrl = `/admin/users?search=${searchParams.search || ''}&role=${searchParams.role || ''}`;
 
