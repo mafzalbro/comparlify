@@ -35,7 +35,7 @@ export function DeleteComparisonButton({ id }: { id: string }) {
         <Button variant="destructive" size="sm">Delete</Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
-        <form action={deleteComparison.bind(null, id)}>
+        <form action={() => deleteComparison(id)}>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>

@@ -35,7 +35,7 @@ export function DeletePostButton({ id }: { id: string }) {
         <Button variant="destructive" size="sm">Delete</Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
-        <form action={deletePost.bind(null, id)}>
+        <form action={() => deletePost(id)}>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>

@@ -35,7 +35,7 @@ export function DeletePlatformButton({ id }: { id: string }) {
         <Button variant="destructive" size="sm">Delete</Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
-        <form action={deletePlatform.bind(null, id)}>
+        <form action={() => deletePlatform(id)}>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>

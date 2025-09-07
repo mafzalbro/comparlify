@@ -992,7 +992,7 @@ type PlatformActionState = {
 }
 
 
-export async function createPlatform(prevState: PlatformActionState, formData: FormData) {
+export async function createPlatform(prevState: any, formData: FormData) {
   const validatedFields = platformSchema.safeParse(Object.fromEntries(formData.entries()));
 
   if (!validatedFields.success) {
@@ -1013,7 +1013,7 @@ export async function createPlatform(prevState: PlatformActionState, formData: F
 }
 
 
-export async function updatePlatform(id: string, prevState: PlatformActionState, formData: FormData) {
+export async function updatePlatform(id: string, prevState: any, formData: FormData) {
   const formDataObj = Object.fromEntries(formData.entries());
   
   const validatedFields = platformSchema.safeParse(formDataObj);
@@ -1085,5 +1085,3 @@ export async function deletePlatform(id: string) {
   }
   redirect('/admin/platforms');
 }
-
-    
