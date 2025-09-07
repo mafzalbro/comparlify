@@ -28,12 +28,12 @@ import {
   Scaling,
   BarChart,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WelcomeOnboarding } from '@/components/welcome-onboarding';
 import type { Post, User } from '@prisma/client';
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
+import { Parallax } from 'react-parallax';
 
 
 const testimonials = [
@@ -117,21 +117,6 @@ const whyChooseUsTabs = [
     }
 ]
 
-
-const fadeIn = {
-  initial: { opacity: 0, y: 30 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.7, ease: "easeOut" },
-};
-
-const staggerContainer = {
-    animate: {
-        transition: {
-            staggerChildren: 0.1,
-        },
-    },
-};
-
 type PostWithAuthor = Post & { author: User };
 
 
@@ -145,62 +130,43 @@ export default function Home() {
   return (
     <>
       {showOnboarding && <WelcomeOnboarding user={session.user} />}
-
-      {/* Hero Section */}
-      <motion.section
-        initial="initial"
-        animate="animate"
-        variants={staggerContainer}
-        className="relative w-full overflow-hidden bg-background py-32 md:py-48"
-      >
-        <div className="absolute inset-0 bg-grid-slate-900/[0.04] bg-[bottom_1px_center] dark:bg-grid-slate-400/[0.05] dark:bg-bottom dark:border-b dark:border-slate-100/5" style={{ maskImage: 'linear-gradient(to bottom, transparent, black, transparent)', WebkitMaskImage: 'linear-gradient(to bottom, transparent, black, transparent)'}}></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/80 to-background z-10" />
-
-        <div className="container relative z-20 flex flex-col items-center justify-center text-center px-4 md:px-6">
-          <motion.div variants={fadeIn} className="inline-block rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary mb-4">
-              The Ultimate Co-pilot for Course Creators
-          </motion.div>
-          <motion.h1
-              variants={fadeIn}
-              className="font-headline text-5xl font-bold tracking-tight text-foreground sm:text-6xl md:text-7xl"
-          >
-              Build, Market & Sell
-              <br />
-              <span className="text-primary">Smarter, Not Harder</span>
-          </motion.h1>
-          <motion.p
-              variants={fadeIn}
-              className="mt-6 text-lg text-muted-foreground md:text-xl max-w-2xl"
-          >
-            Comparlify provides the tools, comparisons, and insights you need to turn your expertise into a thriving online business.
-          </motion.p>
-          <motion.div
-              variants={fadeIn}
-              className="mt-8 flex flex-wrap justify-center gap-4"
-          >
-            <Button asChild size="lg" className="group">
-              <Link href="/tools">
-                Explore AI Tools
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Button>
-              <Button asChild size="lg" variant="outline">
-              <Link href="/compare">
-                Compare Platforms
-              </Link>
-            </Button>
-          </motion.div>
-        </div>
-      </motion.section>
+      
+      <Parallax bgImage="https://picsum.photos/1920/1080?random=hero" bgImageAlt="hero background" strength={300}>
+        <section className="relative w-full overflow-hidden h-[70vh] flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/50" />
+            <div className="container relative z-20 flex flex-col items-center justify-center text-center px-4 md:px-6 text-white">
+            <div className="inline-block rounded-full bg-primary/20 px-4 py-1.5 text-sm font-medium text-primary mb-4 backdrop-blur-sm">
+                The Ultimate Co-pilot for Course Creators
+            </div>
+            <h1 className="font-headline text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl">
+                Build, Market & Sell
+                <br />
+                <span className="text-primary">Smarter, Not Harder</span>
+            </h1>
+            <p className="mt-6 text-lg md:text-xl max-w-2xl">
+                Comparlify provides the tools, comparisons, and insights you need to turn your expertise into a thriving online business.
+            </p>
+            <div className="mt-8 flex flex-wrap justify-center gap-4">
+                <Button asChild size="lg" className="group">
+                <Link href="/tools">
+                    Explore AI Tools
+                    <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline">
+                <Link href="/compare">
+                    Compare Platforms
+                </Link>
+                </Button>
+            </div>
+            </div>
+        </section>
+      </Parallax>
 
       {/* Why Choose Us Section */}
       <section id="why-us" className="py-16 md:py-24 bg-secondary/30">
             <div className="container px-4 md:px-6">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.5 }}
-                    transition={{ duration: 0.6 }}
+                <div
                     className="mx-auto max-w-3xl text-center mb-12"
                 >
                     <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
@@ -209,15 +175,10 @@ export default function Home() {
                     <p className="mt-4 text-lg text-muted-foreground">
                         Stop juggling dozens of apps. Get everything you need to succeed from a single, powerful dashboard.
                     </p>
-                </motion.div>
+                </div>
                 
                 <Tabs defaultValue="comparisons" className="w-full">
-                    <motion.div
-                         initial={{ opacity: 0, y: 20 }}
-                         whileInView={{ opacity: 1, y: 0 }}
-                         viewport={{ once: true, amount: 0.5 }}
-                         transition={{ duration: 0.6, delay: 0.2 }}
-                    >
+                    <div>
                     <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 h-auto">
                         {whyChooseUsTabs.map(tab => (
                              <TabsTrigger key={tab.value} value={tab.value} className="h-full flex flex-col md:flex-row items-center gap-3 p-4 text-base md:text-sm">
@@ -225,16 +186,13 @@ export default function Home() {
                             </TabsTrigger>
                         ))}
                     </TabsList>
-                    </motion.div>
+                    </div>
                     
                     {whyChooseUsTabs.map(tab => (
                         <TabsContent key={tab.value} value={tab.value}>
-                           <motion.div
+                           <div
                                 key={tab.value}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ duration: 0.5 }}
-                                className="mt-8 bg-card p-8 rounded-xl shadow-lg"
+                                className="mt-8 bg-card/60 backdrop-blur-lg border border-border/20 p-8 rounded-xl shadow-lg"
                            >
                             <div className="grid items-center gap-12 lg:grid-cols-2">
                                 <div className="space-y-4">
@@ -249,12 +207,7 @@ export default function Home() {
                                         </Link>
                                     </Button>
                                 </div>
-                                <motion.div
-                                     initial={{ scale: 0.9, opacity: 0 }}
-                                     whileInView={{ scale: 1, opacity: 1 }}
-                                     viewport={{ once: true }}
-                                     transition={{ duration: 0.6, delay: 0.2 }}
-                                >
+                                <div>
                                     <Image
                                         src={tab.image}
                                         alt={tab.title}
@@ -263,9 +216,9 @@ export default function Home() {
                                         height={400}
                                         className="w-full h-auto object-cover rounded-lg shadow-xl"
                                     />
-                                </motion.div>
+                                </div>
                             </div>
-                           </motion.div>
+                           </div>
                         </TabsContent>
                     ))}
                 </Tabs>
@@ -275,11 +228,7 @@ export default function Home() {
       {/* Featured Tools Section */}
       <section className="py-16 md:py-24 bg-background">
           <div className="container px-4 md:px-6">
-              <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.5 }}
-                  transition={{ duration: 0.6 }}
+              <div
                   className="mx-auto max-w-3xl text-center mb-12"
               >
                   <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
@@ -288,18 +237,14 @@ export default function Home() {
                   <p className="mt-4 text-lg text-muted-foreground">
                       Our suite of AI-powered tools is designed to handle the tedious tasks, so you can focus on creating.
                   </p>
-              </motion.div>
+              </div>
 
-                <motion.div
-                  initial="initial"
-                  whileInView="animate"
-                  variants={staggerContainer}
-                  viewport={{ once: true, amount: 0.2 }}
+                <div
                   className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4"
               >
                   {featuredTools.map((tool, index) => (
-                      <motion.div key={index} variants={fadeIn}>
-                          <Card className="flex h-full transform flex-col items-center p-6 text-center transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl">
+                      <div key={index}>
+                          <Card className="bg-card/60 backdrop-blur-lg border border-border/20 flex h-full transform flex-col items-center p-6 text-center transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl">
                               <div className="mb-4 rounded-full bg-primary/20 p-4">
                                   <tool.Icon className="h-8 w-8 text-primary" />
                               </div>
@@ -311,9 +256,9 @@ export default function Home() {
                                   <Link href={tool.href}>Use Tool <ArrowRight className="ml-2 h-4 w-4" /></Link>
                               </Button>
                           </Card>
-                      </motion.div>
+                      </div>
                   ))}
-              </motion.div>
+              </div>
           </div>
       </section>
 
@@ -321,11 +266,7 @@ export default function Home() {
       {recentPosts.length > 0 && (
           <section className="py-16 md:py-24 bg-secondary/30">
               <div className="container px-4 md:px-6">
-                  <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, amount: 0.5 }}
-                      transition={{ duration: 0.6 }}
+                  <div
                       className="mx-auto max-w-3xl text-center mb-12"
                   >
                       <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
@@ -334,19 +275,15 @@ export default function Home() {
                       <p className="mt-4 text-lg text-muted-foreground">
                           The latest strategies, tips, and news from our blog.
                       </p>
-                  </motion.div>
-                  <motion.div
-                      initial="initial"
-                      whileInView="animate"
-                      variants={staggerContainer}
-                      viewport={{ once: true, amount: 0.2 }}
+                  </div>
+                  <div
                       className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
                   >
                       {recentPosts.map((post) => {
                           const readTime = Math.ceil(post.content.split(/\s+/).length / 200);
                           return (
-                              <motion.div key={post.slug} variants={fadeIn}>
-                                  <Card className="flex flex-col overflow-hidden group h-full">
+                              <div key={post.slug}>
+                                  <Card className="bg-card/60 backdrop-blur-lg border border-border/20 flex flex-col overflow-hidden group h-full">
                                       <div className="relative overflow-hidden aspect-[16/10]">
                                           <Link href={`/blog/${post.slug}`} className="block">
                                               <Image
@@ -379,10 +316,10 @@ export default function Home() {
                                           </Button>
                                       </CardFooter>
                                   </Card>
-                              </motion.div>
+                              </div>
                           )
                       })}
-                  </motion.div>
+                  </div>
               </div>
           </section>
       )}
@@ -390,11 +327,7 @@ export default function Home() {
       {/* Testimonials Section */}
       <section className="py-16 md:py-24 bg-background">
         <div className="container px-4 md:px-6">
-          <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.5 }}
-              transition={{ duration: 0.6 }}
+          <div
               className="mx-auto max-w-3xl text-center mb-12"
           >
             <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
@@ -404,12 +337,8 @@ export default function Home() {
               Don't just take our word for it. Here's what creators are saying
               about Comparlify.
             </p>
-          </motion.div>
-          <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.5 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
+          </div>
+          <div
           >
           <Carousel
             opts={{
@@ -425,7 +354,7 @@ export default function Home() {
                   className="md:basis-1/2 lg:basis-1/3"
                 >
                   <div className="p-2 h-full">
-                    <Card className="flex flex-col justify-between h-full p-6 bg-card shadow-md">
+                    <Card className="bg-card/60 backdrop-blur-lg border border-border/20 flex flex-col justify-between h-full p-6 shadow-md">
                       <blockquote className="text-muted-foreground mb-6 text-base">
                         "{testimonial.quote}"
                       </blockquote>
@@ -451,17 +380,13 @@ export default function Home() {
             <CarouselPrevious className="left-[-20px] md:left-[-50px]" />
             <CarouselNext className="right-[-20px] md:right-[-50px]" />
           </Carousel>
-          </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Final CTA */}
       <section className="py-20 md:py-32 bg-secondary/30">
-          <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.5 }}
-              transition={{ duration: 0.6 }}
+          <div
               className="container px-4 md:px-6 text-center"
           >
               <div className="mx-auto max-w-2xl">
@@ -481,7 +406,7 @@ export default function Home() {
                   </Button>
               </div>
               </div>
-          </motion.div>
+          </div>
       </section>
     </>
   );
