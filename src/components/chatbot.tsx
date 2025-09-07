@@ -8,6 +8,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetDescription,
   SheetFooter,
 } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
@@ -84,6 +85,9 @@ export function Chatbot() {
               <Bot className="text-primary" />
               Comparlify Assistant
             </SheetTitle>
+            <SheetDescription className="sr-only">
+              A chat window with the Comparlify AI assistant.
+            </SheetDescription>
           </SheetHeader>
           <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
             <div className="space-y-4">
