@@ -28,9 +28,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       session.user.role = user.role;
       session.user.id = user.id;
+      session.user.onboarded = user.onboarded;
       return session;
     },
-    async signIn({ user }) {
+    async signIn({ user, account, profile }) {
       if (user.email === 'mafzalbro@gmail.com') {
          const dbUser = await prisma.user.findUnique({
            where: { email: user.email },

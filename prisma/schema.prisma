@@ -1,23 +1,16 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider     = "mysql"
-  url          = env("DATABASE_URL")
-  relationMode = "prisma"
-}
-
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  role          Role      @default(USER)
-  accounts      Account[]
-  sessions      Session[]
-  posts         Post[]
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model Account {
@@ -37,7 +30,6 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
-  @@index([userId])
 }
 
 model Session {
@@ -46,21 +38,30 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
-  @@index([userId])
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          String    @default("USER")
+  onboarded     Boolean   @default(false)
+  accounts      Account[]
+  sessions      Session[]
+  posts         Post[]
 }
 
 model VerificationToken {
-  id         String   @id @default(cuid())
   identifier String
   token      String   @unique
   expires    DateTime
+
+  @@unique([identifier, token])
 }
 
-enum Role {
-  USER
-  ADMIN
-}
+// Comparlify Specific Models
 
 model Platform {
   id          String            @id @default(cuid())
@@ -69,46 +70,43 @@ model Platform {
   description String            @db.Text
   logoUrl     String
   features    PlatformFeature[]
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Feature {
   id        String            @id @default(cuid())
   name      String            @unique
   platforms PlatformFeature[]
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model PlatformFeature {
-  id         String  @id @default(cuid())
   platformId String
   featureId  String
-  hasFeature Boolean @default(false)
-  details    String?
+  hasFeature Boolean
+  details    String? @db.Text
 
   platform Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
   feature  Feature  @relation(fields: [featureId], references: [id], onDelete: Cascade)
 
-  @@unique([platformId, featureId])
-  @@index([platformId])
-  @@index([featureId])
+  @@id([platformId, featureId])
 }
 
 model Post {
   id          String   @id @default(cuid())
-  title       String
   slug        String   @unique
+  title       String
   description String   @db.Text
   content     String   @db.Text
   image       String
-  dataAiHint  String
+  dataAiHint  String?
   published   Boolean  @default(false)
   authorId    String
   author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  @@index([authorId])
 }

@@ -21,6 +21,23 @@ import { generateEmailSubjectLines } from "@/ai/flows/ai-email-subject-line-gene
 import { generateSocialMediaPost } from "@/ai/flows/ai-social-media-post-generator";
 import { generateFaqs } from "@/ai/flows/ai-faq-generator";
 import { generateAnalogy } from "@/ai/flows/ai-analogy-generator";
+import { auth } from "@/lib/auth";
+
+// --- User Onboarding Action ---
+export async function markUserAsOnboarded() {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('User not authenticated.');
+  }
+
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: { onboarded: true },
+  });
+
+  revalidatePath('/');
+}
+
 
 // --- Title Generator Action ---
 
