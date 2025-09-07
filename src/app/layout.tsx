@@ -5,6 +5,7 @@ import { AuthProvider } from '@/components/auth/auth-provider';
 import { ThemeProvider } from '@/components/theme-provider';
 import type { Metadata } from 'next';
 import { generateSeoMetadata } from '@/lib/seo';
+import { CookieConsentBanner } from '@/components/cookie-consent-banner';
 
 export const metadata: Metadata = generateSeoMetadata({
   path: '/',
@@ -35,6 +36,7 @@ export default function RootLayout({
               {children}
             </div>
             <Toaster />
+            <CookieConsentBanner />
           </AuthProvider>
         </ThemeProvider>
       </body>
