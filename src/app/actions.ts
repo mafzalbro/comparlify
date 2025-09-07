@@ -668,7 +668,7 @@ const postSchema = z.object({
   published: z.preprocess((val) => val === "on", z.boolean()),
 });
 
-export async function createPost(formData: FormData) {
+export async function createPost(prevState: any, formData: FormData) {
   const validatedFields = postSchema.safeParse(
     Object.fromEntries(formData.entries())
   );
@@ -698,7 +698,7 @@ export async function createPost(formData: FormData) {
   redirect("/admin/blog");
 }
 
-export async function updatePost(id: string, formData: FormData) {
+export async function updatePost(id: string, prevState: any, formData: FormData) {
   const validatedFields = postSchema.safeParse(
     Object.fromEntries(formData.entries())
   );
@@ -743,7 +743,7 @@ const commentSchema = z.object({
     postId: z.string(),
 });
 
-export async function addComment(formData: FormData) {
+export async function addComment(prevState: any, formData: FormData) {
     const session = await auth();
     if (!session?.user?.id) {
         return { error: "You must be logged in to comment." };
@@ -770,6 +770,7 @@ export async function addComment(formData: FormData) {
         if (post) {
           revalidatePath(`/blog/${post.slug}`);
         }
+        return { error: null }
     } catch (error) {
         console.error(error);
         return { error: "Failed to add comment." };
@@ -793,7 +794,7 @@ const comparisonSchema = z.object({
     path: ["platformBId"],
 });
 
-export async function createComparison(formData: FormData) {
+export async function createComparison(prevState: any, formData: FormData) {
   const validatedFields = comparisonSchema.safeParse(Object.fromEntries(formData.entries()));
 
   if (!validatedFields.success) {
@@ -811,7 +812,7 @@ export async function createComparison(formData: FormData) {
   redirect('/admin/comparisons');
 }
 
-export async function updateComparison(id: string, formData: FormData) {
+export async function updateComparison(id: string, prevState: any, formData: FormData) {
   const validatedFields = comparisonSchema.safeParse(Object.fromEntries(formData.entries()));
 
   if (!validatedFields.success) {
