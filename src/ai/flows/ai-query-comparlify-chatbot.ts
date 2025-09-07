@@ -1,20 +1,18 @@
-'use server';
+"use server";
 /**
  * @fileOverview An AI chatbot for Comparlify that answers user queries and provides personalized recommendations.
  * It uses tools to access the database and can remember conversation history.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
-import prisma from '@/lib/prisma';
-import {generate} from 'genkit';
-import {Message, Part} from 'genkit/ux';
-
+import { ai } from "@/ai/genkit";
+import { z } from "genkit";
+import prisma from "@/lib/prisma";
+import { Message } from "genkit";
 const getPlatformsTool = ai.defineTool(
   {
-    name: 'getPlatforms',
+    name: "getPlatforms",
     description:
-      'Get a list of course creation platforms from the database. Use this to answer questions about which platforms are available.',
+      "Get a list of course creation platforms from the database. Use this to answer questions about which platforms are available.",
     inputSchema: z.object({}),
     outputSchema: z.array(z.string()),
   },
@@ -24,17 +22,17 @@ const getPlatformsTool = ai.defineTool(
         name: true,
       },
     });
-    return platforms.map(p => p.name);
+    return platforms.map((p) => p.name);
   }
 );
 
 const getPlatformDetailsTool = ai.defineTool(
   {
-    name: 'getPlatformDetails',
+    name: "getPlatformDetails",
     description:
       "Get the details and features for a specific platform. Use this when the user asks for more information about a particular platform, or wants to know if a platform has a certain feature.",
     inputSchema: z.object({
-      name: z.string().describe('The name of the platform.'),
+      name: z.string().describe("The name of the platform."),
     }),
     outputSchema: z.object({
       name: z.string(),
@@ -49,12 +47,12 @@ const getPlatformDetailsTool = ai.defineTool(
       ),
     }),
   },
-  async ({name}) => {
+  async ({ name }) => {
     const platform = await prisma.platform.findFirst({
       where: {
         name: {
           equals: name,
-          mode: 'insensitive',
+          mode: "insensitive",
         },
       },
       include: {
@@ -74,7 +72,7 @@ const getPlatformDetailsTool = ai.defineTool(
       name: platform.name,
       description: platform.description,
       website: platform.website,
-      features: platform.features.map(f => ({
+      features: platform.features.map((f) => ({
         name: f.feature.name,
         hasFeature: f.hasFeature,
         details: f.details,
@@ -85,21 +83,21 @@ const getPlatformDetailsTool = ai.defineTool(
 
 const HistorySchema = z.array(
   z.object({
-    role: z.enum(['user', 'model']),
-    content: z.array(z.object({text: z.string()})),
+    role: z.enum(["user", "model"]),
+    content: z.array(z.object({ text: z.string() })),
   })
 );
 
 const AIQueryComparlifyChatbotInputSchema = z.object({
-  query: z.string().describe('The user query about Comparlify.'),
-  history: HistorySchema.optional().describe('The conversation history.'),
+  query: z.string().describe("The user query about Comparlify."),
+  history: HistorySchema.optional().describe("The conversation history."),
 });
 export type AIQueryComparlifyChatbotInput = z.infer<
   typeof AIQueryComparlifyChatbotInputSchema
 >;
 
 const AIQueryComparlifyChatbotOutputSchema = z.object({
-  response: z.string().describe('The chatbot response to the user query.'),
+  response: z.string().describe("The chatbot response to the user query."),
 });
 type AIQueryComparlifyChatbotOutput = z.infer<
   typeof AIQueryComparlifyChatbotOutputSchema
@@ -120,12 +118,12 @@ Do not make up information. If you don't know the answer, say that you don't kno
 
 const aiQueryComparlifyChatbotFlow = ai.defineFlow(
   {
-    name: 'aiQueryComparlifyChatbotFlow',
+    name: "aiQueryComparlifyChatbotFlow",
     inputSchema: AIQueryComparlifyChatbotInputSchema,
     outputSchema: AIQueryComparlifyChatbotOutputSchema,
   },
-  async ({query, history}) => {
-    const llmResponse = await generate({
+  async ({ query, history }) => {
+    const llmResponse = await ai.generate({
       model: ai.model,
       tools: [getPlatformsTool, getPlatformDetailsTool],
       system: systemPrompt,
@@ -134,6 +132,6 @@ const aiQueryComparlifyChatbotFlow = ai.defineFlow(
     });
 
     const response = llmResponse.text;
-    return {response};
+    return { response };
   }
 );

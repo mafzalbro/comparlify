@@ -25,8 +25,8 @@ type Message = {
 };
 
 type HistoryMessage = {
-    role: 'user' | 'model',
-    content: {text: string}[]
+  role: 'user' | 'model',
+  content: { text: string }[]
 }
 
 export function Chatbot() {
@@ -46,7 +46,7 @@ export function Chatbot() {
     if (scrollAreaRef.current) {
       const scrollableView = scrollAreaRef.current.children[0] as HTMLDivElement;
       if (scrollableView) {
-          scrollableView.scrollTo({
+        scrollableView.scrollTo({
           top: scrollableView.scrollHeight,
           behavior: 'smooth',
         });
@@ -64,15 +64,15 @@ export function Chatbot() {
       role: 'user',
       content: input,
     };
-    
+
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
     setInput('');
     setIsLoading(true);
 
     const history: HistoryMessage[] = newMessages.slice(0, -1).map(msg => ({
-        role: msg.role === 'assistant' ? 'model' : 'user',
-        content: [{ text: msg.content }]
+      role: msg.role === 'assistant' ? 'model' : 'user',
+      content: [{ text: msg.content }]
     }));
 
     const { response } = await getChatbotResponse({ query: input, history });
@@ -127,12 +127,12 @@ export function Chatbot() {
                     className={cn(
                       'max-w-xs rounded-lg px-4 py-2 text-sm',
                       message.role === 'user'
-                        ? 'bg-primary text-primary-foreground'
+                        ? 'bg-primary dark:bg-primary-foreground text-primary-foreground'
                         : 'bg-muted'
                     )}
-                    >
-                      <MarkdownContent content={message.content} className={cn(message.role === 'user' ? 'prose-invert' : '')} />
-                    </div>
+                  >
+                    <MarkdownContent content={message.content} />
+                  </div>
 
                   {message.role === 'user' && (
                     <Avatar className="h-8 w-8">
@@ -145,11 +145,11 @@ export function Chatbot() {
               ))}
               {isLoading && (
                 <div className="flex items-start gap-3 justify-start">
-                   <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-primary text-primary-foreground">
-                        <Bot className="h-5 w-5" />
-                      </AvatarFallback>
-                    </Avatar>
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className="bg-primary text-primary-foreground">
+                      <Bot className="h-5 w-5" />
+                    </AvatarFallback>
+                  </Avatar>
                   <div className="bg-muted rounded-lg px-4 py-3 flex items-center">
                     <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                   </div>
