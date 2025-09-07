@@ -1,23 +1,17 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
-  provider        = "prisma-client-js"
-  // The binaryTarget is set to 'native' by default, which is not compatible with the Edge Runtime.
-  // We need to generate a binary that is compatible with the Edge Runtime.
-  // https://www.prisma.io/docs/concepts/components/prisma-engines/query-engine#binary-targets
-  // binaryTargets = ["native", "debian-openssl-1.1.x"]
-  binaryTargets = ["native", "debian-openssl-3.0.x"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
-}
-
-enum UserRole {
-  USER
-  ADMIN
+  relationMode = "prisma"
 }
 
 model User {
@@ -26,9 +20,10 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
-  role          UserRole  @default(USER)
+  role          Role      @default(USER)
   accounts      Account[]
   sessions      Session[]
+  posts         Post[]
 }
 
 model Account {
@@ -48,6 +43,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -56,7 +52,10 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
+
 
 model VerificationToken {
   identifier String
@@ -66,30 +65,58 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// Comparlify Specific Models
+enum Role {
+  USER
+  ADMIN
+}
+
+
 model Platform {
-  id          Int               @id @default(autoincrement())
-  name        String            @unique
+  id          String    @id @default(cuid())
+  name        String    @unique
   website     String
-  description String            @db.Text
-  logoUrl     String?
+  description String    @db.Text
+  logoUrl     String
   features    PlatformFeature[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model Feature {
-  id        Int               @id @default(autoincrement())
-  name      String            @unique
+  id        String    @id @default(cuid())
+  name      String    @unique
   platforms PlatformFeature[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model PlatformFeature {
-  platformId Int
-  featureId  Int
-  hasFeature Boolean
+  id         String   @id @default(cuid())
+  platformId String
+  featureId  String
+  hasFeature Boolean  @default(false)
   details    String?
+  platform   Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+  feature    Feature  @relation(fields: [featureId], references: [id], onDelete: Cascade)
 
-  platform Platform @relation(fields: [platformId], references: [id])
-  feature  Feature  @relation(fields: [featureId], references: [id])
+  @@unique([platformId, featureId])
+  @@index([platformId])
+  @@index([featureId])
+}
 
-  @@id([platformId, featureId])
+model Post {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String   @db.Text
+  content     String   @db.Text
+  image       String
+  dataAiHint  String
+  published   Boolean  @default(false)
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([authorId])
 }

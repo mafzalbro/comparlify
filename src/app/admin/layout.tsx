@@ -12,7 +12,7 @@ import {
     SidebarGroupLabel,
     SidebarFooter
   } from "@/components/ui/sidebar";
-import { Home, Settings, Table, PenSquare, LogOut } from "lucide-react";
+import { Home, Settings, Table, PenSquare, LogOut, BookText } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogoutButton } from "@/components/auth/logout-button";
@@ -38,6 +38,12 @@ import { LogoutButton } from "@/components/auth/logout-button";
                         </SidebarMenuItem>
                         <SidebarGroup>
                             <SidebarGroupLabel>Manage</SidebarGroupLabel>
+                             <SidebarMenuItem>
+                                <SidebarMenuButton href="/admin/blog" tooltip="Blog">
+                                    <BookText />
+                                    Blog
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
                             <SidebarMenuItem>
                                 <SidebarMenuButton href="/admin/platforms" tooltip="Platforms">
                                     <Table />

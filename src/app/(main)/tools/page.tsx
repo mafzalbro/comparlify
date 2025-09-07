@@ -144,7 +144,7 @@ const categories: ToolCategory[] = [
 ];
 
 function CategoryButton({ category, selectedCategory }: { category: ToolCategory | 'All', selectedCategory: string }) {
-    const isSelected = category.toLowerCase() === selectedCategory.toLowerCase() || (selectedCategory === 'all' && category === 'All');
+    const isSelected = category.toLowerCase() === selectedCategory.toLowerCase();
     return (
         <Button asChild variant={isSelected ? 'default' : 'ghost'} className="rounded-md">
             <Link href={category === 'All' ? '/tools' : `/tools?category=${category}`} scroll={false}>{category}</Link>

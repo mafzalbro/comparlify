@@ -3,6 +3,7 @@
 import { z } from 'zod';
 import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 
 import { generateTitle } from '@/ai/flows/ai-title-generator';
 import { generateCourseOutline } from '@/ai/flows/ai-course-outliner';
@@ -463,4 +464,83 @@ export async function generateAnalogyAction(prevState: AnalogyState, formData: F
         console.error(error);
         return { analogy: null, error: 'Failed to generate analogy. Please try again.' };
     }
+}
+
+// --- Blog Post Actions ---
+
+const postSchema = z.object({
+  title: z.string().min(3, 'Title must be at least 3 characters long'),
+  slug: z.string().min(3, 'Slug must be at least 3 characters long'),
+  description: z.string().min(10, 'Description must be at least 10 characters long'),
+  content: z.string().min(20, 'Content must be at least 20 characters long'),
+  image: z.string().url('Must be a valid URL'),
+  dataAiHint: z.string().optional(),
+  published: z.preprocess((val) => val === 'on', z.boolean()),
+});
+
+
+export async function createPost(formData: FormData) {
+  const validatedFields = postSchema.safeParse(Object.fromEntries(formData.entries()));
+
+  if (!validatedFields.success) {
+    console.error(validatedFields.error);
+    return { error: validatedFields.error.flatten().fieldErrors };
+  }
+
+  try {
+    // For now, hardcode the authorId. In a real app, you'd get this from the session.
+    const authorId = 'clxp9uvt0000012o2ax9f5kku';
+    
+    await prisma.post.create({
+      data: {
+        ...validatedFields.data,
+        authorId,
+      },
+    });
+
+    revalidatePath('/admin/blog');
+    revalidatePath('/blog');
+  } catch (error) {
+    console.error(error);
+    return { error: 'Failed to create post.' };
+  }
+  redirect('/admin/blog');
+}
+
+export async function updatePost(id: string, formData: FormData) {
+  const validatedFields = postSchema.safeParse(Object.fromEntries(formData.entries()));
+
+  if (!validatedFields.success) {
+    console.error(validatedFields.error);
+    return { error: validatedFields.error.flatten().fieldErrors };
+  }
+
+  try {
+    await prisma.post.update({
+      where: { id },
+      data: validatedFields.data,
+    });
+    revalidatePath('/admin/blog');
+    revalidatePath(`/blog/${validatedFields.data.slug}`);
+  } catch (error) {
+    console.error(error);
+    return { error: 'Failed to update post.' };
+  }
+
+  redirect('/admin/blog');
+}
+
+
+export async function deletePost(id: string) {
+  try {
+    await prisma.post.delete({
+      where: { id },
+    });
+    revalidatePath('/admin/blog');
+    revalidatePath('/blog');
+  } catch (error) {
+    console.error(error);
+    return { error: 'Failed to delete post.' };
+  }
+  redirect('/admin/blog');
 }
