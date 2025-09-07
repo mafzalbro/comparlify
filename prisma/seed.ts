@@ -5,19 +5,6 @@ import { Prisma } from "@prisma/client";
 async function main() {
   console.log("Start seeding ...");
 
-  // Seed Admin User
-  const adminUser = await prisma.user.upsert({
-    where: { email: 'mafzalbro@gmail.com' },
-    update: { role: 'ADMIN' },
-    create: {
-      email: 'mafzalbro@gmail.com',
-      name: 'Admin User',
-      role: 'ADMIN',
-    },
-  });
-  console.log("Seeded admin user.");
-
-
   const features = [
     "Integrated Video Hosting",
     "Assessments & Quizzes",
@@ -169,80 +156,90 @@ async function main() {
       }
     }
   }
-
   console.log("Seeded platforms and their features.");
 
-  const blogPosts: Omit<Prisma.PostCreateInput, "author">[] = [
-    {
-      slug: "choosing-the-right-platform",
-      title: "10 Things to Consider When Choosing a Course Platform",
-      description:
-        "From pricing and features to scalability and support, here are the key factors to weigh before committing to a platform.",
-      content: "This is the full content for choosing the right platform...",
-      image: "https://picsum.photos/400/250?random=1",
-      dataAiHint: "decision making choices",
-      published: true,
-    },
-    {
-      slug: "engaging-course-content",
-      title: "5 Secrets to Creating Wildly Engaging Course Content",
-      description:
-        "Move beyond static videos. Discover interactive techniques that captivate students and boost completion rates.",
-      content: "This is the full content for engaging course content...",
-      image: "https://picsum.photos/400/250?random=2",
-      dataAiHint: "creative content creation",
-      published: true,
-    },
-    {
-      slug: "marketing-your-online-course",
-      title: "The Ultimate Guide to Marketing Your Online Course in 2024",
-      description:
-        "Explore the latest strategies for social media, email marketing, and SEO to attract your ideal students.",
-      content: "This is the full content for marketing your course...",
-      image: "https://picsum.photos/400/250?random=3",
-      dataAiHint: "digital marketing strategy",
-      published: true,
-    },
-    {
-      slug: "ai-in-education",
-      title: "How AI is Revolutionizing the E-Learning Industry",
-      description:
-        "Learn how artificial intelligence is personalizing learning paths, automating grading, and creating smarter content.",
-      content: "This is the full content for AI in education...",
-      image: "https://picsum.photos/400/250?random=4",
-      dataAiHint: "artificial intelligence education",
-      published: true,
-    },
-    {
-      slug: "building-a-community",
-      title: "Beyond the Course: Building a Thriving Student Community",
-      description:
-        "A strong community increases student retention and word-of-mouth marketing. Here’s how to build one from scratch.",
-      content: "This is the full content for building a community...",
-      image: "https://picsum.photos/400/250?random=5",
-      dataAiHint: "online community students",
-      published: true,
-    },
-    {
-      slug: "pricing-strategies",
-      title: "Pricing Your Course: Strategies for Maximum Profit and Impact",
-      description:
-        "Are you under-valuing your content? We break down different pricing models to help you find the sweet spot.",
-      content: "This is the full content for pricing strategies...",
-      image: "https://picsum.photos/400/250?random=6",
-      dataAiHint: "pricing strategy chart",
-      published: true,
-    },
-  ];
 
-  for (const post of blogPosts) {
-    await prisma.post.upsert({
-      where: { slug: post.slug },
-      update: { ...post, authorId: adminUser.id },
-      create: { ...post, author: { connect: { id: adminUser.id } } },
-    });
+  // Find the admin user to associate posts with.
+  // If the admin user does not exist, the posts will not be created.
+  const adminUser = await prisma.user.findUnique({
+    where: { email: 'mafzalbro@gmail.com' },
+  });
+
+  if (adminUser) {
+    const blogPosts: Omit<Prisma.PostCreateInput, "author">[] = [
+      {
+        slug: "choosing-the-right-platform",
+        title: "10 Things to Consider When Choosing a Course Platform",
+        description:
+          "From pricing and features to scalability and support, here are the key factors to weigh before committing to a platform.",
+        content: "This is the full content for choosing the right platform...",
+        image: "https://picsum.photos/400/250?random=1",
+        dataAiHint: "decision making choices",
+        published: true,
+      },
+      {
+        slug: "engaging-course-content",
+        title: "5 Secrets to Creating Wildly Engaging Course Content",
+        description:
+          "Move beyond static videos. Discover interactive techniques that captivate students and boost completion rates.",
+        content: "This is the full content for engaging course content...",
+        image: "https://picsum.photos/400/250?random=2",
+        dataAiHint: "creative content creation",
+        published: true,
+      },
+      {
+        slug: "marketing-your-online-course",
+        title: "The Ultimate Guide to Marketing Your Online Course in 2024",
+        description:
+          "Explore the latest strategies for social media, email marketing, and SEO to attract your ideal students.",
+        content: "This is the full content for marketing your course...",
+        image: "https://picsum.photos/400/250?random=3",
+        dataAiHint: "digital marketing strategy",
+        published: true,
+      },
+      {
+        slug: "ai-in-education",
+        title: "How AI is Revolutionizing the E-Learning Industry",
+        description:
+          "Learn how artificial intelligence is personalizing learning paths, automating grading, and creating smarter content.",
+        content: "This is the full content for AI in education...",
+        image: "https://picsum.photos/400/250?random=4",
+        dataAiHint: "artificial intelligence education",
+        published: true,
+      },
+      {
+        slug: "building-a-community",
+        title: "Beyond the Course: Building a Thriving Student Community",
+        description:
+          "A strong community increases student retention and word-of-mouth marketing. Here’s how to build one from scratch.",
+        content: "This is the full content for building a community...",
+        image: "https://picsum.photos/400/250?random=5",
+        dataAiHint: "online community students",
+        published: true,
+      },
+      {
+        slug: "pricing-strategies",
+        title: "Pricing Your Course: Strategies for Maximum Profit and Impact",
+        description:
+          "Are you under-valuing your content? We break down different pricing models to help you find the sweet spot.",
+        content: "This is the full content for pricing strategies...",
+        image: "https://picsum.photos/400/250?random=6",
+        dataAiHint: "pricing strategy chart",
+        published: true,
+      },
+    ];
+
+    for (const post of blogPosts) {
+      await prisma.post.upsert({
+        where: { slug: post.slug },
+        update: { ...post, authorId: adminUser.id },
+        create: { ...post, author: { connect: { id: adminUser.id } } },
+      });
+    }
+    console.log("Seeded blog posts.");
+  } else {
+    console.log("Admin user not found, skipping blog post seeding.");
   }
-  console.log("Seeded blog posts.");
 
   console.log("Seeding finished.");
 }

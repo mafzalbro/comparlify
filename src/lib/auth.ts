@@ -18,10 +18,44 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    session({ session, user }) {
+    async session({ session, user }) {
+      if (user.email === 'mafzalbro@gmail.com' && user.role !== 'ADMIN') {
+        user.role = 'ADMIN';
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { role: 'ADMIN' },
+        });
+      }
       session.user.role = user.role;
       session.user.id = user.id;
       return session;
+    },
+    async signIn({ user }) {
+      if (user.email === 'mafzalbro@gmail.com') {
+         const dbUser = await prisma.user.findUnique({
+           where: { email: user.email },
+         });
+         if (dbUser) {
+           if (dbUser.role !== 'ADMIN') {
+             await prisma.user.update({
+               where: { id: dbUser.id },
+               data: { role: 'ADMIN' },
+             });
+           }
+           user.role = 'ADMIN';
+         }
+      }
+      return true;
+    },
+  },
+  events: {
+    async createUser(message) {
+      if (message.user.email === 'mafzalbro@gmail.com') {
+        await prisma.user.update({
+          where: { id: message.user.id },
+          data: { role: 'ADMIN' },
+        });
+      }
     },
   },
   pages: {
