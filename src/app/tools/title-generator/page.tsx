@@ -1,6 +1,6 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState, useFormStatus } from 'react';
 import { generateCourseTitleAction } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import {
@@ -37,7 +37,7 @@ function SubmitButton() {
 
 export default function TitleGeneratorPage() {
   const initialState = { courseTitle: null, error: null };
-  const [state, formAction] = useFormState(generateCourseTitleAction, initialState);
+  const [state, formAction] = useActionState(generateCourseTitleAction, initialState);
 
   return (
     <div className="container py-12 md:py-20">
