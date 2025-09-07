@@ -1,6 +1,6 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState, useFormStatus } from 'react-dom';
 import { createPost, updatePost } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,7 +36,7 @@ export function PostForm({ post }: PostFormProps) {
   const router = useRouter();
   const isEditing = !!post;
   const formAction = isEditing ? updatePost.bind(null, post.id) : createPost;
-  const [state, action] = useFormState(formAction, { error: null });
+  const [state, action] = useActionState(formAction, { error: null });
 
   return (
     <form action={action}>
@@ -72,7 +72,7 @@ export function PostForm({ post }: PostFormProps) {
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="dataAiHint">AI Hint for Image Search</Label>
-                    <Input id="dataAiHint" name="dataAiHint" defaultValue={post?.dataAiHint} placeholder="e.g. 'creative workspace'" />
+                    <Input id="dataAiHint" name="dataAiHint" defaultValue={post?.dataAiHint ?? ''} placeholder="e.g. 'creative workspace'" />
                 </div>
                 <div className="flex items-center space-x-2">
                     <Switch id="published" name="published" defaultChecked={post?.published ?? false} />
