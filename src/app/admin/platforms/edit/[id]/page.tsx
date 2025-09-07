@@ -12,7 +12,8 @@ async function getPlatform(id: string) {
   return platform;
 }
 
-export default async function EditPlatformPage({ params }: { params: { id: string } }) {
+export default async function EditPlatformPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const [platform, features, featureCategories] = await Promise.all([
     getPlatform(params.id),
     prisma.feature.findMany({ include: { category: true }, orderBy: { category: { name: 'asc' } } }),

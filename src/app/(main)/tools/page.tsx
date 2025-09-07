@@ -160,14 +160,15 @@ function CategoryButton({ category, selectedCategory }: { category: ToolCategory
     )
 }
 
-export default async function ToolsPage({ searchParams }: { searchParams?: { category?: string } }) {
+export default async function ToolsPage(props: { searchParams?: Promise<{ category?: string }> }) {
+  const searchParams = await props.searchParams;
   const selectedCategory = searchParams?.category || 'All';
 
   const filteredTools =
     selectedCategory === 'All'
       ? allTools
       : allTools.filter((tool) => tool.category === selectedCategory);
-  
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',

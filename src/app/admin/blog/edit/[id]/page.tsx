@@ -9,7 +9,8 @@ async function getPost(id: string) {
   return post;
 }
 
-export default async function EditPostPage({ params }: { params: { id: string } }) {
+export default async function EditPostPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const post = await getPost(params.id);
 
   if (!post) {
