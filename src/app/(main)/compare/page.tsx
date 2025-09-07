@@ -1,6 +1,10 @@
 
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import {
   Card,
@@ -22,13 +26,16 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import type { Comparison, Platform } from '@prisma/client';
 
-export const metadata: Metadata = generateSeoMetadata({
-  title: 'Platform Comparisons',
-  description:
-    'In-depth, side-by-side comparisons of the top course creation platforms. Find the perfect fit for your business.',
-  path: '/compare',
-});
+type ComparisonWithPlatforms = Comparison & { platformA: Platform, platformB: Platform };
+
+// export const metadata: Metadata = generateSeoMetadata({
+//   title: 'Platform Comparisons',
+//   description:
+//     'In-depth, side-by-side comparisons of the top course creation platforms. Find the perfect fit for your business.',
+//   path: '/compare',
+// });
 
 async function getComparisons(searchParams: {
   search?: string;
@@ -69,7 +76,6 @@ async function getComparisons(searchParams: {
       ];
   }
 
-
   const comparisons = await prisma.comparison.findMany({
     where,
     include: {
@@ -81,26 +87,54 @@ async function getComparisons(searchParams: {
   return comparisons;
 }
 
-export default async function ComparePage({
-  searchParams,
-}: {
-  searchParams: {
-    search?: string;
-    sort?: string;
-    platforms?: string | string[];
-  };
-}) {
-  const { search, sort, platforms } = searchParams;
-  const [comparisons, allPlatforms] = await Promise.all([
-    getComparisons({ search, sort, platforms }),
-    prisma.platform.findMany({ orderBy: { name: 'asc' } }),
-  ]);
+async function getAllPlatforms() {
+    return prisma.platform.findMany({ orderBy: { name: 'asc' } });
+}
+
+
+export default function ComparePage() {
+  const searchParams = useSearchParams();
+  const [comparisons, setComparisons] = useState<ComparisonWithPlatforms[]>([]);
+  const [allPlatforms, setAllPlatforms] = useState<Platform[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const search = searchParams.get('search') || '';
+  const sort = searchParams.get('sort') || 'newest';
+  const platforms = searchParams.getAll('platforms') || [];
+
+  const [currentSearch, setCurrentSearch] = useState(search);
+  const [currentSort, setCurrentSort] = useState(sort);
+  const [currentPlatforms, setCurrentPlatforms] = useState<string[]>(platforms);
   
-  const selectedPlatforms = Array.isArray(searchParams.platforms)
-    ? searchParams.platforms
-    : searchParams.platforms
-    ? [searchParams.platforms]
-    : [];
+  useEffect(() => {
+    setIsLoading(true);
+    const fetchComparisons = async () => {
+        const comparisonData = await getComparisons({ search, sort, platforms });
+        setComparisons(comparisonData);
+        setIsLoading(false);
+    }
+    const fetchPlatforms = async () => {
+        const platformData = await getAllPlatforms();
+        setAllPlatforms(platformData);
+    }
+    fetchComparisons();
+    fetchPlatforms();
+  }, [search, sort, JSON.stringify(platforms)]);
+
+
+  const handlePlatformChange = (platformId: string, checked: boolean) => {
+    setCurrentPlatforms(prev => 
+      checked ? [...prev, platformId] : prev.filter(id => id !== platformId)
+    );
+  };
+
+  const constructFilterUrl = () => {
+    const params = new URLSearchParams();
+    if(currentSearch) params.set('search', currentSearch);
+    if(currentSort) params.set('sort', currentSort);
+    currentPlatforms.forEach(pId => params.append('platforms', pId));
+    return `/compare?${params.toString()}`;
+  }
 
   return (
     <div className="bg-background">
@@ -116,37 +150,38 @@ export default async function ComparePage({
         </div>
 
         <Card className="mb-12 p-4 md:p-6 shadow-lg bg-card/60">
-          <form className="space-y-4">
+          <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
                 <div className="space-y-2">
                     <Label htmlFor="search">Search</Label>
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                         <Input
-                        id="search"
-                        name="search"
-                        placeholder="Search by keyword..."
-                        className="pl-10"
-                        defaultValue={search}
+                          id="search"
+                          name="search"
+                          placeholder="Search by keyword..."
+                          className="pl-10"
+                          value={currentSearch}
+                          onChange={(e) => setCurrentSearch(e.target.value)}
                         />
                     </div>
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="sort">Sort By</Label>
-                    <Select name="sort" defaultValue={sort ?? 'newest'}>
+                    <Select name="sort" value={currentSort} onValueChange={setCurrentSort}>
                         <SelectTrigger id="sort">
                         <SelectValue placeholder="Sort by" />
                         </SelectTrigger>
                         <SelectContent>
-                        <SelectItem value="newest">Newest</SelectItem>
-                        <SelectItem value="oldest">Oldest</SelectItem>
-                        <SelectItem value="rating">Highest Rated</SelectItem>
+                          <SelectItem value="newest">Newest</SelectItem>
+                          <SelectItem value="oldest">Oldest</SelectItem>
+                          <SelectItem value="rating">Highest Rated</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
                 <div className="flex items-end gap-2">
-                    <Button type="submit" className="w-full">
-                        Apply Filters
+                    <Button asChild className="w-full">
+                        <Link href={constructFilterUrl()}>Apply Filters</Link>
                     </Button>
                     <Button asChild variant="outline" className="w-full">
                         <Link href="/compare">Reset</Link>
@@ -162,17 +197,22 @@ export default async function ComparePage({
                             id={`platform-${platform.id}`}
                             name="platforms" 
                             value={platform.id}
-                            defaultChecked={selectedPlatforms.includes(platform.id)}
+                            checked={currentPlatforms.includes(platform.id)}
+                            onCheckedChange={(checked) => handlePlatformChange(platform.id, !!checked)}
                         />
                         <Label htmlFor={`platform-${platform.id}`} className="font-normal text-sm">{platform.name}</Label>
                     </div>
                 ))}
                 </div>
             </div>
-          </form>
+          </div>
         </Card>
 
-        {comparisons.length === 0 ? (
+        {isLoading ? (
+           <div className="text-center py-12 text-muted-foreground">
+             <h3 className="text-2xl font-headline mb-2">Loading Comparisons...</h3>
+           </div>
+        ) : comparisons.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
             <h3 className="text-2xl font-headline mb-2">No Comparisons Found</h3>
             <p>Try adjusting your search or filters. Or check back soon!</p>

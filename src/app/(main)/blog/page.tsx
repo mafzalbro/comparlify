@@ -1,6 +1,10 @@
 
+'use client';
+
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -24,11 +28,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-export const metadata: Metadata = generateSeoMetadata({
-    title: 'Creator Insights Blog',
-    description: 'Actionable advice, deep dives, and growth strategies for the modern course creator.',
-    path: '/blog'
-});
+// export const metadata: Metadata = generateSeoMetadata({
+//     title: 'Creator Insights Blog',
+//     description: 'Actionable advice, deep dives, and growth strategies for the modern course creator.',
+//     path: '/blog'
+// });
 
 type PostWithAuthor = Post & { author: User };
 
@@ -67,21 +71,48 @@ async function getBlogPosts(searchParams: {
   return posts;
 }
 
+async function getAuthors() {
+    return prisma.user.findMany({ where: { posts: { some: {} } }});
+}
 
-export default async function BlogPage({
-  searchParams,
-}: {
-  searchParams: {
-    search?: string;
-    sort?: string;
-    author?: string;
-  };
-}) {
-  const { search, sort, author } = searchParams;
-  const [blogPosts, authors] = await Promise.all([
-      getBlogPosts({ search, sort, author }),
-      prisma.user.findMany({ where: { posts: { some: {} } }})
-  ])
+
+export default function BlogPage() {
+  const searchParams = useSearchParams();
+  const [blogPosts, setBlogPosts] = useState<PostWithAuthor[]>([]);
+  const [authors, setAuthors] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const search = searchParams.get('search') || '';
+  const sort = searchParams.get('sort') || 'newest';
+  const author = searchParams.get('author') || 'all';
+
+  const [currentSearch, setCurrentSearch] = useState(search);
+  const [currentSort, setCurrentSort] = useState(sort);
+  const [currentAuthor, setCurrentAuthor] = useState(author);
+  
+  useEffect(() => {
+    setIsLoading(true);
+    const fetchPosts = async () => {
+        const posts = await getBlogPosts({ search, sort, author });
+        setBlogPosts(posts);
+        setIsLoading(false);
+    }
+    const fetchAuthors = async () => {
+        const authorData = await getAuthors();
+        setAuthors(authorData);
+    }
+    fetchPosts();
+    fetchAuthors();
+  }, [search, sort, author]);
+
+  const constructFilterUrl = () => {
+    const params = new URLSearchParams();
+    if(currentSearch) params.set('search', currentSearch);
+    if(currentSort) params.set('sort', currentSort);
+    if(currentAuthor) params.set('author', currentAuthor);
+    return `/blog?${params.toString()}`;
+  }
+
 
   return (
     <div className="container py-16 md:py-24 px-4 md:px-6">
@@ -95,7 +126,7 @@ export default async function BlogPage({
       </div>
       
       <Card className="mb-12 p-4 md:p-6 shadow-lg bg-card/60">
-        <form className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
           <div className="lg:col-span-2 space-y-2">
             <Label htmlFor="search">Search</Label>
             <div className="relative">
@@ -105,13 +136,14 @@ export default async function BlogPage({
                 name="search"
                 placeholder="Search by title or keyword..."
                 className="pl-10"
-                defaultValue={search}
+                value={currentSearch}
+                onChange={(e) => setCurrentSearch(e.target.value)}
               />
             </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="sort">Sort By</Label>
-            <Select name="sort" defaultValue={sort ?? 'newest'}>
+            <Select name="sort" value={currentSort} onValueChange={setCurrentSort}>
               <SelectTrigger id="sort">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
@@ -124,7 +156,7 @@ export default async function BlogPage({
           </div>
            <div className="space-y-2">
             <Label htmlFor="author">Author</Label>
-            <Select name="author" defaultValue={author ?? 'all'}>
+            <Select name="author" value={currentAuthor} onValueChange={setCurrentAuthor}>
               <SelectTrigger id="author">
                 <SelectValue placeholder="All Authors" />
               </SelectTrigger>
@@ -137,17 +169,21 @@ export default async function BlogPage({
             </Select>
           </div>
           <div className="flex items-end gap-2">
-               <Button type="submit" className="w-full">
-                  Apply
+               <Button asChild className="w-full">
+                  <Link href={constructFilterUrl()}>Apply</Link>
               </Button>
                <Button asChild variant="outline" className="w-full">
                   <Link href="/blog">Reset</Link>
               </Button>
           </div>
-        </form>
+        </div>
       </Card>
       
-      {blogPosts.length === 0 ? (
+      {isLoading ? (
+          <div className="text-center py-16 text-muted-foreground">
+            <h3 className="text-2xl font-headline mb-2">Loading Posts...</h3>
+          </div>
+      ) : blogPosts.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">
           <h3 className="text-2xl font-headline mb-2">No Posts Found</h3>
           <p>Try adjusting your search or filters. Or check back soon!</p>
