@@ -1,10 +1,7 @@
-
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-3.0.x"]
+  provider        = "prisma-client-js"
+  binaryTargets   = ["native", "debian-openssl-3.0.x"]
+  previewFeatures = ["relationJoins"]
 }
 
 datasource db {
@@ -18,34 +15,32 @@ model User {
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
-}
-
-model Platform {
-  id          Int               @id @default(autoincrement())
-  name        String            @unique
-  website     String
-  description String            @db.Text
-  logoUrl     String
-  features    PlatformFeature[]
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  updatedAt DateTime @updatedAt
 }
 
 model Feature {
-  id        Int               @id @default(autoincrement())
-  name      String            @unique
-  platforms PlatformFeature[]
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
+  id                Int               @id @default(autoincrement())
+  name              String            @unique
+  platforms         PlatformFeature[]
+}
+
+model Platform {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  website     String
+  description String   @db.Text
+  logoUrl     String?
+  features    PlatformFeature[]
 }
 
 model PlatformFeature {
-  platform   Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
-  platformId Int
-  feature    Feature  @relation(fields: [featureId], references: [id], onDelete: Cascade)
-  featureId  Int
-  hasFeature Boolean
-  details    String?  @db.Text
+  platformId  Int
+  featureId   Int
+  hasFeature  Boolean
+  details     String?  @db.Text
+
+  platform    Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+  feature     Feature  @relation(fields: [featureId], references: [id], onDelete: Cascade)
 
   @@id([platformId, featureId])
 }

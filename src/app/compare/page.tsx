@@ -1,4 +1,4 @@
-import db from '@/lib/db';
+import prisma from '@/lib/prisma';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -20,47 +20,31 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
 async function getComparisonData() {
-  const connection = await db.getConnection();
-  try {
-    const [platformsResult]: [any[], any] = await connection.execute(`
-      SELECT 
-        p.id, p.name, p.website, p.logoUrl,
-        f.id as featureId, f.name as featureName,
-        pf.hasFeature, pf.details
-      FROM Platform p
-      LEFT JOIN PlatformFeature pf ON p.id = pf.platformId
-      LEFT JOIN Feature f ON pf.featureId = f.id
-      ORDER BY p.name ASC, f.name ASC;
-    `);
-
-    const [featuresResult]: [any[], any] = await connection.execute('SELECT * FROM Feature ORDER BY name ASC');
-    
-    const platforms = platformsResult.reduce((acc, row) => {
-        let platform = acc.find(p => p.id === row.id);
-        if (!platform) {
-            platform = {
-                id: row.id,
-                name: row.name,
-                website: row.website,
-                logoUrl: row.logoUrl,
-                features: []
-            };
-            acc.push(platform);
+  const platforms = await prisma.platform.findMany({
+    include: {
+      features: {
+        include: {
+          feature: true,
+        },
+        orderBy: {
+          feature: {
+            name: 'asc'
+          }
         }
-        if (row.featureId) {
-            platform.features.push({
-                feature: { id: row.featureId, name: row.featureName },
-                hasFeature: row.hasFeature,
-                details: row.details
-            });
-        }
-        return acc;
-    }, []);
+      },
+    },
+     orderBy: {
+      name: 'asc'
+    }
+  });
 
-    return { platforms, features: featuresResult };
-  } finally {
-      connection.release();
-  }
+  const features = await prisma.feature.findMany({
+    orderBy: {
+      name: 'asc'
+    }
+  });
+
+  return { platforms, features };
 }
 
 export default async function ComparePage() {
