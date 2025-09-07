@@ -1,3 +1,4 @@
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -48,7 +49,7 @@ async function getBlogPosts(searchParams: {
     ];
   }
   
-  if (author) {
+  if (author && author !== 'all') {
     where.authorId = author;
   }
 
@@ -122,12 +123,12 @@ export default async function BlogPage({
           </div>
            <div className="space-y-2">
             <Label htmlFor="author">Filter by Author</Label>
-            <Select name="author" defaultValue={searchParams.author}>
+            <Select name="author" defaultValue={searchParams.author ?? 'all'}>
               <SelectTrigger id="author">
                 <SelectValue placeholder="All Authors" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Authors</SelectItem>
+                <SelectItem value="all">All Authors</SelectItem>
                 {authors.map(author => (
                   <SelectItem key={author.id} value={author.id}>{author.name}</SelectItem>
                 ))}

@@ -1,3 +1,4 @@
+
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import {
@@ -23,7 +24,6 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Search, ArrowUpDown } from 'lucide-react';
 import type { User, Role } from '@prisma/client';
-import { SortOrder } from 'prisma/prisma-client/runtime/library';
 
 async function getUsers({
   search,
@@ -43,7 +43,7 @@ async function getUsers({
       { email: { contains: search, mode: 'insensitive' } },
     ];
   }
-  if (role) {
+  if (role && role !== 'all') {
     where.role = role;
   }
 
@@ -91,12 +91,16 @@ export default async function AdminUsersPage({
 }: {
   searchParams: {
     search?: string;
-    role?: Role;
+    role?: Role | 'all';
     sortBy?: keyof User;
     sortOrder?: 'asc' | 'desc';
   };
 }) {
-  const users = await getUsers(searchParams);
+  const users = await getUsers({
+      ...searchParams,
+      role: searchParams.role === 'all' ? undefined : searchParams.role,
+  });
+
   const baseUrl = `/admin/users?search=${searchParams.search || ''}&role=${searchParams.role || ''}`;
 
   return (
@@ -124,12 +128,12 @@ export default async function AdminUsersPage({
             </div>
             <div className="space-y-2">
               <Label htmlFor="role">Filter by Role</Label>
-              <Select name="role" defaultValue={searchParams.role}>
+              <Select name="role" defaultValue={searchParams.role ?? 'all'}>
                 <SelectTrigger id="role">
                   <SelectValue placeholder="All Roles" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Roles</SelectItem>
+                  <SelectItem value="all">All Roles</SelectItem>
                   <SelectItem value="USER">User</SelectItem>
                   <SelectItem value="ADMIN">Admin</SelectItem>
                 </SelectContent>
