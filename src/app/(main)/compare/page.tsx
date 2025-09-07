@@ -1,10 +1,6 @@
 
-'use client';
-
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useSearchParams } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import {
   Card,
@@ -30,19 +26,22 @@ import type { Comparison, Platform } from '@prisma/client';
 
 type ComparisonWithPlatforms = Comparison & { platformA: Platform, platformB: Platform };
 
-// export const metadata: Metadata = generateSeoMetadata({
-//   title: 'Platform Comparisons',
-//   description:
-//     'In-depth, side-by-side comparisons of the top course creation platforms. Find the perfect fit for your business.',
-//   path: '/compare',
-// });
+export const metadata: Metadata = generateSeoMetadata({
+  title: 'Platform Comparisons',
+  description:
+    'In-depth, side-by-side comparisons of the top course creation platforms. Find the perfect fit for your business.',
+  path: '/compare',
+});
 
-async function getComparisons(searchParams: {
+async function getComparisons({
+  search,
+  sort,
+  platforms,
+}: {
   search?: string;
   sort?: string;
-  platforms?: string | string[];
+  platforms?: string[];
 }) {
-  const { search, sort, platforms } = searchParams;
   let where: any = { published: true };
   let orderBy: any = { createdAt: 'desc' };
 
@@ -64,19 +63,18 @@ async function getComparisons(searchParams: {
   }
 
   if (platforms && platforms.length > 0) {
-      const platformIds = Array.isArray(platforms) ? platforms : [platforms];
       where.AND = [
         ...(where.AND || []),
         {
           OR: [
-            { platformAId: { in: platformIds } },
-            { platformBId: { in: platformIds } },
+            { platformAId: { in: platforms } },
+            { platformBId: { in: platforms } },
           ],
         },
       ];
   }
 
-  const comparisons = await prisma.comparison.findMany({
+  const comparisons: ComparisonWithPlatforms[] = await prisma.comparison.findMany({
     where,
     include: {
       platformA: true,
@@ -92,49 +90,14 @@ async function getAllPlatforms() {
 }
 
 
-export default function ComparePage() {
-  const searchParams = useSearchParams();
-  const [comparisons, setComparisons] = useState<ComparisonWithPlatforms[]>([]);
-  const [allPlatforms, setAllPlatforms] = useState<Platform[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const search = searchParams.get('search') || '';
-  const sort = searchParams.get('sort') || 'newest';
-  const platforms = searchParams.getAll('platforms') || [];
-
-  const [currentSearch, setCurrentSearch] = useState(search);
-  const [currentSort, setCurrentSort] = useState(sort);
-  const [currentPlatforms, setCurrentPlatforms] = useState<string[]>(platforms);
+export default async function ComparePage({ searchParams }: { searchParams: { search?: string; sort?: string; platforms?: string | string[] } }) {
+  const { search, sort } = searchParams;
+  const platforms = Array.isArray(searchParams.platforms) ? searchParams.platforms : (searchParams.platforms ? [searchParams.platforms] : []);
   
-  useEffect(() => {
-    setIsLoading(true);
-    const fetchComparisons = async () => {
-        const comparisonData = await getComparisons({ search, sort, platforms });
-        setComparisons(comparisonData);
-        setIsLoading(false);
-    }
-    const fetchPlatforms = async () => {
-        const platformData = await getAllPlatforms();
-        setAllPlatforms(platformData);
-    }
-    fetchComparisons();
-    fetchPlatforms();
-  }, [search, sort, JSON.stringify(platforms)]);
-
-
-  const handlePlatformChange = (platformId: string, checked: boolean) => {
-    setCurrentPlatforms(prev => 
-      checked ? [...prev, platformId] : prev.filter(id => id !== platformId)
-    );
-  };
-
-  const constructFilterUrl = () => {
-    const params = new URLSearchParams();
-    if(currentSearch) params.set('search', currentSearch);
-    if(currentSort) params.set('sort', currentSort);
-    currentPlatforms.forEach(pId => params.append('platforms', pId));
-    return `/compare?${params.toString()}`;
-  }
+  const [comparisons, allPlatforms] = await Promise.all([
+      getComparisons({ search, sort, platforms }),
+      getAllPlatforms()
+  ]);
 
   return (
     <div className="bg-background">
@@ -150,7 +113,7 @@ export default function ComparePage() {
         </div>
 
         <Card className="mb-12 p-4 md:p-6 shadow-lg bg-card/60">
-          <div className="space-y-4">
+          <form className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
                 <div className="space-y-2">
                     <Label htmlFor="search">Search</Label>
@@ -161,14 +124,13 @@ export default function ComparePage() {
                           name="search"
                           placeholder="Search by keyword..."
                           className="pl-10"
-                          value={currentSearch}
-                          onChange={(e) => setCurrentSearch(e.target.value)}
+                          defaultValue={search}
                         />
                     </div>
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="sort">Sort By</Label>
-                    <Select name="sort" value={currentSort} onValueChange={setCurrentSort}>
+                    <Select name="sort" defaultValue={sort ?? 'newest'}>
                         <SelectTrigger id="sort">
                         <SelectValue placeholder="Sort by" />
                         </SelectTrigger>
@@ -180,9 +142,7 @@ export default function ComparePage() {
                     </Select>
                 </div>
                 <div className="flex items-end gap-2">
-                    <Button asChild className="w-full">
-                        <Link href={constructFilterUrl()}>Apply Filters</Link>
-                    </Button>
+                    <Button type="submit" className="w-full">Apply Filters</Button>
                     <Button asChild variant="outline" className="w-full">
                         <Link href="/compare">Reset</Link>
                     </Button>
@@ -197,22 +157,17 @@ export default function ComparePage() {
                             id={`platform-${platform.id}`}
                             name="platforms" 
                             value={platform.id}
-                            checked={currentPlatforms.includes(platform.id)}
-                            onCheckedChange={(checked) => handlePlatformChange(platform.id, !!checked)}
+                            defaultChecked={platforms.includes(platform.id)}
                         />
                         <Label htmlFor={`platform-${platform.id}`} className="font-normal text-sm">{platform.name}</Label>
                     </div>
                 ))}
                 </div>
             </div>
-          </div>
+          </form>
         </Card>
 
-        {isLoading ? (
-           <div className="text-center py-12 text-muted-foreground">
-             <h3 className="text-2xl font-headline mb-2">Loading Comparisons...</h3>
-           </div>
-        ) : comparisons.length === 0 ? (
+        {comparisons.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
             <h3 className="text-2xl font-headline mb-2">No Comparisons Found</h3>
             <p>Try adjusting your search or filters. Or check back soon!</p>

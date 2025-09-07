@@ -1,35 +1,19 @@
 'use client';
 
-import { useActionState, useFormStatus } from 'react-dom';
+import { useActionState } from 'react-dom';
 import { createPost, updatePost } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { type Post } from '@prisma/client';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { SubmitButton } from '@/components/submit-button';
 
 interface PostFormProps {
   post?: Post | null;
-}
-
-function SubmitButton({ isEditing }: { isEditing: boolean }) {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending}>
-      {pending ? (
-        <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          {isEditing ? 'Saving...' : 'Creating...'}
-        </>
-      ) : (
-        isEditing ? 'Save Changes' : 'Create Post'
-      )}
-    </Button>
-  );
 }
 
 export function PostForm({ post }: PostFormProps) {

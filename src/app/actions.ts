@@ -644,13 +644,13 @@ export async function getPostPreview(slug: string): Promise<Post | null> {
             description: true,
             image: true,
             dataAiHint: true,
+            content: true, // Keep content for read time calculation
             // Non-sensitive fields only
             published: false, // Explicitly exclude sensitive fields
             authorId: false,
             createdAt: false,
             updatedAt: false,
             nextId: false,
-            content: false,
         }
     });
 }
@@ -1064,7 +1064,8 @@ export async function deletePlatform(id: string) {
     await prisma.platform.delete({ where: { id } });
     revalidatePath('/admin/platforms');
     revalidatePath('/compare');
-  } catch (error) {
+  } catch (error)
+  {
     console.error(error);
     return { error: 'Failed to delete platform.' };
   }

@@ -39,6 +39,8 @@ export function BlogPreviewCard({ slug }: { slug: string }) {
         );
     }
 
+    const readTime = Math.ceil(post.content.split(/\s+/).length / 200);
+
     return (
         <Link href={`/blog/${slug}`} className="block">
             <Card className="border-none shadow-none">
@@ -55,6 +57,7 @@ export function BlogPreviewCard({ slug }: { slug: string }) {
                 </CardHeader>
                 <CardContent>
                     <p className="text-sm text-muted-foreground line-clamp-3">{post.description}</p>
+                    <p className="text-xs text-muted-foreground mt-2">{readTime} min read</p>
                 </CardContent>
             </Card>
         </Link>
