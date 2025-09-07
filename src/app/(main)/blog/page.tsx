@@ -25,9 +25,9 @@ import {
 } from '@/components/ui/select';
 
 export const metadata: Metadata = generateSeoMetadata({
-    title: 'Creator Insights Blog',
-    description: 'Actionable advice, deep dives, and growth strategies for the modern course creator.',
-    path: '/blog'
+  title: 'Creator Insights Blog',
+  description: 'Actionable advice, deep dives, and growth strategies for the modern course creator.',
+  path: '/blog'
 });
 
 type PostWithAuthor = Post & { author: User };
@@ -51,7 +51,7 @@ async function getBlogPosts({
       { content: { contains: search } },
     ];
   }
-  
+
   if (author && author !== 'all') {
     where.authorId = author;
   }
@@ -71,15 +71,15 @@ async function getBlogPosts({
 }
 
 async function getAuthors() {
-    return prisma.user.findMany({ where: { posts: { some: {} } }});
+  return prisma.user.findMany({ where: { posts: { some: {} } } });
 }
 
 
-export default async function BlogPage({ searchParams }: { searchParams: { search?: string; sort?: string; author?: string } }) {
-  const { search, sort, author } = searchParams;
+export default async function BlogPage({ searchParams }: { searchParams: Promise<{ search?: string; sort?: string; author?: string }> }) {
+  const { search, sort, author } = await searchParams;
   const [blogPosts, authors] = await Promise.all([
-      getBlogPosts({ search, sort, author }),
-      getAuthors()
+    getBlogPosts({ search, sort, author }),
+    getAuthors()
   ]);
 
   return (
@@ -92,7 +92,7 @@ export default async function BlogPage({ searchParams }: { searchParams: { searc
           Actionable advice, deep dives, and growth strategies for the modern course creator.
         </p>
       </div>
-      
+
       <Card className="mb-12 p-4 md:p-6 shadow-lg bg-card/60">
         <form className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_auto] gap-4 items-end">
           <div className="space-y-2">
@@ -121,7 +121,7 @@ export default async function BlogPage({ searchParams }: { searchParams: { searc
               </SelectContent>
             </Select>
           </div>
-           <div className="space-y-2">
+          <div className="space-y-2">
             <Label htmlFor="author">Author</Label>
             <Select name="author" defaultValue={author ?? 'all'}>
               <SelectTrigger id="author">
@@ -136,14 +136,14 @@ export default async function BlogPage({ searchParams }: { searchParams: { searc
             </Select>
           </div>
           <div className="flex items-end gap-2">
-               <Button type="submit" className="w-full">Apply</Button>
-               <Button asChild variant="outline" className="w-full">
-                  <Link href="/blog">Reset</Link>
-              </Button>
+            <Button type="submit" className="w-full">Apply</Button>
+            <Button asChild variant="outline" className="w-full">
+              <Link href="/blog">Reset</Link>
+            </Button>
           </div>
         </form>
       </Card>
-      
+
       {blogPosts.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">
           <h3 className="text-2xl font-headline mb-2">No Posts Found</h3>
@@ -155,39 +155,40 @@ export default async function BlogPage({ searchParams }: { searchParams: { searc
             const readTime = Math.ceil(post.content.split(/\s+/).length / 200);
             return (
               <Card key={post.slug} className="flex flex-col overflow-hidden group bg-card/60 backdrop-blur-lg border-border/20 shadow-md hover:shadow-xl transition-shadow duration-300">
-                  <div className="relative overflow-hidden aspect-[16/10]">
-                      <Link href={`/blog/${post.slug}`} className="block">
-                          <Image
-                              src={post.image}
-                              alt={post.title}
-                              data-ai-hint={post.dataAiHint ?? ''}
-                              fill
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          />
-                      </Link>
-                  </div>
-                  <CardHeader>
+                <div className="relative overflow-hidden aspect-[16/10]">
+                  <Link href={`/blog/${post.slug}`} className="block">
+                    <Image
+                      src={post.image}
+                      alt={post.title}
+                      data-ai-hint={post.dataAiHint ?? ''}
+                      fill
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </Link>
+                </div>
+                <CardHeader>
                   <CardTitle className="font-headline text-xl">
-                      <Link href={`/blog/${post.slug}`} className="hover:text-primary transition-colors">
+                    <Link href={`/blog/${post.slug}`} className="hover:text-primary transition-colors">
                       {post.title}
-                      </Link>
+                    </Link>
                   </CardTitle>
-                  </CardHeader>
-                  <CardContent className="flex-1">
+                </CardHeader>
+                <CardContent className="flex-1">
                   <p className="text-muted-foreground text-sm line-clamp-3">{post.description}</p>
-                  </CardContent>
-                  <CardFooter className="flex justify-between items-center bg-secondary/20 py-3 px-6">
-                      <div className="text-sm text-muted-foreground">
-                          <span>{post.author.name}</span> &bull; <span>{readTime} min read</span>
-                      </div>
+                </CardContent>
+                <CardFooter className="flex justify-between items-center bg-secondary/20 py-3 px-6">
+                  <div className="text-sm text-muted-foreground">
+                    <span>{post.author.name}</span> &bull; <span>{readTime} min read</span>
+                  </div>
                   <Button asChild variant="ghost" size="sm" className="group-hover:text-primary">
-                      <Link href={`/blog/${post.slug}`}>
+                    <Link href={`/blog/${post.slug}`}>
                       Read More <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                      </Link>
+                    </Link>
                   </Button>
-                  </CardFooter>
+                </CardFooter>
               </Card>
-            )}
+            )
+          }
           )}
         </div>
       )}

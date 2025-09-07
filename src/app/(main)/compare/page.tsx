@@ -63,15 +63,15 @@ async function getComparisons({
   }
 
   if (platforms && platforms.length > 0) {
-      where.AND = [
-        ...(where.AND || []),
-        {
-          OR: [
-            { platformAId: { in: platforms } },
-            { platformBId: { in: platforms } },
-          ],
-        },
-      ];
+    where.AND = [
+      ...(where.AND || []),
+      {
+        OR: [
+          { platformAId: { in: platforms } },
+          { platformBId: { in: platforms } },
+        ],
+      },
+    ];
   }
 
   const comparisons: ComparisonWithPlatforms[] = await prisma.comparison.findMany({
@@ -86,17 +86,17 @@ async function getComparisons({
 }
 
 async function getAllPlatforms() {
-    return prisma.platform.findMany({ orderBy: { name: 'asc' } });
+  return prisma.platform.findMany({ orderBy: { name: 'asc' } });
 }
 
 
-export default async function ComparePage({ searchParams }: { searchParams: { search?: string; sort?: string; platforms?: string | string[] } }) {
-  const { search, sort } = searchParams;
-  const platforms = Array.isArray(searchParams.platforms) ? searchParams.platforms : (searchParams.platforms ? [searchParams.platforms] : []);
-  
+export default async function ComparePage({ searchParams }: { searchParams: Promise<{ search?: string; sort?: string; platforms?: string | string[] }> }) {
+  const { search, sort } = await searchParams;
+  const platforms = Array.isArray((await searchParams).platforms) ? (await searchParams).platforms : ((await searchParams).platforms ? [(await searchParams).platforms] : []);
+
   const [comparisons, allPlatforms] = await Promise.all([
-      getComparisons({ search, sort, platforms }),
-      getAllPlatforms()
+    getComparisons({ search, sort, platforms }),
+    getAllPlatforms()
   ]);
 
   return (
@@ -115,54 +115,54 @@ export default async function ComparePage({ searchParams }: { searchParams: { se
         <Card className="mb-12 p-4 md:p-6 shadow-lg bg-card/60">
           <form className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
-                <div className="space-y-2">
-                    <Label htmlFor="search">Search</Label>
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                        <Input
-                          id="search"
-                          name="search"
-                          placeholder="Search by keyword..."
-                          className="pl-10"
-                          defaultValue={search}
-                        />
-                    </div>
+              <div className="space-y-2">
+                <Label htmlFor="search">Search</Label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    id="search"
+                    name="search"
+                    placeholder="Search by keyword..."
+                    className="pl-10"
+                    defaultValue={search}
+                  />
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="sort">Sort By</Label>
-                    <Select name="sort" defaultValue={sort ?? 'newest'}>
-                        <SelectTrigger id="sort">
-                        <SelectValue placeholder="Sort by" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="newest">Newest</SelectItem>
-                          <SelectItem value="oldest">Oldest</SelectItem>
-                          <SelectItem value="rating">Highest Rated</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div className="flex items-end gap-2">
-                    <Button type="submit" className="w-full">Apply Filters</Button>
-                    <Button asChild variant="outline" className="w-full">
-                        <Link href="/compare">Reset</Link>
-                    </Button>
-                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="sort">Sort By</Label>
+                <Select name="sort" defaultValue={sort ?? 'newest'}>
+                  <SelectTrigger id="sort">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">Newest</SelectItem>
+                    <SelectItem value="oldest">Oldest</SelectItem>
+                    <SelectItem value="rating">Highest Rated</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-end gap-2">
+                <Button type="submit" className="w-full">Apply Filters</Button>
+                <Button asChild variant="outline" className="w-full">
+                  <Link href="/compare">Reset</Link>
+                </Button>
+              </div>
             </div>
-             <div className="space-y-2 pt-2">
-                 <Label className="block mb-2 font-medium">Filter by Platform</Label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-x-4 gap-y-2">
+            <div className="space-y-2 pt-2">
+              <Label className="block mb-2 font-medium">Filter by Platform</Label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-x-4 gap-y-2">
                 {allPlatforms.map(platform => (
-                    <div key={platform.id} className="flex items-center gap-2">
-                        <Checkbox 
-                            id={`platform-${platform.id}`}
-                            name="platforms" 
-                            value={platform.id}
-                            defaultChecked={platforms.includes(platform.id)}
-                        />
-                        <Label htmlFor={`platform-${platform.id}`} className="font-normal text-sm">{platform.name}</Label>
-                    </div>
+                  <div key={platform.id} className="flex items-center gap-2">
+                    <Checkbox
+                      id={`platform-${platform.id}`}
+                      name="platforms"
+                      value={platform.id}
+                      defaultChecked={(platforms || "")?.includes(platform.id)}
+                    />
+                    <Label htmlFor={`platform-${platform.id}`} className="font-normal text-sm">{platform.name}</Label>
+                  </div>
                 ))}
-                </div>
+              </div>
             </div>
           </form>
         </Card>
