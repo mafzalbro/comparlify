@@ -27,6 +27,9 @@ import {
   BarChart,
   BrainCircuit,
   LayoutPanelLeft,
+  FileText,
+  Video,
+  BookOpen,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
@@ -60,19 +63,32 @@ const testimonials = [
   },
 ];
 
-const fadeIn = {
-  initial: { opacity: 0, y: 30 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.7, ease: "easeOut" },
-};
-
-const staggerContainer = {
-    animate: {
-        transition: {
-            staggerChildren: 0.1,
-        },
+const featuredTools = [
+    {
+        Icon: Lightbulb,
+        title: 'AI Title Generator',
+        description: 'Craft catchy, SEO-friendly titles for your course.',
+        href: '/tools/title-generator',
     },
-};
+    {
+        Icon: FileText,
+        title: 'AI Course Outliner',
+        description: 'Generate a comprehensive, structured outline in minutes.',
+        href: '/tools/course-outliner',
+    },
+    {
+        Icon: Video,
+        title: 'AI Video Script Assistant',
+        description: 'Create engaging scripts for your video lessons.',
+        href: '/tools/video-scripter',
+    },
+    {
+        Icon: BookOpen,
+        title: 'AI Lesson Summarizer',
+        description: 'Automatically generate key takeaways for your lessons.',
+        href: '/tools/lesson-summarizer',
+    }
+]
 
 const whyChooseUsTabs = [
     {
@@ -100,6 +116,20 @@ const whyChooseUsTabs = [
         dataAiHint: 'business growth chart',
     }
 ]
+
+const fadeIn = {
+  initial: { opacity: 0, y: 30 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.7, ease: "easeOut" },
+};
+
+const staggerContainer = {
+    animate: {
+        transition: {
+            staggerChildren: 0.1,
+        },
+    },
+};
 
 export default function Home() {
   return (
@@ -229,9 +259,54 @@ export default function Home() {
                 </Tabs>
             </div>
         </section>
+
+        {/* Featured Tools Section */}
+        <section className="py-16 md:py-24 bg-background">
+            <div className="container px-4 md:px-6">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.5 }}
+                    transition={{ duration: 0.6 }}
+                    className="mx-auto max-w-3xl text-center mb-12"
+                >
+                    <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
+                        Supercharge Your Workflow
+                    </h2>
+                    <p className="mt-4 text-lg text-muted-foreground">
+                        Our suite of AI-powered tools is designed to handle the tedious tasks, so you can focus on creating.
+                    </p>
+                </motion.div>
+
+                 <motion.div
+                    initial="initial"
+                    whileInView="animate"
+                    variants={staggerContainer}
+                    viewport={{ once: true, amount: 0.2 }}
+                    className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4"
+                >
+                    {featuredTools.map((tool, index) => (
+                        <motion.div key={index} variants={fadeIn}>
+                            <Card className="flex h-full transform flex-col items-center p-6 text-center transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl">
+                                <div className="mb-4 rounded-full bg-primary/20 p-4">
+                                    <tool.Icon className="h-8 w-8 text-primary" />
+                                </div>
+                                <CardTitle className="font-headline mb-2 text-xl">{tool.title}</CardTitle>
+                                <CardContent className="flex-1 text-sm text-muted-foreground">
+                                    <p>{tool.description}</p>
+                                </CardContent>
+                                <Button asChild variant="link" className="mt-4">
+                                    <Link href={tool.href}>Use Tool <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                                </Button>
+                            </Card>
+                        </motion.div>
+                    ))}
+                </motion.div>
+            </div>
+        </section>
         
         {/* Testimonials Section */}
-        <section className="py-16 md:py-24 bg-background">
+        <section className="py-16 md:py-24 bg-secondary/30">
           <div className="container px-4 md:px-6">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -268,7 +343,7 @@ export default function Home() {
                     className="md:basis-1/2 lg:basis-1/3"
                   >
                     <div className="p-2 h-full">
-                      <Card className="flex flex-col justify-between h-full p-6 bg-card/80 shadow-md">
+                      <Card className="flex flex-col justify-between h-full p-6 bg-card shadow-md">
                         <blockquote className="text-muted-foreground mb-6 text-base">
                           "{testimonial.quote}"
                         </blockquote>
@@ -299,7 +374,7 @@ export default function Home() {
         </section>
 
         {/* Final CTA */}
-        <section className="py-20 md:py-32 bg-secondary/30">
+        <section className="py-20 md:py-32 bg-background">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
