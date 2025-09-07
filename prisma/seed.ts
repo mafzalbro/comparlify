@@ -1,3 +1,4 @@
+
 "use server";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
@@ -5,23 +6,47 @@ import { Prisma } from "@prisma/client";
 async function main() {
   console.log("Start seeding ...");
 
-  const features = [
-    "Integrated Video Hosting",
-    "Assessments & Quizzes",
-    "Drip Content",
-    "Community Forum",
-    "Affiliate Marketing Tools",
-    "Custom Certificate",
-    "Mobile App Access",
-    "Advanced Analytics",
+  const featureCategories = [
+    "Core Features",
+    "Marketing & Sales",
+    "Student Engagement",
+    "Site & Content",
+    "Advanced",
   ];
 
-  for (const name of features) {
-    await prisma.feature.upsert({
+  for (const name of featureCategories) {
+    await prisma.featureCategory.upsert({
       where: { name },
       update: {},
       create: { name },
     });
+  }
+  console.log("Seeded feature categories.");
+
+  const allCategories = await prisma.featureCategory.findMany();
+  const categoryMap = new Map(allCategories.map(c => [c.name, c.id]));
+
+
+  const features = [
+    { name: "Integrated Video Hosting", category: "Core Features" },
+    { name: "Assessments & Quizzes", category: "Student Engagement" },
+    { name: "Drip Content", category: "Site & Content" },
+    { name: "Community Forum", category: "Student Engagement" },
+    { name: "Affiliate Marketing Tools", category: "Marketing & Sales" },
+    { name: "Custom Certificate", category: "Student Engagement" },
+    { name: "Mobile App Access", category: "Advanced" },
+    { name: "Advanced Analytics", category: "Advanced" },
+  ];
+
+  for (const featureData of features) {
+    const categoryId = categoryMap.get(featureData.category);
+    if (categoryId) {
+      await prisma.feature.upsert({
+        where: { name: featureData.name },
+        update: { categoryId },
+        create: { name: featureData.name, categoryId },
+      });
+    }
   }
   console.log("Seeded features.");
 

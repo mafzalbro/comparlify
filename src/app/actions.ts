@@ -963,3 +963,110 @@ export async function sendContactMessageAction(
     };
   }
 }
+
+// --- Platform Actions ---
+
+const platformSchema = z.object({
+    name: z.string().min(2),
+    website: z.string().url(),
+    logoUrl: z.string().url(),
+    description: z.string().min(10),
+    rating: z.coerce.number().min(0).max(5).optional(),
+    easeOfUse: z.coerce.number().min(0).max(5).optional(),
+    featuresRating: z.coerce.number().min(0).max(5).optional(),
+    support: z.coerce.number().min(0).max(5).optional(),
+});
+
+
+export async function createPlatform(prevState: any, formData: FormData) {
+  const validatedFields = platformSchema.safeParse(Object.fromEntries(formData.entries()));
+
+  if (!validatedFields.success) {
+    return { error: validatedFields.error.flatten().fieldErrors };
+  }
+  
+  try {
+    await prisma.platform.create({
+      data: validatedFields.data,
+    });
+    revalidatePath('/admin/platforms');
+  } catch (error) {
+    console.error(error);
+    return { error: 'Failed to create platform.' };
+  }
+  
+  redirect('/admin/platforms');
+}
+
+
+export async function updatePlatform(id: string, prevState: any, formData: FormData) {
+  const formDataObj = Object.fromEntries(formData.entries());
+  
+  const validatedFields = platformSchema.safeParse(formDataObj);
+  if (!validatedFields.success) {
+    return { error: validatedFields.error.flatten().fieldErrors };
+  }
+
+  const featuresUpdateData = Object.entries(formDataObj)
+    .filter(([key]) => key.startsWith('features['))
+    .reduce((acc, [key, value]) => {
+      const match = key.match(/features\[(.*?)\]\.(.*)/);
+      if (match) {
+        const [, featureId, field] = match;
+        if (!acc[featureId]) {
+          acc[featureId] = {};
+        }
+        acc[featureId][field] = value;
+      }
+      return acc;
+    }, {} as Record<string, any>);
+
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      await tx.platform.update({
+        where: { id },
+        data: validatedFields.data,
+      });
+
+      for (const featureId in featuresUpdateData) {
+        const featureData = featuresUpdateData[featureId];
+        await tx.platformFeature.upsert({
+          where: { platformId_featureId: { platformId: id, featureId } },
+          create: {
+            platformId: id,
+            featureId,
+            hasFeature: featureData.hasFeature === 'on',
+            details: featureData.details || null,
+          },
+          update: {
+            hasFeature: featureData.hasFeature === 'on',
+            details: featureData.details || null,
+          },
+        });
+      }
+    });
+
+    revalidatePath('/admin/platforms');
+    revalidatePath(`/admin/platforms/edit/${id}`);
+    revalidatePath('/compare');
+  } catch (error) {
+    console.error(error);
+    return { error: 'Failed to update platform.' };
+  }
+
+  redirect('/admin/platforms');
+}
+
+
+export async function deletePlatform(id: string) {
+  try {
+    await prisma.platform.delete({ where: { id } });
+    revalidatePath('/admin/platforms');
+    revalidatePath('/compare');
+  } catch (error) {
+    console.error(error);
+    return { error: 'Failed to delete platform.' };
+  }
+  redirect('/admin/platforms');
+}
