@@ -231,7 +231,7 @@ export default function Home() {
                                     </div>
                                     <h3 className="font-headline text-3xl font-bold text-foreground">{tab.title}</h3>
                                     <p className="text-lg text-muted-foreground">{tab.description}</p>
-                                    <Button asChild className="group rounded-full">
+                                    <Button asChild className="group">
                                         <Link href={tab.value === 'comparisons' ? '/compare' : (tab.value === 'ai-tools' ? '/tools' : '/blog')}>
                                             Learn More <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                                         </Link>
