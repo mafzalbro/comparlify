@@ -1,10 +1,53 @@
+'use client';
+
 import Link from 'next/link';
+import { useActionState, useEffect, useRef } from 'react';
+import { useFormStatus } from 'react-dom';
+import { toast } from '@/hooks/use-toast';
+import { subscribeAction } from '@/app/actions';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { Github, Twitter, Linkedin } from 'lucide-react';
+import { Github, Twitter, Linkedin, Loader2, ArrowRight } from 'lucide-react';
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" disabled={pending}>
+      {pending ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : (
+        'Subscribe'
+      )}
+    </Button>
+  );
+}
 
 export default function Footer() {
+  const formRef = useRef<HTMLFormElement>(null);
+  const [state, formAction] = useActionState(subscribeAction, {
+    message: null,
+    error: null,
+  });
+
+  useEffect(() => {
+    if (state.message) {
+      toast({
+        title: 'Success!',
+        description: state.message,
+      });
+      formRef.current?.reset();
+    }
+    if (state.error) {
+      toast({
+        title: 'Error',
+        description: state.error,
+        variant: 'destructive',
+      });
+    }
+  }, [state]);
+
+
   return (
     <footer className="bg-secondary/50 border-t border-border/40">
       <div className="container py-12 px-4 md:px-6">
@@ -47,9 +90,9 @@ export default function Footer() {
           <div className="space-y-4 md:col-span-1">
             <h3 className="font-headline text-lg font-semibold">Stay Updated</h3>
             <p className="text-sm text-muted-foreground">Get the latest tips and tool updates straight to your inbox.</p>
-            <form className="flex gap-2">
-              <Input type="email" placeholder="Enter your email" className="bg-background" />
-              <Button type="submit">Subscribe</Button>
+            <form ref={formRef} action={formAction} className="flex gap-2">
+              <Input name="email" type="email" placeholder="Enter your email" className="bg-background" required />
+              <SubmitButton />
             </form>
           </div>
         </div>
