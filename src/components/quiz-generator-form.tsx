@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
-import { generateVideoScriptAction } from '@/app/actions';
+import { generateQuizAction } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -28,64 +28,64 @@ function SubmitButton() {
       {pending ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Generating Script...
+          Generating Quiz...
         </>
       ) : (
         <>
           <Sparkles className="mr-2 h-4 w-4" />
-          Generate Script
+          Generate Quiz
         </>
       )}
     </Button>
   );
 }
 
-export function VideoScripterForm() {
-  const initialState = { videoScript: null, error: null };
-  const [state, formAction] = useActionState(generateVideoScriptAction, initialState);
-  const [duration, setDuration] = React.useState(5);
+export function QuizGeneratorForm() {
+  const initialState = { quiz: null, error: null };
+  const [state, formAction] = useActionState(generateQuizAction, initialState);
+  const [numQuestions, setNumQuestions] = React.useState(5);
 
   return (
     <>
       <Card className="shadow-lg">
         <form action={formAction}>
           <CardHeader>
-            <CardTitle className="font-headline">Describe Your Lesson</CardTitle>
+            <CardTitle className="font-headline">Lesson Content</CardTitle>
             <CardDescription>
-              Provide the topic for your video lesson and choose the desired length. The AI will generate a complete script for you.
+              Paste your lesson text below and choose the number of questions. The AI will generate a multiple-choice quiz.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="lessonTopic">Lesson Topic</Label>
+              <Label htmlFor="textContent">Lesson Text</Label>
               <Textarea
-                id="lessonTopic"
-                name="lessonTopic"
-                placeholder="e.g., 'How to choose the right flour for sourdough bread' or 'An introduction to React Hooks: useState and useEffect'"
-                rows={4}
+                id="textContent"
+                name="textContent"
+                placeholder="Paste the content you want to create a quiz from..."
+                rows={10}
                 required
               />
-              {typeof state.error === 'object' && state.error?.lessonTopic && (
-                <p className="text-sm text-destructive">{state.error.lessonTopic[0]}</p>
+              {typeof state.error === 'object' && state.error?.textContent && (
+                <p className="text-sm text-destructive">{state.error.textContent[0]}</p>
               )}
             </div>
              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="videoDuration">Desired Video Duration (minutes)</Label>
+                <Label htmlFor="numQuestions">Number of Questions</Label>
                 <div className="flex items-center gap-4">
                     <Slider 
-                        id="videoDuration"
-                        name="videoDuration"
+                        id="numQuestions"
+                        name="numQuestions"
                         min={1} 
-                        max={30} 
+                        max={10} 
                         step={1} 
-                        value={[duration]}
-                        onValueChange={(value) => setDuration(value[0])}
+                        value={[numQuestions]}
+                        onValueChange={(value) => setNumQuestions(value[0])}
                         className="flex-1"
                     />
-                    <span className="font-mono text-lg w-16 text-center bg-muted py-1 rounded-md">{duration} min</span>
+                    <span className="font-mono text-lg w-16 text-center bg-muted py-1 rounded-md">{numQuestions}</span>
                 </div>
-                 {typeof state.error === 'object' && state.error?.videoDuration && (
-                    <p className="text-sm text-destructive">{state.error.videoDuration[0]}</p>
+                 {typeof state.error === 'object' && state.error?.numQuestions && (
+                    <p className="text-sm text-destructive">{state.error.numQuestions[0]}</p>
                 )}
              </div>
           </CardContent>
@@ -95,13 +95,13 @@ export function VideoScripterForm() {
         </form>
       </Card>
 
-      {state.videoScript && (
+      {state.quiz && (
         <Alert className="mt-8">
             <Sparkles className="h-5 w-5" />
-            <AlertTitle className="font-bold">Generated Video Script</AlertTitle>
+            <AlertTitle className="font-bold">Generated Quiz</AlertTitle>
             <AlertDescription>
-              <ScrollArea className="h-80 mt-4">
-                 <MarkdownContent content={state.videoScript} />
+              <ScrollArea className="h-96 mt-4">
+                 <MarkdownContent content={state.quiz} />
               </ScrollArea>
             </AlertDescription>
         </Alert>

@@ -16,6 +16,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { getChatbotResponse } from '@/app/actions';
+import { MarkdownContent } from './markdown-content';
 
 type Message = {
   id: string;
@@ -125,12 +126,13 @@ export function Chatbot() {
                   <div
                     className={cn(
                       'max-w-xs rounded-lg px-4 py-2 text-sm',
-                      'prose dark:prose-invert prose-p:my-0',
                       message.role === 'user'
                         ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted text-muted-foreground'
+                        : 'bg-muted'
                     )}
-                  dangerouslySetInnerHTML={{ __html: message.content.replace(/\n/g, '<br />')}}/>
+                    >
+                      <MarkdownContent content={message.content} className={cn(message.role === 'user' ? 'prose-invert' : '')} />
+                    </div>
 
                   {message.role === 'user' && (
                     <Avatar className="h-8 w-8">

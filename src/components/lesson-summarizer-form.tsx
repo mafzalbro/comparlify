@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
-import { generateCourseOutlineAction } from '@/app/actions';
+import { generateLessonSummaryAction } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -26,45 +26,45 @@ function SubmitButton() {
       {pending ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Generating Outline...
+          Summarizing...
         </>
       ) : (
         <>
           <Sparkles className="mr-2 h-4 w-4" />
-          Generate Outline
+          Generate Summary
         </>
       )}
     </Button>
   );
 }
 
-export function CourseOutlinerForm() {
-  const initialState = { courseOutline: null, error: null };
-  const [state, formAction] = useActionState(generateCourseOutlineAction, initialState);
+export function LessonSummarizerForm() {
+  const initialState = { summary: null, error: null };
+  const [state, formAction] = useActionState(generateLessonSummaryAction, initialState);
 
   return (
     <>
       <Card className="shadow-lg">
         <form action={formAction}>
           <CardHeader>
-            <CardTitle className="font-headline">Describe Your Course</CardTitle>
+            <CardTitle className="font-headline">Lesson Content</CardTitle>
             <CardDescription>
-              Provide a high-level description of your course topic. The more specific you are, the better the generated outline will be.
+              Paste the full text of your lesson below, and the AI will generate a concise summary and list the key takeaways.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid w-full items-center gap-4">
               <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="courseDescription">Course Description</Label>
+                <Label htmlFor="lessonContent">Lesson Text</Label>
                 <Textarea
-                  id="courseDescription"
-                  name="courseDescription"
-                  placeholder="e.g., 'An introductory course on baking sourdough bread at home, covering starters, kneading techniques, and different types of loaves...'"
-                  rows={6}
+                  id="lessonContent"
+                  name="lessonContent"
+                  placeholder="Paste your entire lesson transcript or text here..."
+                  rows={12}
                   required
                 />
-                {typeof state.error === 'object' && state.error?.courseDescription && (
-                  <p className="text-sm text-destructive">{state.error.courseDescription[0]}</p>
+                {typeof state.error === 'object' && state.error?.lessonContent && (
+                  <p className="text-sm text-destructive">{state.error.lessonContent[0]}</p>
                 )}
               </div>
             </div>
@@ -75,13 +75,13 @@ export function CourseOutlinerForm() {
         </form>
       </Card>
 
-      {state.courseOutline && (
+      {state.summary && (
          <Alert className="mt-8">
             <Sparkles className="h-5 w-5" />
-            <AlertTitle className="font-bold">Generated Course Outline</AlertTitle>
+            <AlertTitle className="font-bold">Generated Summary</AlertTitle>
             <AlertDescription>
               <ScrollArea className="h-72 mt-4">
-                <MarkdownContent content={state.courseOutline} />
+                <MarkdownContent content={state.summary} />
               </ScrollArea>
             </AlertDescription>
         </Alert>

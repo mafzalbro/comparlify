@@ -14,10 +14,18 @@ import {
   Video,
   BookOpen,
   type LucideIcon,
+  HelpCircle,
+  Users,
+  MessageSquareQuote,
+  GraduationCap,
+  Sparkles,
+  Mail,
+  Share2,
+  ListChecks,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
-type ToolCategory = 'Content Creation' | 'Marketing' | 'Productivity';
+type ToolCategory = 'Content Creation' | 'Marketing' | 'Productivity' | 'Engagement' | 'Curriculum Design';
 
 type Tool = {
   slug: string;
@@ -42,7 +50,7 @@ const allTools: Tool[] = [
     title: 'AI Course Outliner',
     description: 'Generate a comprehensive, structured outline for your course in minutes.',
     Icon: FileText,
-    category: 'Content Creation',
+    category: 'Curriculum Design',
     href: '/tools/course-outliner',
   },
   {
@@ -59,21 +67,87 @@ const allTools: Tool[] = [
     description: 'Automatically generate key takeaways and summaries for each of your lessons.',
     Icon: BookOpen,
     category: 'Productivity',
-    href: '#', // Placeholder
+    href: '/tools/lesson-summarizer',
+  },
+   {
+    slug: 'quiz-generator',
+    title: 'AI Quiz Generator',
+    description: 'Create multiple-choice quizzes from your course content to test student knowledge.',
+    Icon: HelpCircle,
+    category: 'Content Creation',
+    href: '/tools/quiz-generator',
+  },
+  {
+    slug: 'audience-persona-generator',
+    title: 'AI Audience Persona Generator',
+    description: 'Develop detailed personas of your target audience to tailor your content.',
+    Icon: Users,
+    category: 'Marketing',
+    href: '/tools/audience-persona-generator',
+  },
+  {
+    slug: 'course-description-writer',
+    title: 'AI Course Description Writer',
+    description: 'Write compelling, persuasive descriptions for your course sales page.',
+    Icon: MessageSquareQuote,
+    category: 'Marketing',
+    href: '/tools/course-description-writer',
+  },
+  {
+    slug: 'learning-objectives-generator',
+    title: 'AI Learning Objectives Generator',
+    description: 'Clearly define what students will be able to do after completing your course.',
+    Icon: GraduationCap,
+    category: 'Curriculum Design',
+    href: '/tools/learning-objectives-generator',
+  },
+  {
+    slug: 'email-subject-line-generator',
+    title: 'AI Email Subject Line Generator',
+    description: 'Craft attention-grabbing email subject lines for your marketing campaigns.',
+    Icon: Mail,
+    category: 'Marketing',
+    href: '/tools/email-subject-line-generator',
+  },
+  {
+    slug: 'social-media-post-generator',
+    title: 'AI Social Media Post Generator',
+    description: 'Quickly generate posts for platforms like Twitter, LinkedIn, and Facebook to promote your course.',
+    Icon: Share2,
+    category: 'Marketing',
+    href: '/tools/social-media-post-generator',
+  },
+  {
+    slug: 'faq-generator',
+    title: 'AI FAQ Generator',
+    description: 'Generate a list of frequently asked questions and answers from your course content.',
+    Icon: ListChecks,
+    category: 'Productivity',
+    href: '/tools/faq-generator',
+  },
+  {
+    slug: 'analogy-generator',
+    title: 'AI Analogy Generator',
+    description: 'Explain complex topics with simple, easy-to-understand analogies.',
+    Icon: Sparkles,
+    category: 'Content Creation',
+    href: '/tools/analogy-generator',
   },
 ];
 
 const categories: ToolCategory[] = [
   'Content Creation',
   'Marketing',
+  'Curriculum Design',
   'Productivity',
+  'Engagement',
 ];
 
 function CategoryButton({ category, selectedCategory }: { category: ToolCategory | 'All', selectedCategory: string }) {
     const isSelected = category.toLowerCase() === selectedCategory.toLowerCase() || (selectedCategory === 'all' && category === 'All');
     return (
         <Button asChild variant={isSelected ? 'default' : 'ghost'} className="rounded-md">
-            <Link href={category === 'All' ? '/tools' : `/tools?category=${category}`}>{category}</Link>
+            <Link href={category === 'All' ? '/tools' : `/tools?category=${category}`} scroll={false}>{category}</Link>
         </Button>
     )
 }
