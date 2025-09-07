@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, LogIn, TriangleAlert } from 'lucide-react';
+import { Loader2, KeyRound, TriangleAlert } from 'lucide-react';
 
 interface AuthFormProps {
   title: string;
@@ -38,7 +38,7 @@ function SubmitButton({ label }: { label: string }) {
         </>
       ) : (
         <>
-          <LogIn className="mr-2 h-4 w-4" />
+          <KeyRound className="mr-2 h-4 w-4" />
           {label}
         </>
       )}
