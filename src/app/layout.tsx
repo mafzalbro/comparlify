@@ -6,6 +6,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import type { Metadata } from 'next';
 import { generateSeoMetadata } from '@/lib/seo';
 import { CookieConsentBanner } from '@/components/cookie-consent-banner';
+import { seed } from '../../prisma/seed';
 
 export const metadata: Metadata = generateSeoMetadata({
   path: '/',
@@ -17,6 +18,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
 
+  // seed()
+
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <head>
@@ -26,10 +29,10 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased flex flex-col min-h-screen bg-background">
         <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
         >
           <AuthProvider>
             <div className='flex-1 flex flex-col'>

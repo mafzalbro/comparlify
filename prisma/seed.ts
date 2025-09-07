@@ -1,4 +1,3 @@
-
 "use server";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
@@ -24,8 +23,7 @@ async function main() {
   console.log("Seeded feature categories.");
 
   const allCategories = await prisma.featureCategory.findMany();
-  const categoryMap = new Map(allCategories.map(c => [c.name, c.id]));
-
+  const categoryMap = new Map(allCategories.map((c) => [c.name, c.id]));
 
   const features = [
     { name: "Integrated Video Hosting", category: "Core Features" },
@@ -169,13 +167,13 @@ async function main() {
           },
           update: {
             hasFeature: featureDetails.hasFeature,
-            details: featureDetails.details,
+            // details: featureDetails.details,
           },
           create: {
             platformId: platform.id,
             featureId,
             hasFeature: featureDetails.hasFeature,
-            details: featureDetails.details,
+            // details: featureDetails.details,
           },
         });
       }
