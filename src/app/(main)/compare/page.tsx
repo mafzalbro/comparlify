@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import Image from 'next/image';
 import prisma from '@/lib/prisma';
@@ -89,8 +90,9 @@ export default async function ComparePage({
     platforms?: string | string[];
   };
 }) {
+  const { search, sort, platforms } = searchParams;
   const [comparisons, allPlatforms] = await Promise.all([
-    getComparisons(searchParams),
+    getComparisons({ search, sort, platforms }),
     prisma.platform.findMany({ orderBy: { name: 'asc' } }),
   ]);
   
@@ -113,45 +115,47 @@ export default async function ComparePage({
           </p>
         </div>
 
-        <Card className="mb-12 p-6 shadow-lg">
-          <form className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
-            <div className="md:col-span-2 space-y-2">
-              <Label htmlFor="search">Search Comparisons</Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                  id="search"
-                  name="search"
-                  placeholder="Search by title or keyword..."
-                  className="pl-10"
-                  defaultValue={searchParams.search}
-                />
-              </div>
+        <Card className="mb-12 p-4 md:p-6 shadow-lg">
+          <form className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <div className="md:col-span-1 space-y-2">
+                    <Label htmlFor="search">Search</Label>
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                        <Input
+                        id="search"
+                        name="search"
+                        placeholder="Search by keyword..."
+                        className="pl-10"
+                        defaultValue={searchParams.search}
+                        />
+                    </div>
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="sort">Sort By</Label>
+                    <Select name="sort" defaultValue={searchParams.sort ?? 'newest'}>
+                        <SelectTrigger id="sort">
+                        <SelectValue placeholder="Sort by" />
+                        </SelectTrigger>
+                        <SelectContent>
+                        <SelectItem value="newest">Newest</SelectItem>
+                        <SelectItem value="oldest">Oldest</SelectItem>
+                        <SelectItem value="rating">Highest Rated</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div className="flex items-end gap-2">
+                    <Button type="submit" className="w-full">
+                        Apply Filters
+                    </Button>
+                    <Button asChild variant="outline" className="w-full">
+                        <Link href="/compare">Reset</Link>
+                    </Button>
+                </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="sort">Sort By</Label>
-              <Select name="sort" defaultValue={searchParams.sort ?? 'newest'}>
-                <SelectTrigger id="sort">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="newest">Newest</SelectItem>
-                  <SelectItem value="oldest">Oldest</SelectItem>
-                  <SelectItem value="rating">Highest Rated</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex items-end gap-2">
-                 <Button type="submit" className="w-full">
-                    Apply Filters
-                </Button>
-                 <Button asChild variant="outline" className="w-full">
-                    <Link href="/compare">Reset</Link>
-                </Button>
-            </div>
-            <div className="md:col-span-4 pt-4">
-                 <Label className="block mb-3 font-medium">Filter by Platform</Label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+             <div className="space-y-2 pt-2">
+                 <Label className="block mb-2 font-medium">Filter by Platform</Label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-8 gap-x-4 gap-y-2">
                 {allPlatforms.map(platform => (
                     <div key={platform.id} className="flex items-center gap-2">
                         <Checkbox 

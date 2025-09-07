@@ -77,8 +77,9 @@ export default async function BlogPage({
     author?: string;
   };
 }) {
+  const { search, sort, author } = searchParams;
   const [blogPosts, authors] = await Promise.all([
-      getBlogPosts(searchParams),
+      getBlogPosts({ search, sort, author }),
       prisma.user.findMany({ where: { posts: { some: {} } }})
   ])
 
@@ -93,10 +94,10 @@ export default async function BlogPage({
         </p>
       </div>
       
-      <Card className="mb-12 p-6 shadow-lg bg-card/60">
-        <form className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
-          <div className="md:col-span-2 space-y-2">
-            <Label htmlFor="search">Search Blog</Label>
+      <Card className="mb-12 p-4 md:p-6 shadow-lg bg-card/60">
+        <form className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+          <div className="lg:col-span-2 space-y-2">
+            <Label htmlFor="search">Search</Label>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
@@ -122,7 +123,7 @@ export default async function BlogPage({
             </Select>
           </div>
            <div className="space-y-2">
-            <Label htmlFor="author">Filter by Author</Label>
+            <Label htmlFor="author">Author</Label>
             <Select name="author" defaultValue={searchParams.author ?? 'all'}>
               <SelectTrigger id="author">
                 <SelectValue placeholder="All Authors" />
@@ -135,7 +136,7 @@ export default async function BlogPage({
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-end gap-2 md:col-start-4">
+          <div className="flex items-end gap-2">
                <Button type="submit" className="w-full">
                   Apply
               </Button>
