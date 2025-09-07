@@ -167,57 +167,85 @@ export default async function ToolsPage({ searchParams }: { searchParams?: { cat
     selectedCategory === 'All'
       ? allTools
       : allTools.filter((tool) => tool.category === selectedCategory);
+  
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'AI Creator Tools',
+    description: 'A suite of intelligent tools designed to streamline your course creation workflow, from outlining content to marketing.',
+    itemListElement: allTools.map((tool, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@type': 'Service',
+        name: tool.title,
+        description: tool.description,
+        url: `https://www.comparlify.com${tool.href}`, // Replace with actual domain
+        provider: {
+          '@type': 'Organization',
+          name: 'Comparlify',
+        },
+      },
+    })),
+  };
+
 
   return (
-    <div className="container py-16 md:py-24 px-4 md:px-6">
-      <div className="text-center mb-16">
-        <h1 className="font-headline text-5xl md:text-6xl font-bold text-foreground">
-          AI-Powered Creator Tools
-        </h1>
-        <p className="mt-4 text-xl text-muted-foreground max-w-2xl mx-auto">
-          A suite of intelligent tools designed to streamline your workflow and amplify your success.
-        </p>
-      </div>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <div className="container py-16 md:py-24 px-4 md:px-6">
+        <div className="text-center mb-16">
+          <h1 className="font-headline text-5xl md:text-6xl font-bold text-foreground">
+            AI-Powered Creator Tools
+          </h1>
+          <p className="mt-4 text-xl text-muted-foreground max-w-2xl mx-auto">
+            A suite of intelligent tools designed to streamline your workflow and amplify your success.
+          </p>
+        </div>
 
-      <div className="flex justify-center mb-12">
-        <div className="flex flex-wrap gap-2 bg-muted p-2 rounded-lg">
-           <CategoryButton category="All" selectedCategory={selectedCategory} />
-          {categories.map((category) => (
-            <CategoryButton key={category} category={category} selectedCategory={selectedCategory} />
+        <div className="flex justify-center mb-12">
+          <div className="flex flex-wrap gap-2 bg-muted p-2 rounded-lg">
+            <CategoryButton category="All" selectedCategory={selectedCategory} />
+            {categories.map((category) => (
+              <CategoryButton key={category} category={category} selectedCategory={selectedCategory} />
+            ))}
+          </div>
+        </div>
+
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
+          {filteredTools.map((tool, index) => (
+            <div key={tool.slug} className="animate-fade-in-up" style={{ animationDelay: `${index * 150}ms`, animationFillMode: 'both' }}>
+              <Card className="flex flex-col h-full group overflow-hidden transform hover:-translate-y-1 transition-transform duration-300 shadow-md hover:shadow-xl">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                      <div className="bg-primary/20 p-3 rounded-lg">
+                          <tool.Icon className="h-8 w-8 text-primary" />
+                      </div>
+                      <Badge variant="outline">{tool.category}</Badge>
+                  </div>
+                  <CardTitle className="font-headline text-2xl pt-4">{tool.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="flex-1">
+                  <p className="text-muted-foreground">{tool.description}</p>
+                </CardContent>
+                <div className="p-6 pt-0">
+                  <Button asChild className="w-full group-hover:bg-primary/90 transition-colors" disabled={tool.href === '#'}>
+                      <Link href={tool.href}>
+                          {tool.href === '#' ? 'Coming Soon' : 'Launch Tool'}
+                          {tool.href !== '#' && <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />}
+                      </Link>
+                  </Button>
+                </div>
+              </Card>
+            </div>
           ))}
         </div>
       </div>
-
-      <div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-      >
-        {filteredTools.map((tool, index) => (
-          <div key={tool.slug} className="animate-fade-in-up" style={{ animationDelay: `${index * 150}ms`, animationFillMode: 'both' }}>
-            <Card className="flex flex-col h-full group overflow-hidden transform hover:-translate-y-1 transition-transform duration-300 shadow-md hover:shadow-xl">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                    <div className="bg-primary/20 p-3 rounded-lg">
-                        <tool.Icon className="h-8 w-8 text-primary" />
-                    </div>
-                    <Badge variant="outline">{tool.category}</Badge>
-                </div>
-                <CardTitle className="font-headline text-2xl pt-4">{tool.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="flex-1">
-                <p className="text-muted-foreground">{tool.description}</p>
-              </CardContent>
-              <div className="p-6 pt-0">
-                 <Button asChild className="w-full group-hover:bg-primary/90 transition-colors" disabled={tool.href === '#'}>
-                    <Link href={tool.href}>
-                        {tool.href === '#' ? 'Coming Soon' : 'Launch Tool'}
-                        {tool.href !== '#' && <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />}
-                    </Link>
-                </Button>
-              </div>
-            </Card>
-          </div>
-        ))}
-      </div>
-    </div>
+    </>
   );
 }

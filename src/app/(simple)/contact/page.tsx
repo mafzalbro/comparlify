@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, Phone, MapPin, Loader2, Send, CheckCircle, AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useSession } from 'next-auth/react';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -30,6 +31,7 @@ function SubmitButton() {
 }
 
 export default function ContactPage() {
+  const { data: session } = useSession();
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useActionState(sendContactMessageAction, {
     error: null,
@@ -91,12 +93,12 @@ export default function ContactPage() {
           <form ref={formRef} action={formAction} className="space-y-6 bg-card p-8 rounded-lg shadow-md">
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
-              <Input id="name" name="name" placeholder="Your Name" required />
+              <Input id="name" name="name" placeholder="Your Name" defaultValue={session?.user?.name ?? ''} required />
               {state.error?.name && <p className="text-sm text-destructive">{state.error.name[0]}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" placeholder="you@example.com" required />
+              <Input id="email" name="email" type="email" placeholder="you@example.com" defaultValue={session?.user?.email ?? ''} required />
                {state.error?.email && <p className="text-sm text-destructive">{state.error.email[0]}</p>}
             </div>
             <div className="space-y-2">

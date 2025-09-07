@@ -59,7 +59,7 @@ async function getPostData(slug: string) {
     return { post, relatedPosts, nextPost };
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { slug:string } }): Promise<Metadata> {
   const { post } = await getPostData(params.slug);
 
   if (!post) {
@@ -85,7 +85,34 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
 
   const readTime = Math.ceil(post.content.split(/\s+/).length / 200);
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.description,
+    image: post.image.replace('400/250', '1200/675'),
+    datePublished: post.createdAt.toISOString(),
+    dateModified: post.updatedAt.toISOString(),
+    author: {
+      '@type': 'Person',
+      name: post.author.name,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Comparlify',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://www.comparlify.com/logo.png', // Replace with actual logo URL
+      },
+    },
+  };
+
   return (
+    <>
+    <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
     <div className="container max-w-6xl py-12 md:py-16">
         <div className="text-sm mb-6">
             <Button asChild variant="ghost" className="mb-4">
@@ -188,5 +215,6 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
             </aside>
         </div>
     </div>
+    </>
   );
 }
