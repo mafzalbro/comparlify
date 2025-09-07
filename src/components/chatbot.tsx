@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, use } from 'react';
 import { Bot, Send, User, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,21 +13,26 @@ import {
 } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { getChatbotResponse } from '@/app/actions';
 
 type Message = {
-  id: number;
+  id: string;
   role: 'user' | 'assistant';
   content: string;
 };
+
+type HistoryMessage = {
+    role: 'user' | 'model',
+    content: {text: string}[]
+}
 
 export function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
-      id: 1,
+      id: '1',
       role: 'assistant',
       content: "Hello! I'm the Comparlify AI assistant. How can I help you today?",
     },
@@ -38,30 +43,41 @@ export function Chatbot() {
 
   useEffect(() => {
     if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTo({
-        top: scrollAreaRef.current.scrollHeight,
-        behavior: 'smooth',
-      });
+      const scrollableView = scrollAreaRef.current.children[0] as HTMLDivElement;
+      if (scrollableView) {
+          scrollableView.scrollTo({
+          top: scrollableView.scrollHeight,
+          behavior: 'smooth',
+        });
+      }
     }
   }, [messages]);
+
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
     const userMessage: Message = {
-      id: Date.now(),
+      id: Date.now().toString(),
       role: 'user',
       content: input,
     };
-    setMessages((prev) => [...prev, userMessage]);
+    
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
     setInput('');
     setIsLoading(true);
 
-    const { response } = await getChatbotResponse({ query: input });
+    const history: HistoryMessage[] = newMessages.slice(0, -1).map(msg => ({
+        role: msg.role === 'assistant' ? 'model' : 'user',
+        content: [{ text: msg.content }]
+    }));
+
+    const { response } = await getChatbotResponse({ query: input, history });
 
     const assistantMessage: Message = {
-      id: Date.now() + 1,
+      id: (Date.now() + 1).toString(),
       role: 'assistant',
       content: response,
     };
@@ -109,13 +125,13 @@ export function Chatbot() {
                   <div
                     className={cn(
                       'max-w-xs rounded-lg px-4 py-2 text-sm',
+                      'prose dark:prose-invert prose-p:my-0',
                       message.role === 'user'
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-muted text-muted-foreground'
                     )}
-                  >
-                    {message.content}
-                  </div>
+                  dangerouslySetInnerHTML={{ __html: message.content.replace(/\n/g, '<br />')}}/>
+
                   {message.role === 'user' && (
                     <Avatar className="h-8 w-8">
                       <AvatarFallback>

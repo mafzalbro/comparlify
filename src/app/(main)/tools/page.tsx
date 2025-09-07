@@ -43,7 +43,7 @@ const allTools: Tool[] = [
     description: 'Generate a comprehensive, structured outline for your course in minutes.',
     Icon: FileText,
     category: 'Content Creation',
-    href: '#', // Placeholder
+    href: '/tools/course-outliner',
   },
   {
     slug: 'video-scripter',
@@ -51,7 +51,7 @@ const allTools: Tool[] = [
     description: 'Create engaging scripts for your video lessons that keep students hooked.',
     Icon: Video,
     category: 'Content Creation',
-    href: '#', // Placeholder
+    href: '/tools/video-scripter',
   },
   {
     slug: 'lesson-summarizer',

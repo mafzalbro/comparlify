@@ -16,12 +16,12 @@ const AITitleGeneratorInputSchema = z.object({
     .string()
     .describe('A detailed description of the course content.'),
 });
-export type AITitleGeneratorInput = z.infer<typeof AITitleGeneratorInputSchema>;
+type AITitleGeneratorInput = z.infer<typeof AITitleGeneratorInputSchema>;
 
 const AITitleGeneratorOutputSchema = z.object({
   courseTitle: z.string().describe('An engaging and effective title for the course.'),
 });
-export type AITitleGeneratorOutput = z.infer<typeof AITitleGeneratorOutputSchema>;
+type AITitleGeneratorOutput = z.infer<typeof AITitleGeneratorOutputSchema>;
 
 export async function generateTitle(input: AITitleGeneratorInput): Promise<AITitleGeneratorOutput> {
   return aiTitleGeneratorFlow(input);
