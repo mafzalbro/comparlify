@@ -1,6 +1,6 @@
 'use client';
 
-import { useFormStatus } from 'react-dom';
+import { useFormState, useFormStatus } from 'react-dom';
 import { deletePlatform } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,13 +29,15 @@ function SubmitButton() {
 }
 
 export function DeletePlatformButton({ id }: { id: string }) {
+  const [state, formAction] = useFormState(deletePlatform.bind(null, id), { error: null });
+
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button variant="destructive" size="sm">Delete</Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
-        <form action={() => deletePlatform(id)}>
+        <form action={formAction}>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>

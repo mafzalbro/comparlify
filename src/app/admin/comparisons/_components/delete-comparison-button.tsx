@@ -1,6 +1,6 @@
 'use client';
 
-import { useFormStatus } from 'react-dom';
+import { useFormState, useFormStatus } from 'react-dom';
 import { deleteComparison } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,13 +29,15 @@ function SubmitButton() {
 }
 
 export function DeleteComparisonButton({ id }: { id: string }) {
+  const [state, formAction] = useFormState(deleteComparison.bind(null, id), { error: null });
+
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button variant="destructive" size="sm">Delete</Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
-        <form action={() => deleteComparison(id)}>
+        <form action={formAction}>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>

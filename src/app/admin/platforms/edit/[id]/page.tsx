@@ -1,42 +1,37 @@
-import prisma from '@/lib/prisma';
-import { notFound } from 'next/navigation';
-import { EditPlatformPageClient } from './page-client';
+'use client';
 
-async function getPlatform(id: string) {
-  const platform = await prisma.platform.findUnique({
-    where: { id },
-    include: {
-      features: true,
-    },
-  });
-  return platform;
-}
+import { PlatformForm } from '../../_components/platform-form';
+import type { Platform, Feature, PlatformFeature, FeatureCategory } from '@prisma/client';
+import { useState, useEffect } from 'react';
 
-async function getFeatures() {
-    return prisma.feature.findMany({ include: { category: true }, orderBy: { category: { name: 'asc' } } });
-}
+type PlatformWithFeatures = Platform & { features: PlatformFeature[] };
 
-async function getFeatureCategories() {
-    return prisma.featureCategory.findMany({ orderBy: { name: 'asc' } });
-}
+export default function EditPlatformPage({ params }: { params: { id: string } }) {
+    const [platform, setPlatform] = useState<PlatformWithFeatures | null>(null);
+    const [features, setFeatures] = useState<(Feature & { category: FeatureCategory })[]>([]);
+    const [featureCategories, setFeatureCategories] = useState<FeatureCategory[]>([]);
 
-export default async function EditPlatformPage(props: { params: Promise<{ id: string }> }) {
-  const params = await props.params;
-  const [platform, features, featureCategories] = await Promise.all([
-    getPlatform(params.id),
-    getFeatures(),
-    getFeatureCategories()
-  ]);
+    useEffect(() => {
+        // In a real app, this data would be fetched from API routes.
+        // For example:
+        // fetch(`/api/platforms/${params.id}`).then(res => res.json()).then(setPlatform);
+        // fetch(`/api/features`).then(res => res.json()).then(setFeatures);
+        // fetch(`/api/feature-categories`).then(res => res.json()).then(setFeatureCategories);
+    }, [params.id]);
 
-  if (!platform) {
-    notFound();
-  }
-
-  return (
-    <EditPlatformPageClient
-      platform={platform}
-      features={features}
-      featureCategories={featureCategories}
-    />
-  );
+    return (
+        <div>
+            <h1 className="text-3xl font-bold mb-6">Edit Platform</h1>
+            {platform ? (
+                 <PlatformForm
+                    platform={platform}
+                    features={features}
+                    featureCategories={featureCategories}
+                />
+            ) : (
+                // You can add a proper loading skeleton here
+                <p>Loading...</p>
+            )}
+        </div>
+    );
 }

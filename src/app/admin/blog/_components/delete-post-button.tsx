@@ -15,6 +15,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Loader2 } from 'lucide-react';
+import { useFormState } from 'react-dom';
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -29,13 +30,15 @@ function SubmitButton() {
 }
 
 export function DeletePostButton({ id }: { id: string }) {
+  const [state, formAction] = useFormState(deletePost.bind(null, id), { error: null });
+
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button variant="destructive" size="sm">Delete</Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
-        <form action={() => deletePost(id)}>
+        <form action={formAction}>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
