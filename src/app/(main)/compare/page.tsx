@@ -1,174 +1,129 @@
-import prisma from '@/lib/prisma';
-import Image from 'next/image';
 import Link from 'next/link';
+import Image from 'next/image';
+import prisma from '@/lib/prisma';
 import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from '@/components/ui/table';
-import { CheckCircle2, XCircle, Info } from 'lucide-react';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { Badge } from '@/components/ui/badge';
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { ArrowRight, Star } from 'lucide-react';
 import type { Metadata } from 'next';
 import { generateSeoMetadata } from '@/lib/seo';
+import { Badge } from '@/components/ui/badge';
 
 export const metadata: Metadata = generateSeoMetadata({
-    title: 'Platform Comparison',
-    description: "We've analyzed the top course creation platforms so you don't have to. Find the perfect fit for your business.",
-    path: '/compare'
+  title: 'Platform Comparisons',
+  description:
+    "In-depth, side-by-side comparisons of the top course creation platforms. Find the perfect fit for your business.",
+  path: '/compare',
 });
 
-
-async function getComparisonData() {
-  const platforms = await prisma.platform.findMany({
+async function getComparisons() {
+  const comparisons = await prisma.comparison.findMany({
+    where: { published: true },
     include: {
-      features: {
-        include: {
-          feature: true,
-        },
-        orderBy: {
-          feature: {
-            name: 'asc'
-          }
-        }
-      },
+      platformA: true,
+      platformB: true,
     },
-     orderBy: {
-      name: 'asc'
-    }
-  });
-
-  const features = await prisma.feature.findMany({
     orderBy: {
-      name: 'asc'
-    }
+      createdAt: 'desc',
+    },
   });
-
-  return { platforms, features };
+  return comparisons;
 }
 
 export default async function ComparePage() {
-  const { platforms, features } = await getComparisonData();
-
-  const platformFeatureMap = new Map(
-    platforms.map((p) => [
-      p.id,
-      new Map(p.features.map((f) => [f.feature.name, f])),
-    ])
-  );
+  const comparisons = await getComparisons();
 
   return (
     <div className="bg-background">
       <div className="container py-16 md:py-24 px-4 md:px-6">
         <div className="text-center mb-16">
           <h1 className="font-headline text-5xl md:text-6xl font-bold text-foreground">
-            Platform Comparison
+            Course Platform Face-Off
           </h1>
           <p className="mt-4 text-xl text-muted-foreground max-w-3xl mx-auto">
-            We've analyzed the top course creation platforms so you don't have
-            to. Find the perfect fit for your business.
+            We've put the top platforms head-to-head. Get unbiased, in-depth
+            analysis to make the right choice.
           </p>
         </div>
 
-        <TooltipProvider>
-          <div className="w-full overflow-x-auto">
-            <Table className="min-w-max border-collapse border border-border">
-              <TableHeader>
-                <TableRow className="bg-muted/50">
-                  <TableHead className="w-[250px] p-4 font-headline text-lg text-foreground border-r">
-                    Features
-                  </TableHead>
-                  {platforms.map((platform) => (
-                    <TableHead
-                      key={platform.id}
-                      className="w-[200px] text-center p-4 border-r"
-                    >
-                      <div className="flex flex-col items-center gap-2">
-                        {/* The logo files will be added in a future step */}
-                        {/* <Image
-                          src={platform.logoUrl}
-                          alt={`${platform.name} logo`}
-                          width={120}
-                          height={30}
-                          className="object-contain"
-                        /> */}
-                        <h3 className="font-bold text-lg text-foreground">{platform.name}</h3>
-                        <Button asChild size="sm" variant="outline">
-                            <Link href={platform.website} target="_blank">Visit Site</Link>
-                        </Button>
-                      </div>
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {features.map((feature) => (
-                  <TableRow key={feature.id} className="border-t">
-                    <TableCell className="font-medium p-4 text-foreground border-r">
-                      {feature.name}
-                    </TableCell>
-                    {platforms.map((platform) => {
-                      const platformFeatures = platformFeatureMap.get(
-                        platform.id
-                      );
-                      const platformFeature = platformFeatures?.get(
-                        feature.name
-                      );
-
-                      return (
-                        <TableCell
-                          key={platform.id}
-                          className="text-center p-4 border-r"
-                        >
-                          <div className="flex justify-center items-center h-full">
-                            {platformFeature?.hasFeature ? (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <span className="flex items-center gap-2 cursor-help text-green-600">
-                                    <CheckCircle2 className="h-6 w-6" />
-                                    {platformFeature.details && (
-                                      <Info className="h-4 w-4 text-muted-foreground" />
-                                    )}
-                                  </span>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>{platformFeature.details || 'Feature is supported'}</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            ) : (
-                               <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <span className='cursor-help'>
-                                    <XCircle className="h-6 w-6 text-red-500" />
-                                  </span>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Feature is not supported</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            )}
-                          </div>
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+        {comparisons.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            <p>No comparisons published yet. Check back soon!</p>
           </div>
-        </TooltipProvider>
-         <div className="text-center mt-12 text-sm text-muted-foreground">
-            <p>This is a simplified comparison. For a full list of features, please visit each platform's official website.</p>
-        </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {comparisons.map((comp) => (
+              <Card
+                key={comp.id}
+                className="flex flex-col group overflow-hidden transition-shadow hover:shadow-xl"
+              >
+                <CardHeader>
+                  <div className="relative h-24">
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center">
+                      <Image
+                        src={comp.platformA.logoUrl}
+                        alt={`${comp.platformA.name} logo`}
+                        width={140}
+                        height={40}
+                        className="object-contain transition-transform group-hover:scale-105"
+                      />
+                    </div>
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center">
+                      <Image
+                        src={comp.platformB.logoUrl}
+                        alt={`${comp.platformB.name} logo`}
+                        width={140}
+                        height={40}
+                        className="object-contain transition-transform group-hover:scale-105"
+                      />
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="bg-background text-muted-foreground rounded-full p-2 border shadow-inner">
+                            <span className='font-mono text-sm'>VS</span>
+                        </div>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="flex-1 space-y-4">
+                  <h2 className="font-headline text-2xl text-center text-foreground">
+                    <Link href={`/compare/${comp.slug}`} className="hover:text-primary transition-colors">
+                        {comp.title}
+                    </Link>
+                  </h2>
+                  <p className="text-muted-foreground text-sm text-center">
+                    {comp.summary}
+                  </p>
+                   <div className="flex justify-around pt-2">
+                        <div className="text-center">
+                            <div className="flex items-center justify-center gap-1 font-bold text-lg text-amber-500">
+                                <Star className="w-5 h-5 fill-amber-400 text-amber-500" /> {comp.platformA.rating?.toFixed(1) ?? 'N/A'}
+                            </div>
+                            <p className="text-xs text-muted-foreground">{comp.platformA.name}</p>
+                        </div>
+                         <div className="text-center">
+                             <div className="flex items-center justify-center gap-1 font-bold text-lg text-amber-500">
+                                <Star className="w-5 h-5 fill-amber-400 text-amber-500" /> {comp.platformB.rating?.toFixed(1) ?? 'N/A'}
+                            </div>
+                            <p className="text-xs text-muted-foreground">{comp.platformB.name}</p>
+                        </div>
+                    </div>
+                </CardContent>
+                <CardFooter>
+                  <Button asChild className="w-full group-hover:bg-primary/90 transition-colors">
+                    <Link href={`/compare/${comp.slug}`}>
+                      View Comparison{' '}
+                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
