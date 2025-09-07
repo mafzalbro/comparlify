@@ -1,10 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { LogOut, Menu, UserCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/logo';
 import { useSession, signOut } from 'next-auth/react';
@@ -17,6 +15,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { LogOut, UserCircle } from 'lucide-react';
+import { MobileNav } from './mobile-nav';
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -28,8 +28,12 @@ const navLinks = [
 ];
 
 export default function Header() {
-  const [isSheetOpen, setSheetOpen] = useState(false);
   const { data: session, status } = useSession();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const NavLink = ({ href, label }: { href: string; label: string }) => (
     <Link
@@ -38,7 +42,6 @@ export default function Header() {
         'text-sm font-medium transition-colors hover:text-primary',
         'text-muted-foreground'
       )}
-      onClick={() => setSheetOpen(false)}
     >
       {label}
     </Link>
@@ -57,7 +60,7 @@ export default function Header() {
         </div>
         <div className="hidden md:flex items-center gap-4">
           {status === 'loading' ? (
-            <div className='h-9 w-20 animate-pulse rounded-md bg-muted' />
+            <div className="h-9 w-20 animate-pulse rounded-md bg-muted" />
           ) : session ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -98,38 +101,7 @@ export default function Header() {
           )}
         </div>
         <div className="md:hidden">
-          <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Menu className="h-6 w-6" />
-                <span className="sr-only">Toggle navigation menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left">
-              <div className="p-4">
-                <Logo />
-                <nav className="mt-8 flex flex-col gap-6">
-                  {navLinks.map((link) => (
-                    <NavLink key={link.href} {...link} />
-                  ))}
-                </nav>
-                <div className="mt-8 flex flex-col gap-4">
-                   {session ? (
-                    <>
-                      <Button variant="outline" asChild>
-                        <Link href="/profile">Profile</Link>
-                      </Button>
-                      <Button variant="ghost" onClick={() => signOut()}>Log Out</Button>
-                    </>
-                  ) : (
-                    <Button asChild>
-                      <Link href="/login">Log In</Link>
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </SheetContent>
-          </Sheet>
+          {isClient && <MobileNav navLinks={navLinks} session={session} />}
         </div>
       </div>
     </header>
