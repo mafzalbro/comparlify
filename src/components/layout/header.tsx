@@ -4,9 +4,19 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu } from 'lucide-react';
+import { LogOut, Menu, UserCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/logo';
+import { useSession, signOut } from 'next-auth/react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -19,6 +29,7 @@ const navLinks = [
 
 export default function Header() {
   const [isSheetOpen, setSheetOpen] = useState(false);
+  const { data: session, status } = useSession();
 
   const NavLink = ({ href, label }: { href: string; label: string }) => (
     <Link
@@ -45,12 +56,46 @@ export default function Header() {
           </nav>
         </div>
         <div className="hidden md:flex items-center gap-4">
-          <Button variant="ghost" asChild>
-            <Link href="/login">Log in</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/register">Sign Up</Link>
-          </Button>
+          {status === 'loading' ? (
+            <div className='h-9 w-20 animate-pulse rounded-md bg-muted' />
+          ) : session ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                  <Avatar>
+                    <AvatarImage src={session.user?.image ?? ''} alt={session.user?.name ?? ''} />
+                    <AvatarFallback>{session.user?.name?.charAt(0).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{session.user?.name}</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {session.user?.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/profile">
+                    <UserCircle className="mr-2" />
+                    Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => signOut()}>
+                  <LogOut className="mr-2" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button asChild>
+              <Link href="/login">Log In</Link>
+            </Button>
+          )}
         </div>
         <div className="md:hidden">
           <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
@@ -69,12 +114,18 @@ export default function Header() {
                   ))}
                 </nav>
                 <div className="mt-8 flex flex-col gap-4">
-                  <Button variant="ghost" asChild>
-                    <Link href="/login">Log in</Link>
-                  </Button>
-                  <Button asChild>
-                    <Link href="/register">Sign Up</Link>
-                  </Button>
+                   {session ? (
+                    <>
+                      <Button variant="outline" asChild>
+                        <Link href="/profile">Profile</Link>
+                      </Button>
+                      <Button variant="ghost" onClick={() => signOut()}>Log Out</Button>
+                    </>
+                  ) : (
+                    <Button asChild>
+                      <Link href="/login">Log In</Link>
+                    </Button>
+                  )}
                 </div>
               </div>
             </SheetContent>

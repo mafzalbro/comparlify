@@ -1,6 +1,7 @@
 
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
+import { AuthProvider } from '@/components/auth/auth-provider';
 
 
 export default function RootLayout({
@@ -19,10 +20,12 @@ export default function RootLayout({
         <meta name="description" content="Unbiased comparisons, AI-powered tools, and community insights to help course creators succeed." />
       </head>
       <body className="font-body antialiased flex flex-col min-h-screen bg-background">
-        <div className='flex-1 flex flex-col'>
-          {children}
-        </div>
-        <Toaster />
+        <AuthProvider>
+          <div className='flex-1 flex flex-col'>
+            {children}
+          </div>
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );

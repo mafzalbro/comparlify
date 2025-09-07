@@ -4,6 +4,19 @@ import prisma from "@/lib/prisma";
 async function main() {
   console.log("Start seeding ...");
 
+  // Seed Admin User
+  await prisma.user.upsert({
+    where: { email: 'mafzalbro@gmail.com' },
+    update: { role: 'ADMIN' },
+    create: {
+      email: 'mafzalbro@gmail.com',
+      name: 'Admin User',
+      role: 'ADMIN',
+    },
+  });
+  console.log("Seeded admin user.");
+
+
   const features = [
     "Integrated Video Hosting",
     "Assessments & Quizzes",

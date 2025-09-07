@@ -1,19 +1,30 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
+import { NextResponse, type NextRequest } from 'next/server';
+import { auth } from '@/lib/auth';
 
-export const config = {
-  matcher: ['/admin/:path*'],
-};
+const protectedRoutes = ['/admin', '/profile'];
+const adminRoutes = ['/admin'];
 
-export async function middleware(req: NextRequest) {
-  const session = await getSession();
+export default async function middleware(req: NextRequest) {
+  const session = await auth();
+  const { pathname } = req.nextUrl;
 
-  if (!session) {
+  const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
+  const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route));
+
+  if (!session && isProtectedRoute) {
     const loginUrl = new URL('/login', req.url);
-    // Optionally, you can add a 'from' query parameter to redirect back after login
-    // loginUrl.searchParams.set('from', req.nextUrl.pathname);
+    loginUrl.searchParams.set('from', pathname);
     return NextResponse.redirect(loginUrl);
   }
 
+  if (session && isAdminRoute && session.user?.role !== 'ADMIN') {
+    // Redirect non-admins from admin routes
+    return NextResponse.redirect(new URL('/', req.url));
+  }
+  
   return NextResponse.next();
 }
+
+export const config = {
+  matcher: ['/admin/:path*', '/profile/:path*'],
+};

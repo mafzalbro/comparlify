@@ -1,50 +1,31 @@
-import { SignJWT, jwtVerify } from "jose";
-import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import NextAuth from 'next-auth';
+import { PrismaAdapter } from '@auth/prisma-adapter';
+import Google from 'next-auth/providers/google';
+import GitHub from 'next-auth/providers/github';
+import prisma from './prisma';
+import type { Adapter } from 'next-auth/adapters';
 
-const secretKey =
-  process.env.SESSION_SECRET || "your-super-secret-key-that-is-long-enough";
-const key = new TextEncoder().encode(secretKey);
-const COOKIE_NAME = "session";
-
-export async function encrypt(payload: any) {
-  return await new SignJWT(payload)
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuedAt()
-    .setExpirationTime("1h") // Token valid for 1 hour
-    .sign(key);
-}
-
-export async function decrypt(input: string): Promise<any> {
-  try {
-    const { payload } = await jwtVerify(input, key, {
-      algorithms: ["HS256"],
-    });
-    return payload;
-  } catch (error) {
-    // This could be because the token is expired or invalid
-    console.error("JWT verification failed:", error);
-    return null;
-  }
-}
-
-export async function createSession(userId: number) {
-  const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
-  const session = await encrypt({ userId, expires });
-
-  (await cookies()).set(COOKIE_NAME, session, { expires, httpOnly: true });
-}
-
-export async function getSession() {
-  const sessionCookie = (await cookies()).get(COOKIE_NAME)?.value;
-  if (!sessionCookie) return null;
-
-  const session = await decrypt(sessionCookie);
-  if (!session?.userId) return null;
-
-  return session;
-}
-
-export async function deleteSession() {
-  (await cookies()).set(COOKIE_NAME, "", { expires: new Date(0) });
-}
+export const { handlers, signIn, signOut, auth } = NextAuth({
+  adapter: PrismaAdapter(prisma) as Adapter,
+  providers: [
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
+    GitHub({
+      clientId: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    }),
+  ],
+  callbacks: {
+    session({ session, user }) {
+      session.user.role = user.role;
+      session.user.id = user.id;
+      return session;
+    },
+  },
+  pages: {
+    signIn: '/login',
+    // error: '/auth/error', // Optional: Custom error page
+  },
+});
