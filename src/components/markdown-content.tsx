@@ -17,13 +17,23 @@ interface MarkdownContentProps {
 }
 
 export function MarkdownContent({ content, className }: MarkdownContentProps) {
+
+  // A custom renderer for headings to add IDs
+  const renderHeading = (props: any) => {
+    const { level, children } = props;
+    const text = React.Children.toArray(children).join('');
+    const id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+    const HeadingTag = `h${level}` as keyof JSX.IntrinsicElements;
+    return <HeadingTag id={id} {...props}>{children}</HeadingTag>;
+  };
+
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
       className={cn('prose dark:prose-invert max-w-none', className)}
       components={{
-        h2: ({ node, ...props }) => <h2 className="font-headline text-3xl font-bold mt-12 mb-4 border-b pb-2" {...props} />,
-        h3: ({ node, ...props }) => <h3 className="font-headline text-2xl font-bold mt-8 mb-4" {...props} />,
+        h2: (props) => renderHeading({...props, level: 2}),
+        h3: (props) => renderHeading({...props, level: 3}),
         p: ({ node, ...props }) => <p className="leading-7 my-4" {...props} />,
         a: ({ node, href, ...props }) => {
           if (href && href.startsWith('/blog/')) {

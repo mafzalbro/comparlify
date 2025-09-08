@@ -1,6 +1,3 @@
-'use client'
-
-import { useEffect, useState, useRef } from "react"
 import { cn } from "@/lib/utils";
 
 interface Heading {
@@ -13,56 +10,39 @@ interface TableOfContentsProps {
   content: string;
 }
 
-export function TableOfContents({ content }: TableOfContentsProps) {
-  const [headings, setHeadings] = useState<Heading[]>([]);
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const observer = useRef<IntersectionObserver | null>(null);
+function extractHeadings(markdown: string): Heading[] {
+  const headings: Heading[] = [];
+  // This regex matches lines starting with ## or ###, followed by a space, and captures the text.
+  const regex = /^(##|###)\s(.+)/gm;
+  let match;
 
-  useEffect(() => {
-    const headingElements = Array.from(
-      document.querySelectorAll<HTMLHeadingElement>("h2, h3")
-    );
-
-    const extractedHeadings = headingElements.map(heading => {
-      const id = heading.id || heading.textContent?.toLowerCase().replace(/\s+/g, '-') || '';
-      if(!heading.id) {
-          heading.id = id;
-      }
-      return {
-        id,
-        level: Number(heading.tagName.substring(1)),
-        text: heading.textContent || ''
-      };
-    });
-    setHeadings(extractedHeadings);
+  while ((match = regex.exec(markdown)) !== null) {
+    const level = match[1].length; // ## -> level 2, ### -> level 3
+    const text = match[2].trim();
+    const id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
     
-    observer.current = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                setActiveId(entry.target.id);
-            }
-        });
-    }, { rootMargin: "0px 0px -80% 0px" });
+    headings.push({ id, level, text });
+  }
 
-    headingElements.forEach(heading => {
-        if (observer.current) {
-            observer.current.observe(heading);
-        }
-    });
+  return headings;
+}
 
-    return () => {
-        headingElements.forEach(heading => {
-            if (observer.current) {
-                observer.current.unobserve(heading);
-            }
-        });
-    }
 
-  }, [content]);
+export function TableOfContents({ content }: TableOfContentsProps) {
+  const headings = extractHeadings(content);
 
   if (headings.length === 0) {
     return null;
   }
+
+  // We need to add ids to the headings in the content for the links to work.
+  // This is a bit of a hack, but it's the only way to do it without a full markdown AST parser on the server.
+  let contentWithIds = content;
+  headings.forEach(heading => {
+      const headingRegex = new RegExp(`^(${'#'.repeat(heading.level)}\\s${heading.text})$`, 'm');
+      contentWithIds = contentWithIds.replace(headingRegex, `$1 {#${heading.id}}`);
+  });
+
 
   return (
     <div className="space-y-4">
@@ -73,7 +53,6 @@ export function TableOfContents({ content }: TableOfContentsProps) {
               className={cn(
                   "text-muted-foreground hover:text-primary transition-colors",
                   heading.level === 3 && "pl-4",
-                  activeId === heading.id && "text-primary font-medium"
               )}
           >
             <a href={`#${heading.id}`}>{heading.text}</a>
