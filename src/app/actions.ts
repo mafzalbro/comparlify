@@ -723,7 +723,11 @@ export async function updatePost(id: string, prevState: any, formData: FormData)
   redirect("/admin/blog");
 }
 
-export async function deletePost(id: string) {
+export async function deletePost(prevState: { error: string | null }, formData: FormData) {
+  const id = formData.get('id') as string;
+  if (!id) {
+    return { error: "Post ID is missing." };
+  }
   try {
     await prisma.post.delete({
       where: { id },
@@ -833,7 +837,11 @@ export async function updateComparison(id: string, prevState: any, formData: For
   redirect('/admin/comparisons');
 }
 
-export async function deleteComparison(id: string) {
+export async function deleteComparison(prevState: { error: string | null }, formData: FormData) {
+  const id = formData.get('id') as string;
+  if (!id) {
+    return { error: "Comparison ID is missing." };
+  }
   try {
     await prisma.comparison.delete({ where: { id } });
     revalidatePath('/admin/comparisons');
@@ -1073,7 +1081,11 @@ export async function updatePlatform(id: string, prevState: any, formData: FormD
 }
 
 
-export async function deletePlatform(id: string) {
+export async function deletePlatform(prevState: { error: string | null }, formData: FormData) {
+  const id = formData.get('id') as string;
+  if (!id) {
+    return { error: "Platform ID is missing." };
+  }
   try {
     await prisma.platform.delete({ where: { id } });
     revalidatePath('/admin/platforms');
@@ -1085,3 +1097,5 @@ export async function deletePlatform(id: string) {
   }
   redirect('/admin/platforms');
 }
+
+    

@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useActionState, useEffect, useRef } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useEffect, useRef } from 'react';
+import { useFormState, useFormStatus } from 'react-dom';
 import { useToast } from '@/hooks/use-toast';
 import { subscribeAction } from '@/app/actions';
 import { Input } from '@/components/ui/input';
@@ -25,7 +25,7 @@ function SubmitButton() {
 
 export default function Footer() {
   const formRef = useRef<HTMLFormElement>(null);
-  const [state, formAction] = useActionState(subscribeAction, {
+  const [state, formAction] = useFormState(subscribeAction, {
     message: null,
     error: null,
   });

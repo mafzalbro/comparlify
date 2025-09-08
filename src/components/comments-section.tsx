@@ -1,13 +1,13 @@
 'use client';
 
-import { useActionState, useRef, useTransition } from 'react';
+import { useRef } from 'react';
+import { useFormState, useFormStatus } from 'react-dom';
 import type { Session } from 'next-auth';
 import type { User, Comment } from '@prisma/client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { addComment } from '@/app/actions';
-import { useFormStatus } from 'react-dom';
 import { Loader2, Send } from 'lucide-react';
 import Link from 'next/link';
 
@@ -35,7 +35,7 @@ function SubmitButton() {
 
 export function CommentsSection({ postId, comments, session }: CommentsSectionProps) {
   const formRef = useRef<HTMLFormElement>(null);
-  const [state, formAction] = useActionState(addComment, { error: null });
+  const [state, formAction] = useFormState(addComment, { error: null });
 
   return (
     <section id="comments" className="pt-12">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react';
+import { useFormState, useFormStatus } from 'react-dom';
 import { deleteComparison } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,7 +29,7 @@ function SubmitButton() {
 }
 
 export function DeleteComparisonButton({ id }: { id: string }) {
-  const [state, formAction] = useFormState(deleteComparison.bind(null, id), { error: null });
+  const [state, formAction] = useFormState(deleteComparison, { error: null });
 
   return (
     <AlertDialog>
@@ -38,10 +38,12 @@ export function DeleteComparisonButton({ id }: { id: string }) {
       </AlertDialogTrigger>
       <AlertDialogContent>
         <form action={formAction}>
+          <input type="hidden" name="id" value={id} />
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the comparison.
+              {state?.error && <p className="text-destructive mt-2">{state.error}</p>}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -53,3 +55,5 @@ export function DeleteComparisonButton({ id }: { id: string }) {
     </AlertDialog>
   );
 }
+
+    
