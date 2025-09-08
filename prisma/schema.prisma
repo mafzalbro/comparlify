@@ -6,42 +6,30 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
   relationMode = "prisma"
 }
 
-// --- Enums ---
-
-enum Role {
-  USER
-  ADMIN
-}
-
-enum CommentStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-
-// --- Models ---
-
 model User {
-  id            String          @id @default(cuid())
+  id            String    @id @default(cuid())
   name          String?
-  email         String?         @unique
+  email         String?   @unique
   emailVerified DateTime?
   image         String?
-  role          Role            @default(USER)
-  onboarded     Boolean         @default(false)
+  role          Role      @default(USER)
+  onboarded     Boolean   @default(false)
   accounts      Account[]
   sessions      Session[]
   posts         Post[]
   comments      Comment[]
-  subscriptions Subscription[]
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
 }
 
 model Account {
@@ -58,13 +46,12 @@ model Account {
   id_token          String? @db.Text
   session_state     String?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([provider, providerAccountId])
-  @@index([userId])
 }
 
 model Session {
@@ -76,8 +63,6 @@ model Session {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([userId])
 }
 
 model VerificationToken {
@@ -88,23 +73,23 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+// ---- APP SPECIFIC MODELS ----
+
 model Platform {
-  id             String        @id @default(cuid())
-  name           String        @unique
+  id             String    @id @default(cuid())
+  name           String    @unique
   website        String
   logoUrl        String
-  description    String        @db.Text
+  description    String    @db.Text
   rating         Float?
   easeOfUse      Float?
   featuresRating Float?
   support        Float?
-
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now()) @updatedAt
   features       PlatformFeature[]
-  comparisonsA   Comparison[]   @relation("PlatformA")
-  comparisonsB   Comparison[]   @relation("PlatformB")
-
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  comparisonsA   Comparison[] @relation("PlatformA")
+  comparisonsB   Comparison[] @relation("PlatformB")
 }
 
 model FeatureCategory {
@@ -112,81 +97,67 @@ model FeatureCategory {
   name      String    @unique
   features  Feature[]
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
 }
 
 model Feature {
-  id          String            @id @default(cuid())
-  name        String            @unique
-  categoryId  String
-  category    FeatureCategory   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  platforms   PlatformFeature[]
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-
-  @@index([categoryId])
+  id         String     @id @default(cuid())
+  name       String     @unique
+  categoryId String
+  category   FeatureCategory @relation(fields: [categoryId], references: [id])
+  platforms  PlatformFeature[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @default(now()) @updatedAt
 }
 
 model PlatformFeature {
   platformId String
   featureId  String
+  platform   Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+  feature    Feature  @relation(fields: [featureId], references: [id], onDelete: Cascade)
   hasFeature Boolean
   details    String?
 
-  platform Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
-  feature  Feature  @relation(fields: [featureId], references: [id], onDelete: Cascade)
-
   @@id([platformId, featureId])
-  @@index([platformId])
-  @@index([featureId])
 }
-
 
 model Comparison {
-  id           String  @id @default(cuid())
-  title        String
-  slug         String  @unique
-  summary      String  @db.Text
-  introduction String  @db.Text
-  conclusion   String  @db.Text
-  published    Boolean @default(false)
-  
-  platformAId  String
-  platformBId  String
-  platformA    Platform @relation("PlatformA", fields: [platformAId], references: [id], onDelete: Cascade)
-  platformB    Platform @relation("PlatformB", fields: [platformBId], references: [id], onDelete: Cascade)
-  
-  facts        Fact[]
-  faqs         Faq[]
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  title         String
+  summary       String   @db.Text
+  published     Boolean  @default(false)
+  platformAId   String
+  platformBId   String
+  introduction  String   @db.Text
+  conclusion    String   @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  platformA     Platform @relation("PlatformA", fields: [platformAId], references: [id], onDelete: Cascade)
+  platformB     Platform @relation("PlatformB", fields: [platformBId], references: [id], onDelete: Cascade)
+  facts         ComparisonFact[]
+  faqs          ComparisonFaq[]
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-   @@index([platformAId])
-   @@index([platformBId])
+  @@index([platformAId])
+  @@index([platformBId])
 }
 
-model Fact {
-  id             String     @id @default(cuid())
+model ComparisonFact {
+  id             String      @id @default(cuid())
+  comparisonId   String
+  comparison     Comparison  @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
   title          String
   platformAValue String
   platformBValue String
-  comparisonId   String
-  comparison     Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
-
-  @@index([comparisonId])
 }
 
-model Faq {
+model ComparisonFaq {
   id           String     @id @default(cuid())
-  question     String
-  answer       String     @db.Text
   comparisonId String
   comparison   Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
-
-  @@index([comparisonId])
+  question     String
+  answer       String     @db.Text
 }
-
 
 model Post {
   id          String    @id @default(cuid())
@@ -200,41 +171,40 @@ model Post {
   authorId    String
   author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments    Comment[]
-
-  // Self-relation for previous/next post navigation
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   previousId  String?   @unique
   nextId      String?   @unique
   previous    Post?     @relation("PostNavigation", fields: [previousId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   next        Post?     @relation("PostNavigation")
 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
   @@index([authorId])
 }
 
 model Comment {
-  id        String        @id @default(cuid())
-  content   String        @db.Text
-  status    CommentStatus @default(PENDING)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   postId    String
   authorId  String
-  post      Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
-  author    User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  status    CommentStatus @default(PENDING)
 
   @@index([postId])
   @@index([authorId])
 }
 
+enum CommentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model Subscription {
   id        String   @id @default(cuid())
   email     String   @unique
-  userId    String?  // Optional link to a user
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId    String?
   createdAt DateTime @default(now())
-
-  @@index([userId])
 }
