@@ -23,6 +23,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { Comparison, Platform } from '@prisma/client';
+import { ManagedImage } from '@/components/managed-image';
 
 type ComparisonWithPlatforms = Comparison & { platformA: Platform, platformB: Platform };
 
@@ -98,25 +99,6 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
     getComparisons({ search, sort, platforms }),
     getAllPlatforms()
   ]);
-
-  const shimmer = (w: number, h: number) => `
-  <svg width="${w}" height="${h}" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <defs>
-      <linearGradient id="g">
-        <stop stop-color="#f0f0f0" offset="20%" />
-        <stop stop-color="#e0e0e0" offset="50%" />
-        <stop stop-color="#f0f0f0" offset="70%" />
-      </linearGradient>
-    </defs>
-    <rect width="${w}" height="${h}" fill="#f0f0f0" />
-    <rect id="r" width="${w}" height="${h}" fill="url(#g)" />
-    <animate xlink:href="#r" attributeName="x" from="-${w}" to="${w}" dur="1s" repeatCount="indefinite"  />
-  </svg>`;
-
-  const toBase64 = (str: string) =>
-    typeof window === 'undefined'
-      ? Buffer.from(str).toString('base64')
-      : window.btoa(str);
 
   return (
     <div className="bg-background">
@@ -201,25 +183,21 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
                 <CardHeader>
                   <div className="relative h-24">
                     <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center">
-                      <Image
+                      <ManagedImage
                         src={comp.platformA.logoUrl}
                         alt={`${comp.platformA.name} logo`}
                         width={140}
                         height={40}
                         className="object-contain transition-transform group-hover:scale-105"
-                        placeholder="blur"
-                        blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(140, 40))}`}
                       />
                     </div>
                     <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center">
-                      <Image
+                      <ManagedImage
                         src={comp.platformB.logoUrl}
                         alt={`${comp.platformB.name} logo`}
                         width={140}
                         height={40}
                         className="object-contain transition-transform group-hover:scale-105"
-                        placeholder="blur"
-                        blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(140, 40))}`}
                       />
                     </div>
                     <div className="absolute inset-0 flex items-center justify-center">

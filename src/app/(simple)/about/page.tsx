@@ -2,6 +2,7 @@
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import { generateSeoMetadata } from '@/lib/seo';
+import { ManagedImage } from '@/components/managed-image';
 
 export const metadata: Metadata = generateSeoMetadata({
     title: 'About Us',
@@ -10,25 +11,6 @@ export const metadata: Metadata = generateSeoMetadata({
 });
 
 export default function AboutPage() {
-    const shimmer = (w: number, h: number) => `
-    <svg width="${w}" height="${h}" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-      <defs>
-        <linearGradient id="g">
-          <stop stop-color="#f0f0f0" offset="20%" />
-          <stop stop-color="#e0e0e0" offset="50%" />
-          <stop stop-color="#f0f0f0" offset="70%" />
-        </linearGradient>
-      </defs>
-      <rect width="${w}" height="${h}" fill="#f0f0f0" />
-      <rect id="r" width="${w}" height="${h}" fill="url(#g)" />
-      <animate xlink:href="#r" attributeName="x" from="-${w}" to="${w}" dur="1s" repeatCount="indefinite"  />
-    </svg>`;
-
-    const toBase64 = (str: string) =>
-      typeof window === 'undefined'
-        ? Buffer.from(str).toString('base64')
-        : window.btoa(str);
-
   return (
     <div className="container py-16 md:py-24 px-4 md:px-6">
       <div className="mx-auto max-w-3xl">
@@ -42,15 +24,13 @@ export default function AboutPage() {
         </div>
 
         <div className="prose prose-lg dark:prose-invert mx-auto text-foreground">
-          <Image 
+          <ManagedImage 
             src="https://picsum.photos/800/400"
             alt="A team of creators collaborating"
             data-ai-hint="team collaboration"
             width={800}
             height={400}
             className="rounded-lg mb-8 shadow-md"
-            placeholder="blur"
-            blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(800, 400))}`}
           />
           <p>
             Comparlify was born from a simple observation: the world of online course creation is both exciting and overwhelming. With countless platforms, tools, and strategies available, creators often find themselves lost in a sea of options, spending more time on research than on what they do best—creating amazing content.

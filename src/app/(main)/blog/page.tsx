@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { ManagedImage } from '@/components/managed-image';
 
 export const metadata: Metadata = generateSeoMetadata({
   title: 'Creator Insights Blog',
@@ -81,25 +82,6 @@ export default async function BlogPage({ searchParams }: { searchParams: Promise
     getBlogPosts({ search, sort, author }),
     getAuthors()
   ]);
-
-  const shimmer = (w: number, h: number) => `
-  <svg width="${w}" height="${h}" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <defs>
-      <linearGradient id="g">
-        <stop stop-color="#f0f0f0" offset="20%" />
-        <stop stop-color="#e0e0e0" offset="50%" />
-        <stop stop-color="#f0f0f0" offset="70%" />
-      </linearGradient>
-    </defs>
-    <rect width="${w}" height="${h}" fill="#f0f0f0" />
-    <rect id="r" width="${w}" height="${h}" fill="url(#g)" />
-    <animate xlink:href="#r" attributeName="x" from="-${w}" to="${w}" dur="1s" repeatCount="indefinite"  />
-  </svg>`;
-
-  const toBase64 = (str: string) =>
-    typeof window === 'undefined'
-      ? Buffer.from(str).toString('base64')
-      : window.btoa(str);
 
   return (
     <div className="container py-16 md:py-24 px-4 md:px-6">
@@ -176,14 +158,12 @@ export default async function BlogPage({ searchParams }: { searchParams: Promise
               <Card key={post.slug} className="flex flex-col overflow-hidden group bg-card/60 backdrop-blur-lg border-border/20 shadow-md hover:shadow-xl transition-shadow duration-300">
                 <div className="relative overflow-hidden aspect-[16/10]">
                   <Link href={`/blog/${post.slug}`} className="block">
-                    <Image
+                    <ManagedImage
                       src={post.image}
                       alt={post.title}
                       data-ai-hint={post.dataAiHint ?? ''}
                       fill
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      placeholder="blur"
-                      blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(400, 250))}`}
                     />
                   </Link>
                 </div>
