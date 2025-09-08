@@ -11,6 +11,17 @@ datasource db {
   relationMode = "prisma"
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
+enum CommentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -19,17 +30,14 @@ model User {
   image         String?
   role          Role      @default(USER)
   onboarded     Boolean   @default(false)
-  accounts      Account[]
-  sessions      Session[]
-  posts         Post[]
-  comments      Comment[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-}
 
-enum Role {
-  USER
-  ADMIN
+  accounts     Account[]
+  sessions     Session[]
+  posts        Post[]
+  comments     Comment[]
+  subscriptions Subscription[]
 }
 
 model Account {
@@ -52,6 +60,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -59,10 +68,12 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model VerificationToken {
@@ -73,7 +84,7 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// ---- APP SPECIFIC MODELS ----
+// ---- Comparlify Specific Models ----
 
 model Platform {
   id             String    @id @default(cuid())
@@ -86,10 +97,11 @@ model Platform {
   featuresRating Float?
   support        Float?
   createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @default(now()) @updatedAt
-  features       PlatformFeature[]
-  comparisonsA   Comparison[] @relation("PlatformA")
-  comparisonsB   Comparison[] @relation("PlatformB")
+  updatedAt      DateTime  @updatedAt
+
+  features          PlatformFeature[]
+  comparisonsA      Comparison[]      @relation("PlatformA")
+  comparisonsB      Comparison[]      @relation("PlatformB")
 }
 
 model FeatureCategory {
@@ -97,86 +109,104 @@ model FeatureCategory {
   name      String    @unique
   features  Feature[]
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now()) @updatedAt
+  updatedAt DateTime  @updatedAt
 }
 
 model Feature {
-  id         String     @id @default(cuid())
-  name       String     @unique
+  id         String    @id @default(cuid())
+  name       String    @unique
   categoryId String
-  category   FeatureCategory @relation(fields: [categoryId], references: [id])
-  platforms  PlatformFeature[]
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @default(now()) @updatedAt
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  category FeatureCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  platforms PlatformFeature[]
+
+  @@index([categoryId])
 }
 
 model PlatformFeature {
   platformId String
   featureId  String
-  platform   Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
-  feature    Feature  @relation(fields: [featureId], references: [id], onDelete: Cascade)
   hasFeature Boolean
   details    String?
+
+  platform Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+  feature  Feature  @relation(fields: [featureId], references: [id], onDelete: Cascade)
 
   @@id([platformId, featureId])
 }
 
 model Comparison {
-  id            String   @id @default(cuid())
-  slug          String   @unique
-  title         String
-  summary       String   @db.Text
-  published     Boolean  @default(false)
-  platformAId   String
-  platformBId   String
-  introduction  String   @db.Text
-  conclusion    String   @db.Text
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  platformA     Platform @relation("PlatformA", fields: [platformAId], references: [id], onDelete: Cascade)
-  platformB     Platform @relation("PlatformB", fields: [platformBId], references: [id], onDelete: Cascade)
-  facts         ComparisonFact[]
-  faqs          ComparisonFaq[]
+  id           String @id @default(cuid())
+  slug         String @unique
+  title        String
+  summary      String @db.Text
+  introduction String @db.Text
+  conclusion   String @db.Text
+  published    Boolean @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  platformAId String
+  platformBId String
+  platformA   Platform @relation("PlatformA", fields: [platformAId], references: [id], onDelete: Cascade)
+  platformB   Platform @relation("PlatformB", fields: [platformBId], references: [id], onDelete: Cascade)
+
+  facts Fact[]
+  faqs  Faq[]
 
   @@index([platformAId])
   @@index([platformBId])
 }
 
-model ComparisonFact {
-  id             String      @id @default(cuid())
+
+model Fact {
+  id             String     @id @default(cuid())
   comparisonId   String
-  comparison     Comparison  @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
   title          String
   platformAValue String
   platformBValue String
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  comparison     Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+
+  @@index([comparisonId])
 }
 
-model ComparisonFaq {
+model Faq {
   id           String     @id @default(cuid())
   comparisonId String
-  comparison   Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
   question     String
   answer       String     @db.Text
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  comparison   Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+
+  @@index([comparisonId])
 }
 
 model Post {
-  id          String    @id @default(cuid())
-  slug        String    @unique
+  id          String   @id @default(cuid())
+  slug        String   @unique
   title       String
-  description String    @db.Text
-  content     String    @db.Text
+  description String
+  content     String   @db.Text
   image       String
   dataAiHint  String?
-  published   Boolean   @default(false)
+  published   Boolean  @default(false)
   authorId    String
-  author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  comments    Comment[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // For navigating between posts
   previousId  String?   @unique
   nextId      String?   @unique
   previous    Post?     @relation("PostNavigation", fields: [previousId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   next        Post?     @relation("PostNavigation")
+
+  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments Comment[]
 
   @@index([authorId])
 }
@@ -186,25 +216,24 @@ model Comment {
   content   String   @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  postId    String
-  authorId  String
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   status    CommentStatus @default(PENDING)
+
+  postId   String
+  authorId String
+  post     Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author   User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   @@index([postId])
   @@index([authorId])
 }
 
-enum CommentStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
 model Subscription {
   id        String   @id @default(cuid())
   email     String   @unique
-  userId    String?
+  userId    String?  
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
 }
