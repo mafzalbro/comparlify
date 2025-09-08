@@ -1,3 +1,4 @@
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -51,10 +52,10 @@ async function getPostData(slug: string) {
         take: 3,
         select: { slug: true, title: true, image: true, dataAiHint: true }
       }),
-      prisma.post.findFirst({
+      post.nextId ? prisma.post.findFirst({
         where: { id: post.nextId },
         select: { slug: true, title: true }
-      })
+      }) : Promise.resolve(null)
     ]);
 
     return { post, relatedPosts, nextPost };
