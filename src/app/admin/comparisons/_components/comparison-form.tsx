@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useFormStatus } from 'react';
+import { useActionState } from 'react';
 import { createComparison, updateComparison } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,29 +9,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { type Comparison, type Platform } from '@prisma/client';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SubmitButton } from '@/components/submit-button';
 
 interface ComparisonFormProps {
   comparison?: Comparison | null;
   platforms: Platform[];
-}
-
-function SubmitButton({ isEditing }: { isEditing: boolean }) {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending}>
-      {pending ? (
-        <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          {isEditing ? 'Saving...' : 'Creating...'}
-        </>
-      ) : (
-        isEditing ? 'Save Changes' : 'Create Comparison'
-      )}
-    </Button>
-  );
 }
 
 export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {

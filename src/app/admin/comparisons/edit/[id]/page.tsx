@@ -1,29 +1,28 @@
-'use client';
 
-import { ComparisonForm } from '../../_components/comparison-form';
+import prisma from '@/lib/prisma';
+import { notFound } from 'next/navigation';
+import { EditComparisonPageClient } from './page-client';
 import type { Comparison, Platform } from '@prisma/client';
-import { useEffect, useState, use } from 'react';
 
-// This is not the ideal pattern, but it's a way to solve the hook error
-// without being able to create new API routes.
-// The page needs to be a client component because it renders a form that uses client hooks.
+async function getComparison(id: string): Promise<Comparison | null> {
+    return prisma.comparison.findUnique({
+        where: { id },
+    });
+}
 
-export default function EditComparisonPage(props: { params: Promise<{ id: string }> }) {
-    const params = use(props.params);
-    const [comparison, setComparison] = useState<Comparison | null>(null);
-    const [platforms, setPlatforms] = useState<Platform[]>([]);
+async function getPlatforms(): Promise<Platform[]> {
+    return prisma.platform.findMany({ orderBy: { name: 'asc' }});
+}
 
-    useEffect(() => {
-        // In a real app, this data would be fetched from API routes.
-        // For example:
-        // fetch(`/api/comparisons/${params.id}`).then(res => res.json()).then(setComparison);
-        // fetch(`/api/platforms`).then(res => res.json()).then(setPlatforms);
-    }, [params.id]);
+export default async function EditComparisonPage({ params }: { params: { id: string } }) {
+    const [comparison, platforms] = await Promise.all([
+        getComparison(params.id),
+        getPlatforms()
+    ]);
 
-    return (
-        <div>
-            <h1 className="text-3xl font-bold mb-6">Edit Comparison</h1>
-            <ComparisonForm comparison={comparison} platforms={platforms} />
-        </div>
-    );
+    if (!comparison) {
+        notFound();
+    }
+
+    return <EditComparisonPageClient comparison={comparison} platforms={platforms} />;
 }

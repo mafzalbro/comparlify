@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useFormStatus } from 'react';
+import { useActionState } from 'react';
 import { createPlatform, updatePlatform } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,10 +8,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { type Platform, type Feature, type PlatformFeature, type FeatureCategory } from '@prisma/client';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { SubmitButton } from '@/components/submit-button';
 
 
 type PlatformWithFeatures = Platform & { features: PlatformFeature[] };
@@ -20,22 +20,6 @@ interface PlatformFormProps {
   platform?: PlatformWithFeatures | null;
   features: (Feature & { category: FeatureCategory })[];
   featureCategories: FeatureCategory[];
-}
-
-function SubmitButton({ isEditing }: { isEditing: boolean }) {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending}>
-      {pending ? (
-        <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          {isEditing ? 'Saving...' : 'Creating...'}
-        </>
-      ) : (
-        isEditing ? 'Save Changes' : 'Create Platform'
-      )}
-    </Button>
-  );
 }
 
 export function PlatformForm({ platform, features, featureCategories }: PlatformFormProps) {
@@ -59,23 +43,23 @@ export function PlatformForm({ platform, features, featureCategories }: Platform
                         <div className="space-y-2">
                             <Label htmlFor="name">Name</Label>
                             <Input id="name" name="name" defaultValue={platform?.name} required />
-                            {state?.error?.name && <p className="text-destructive text-sm">{state.error.name[0]}</p>}
+                            {typeof state.error !== 'string' && state?.error?.name && <p className="text-destructive text-sm">{state.error.name[0]}</p>}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="website">Website URL</Label>
                             <Input id="website" name="website" defaultValue={platform?.website} required />
-                            {state?.error?.website && <p className="text-destructive text-sm">{state.error.website[0]}</p>}
+                            {typeof state.error !== 'string' && state?.error?.website && <p className="text-destructive text-sm">{state.error.website[0]}</p>}
                         </div>
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="logoUrl">Logo URL</Label>
                         <Input id="logoUrl" name="logoUrl" defaultValue={platform?.logoUrl} required />
-                        {state?.error?.logoUrl && <p className="text-destructive text-sm">{state.error.logoUrl[0]}</p>}
+                        {typeof state.error !== 'string' && state?.error?.logoUrl && <p className="text-destructive text-sm">{state.error.logoUrl[0]}</p>}
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="description">Description</Label>
                         <Textarea id="description" name="description" defaultValue={platform?.description} rows={5} required />
-                        {state?.error?.description && <p className="text-destructive text-sm">{state.error.description[0]}</p>}
+                        {typeof state.error !== 'string' && state?.error?.description && <p className="text-destructive text-sm">{state.error.description[0]}</p>}
                     </div>
                 </CardContent>
             </Card>
