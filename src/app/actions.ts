@@ -904,18 +904,64 @@ const comparisonSchema = z.object({
     path: ["platformBId"],
 });
 
+function parseDynamicArray(formData: FormData, arrayName: string) {
+    const arrayData = [];
+    const keys = Array.from(formData.keys());
+    
+    const regex = new RegExp(`^${arrayName}\\[(\\d+)\\]\\[(.*?)\\]$`);
+    const items: Record<string, Record<string, any>> = {};
+
+    for (const key of keys) {
+        const match = key.match(regex);
+        if (match) {
+            const [, index, field] = match;
+            if (!items[index]) {
+                items[index] = {};
+            }
+            items[index][field] = formData.get(key);
+        }
+    }
+    return Object.values(items).filter(item => {
+      // Filter out empty items before processing
+      return Object.values(item).some(value => value !== '');
+    });
+}
+
 export async function createComparison(prevState: any, formData: FormData) {
-  const validatedFields = comparisonSchema.safeParse(Object.fromEntries(formData.entries()));
+  const data = Object.fromEntries(formData.entries());
+  const validatedFields = comparisonSchema.safeParse(data);
 
   if (!validatedFields.success) {
     return { error: validatedFields.error.flatten().fieldErrors };
   }
 
+  const factsData = parseDynamicArray(formData, 'facts').map(fact => ({
+      title: fact.title as string,
+      platformAValue: fact.platformAValue as string,
+      platformBValue: fact.platformBValue as string,
+  }));
+
+  const faqsData = parseDynamicArray(formData, 'faqs').map(faq => ({
+      question: faq.question as string,
+      answer: faq.answer as string,
+  }));
+
   try {
-    await prisma.comparison.create({ data: validatedFields.data });
+    await prisma.comparison.create({ 
+        data: {
+            ...validatedFields.data,
+            facts: {
+                create: factsData
+            },
+            faqs: {
+                create: faqsData
+            }
+        }
+    });
     revalidatePath('/admin/comparisons');
     revalidatePath('/compare');
   } catch (error) {
+    console.error(error);
     return { error: 'Failed to create comparison.' };
   }
 
@@ -923,20 +969,50 @@ export async function createComparison(prevState: any, formData: FormData) {
 }
 
 export async function updateComparison(id: string, prevState: any, formData: FormData) {
-  const validatedFields = comparisonSchema.safeParse(Object.fromEntries(formData.entries()));
+  const data = Object.fromEntries(formData.entries());
+  const validatedFields = comparisonSchema.safeParse(data);
 
   if (!validatedFields.success) {
     return { error: validatedFields.error.flatten().fieldErrors };
   }
-
+  
+  const factsData = parseDynamicArray(formData, 'facts');
+  const faqsData = parseDynamicArray(formData, 'faqs');
+  
   try {
-    await prisma.comparison.update({
-      where: { id },
-      data: validatedFields.data,
+    await prisma.$transaction(async (tx) => {
+        await tx.comparison.update({
+            where: { id },
+            data: {
+                ...validatedFields.data,
+                facts: { deleteMany: {} }, // Clear existing facts
+                faqs: { deleteMany: {} }, // Clear existing FAQs
+            },
+        });
+        
+        if (factsData.length > 0) {
+            await tx.fact.createMany({
+                data: factsData.map(fact => ({
+                    ...fact,
+                    comparisonId: id,
+                })) as any,
+            });
+        }
+        
+        if (faqsData.length > 0) {
+             await tx.faq.createMany({
+                data: faqsData.map(faq => ({
+                    ...faq,
+                    comparisonId: id,
+                })) as any,
+            });
+        }
     });
+    
     revalidatePath('/admin/comparisons');
     revalidatePath(`/compare/${validatedFields.data.slug}`);
   } catch (error) {
+    console.error(error);
     return { error: 'Failed to update comparison.' };
   }
 

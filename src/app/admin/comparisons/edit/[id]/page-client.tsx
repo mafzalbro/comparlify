@@ -1,10 +1,15 @@
 'use client';
 
-import { type Comparison, type Platform } from '@prisma/client';
+import { type Comparison, type Platform, type Fact, type FAQ } from '@prisma/client';
 import { ComparisonForm } from '../../_components/comparison-form';
 
+type ComparisonWithRelations = Comparison & {
+  facts: Fact[];
+  faqs: FAQ[];
+}
+
 interface EditComparisonPageClientProps {
-  comparison: Comparison;
+  comparison: ComparisonWithRelations;
   platforms: Platform[];
 }
 

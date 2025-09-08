@@ -2,11 +2,20 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { EditComparisonPageClient } from './page-client';
-import type { Comparison, Platform } from '@prisma/client';
+import type { Comparison, Platform, Fact, FAQ } from '@prisma/client';
 
-async function getComparison(id: string): Promise<Comparison | null> {
+type ComparisonWithRelations = Comparison & {
+    facts: Fact[];
+    faqs: FAQ[];
+}
+
+async function getComparison(id: string): Promise<ComparisonWithRelations | null> {
     return prisma.comparison.findUnique({
         where: { id },
+        include: {
+            facts: true,
+            faqs: true,
+        },
     });
 }
 
