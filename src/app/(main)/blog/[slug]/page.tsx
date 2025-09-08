@@ -28,6 +28,7 @@ async function getPostData(slug: string) {
         include: { 
             author: true,
             comments: {
+                where: { status: 'APPROVED' },
                 include: { author: true },
                 orderBy: { createdAt: 'desc' }
             },

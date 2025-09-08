@@ -13,7 +13,7 @@ import {
     SidebarGroupLabel,
     SidebarFooter
 } from "@/components/ui/sidebar";
-import { Home, Settings, Table, PenSquare, LogOut, BookText, GitCompareArrows, Users, LayoutDashboard } from "lucide-react";
+import { Home, Settings, Table, PenSquare, LogOut, BookText, GitCompareArrows, Users, LayoutDashboard, MessageCircle } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogoutButton } from "@/components/auth/logout-button";
@@ -51,6 +51,14 @@ export default async function AdminLayout({
                                     <SidebarMenuButton tooltip="Blog">
                                         <BookText />
                                         Blog
+                                    </SidebarMenuButton>
+                                </Link>
+                            </SidebarMenuItem>
+                             <SidebarMenuItem>
+                                <Link href="/admin/comments">
+                                    <SidebarMenuButton tooltip="Comments">
+                                        <MessageCircle />
+                                        Comments
                                     </SidebarMenuButton>
                                 </Link>
                             </SidebarMenuItem>

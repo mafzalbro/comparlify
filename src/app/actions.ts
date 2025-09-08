@@ -644,6 +644,17 @@ export async function getPostPreview(slug: string): Promise<Post | null> {
             description: true,
             image: true,
             content: true,
+            author: true,
+            authorId: true,
+            comments: true,
+            createdAt: true,
+            dataAiHint: true,
+            next: true,
+            nextId: true,
+            previous: true,
+            previousId: true,
+            published: true,
+            updatedAt: true,
         }
     });
 }
@@ -734,25 +745,25 @@ export async function deletePost(prevState: { error: string | null }, formData: 
   }
 }
 
-// --- Comment Action ---
-const commentSchema = z.object({
+// --- Comment Actions ---
+const addCommentSchema = z.object({
     content: z.string().min(1, "Comment cannot be empty.").max(1000, "Comment is too long."),
     postId: z.string(),
 });
 
-export async function addComment(prevState: any, formData: FormData) {
+export async function addCommentAction(prevState: any, formData: FormData) {
     const session = await auth();
     if (!session?.user?.id) {
-        return { error: "You must be logged in to comment." };
+        return { error: "You must be logged in to comment.", success: false };
     }
 
-    const validatedFields = commentSchema.safeParse({
+    const validatedFields = addCommentSchema.safeParse({
         content: formData.get("content"),
         postId: formData.get("postId"),
     });
 
     if (!validatedFields.success) {
-        return { error: "Invalid comment data." };
+        return { error: "Invalid comment data.", success: false };
     }
 
     try {
@@ -761,18 +772,103 @@ export async function addComment(prevState: any, formData: FormData) {
                 content: validatedFields.data.content,
                 postId: validatedFields.data.postId,
                 authorId: session.user.id,
+                status: 'PENDING',
             },
         });
         const post = await prisma.post.findUnique({ where: { id: validatedFields.data.postId }, select: { slug: true }});
         if (post) {
           revalidatePath(`/blog/${post.slug}`);
         }
-        return { error: null }
+        revalidatePath('/admin/comments');
+        return { error: null, success: true }
     } catch (error) {
         console.error(error);
-        return { error: "Failed to add comment." };
+        return { error: "Failed to add comment.", success: false };
     }
 }
+
+const updateCommentSchema = z.object({
+    content: z.string().min(1, "Comment cannot be empty.").max(1000, "Comment is too long."),
+    commentId: z.string(),
+});
+
+export async function updateCommentAction(prevState: any, formData: FormData) {
+    const session = await auth();
+    if (!session?.user?.id) {
+        return { error: "You must be logged in to edit comments.", success: false };
+    }
+
+    const validatedFields = updateCommentSchema.safeParse({
+        content: formData.get("content"),
+        commentId: formData.get("commentId"),
+    });
+
+    if (!validatedFields.success) {
+        return { error: "Invalid comment data.", success: false };
+    }
+    
+    const { commentId, content } = validatedFields.data;
+
+    const comment = await prisma.comment.findUnique({ where: { id: commentId } });
+    if (!comment || comment.authorId !== session.user.id) {
+        return { error: "You are not authorized to edit this comment.", success: false };
+    }
+
+    try {
+        await prisma.comment.update({
+            where: { id: commentId },
+            data: {
+                content,
+                status: 'PENDING' // Re-submit for approval after edit
+            }
+        });
+        
+        const post = await prisma.post.findUnique({ where: { id: comment.postId }, select: { slug: true }});
+        if (post) {
+          revalidatePath(`/blog/${post.slug}`);
+        }
+        revalidatePath('/admin/comments');
+        return { error: null, success: true };
+    } catch(error) {
+        console.error(error);
+        return { error: "Failed to update comment.", success: false };
+    }
+}
+
+
+export async function approveCommentAction(commentId: string) {
+    const session = await auth();
+    if (session?.user?.role !== 'ADMIN') {
+        throw new Error('Not authorized');
+    }
+    await prisma.comment.update({
+        where: { id: commentId },
+        data: { status: 'APPROVED' },
+    });
+    revalidatePath('/admin/comments');
+    // Also revalidate the specific blog post if possible, or just the whole blog
+    const comment = await prisma.comment.findUnique({ where: { id: commentId }, include: { post: { select: { slug: true }}}});
+    if (comment) {
+        revalidatePath(`/blog/${comment.post.slug}`);
+    }
+}
+
+export async function rejectCommentAction(commentId: string) {
+    const session = await auth();
+    if (session?.user?.role !== 'ADMIN') {
+        throw new Error('Not authorized');
+    }
+    await prisma.comment.update({
+        where: { id: commentId },
+        data: { status: 'REJECTED' },
+    });
+    revalidatePath('/admin/comments');
+    const comment = await prisma.comment.findUnique({ where: { id: commentId }, include: { post: { select: { slug: true }}}});
+    if (comment) {
+        revalidatePath(`/blog/${comment.post.slug}`);
+    }
+}
+
 
 
 // --- Comparison Actions ---
@@ -969,8 +1065,6 @@ export async function sendContactMessageAction(
 }
 
 // --- Platform Actions ---
-
-const emptyStringToNull = z.literal('').transform(() => null);
 
 const platformSchema = z.object({
     name: z.string().min(2),
