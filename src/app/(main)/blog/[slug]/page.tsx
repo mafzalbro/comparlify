@@ -13,7 +13,6 @@ import { generateSeoMetadata } from '@/lib/seo';
 import { auth } from '@/lib/auth';
 import { CommentsSection } from '@/components/comments-section';
 import { TableOfContents } from '@/components/table-of-contents';
-import { ManagedImage } from '@/components/managed-image';
 
 export async function generateStaticParams() {
   const posts = await prisma.post.findMany({ where: { published: true } });
@@ -111,6 +110,26 @@ export default async function BlogPostPage(props: { params: Promise<{ slug: stri
       },
     };
 
+    const shimmer = (w: number, h: number) => `
+    <svg width="${w}" height="${h}" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+      <defs>
+        <linearGradient id="g">
+          <stop stop-color="#f0f0f0" offset="20%" />
+          <stop stop-color="#e0e0e0" offset="50%" />
+          <stop stop-color="#f0f0f0" offset="70%" />
+        </linearGradient>
+      </defs>
+      <rect width="${w}" height="${h}" fill="#f0f0f0" />
+      <rect id="r" width="${w}" height="${h}" fill="url(#g)" />
+      <animate xlink:href="#r" attributeName="x" from="-${w}" to="${w}" dur="1s" repeatCount="indefinite"  />
+    </svg>`;
+
+    const toBase64 = (str: string) =>
+      typeof window === 'undefined'
+        ? Buffer.from(str).toString('base64')
+        : window.btoa(str);
+
+
     return (
       <>
         <script
@@ -122,13 +141,15 @@ export default async function BlogPostPage(props: { params: Promise<{ slug: stri
           {/* Hero Section */}
           <section className="relative w-full py-24 md:py-32 lg:py-40 flex items-center justify-center text-center text-white overflow-hidden">
             <div className="absolute inset-0">
-              <ManagedImage
+              <Image
                 src={post.image.replace('400/250', '1920/1080')}
                 alt={post.title}
                 data-ai-hint={post.dataAiHint}
                 fill
                 className="object-cover"
                 priority
+                placeholder="blur"
+                blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(1920, 1080))}`}
               />
               <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
             </div>
@@ -206,12 +227,14 @@ export default async function BlogPostPage(props: { params: Promise<{ slug: stri
                         {relatedPosts.map(related => (
                           <Link key={related.slug} href={`/blog/${related.slug}`} className="flex items-center gap-4 group">
                             <div className="relative w-20 h-16 rounded-md overflow-hidden shrink-0">
-                              <ManagedImage 
+                              <Image 
                                 src={related.image.replace('400/250', '200/150')} 
                                 alt={related.title}
                                 data-ai-hint={related.dataAiHint ?? ''}
                                 fill
                                 className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                placeholder="blur"
+                                blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(200, 150))}`}
                               />
                             </div>
                             <h4 className="text-sm font-medium group-hover:text-primary transition-colors">{related.title}</h4>

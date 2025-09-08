@@ -1,3 +1,4 @@
+
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
@@ -27,7 +28,6 @@ import {
     AccordionTrigger,
   } from "@/components/ui/accordion"
 import { ComparisonChart } from '@/components/comparison-chart';
-import { ManagedImage } from '@/components/managed-image';
 
 
 async function getComparisonBySlug(slug: string) {
@@ -101,14 +101,33 @@ export default async function ComparisonDetailPage(props: { params: Promise<{ sl
       },
     }
 
+    const shimmer = (w: number, h: number) => `
+    <svg width="${w}" height="${h}" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+      <defs>
+        <linearGradient id="g">
+          <stop stop-color="#f0f0f0" offset="20%" />
+          <stop stop-color="#e0e0e0" offset="50%" />
+          <stop stop-color="#f0f0f0" offset="70%" />
+        </linearGradient>
+      </defs>
+      <rect width="${w}" height="${h}" fill="#f0f0f0" />
+      <rect id="r" width="${w}" height="${h}" fill="url(#g)" />
+      <animate xlink:href="#r" attributeName="x" from="-${w}" to="${w}" dur="1s" repeatCount="indefinite"  />
+    </svg>`;
+
+    const toBase64 = (str: string) =>
+      typeof window === 'undefined'
+        ? Buffer.from(str).toString('base64')
+        : window.btoa(str);
+
 
     return (
       <div className="container max-w-5xl py-16 md:py-24">
          <div className="text-center mb-12">
           <div className="flex justify-center items-center gap-8 mb-4">
-              <ManagedImage src={platformA.logoUrl} alt={`${platformA.name} logo`} width={200} height={60} className="object-contain" />
+              <Image src={platformA.logoUrl} alt={`${platformA.name} logo`} width={200} height={60} className="object-contain" placeholder="blur" blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(200, 60))}`} />
               <span className="text-4xl font-light text-muted-foreground">vs</span>
-              <ManagedImage src={platformB.logoUrl} alt={`${platformB.name} logo`} width={200} height={60} className="object-contain" />
+              <Image src={platformB.logoUrl} alt={`${platformB.name} logo`} width={200} height={60} className="object-contain" placeholder="blur" blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(200, 60))}`} />
           </div>
           <h1 className="font-headline text-4xl md:text-5xl font-bold text-foreground">
             {comparison.title}
