@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -25,7 +26,7 @@ export function MobileNav({ navLinks, session }: MobileNavProps) {
     const pathname = usePathname();
 
     const NavLink = ({ href, label }: { href: string; label: string }) => {
-        const isActive = pathname === href;
+        const isActive = (href === '/' && pathname === href) || (href !== '/' && pathname.startsWith(href));
         return (
             <Link
               href={href}
@@ -62,7 +63,10 @@ export function MobileNav({ navLinks, session }: MobileNavProps) {
                {session ? (
                 <>
                   <Button variant="outline" asChild>
-                    <Link href="/profile" onClick={() => setSheetOpen(false)}>Profile</Link>
+                    <Link href="/panel" onClick={() => setSheetOpen(false)}>User Panel</Link>
+                  </Button>
+                   <Button variant="outline" asChild>
+                    <Link href="/profile" onClick={() => setSheetOpen(false)}>My Profile</Link>
                   </Button>
                   <Button variant="ghost" onClick={() => {
                       setSheetOpen(false);

@@ -734,11 +734,11 @@ export async function deletePost(prevState: { error: string | null }, formData: 
     });
     revalidatePath("/admin/blog");
     revalidatePath("/blog");
+    return { error: null }
   } catch (error) {
     console.error(error);
     return { error: "Failed to delete post." };
   }
-  redirect("/admin/blog");
 }
 
 // --- Comment Action ---
@@ -846,10 +846,10 @@ export async function deleteComparison(prevState: { error: string | null }, form
     await prisma.comparison.delete({ where: { id } });
     revalidatePath('/admin/comparisons');
     revalidatePath('/compare');
+    return { error: null };
   } catch (error) {
     return { error: 'Failed to delete comparison.' };
   }
-  redirect('/admin/comparisons');
 }
 
 // --- Subscription Action ---
@@ -1090,12 +1090,74 @@ export async function deletePlatform(prevState: { error: string | null }, formDa
     await prisma.platform.delete({ where: { id } });
     revalidatePath('/admin/platforms');
     revalidatePath('/compare');
+    return { error: null };
   } catch (error)
   {
     console.error(error);
     return { error: 'Failed to delete platform.' };
   }
-  redirect('/admin/platforms');
 }
 
-    
+// --- Feature Actions ---
+const featureSchema = z.object({
+    name: z.string().min(3, "Name must be at least 3 characters long."),
+    categoryId: z.string().min(1, "You must select a category."),
+});
+
+export async function createFeature(prevState: any, formData: FormData) {
+    const validatedFields = featureSchema.safeParse(Object.fromEntries(formData.entries()));
+
+    if (!validatedFields.success) {
+        return { error: validatedFields.error.flatten().fieldErrors };
+    }
+
+    try {
+        await prisma.feature.create({ data: validatedFields.data });
+        revalidatePath('/admin/features');
+    } catch (error) {
+        console.error(error);
+        return { error: "Failed to create feature." };
+    }
+    redirect('/admin/features');
+}
+
+export async function updateFeature(id: string, prevState: any, formData: FormData) {
+    const validatedFields = featureSchema.safeParse(Object.fromEntries(formData.entries()));
+
+    if (!validatedFields.success) {
+        return { error: validatedFields.error.flatten().fieldErrors };
+    }
+
+    try {
+        await prisma.feature.update({
+            where: { id },
+            data: validatedFields.data,
+        });
+        revalidatePath('/admin/features');
+    } catch (error) {
+        console.error(error);
+        return { error: "Failed to update feature." };
+    }
+    redirect('/admin/features');
+}
+
+export async function deleteFeature(prevState: { error: string | null }, formData: FormData) {
+    const id = formData.get('id') as string;
+    if (!id) {
+        return { error: "Feature ID is missing." };
+    }
+    try {
+        await prisma.feature.delete({ where: { id } });
+        revalidatePath('/admin/features');
+        return { error: null };
+    } catch (error) {
+        if (error instanceof prisma.PrismaClientKnownRequestError) {
+            // P2003 is the error code for foreign key constraint failure
+            if (error.code === 'P2003') {
+                return { error: "Cannot delete feature. It is currently in use by one or more platforms." };
+            }
+        }
+        console.error(error);
+        return { error: "Failed to delete feature. An unknown error occurred." };
+    }
+}

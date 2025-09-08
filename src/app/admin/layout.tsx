@@ -1,3 +1,4 @@
+
 import {
     Sidebar,
     SidebarContent,
@@ -12,18 +13,21 @@ import {
     SidebarGroupLabel,
     SidebarFooter
 } from "@/components/ui/sidebar";
-import { Home, Settings, Table, PenSquare, LogOut, BookText, GitCompareArrows, Users } from "lucide-react";
+import { Home, Settings, Table, PenSquare, LogOut, BookText, GitCompareArrows, Users, LayoutDashboard } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogoutButton } from "@/components/auth/logout-button";
 import Link from "next/link";
-import { signOut } from "@/lib/auth";
+import { auth, signOut } from "@/lib/auth";
+import { UserNav } from "@/components/user-nav";
 
-export default function AdminLayout({
+export default async function AdminLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const session = await auth();
+
     return (
         <SidebarProvider>
             <Sidebar>
@@ -66,19 +70,19 @@ export default function AdminLayout({
                                     </SidebarMenuButton>
                                 </Link>
                             </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <Link href="/admin/features">
+                                    <SidebarMenuButton tooltip="Features">
+                                        <PenSquare />
+                                        Features
+                                    </SidebarMenuButton>
+                                </Link>
+                            </SidebarMenuItem>
                              <SidebarMenuItem>
                                 <Link href="/admin/users">
                                     <SidebarMenuButton tooltip="Users">
                                         <Users />
                                         Users
-                                    </SidebarMenuButton>
-                                </Link>
-                            </SidebarMenuItem>
-                            <SidebarMenuItem>
-                                <Link href="#">
-                                    <SidebarMenuButton tooltip="Features" disabled>
-                                        <PenSquare />
-                                        Features
                                     </SidebarMenuButton>
                                 </Link>
                             </SidebarMenuItem>
@@ -88,13 +92,21 @@ export default function AdminLayout({
                 <SidebarFooter>
                     <SidebarMenu>
                         <SidebarMenuItem>
-                            <Link href="#">
-                                <SidebarMenuButton tooltip="Settings" disabled>
+                            <Link href="/admin/settings">
+                                <SidebarMenuButton tooltip="Settings">
                                     <Settings />
                                     Settings
                                 </SidebarMenuButton>
                             </Link>
                         </SidebarMenuItem>
+                         <SidebarMenuItem>
+                           <Link href="/panel">
+                             <SidebarMenuButton tooltip="User Panel">
+                               <LayoutDashboard />
+                               User Panel
+                             </SidebarMenuButton>
+                           </Link>
+                         </SidebarMenuItem>
                         <SidebarMenuItem>
                             <LogoutButton>
                                 <SidebarMenuButton tooltip="Logout">
@@ -103,18 +115,11 @@ export default function AdminLayout({
                                 </SidebarMenuButton>
                             </LogoutButton>
                         </SidebarMenuItem>
-                        <SidebarMenuItem>
-                            <div className="flex items-center gap-2 p-2">
-                                <Avatar>
-                                    <AvatarImage src="https://picsum.photos/100/100?random=admin" alt="Admin" data-ai-hint="person photo" />
-                                    <AvatarFallback>A</AvatarFallback>
-                                </Avatar>
-                                <div className="flex flex-col">
-                                    <span className="text-sm font-semibold">Admin User</span>
-                                    <span className="text-xs text-muted-foreground">admin@comparlify.com</span>
-                                </div>
-                            </div>
-                        </SidebarMenuItem>
+                         {session?.user && (
+                             <SidebarMenuItem>
+                                <UserNav user={session.user} />
+                             </SidebarMenuItem>
+                         )}
                     </SidebarMenu>
                 </SidebarFooter>
             </Sidebar>

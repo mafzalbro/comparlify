@@ -1,45 +1,28 @@
+
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Image, { type ImageProps } from 'next/image';
-import { cn } from '@/lib/utils';
-import { Skeleton } from './ui/skeleton';
 
 export function ManagedImage(props: ImageProps) {
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
+  const [error, setError] = useState(false);
 
-  useEffect(() => {
-    setIsLoading(true);
-    setHasError(false);
-  }, [props.src]);
+  const fallbackSrc = `https://placehold.co/${props.width ?? 400}x${
+    props.height ?? 250
+  }/faf7f0/a1a1aa?text=Image+Not+Found`;
 
-  const handleError = () => {
-    setIsLoading(false);
-    setHasError(true);
-  };
-
-  const handleLoad = () => {
-    setIsLoading(false);
-  };
-  
-  const placeholderUrl = `https://placehold.co/${props.width ?? 400}x${props.height ?? 250}/e0e0e0/7f7f7f?text=Image+not+available`;
+  const currentSrc = error ? fallbackSrc : props.src;
 
   return (
-    <div className={cn("relative overflow-hidden", props.className)}>
-        {isLoading && <Skeleton className="absolute inset-0" />}
-        
-        <Image
-            {...props}
-            src={hasError ? placeholderUrl : props.src}
-            className={cn(
-                "transition-opacity duration-300",
-                isLoading ? "opacity-0" : "opacity-100",
-                props.fill && "object-cover"
-            )}
-            onLoad={handleLoad}
-            onError={handleError}
-        />
-    </div>
+    <Image
+      {...props}
+      src={currentSrc}
+      onError={() => {
+        if (!error) { // Prevent infinite loop if fallback also fails
+          setError(true);
+        }
+      }}
+      unoptimized={error} // Use unoptimized for the SVG fallback
+    />
   );
 }
