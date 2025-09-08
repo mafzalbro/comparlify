@@ -113,112 +113,118 @@ export default async function BlogPostPage(props: { params: Promise<{ slug: stri
 
     return (
       <>
-      <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <div className="container max-w-6xl py-12 md:py-16">
-          <div className="text-sm mb-6">
+        <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+
+        <article>
+          {/* Hero Section */}
+          <section className="relative w-full py-24 md:py-32 lg:py-40 flex items-center justify-center text-center text-white overflow-hidden">
+            <div className="absolute inset-0">
+              <ManagedImage
+                src={post.image.replace('400/250', '1920/1080')}
+                alt={post.title}
+                data-ai-hint={post.dataAiHint}
+                fill
+                className="object-cover"
+                priority
+              />
+              <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            </div>
+            <div className="relative container max-w-4xl z-10 drop-shadow-lg">
+              <p className="text-sm uppercase tracking-widest mb-4">
+                {new Date(post.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} &middot; {readTime} min read
+              </p>
+              <h1 className="font-headline text-4xl md:text-6xl font-bold leading-tight">
+                {post.title}
+              </h1>
+              <p className="mt-4 text-lg md:text-xl text-white/80 max-w-2xl mx-auto">{post.description}</p>
+              <div className="mt-8 flex items-center justify-center gap-4">
+                <Avatar className="h-12 w-12 border-2 border-white/50">
+                  <AvatarImage src={post.author.image ?? `https://picsum.photos/100/100?random=${post.slug}`} alt={post.author.name ?? 'Author'} data-ai-hint="person photo" />
+                  <AvatarFallback>{post.author.name?.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-semibold">{post.author.name}</p>
+                  <p className="text-sm text-white/70">Author</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Main Content */}
+          <div className="container max-w-6xl py-12 md:py-16">
+            <div className="text-sm mb-6">
               <Button asChild variant="ghost" className="mb-4">
-                  <Link href="/blog">
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                      Back to Blog
-                  </Link>
+                <Link href="/blog">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Blog
+                </Link>
               </Button>
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-4 lg:gap-12">
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-4 lg:gap-12">
               <div className="lg:col-span-3">
-                  <article>
-                      <div className="space-y-4 mb-8">
-                          <p className="text-muted-foreground text-sm">{new Date(post.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} &middot; {readTime} min read</p>
-                          <h1 className="font-headline text-4xl md:text-5xl font-bold text-foreground leading-tight">
-                              {post.title}
-                          </h1>
-                          <p className="text-xl text-muted-foreground">{post.description}</p>
-                      </div>
-
-                      <div className="flex items-center gap-4 mb-8">
-                      <Avatar>
-                          <AvatarImage src={post.author.image ?? `https://picsum.photos/100/100?random=${post.slug}`} alt={post.author.name ?? 'Author'} data-ai-hint="person photo" />
-                          <AvatarFallback>{post.author.name?.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                          <p className="font-semibold text-foreground">{post.author.name}</p>
-                          <p className="text-sm text-muted-foreground">Author</p>
-                      </div>
-                      </div>
-                      
-                      <div className="relative w-full aspect-video mb-8 rounded-lg overflow-hidden shadow-lg">
-                          <ManagedImage
-                              src={post.image.replace('400/250', '1200/675')}
-                              alt={post.title}
-                              data-ai-hint={post.dataAiHint}
-                              fill
-                              className="object-cover"
-                              priority
-                          />
-                      </div>
-
-                      <MarkdownContent content={post.content} />
-                  </article>
-
-                  <nav className="flex justify-between items-center my-12 border-t border-b py-6">
-                      <div>
-                          {post.previous && (
-                              <Button asChild variant="outline">
-                                  <Link href={`/blog/${post.previous.slug}`}>
-                                       <ArrowLeft className="mr-2 h-4 w-4" />
-                                      Previous
-                                  </Link>
-                              </Button>
-                          )}
-                      </div>
-                       <div>
-                          {nextPost && (
-                              <Button asChild variant="outline">
-                                  <Link href={`/blog/${nextPost.slug}`}>
-                                      Next
-                                      <ArrowRight className="ml-2 h-4 w-4" />
-                                  </Link>
-                              </Button>
-                          )}
-                      </div>
-                  </nav>
-
-                  <CommentsSection 
-                      postId={post.id} 
-                      comments={post.comments} 
-                      session={session} 
-                  />
+                <div className="prose dark:prose-invert max-w-none">
+                  <MarkdownContent content={post.content} />
+                </div>
+                <nav className="flex justify-between items-center my-12 border-t border-b py-6">
+                  <div>
+                    {post.previous && (
+                      <Button asChild variant="outline">
+                        <Link href={`/blog/${post.previous.slug}`}>
+                          <ArrowLeft className="mr-2 h-4 w-4" />
+                          Previous
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
+                  <div>
+                    {nextPost && (
+                      <Button asChild variant="outline">
+                        <Link href={`/blog/${nextPost.slug}`}>
+                          Next
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
+                </nav>
+                <CommentsSection 
+                  postId={post.id} 
+                  comments={post.comments} 
+                  session={session} 
+                />
               </div>
               <aside className="hidden lg:block lg:col-span-1">
-                  <div className="sticky top-24 space-y-8">
-                      <TableOfContents content={post.content} />
-                      {relatedPosts.length > 0 && (
-                          <div>
-                               <h3 className="font-headline text-xl font-semibold mb-4">Related Posts</h3>
-                               <div className="space-y-4">
-                                  {relatedPosts.map(related => (
-                                      <Link key={related.slug} href={`/blog/${related.slug}`} className="flex items-center gap-4 group">
-                                           <div className="relative w-20 h-16 rounded-md overflow-hidden shrink-0">
-                                              <ManagedImage 
-                                                  src={related.image.replace('400/250', '200/150')} 
-                                                  alt={related.title}
-                                                  data-ai-hint={related.dataAiHint ?? ''}
-                                                  fill
-                                                  className="object-cover transition-transform duration-300 group-hover:scale-105"
-                                              />
-                                          </div>
-                                          <h4 className="text-sm font-medium group-hover:text-primary transition-colors">{related.title}</h4>
-                                      </Link>
-                                  ))}
-                               </div>
-                          </div>
-                      )}
-                  </div>
+                <div className="sticky top-24 space-y-8">
+                  <TableOfContents content={post.content} />
+                  {relatedPosts.length > 0 && (
+                    <div>
+                      <h3 className="font-headline text-xl font-semibold mb-4">Related Posts</h3>
+                      <div className="space-y-4">
+                        {relatedPosts.map(related => (
+                          <Link key={related.slug} href={`/blog/${related.slug}`} className="flex items-center gap-4 group">
+                            <div className="relative w-20 h-16 rounded-md overflow-hidden shrink-0">
+                              <ManagedImage 
+                                src={related.image.replace('400/250', '200/150')} 
+                                alt={related.title}
+                                data-ai-hint={related.dataAiHint ?? ''}
+                                fill
+                                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                              />
+                            </div>
+                            <h4 className="text-sm font-medium group-hover:text-primary transition-colors">{related.title}</h4>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </aside>
+            </div>
           </div>
-      </div>
+        </article>
       </>
     );
 }
