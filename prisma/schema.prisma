@@ -6,27 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider     = "mysql"
-  url          = env("DATABASE_URL")
-  relationMode = "prisma"
-}
-
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  role          Role      @default(USER)
-  onboarded     Boolean   @default(false)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  accounts     Account[]
-  sessions     Session[]
-  posts        Post[]
-  comments     Comment[]
-  Subscription Subscription[]
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model Account {
@@ -46,7 +27,6 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
-  @@index([userId])
 }
 
 model Session {
@@ -55,8 +35,38 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
-  @@index([userId])
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(USER)
+  onboarded     Boolean   @default(false)
+
+  accounts     Account[]
+  sessions     Session[]
+  posts        Post[]
+  comments     Comment[]
+  Subscription Subscription?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Subscription {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  userId    String?  @unique
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 }
 
 model VerificationToken {
@@ -67,9 +77,91 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-enum Role {
-  USER
-  ADMIN
+
+// --- Content Models ---
+
+model FeatureCategory {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  features  Feature[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+model Feature {
+  id          String            @id @default(cuid())
+  name        String            @unique
+  category    FeatureCategory   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId  String
+  platforms   PlatformFeature[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @default(now()) @updatedAt
+}
+
+model Platform {
+  id              String            @id @default(cuid())
+  name            String            @unique
+  website         String
+  logoUrl         String
+  description     String            @db.Text
+  rating          Float?
+  easeOfUse       Float?
+  featuresRating  Float?
+  support         Float?
+  features        PlatformFeature[]
+  comparisonsA    Comparison[]      @relation("PlatformA")
+  comparisonsB    Comparison[]      @relation("PlatformB")
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @default(now()) @updatedAt
+}
+
+model PlatformFeature {
+  platform    Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+  platformId  String
+  feature     Feature  @relation(fields: [featureId], references: [id], onDelete: Cascade)
+  featureId   String
+  hasFeature  Boolean
+  details     String?
+
+  @@id([platformId, featureId])
+}
+
+model Comparison {
+  id           String @id @default(cuid())
+  slug         String @unique
+  title        String
+  summary      String @db.Text
+  introduction String @db.Text
+  conclusion   String @db.Text
+  published    Boolean @default(false)
+
+  platformAId String
+  platformBId String
+  platformA   Platform @relation("PlatformA", fields: [platformAId], references: [id], onDelete: Cascade)
+  platformB   Platform @relation("PlatformB", fields: [platformBId], references: [id], onDelete: Cascade)
+
+  facts        ComparisonFact[]
+  faqs         ComparisonFaq[]
+  
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+}
+
+model ComparisonFact {
+  id String @id @default(cuid())
+  comparisonId String
+  comparison Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+  title String
+  platformAValue String
+  platformBValue String
+}
+
+model ComparisonFaq {
+  id String @id @default(cuid())
+  comparisonId String
+  comparison Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+  question String
+  answer String @db.Text
 }
 
 enum CommentStatus {
@@ -78,157 +170,37 @@ enum CommentStatus {
   REJECTED
 }
 
-// BLOG MODELS
-
 model Post {
-  id          String    @id @default(cuid())
-  slug        String    @unique
+  id          String   @id @default(cuid())
+  slug        String   @unique
   title       String
-  description String    @db.Text
-  content     String    @db.Text
+  description String   @db.Text
+  content     String   @db.Text
   image       String
   dataAiHint  String?
-  published   Boolean   @default(false)
+  published   Boolean  @default(false)
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId    String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  comments    Comment[]
+  
+  previousId  String?  @unique
+  nextId      String?  @unique
+  previous    Post?    @relation("PostNavigation", fields: [previousId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  next        Post?    @relation("PostNavigation")
 
-  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  comments Comment[]
-
-  // For navigating between posts
-  previousId String?  @unique
-  nextId     String?  @unique
-  previous   Post?    @relation("PostNavigation", fields: [previousId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  next       Post?    @relation("PostNavigation", fields: [nextId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([authorId])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Comment {
   id        String        @id @default(cuid())
-  content   String        @db.Text
+  content   String
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
-  postId    String
-  authorId  String
   status    CommentStatus @default(PENDING)
 
-  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
-
-  @@index([postId])
-  @@index([authorId])
-}
-
-// COMPARISON MODELS
-model Platform {
-  id             String    @id @default(cuid())
-  name           String    @unique
-  website        String
-  logoUrl        String
-  description    String    @db.Text
-  rating         Float?
-  easeOfUse      Float?
-  featuresRating Float?
-  support        Float?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @default(now()) @updatedAt
-
-  features       PlatformFeature[]
-  comparisonsA   Comparison[]      @relation("PlatformA")
-  comparisonsB   Comparison[]      @relation("PlatformB")
-}
-
-model FeatureCategory {
-  id        String    @id @default(cuid())
-  name      String    @unique
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now()) @updatedAt
-
-  features Feature[]
-}
-
-model Feature {
-  id         String @id @default(cuid())
-  name       String @unique
-  categoryId String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @default(now()) @updatedAt
-
-  category         FeatureCategory   @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  platformFeatures PlatformFeature[]
-
-  @@index([categoryId])
-}
-
-model PlatformFeature {
-  platformId String
-  featureId  String
-  hasFeature Boolean
-  details    String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  platform Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
-  feature  Feature  @relation(fields: [featureId], references: [id], onDelete: Cascade)
-
-  @@id([platformId, featureId])
-  @@index([platformId])
-  @@index([featureId])
-}
-
-model Comparison {
-  id           String  @id @default(cuid())
-  title        String
-  slug         String  @unique
-  summary      String  @db.Text
-  introduction String  @db.Text
-  conclusion   String  @db_Text
-  published    Boolean @default(false)
-
-  platformAId String
-  platformBId String
-
-  platformA Platform @relation("PlatformA", fields: [platformAId], references: [id], onDelete: Cascade)
-  platformB Platform @relation("PlatformB", fields: [platformBId], references: [id], onDelete: Cascade)
-
-  facts     ComparisonFact[]
-  faqs      ComparisonFaq[]
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-
-  @@index([platformAId])
-  @@index([platformBId])
-}
-
-model ComparisonFact {
-  id             String     @id @default(cuid())
-  comparisonId   String
-  title          String
-  platformAValue String
-  platformBValue String
-  comparison     Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
-
-  @@index([comparisonId])
-}
-
-model ComparisonFaq {
-  id           String     @id @default(cuid())
-  comparisonId String
-  question     String
-  answer       String     @db.Text
-  comparison   Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
-
-  @@index([comparisonId])
-}
-
-model Subscription {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  userId    String?
-  createdAt DateTime @default(now())
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-
-  @@index([userId])
+  postId    String
+  authorId  String
+  post      Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }
