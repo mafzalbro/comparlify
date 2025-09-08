@@ -1,7 +1,20 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, PenSquare, Table, Lightbulb } from "lucide-react";
+import { PenSquare, Table, Users, MessageCircle } from "lucide-react";
+import prisma from "@/lib/prisma";
 
-export default function AdminDashboardPage() {
+async function getDashboardStats() {
+    const [platformCount, featureCount, userCount, commentCount] = await prisma.$transaction([
+        prisma.platform.count(),
+        prisma.feature.count(),
+        prisma.user.count(),
+        prisma.comment.count({ where: { status: 'PENDING' }})
+    ]);
+    return { platformCount, featureCount, userCount, commentCount };
+}
+
+export default async function AdminDashboardPage() {
+    const { platformCount, featureCount, userCount, commentCount } = await getDashboardStats();
+
     return (
         <div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -13,7 +26,7 @@ export default function AdminDashboardPage() {
                         <Table className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">4</div>
+                        <div className="text-2xl font-bold">{platformCount}</div>
                         <p className="text-xs text-muted-foreground">
                             Currently being compared
                         </p>
@@ -27,7 +40,7 @@ export default function AdminDashboardPage() {
                         <PenSquare className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">8</div>
+                        <div className="text-2xl font-bold">{featureCount}</div>
                         <p className="text-xs text-muted-foreground">
                             Tracked across all platforms
                         </p>
@@ -35,27 +48,27 @@ export default function AdminDashboardPage() {
                 </Card>
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Site Visits</CardTitle>
-                        <BarChart className="h-4 w-4 text-muted-foreground" />
+                        <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                        <Users className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">+12,234</div>
+                        <div className="text-2xl font-bold">{userCount}</div>
                         <p className="text-xs text-muted-foreground">
-                            +19% from last month
+                            Registered in the system
                         </p>
                     </CardContent>
                 </Card>
                  <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">
-                            AI Tool Usage
+                            Pending Comments
                         </CardTitle>
-                        <Lightbulb className="h-4 w-4 text-muted-foreground" />
+                        <MessageCircle className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">+573</div>
+                        <div className="text-2xl font-bold">{commentCount}</div>
                         <p className="text-xs text-muted-foreground">
-                            +201 since last hour
+                            Awaiting moderation
                         </p>
                     </CardContent>
                 </Card>
