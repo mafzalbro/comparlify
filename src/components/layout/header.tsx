@@ -57,7 +57,7 @@ export default function Header() {
           </nav>
         </div>
         <div className="hidden md:flex items-center gap-2">
-           <ThemeToggle />
+          <ThemeToggle />
           {status === 'loading' ? (
             <div className="h-9 w-20 animate-pulse rounded-md bg-muted" />
           ) : session ? (

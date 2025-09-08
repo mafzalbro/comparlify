@@ -1,10 +1,10 @@
-import NextAuth from 'next-auth';
-import { PrismaAdapter } from '@auth/prisma-adapter';
-import Google from 'next-auth/providers/google';
-import GitHub from 'next-auth/providers/github';
-import prisma from './prisma';
-import type { Adapter, AdapterUser } from 'next-auth/adapters';
-import type { User as DbUser } from '@prisma/client';
+import NextAuth from "next-auth";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import Google from "next-auth/providers/google";
+import GitHub from "next-auth/providers/github";
+import prisma from "./prisma";
+import type { Adapter, AdapterUser } from "next-auth/adapters";
+import type { User as DbUser } from "@prisma/client";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma) as Adapter,
@@ -19,12 +19,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async session({ session, user }: { session: any, user: AdapterUser | DbUser }) {
-      if (user.email === 'mafzalbro@gmail.com' && user.role !== 'ADMIN') {
-        user.role = 'ADMIN';
+    async session({
+      session,
+      user,
+    }: {
+      session: any;
+      user: AdapterUser | DbUser;
+    }) {
+      if (user.email === "mafzalbro@gmail.com" && user.role !== "ADMIN") {
+        user.role = "ADMIN";
         await prisma.user.update({
           where: { id: user.id },
-          data: { role: 'ADMIN' },
+          data: { role: "ADMIN" },
         });
       }
       session.user.role = user.role;
@@ -33,33 +39,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return session;
     },
     async signIn({ user }) {
-      if (user.email === 'mafzalbro@gmail.com') {
-         const dbUser = await prisma.user.findUnique({
-           where: { email: user.email },
-         });
-         if (dbUser) {
-           if (dbUser.role !== 'ADMIN') {
-             await prisma.user.update({
-               where: { id: dbUser.id },
-               data: { role: 'ADMIN' },
-             });
-           }
-         }
+      if (user.email === "mafzalbro@gmail.com") {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: user.email },
+        });
+        if (dbUser) {
+          if (dbUser.role !== "ADMIN") {
+            await prisma.user.update({
+              where: { id: dbUser.id },
+              data: { role: "ADMIN" },
+            });
+          }
+        }
       }
       return true;
     },
   },
   events: {
     async createUser(message) {
-      if (message.user.email === 'mafzalbro@gmail.com') {
+      if (message.user.email === "mafzalbro@gmail.com") {
         await prisma.user.update({
           where: { id: message.user.id },
-          data: { role: 'ADMIN' },
+          data: { role: "ADMIN" },
         });
       }
     },
   },
   pages: {
-    signIn: '/login',
+    signIn: "/login",
   },
 });

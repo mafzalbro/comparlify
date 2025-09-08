@@ -1,6 +1,5 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import Image from "next/image";
 import {
   Card,
   CardContent,
@@ -38,11 +37,11 @@ export default async function ProfilePage() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-            <h3 className="font-semibold">User Information</h3>
-            <div className="text-sm text-muted-foreground space-y-2">
-                <p><strong>ID:</strong> {user.id}</p>
-                <p className="flex items-center gap-2"><strong>Role:</strong> <Badge variant={user.role === 'ADMIN' ? 'destructive' : 'secondary'}>{user.role}</Badge></p>
-            </div>
+          <h3 className="font-semibold">User Information</h3>
+          <div className="text-sm text-muted-foreground space-y-2">
+            <p><strong>ID:</strong> {user.id}</p>
+            <p className="flex items-center gap-2"><strong>Role:</strong> <Badge variant={user.role === 'ADMIN' ? 'destructive' : 'secondary'}>{user.role}</Badge></p>
+          </div>
         </CardContent>
       </Card>
     </div>
