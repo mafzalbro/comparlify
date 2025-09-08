@@ -26,6 +26,7 @@ import { generateGenericContent } from "@/ai/flows/ai-generic-content-generator"
 import { auth } from "@/lib/auth";
 import type { Post } from "@prisma/client";
 import nodemailer from "nodemailer";
+import { cache } from "react";
 
 // --- Cache Management Action ---
 export async function revalidateCacheAction(path: 'all' | 'blog' | 'compare') {
@@ -692,7 +693,7 @@ export async function generateGenericContentAction(
 
 // --- Blog Post Actions ---
 
-export async function getPostPreview(slug: string): Promise<Post | null> {
+export const getPostPreview = cache(async (slug: string): Promise<Post | null> => {
     return prisma.post.findUnique({
         where: { slug },
         select: {
@@ -711,7 +712,7 @@ export async function getPostPreview(slug: string): Promise<Post | null> {
             updatedAt: true,
         }
     });
-}
+});
 
 
 const postSchema = z.object({

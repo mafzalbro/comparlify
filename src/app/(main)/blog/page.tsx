@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ManagedImage } from '@/components/managed-image';
+import { cache } from 'react';
 
 export const metadata: Metadata = generateSeoMetadata({
   title: 'Creator Insights Blog',
@@ -33,7 +34,7 @@ export const metadata: Metadata = generateSeoMetadata({
 
 type PostWithAuthor = Post & { author: User };
 
-async function getBlogPosts({
+const getBlogPosts = cache(async ({
   search,
   sort,
   author,
@@ -41,7 +42,7 @@ async function getBlogPosts({
   search?: string;
   sort?: string;
   author?: string;
-}) {
+}) => {
   let where: any = { published: true };
   let orderBy: any = { createdAt: 'desc' };
 
@@ -69,11 +70,11 @@ async function getBlogPosts({
     orderBy,
   });
   return posts;
-}
+});
 
-async function getAuthors() {
+const getAuthors = cache(async () => {
   return prisma.user.findMany({ where: { posts: { some: {} } } });
-}
+});
 
 
 export default async function BlogPage({ searchParams }: { searchParams: Promise<{ search?: string; sort?: string; author?: string }> }) {

@@ -24,6 +24,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { Comparison, Platform } from '@prisma/client';
 import { ManagedImage } from '@/components/managed-image';
+import { cache } from 'react';
 
 type ComparisonWithPlatforms = Comparison & { platformA: Platform, platformB: Platform };
 
@@ -34,7 +35,7 @@ export const metadata: Metadata = generateSeoMetadata({
   path: '/compare',
 });
 
-async function getComparisons({
+const getComparisons = cache(async ({
   search,
   sort,
   platforms,
@@ -42,7 +43,7 @@ async function getComparisons({
   search?: string;
   sort?: string;
   platforms?: string[];
-}) {
+}) => {
   let where: any = { published: true };
   let orderBy: any = { createdAt: 'desc' };
 
@@ -84,11 +85,11 @@ async function getComparisons({
     orderBy,
   });
   return comparisons;
-}
+});
 
-async function getAllPlatforms() {
+const getAllPlatforms = cache(async () => {
   return prisma.platform.findMany({ orderBy: { name: 'asc' } });
-}
+});
 
 
 export default async function ComparePage({ searchParams }: { searchParams: Promise<{ search?: string; sort?: string; platforms?: string | string[] }> }) {

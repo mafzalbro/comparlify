@@ -33,6 +33,7 @@ import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { HomePageClient } from '@/components/home-page-client';
 import { ManagedImage } from '@/components/managed-image';
+import { cache } from 'react';
 
 
 const testimonials = [
@@ -118,14 +119,14 @@ const whyChooseUsTabs = [
 
 type PostWithAuthor = Post & { author: User };
 
-async function getRecentPosts(): Promise<PostWithAuthor[]> {
+const getRecentPosts = cache(async (): Promise<PostWithAuthor[]> => {
     return prisma.post.findMany({
         where: { published: true },
         orderBy: { createdAt: 'desc' },
         take: 3,
         include: { author: true },
     });
-}
+});
 
 
 export default async function Home() {

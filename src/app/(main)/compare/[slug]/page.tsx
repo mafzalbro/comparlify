@@ -29,9 +29,10 @@ import { ComparisonChart } from '@/components/comparison-chart';
 import { ManagedImage } from '@/components/managed-image';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { cache } from 'react';
 
 
-async function getComparisonBySlug(slug: string) {
+const getComparisonBySlug = cache(async (slug: string) => {
   const comparison = await prisma.comparison.findUnique({
     where: { slug, published: true },
     include: {
@@ -42,7 +43,7 @@ async function getComparisonBySlug(slug: string) {
     },
   });
   return comparison;
-}
+});
 
 export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const params = await props.params;
@@ -59,12 +60,12 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
     });
 }
 
-export async function generateStaticParams() {
+export const generateStaticParams = cache(async () => {
     const comparisons = await prisma.comparison.findMany({ where: { published: true } });
     return comparisons.map((comp) => ({
       slug: comp.slug,
     }));
-}
+});
 
 
 export default async function ComparisonDetailPage(props: { params: Promise<{ slug: string }> }) {

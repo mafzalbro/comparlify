@@ -38,6 +38,30 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, s-maxage=0, must-revalidate',
+          }
+        ]
+      },
+      {
+        // This will apply to all routes in the app
+        source: '/:all*(svg|jpg|jpeg|png|gif|ico|woff2)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            // One year caching for static assets
+            value: 'public, max-age=31536000, must-revalidate',
+          }
+        ]
+      }
+    ]
+  }
 };
 
 export default nextConfig;

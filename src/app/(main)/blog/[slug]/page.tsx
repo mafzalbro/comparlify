@@ -14,15 +14,16 @@ import { auth } from '@/lib/auth';
 import { CommentsSection } from '@/components/comments-section';
 import { TableOfContents } from '@/components/table-of-contents';
 import { ManagedImage } from '@/components/managed-image';
+import { cache } from 'react';
 
-export async function generateStaticParams() {
+export const generateStaticParams = cache(async () => {
   const posts = await prisma.post.findMany({ where: { published: true } });
   return posts.map((post) => ({
     slug: post.slug,
   }));
-}
+});
 
-async function getPostData(slug: string) {
+const getPostData = cache(async (slug: string) => {
     const post = await prisma.post.findUnique({
         where: { slug, published: true },
         include: { 
@@ -60,7 +61,7 @@ async function getPostData(slug: string) {
     ]);
 
     return { post, relatedPosts, nextPost };
-}
+});
 
 export async function generateMetadata(props: { params: Promise<{ slug:string }> }): Promise<Metadata> {
     const params = await props.params;
