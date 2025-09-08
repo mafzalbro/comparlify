@@ -19,32 +19,37 @@ async function main() {
   console.log("Cleaned up existing data.");
 
   // --- 2. Seed Users ---
-  const users = await prisma.user.createManyAndReturn({
-    data: [
-      {
-        name: "Admin User",
-        email: "admin@comparlify.com",
-        role: Role.ADMIN,
-        onboarded: true,
-      },
-      {
-        name: "Alice Creator",
-        email: "alice@example.com",
-        role: Role.USER,
-        onboarded: true,
-      },
-      {
-        name: "Bob Builder",
-        email: "bob@example.com",
-        role: Role.USER,
-        onboarded: false,
-      },
-    ],
-  });
-  const adminUser = users.find(u => u.role === 'ADMIN')!;
-  const aliceUser = users.find(u => u.email === 'alice@example.com')!;
-  const bobUser = users.find(u => u.email === 'bob@example.com')!;
-  console.log(`Seeded ${users.length} users.`);
+  const usersData = [
+    {
+      name: "Admin User",
+      email: "admin@comparlify.com",
+      role: Role.ADMIN,
+      onboarded: true,
+    },
+    {
+      name: "Alice Creator",
+      email: "alice@example.com",
+      role: Role.USER,
+      onboarded: true,
+    },
+    {
+      name: "Bob Builder",
+      email: "bob@example.com",
+      role: Role.USER,
+      onboarded: false,
+    },
+  ];
+  await prisma.user.createMany({ data: usersData });
+  
+  const adminUser = await prisma.user.findUnique({ where: { email: 'admin@comparlify.com' } });
+  const aliceUser = await prisma.user.findUnique({ where: { email: 'alice@example.com' } });
+  const bobUser = await prisma.user.findUnique({ where: { email: 'bob@example.com' } });
+
+  if (!adminUser || !aliceUser || !bobUser) {
+    throw new Error("Failed to seed users correctly.");
+  }
+  
+  console.log(`Seeded ${usersData.length} users.`);
 
 
   // --- 3. Seed Features and Categories ---
@@ -100,7 +105,8 @@ async function main() {
     }
   ];
   
-  const createdPlatforms = await prisma.platform.createManyAndReturn({ data: platformsData });
+  await prisma.platform.createMany({ data: platformsData });
+  const createdPlatforms = await prisma.platform.findMany();
   console.log(`Seeded ${createdPlatforms.length} platforms.`);
 
   // --- 5. Seed Platform Features ---
@@ -218,5 +224,3 @@ export const seed = async () => {
 if (require.main === module) {
   seed();
 }
-
-    
