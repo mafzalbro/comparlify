@@ -2,11 +2,12 @@
 
 import { PlatformForm } from '../../_components/platform-form';
 import type { Platform, Feature, PlatformFeature, FeatureCategory } from '@prisma/client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 
 type PlatformWithFeatures = Platform & { features: PlatformFeature[] };
 
-export default function EditPlatformPage({ params }: { params: { id: string } }) {
+export default function EditPlatformPage(props: { params: Promise<{ id: string }> }) {
+    const params = use(props.params);
     const [platform, setPlatform] = useState<PlatformWithFeatures | null>(null);
     const [features, setFeatures] = useState<(Feature & { category: FeatureCategory })[]>([]);
     const [featureCategories, setFeatureCategories] = useState<FeatureCategory[]>([]);
@@ -20,7 +21,7 @@ export default function EditPlatformPage({ params }: { params: { id: string } })
     }, [params.id]);
 
     return (
-        <div>
+        (<div>
             <h1 className="text-3xl font-bold mb-6">Edit Platform</h1>
             {platform ? (
                  <PlatformForm
@@ -30,8 +31,8 @@ export default function EditPlatformPage({ params }: { params: { id: string } })
                 />
             ) : (
                 // You can add a proper loading skeleton here
-                <p>Loading...</p>
+                (<p>Loading...</p>)
             )}
-        </div>
+        </div>)
     );
 }

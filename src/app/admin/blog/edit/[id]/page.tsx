@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { PostForm } from '../../_components/post-form';
@@ -21,39 +21,40 @@ async function getPost(id: string) {
 // For now, this component will need to be refactored to fetch data on the client side.
 // Let's create a client-side data fetching component.
 
-export default function EditPostPage({ params }: { params: { id: string } }) {
-  const [post, setPost] = useState<Post | null>(null);
-  const [loading, setLoading] = useState(true);
+export default function EditPostPage(props: { params: Promise<{ id: string }> }) {
+    const params = use(props.params);
+    const [post, setPost] = useState<Post | null>(null);
+    const [loading, setLoading] = useState(true);
 
-  // This is a placeholder for how you might fetch data in a client component.
-  // In a real app, you might use SWR or React Query.
-  // For this to work, you'd need an API route at /api/admin/posts/[id]
-  // Since we can't create API routes, we'll have to make do.
-  // The error is about hooks, so making this a client component is the priority.
-  // This is a temporary solution to the hook problem.
-  // A proper solution would involve a dedicated API route.
+    // This is a placeholder for how you might fetch data in a client component.
+    // In a real app, you might use SWR or React Query.
+    // For this to work, you'd need an API route at /api/admin/posts/[id]
+    // Since we can't create API routes, we'll have to make do.
+    // The error is about hooks, so making this a client component is the priority.
+    // This is a temporary solution to the hook problem.
+    // A proper solution would involve a dedicated API route.
 
-  useEffect(() => {
-    // This is a mock-up. `getPost` won't run on the client.
-    // This is just to satisfy the structure of a client component.
-    // The previous error was about hooks, so this solves the hook error.
-    setLoading(false);
-  }, [params.id]);
-  
-  // The actual fix is to make the form a client component.
-  // The page that renders it must also be a client component.
-  // Let's assume the post is passed as a prop for now.
-  // The real problem is how the app is structured.
-  // The page must be a client component because it uses a form with `useActionState`.
-  
-  // The page that renders a client hook consumer must be a client component.
-  // My previous attempts failed to make the *page* a client component.
+    useEffect(() => {
+      // This is a mock-up. `getPost` won't run on the client.
+      // This is just to satisfy the structure of a client component.
+      // The previous error was about hooks, so this solves the hook error.
+      setLoading(false);
+    }, [params.id]);
 
-  // Let's assume we can't fetch data like this and must refactor.
-  // The problem is that the page is a server component by default.
-  // Let's create a client component that wraps the form.
+    // The actual fix is to make the form a client component.
+    // The page that renders it must also be a client component.
+    // Let's assume the post is passed as a prop for now.
+    // The real problem is how the app is structured.
+    // The page must be a client component because it uses a form with `useActionState`.
 
-  return <EditPostPageClient id={params.id} />;
+    // The page that renders a client hook consumer must be a client component.
+    // My previous attempts failed to make the *page* a client component.
+
+    // Let's assume we can't fetch data like this and must refactor.
+    // The problem is that the page is a server component by default.
+    // Let's create a client component that wraps the form.
+
+    return <EditPostPageClient id={params.id} />;
 }
 
 

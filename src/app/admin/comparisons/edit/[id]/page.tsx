@@ -2,13 +2,14 @@
 
 import { ComparisonForm } from '../../_components/comparison-form';
 import type { Comparison, Platform } from '@prisma/client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 
 // This is not the ideal pattern, but it's a way to solve the hook error
 // without being able to create new API routes.
 // The page needs to be a client component because it renders a form that uses client hooks.
 
-export default function EditComparisonPage({ params }: { params: { id: string } }) {
+export default function EditComparisonPage(props: { params: Promise<{ id: string }> }) {
+    const params = use(props.params);
     const [comparison, setComparison] = useState<Comparison | null>(null);
     const [platforms, setPlatforms] = useState<Platform[]>([]);
 
