@@ -17,8 +17,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ["Lato", "sans-serif"],
-        headline: ["Poppins", "serif"],
+        body: ["var(--font-body)", "sans-serif"],
+        headline: ["var(--font-headline)", "serif"],
       },
       colors: {
         background: "hsl(var(--background))",
