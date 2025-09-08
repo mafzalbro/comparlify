@@ -1,31 +1,24 @@
-
-import { NextResponse, type NextRequest } from 'next/server';
-import { auth } from '@/lib/auth';
-
-const protectedRoutes = ['/admin', '/profile', '/panel'];
-const adminRoutes = ['/admin'];
+import { getToken } from "next-auth/jwt";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 export default async function middleware(req: NextRequest) {
-  const session = await auth();
+  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
   const { pathname } = req.nextUrl;
 
-  const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
-  const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route));
+  // console.log(token);
 
-  if (!session && isProtectedRoute) {
-    const loginUrl = new URL('/login', req.url);
-    loginUrl.searchParams.set('from', pathname);
-    return NextResponse.redirect(loginUrl);
+  if (!token && pathname.startsWith("/profile")) {
+    return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  if (session && isAdminRoute && session.user?.role !== 'ADMIN') {
-    // Redirect non-admins from admin routes
-    return NextResponse.redirect(new URL('/', req.url));
+  if (pathname.startsWith("/admin") && token?.role !== "ADMIN") {
+    return NextResponse.redirect(new URL("/", req.url));
   }
-  
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/profile/:path*', '/panel/:path*'],
+  matcher: ["/admin/:path*", "/profile/:path*", "/panel/:path*"],
 };

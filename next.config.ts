@@ -10,10 +10,23 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
+    dangerouslyAllowSVG: true,
     remotePatterns: [
       {
         protocol: "https",
         hostname: "placehold.co",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "assets.findstack.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "encrypted-tbn0.gstatic.com",
         port: "",
         pathname: "/**",
       },

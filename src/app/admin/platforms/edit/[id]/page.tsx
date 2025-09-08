@@ -26,7 +26,8 @@ async function getFeatureCategories() {
     });
 }
 
-export default async function EditPlatformPage({ params }: { params: { id: string } }) {
+export default async function EditPlatformPage(props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
     const [platform, features, featureCategories] = await Promise.all([
         getPlatform(params.id),
         getFeatures(),

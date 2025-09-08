@@ -137,7 +137,7 @@ export default async function Home() {
             <HomePageClient session={session} />
 
             <section className="relative w-full min-h-[70vh] py-10 flex items-center justify-center overflow-hidden">
-             {/*
+                {/*
                 <ManagedImage
                     src="https://picsum.photos/1920/1080?random=hero"
                     alt="hero background"
@@ -254,7 +254,7 @@ export default async function Home() {
                         className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4"
                     >
                         {featuredTools.map((tool, index) => (
-                            <div key={index} className="animate-fade-in-up" style={{ animationDelay: `${index * 150}ms`}}>
+                            <div key={index} className="animate-fade-in-up" style={{ animationDelay: `${index * 150}ms` }}>
                                 <Card className="bg-card/60 backdrop-blur-lg border border-border/20 flex h-full transform flex-col items-center p-6 text-center transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl">
                                     <div className="mb-4 rounded-full bg-primary/20 p-4">
                                         <tool.Icon className="h-8 w-8 text-primary" />
@@ -293,7 +293,7 @@ export default async function Home() {
                             {recentPosts.map((post, index) => {
                                 const readTime = Math.ceil(post.content.split(/\s+/).length / 200);
                                 return (
-                                    <div key={post.slug} className="animate-fade-in-up" style={{ animationDelay: `${index * 150}ms`}}>
+                                    <div key={post.slug} className="animate-fade-in-up" style={{ animationDelay: `${index * 150}ms` }}>
                                         <Card className="bg-card/60 backdrop-blur-lg border border-border/20 flex flex-col overflow-hidden group h-full">
                                             <div className="relative overflow-hidden aspect-[16/10]">
                                                 <Link href={`/blog/${post.slug}`} className="block">
@@ -350,7 +350,7 @@ export default async function Home() {
                         </p>
                     </div>
                     <div
-                     className="animate-fade-in-up animation-delay-200"
+                        className="animate-fade-in-up animation-delay-200"
                     >
                         <Carousel
                             opts={{
