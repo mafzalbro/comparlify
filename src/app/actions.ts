@@ -643,14 +643,7 @@ export async function getPostPreview(slug: string): Promise<Post | null> {
             title: true,
             description: true,
             image: true,
-            dataAiHint: true,
-            content: true, // Keep content for read time calculation
-            // Non-sensitive fields only
-            published: false, // Explicitly exclude sensitive fields
-            authorId: false,
-            createdAt: false,
-            updatedAt: false,
-            nextId: false,
+            content: true,
         }
     });
 }
@@ -847,8 +840,9 @@ export async function deleteComparison(prevState: { error: string | null }, form
     revalidatePath('/admin/comparisons');
     revalidatePath('/compare');
     return { error: null };
-  } catch (error) {
-    console.error(error)
+  } catch (error)
+  {
+    console.error(error);
     return { error: 'Failed to delete comparison.' };
   }
 }
@@ -983,10 +977,10 @@ const platformSchema = z.object({
     website: z.string().url(),
     logoUrl: z.string().url(),
     description: z.string().min(10),
-    rating: z.coerce.number().min(0).max(5).nullable().optional().or(emptyStringToNull),
-    easeOfUse: z.coerce.number().min(0).max(5).nullable().optional().or(emptyStringToNull),
-    featuresRating: z.coerce.number().min(0).max(5).nullable().optional().or(emptyStringToNull),
-    support: z.coerce.number().min(0).max(5).nullable().optional().or(emptyStringToNull),
+    rating: z.string().transform(val => val === '' ? null : Number(val)).pipe(z.number().min(0).max(5).nullable()),
+    easeOfUse: z.string().transform(val => val === '' ? null : Number(val)).pipe(z.number().min(0).max(5).nullable()),
+    featuresRating: z.string().transform(val => val === '' ? null : Number(val)).pipe(z.number().min(0).max(5).nullable()),
+    support: z.string().transform(val => val === '' ? null : Number(val)).pipe(z.number().min(0).max(5).nullable()),
 });
 
 type PlatformActionState = {
