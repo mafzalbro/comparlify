@@ -83,10 +83,10 @@ export default async function ComparisonDetailPage(props: { params: Promise<{ sl
     )].sort();
 
     const chartData = [
-      { name: 'Overall Rating', [platformA.name]: platformA.rating, [platformB.name]: platformB.rating },
-      { name: 'Ease of Use', [platformA.name]: platformA.easeOfUse, [platformB.name]: platformB.easeOfUse },
-      { name: 'Features', [platformA.name]: platformA.featuresRating, [platformB.name]: platformB.featuresRating },
-      { name: 'Support', [platformA.name]: platformA.support, [platformB.name]: platformB.support },
+      { name: 'Overall Rating', [platformA.name]: platformA.rating ?? 0, [platformB.name]: platformB.rating ?? 0 },
+      { name: 'Ease of Use', [platformA.name]: platformA.easeOfUse ?? 0, [platformB.name]: platformB.easeOfUse ?? 0 },
+      { name: 'Features', [platformA.name]: platformA.featuresRating ?? 0, [platformB.name]: platformB.featuresRating ?? 0 },
+      { name: 'Support', [platformA.name]: platformA.support ?? 0, [platformB.name]: platformB.support ?? 0 },
     ];
 
     const chartConfig = {
@@ -136,8 +136,8 @@ export default async function ComparisonDetailPage(props: { params: Promise<{ sl
                           <TableBody>
                                <TableRow>
                                   <TableCell className="font-medium">Overall Rating</TableCell>
-                                  <TableCell className="text-center flex justify-center items-center gap-1"><Star className="w-5 h-5 text-amber-500 fill-amber-400" /> {platformA.rating?.toFixed(1)}</TableCell>
-                                  <TableCell className="text-center flex justify-center items-center gap-1"><Star className="w-5 h-5 text-amber-500 fill-amber-400" /> {platformB.rating?.toFixed(1)}</TableCell>
+                                  <TableCell className="text-center flex justify-center items-center gap-1"><Star className="w-5 h-5 text-amber-500 fill-amber-400" /> {platformA.rating ? platformA.rating.toFixed(1) : 'N/A'}</TableCell>
+                                  <TableCell className="text-center flex justify-center items-center gap-1"><Star className="w-5 h-5 text-amber-500 fill-amber-400" /> {platformB.rating ? platformB.rating.toFixed(1) : 'N/A'}</TableCell>
                               </TableRow>
                               {comparison.facts.map(fact => (
                                   <TableRow key={fact.id}>
