@@ -388,8 +388,8 @@ export default async function Home() {
                                     </CarouselItem>
                                 ))}
                             </CarouselContent>
-                            <CarouselPrevious className="left-[-20px] md:left-[-50px]" />
-                            <CarouselNext className="right-[-20px] md:right-[-50px]" />
+                            <CarouselPrevious className="left-[-1rem] md:left-0" />
+                            <CarouselNext className="right-[-1rem] md:right-0" />
                         </Carousel>
                     </div>
                 </div>
