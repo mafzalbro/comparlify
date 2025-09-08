@@ -1334,3 +1334,52 @@ export async function deleteFeatureCategory(prevState: { error: string | null },
         return { error: "Failed to delete category. An unknown error occurred." };
     }
 }
+
+// --- User Profile/Settings Actions ---
+const updateUserProfileSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters."),
+  newsletter: z.preprocess((val) => val === 'on', z.boolean()),
+});
+
+interface UpdateProfileState {
+  error: {
+    name?: string[];
+    newsletter?: string[];
+  } | string | null;
+  success: boolean;
+}
+
+export async function updateUserProfileAction(
+  prevState: UpdateProfileState,
+  formData: FormData
+): Promise<UpdateProfileState> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: 'You must be logged in to update your profile.', success: false };
+  }
+
+  const validatedFields = updateUserProfileSchema.safeParse({
+    name: formData.get('name'),
+    newsletter: formData.get('newsletter'),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      error: validatedFields.error.flatten().fieldErrors,
+      success: false,
+    };
+  }
+
+  try {
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: validatedFields.data,
+    });
+    revalidatePath('/panel/settings');
+    revalidatePath('/profile');
+    return { error: null, success: true };
+  } catch (error) {
+    console.error("Profile update error:", error);
+    return { error: 'Failed to update profile.', success: false };
+  }
+}

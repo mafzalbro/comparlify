@@ -54,8 +54,8 @@ export default async function PanelLayout({
                                 </Link>
                             </SidebarMenuItem>
                              <SidebarMenuItem>
-                                <Link href="#">
-                                    <SidebarMenuButton tooltip="Settings" disabled>
+                                <Link href="/panel/settings">
+                                    <SidebarMenuButton tooltip="Settings">
                                         <Settings />
                                         Settings
                                     </SidebarMenuButton>
