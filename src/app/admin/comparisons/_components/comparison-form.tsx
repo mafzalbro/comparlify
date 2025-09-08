@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useRef, useState } from 'react';
 import { createComparison, updateComparison } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,8 +12,8 @@ import { Switch } from '@/components/ui/switch';
 import { useRouter } from 'next/navigation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SubmitButton } from '@/components/submit-button';
-import { useState } from 'react';
 import { Trash2, PlusCircle } from 'lucide-react';
+import { AiFillButton } from '../../blog/_components/ai-fill-button';
 
 
 type ComparisonWithRelations = Comparison & {
@@ -28,6 +28,10 @@ interface ComparisonFormProps {
 
 export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
+  const [title, setTitle] = useState(comparison?.title ?? '');
+  const [summary, setSummary] = useState(comparison?.summary ?? '');
+
   const isEditing = !!comparison;
   const formAction = isEditing ? updateComparison.bind(null, comparison.id) : createComparison;
   const [state, action] = useActionState(formAction, { error: null });
@@ -41,7 +45,7 @@ export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
   const removeFaq = (index: number) => setFaqs(faqs.filter((_, i) => i !== index));
 
   return (
-    <form action={action}>
+    <form action={action} ref={formRef}>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-6">
           <Card>
@@ -50,27 +54,79 @@ export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
-                <Input id="title" name="title" defaultValue={comparison?.title} required />
+                 <div className="flex items-center justify-between">
+                    <Label htmlFor="title">Title</Label>
+                    <AiFillButton
+                        fieldType="Comparison Title"
+                        topic={summary || title}
+                        onContentReceived={(content) => {
+                            setTitle(content);
+                            formRef.current?.querySelector<HTMLInputElement>('input[name="title"]')?.focus();
+                        }}
+                    />
+                </div>
+                <Input id="title" name="title" value={title} onChange={e => setTitle(e.target.value)} required />
                 {state?.error?.title && <p className="text-destructive text-sm">{state.error.title[0]}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="slug">Slug</Label>
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="slug">Slug</Label>
+                    <AiFillButton
+                        fieldType="URL Slug"
+                        topic={title}
+                        onContentReceived={(content) => {
+                            formRef.current!.querySelector<HTMLInputElement>('input[name="slug"]')!.value = content;
+                            formRef.current?.querySelector<HTMLInputElement>('input[name="slug"]')?.focus();
+                        }}
+                    />
+                </div>
                 <Input id="slug" name="slug" defaultValue={comparison?.slug} required />
                 {state?.error?.slug && <p className="text-destructive text-sm">{state.error.slug[0]}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="summary">Summary</Label>
-                <Textarea id="summary" name="summary" defaultValue={comparison?.summary} rows={4} required />
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="summary">Summary</Label>
+                    <AiFillButton
+                        fieldType="Comparison Summary"
+                        topic={title}
+                        onContentReceived={(content) => {
+                            setSummary(content);
+                            formRef.current?.querySelector<HTMLTextAreaElement>('textarea[name="summary"]')?.focus();
+                        }}
+                    />
+                </div>
+                <Textarea id="summary" name="summary" value={summary} onChange={e => setSummary(e.target.value)} rows={4} required />
                 {state?.error?.summary && <p className="text-destructive text-sm">{state.error.summary[0]}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="introduction">Introduction (Markdown)</Label>
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="introduction">Introduction (Markdown)</Label>
+                    <AiFillButton
+                        fieldType="Comparison Introduction"
+                        topic={title}
+                        context={summary}
+                        onContentReceived={(content) => {
+                            formRef.current!.querySelector<HTMLTextAreaElement>('textarea[name="introduction"]')!.value = content;
+                            formRef.current?.querySelector<HTMLTextAreaElement>('textarea[name="introduction"]')?.focus();
+                        }}
+                    />
+                </div>
                 <Textarea id="introduction" name="introduction" defaultValue={comparison?.introduction} rows={10} required />
                 {state?.error?.introduction && <p className="text-destructive text-sm">{state.error.introduction[0]}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="conclusion">Conclusion (Markdown)</Label>
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="conclusion">Conclusion (Markdown)</Label>
+                    <AiFillButton
+                        fieldType="Comparison Conclusion"
+                        topic={title}
+                        context={summary}
+                        onContentReceived={(content) => {
+                            formRef.current!.querySelector<HTMLTextAreaElement>('textarea[name="conclusion"]')!.value = content;
+                            formRef.current?.querySelector<HTMLTextAreaElement>('textarea[name="conclusion"]')?.focus();
+                        }}
+                    />
+                </div>
                 <Textarea id="conclusion" name="conclusion" defaultValue={comparison?.conclusion} rows={10} required />
                 {state?.error?.conclusion && <p className="text-destructive text-sm">{state.error.conclusion[0]}</p>}
               </div>

@@ -22,6 +22,7 @@ import { generateEmailSubjectLines } from "@/ai/flows/ai-email-subject-line-gene
 import { generateSocialMediaPost } from "@/ai/flows/ai-social-media-post-generator";
 import { generateFaqs } from "@/ai/flows/ai-faq-generator";
 import { generateAnalogy } from "@/ai/flows/ai-analogy-generator";
+import { generateGenericContent } from "@/ai/flows/ai-generic-content-generator";
 import { auth } from "@/lib/auth";
 import type { Post } from "@prisma/client";
 import nodemailer from "nodemailer";
@@ -652,6 +653,42 @@ export async function generateAnalogyAction(
     };
   }
 }
+
+
+// --- AI Generic Content Generator ---
+const genericContentSchema = z.object({
+    fieldType: z.string(),
+    topic: z.string(),
+    context: z.string().optional(),
+});
+
+interface GenericContentState {
+    generatedContent: string | null;
+    error: string | null;
+}
+
+export async function generateGenericContentAction(
+    input: z.infer<typeof genericContentSchema>
+): Promise<GenericContentState> {
+    const session = await auth();
+    if (session?.user?.role !== 'ADMIN') {
+        return { generatedContent: null, error: "Not authorized." };
+    }
+
+    const validatedFields = genericContentSchema.safeParse(input);
+    if (!validatedFields.success) {
+        return { generatedContent: null, error: "Invalid input." };
+    }
+
+    try {
+        const result = await generateGenericContent(validatedFields.data);
+        return { generatedContent: result.generatedContent, error: null };
+    } catch (error) {
+        console.error(error);
+        return { generatedContent: null, error: "Failed to generate content. Please try again." };
+    }
+}
+
 
 // --- Blog Post Actions ---
 
