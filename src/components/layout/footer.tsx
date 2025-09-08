@@ -1,8 +1,9 @@
 'use client';
 
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
+import { useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useActionState, useEffect, useRef } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
 import { useToast } from '@/hooks/use-toast';
 import { subscribeAction } from '@/app/actions';
 import { Input } from '@/components/ui/input';

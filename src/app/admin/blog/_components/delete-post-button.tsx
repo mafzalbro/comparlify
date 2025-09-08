@@ -1,6 +1,7 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { deletePost } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,7 +30,7 @@ function SubmitButton() {
 }
 
 export function DeletePostButton({ id }: { id: string }) {
-  const [state, formAction] = useFormState(deletePost, { error: null });
+  const [state, formAction] = useActionState(deletePost, { error: null });
 
   return (
     <AlertDialog>
@@ -55,5 +56,3 @@ export function DeletePostButton({ id }: { id: string }) {
     </AlertDialog>
   );
 }
-
-    

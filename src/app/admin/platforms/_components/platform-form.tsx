@@ -72,19 +72,19 @@ export function PlatformForm({ platform, features, featureCategories }: Platform
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="rating">Overall Rating (0-5)</Label>
-                        <Input id="rating" name="rating" type="number" step="0.1" min="0" max="5" defaultValue={platform?.rating ?? 0} />
+                        <Input id="rating" name="rating" type="number" step="0.1" min="0" max="5" defaultValue={platform?.rating ?? ''} placeholder="e.g. 4.5" />
                     </div>
                      <div className="space-y-2">
                         <Label htmlFor="easeOfUse">Ease of Use (0-5)</Label>
-                        <Input id="easeOfUse" name="easeOfUse" type="number" step="0.1" min="0" max="5" defaultValue={platform?.easeOfUse ?? 0} />
+                        <Input id="easeOfUse" name="easeOfUse" type="number" step="0.1" min="0" max="5" defaultValue={platform?.easeOfUse ?? ''} placeholder="e.g. 4.8" />
                     </div>
                      <div className="space-y-2">
                         <Label htmlFor="featuresRating">Features Rating (0-5)</Label>
-                        <Input id="featuresRating" name="featuresRating" type="number" step="0.1" min="0" max="5" defaultValue={platform?.featuresRating ?? 0} />
+                        <Input id="featuresRating" name="featuresRating" type="number" step="0.1" min="0" max="5" defaultValue={platform?.featuresRating ?? ''} placeholder="e.g. 4.2" />
                     </div>
                      <div className="space-y-2">
                         <Label htmlFor="support">Support Rating (0-5)</Label>
-                        <Input id="support" name="support" type="number" step="0.1" min="0" max="5" defaultValue={platform?.support ?? 0} />
+                        <Input id="support" name="support" type="number" step="0.1" min="0" max="5" defaultValue={platform?.support ?? ''} placeholder="e.g. 5.0" />
                     </div>
                 </CardContent>
             </Card>

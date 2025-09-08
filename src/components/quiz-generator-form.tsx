@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { generateQuizAction } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,7 +16,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Sparkles } from 'lucide-react';
-import { useFormStatus } from 'react-dom';
 import { Slider } from './ui/slider';
 import React from 'react';
 import { ScrollArea } from './ui/scroll-area';

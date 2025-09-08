@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { generateAnalogyAction } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +9,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Sparkles } from 'lucide-react';
-import { useFormStatus } from 'react-dom';
 import { ScrollArea } from './ui/scroll-area';
 import { MarkdownContent } from './markdown-content';
 

@@ -1,6 +1,7 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { deleteComparison } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,7 +30,7 @@ function SubmitButton() {
 }
 
 export function DeleteComparisonButton({ id }: { id: string }) {
-  const [state, formAction] = useFormState(deleteComparison, { error: null });
+  const [state, formAction] = useActionState(deleteComparison, { error: null });
 
   return (
     <AlertDialog>
@@ -55,5 +56,3 @@ export function DeleteComparisonButton({ id }: { id: string }) {
     </AlertDialog>
   );
 }
-
-    
