@@ -14,7 +14,8 @@ async function getFeatureCategories(): Promise<FeatureCategory[]> {
     return prisma.featureCategory.findMany({ orderBy: { name: 'asc' }});
 }
 
-export default async function EditFeaturePage({ params }: { params: { id: string } }) {
+export default async function EditFeaturePage(props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
     const [feature, categories] = await Promise.all([
         getFeature(params.id),
         getFeatureCategories()
