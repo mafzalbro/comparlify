@@ -1,3 +1,4 @@
+
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Google from "next-auth/providers/google";
@@ -5,7 +6,6 @@ import GitHub from "next-auth/providers/github";
 import prisma from "./prisma";
 import type { Adapter, AdapterUser } from "next-auth/adapters";
 import type { User as DbUser } from "@prisma/client";
-import { NextResponse } from "next/server";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma) as Adapter,
@@ -20,28 +20,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    authorized({ auth, request: { nextUrl } }) {
-      const isLoggedIn = !!auth?.user;
-      const protectedRoutes = ['/admin', '/profile', '/panel'];
-      const adminRoutes = ['/admin'];
-      const isProtectedRoute = protectedRoutes.some((route) => nextUrl.pathname.startsWith(route));
-      const isAdminRoute = adminRoutes.some((route) => nextUrl.pathname.startsWith(route));
-
-      if (isProtectedRoute) {
-        if (isLoggedIn) {
-          if (isAdminRoute && auth.user.role !== 'ADMIN') {
-            // Redirect non-admins trying to access admin routes
-            return NextResponse.redirect(new URL('/', nextUrl));
-          }
-          // Allow logged-in users to access protected routes
-          return true;
-        }
-        // Redirect unauthenticated users to login page
-        return false; 
-      }
-      
-      return true;
-    },
     async session({
       session,
       user,
