@@ -121,7 +121,7 @@ export default async function BlogPostPage(props: { params: Promise<{ slug: stri
 
         <article>
           {/* Hero Section */}
-          <section className="relative w-full py-24 md:py-32 lg:py-40 flex items-center justify-center text-center text-white overflow-hidden">
+          <section className="relative w-full py-16 md:py-24 lg:py-32 flex items-center justify-center text-center text-white overflow-hidden">
             <div className="absolute inset-0">
               <ManagedImage
                 src={post.image.replace('400/250', '1920/1080')}
