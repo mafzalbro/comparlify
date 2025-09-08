@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { generateSeoMetadata } from '@/lib/seo';
 import Image from 'next/image';
-import { Star, CheckCircle, XCircle } from 'lucide-react';
+import { Star, CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
 import { MarkdownContent } from '@/components/markdown-content';
 import {
   Table,
@@ -29,6 +29,8 @@ import {
   } from "@/components/ui/accordion"
 import { ComparisonChart } from '@/components/comparison-chart';
 import { ManagedImage } from '@/components/managed-image';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 
 async function getComparisonBySlug(slug: string) {
@@ -104,6 +106,14 @@ export default async function ComparisonDetailPage(props: { params: Promise<{ sl
 
     return (
       <div className="container max-w-5xl py-16 md:py-24">
+         <div className="text-sm mb-6">
+              <Button asChild variant="ghost" className="mb-4">
+                <Link href="/compare">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Comparisons
+                </Link>
+              </Button>
+            </div>
          <div className="text-center mb-12">
           <div className="flex justify-center items-center gap-8 mb-4">
               <ManagedImage src={platformA.logoUrl} alt={`${platformA.name} logo`} width={200} height={60} className="object-contain" />
