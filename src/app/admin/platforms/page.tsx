@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Star } from 'lucide-react';
 import { DeletePlatformButton } from './_components/delete-platform-button';
+import { ManagedImage } from '@/components/managed-image';
 
 
 async function getPlatforms() {
@@ -51,7 +52,7 @@ export default async function AdminPlatformsPage() {
               <TableRow key={platform.id}>
                 <TableCell className="font-medium">
                     <div className="flex items-center gap-3">
-                         <Image src={platform.logoUrl} alt={platform.name} width={80} height={20} className="object-contain" />
+                         <ManagedImage src={platform.logoUrl} alt={platform.name} width={80} height={20} className="object-contain" />
                         <Link href={`/admin/platforms/edit/${platform.id}`} className="hover:underline font-semibold">{platform.name}</Link>
                     </div>
                 </TableCell>

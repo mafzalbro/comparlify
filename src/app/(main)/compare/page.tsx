@@ -23,6 +23,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { Comparison, Platform } from '@prisma/client';
+import { ManagedImage } from '@/components/managed-image';
 
 type ComparisonWithPlatforms = Comparison & { platformA: Platform, platformB: Platform };
 
@@ -182,7 +183,7 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
                 <CardHeader>
                   <div className="relative h-24">
                     <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center">
-                      <Image
+                      <ManagedImage
                         src={comp.platformA.logoUrl}
                         alt={`${comp.platformA.name} logo`}
                         width={140}
@@ -191,7 +192,7 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
                       />
                     </div>
                     <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center">
-                      <Image
+                      <ManagedImage
                         src={comp.platformB.logoUrl}
                         alt={`${comp.platformB.name} logo`}
                         width={140}

@@ -32,6 +32,7 @@ import type { Post, User } from '@prisma/client';
 import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { HomePageClient } from '@/components/home-page-client';
+import { ManagedImage } from '@/components/managed-image';
 
 
 const testimonials = [
@@ -218,7 +219,7 @@ export default async function Home() {
                                             </Button>
                                         </div>
                                         <div>
-                                            <Image
+                                            <ManagedImage
                                                 src={tab.image}
                                                 alt={tab.title}
                                                 data-ai-hint={tab.dataAiHint}
@@ -296,7 +297,7 @@ export default async function Home() {
                                         <Card className="bg-card/60 backdrop-blur-lg border border-border/20 flex flex-col overflow-hidden group h-full">
                                             <div className="relative overflow-hidden aspect-[16/10]">
                                                 <Link href={`/blog/${post.slug}`} className="block">
-                                                    <Image
+                                                    <ManagedImage
                                                         src={post.image}
                                                         alt={post.title}
                                                         data-ai-hint={post.dataAiHint ?? ''}

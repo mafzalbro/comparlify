@@ -8,6 +8,7 @@ import { getPostPreview } from '@/app/actions';
 import { Skeleton } from './ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import type { Post } from '@prisma/client';
+import { ManagedImage } from './managed-image';
 
 
 export function BlogPreviewCard({ slug }: { slug: string }) {
@@ -45,7 +46,7 @@ export function BlogPreviewCard({ slug }: { slug: string }) {
         <Link href={`/blog/${slug}`} className="block">
             <Card className="border-none shadow-none">
                 <div className="relative aspect-video">
-                    <Image
+                    <ManagedImage
                         src={post.image.replace('400/250', '400/225')}
                         alt={post.title}
                         fill

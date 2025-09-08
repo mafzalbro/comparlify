@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import { generateSeoMetadata } from '@/lib/seo';
+import { ManagedImage } from '@/components/managed-image';
 
 export const metadata: Metadata = generateSeoMetadata({
     title: 'About Us',
@@ -22,7 +23,7 @@ export default function AboutPage() {
         </div>
 
         <div className="prose prose-lg dark:prose-invert mx-auto text-foreground">
-          <Image 
+          <ManagedImage 
             src="https://picsum.photos/800/400"
             alt="A team of creators collaborating"
             data-ai-hint="team collaboration"

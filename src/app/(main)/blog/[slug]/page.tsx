@@ -12,6 +12,7 @@ import { generateSeoMetadata } from '@/lib/seo';
 import { auth } from '@/lib/auth';
 import { CommentsSection } from '@/components/comments-section';
 import { TableOfContents } from '@/components/table-of-contents';
+import { ManagedImage } from '@/components/managed-image';
 
 export async function generateStaticParams() {
   const posts = await prisma.post.findMany({ where: { published: true } });
@@ -147,7 +148,7 @@ export default async function BlogPostPage(props: { params: Promise<{ slug: stri
                       </div>
                       
                       <div className="relative w-full aspect-video mb-8 rounded-lg overflow-hidden shadow-lg">
-                          <Image
+                          <ManagedImage
                               src={post.image.replace('400/250', '1200/675')}
                               alt={post.title}
                               data-ai-hint={post.dataAiHint}
@@ -199,7 +200,7 @@ export default async function BlogPostPage(props: { params: Promise<{ slug: stri
                                   {relatedPosts.map(related => (
                                       <Link key={related.slug} href={`/blog/${related.slug}`} className="flex items-center gap-4 group">
                                            <div className="relative w-20 h-16 rounded-md overflow-hidden shrink-0">
-                                              <Image 
+                                              <ManagedImage 
                                                   src={related.image.replace('400/250', '200/150')} 
                                                   alt={related.title}
                                                   data-ai-hint={related.dataAiHint ?? ''}

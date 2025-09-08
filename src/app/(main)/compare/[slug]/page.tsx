@@ -27,6 +27,7 @@ import {
     AccordionTrigger,
   } from "@/components/ui/accordion"
 import { ComparisonChart } from '@/components/comparison-chart';
+import { ManagedImage } from '@/components/managed-image';
 
 
 async function getComparisonBySlug(slug: string) {
@@ -105,9 +106,9 @@ export default async function ComparisonDetailPage(props: { params: Promise<{ sl
       <div className="container max-w-5xl py-16 md:py-24">
          <div className="text-center mb-12">
           <div className="flex justify-center items-center gap-8 mb-4">
-              <Image src={platformA.logoUrl} alt={`${platformA.name} logo`} width={200} height={60} className="object-contain" />
+              <ManagedImage src={platformA.logoUrl} alt={`${platformA.name} logo`} width={200} height={60} className="object-contain" />
               <span className="text-4xl font-light text-muted-foreground">vs</span>
-              <Image src={platformB.logoUrl} alt={`${platformB.name} logo`} width={200} height={60} className="object-contain" />
+              <ManagedImage src={platformB.logoUrl} alt={`${platformB.name} logo`} width={200} height={60} className="object-contain" />
           </div>
           <h1 className="font-headline text-4xl md:text-5xl font-bold text-foreground">
             {comparison.title}

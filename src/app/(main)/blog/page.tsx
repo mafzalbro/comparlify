@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { ManagedImage } from '@/components/managed-image';
 
 export const metadata: Metadata = generateSeoMetadata({
   title: 'Creator Insights Blog',
@@ -157,7 +158,7 @@ export default async function BlogPage({ searchParams }: { searchParams: Promise
               <Card key={post.slug} className="flex flex-col overflow-hidden group bg-card/60 backdrop-blur-lg border-border/20 shadow-md hover:shadow-xl transition-shadow duration-300">
                 <div className="relative overflow-hidden aspect-[16/10]">
                   <Link href={`/blog/${post.slug}`} className="block">
-                    <Image
+                    <ManagedImage
                       src={post.image}
                       alt={post.title}
                       data-ai-hint={post.dataAiHint ?? ''}
