@@ -1,6 +1,6 @@
 'use client';
 
-import { useFormStatus } from 'react-dom';
+import { useFormState, useFormStatus } from 'react';
 import { deletePost } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,7 +15,6 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Loader2 } from 'lucide-react';
-import { useFormState } from 'react-dom';
 
 function SubmitButton() {
     const { pending } = useFormStatus();

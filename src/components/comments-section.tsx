@@ -72,7 +72,7 @@ export function CommentsSection({ postId, comments, session }: CommentsSectionPr
               </div>
             </div>
           </div>
-          {state?.error && (
+          {typeof state.error === 'string' && (
             <p className="text-sm text-destructive mt-2 text-right">{state.error}</p>
           )}
         </form>

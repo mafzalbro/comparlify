@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useActionState, useEffect, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { subscribeAction } from '@/app/actions';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -30,6 +30,8 @@ export default function Footer() {
     error: null,
   });
 
+  const { toast } = useToast();
+
   useEffect(() => {
     if (state.message) {
       toast({
@@ -45,7 +47,7 @@ export default function Footer() {
         variant: 'destructive',
       });
     }
-  }, [state]);
+  }, [state, toast]);
 
 
   return (

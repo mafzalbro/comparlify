@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState } from 'react-dom';
+import { useActionState } from 'react';
 import { createPost, updatePost } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

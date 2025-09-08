@@ -94,17 +94,17 @@ export default function ContactPage() {
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
               <Input id="name" name="name" placeholder="Your Name" defaultValue={session?.user?.name ?? ''} required />
-              {state.error?.name && <p className="text-sm text-destructive">{state.error.name[0]}</p>}
+              {typeof state.error !== 'string' && state.error?.name && <p className="text-sm text-destructive">{state.error.name[0]}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input id="email" name="email" type="email" placeholder="you@example.com" defaultValue={session?.user?.email ?? ''} required />
-               {state.error?.email && <p className="text-sm text-destructive">{state.error.email[0]}</p>}
+               {typeof state.error !== 'string' && state.error?.email && <p className="text-sm text-destructive">{state.error.email[0]}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="message">Message</Label>
               <Textarea id="message" name="message" placeholder="How can we help you?" rows={5} required />
-               {state.error?.message && <p className="text-sm text-destructive">{state.error.message[0]}</p>}
+               {typeof state.error !== 'string' && state.error?.message && <p className="text-sm text-destructive">{state.error.message[0]}</p>}
             </div>
 
             {state.success && (

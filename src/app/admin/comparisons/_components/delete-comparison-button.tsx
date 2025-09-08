@@ -1,6 +1,6 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormState, useFormStatus } from 'react';
 import { deleteComparison } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import {
