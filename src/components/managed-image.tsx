@@ -46,7 +46,7 @@ export function ManagedImage({
   const showErrorFallback = isMounted && hasError;
 
   return (
-    <div className={cn("relative overflow-hidden", className)}>
+    <div className="relative overflow-hidden h-full w-full">
       {showSkeleton && <Skeleton className="absolute inset-0 h-full w-full" />}
       {showErrorFallback && (
           fallback || (
@@ -61,7 +61,8 @@ export function ManagedImage({
         alt={alt}
         className={cn(
           'transition-opacity duration-300',
-          isLoading || hasError ? 'opacity-0' : 'opacity-100'
+          (isLoading || hasError) ? 'opacity-0' : 'opacity-100',
+          className
         )}
         onLoad={handleLoad}
         onError={handleError}
