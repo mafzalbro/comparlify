@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Search, ArrowUpDown } from 'lucide-react';
+import { Search, ArrowUpDown, CheckCircle, XCircle } from 'lucide-react';
 import type { User, Role } from '@prisma/client';
 
 async function getUsers({
@@ -156,6 +156,9 @@ export default async function AdminUsersPage(
               <TableHead>
                   <SortableHeader column="role" label="Role" currentSortBy={sortBy} currentSortOrder={sortOrder} baseUrl={baseUrl} />
               </TableHead>
+               <TableHead>
+                  <SortableHeader column="newsletter" label="Subscribed" currentSortBy={sortBy} currentSortOrder={sortOrder} baseUrl={baseUrl} />
+              </TableHead>
               <TableHead>
                  <SortableHeader column="createdAt" label="Joined" currentSortBy={sortBy} currentSortOrder={sortOrder} baseUrl={baseUrl} />
               </TableHead>
@@ -181,12 +184,19 @@ export default async function AdminUsersPage(
                     {user.role}
                   </Badge>
                 </TableCell>
+                 <TableCell>
+                    {user.newsletter ? (
+                        <CheckCircle className="h-5 w-5 text-green-500" />
+                    ) : (
+                        <XCircle className="h-5 w-5 text-muted-foreground" />
+                    )}
+                </TableCell>
                 <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
               </TableRow>
             ))}
              {users.length === 0 && (
                 <TableRow>
-                    <TableCell colSpan={3} className="text-center h-24">
+                    <TableCell colSpan={4} className="text-center h-24">
                         No users found.
                     </TableCell>
                 </TableRow>
