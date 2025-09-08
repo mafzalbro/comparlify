@@ -21,31 +21,31 @@ async function main() {
   // --- 2. Seed Users ---
   const usersData = [
     {
-      name: "Admin User",
-      email: "admin@comparlify.com",
+      name: "Afzal Creator",
+      email: "mafzalbro@gmail.com",
       role: Role.ADMIN,
       onboarded: true,
     },
     {
-      name: "Alice Creator",
-      email: "alice@example.com",
-      role: Role.USER,
-      onboarded: true,
-    },
-    {
       name: "Bob Builder",
-      email: "bob@example.com",
+      email: "maf415415@gmail.com",
       role: Role.USER,
       onboarded: false,
     },
+    {
+      name: "Charlie User",
+      email: "ma4156250@gmail.com",
+      role: Role.USER,
+      onboarded: false,
+    }
   ];
   await prisma.user.createMany({ data: usersData });
   
-  const adminUser = await prisma.user.findUnique({ where: { email: 'admin@comparlify.com' } });
-  const aliceUser = await prisma.user.findUnique({ where: { email: 'alice@example.com' } });
-  const bobUser = await prisma.user.findUnique({ where: { email: 'bob@example.com' } });
+  const adminUser = await prisma.user.findUnique({ where: { email: 'mafzalbro@gmail.com' } });
+  const bobUser = await prisma.user.findUnique({ where: { email: 'maf415415@gmail.com' } });
+  const charlieUser = await prisma.user.findUnique({ where: { email: 'ma4156250@gmail.com' } });
 
-  if (!adminUser || !aliceUser || !bobUser) {
+  if (!adminUser || !bobUser || !charlieUser) {
     throw new Error("Failed to seed users correctly.");
   }
   
@@ -165,9 +165,9 @@ async function main() {
   // --- 7. Seed Comments ---
   await prisma.comment.createMany({
     data: [
-        { content: "This was incredibly helpful! I was stuck between Teachable and Thinkific, and this breakdown made the choice clear.", postId: post1.id, authorId: aliceUser.id, status: 'APPROVED' },
+        { content: "This was incredibly helpful! I was stuck between Teachable and Thinkific, and this breakdown made the choice clear.", postId: post1.id, authorId: charlieUser.id, status: 'APPROVED' },
         { content: "Great article. What are your thoughts on Kajabi's price point for new creators? Seems a bit steep.", postId: post1.id, authorId: bobUser.id, status: 'PENDING' },
-        { content: "These are fantastic ideas for engagement. I'm definitely going to try adding more interactive quizzes.", postId: post2.id, authorId: aliceUser.id, status: 'APPROVED' },
+        { content: "These are fantastic ideas for engagement. I'm definitely going to try adding more interactive quizzes.", postId: post2.id, authorId: charlieUser.id, status: 'APPROVED' },
         { content: "I don't agree with point #3.", postId: post2.id, authorId: bobUser.id, status: 'REJECTED' },
     ]
   });
