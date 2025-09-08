@@ -1,13 +1,14 @@
+
 'use client';
 
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { cn } from '@/lib/utils';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card';
 import { BlogPreviewCard } from './blog-preview-card';
 import Link from 'next/link';
 
@@ -36,17 +37,20 @@ export function MarkdownContent({ content, className }: MarkdownContentProps) {
         h3: (props) => renderHeading({...props, level: 3}),
         p: ({ node, ...props }) => <p className="leading-7 my-4" {...props} />,
         a: ({ node, href, ...props }) => {
-          if (href && href.startsWith('/blog/')) {
+          // Check for internal blog post links, but exclude external links
+          const isInternalBlogLink = href && href.startsWith('/blog/') && !/^(https?:\/\/)/.test(href);
+
+          if (isInternalBlogLink) {
             const slug = href.split('/blog/')[1];
             return (
-              <Popover>
-                <PopoverTrigger asChild>
+              <HoverCard>
+                <HoverCardTrigger asChild>
                   <Link href={href} className="text-primary hover:underline font-medium" {...props} />
-                </PopoverTrigger>
-                <PopoverContent className="w-80">
+                </HoverCardTrigger>
+                <HoverCardContent className="w-80" side="top">
                   <BlogPreviewCard slug={slug} />
-                </PopoverContent>
-              </Popover>
+                </HoverCardContent>
+              </HoverCard>
             );
           }
           return <a href={href} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline" {...props} />;
