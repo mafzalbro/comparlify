@@ -10,8 +10,9 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { DeleteFeatureButton } from './_components/delete-feature-button';
+import { PlusCircle } from 'lucide-react';
 
 async function getFeatures() {
   const features = await prisma.feature.findMany({
@@ -44,13 +45,26 @@ export default async function AdminFeaturesPage() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Manage Features</h1>
-        <Button asChild>
-          <Link href="/admin/features/new">Create New Feature</Link>
-        </Button>
+        <div className="flex gap-2">
+            <Button asChild variant="outline">
+                <Link href="/admin/features/categories">Manage Categories</Link>
+            </Button>
+            <Button asChild>
+                <Link href="/admin/features/new"><PlusCircle className="mr-2 h-4 w-4" /> Create New Feature</Link>
+            </Button>
+        </div>
       </div>
+      <Card className="mb-6">
+        <CardHeader>
+            <CardTitle>About Features</CardTitle>
+            <CardDescription>
+                Features are the individual capabilities you want to compare across different platforms (e.g., "Integrated Video Hosting", "Drip Content"). They must belong to a category. You can manage the categories themselves using the button above.
+            </CardDescription>
+        </CardHeader>
+      </Card>
 
       <div className="space-y-8">
-        {categories.map(category => (
+        {categories.length > 0 ? categories.map(category => (
           <Card key={category}>
             <CardHeader>
               <CardTitle>{category}</CardTitle>
@@ -83,7 +97,14 @@ export default async function AdminFeaturesPage() {
               </Table>
             </CardContent>
           </Card>
-        ))}
+        )) : (
+            <Card>
+                <CardContent className="p-8 text-center text-muted-foreground">
+                    <p>No features found.</p>
+                    <p>Start by <Link href="/admin/features/categories/new" className="text-primary underline">creating a category</Link>, then add your first feature.</p>
+                </CardContent>
+            </Card>
+        )}
       </div>
     </div>
   );
