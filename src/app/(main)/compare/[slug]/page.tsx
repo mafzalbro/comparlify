@@ -136,8 +136,8 @@ export default async function ComparisonDetailPage(props: { params: Promise<{ sl
                           <TableBody>
                                <TableRow>
                                   <TableCell className="font-medium">Overall Rating</TableCell>
-                                  <TableCell className="text-center flex justify-center items-center gap-1"><Star className="w-5 h-5 text-amber-500 fill-amber-400" /> {platformA.rating ? platformA.rating.toFixed(1) : 'N/A'}</TableCell>
-                                  <TableCell className="text-center flex justify-center items-center gap-1"><Star className="w-5 h-5 text-amber-500 fill-amber-400" /> {platformB.rating ? platformB.rating.toFixed(1) : 'N/A'}</TableCell>
+                                  <TableCell className="text-center"><div className="flex justify-center items-center gap-1"><Star className="w-5 h-5 text-amber-500 fill-amber-400" /> {platformA.rating ? platformA.rating.toFixed(1) : 'N/A'}</div></TableCell>
+                                  <TableCell className="text-center"><div className="flex justify-center items-center gap-1"><Star className="w-5 h-5 text-amber-500 fill-amber-400" /> {platformB.rating ? platformB.rating.toFixed(1) : 'N/A'}</div></TableCell>
                               </TableRow>
                               {comparison.facts.map(fact => (
                                   <TableRow key={fact.id}>
