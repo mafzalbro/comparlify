@@ -26,8 +26,7 @@ import {
     AccordionItem,
     AccordionTrigger,
   } from "@/components/ui/accordion"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { ComparisonChart } from '@/components/comparison-chart';
 
 
 async function getComparisonBySlug(slug: string) {
@@ -160,17 +159,12 @@ export default async function ComparisonDetailPage(props: { params: Promise<{ sl
                       <CardTitle>Side-by-Side Ratings</CardTitle>
                   </CardHeader>
                   <CardContent>
-                       <ChartContainer config={chartConfig} className="w-full h-80">
-                          <BarChart data={chartData} accessibilityLayer>
-                              <CartesianGrid vertical={false} />
-                              <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} />
-                              <YAxis domain={[0, 5]} />
-                              <Tooltip content={<ChartTooltipContent />} />
-                              <Legend />
-                              <Bar dataKey={platformA.name} fill="var(--color-platformA)" radius={4} />
-                              <Bar dataKey={platformB.name} fill="var(--color-platformB)" radius={4} />
-                          </BarChart>
-                      </ChartContainer>
+                       <ComparisonChart
+                          chartConfig={chartConfig}
+                          chartData={chartData}
+                          platformAName={platformA.name}
+                          platformBName={platformB.name}
+                       />
                   </CardContent>
               </Card>
           </section>
