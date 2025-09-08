@@ -976,15 +976,17 @@ export async function sendContactMessageAction(
 
 // --- Platform Actions ---
 
+const emptyStringToNull = z.literal('').transform(() => null);
+
 const platformSchema = z.object({
     name: z.string().min(2),
     website: z.string().url(),
     logoUrl: z.string().url(),
     description: z.string().min(10),
-    rating: z.coerce.number().min(0).max(5).optional(),
-    easeOfUse: z.coerce.number().min(0).max(5).optional(),
-    featuresRating: z.coerce.number().min(0).max(5).optional(),
-    support: z.coerce.number().min(0).max(5).optional(),
+    rating: z.coerce.number().min(0).max(5).nullable().optional().or(emptyStringToNull),
+    easeOfUse: z.coerce.number().min(0).max(5).nullable().optional().or(emptyStringToNull),
+    featuresRating: z.coerce.number().min(0).max(5).nullable().optional().or(emptyStringToNull),
+    support: z.coerce.number().min(0).max(5).nullable().optional().or(emptyStringToNull),
 });
 
 type PlatformActionState = {
