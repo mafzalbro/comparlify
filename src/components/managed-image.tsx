@@ -61,9 +61,7 @@ export function ManagedImage({
         alt={alt}
         className={cn(
           'transition-opacity duration-300',
-          isLoading || hasError ? 'opacity-0' : 'opacity-100',
-           // Pass the original className to the Image component itself for layout purposes
-          className
+          isLoading || hasError ? 'opacity-0' : 'opacity-100'
         )}
         onLoad={handleLoad}
         onError={handleError}
