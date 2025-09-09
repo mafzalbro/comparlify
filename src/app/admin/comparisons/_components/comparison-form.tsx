@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useActionState, useRef, useState } from 'react';
@@ -28,9 +29,11 @@ interface ComparisonFormProps {
 
 export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
   const router = useRouter();
-  const formRef = useRef<HTMLFormElement>(null);
   const [title, setTitle] = useState(comparison?.title ?? '');
+  const [slug, setSlug] = useState(comparison?.slug ?? '');
   const [summary, setSummary] = useState(comparison?.summary ?? '');
+  const [introduction, setIntroduction] = useState(comparison?.introduction ?? '');
+  const [conclusion, setConclusion] = useState(comparison?.conclusion ?? '');
 
   const isEditing = !!comparison;
   const formAction = isEditing ? updateComparison.bind(null, comparison.id) : createComparison;
@@ -41,11 +44,24 @@ export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
 
   const addFact = () => setFacts([...facts, { title: '', platformAValue: '', platformBValue: '' }]);
   const removeFact = (index: number) => setFacts(facts.filter((_, i) => i !== index));
+  
+  const handleFactChange = (index: number, field: keyof Fact, value: string) => {
+    const newFacts = [...facts];
+    newFacts[index] = { ...newFacts[index], [field]: value };
+    setFacts(newFacts);
+  };
+  
   const addFaq = () => setFaqs([...faqs, { question: '', answer: '' }]);
   const removeFaq = (index: number) => setFaqs(faqs.filter((_, i) => i !== index));
 
+  const handleFaqChange = (index: number, field: keyof FAQ, value: string) => {
+    const newFaqs = [...faqs];
+    newFaqs[index] = { ...newFaqs[index], [field]: value };
+    setFaqs(newFaqs);
+  };
+
   return (
-    <form action={action} ref={formRef}>
+    <form action={action}>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-6">
           <Card>
@@ -61,7 +77,6 @@ export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
                         topic={summary || title}
                         onContentReceived={(content) => {
                             setTitle(content);
-                            formRef.current?.querySelector<HTMLInputElement>('input[name="title"]')?.focus();
                         }}
                     />
                 </div>
@@ -75,12 +90,11 @@ export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
                         fieldType="URL Slug"
                         topic={title}
                         onContentReceived={(content) => {
-                            formRef.current!.querySelector<HTMLInputElement>('input[name="slug"]')!.value = content;
-                            formRef.current?.querySelector<HTMLInputElement>('input[name="slug"]')?.focus();
+                            setSlug(content);
                         }}
                     />
                 </div>
-                <Input id="slug" name="slug" defaultValue={comparison?.slug} required />
+                <Input id="slug" name="slug" value={slug} onChange={e => setSlug(e.target.value)} required />
                 {state?.error?.slug && <p className="text-destructive text-sm">{state.error.slug[0]}</p>}
               </div>
               <div className="space-y-2">
@@ -91,7 +105,6 @@ export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
                         topic={title}
                         onContentReceived={(content) => {
                             setSummary(content);
-                            formRef.current?.querySelector<HTMLTextAreaElement>('textarea[name="summary"]')?.focus();
                         }}
                     />
                 </div>
@@ -106,12 +119,11 @@ export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
                         topic={title}
                         context={summary}
                         onContentReceived={(content) => {
-                            formRef.current!.querySelector<HTMLTextAreaElement>('textarea[name="introduction"]')!.value = content;
-                            formRef.current?.querySelector<HTMLTextAreaElement>('textarea[name="introduction"]')?.focus();
+                            setIntroduction(content);
                         }}
                     />
                 </div>
-                <Textarea id="introduction" name="introduction" defaultValue={comparison?.introduction} rows={10} required />
+                <Textarea id="introduction" name="introduction" value={introduction} onChange={e => setIntroduction(e.target.value)} rows={10} required />
                 {state?.error?.introduction && <p className="text-destructive text-sm">{state.error.introduction[0]}</p>}
               </div>
               <div className="space-y-2">
@@ -122,12 +134,11 @@ export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
                         topic={title}
                         context={summary}
                         onContentReceived={(content) => {
-                            formRef.current!.querySelector<HTMLTextAreaElement>('textarea[name="conclusion"]')!.value = content;
-                            formRef.current?.querySelector<HTMLTextAreaElement>('textarea[name="conclusion"]')?.focus();
+                            setConclusion(content);
                         }}
                     />
                 </div>
-                <Textarea id="conclusion" name="conclusion" defaultValue={comparison?.conclusion} rows={10} required />
+                <Textarea id="conclusion" name="conclusion" value={conclusion} onChange={e => setConclusion(e.target.value)} rows={10} required />
                 {state?.error?.conclusion && <p className="text-destructive text-sm">{state.error.conclusion[0]}</p>}
               </div>
             </CardContent>
@@ -141,18 +152,18 @@ export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
             <CardContent className="space-y-4">
               {facts.map((fact, index) => (
                 <div key={index} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 items-end p-3 border rounded-md">
-                   <input type="hidden" name={`facts[${index}][id]`} defaultValue={fact.id} />
+                   <input type="hidden" name={`facts[${index}][id]`} value={fact.id ?? ''} />
                    <div className="space-y-1">
                         <Label htmlFor={`fact-title-${index}`} className="text-xs">Title</Label>
-                        <Input id={`fact-title-${index}`} name={`facts[${index}][title]`} defaultValue={fact.title} placeholder="e.g., Best For"/>
+                        <Input id={`fact-title-${index}`} name={`facts[${index}][title]`} value={fact.title ?? ''} onChange={(e) => handleFactChange(index, 'title', e.target.value)} placeholder="e.g., Best For"/>
                    </div>
                    <div className="space-y-1">
                         <Label htmlFor={`fact-valA-${index}`} className="text-xs">Platform A Value</Label>
-                        <Input id={`fact-valA-${index}`} name={`facts[${index}][platformAValue]`} defaultValue={fact.platformAValue} placeholder="e.g., Beginners"/>
+                        <Input id={`fact-valA-${index}`} name={`facts[${index}][platformAValue]`} value={fact.platformAValue ?? ''} onChange={(e) => handleFactChange(index, 'platformAValue', e.target.value)} placeholder="e.g., Beginners"/>
                    </div>
                    <div className="space-y-1">
                         <Label htmlFor={`fact-valB-${index}`} className="text-xs">Platform B Value</Label>
-                        <Input id={`fact-valB-${index}`} name={`facts[${index}][platformBValue]`} defaultValue={fact.platformBValue} placeholder="e.g., Experts"/>
+                        <Input id={`fact-valB-${index}`} name={`facts[${index}][platformBValue]`} value={fact.platformBValue ?? ''} onChange={(e) => handleFactChange(index, 'platformBValue', e.target.value)} placeholder="e.g., Experts"/>
                    </div>
                    <Button type="button" variant="ghost" size="icon" className="text-destructive" onClick={() => removeFact(index)}>
                        <Trash2 className="h-4 w-4" />
@@ -173,17 +184,17 @@ export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
             <CardContent className="space-y-4">
               {faqs.map((faq, index) => (
                 <div key={index} className="space-y-2 p-3 border rounded-md relative">
-                  <input type="hidden" name={`faqs[${index}][id]`} defaultValue={faq.id} />
+                  <input type="hidden" name={`faqs[${index}][id]`} value={faq.id ?? ''} />
                   <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 text-destructive h-7 w-7" onClick={() => removeFaq(index)}>
                        <Trash2 className="h-4 w-4" />
                    </Button>
                   <div className="space-y-1">
                     <Label htmlFor={`faq-q-${index}`}>Question</Label>
-                    <Input id={`faq-q-${index}`} name={`faqs[${index}][question]`} defaultValue={faq.question}/>
+                    <Input id={`faq-q-${index}`} name={`faqs[${index}][question]`} value={faq.question ?? ''} onChange={(e) => handleFaqChange(index, 'question', e.target.value)} />
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor={`faq-a-${index}`}>Answer</Label>
-                    <Textarea id={`faq-a-${index}`} name={`faqs[${index}][answer]`} defaultValue={faq.answer} rows={3}/>
+                    <Textarea id={`faq-a-${index}`} name={`faqs[${index}][answer]`} value={faq.answer ?? ''} onChange={(e) => handleFaqChange(index, 'answer', e.target.value)} rows={3}/>
                   </div>
                 </div>
               ))}
@@ -192,8 +203,6 @@ export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
               </Button>
             </CardContent>
           </Card>
-
-
         </div>
 
         <div className="space-y-6">

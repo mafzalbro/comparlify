@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { createFeatureCategory, updateFeatureCategory } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,6 +21,7 @@ export function FeatureCategoryForm({ category }: FeatureCategoryFormProps) {
   const isEditing = !!category;
   const formAction = isEditing ? updateFeatureCategory.bind(null, category.id) : createFeatureCategory;
   const [state, action] = useActionState(formAction, { error: null });
+  const [name, setName] = useState(category?.name ?? '');
 
   return (
     <form action={action}>
@@ -30,7 +32,7 @@ export function FeatureCategoryForm({ category }: FeatureCategoryFormProps) {
         <CardContent className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="name">Category Name</Label>
-            <Input id="name" name="name" defaultValue={category?.name} required />
+            <Input id="name" name="name" value={name} onChange={e => setName(e.target.value)} required />
             {typeof state.error !== 'string' && state?.error?.name && <p className="text-destructive text-sm">{state.error.name[0]}</p>}
           </div>
         </CardContent>

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useActionState, useRef, useState } from 'react';
@@ -21,7 +22,12 @@ export function PostForm({ post }: PostFormProps) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [title, setTitle] = useState(post?.title ?? '');
+  const [slug, setSlug] = useState(post?.slug ?? '');
   const [description, setDescription] = useState(post?.description ?? '');
+  const [content, setContent] = useState(post?.content ?? '');
+  const [image, setImage] = useState(post?.image ?? '');
+  const [dataAiHint, setDataAiHint] = useState(post?.dataAiHint ?? '');
+  
   const isEditing = !!post;
   const formAction = isEditing ? updatePost.bind(null, post.id) : createPost;
   const [state, action] = useActionState(formAction, { error: null });
@@ -39,7 +45,6 @@ export function PostForm({ post }: PostFormProps) {
                             topic={description || title}
                             onContentReceived={(content) => {
                                 setTitle(content);
-                                formRef.current?.querySelector<HTMLInputElement>('input[name="title"]')?.focus();
                             }}
                         />
                     </div>
@@ -53,12 +58,11 @@ export function PostForm({ post }: PostFormProps) {
                             fieldType="URL Slug"
                             topic={title}
                             onContentReceived={(content) => {
-                                formRef.current!.querySelector<HTMLInputElement>('input[name="slug"]')!.value = content;
-                                formRef.current?.querySelector<HTMLInputElement>('input[name="slug"]')?.focus();
+                                setSlug(content);
                             }}
                         />
                     </div>
-                    <Input id="slug" name="slug" defaultValue={post?.slug} required />
+                    <Input id="slug" name="slug" value={slug} onChange={(e) => setSlug(e.target.value)} required />
                      {state?.error?.slug && <p className="text-destructive text-sm">{state.error.slug[0]}</p>}
                 </div>
                  <div className="space-y-2">
@@ -70,7 +74,6 @@ export function PostForm({ post }: PostFormProps) {
                             context={description}
                              onContentReceived={(content) => {
                                 setDescription(content);
-                                formRef.current?.querySelector<HTMLTextAreaElement>('textarea[name="description"]')?.focus();
                             }}
                         />
                     </div>
@@ -85,24 +88,23 @@ export function PostForm({ post }: PostFormProps) {
                             topic={title}
                             context={description}
                             onContentReceived={(content) => {
-                                formRef.current!.querySelector<HTMLTextAreaElement>('textarea[name="content"]')!.value = content;
-                                formRef.current?.querySelector<HTMLTextAreaElement>('textarea[name="content"]')?.focus();
+                                setContent(content);
                             }}
                         />
                     </div>
-                    <Textarea id="content" name="content" defaultValue={post?.content} rows={15} required />
+                    <Textarea id="content" name="content" value={content} onChange={e => setContent(e.target.value)} rows={15} required />
                      {state?.error?.content && <p className="text-destructive text-sm">{state.error.content[0]}</p>}
                 </div>
             </div>
             <div className="space-y-6">
                  <div className="space-y-2">
                     <Label htmlFor="image">Image URL</Label>
-                    <Input id="image" name="image" defaultValue={post?.image} required />
+                    <Input id="image" name="image" value={image} onChange={e => setImage(e.target.value)} required />
                      {state?.error?.image && <p className="text-destructive text-sm">{state.error.image[0]}</p>}
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="dataAiHint">AI Hint for Image Search</Label>
-                    <Input id="dataAiHint" name="dataAiHint" defaultValue={post?.dataAiHint ?? ''} placeholder="e.g. 'creative workspace'" />
+                    <Input id="dataAiHint" name="dataAiHint" value={dataAiHint} onChange={e => setDataAiHint(e.target.value)} placeholder="e.g. 'creative workspace'" />
                 </div>
                 <div className="flex items-center space-x-2">
                     <Switch id="published" name="published" defaultChecked={post?.published ?? false} />
