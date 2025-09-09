@@ -1,16 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider     = "mysql"
-  url          = env("DATABASE_URL")
-  relationMode = "prisma"
-}
-
 model User {
   id            String          @id @default(cuid())
   name          String?
@@ -94,8 +81,6 @@ enum Role {
   ADMIN
 }
 
-// -- App Specific Models --
-
 model Post {
   id          String     @id @default(cuid())
   slug        String     @unique
@@ -141,6 +126,46 @@ enum CommentStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+model Bookmark {
+  id           String      @id @default(cuid())
+  userId       String
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId       String?
+  post         Post?       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comparisonId String?
+  comparison   Comparison? @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+  createdAt    DateTime    @default(now())
+
+  @@unique([userId, postId, comparisonId])
+  @@index([userId])
+  @@index([postId])
+  @@index([comparisonId])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  message   String
+  link      String
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
+}
+
+enum NotificationType {
+  NEW_USER
+  COMMENT_APPROVED
+}
+
+model Subscription {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
 }
 
 model Platform {
@@ -192,6 +217,8 @@ model PlatformFeature {
   @@index([featureId])
 }
 
+// comparison.prisma
+
 model Comparison {
   id           String     @id @default(cuid())
   title        String
@@ -239,42 +266,15 @@ model Faq {
   @@index([comparisonId])
 }
 
-model Bookmark {
-  id           String      @id @default(cuid())
-  userId       String
-  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  postId       String?
-  post         Post?       @relation(fields: [postId], references: [id], onDelete: Cascade)
-  comparisonId String?
-  comparison   Comparison? @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
-  createdAt    DateTime    @default(now())
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-  @@unique([userId, postId, comparisonId])
-  @@index([userId])
-  @@index([postId])
-  @@index([comparisonId])
+generator client {
+  provider = "prisma-client-js"
 }
 
-model Notification {
-  id        String           @id @default(cuid())
-  userId    String
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type      NotificationType
-  message   String
-  link      String
-  read      Boolean          @default(false)
-  createdAt DateTime         @default(now())
-
-  @@index([userId])
-}
-
-enum NotificationType {
-  NEW_USER
-  COMMENT_APPROVED
-}
-
-model Subscription {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  createdAt DateTime @default(now())
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
