@@ -5,7 +5,7 @@ import { notFound, redirect } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, Eye } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Eye, Bookmark } from 'lucide-react';
 import prisma from '@/lib/prisma';
 import { MarkdownContent } from '@/components/markdown-content';
 import type { Metadata } from 'next';
@@ -16,6 +16,7 @@ import { TableOfContents } from '@/components/table-of-contents';
 import { ManagedImage } from '@/components/managed-image';
 import { cache } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { BookmarkButton } from '@/components/bookmark-button';
 
 export const generateStaticParams = cache(async () => {
   const posts = await prisma.post.findMany({ where: { published: true } });
@@ -190,13 +191,19 @@ export default async function BlogPostPage(props: { params: { slug: string }, se
 
           {/* Main Content */}
           <div className="container max-w-6xl py-12 md:py-16">
-            <div className="text-sm mb-6">
-              <Button asChild variant="ghost" className="mb-4">
+            <div className="flex justify-between items-center mb-6">
+              <Button asChild variant="ghost">
                 <Link href="/blog">
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back to Blog
                 </Link>
               </Button>
+              {session?.user && (
+                <BookmarkButton 
+                  contentId={post.id} 
+                  contentType="POST"
+                />
+              )}
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-4 lg:gap-12">
               <div className="lg:col-span-3">

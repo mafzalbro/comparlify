@@ -30,6 +30,8 @@ import { ManagedImage } from '@/components/managed-image';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { cache } from 'react';
+import { auth } from '@/lib/auth';
+import { BookmarkButton } from '@/components/bookmark-button';
 
 
 const getComparisonBySlug = cache(async (slug: string) => {
@@ -70,7 +72,10 @@ export const generateStaticParams = cache(async () => {
 
 export default async function ComparisonDetailPage(props: { params: Promise<{ slug: string }> }) {
     const params = await props.params;
-    const comparison = await getComparisonBySlug(params.slug);
+    const [session, comparison] = await Promise.all([
+      auth(),
+      getComparisonBySlug(params.slug)
+    ]);
 
     if (!comparison) {
       notFound();
@@ -107,13 +112,19 @@ export default async function ComparisonDetailPage(props: { params: Promise<{ sl
       <div className="bg-background">
         <section className="bg-secondary/30 border-b py-16 md:py-24">
             <div className="container">
-                <div className="text-sm mb-6">
+                <div className="flex justify-between items-center mb-6">
                     <Button asChild variant="ghost">
                         <Link href="/compare">
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Back to All Comparisons
                         </Link>
                     </Button>
+                     {session?.user && (
+                        <BookmarkButton 
+                        contentId={comparison.id} 
+                        contentType="COMPARISON"
+                        />
+                    )}
                 </div>
                 <div className="text-center">
                     <div className="flex justify-center items-center gap-4 md:gap-8 mb-6">
