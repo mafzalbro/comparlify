@@ -10,6 +10,11 @@ interface TableOfContentsProps {
   content: string;
 }
 
+function escapeRegExp(string: string) {
+  // $& means the whole matched string
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function extractHeadings(markdown: string): Heading[] {
   const headings: Heading[] = [];
   // This regex matches lines starting with ## or ###, followed by a space, and captures the text.
@@ -39,7 +44,8 @@ export function TableOfContents({ content }: TableOfContentsProps) {
   // This is a bit of a hack, but it's the only way to do it without a full markdown AST parser on the server.
   let contentWithIds = content;
   headings.forEach(heading => {
-      const headingRegex = new RegExp(`^(${'#'.repeat(heading.level)}\\s${heading.text})$`, 'm');
+      const escapedText = escapeRegExp(heading.text);
+      const headingRegex = new RegExp(`^(${'#'.repeat(heading.level)}\\s${escapedText})$`, 'm');
       contentWithIds = contentWithIds.replace(headingRegex, `$1 {#${heading.id}}`);
   });
 
@@ -55,7 +61,7 @@ export function TableOfContents({ content }: TableOfContentsProps) {
                   heading.level === 3 && "pl-4",
               )}
           >
-            <a href={`#${heading.id}`}>{heading.text}</a>
+            <a href={`#${heading.id}`}>{heading.text.replace(/\*/g, '')}</a>
           </li>
         ))}
       </ul>
