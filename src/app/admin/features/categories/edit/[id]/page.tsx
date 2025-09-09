@@ -10,9 +10,9 @@ async function getFeatureCategory(id: string): Promise<FeatureCategory | null> {
     });
 }
 
-export default async function EditFeatureCategoryPage(props: { params: Promise<{ id: string }> }) {
-    const params = await props.params;
-    const category = await getFeatureCategory(params.id);
+export default async function EditFeatureCategoryPage({ params }: { params: { id: string } }) {
+    const { id } = params;
+    const category = await getFeatureCategory(id);
 
     if (!category) {
         notFound();

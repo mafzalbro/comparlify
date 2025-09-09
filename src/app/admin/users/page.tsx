@@ -17,8 +17,7 @@ import { UsersDataTable } from './_components/data-table';
 import Link from 'next/link';
 
 
-export default async function AdminUsersPage(props: { searchParams: Promise<SearchParams> }) {
-  const searchParams = await props.searchParams;
+export default function AdminUsersPage({ searchParams }: { searchParams: SearchParams }) {
   const { search = "", sort = "createdAt.desc", page = "1", per_page = "10", role } = searchParams;
 
   return (
@@ -46,7 +45,7 @@ export default async function AdminUsersPage(props: { searchParams: Promise<Sear
             </div>
             <div className="space-y-2">
               <Label htmlFor="role">Filter by Role</Label>
-              <Select name="role" defaultValue={role ?? 'all'}>
+              <Select name="role" defaultValue={role as string ?? 'all'}>
                 <SelectTrigger id="role">
                   <SelectValue placeholder="All Roles" />
                 </SelectTrigger>
@@ -68,10 +67,10 @@ export default async function AdminUsersPage(props: { searchParams: Promise<Sear
       </Card>
       
       <UsersDataTable
-        search={search}
-        sort={sort}
-        page={page}
-        per_page={per_page}
+        search={String(search)}
+        sort={String(sort)}
+        page={String(page)}
+        per_page={String(per_page)}
         role={role as Role | "all"}
       />
     </div>

@@ -1,10 +1,10 @@
 
-
 import prisma from '@/lib/prisma';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import type { Comment, Post, User, CommentStatus } from '@prisma/client';
 import { CommentFilter } from './_components/comment-filter';
 import { CommentsDataTable } from './_components/comments-data-table';
+import type { SearchParams } from '@/types/next';
 
 type CommentWithRelations = Comment & { author: User, post: Post };
 
@@ -24,9 +24,9 @@ async function getComments({ status }: { status?: CommentStatus | 'ALL' }) {
     return comments as CommentWithRelations[];
 }
 
-export default async function AdminCommentsPage({ searchParams }: { searchParams: Promise<{ status?: CommentStatus | 'ALL' }>}) {
-  const { status } = await searchParams;
-  const comments = await getComments({ status: status ?? 'PENDING' });
+export default async function AdminCommentsPage({ searchParams }: { searchParams: SearchParams}) {
+  const { status } = searchParams;
+  const comments = await getComments({ status: (status as CommentStatus) ?? 'PENDING' });
 
   return (
     <div>
@@ -41,7 +41,7 @@ export default async function AdminCommentsPage({ searchParams }: { searchParams
         </CardHeader>
         <CardContent>
             <div className="mb-4">
-                <CommentFilter currentFilter={status} />
+                <CommentFilter currentFilter={status as CommentStatus | 'ALL'} />
             </div>
             <CommentsDataTable data={comments} />
         </CardContent>
@@ -49,4 +49,3 @@ export default async function AdminCommentsPage({ searchParams }: { searchParams
     </div>
   );
 }
-

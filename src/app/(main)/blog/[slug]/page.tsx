@@ -17,6 +17,7 @@ import { ManagedImage } from '@/components/managed-image';
 import { cache } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { BookmarkButton } from '@/components/bookmark-button';
+import { SearchParams } from '@/types/next';
 
 export const generateStaticParams = cache(async () => {
   const posts = await prisma.post.findMany({ where: { published: true } });
@@ -70,8 +71,8 @@ const getPostData = cache(async (slug: string, isPreview = false) => {
     return { post, relatedPosts, nextPost };
 });
 
-export async function generateMetadata(props: { params: Promise<{ slug:string }>, searchParams: Promise<{ [key: string]: string | string[] | undefined }> }): Promise<Metadata> {
-    const { slug } = (await props.params);
+export async function generateMetadata({ params, searchParams }: { params: { slug: string }, searchParams: SearchParams }): Promise<Metadata> {
+    const { slug } = params;
     const { post } = await getPostData(slug);
 
     if (!post) {
@@ -87,9 +88,9 @@ export async function generateMetadata(props: { params: Promise<{ slug:string }>
 }
 
 
-export default async function BlogPostPage(props: { params: Promise<{ slug: string }>, searchParams: Promise<{ [key: string]: string | string[] | undefined }>}) {
-    const { slug } = (await props.params);
-    const isPreview = (await props.searchParams)?.preview === 'true';
+export default async function BlogPostPage({ params, searchParams }: { params: { slug: string }, searchParams: SearchParams }) {
+    const { slug } = params;
+    const isPreview = searchParams?.preview === 'true';
 
     const session = await auth();
     const { post, relatedPosts, nextPost } = await getPostData(slug, isPreview);

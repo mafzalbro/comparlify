@@ -27,6 +27,7 @@ import type { Comparison, Platform } from '@prisma/client';
 import { ManagedImage } from '@/components/managed-image';
 import { cache } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import type { SearchParams } from '@/types/next';
 
 type ComparisonWithPlatforms = Comparison & { platformA: Platform, platformB: Platform };
 
@@ -94,12 +95,13 @@ const getAllPlatforms = cache(async () => {
 });
 
 
-export default async function ComparePage({ searchParams }: { searchParams: Promise<{ search?: string; sort?: string; platforms?: string | string[] }> }) {
-  const { search, sort } = await searchParams;
-  const platforms = Array.isArray((await searchParams).platforms) ? (await searchParams).platforms : ((await searchParams).platforms ? [(await searchParams).platforms] : []);
+export default async function ComparePage({ searchParams }: { searchParams: SearchParams }) {
+  const { search, sort } = searchParams;
+  const platformsParam = searchParams.platforms;
+  const platforms = Array.isArray(platformsParam) ? platformsParam : (platformsParam ? [platformsParam] : []);
 
   const [comparisons, allPlatforms] = await Promise.all([
-    getComparisons({ search, sort, platforms }),
+    getComparisons({ search: String(search ?? ''), sort: String(sort ?? ''), platforms }),
     getAllPlatforms()
   ]);
 
@@ -138,7 +140,7 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
                 <PopoverContent className="w-56">
                     <div className="space-y-2">
                         <Label htmlFor="sort">Sort By</Label>
-                         <Select name="sort" defaultValue={sort ?? 'newest'}>
+                         <Select name="sort" defaultValue={String(sort ?? 'newest')}>
                           <SelectTrigger id="sort">
                             <SelectValue placeholder="Sort by" />
                           </SelectTrigger>
@@ -167,7 +169,7 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
                                   id={`platform-${platform.id}`}
                                   name="platforms"
                                   value={platform.id}
-                                  defaultChecked={(platforms || "")?.includes(platform.id)}
+                                  defaultChecked={platforms.includes(platform.id)}
                                 />
                                 <Label htmlFor={`platform-${platform.id}`} className="font-normal text-sm cursor-pointer">{platform.name}</Label>
                               </div>

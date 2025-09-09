@@ -26,6 +26,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ManagedImage } from '@/components/managed-image';
 import { cache } from 'react';
+import type { SearchParams } from '@/types/next';
 
 export const metadata: Metadata = generateSeoMetadata({
   title: 'Creator Insights Blog',
@@ -49,9 +50,9 @@ const getBlogPosts = cache(async ({
 
   if (search) {
     where.OR = [
-      { title: { contains: search } },
-      { description: { contains: search } },
-      { content: { contains: search } },
+      { title: { contains: search, mode: 'insensitive' } },
+      { description: { contains: search, mode: 'insensitive' } },
+      { content: { contains: search, mode: 'insensitive' } },
     ];
   }
 
@@ -78,10 +79,10 @@ const getAuthors = cache(async () => {
 });
 
 
-export default async function BlogPage({ searchParams }: { searchParams: Promise<{ search?: string; sort?: string; author?: string }> }) {
-  const { search, sort, author } = await searchParams;
+export default async function BlogPage({ searchParams }: { searchParams: SearchParams }) {
+  const { search, sort, author } = searchParams;
   const [blogPosts, authors] = await Promise.all([
-    getBlogPosts({ search, sort, author }),
+    getBlogPosts({ search: String(search ?? ''), sort: String(sort ?? ''), author: String(author ?? '') }),
     getAuthors()
   ]);
 
@@ -116,7 +117,7 @@ export default async function BlogPage({ searchParams }: { searchParams: Promise
             <PopoverContent className="w-56">
                 <div className="space-y-2">
                     <Label htmlFor="sort">Sort By</Label>
-                    <Select name="sort" defaultValue={sort ?? 'newest'}>
+                    <Select name="sort" defaultValue={String(sort ?? 'newest')}>
                       <SelectTrigger id="sort">
                         <SelectValue placeholder="Sort by" />
                       </SelectTrigger>
@@ -137,7 +138,7 @@ export default async function BlogPage({ searchParams }: { searchParams: Promise
             <PopoverContent className="w-56">
                 <div className="space-y-2">
                     <Label htmlFor="author">Author</Label>
-                     <Select name="author" defaultValue={author ?? 'all'}>
+                     <Select name="author" defaultValue={String(author ?? 'all')}>
                       <SelectTrigger id="author">
                         <SelectValue placeholder="All Authors" />
                       </SelectTrigger>

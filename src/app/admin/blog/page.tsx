@@ -5,8 +5,7 @@ import { BlogPostsDataTable } from './_components/data-table';
 import { PlusCircle } from 'lucide-react';
 import type { SearchParams } from '@/types/next';
 
-export default async function AdminBlogPage(props: { searchParams: Promise<SearchParams> }) {
-  const searchParams = await props.searchParams;
+export default function AdminBlogPage({ searchParams }: { searchParams: SearchParams }) {
   const { search = "", sort = "createdAt.desc", page = "1", per_page = "10" } = searchParams;
 
   return (
@@ -19,10 +18,10 @@ export default async function AdminBlogPage(props: { searchParams: Promise<Searc
       </div>
       
       <BlogPostsDataTable 
-        search={search}
-        sort={sort}
-        page={page}
-        per_page={per_page}
+        search={String(search)}
+        sort={String(sort)}
+        page={String(page)}
+        per_page={String(per_page)}
       />
     </div>
   );
