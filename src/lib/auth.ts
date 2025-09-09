@@ -44,15 +44,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return session;
     },
-    async signIn({ user }) {
-      if (user.email === "mafzalbro@gmail.com" && user.role !== "ADMIN") {
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { role: "ADMIN" },
-        });
-      }
-      return true;
-    },
   },
   events: {
     async createUser({ user }) {
