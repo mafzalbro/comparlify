@@ -6,35 +6,12 @@ import { type Platform } from "@prisma/client"
 import { type ColumnDef } from "@tanstack/react-table"
 import { Star } from "lucide-react"
 
-import { Checkbox } from "@/components/ui/checkbox"
 import { DataTableColumnHeader } from "@/components/data-table-column-header"
 import { DeletePlatformButton } from "./delete-platform-button"
 import { Button } from "@/components/ui/button"
 import { ManagedImage } from "@/components/managed-image"
 
 export const columns: ColumnDef<Platform>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
   {
     accessorKey: "name",
     header: ({ column }) => (

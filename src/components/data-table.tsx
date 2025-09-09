@@ -101,6 +101,7 @@ export function DataTable<TData, TValue>({
     data,
     columns,
     pageCount: pageCount ?? -1,
+    enableMultiRowSelection: false,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
