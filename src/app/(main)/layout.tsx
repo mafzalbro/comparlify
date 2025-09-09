@@ -1,12 +1,35 @@
 import { Chatbot } from '@/components/chatbot';
 import Footer from '@/components/layout/footer';
 import Header from '@/components/layout/header';
+import { auth } from '@/lib/auth';
 
-export default function MainLayout({
+export default async function MainLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // DUMMY CODE: START - To simulate an admin session for testing.
+  // This code can be removed when the temporary login is no longer needed.
+  let session = await auth();
+  const isDevelopment = process.env.NODE_ENV === 'development';
+
+  if (isDevelopment && (!session || session.user.role !== 'ADMIN')) {
+      // console.log("Creating dummy admin session for development.");
+      session = {
+          user: {
+              id: 'dummy-admin-id',
+              name: 'Admin (Dev)',
+              email: 'mafzalbro@gmail.com',
+              image: null,
+              role: 'ADMIN',
+              onboarded: true,
+              newsletter: true,
+          },
+          expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      };
+  }
+  // DUMMY CODE: END
+
   return (
     <>
       <Header />
