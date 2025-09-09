@@ -24,6 +24,8 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Search, ArrowUpDown, CheckCircle, XCircle } from 'lucide-react';
 import type { User, Role } from '@prisma/client';
+import { RoleSwitcher } from './_components/role-switcher';
+import { auth } from '@/lib/auth';
 
 async function getUsers({
   search,
@@ -39,8 +41,8 @@ async function getUsers({
   let where: any = {};
   if (search) {
     where.OR = [
-      { name: { contains: search } },
-      { email: { contains: search } },
+      { name: { contains: search, mode: 'insensitive' } },
+      { email: { contains: search, mode: 'insensitive' } },
     ];
   }
   if (role && role !== 'all') {
@@ -96,6 +98,7 @@ export default async function AdminUsersPage(
     }>;
   }
 ) {
+  const session = await auth();
   const searchParams = await props.searchParams;
   const { search, role, sortBy, sortOrder } = searchParams;
   const users = await getUsers({ search, role, sortBy, sortOrder });
@@ -162,6 +165,7 @@ export default async function AdminUsersPage(
               <TableHead>
                  <SortableHeader column="createdAt" label="Joined" currentSortBy={sortBy} currentSortOrder={sortOrder} baseUrl={baseUrl} />
               </TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -192,11 +196,14 @@ export default async function AdminUsersPage(
                     )}
                 </TableCell>
                 <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                <TableCell className="text-right">
+                  <RoleSwitcher user={user} currentUserId={session?.user.id} />
+                </TableCell>
               </TableRow>
             ))}
              {users.length === 0 && (
                 <TableRow>
-                    <TableCell colSpan={4} className="text-center h-24">
+                    <TableCell colSpan={5} className="text-center h-24">
                         No users found.
                     </TableCell>
                 </TableRow>

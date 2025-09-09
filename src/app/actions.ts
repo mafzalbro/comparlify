@@ -24,7 +24,7 @@ import { generateFaqs } from "@/ai/flows/ai-faq-generator";
 import { generateAnalogy } from "@/ai/flows/ai-analogy-generator";
 import { generateGenericContent } from "@/ai/flows/ai-generic-content-generator";
 import { auth } from "@/lib/auth";
-import type { Post } from "@prisma/client";
+import { Post, Role } from "@prisma/client";
 import nodemailer from "nodemailer";
 import { cache } from "react";
 
@@ -696,21 +696,6 @@ export async function generateGenericContentAction(
 export const getPostPreview = cache(async (slug: string): Promise<Post | null> => {
     return prisma.post.findUnique({
         where: { slug },
-        select: {
-            id: true,
-            slug: true,
-            title: true,
-            description: true,
-            image: true,
-            content: true,
-            authorId: true,
-            createdAt: true,
-            dataAiHint: true,
-            nextId: true,
-            previousId: true,
-            published: true,
-            updatedAt: true,
-        }
     });
 });
 
@@ -728,6 +713,11 @@ const postSchema = z.object({
 });
 
 export async function createPost(prevState: any, formData: FormData) {
+  const session = await auth();
+  if (session?.user?.role !== 'ADMIN') {
+    return { error: 'Not authorized' };
+  }
+  
   const validatedFields = postSchema.safeParse(
     Object.fromEntries(formData.entries())
   );
@@ -738,8 +728,7 @@ export async function createPost(prevState: any, formData: FormData) {
   }
 
   try {
-    // For now, hardcode the authorId. In a real app, you'd get this from the session.
-    const authorId = "clxp9uvt0000012o2ax9f5kku";
+    const authorId = session.user.id;
 
     await prisma.post.create({
       data: {
@@ -758,6 +747,11 @@ export async function createPost(prevState: any, formData: FormData) {
 }
 
 export async function updatePost(id: string, prevState: any, formData: FormData) {
+  const session = await auth();
+  if (session?.user?.role !== 'ADMIN') {
+    return { error: 'Not authorized' };
+  }
+
   const validatedFields = postSchema.safeParse(
     Object.fromEntries(formData.entries())
   );
@@ -783,6 +777,11 @@ export async function updatePost(id: string, prevState: any, formData: FormData)
 }
 
 export async function deletePost(prevState: { error: string | null }, formData: FormData) {
+  const session = await auth();
+  if (session?.user?.role !== 'ADMIN') {
+    return { error: 'Not authorized' };
+  }
+
   const id = formData.get('id') as string;
   if (!id) {
     return { error: "Post ID is missing." };
@@ -966,6 +965,11 @@ function parseDynamicArray(formData: FormData, arrayName: string) {
 }
 
 export async function createComparison(prevState: any, formData: FormData) {
+  const session = await auth();
+  if (session?.user?.role !== 'ADMIN') {
+    return { error: 'Not authorized' };
+  }
+
   const data = Object.fromEntries(formData.entries());
   const validatedFields = comparisonSchema.safeParse(data);
 
@@ -1007,6 +1011,11 @@ export async function createComparison(prevState: any, formData: FormData) {
 }
 
 export async function updateComparison(id: string, prevState: any, formData: FormData) {
+  const session = await auth();
+  if (session?.user?.role !== 'ADMIN') {
+    return { error: 'Not authorized' };
+  }
+  
   const data = Object.fromEntries(formData.entries());
   const validatedFields = comparisonSchema.safeParse(data);
 
@@ -1058,6 +1067,11 @@ export async function updateComparison(id: string, prevState: any, formData: For
 }
 
 export async function deleteComparison(prevState: { error: string | null }, formData: FormData) {
+  const session = await auth();
+  if (session?.user?.role !== 'ADMIN') {
+    return { error: 'Not authorized' };
+  }
+
   const id = formData.get('id') as string;
   if (!id) {
     return { error: "Comparison ID is missing." };
@@ -1223,6 +1237,11 @@ type PlatformActionState = {
 
 
 export async function createPlatform(prevState: any, formData: FormData) {
+  const session = await auth();
+  if (session?.user?.role !== 'ADMIN') {
+    return { error: 'Not authorized' };
+  }
+
   const validatedFields = platformSchema.safeParse(Object.fromEntries(formData.entries()));
 
   if (!validatedFields.success) {
@@ -1244,6 +1263,11 @@ export async function createPlatform(prevState: any, formData: FormData) {
 
 
 export async function updatePlatform(id: string, prevState: any, formData: FormData) {
+  const session = await auth();
+  if (session?.user?.role !== 'ADMIN') {
+    return { error: 'Not authorized' };
+  }
+
   const formDataObj = Object.fromEntries(formData.entries());
   
   const validatedFields = platformSchema.safeParse(formDataObj);
@@ -1304,6 +1328,11 @@ export async function updatePlatform(id: string, prevState: any, formData: FormD
 
 
 export async function deletePlatform(prevState: { error: string | null }, formData: FormData) {
+  const session = await auth();
+  if (session?.user?.role !== 'ADMIN') {
+    return { error: 'Not authorized' };
+  }
+  
   const id = formData.get('id') as string;
   if (!id) {
     return { error: "Platform ID is missing." };
@@ -1327,6 +1356,10 @@ const featureSchema = z.object({
 });
 
 export async function createFeature(prevState: any, formData: FormData) {
+    const session = await auth();
+    if (session?.user?.role !== 'ADMIN') {
+      return { error: 'Not authorized' };
+    }
     const validatedFields = featureSchema.safeParse(Object.fromEntries(formData.entries()));
 
     if (!validatedFields.success) {
@@ -1344,6 +1377,10 @@ export async function createFeature(prevState: any, formData: FormData) {
 }
 
 export async function updateFeature(id: string, prevState: any, formData: FormData) {
+    const session = await auth();
+    if (session?.user?.role !== 'ADMIN') {
+      return { error: 'Not authorized' };
+    }
     const validatedFields = featureSchema.safeParse(Object.fromEntries(formData.entries()));
 
     if (!validatedFields.success) {
@@ -1364,6 +1401,10 @@ export async function updateFeature(id: string, prevState: any, formData: FormDa
 }
 
 export async function deleteFeature(prevState: { error: string | null }, formData: FormData) {
+    const session = await auth();
+    if (session?.user?.role !== 'ADMIN') {
+      return { error: 'Not authorized' };
+    }
     const id = formData.get('id') as string;
     if (!id) {
         return { error: "Feature ID is missing." };
@@ -1390,6 +1431,10 @@ const featureCategorySchema = z.object({
 });
 
 export async function createFeatureCategory(prevState: any, formData: FormData) {
+    const session = await auth();
+    if (session?.user?.role !== 'ADMIN') {
+      return { error: 'Not authorized' };
+    }
     const validatedFields = featureCategorySchema.safeParse(Object.fromEntries(formData.entries()));
 
     if (!validatedFields.success) {
@@ -1408,6 +1453,10 @@ export async function createFeatureCategory(prevState: any, formData: FormData) 
 }
 
 export async function updateFeatureCategory(id: string, prevState: any, formData: FormData) {
+    const session = await auth();
+    if (session?.user?.role !== 'ADMIN') {
+      return { error: 'Not authorized' };
+    }
     const validatedFields = featureCategorySchema.safeParse(Object.fromEntries(formData.entries()));
 
     if (!validatedFields.success) {
@@ -1429,6 +1478,10 @@ export async function updateFeatureCategory(id: string, prevState: any, formData
 }
 
 export async function deleteFeatureCategory(prevState: { error: string | null }, formData: FormData) {
+    const session = await auth();
+    if (session?.user?.role !== 'ADMIN') {
+      return { error: 'Not authorized' };
+    }
     const id = formData.get('id') as string;
     if (!id) {
         return { error: "Category ID is missing." };
@@ -1496,4 +1549,26 @@ export async function updateUserProfileAction(
     console.error("Profile update error:", error);
     return { error: 'Failed to update profile.', success: false };
   }
+}
+
+// --- User Role Management ---
+export async function updateUserRole(userId: string, role: Role) {
+    const session = await auth();
+    if (session?.user?.role !== 'ADMIN') {
+        throw new Error('Not authorized');
+    }
+    if (session.user.id === userId) {
+        throw new Error('Admins cannot change their own role.');
+    }
+
+    try {
+        await prisma.user.update({
+            where: { id: userId },
+            data: { role },
+        });
+        revalidatePath('/admin/users');
+    } catch (error) {
+        console.error('Failed to update user role:', error);
+        throw new Error('Failed to update user role.');
+    }
 }
