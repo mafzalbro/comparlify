@@ -6,8 +6,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { getPostPreview } from '@/app/actions/blog';
 import { Skeleton } from './ui/skeleton';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import type { Post } from '@prisma/client';
+import { ManagedImage } from './managed-image';
 
 
 export function BlogPreviewCard({ slug }: { slug: string }) {
@@ -22,66 +22,40 @@ export function BlogPreviewCard({ slug }: { slug: string }) {
 
     if (post === undefined) {
         return (
-            <div className="space-y-3">
-                <Skeleton className="h-40 w-full" />
-                <Skeleton className="h-6 w-3/4" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-1/2" />
+            <div className="space-y-3 p-2">
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-3 w-1/2" />
             </div>
         );
     }
     
     if (!post || error) {
         return (
-            <div className="text-center text-sm text-muted-foreground">
+            <div className="text-center text-sm text-muted-foreground p-4">
                 Could not load preview.
             </div>
         );
     }
 
-    const readTime = Math.ceil(post.content.split(/\s+/).length / 200);
-
-    const shimmer = (w: number, h: number) => `
-    <svg width="${w}" height="${h}" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-      <defs>
-        <linearGradient id="g">
-          <stop stop-color="#f0f0f0" offset="20%" />
-          <stop stop-color="#e0e0e0" offset="50%" />
-          <stop stop-color="#f0f0f0" offset="70%" />
-        </linearGradient>
-      </defs>
-      <rect width="${w}" height="${h}" fill="#f0f0f0" />
-      <rect id="r" width="${w}" height="${h}" fill="url(#g)" />
-      <animate xlink:href="#r" attributeName="x" from="-${w}" to="${w}" dur="1s" repeatCount="indefinite"  />
-    </svg>`;
-
-    const toBase64 = (str: string) =>
-      typeof window === 'undefined'
-        ? Buffer.from(str).toString('base64')
-        : window.btoa(str);
-
-
     return (
-        <Link href={`/blog/${slug}`} className="block">
-            <Card className="border-none shadow-none">
+        <Link href={`/blog/${slug}`} className="block group">
+           <div className="overflow-hidden rounded-md">
                 <div className="relative aspect-video">
-                    <Image
+                    <ManagedImage
                         src={post.image.replace('400/250', '400/225')}
                         alt={post.title}
+                        data-ai-hint={post.dataAiHint ?? ''}
                         fill
-                        className="rounded-t-lg object-cover"
-                        placeholder="blur"
-                        blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(400, 225))}`}
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                 </div>
-                <CardHeader>
-                    <CardTitle className="text-base font-bold line-clamp-2">{post.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-sm text-muted-foreground line-clamp-3">{post.description}</p>
-                    <p className="text-xs text-muted-foreground mt-2">{readTime} min read</p>
-                </CardContent>
-            </Card>
+                <div className="p-3 bg-card">
+                    <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors">{post.title}</h3>
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{post.description}</p>
+                </div>
+           </div>
         </Link>
     );
 }
