@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { DeleteAccountDialog } from './_components/delete-account-dialog';
 
 export default function UserSettingsPage() {
   const { data: session, update } = useSession();
@@ -93,9 +94,7 @@ export default function UserSettingsPage() {
                         <p className="text-sm text-muted-foreground mb-4">
                             Once you delete your account, there is no going back. Please be certain.
                         </p>
-                         <Button variant="destructive" className="w-full" disabled>
-                            Delete My Account
-                        </Button>
+                        <DeleteAccountDialog />
                     </CardContent>
                  </Card>
             </div>

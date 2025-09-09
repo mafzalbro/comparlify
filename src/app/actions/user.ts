@@ -92,3 +92,21 @@ export async function updateUserRole(userId: string, role: Role) {
         throw new Error('Failed to update user role.');
     }
 }
+
+// --- Delete User Account ---
+export async function deleteSelfAction() {
+    const session = await auth();
+    if (!session?.user?.id) {
+        return { error: 'User not authenticated.' };
+    }
+
+    try {
+        await prisma.user.delete({
+            where: { id: session.user.id }
+        });
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to delete user account:", error);
+        return { error: 'There was an error deleting your account. Please try again.' };
+    }
+}
