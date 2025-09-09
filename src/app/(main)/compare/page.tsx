@@ -244,7 +244,7 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <h2 className="font-headline text-2xl text-center text-foreground h-20 line-clamp-3">
+                          <h2 className="font-headline text-2xl text-center text-foreground truncate">
                             <Link
                               href={`/compare/${comp.slug}`}
                               className="hover:text-primary transition-colors stretched-link"
@@ -262,7 +262,7 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
                     <TooltipProvider>
                        <Tooltip>
                           <TooltipTrigger asChild>
-                            <p className="text-muted-foreground text-sm text-center h-12 line-clamp-3">
+                            <p className="text-muted-foreground text-sm text-center truncate">
                               {comp.summary}
                             </p>
                           </TooltipTrigger>
