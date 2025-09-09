@@ -1,3 +1,4 @@
+
 // lib/auth.ts
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
@@ -30,6 +31,7 @@ export const { handlers, auth } = NextAuth({
         token.id = dbUser?.id;
         token.role = dbUser?.role ?? "USER";
         token.onboarded = dbUser?.onboarded ?? false;
+        token.newsletter = dbUser?.newsletter ?? false;
       }
       return token;
     },
@@ -38,6 +40,7 @@ export const { handlers, auth } = NextAuth({
         session.user.id = token.id as string;
         session.user.role = token.role as Role;
         session.user.onboarded = token.onboarded as boolean;
+        session.user.newsletter = token.newsletter as boolean;
       }
       return session;
     },
