@@ -1,10 +1,8 @@
-
 // lib/auth.ts
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
-import Credentials from "next-auth/providers/credentials";
 import prisma from "./prisma";
 import { Role } from "@prisma/client";
 import { createNotification } from "./notifications";
@@ -13,30 +11,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" }, // ✅ edge-safe
   providers: [
-    Credentials({
-        name: "Direct Login",
-        credentials: {
-          userId: { label: "User ID", type: "text" },
-        },
-        async authorize(credentials) {
-            // This is for the temporary direct login button
-            if (credentials.userId === 'direct-login') {
-                 const user = await prisma.user.findUnique({
-                    where: { email: 'mafzalbro@gmail.com' }
-                });
-                return user;
-            }
-            
-            // This is for the original credentials provider logic if ever needed
-            if (!credentials?.userId) {
-                return null;
-            }
-            const user = await prisma.user.findUnique({
-                where: { id: credentials.userId as string }
-            });
-            return user;
-        }
-    }),
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
