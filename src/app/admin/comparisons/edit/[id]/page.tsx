@@ -31,8 +31,8 @@ async function getPlatforms(): Promise<Platform[]> {
     return prisma.platform.findMany({ orderBy: { name: 'asc' }});
 }
 
-export default async function EditComparisonPage(props: { params: { id: string } }) {
-    const { id } = props.params;
+export default async function EditComparisonPage(props: { params: Promise<{ id: string }> }) {
+    const { id } = (await props.params);
     const [comparison, platforms] = await Promise.all([
         getComparison(id),
         getPlatforms()

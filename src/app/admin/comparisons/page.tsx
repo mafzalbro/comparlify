@@ -5,7 +5,8 @@ import { PlusCircle } from 'lucide-react';
 import type { SearchParams } from '@/types/next';
 import { ComparisonsDataTable } from './_components/data-table';
 
-export default async function AdminComparisonsPage({ searchParams }: { searchParams: SearchParams }) {
+export default async function AdminComparisonsPage(props: { searchParams: Promise<SearchParams> }) {
+  const searchParams = await props.searchParams;
   const { search = "", sort = "createdAt.desc", page = "1", per_page = "10" } = searchParams;
 
   return (

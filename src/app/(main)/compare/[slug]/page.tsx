@@ -47,8 +47,8 @@ const getComparisonBySlug = cache(async (slug: string) => {
   return comparison;
 });
 
-export async function generateMetadata(props: { params: { slug: string } }): Promise<Metadata> {
-    const { slug } = props.params;
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+    const { slug } = (await props.params);
     const comparison = await getComparisonBySlug(slug);
 
     if (!comparison) {
@@ -70,8 +70,8 @@ export const generateStaticParams = cache(async () => {
 });
 
 
-export default async function ComparisonDetailPage(props: { params: { slug: string } }) {
-    const { slug } = props.params;
+export default async function ComparisonDetailPage(props: { params: Promise<{ slug: string }> }) {
+    const { slug } = (await props.params);
     const [session, comparison] = await Promise.all([
       auth(),
       getComparisonBySlug(slug)

@@ -18,8 +18,8 @@ async function getPost(id: string) {
     return post;
 }
 
-export default async function EditPostPage(props: { params: { id: string } }) {
-    const { id } = props.params;
+export default async function EditPostPage(props: { params: Promise<{ id: string }> }) {
+    const { id } = (await props.params);
     const post = await getPost(id);
 
     if (!post) {

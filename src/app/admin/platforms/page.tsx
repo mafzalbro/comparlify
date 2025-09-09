@@ -6,7 +6,8 @@ import { PlusCircle } from 'lucide-react';
 import { PlatformsDataTable } from './_components/data-table';
 
 
-export default async function AdminPlatformsPage({ searchParams }: { searchParams: SearchParams }) {
+export default async function AdminPlatformsPage(props: { searchParams: Promise<SearchParams> }) {
+  const searchParams = await props.searchParams;
   const { search = "", sort = "name.asc", page = "1", per_page = "10" } = searchParams;
 
   return (

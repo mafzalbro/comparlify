@@ -70,8 +70,8 @@ const getPostData = cache(async (slug: string, isPreview = false) => {
     return { post, relatedPosts, nextPost };
 });
 
-export async function generateMetadata(props: { params: { slug:string }, searchParams: { [key: string]: string | string[] | undefined } }): Promise<Metadata> {
-    const { slug } = props.params;
+export async function generateMetadata(props: { params: Promise<{ slug:string }>, searchParams: Promise<{ [key: string]: string | string[] | undefined }> }): Promise<Metadata> {
+    const { slug } = (await props.params);
     const { post } = await getPostData(slug);
 
     if (!post) {
@@ -87,9 +87,9 @@ export async function generateMetadata(props: { params: { slug:string }, searchP
 }
 
 
-export default async function BlogPostPage(props: { params: { slug: string }, searchParams: { [key: string]: string | string[] | undefined }}) {
-    const { slug } = props.params;
-    const isPreview = props.searchParams?.preview === 'true';
+export default async function BlogPostPage(props: { params: Promise<{ slug: string }>, searchParams: Promise<{ [key: string]: string | string[] | undefined }>}) {
+    const { slug } = (await props.params);
+    const isPreview = (await props.searchParams)?.preview === 'true';
 
     const session = await auth();
     const { post, relatedPosts, nextPost } = await getPostData(slug, isPreview);

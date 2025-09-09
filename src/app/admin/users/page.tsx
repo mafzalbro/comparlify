@@ -17,9 +17,8 @@ import { UsersDataTable } from './_components/data-table';
 import Link from 'next/link';
 
 
-export default async function AdminUsersPage(
-  { searchParams }: { searchParams: SearchParams }
-) {
+export default async function AdminUsersPage(props: { searchParams: Promise<SearchParams> }) {
+  const searchParams = await props.searchParams;
   const { search = "", sort = "createdAt.desc", page = "1", per_page = "10", role } = searchParams;
 
   return (
