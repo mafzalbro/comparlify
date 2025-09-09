@@ -17,7 +17,8 @@ import { ManagedImage } from '@/components/managed-image';
 import { cache } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { BookmarkButton } from '@/components/bookmark-button';
-import { SearchParams } from '@/types/next';
+import type { SearchParams } from '@/types/next';
+import { format } from 'date-fns';
 
 export const generateStaticParams = cache(async () => {
   const posts = await prisma.post.findMany({ where: { published: true } });
@@ -171,7 +172,7 @@ export default async function BlogPostPage({ params, searchParams }: { params: {
             </div>
             <div className="relative container max-w-4xl z-10 drop-shadow-lg">
               <p className="text-sm uppercase tracking-widest mb-4">
-                {new Date(post.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} &middot; {readTime} min read
+                {format(new Date(post.createdAt), 'MMMM d, yyyy')} &middot; {readTime} min read
               </p>
               <h1 className="font-headline text-4xl md:text-6xl font-bold leading-tight">
                 {post.title}

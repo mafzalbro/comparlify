@@ -5,6 +5,7 @@ import Link from "next/link"
 import { type Post, type User } from "@prisma/client"
 import { type ColumnDef } from "@tanstack/react-table"
 import { Check, X } from "lucide-react"
+import { format } from 'date-fns';
 
 import { DataTableColumnHeader } from "@/components/data-table-column-header"
 import { DeletePostButton } from "./delete-post-button"
@@ -63,7 +64,7 @@ export const columns: ColumnDef<PostWithAuthor>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Created At" />
     ),
-    cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(),
+    cell: ({ row }) => format(new Date(row.original.createdAt), 'P'),
   },
   {
     id: "actions",

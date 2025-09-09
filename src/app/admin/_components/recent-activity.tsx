@@ -12,6 +12,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, BookText, MessageCircle, UserPlus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { format } from 'date-fns';
 
 function renderActivity(activity: Activity) {
   switch (activity.type) {
@@ -30,7 +31,7 @@ function renderActivity(activity: Activity) {
                 by {activity.author.name}
               </p>
             </div>
-            <div className="ml-auto font-medium text-sm text-muted-foreground">{new Date(activity.createdAt).toLocaleDateString()}</div>
+            <div className="ml-auto font-medium text-sm text-muted-foreground">{format(new Date(activity.createdAt), 'P')}</div>
         </>
       );
     case 'USER':
@@ -48,7 +49,7 @@ function renderActivity(activity: Activity) {
                     {activity.name} ({activity.email})
                 </p>
             </div>
-             <div className="ml-auto font-medium text-sm text-muted-foreground">{new Date(activity.createdAt).toLocaleDateString()}</div>
+             <div className="ml-auto font-medium text-sm text-muted-foreground">{format(new Date(activity.createdAt), 'P')}</div>
         </>
        );
     case 'COMMENT':
@@ -66,7 +67,7 @@ function renderActivity(activity: Activity) {
                         "{activity.content}" on <Link href={`/blog/${activity.post.slug}`} className="hover:underline text-primary">{activity.post.title}</Link>
                     </p>
                 </div>
-                <div className="ml-auto font-medium text-sm text-muted-foreground">{new Date(activity.createdAt).toLocaleDateString()}</div>
+                <div className="ml-auto font-medium text-sm text-muted-foreground">{format(new Date(activity.createdAt), 'P')}</div>
             </>
         )
     default:

@@ -1,5 +1,8 @@
+
+import { format } from 'date-fns';
+
 export default function PrivacyPage() {
-  const lastUpdated = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const lastUpdated = format(new Date(), 'MMMM d, yyyy');
 
   return (
     <div className="container py-16 md:py-24 px-4 md:px-6 prose">

@@ -4,6 +4,7 @@
 import { type User } from "@prisma/client"
 import { type ColumnDef } from "@tanstack/react-table"
 import { Check, X } from "lucide-react"
+import { format } from 'date-fns';
 
 import { DataTableColumnHeader } from "@/components/data-table-column-header"
 import { Badge } from "@/components/ui/badge"
@@ -65,6 +66,6 @@ export const columns: ColumnDef<User>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Joined" />
     ),
-    cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(),
+    cell: ({ row }) => format(new Date(row.original.createdAt), 'P'),
   },
 ]

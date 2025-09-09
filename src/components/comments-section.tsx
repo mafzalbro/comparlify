@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
 
 type CommentWithAuthor = Comment & { author: User };
 
@@ -122,11 +123,7 @@ export function CommentsSection({ postId, comments, session }: CommentsSectionPr
                 <div className="flex items-baseline gap-2">
                     <p className="font-semibold">{comment.author.name}</p>
                     <p className="text-xs text-muted-foreground">
-                    {new Date(comment.createdAt).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                    })}
+                    {format(new Date(comment.createdAt), 'PP')}
                     </p>
                 </div>
                 <p className="text-foreground/90 mt-1 whitespace-pre-wrap">{comment.content}</p>

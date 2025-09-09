@@ -4,6 +4,7 @@
 import Link from "next/link"
 import { type Comparison, type Platform } from "@prisma/client"
 import { type ColumnDef } from "@tanstack/react-table"
+import { format } from 'date-fns';
 
 import { DataTableColumnHeader } from "@/components/data-table-column-header"
 import { DeleteComparisonButton } from "./delete-comparison-button"
@@ -61,7 +62,7 @@ export const columns: ColumnDef<ComparisonWithPlatforms>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Created At" />
     ),
-    cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(),
+    cell: ({ row }) => format(new Date(row.original.createdAt), 'P'),
   },
   {
     id: "actions",
