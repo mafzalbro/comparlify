@@ -25,7 +25,6 @@ async function getPosts({ search, sort, page, per_page }: BlogPostsDataTableProp
       where = {
           title: {
               contains: search,
-              mode: 'insensitive'
           }
       }
   }

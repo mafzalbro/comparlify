@@ -50,9 +50,9 @@ const getBlogPosts = cache(async ({
 
   if (search) {
     where.OR = [
-      { title: { contains: search, mode: 'insensitive' } },
-      { description: { contains: search, mode: 'insensitive' } },
-      { content: { contains: search, mode: 'insensitive' } },
+      { title: { contains: search } },
+      { description: { contains: search } },
+      { content: { contains: search } },
     ];
   }
 

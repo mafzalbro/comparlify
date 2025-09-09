@@ -23,7 +23,6 @@ async function getPlatforms({ search, sort, page, per_page }: PlatformsDataTable
       where = {
           name: {
               contains: search,
-              mode: 'insensitive'
           }
       }
   }

@@ -52,7 +52,6 @@ const getPlatformDetailsTool = ai.defineTool(
       where: {
         name: {
           equals: name,
-          mode: "insensitive",
         },
       },
       include: {

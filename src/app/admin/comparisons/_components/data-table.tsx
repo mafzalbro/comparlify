@@ -25,7 +25,6 @@ async function getComparisons({ search, sort, page, per_page }: ComparisonsDataT
       where = {
           title: {
               contains: search,
-              mode: 'insensitive'
           }
       }
   }

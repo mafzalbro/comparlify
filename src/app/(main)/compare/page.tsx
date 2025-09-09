@@ -52,8 +52,8 @@ const getComparisons = cache(async ({
 
   if (search) {
     where.OR = [
-      { title: { contains: search, mode: 'insensitive' } },
-      { summary: { contains: search, mode: 'insensitive' } },
+      { title: { contains: search } },
+      { summary: { contains: search } },
     ];
   }
 
