@@ -1,13 +1,31 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PenSquare, Table, Users, MessageCircle, GitCompareArrows } from "lucide-react";
 import prisma from "@/lib/prisma";
 import { subDays, format, eachDayOfInterval } from 'date-fns';
 import { PostsChart } from "./_components/posts-chart";
-import { RecentPosts } from "./_components/recent-posts";
+import { RecentActivity } from "./_components/recent-activity";
 import Link from "next/link";
+import type { Post, User, Comment } from "@prisma/client";
+
+export type Activity = 
+    | ({ type: 'POST' } & Post & { author: User })
+    | ({ type: 'USER' } & User)
+    | ({ type: 'COMMENT' } & Comment & { author: User; post: Post });
+
 
 async function getDashboardStats() {
-    const [platformCount, featureCount, userCount, commentCount, comparisonCount, recentPosts, postsLast7Days] = await prisma.$transaction([
+    const [
+        platformCount, 
+        featureCount, 
+        userCount, 
+        pendingCommentCount, 
+        comparisonCount, 
+        recentPosts,
+        recentUsers,
+        pendingComments,
+        postsLast7Days
+    ] = await prisma.$transaction([
         prisma.platform.count(),
         prisma.feature.count(),
         prisma.user.count(),
@@ -18,17 +36,33 @@ async function getDashboardStats() {
             orderBy: { createdAt: 'desc' },
             include: { author: true }
         }),
-         prisma.post.findMany({
-            where: {
-                createdAt: {
-                    gte: subDays(new Date(), 6)
-                }
-            },
-            select: {
-                createdAt: true
-            }
+        prisma.user.findMany({
+            take: 5,
+            orderBy: { createdAt: 'desc' },
+        }),
+        prisma.comment.findMany({
+            where: { status: 'PENDING' },
+            take: 5,
+            orderBy: { createdAt: 'desc' },
+            include: { author: true, post: true }
+        }),
+        prisma.post.findMany({
+            where: { createdAt: { gte: subDays(new Date(), 6) } },
+            select: { createdAt: true }
         })
     ]);
+
+    // Combine and sort activities
+    const combinedActivities: Activity[] = [
+        ...recentPosts.map(p => ({ ...p, type: 'POST' as const })),
+        ...recentUsers.map(u => ({ ...u, type: 'USER' as const })),
+        ...pendingComments.map(c => ({ ...c, type: 'COMMENT' as const })),
+    ];
+
+    const recentActivity = combinedActivities
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+        .slice(0, 5);
+
 
      const postCountsByDay = postsLast7Days.reduce((acc, post) => {
         const day = format(post.createdAt, 'yyyy-MM-dd');
@@ -50,18 +84,18 @@ async function getDashboardStats() {
     });
 
 
-    return { platformCount, featureCount, userCount, commentCount, comparisonCount, recentPosts, chartData };
+    return { platformCount, featureCount, userCount, pendingCommentCount, comparisonCount, recentActivity, chartData };
 }
 
 export default async function AdminDashboardPage() {
-    const { platformCount, featureCount, userCount, commentCount, comparisonCount, recentPosts, chartData } = await getDashboardStats();
+    const { platformCount, featureCount, userCount, pendingCommentCount, comparisonCount, recentActivity, chartData } = await getDashboardStats();
     
     const statsCards = [
         { href: "/admin/platforms", title: "Total Platforms", count: platformCount, Icon: Table, description: "Currently being compared" },
         { href: "/admin/comparisons", title: "Total Comparisons", count: comparisonCount, Icon: GitCompareArrows, description: "Published comparisons" },
         { href: "/admin/features", title: "Total Features", count: featureCount, Icon: PenSquare, description: "Tracked across all platforms" },
         { href: "/admin/users", title: "Total Users", count: userCount, Icon: Users, description: "Registered in the system" },
-        { href: "/admin/comments?status=PENDING", title: "Pending Comments", count: commentCount, Icon: MessageCircle, description: "Awaiting moderation" },
+        { href: "/admin/comments?status=PENDING", title: "Pending Comments", count: pendingCommentCount, Icon: MessageCircle, description: "Awaiting moderation" },
     ]
 
     return (
@@ -91,7 +125,7 @@ export default async function AdminDashboardPage() {
                     <PostsChart data={chartData} />
                 </div>
                 <div className="lg:col-span-3">
-                    <RecentPosts posts={recentPosts} />
+                    <RecentActivity activities={recentActivity} />
                 </div>
             </div>
         </div>
