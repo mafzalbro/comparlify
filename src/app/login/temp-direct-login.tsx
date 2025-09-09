@@ -2,28 +2,11 @@
 'use client';
 
 import { useTransition } from 'react';
-import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { signIn } from 'next-auth/react';
 import { Loader2 } from 'lucide-react';
-import prisma from '@/lib/prisma';
 import { Separator } from '@/components/ui/separator';
-
-async function directLoginAction() {
-    'use server';
-    const email = 'mafzalbro@gmail.com';
-    const user = await prisma.user.findUnique({
-        where: { email },
-    });
-
-    if (user) {
-        // This server-side signIn is what we'll use, but we need a client component to trigger it.
-        // The actual signIn call will happen on the client after this action returns the userId.
-        return { userId: user.id };
-    }
-    return { userId: null };
-}
-
+import { directLoginAction } from './temp-direct-login-action';
 
 export function TempDirectLogin() {
     const [isPending, startTransition] = useTransition();
