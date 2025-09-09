@@ -113,7 +113,7 @@ export async function updatePlatform(id: string, prevState: any, formData: FormD
 
     revalidatePath('/admin/platforms');
     revalidatePath(`/admin/platforms/edit/${id}`);
-    revalidatePath('/compare');
+    revalidatePath('/compare', 'layout');
   } catch (error) {
     console.error(error);
     return { error: 'Failed to update platform.' };

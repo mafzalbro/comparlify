@@ -42,6 +42,14 @@ export function PlatformForm({ platform, features, featureCategories }: Platform
   
   const platformFeatureMap = new Map(platform?.features.map(pf => [pf.featureId, pf]));
   
+  const [checkedState, setCheckedState] = useState<Record<string, boolean>>(() => {
+    if (!platform) return {};
+    return platform.features.reduce((acc, feat) => {
+        acc[feat.featureId] = feat.hasFeature;
+        return acc;
+    }, {} as Record<string, boolean>);
+  });
+
   const [featureDetails, setFeatureDetails] = useState<Record<string, string>>(() => {
     if (!platform) return {};
     return platform.features.reduce((acc, feat) => {
@@ -145,14 +153,19 @@ export function PlatformForm({ platform, features, featureCategories }: Platform
                         <TabsContent key={cat.id} value={cat.id}>
                             <div className="space-y-6 pt-4">
                                 {features.filter(f => f.categoryId === cat.id).map(feature => {
-                                    const platformFeature = platformFeatureMap.get(feature.id);
+                                    const initialChecked = platformFeatureMap.get(feature.id)?.hasFeature ?? false;
                                     return (
                                         <div key={feature.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start border-t pt-6">
                                             <div className="md:col-span-1 flex items-center gap-3">
+                                                {/* This hidden input ensures that a value for the feature is always submitted */}
+                                                <input type="hidden" name={`features[${feature.id}].hasFeature`} value="off" />
                                                 <Checkbox 
                                                     id={`feature-check-${feature.id}`}
                                                     name={`features[${feature.id}].hasFeature`}
-                                                    defaultChecked={platformFeature?.hasFeature ?? false}
+                                                    checked={checkedState[feature.id] ?? initialChecked}
+                                                    onCheckedChange={(checked) => {
+                                                        setCheckedState(prev => ({ ...prev, [feature.id]: !!checked }));
+                                                    }}
                                                 />
                                                 <Label htmlFor={`feature-check-${feature.id}`} className="font-semibold">{feature.name}</Label>
                                             </div>
