@@ -7,7 +7,7 @@ import { Cookie } from 'lucide-react';
 import { useCookie } from '@/hooks/use-cookie';
 
 export function CookieConsentBanner() {
-  const [consent, setConsent] = useCookie('cookie-consent', 'false');
+  const [consent, setConsent] = useCookie('cookie-consent', 'true');
 
   if (consent === 'true') {
     return null;

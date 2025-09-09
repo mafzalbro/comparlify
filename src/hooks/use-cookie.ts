@@ -10,7 +10,6 @@ export function useCookie(key: string, defaultValue: string) {
       .split("; ")
       .find((row) => row.startsWith(`${key}=`))
       ?.split("=")[1]
-    
     if (value) {
       setCookie(value)
     }
