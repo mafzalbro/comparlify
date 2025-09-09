@@ -34,6 +34,7 @@ import { ManagedImage } from '@/components/managed-image';
 import { cache } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { SearchParams } from '@/types/next';
+import { Breadcrumbs } from '@/components/breadcrumb';
 
 type ComparisonWithPlatforms = Comparison & { platformA: Platform, platformB: Platform };
 
@@ -116,6 +117,13 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
     <div className="bg-background">
        <section className="bg-secondary/30 border-b">
         <div className="container text-center py-16 md:py-24 px-4 md:px-6">
+          <Breadcrumbs
+            items={[
+                { name: 'Home', href: '/' },
+                { name: 'Compare' },
+            ]}
+            className="mb-8 justify-center"
+          />
           <h1 className="font-headline text-5xl md:text-6xl font-bold text-foreground">
             Course Platform Face-Off
           </h1>

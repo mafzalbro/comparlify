@@ -1,3 +1,4 @@
+
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import {
@@ -9,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Breadcrumbs } from "@/components/breadcrumb";
 
 export default async function ProfilePage() {
   const session = await auth();
@@ -21,6 +23,13 @@ export default async function ProfilePage() {
 
   return (
     <div className="container py-16 md:py-24">
+      <Breadcrumbs
+        items={[
+          { name: 'Home', href: '/' },
+          { name: 'Profile' },
+        ]}
+        className="mb-8"
+      />
       <Card className="mx-auto max-w-2xl">
         <CardHeader>
           <div className="flex items-center gap-6">

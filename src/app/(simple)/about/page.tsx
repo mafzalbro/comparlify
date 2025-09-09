@@ -3,6 +3,7 @@ import Image from 'next/image';
 import type { Metadata } from 'next';
 import { generateSeoMetadata } from '@/lib/seo';
 import { ManagedImage } from '@/components/managed-image';
+import { Breadcrumbs } from '@/components/breadcrumb';
 
 export const metadata: Metadata = generateSeoMetadata({
     title: 'About Us',
@@ -13,6 +14,13 @@ export const metadata: Metadata = generateSeoMetadata({
 export default function AboutPage() {
   return (
     <div className="container py-16 md:py-24 px-4 md:px-6">
+       <Breadcrumbs
+        items={[
+          { name: 'Home', href: '/' },
+          { name: 'About' },
+        ]}
+        className="mb-8"
+      />
       <div className="mx-auto max-w-3xl">
         <div className="text-center mb-12">
           <h1 className="font-headline text-5xl md:text-6xl font-bold text-foreground">

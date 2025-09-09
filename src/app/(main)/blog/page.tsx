@@ -27,6 +27,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { ManagedImage } from '@/components/managed-image';
 import { cache } from 'react';
 import type { SearchParams } from '@/types/next';
+import { Breadcrumbs } from '@/components/breadcrumb';
 
 export const metadata: Metadata = generateSeoMetadata({
   title: 'Creator Insights Blog',
@@ -88,7 +89,14 @@ export default async function BlogPage(props: { searchParams: Promise<SearchPara
   ]);
 
   return (
-    (<div className="container py-16 md:py-24 px-4 md:px-6">
+    <div className="container py-16 md:py-24 px-4 md:px-6">
+       <Breadcrumbs
+        items={[
+          { name: 'Home', href: '/' },
+          { name: 'Blog' },
+        ]}
+        className="mb-6"
+      />
       <div className="text-center mb-12">
         <h1 className="font-headline text-5xl md:text-6xl font-bold text-foreground">
           Creator Insights
@@ -207,6 +215,6 @@ export default async function BlogPage(props: { searchParams: Promise<SearchPara
           )}
         </div>
       )}
-    </div>)
+    </div>
   );
 }

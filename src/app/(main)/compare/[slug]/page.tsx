@@ -32,6 +32,7 @@ import Link from 'next/link';
 import { cache } from 'react';
 import { auth } from '@/lib/auth';
 import { BookmarkButton } from '@/components/bookmark-button';
+import { Breadcrumbs } from '@/components/breadcrumb';
 
 
 const getComparisonBySlug = cache(async (slug: string) => {
@@ -114,6 +115,14 @@ export default async function ComparisonDetailPage(props: { params: Promise<{ sl
       <div className="bg-background">
         <section className="bg-secondary/30 border-b py-16 md:py-24">
             <div className="container">
+                 <Breadcrumbs
+                    items={[
+                        { name: 'Home', href: '/' },
+                        { name: 'Compare', href: '/compare' },
+                        { name: comparison.title },
+                    ]}
+                    className="mb-8"
+                />
                 <div className="flex justify-between items-center mb-6">
                     <Button asChild variant="ghost">
                         <Link href="/compare">

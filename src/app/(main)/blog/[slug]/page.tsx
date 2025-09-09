@@ -19,6 +19,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { BookmarkButton } from '@/components/bookmark-button';
 import type { SearchParams } from '@/types/next';
 import { format } from 'date-fns';
+import { Breadcrumbs } from '@/components/breadcrumb';
 
 export const generateStaticParams = cache(async () => {
   const posts = await prisma.post.findMany({ where: { published: true } });
@@ -178,6 +179,14 @@ export default async function BlogPostPage(
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
           </div>
           <div className="relative container max-w-4xl z-10 drop-shadow-lg">
+            <Breadcrumbs
+                items={[
+                    { name: 'Home', href: '/' },
+                    { name: 'Blog', href: '/blog' },
+                    { name: post.title },
+                ]}
+                className="justify-center text-white/80 mb-6"
+            />
             <p className="text-sm uppercase tracking-widest mb-4">
               {format(new Date(post.createdAt), 'MMMM d, yyyy')} &middot; {readTime} min read
             </p>

@@ -35,8 +35,29 @@ export default function RootLayout({
 
   // seed()
 
+  const websiteSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Comparlify',
+    url: 'https://www.comparlify.com', // Replace with your actual domain
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: 'https://www.comparlify.com/search?q={search_term_string}', // Replace with your actual domain
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  };
+
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
+       <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
+      </head>
       <body className={cn("font-body antialiased flex flex-col min-h-screen bg-background", fontHeadline.variable, fontBody.variable)}>
         <ThemeProvider
           attribute="class"

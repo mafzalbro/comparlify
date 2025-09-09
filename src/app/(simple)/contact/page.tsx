@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Mail, Phone, MapPin, Loader2, Send, CheckCircle, AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useSession } from 'next-auth/react';
+import { Breadcrumbs } from '@/components/breadcrumb';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -48,6 +49,13 @@ export default function ContactPage() {
 
   return (
     <div className="container py-16 md:py-24 px-4 md:px-6">
+      <Breadcrumbs
+        items={[
+          { name: 'Home', href: '/' },
+          { name: 'Contact' },
+        ]}
+        className="mb-8"
+      />
       <div className="mx-auto max-w-4xl">
         <div className="text-center mb-12">
           <h1 className="font-headline text-5xl md:text-6xl font-bold text-foreground">

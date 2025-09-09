@@ -26,6 +26,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import type { Metadata } from 'next';
 import { generateSeoMetadata } from '@/lib/seo';
+import { Breadcrumbs } from '@/components/breadcrumb';
 
 export const metadata: Metadata = generateSeoMetadata({
     title: 'AI Creator Tools',
@@ -198,6 +199,13 @@ export default async function ToolsPage(props: { searchParams?: Promise<{ catego
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <div className="container py-16 md:py-24 px-4 md:px-6">
+        <Breadcrumbs
+            items={[
+                { name: 'Home', href: '/' },
+                { name: 'Tools' },
+            ]}
+            className="mb-8"
+        />
         <div className="text-center mb-16">
           <h1 className="font-headline text-5xl md:text-6xl font-bold text-foreground">
             AI-Powered Creator Tools

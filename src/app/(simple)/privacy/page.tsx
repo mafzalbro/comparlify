@@ -1,11 +1,19 @@
 
 import { format } from 'date-fns';
+import { Breadcrumbs } from '@/components/breadcrumb';
 
 export default function PrivacyPage() {
   const lastUpdated = format(new Date(), 'MMMM d, yyyy');
 
   return (
     <div className="container py-16 md:py-24 px-4 md:px-6 prose">
+      <Breadcrumbs
+        items={[
+          { name: 'Home', href: '/' },
+          { name: 'Privacy Policy' },
+        ]}
+        className="mb-8 not-prose"
+      />
       <div className="mx-auto max-w-3xl">
         <div className="text-center mb-12">
           <h1 className="font-headline text-5xl md:text-6xl font-bold text-foreground">
