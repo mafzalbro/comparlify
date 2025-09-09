@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { type Comparison, type Platform, type Fact, type FAQ } from '@prisma/client';
+import { type Comparison, type Platform, type Fact, type Faq } from '@prisma/client';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { useRouter } from 'next/navigation';
@@ -19,7 +19,7 @@ import { AiFillButton } from '../../blog/_components/ai-fill-button';
 
 type ComparisonWithRelations = Comparison & {
   facts: Fact[];
-  faqs: FAQ[];
+  faqs: Faq[];
 }
 
 interface ComparisonFormProps {
@@ -40,7 +40,7 @@ export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
   const [state, action] = useActionState(formAction, { error: null });
 
   const [facts, setFacts] = useState<Partial<Fact>[]>(comparison?.facts || [{ title: '', platformAValue: '', platformBValue: '' }]);
-  const [faqs, setFaqs] = useState<Partial<FAQ>[]>(comparison?.faqs || [{ question: '', answer: '' }]);
+  const [faqs, setFaqs] = useState<Partial<Faq>[]>(comparison?.faqs || [{ question: '', answer: '' }]);
 
   const addFact = () => setFacts([...facts, { title: '', platformAValue: '', platformBValue: '' }]);
   const removeFact = (index: number) => setFacts(facts.filter((_, i) => i !== index));
@@ -54,7 +54,7 @@ export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
   const addFaq = () => setFaqs([...faqs, { question: '', answer: '' }]);
   const removeFaq = (index: number) => setFaqs(faqs.filter((_, i) => i !== index));
 
-  const handleFaqChange = (index: number, field: keyof FAQ, value: string) => {
+  const handleFaqChange = (index: number, field: keyof Faq, value: string) => {
     const newFaqs = [...faqs];
     newFaqs[index] = { ...newFaqs[index], [field]: value };
     setFaqs(newFaqs);

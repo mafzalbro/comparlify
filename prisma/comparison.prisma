@@ -1,3 +1,5 @@
+// comparison.prisma
+
 model Comparison {
   id           String     @id @default(cuid())
   title        String
