@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useEffect } from 'react';
+import { useActionState, useEffect, useRef } from 'react';
 import { updateUserProfileAction } from '@/app/actions/user';
 import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,19 +18,32 @@ import { DeleteAccountDialog } from './_components/delete-account-dialog';
 
 export default function UserSettingsPage() {
   const { data: session, update } = useSession();
-  const [state, formAction] = useActionState(updateUserProfileAction, { error: null, success: false });
+  const [state, formAction, isPending] = useActionState(updateUserProfileAction, { error: null, success: false });
   const { toast } = useToast();
+  const hasUpdated = useRef(false);
 
   useEffect(() => {
-    if (state.success) {
+    if (state.success && !hasUpdated.current) {
       toast({
         title: 'Success!',
         description: 'Your profile has been updated successfully.',
       });
       // Trigger a session update to reflect the new name in the UI
       update();
+      hasUpdated.current = true;
     }
-  }, [state.success, toast, update]);
+    if (state.error) {
+      hasUpdated.current = false;
+    }
+  }, [state.success, state.error, toast, update]);
+  
+  const handleFormAction: React.FormEventHandler<HTMLFormElement> = (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    hasUpdated.current = false;
+    formAction(formData);
+  };
+
 
   if (!session?.user) {
     return (
