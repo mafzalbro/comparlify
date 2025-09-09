@@ -1,7 +1,8 @@
+
 'use client';
 
-import { useActionState, useTransition } from "react";
-import { approveCommentAction, rejectCommentAction } from "@/app/actions";
+import { useTransition } from "react";
+import { approveCommentAction, rejectCommentAction } from "@/app/actions/comments";
 import { Button } from "@/components/ui/button";
 import { Check, X, Loader2 } from "lucide-react";
 import type { Comment } from "@prisma/client";

@@ -2,7 +2,7 @@
 'use client';
 
 import { useActionState, useRef, useState } from 'react';
-import { createComparison, updateComparison } from '@/app/actions';
+import { createComparison, updateComparison } from '@/app/actions/comparisons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -75,13 +75,11 @@ export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
                     <AiFillButton
                         fieldType="Comparison Title"
                         topic={summary || title}
-                        onContentReceived={(content) => {
-                            setTitle(content);
-                        }}
+                        onContentReceived={setTitle}
                     />
                 </div>
                 <Input id="title" name="title" value={title} onChange={e => setTitle(e.target.value)} required />
-                {state?.error?.title && <p className="text-destructive text-sm">{state.error.title[0]}</p>}
+                {typeof state.error !== 'string' && state?.error?.title && <p className="text-destructive text-sm">{state.error.title[0]}</p>}
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -89,13 +87,11 @@ export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
                     <AiFillButton
                         fieldType="URL Slug"
                         topic={title}
-                        onContentReceived={(content) => {
-                            setSlug(content);
-                        }}
+                        onContentReceived={setSlug}
                     />
                 </div>
                 <Input id="slug" name="slug" value={slug} onChange={e => setSlug(e.target.value)} required />
-                {state?.error?.slug && <p className="text-destructive text-sm">{state.error.slug[0]}</p>}
+                {typeof state.error !== 'string' && state?.error?.slug && <p className="text-destructive text-sm">{state.error.slug[0]}</p>}
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -103,13 +99,11 @@ export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
                     <AiFillButton
                         fieldType="Comparison Summary"
                         topic={title}
-                        onContentReceived={(content) => {
-                            setSummary(content);
-                        }}
+                        onContentReceived={setSummary}
                     />
                 </div>
                 <Textarea id="summary" name="summary" value={summary} onChange={e => setSummary(e.target.value)} rows={4} required />
-                {state?.error?.summary && <p className="text-destructive text-sm">{state.error.summary[0]}</p>}
+                {typeof state.error !== 'string' && state?.error?.summary && <p className="text-destructive text-sm">{state.error.summary[0]}</p>}
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -118,13 +112,11 @@ export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
                         fieldType="Comparison Introduction"
                         topic={title}
                         context={summary}
-                        onContentReceived={(content) => {
-                            setIntroduction(content);
-                        }}
+                        onContentReceived={setIntroduction}
                     />
                 </div>
                 <Textarea id="introduction" name="introduction" value={introduction} onChange={e => setIntroduction(e.target.value)} rows={10} required />
-                {state?.error?.introduction && <p className="text-destructive text-sm">{state.error.introduction[0]}</p>}
+                {typeof state.error !== 'string' && state?.error?.introduction && <p className="text-destructive text-sm">{state.error.introduction[0]}</p>}
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -133,13 +125,11 @@ export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
                         fieldType="Comparison Conclusion"
                         topic={title}
                         context={summary}
-                        onContentReceived={(content) => {
-                            setConclusion(content);
-                        }}
+                        onContentReceived={setConclusion}
                     />
                 </div>
                 <Textarea id="conclusion" name="conclusion" value={conclusion} onChange={e => setConclusion(e.target.value)} rows={10} required />
-                {state?.error?.conclusion && <p className="text-destructive text-sm">{state.error.conclusion[0]}</p>}
+                {typeof state.error !== 'string' && state?.error?.conclusion && <p className="text-destructive text-sm">{state.error.conclusion[0]}</p>}
               </div>
             </CardContent>
           </Card>
@@ -219,7 +209,7 @@ export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
                     {platforms.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
-                {state?.error?.platformAId && <p className="text-destructive text-sm">{state.error.platformAId[0]}</p>}
+                {typeof state.error !== 'string' && state?.error?.platformAId && <p className="text-destructive text-sm">{state.error.platformAId[0]}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="platformBId">Platform B</Label>
@@ -229,7 +219,7 @@ export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
                     {platforms.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
-                {state?.error?.platformBId && <p className="text-destructive text-sm">{state.error.platformBId[0]}</p>}
+                {typeof state.error !== 'string' && state?.error?.platformBId && <p className="text-destructive text-sm">{state.error.platformBId[0]}</p>}
               </div>
               <div className="flex items-center space-x-2 pt-4">
                 <Switch id="published" name="published" defaultChecked={comparison?.published ?? false} />

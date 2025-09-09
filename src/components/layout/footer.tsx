@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useActionState } from 'react';
@@ -5,7 +6,7 @@ import { useFormStatus } from 'react-dom';
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import { subscribeAction } from '@/app/actions';
+import { subscribeAction } from '@/app/actions/subscriptions';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';

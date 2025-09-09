@@ -2,7 +2,7 @@
 'use client';
 
 import { useActionState, useState } from 'react';
-import { createPlatform, updatePlatform } from '@/app/actions';
+import { createPlatform, updatePlatform } from '@/app/actions/platforms';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

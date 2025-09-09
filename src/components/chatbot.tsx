@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, useEffect, use } from 'react';
@@ -15,7 +16,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { getChatbotResponse } from '@/app/actions';
+import { getChatbotResponse } from '@/app/actions/ai';
 import { MarkdownContent } from './markdown-content';
 
 type Message = {

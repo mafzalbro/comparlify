@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { generateAudiencePersonaAction } from '@/app/actions';
+import { generateAudiencePersonaAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';

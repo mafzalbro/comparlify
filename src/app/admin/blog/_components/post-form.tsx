@@ -2,7 +2,7 @@
 'use client';
 
 import { useActionState, useRef, useState, useTransition } from 'react';
-import { createPost, updatePost } from '@/app/actions';
+import { createPost, updatePost } from '@/app/actions/blog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -51,7 +51,7 @@ export function PostForm({ post }: PostFormProps) {
                         />
                     </div>
                     <Input id="title" name="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
-                    {state?.error?.title && <p className="text-destructive text-sm">{state.error.title[0]}</p>}
+                    {typeof state.error !== 'string' && state.error?.title && <p className="text-destructive text-sm">{state.error.title[0]}</p>}
                 </div>
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
@@ -65,7 +65,7 @@ export function PostForm({ post }: PostFormProps) {
                         />
                     </div>
                     <Input id="slug" name="slug" value={slug} onChange={(e) => setSlug(e.target.value)} required />
-                     {state?.error?.slug && <p className="text-destructive text-sm">{state.error.slug[0]}</p>}
+                    {typeof state.error !== 'string' && state.error?.slug && <p className="text-destructive text-sm">{state.error.slug[0]}</p>}
                 </div>
                  <div className="space-y-2">
                     <div className="flex items-center justify-between">
@@ -80,7 +80,7 @@ export function PostForm({ post }: PostFormProps) {
                         />
                     </div>
                     <Textarea id="description" name="description" value={description} onChange={e => setDescription(e.target.value)} rows={4} required />
-                     {state?.error?.description && <p className="text-destructive text-sm">{state.error.description[0]}</p>}
+                    {typeof state.error !== 'string' && state.error?.description && <p className="text-destructive text-sm">{state.error.description[0]}</p>}
                 </div>
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
@@ -95,14 +95,14 @@ export function PostForm({ post }: PostFormProps) {
                         />
                     </div>
                     <Textarea id="content" name="content" value={content} onChange={e => setContent(e.target.value)} rows={15} required />
-                     {state?.error?.content && <p className="text-destructive text-sm">{state.error.content[0]}</p>}
+                    {typeof state.error !== 'string' && state.error?.content && <p className="text-destructive text-sm">{state.error.content[0]}</p>}
                 </div>
             </div>
             <div className="space-y-6">
                  <div className="space-y-2">
                     <Label htmlFor="image">Image URL</Label>
                     <Input id="image" name="image" value={image} onChange={e => setImage(e.target.value)} required />
-                     {state?.error?.image && <p className="text-destructive text-sm">{state.error.image[0]}</p>}
+                     {typeof state.error !== 'string' && state.error?.image && <p className="text-destructive text-sm">{state.error.image[0]}</p>}
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="dataAiHint">AI Hint for Image Search</Label>

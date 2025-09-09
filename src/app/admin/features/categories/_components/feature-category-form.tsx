@@ -2,7 +2,7 @@
 'use client';
 
 import { useActionState, useState } from 'react';
-import { createFeatureCategory, updateFeatureCategory } from '@/app/actions';
+import { createFeatureCategory, updateFeatureCategory } from '@/app/actions/features';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

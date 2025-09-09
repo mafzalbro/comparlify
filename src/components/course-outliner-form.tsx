@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { generateCourseOutlineAction } from '@/app/actions';
+import { generateCourseOutlineAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
 import {
   Card,

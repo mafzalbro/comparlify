@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { generateLessonSummaryAction } from '@/app/actions';
+import { generateLessonSummaryAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
 import {
   Card,

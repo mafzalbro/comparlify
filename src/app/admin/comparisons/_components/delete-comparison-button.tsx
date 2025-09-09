@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { deleteComparison } from '@/app/actions';
+import { deleteComparison } from '@/app/actions/comparisons';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,

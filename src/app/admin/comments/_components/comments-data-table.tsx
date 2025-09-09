@@ -25,7 +25,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { CommentStatusBadge } from './comment-status-badge';
 import type { Comment, Post, User } from '@prisma/client';
 import { CommentActions } from './comment-actions';
-import { bulkUpdateCommentStatusAction } from '@/app/actions';
+import { bulkUpdateCommentStatusAction } from '@/app/actions/comments';
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 

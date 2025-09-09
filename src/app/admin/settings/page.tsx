@@ -4,7 +4,7 @@
 import { useTransition } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
-import { revalidateCacheAction } from '@/app/actions';
+import { revalidateCacheAction } from '@/app/actions/admin';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Trash2, Globe, BookOpen, GitCompareArrows } from 'lucide-react';
 

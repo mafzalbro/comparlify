@@ -3,7 +3,7 @@
 
 import { useTransition } from 'react';
 import type { User, Role } from '@prisma/client';
-import { updateUserRole } from '@/app/actions';
+import { updateUserRole } from '@/app/actions/user';
 import {
   Select,
   SelectContent,

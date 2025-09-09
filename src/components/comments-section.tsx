@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useFormStatus } from 'react-dom';
@@ -7,7 +8,7 @@ import type { User, Comment, CommentStatus } from '@prisma/client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { addCommentAction, updateCommentAction } from '@/app/actions';
+import { addCommentAction, updateCommentAction } from '@/app/actions/comments';
 import { Loader2, Send, Edit, X } from 'lucide-react';
 import Link from 'next/link';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';

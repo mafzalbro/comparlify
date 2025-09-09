@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { generateVideoScriptAction } from '@/app/actions';
+import { generateVideoScriptAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
 import {
   Card,

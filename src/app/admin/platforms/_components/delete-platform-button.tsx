@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { deletePlatform } from '@/app/actions';
+import { deletePlatform } from '@/app/actions/platforms';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,

@@ -2,7 +2,7 @@
 'use client';
 
 import { useActionState, useEffect } from 'react';
-import { updateUserProfileAction } from '@/app/actions';
+import { updateUserProfileAction } from '@/app/actions/user';
 import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';

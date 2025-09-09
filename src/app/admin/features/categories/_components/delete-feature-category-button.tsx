@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { deleteFeatureCategory } from '@/app/actions';
+import { deleteFeatureCategory } from '@/app/actions/features';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,

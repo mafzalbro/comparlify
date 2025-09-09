@@ -1,9 +1,10 @@
+
 'use client';
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Loader2 } from "lucide-react";
-import { generateGenericContentAction } from "@/app/actions";
+import { generateGenericContentAction } from "@/app/actions/ai";
 import { useToast } from "@/hooks/use-toast";
 
 interface AiFillButtonProps {

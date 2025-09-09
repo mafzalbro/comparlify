@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useTransition } from 'react';
@@ -11,7 +12,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { markUserAsOnboarded } from '@/app/actions';
+import { markUserAsOnboarded } from '@/app/actions/user';
 import { BarChart, BrainCircuit, BookText, Loader2, ArrowRight } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
