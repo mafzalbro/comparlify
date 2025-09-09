@@ -33,12 +33,8 @@ export async function toggleBookmarkAction(
     comparisonId: comparisonId || null,
   };
 
-  // Prisma needs a unique identifier for findUnique, so we construct one.
-  // The schema has @@unique([userId, postId, comparisonId])
-  const existingBookmark = await prisma.bookmark.findUnique({
-    where: {
-      userId_postId_comparisonId: whereClause,
-    },
+  const existingBookmark = await prisma.bookmark.findFirst({
+    where: whereClause,
   });
 
   try {
@@ -93,10 +89,8 @@ export async function isBookmarkedAction(
     comparisonId: comparisonId || null,
   };
 
-  const bookmark = await prisma.bookmark.findUnique({
-    where: {
-      userId_postId_comparisonId: whereClause
-    },
+  const bookmark = await prisma.bookmark.findFirst({
+    where: whereClause,
   });
 
   return !!bookmark;
