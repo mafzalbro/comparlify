@@ -4,42 +4,32 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import prisma from "@/lib/prisma";
-import type { Post, Comparison, Platform } from '@prisma/client';
+import type { Post, Comparison, Platform, Bookmark } from '@prisma/client';
 import { ArrowRight, BookText, GitCompareArrows } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ManagedImage } from "@/components/managed-image";
 
+type PopulatedPostBookmark = Bookmark & { post: Post };
+type PopulatedComparisonBookmark = Bookmark & { comparison: Comparison & { platformA: Platform, platformB: Platform } };
+
 async function getBookmarks(userId: string) {
-    const bookmarks = await prisma.bookmark.findMany({
-        where: { userId },
+    const postBookmarks = await prisma.bookmark.findMany({
+        where: { userId, postId: { not: null } },
         orderBy: { createdAt: 'desc' },
-        take: 20, 
+        include: { post: true },
+        take: 20,
     });
 
-    const postIds = bookmarks.filter(b => b.contentType === 'POST').map(b => b.contentId);
-    const comparisonIds = bookmarks.filter(b => b.contentType === 'COMPARISON').map(b => b.contentId);
-
-    const [posts, comparisons] = await Promise.all([
-        postIds.length > 0 ? prisma.post.findMany({ where: { id: { in: postIds } } }) : Promise.resolve([]),
-        comparisonIds.length > 0 ? prisma.comparison.findMany({ where: { id: { in: comparisonIds } }, include: { platformA: true, platformB: true } }) : Promise.resolve([]),
-    ]);
-
-    const postsMap = new Map(posts.map(p => [p.id, p]));
-    const comparisonsMap = new Map(comparisons.map(c => [c.id, c]));
-
-    const populatedBookmarks = bookmarks.map(b => {
-        if (b.contentType === 'POST') {
-            return { ...b, content: postsMap.get(b.contentId) };
-        }
-        if (b.contentType === 'COMPARISON') {
-            return { ...b, content: comparisonsMap.get(b.contentId) };
-        }
-        return { ...b, content: null };
-    }).filter(b => b.content);
+    const comparisonBookmarks = await prisma.bookmark.findMany({
+        where: { userId, comparisonId: { not: null } },
+        orderBy: { createdAt: 'desc' },
+        include: { comparison: { include: { platformA: true, platformB: true } } },
+        take: 20,
+    });
 
     return {
-        posts: populatedBookmarks.filter(b => b.contentType === 'POST') as (typeof populatedBookmarks[0] & { content: Post })[],
-        comparisons: populatedBookmarks.filter(b => b.contentType === 'COMPARISON') as (typeof populatedBookmarks[0] & { content: Comparison & { platformA: Platform, platformB: Platform }})[]
+        posts: postBookmarks as PopulatedPostBookmark[],
+        comparisons: comparisonBookmarks as PopulatedComparisonBookmark[],
     }
 }
 
@@ -148,7 +138,7 @@ export default async function UserPanelDashboard() {
                                 {posts.length > 0 ? (
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
                                         {posts.map(bookmark => (
-                                            <PostBookmarkCard key={bookmark.id} post={bookmark.content} />
+                                            <PostBookmarkCard key={bookmark.id} post={bookmark.post} />
                                         ))}
                                     </div>
                                 ) : (
@@ -161,7 +151,7 @@ export default async function UserPanelDashboard() {
                                 {comparisons.length > 0 ? (
                                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
                                         {comparisons.map(bookmark => (
-                                            <ComparisonBookmarkCard key={bookmark.id} comparison={bookmark.content} />
+                                            <ComparisonBookmarkCard key={bookmark.id} comparison={bookmark.comparison} />
                                         ))}
                                     </div>
                                 ) : (

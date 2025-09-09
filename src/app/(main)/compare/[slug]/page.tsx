@@ -123,8 +123,7 @@ export default async function ComparisonDetailPage(props: { params: Promise<{ sl
                     </Button>
                      {session?.user && (
                         <BookmarkButton 
-                        contentId={comparison.id} 
-                        contentType="COMPARISON"
+                          comparisonId={comparison.id}
                         />
                     )}
                 </div>

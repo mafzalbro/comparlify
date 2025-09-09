@@ -9,13 +9,13 @@ import { useToast } from '@/hooks/use-toast';
 import { isBookmarkedAction, toggleBookmarkAction } from '@/app/actions/bookmarks';
 
 interface BookmarkButtonProps {
-  contentId: string;
-  contentType: "POST" | "COMPARISON";
+  postId?: string;
+  comparisonId?: string;
   size?: "sm" | "default" | "lg" | "icon";
   className?: string;
 }
 
-export function BookmarkButton({ contentId, contentType, size = "default", className }: BookmarkButtonProps) {
+export function BookmarkButton({ postId, comparisonId, size = "default", className }: BookmarkButtonProps) {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [isLoading, setIsLoading] = useState(true);
@@ -24,17 +24,17 @@ export function BookmarkButton({ contentId, contentType, size = "default", class
 
   useEffect(() => {
     setIsLoading(true);
-    isBookmarkedAction({ contentId, contentType }).then((result) => {
+    isBookmarkedAction({ postId, comparisonId }).then((result) => {
       setIsBookmarked(result);
       setIsLoading(false);
     });
-  }, [contentId, contentType]);
+  }, [postId, comparisonId]);
 
   const handleClick = () => {
     startTransition(async () => {
       // Optimistic update
       setIsBookmarked(prev => !prev);
-      const result = await toggleBookmarkAction({ contentId, contentType, path });
+      const result = await toggleBookmarkAction({ postId, comparisonId, path });
 
       if (result.error) {
         // Revert optimistic update

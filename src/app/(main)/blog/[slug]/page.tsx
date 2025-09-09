@@ -209,8 +209,7 @@ export default async function BlogPostPage(
             </Button>
             {session?.user && (
               <BookmarkButton 
-                contentId={post.id} 
-                contentType="POST"
+                postId={post.id}
               />
             )}
           </div>

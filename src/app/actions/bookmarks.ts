@@ -7,9 +7,11 @@ import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
 const bookmarkSchema = z.object({
-    contentId: z.string(),
-    contentType: z.enum(["POST", "COMPARISON"]),
+    postId: z.string().optional(),
+    comparisonId: z.string().optional(),
     path: z.string(),
+}).refine(data => data.postId || data.comparisonId, {
+    message: "Either postId or comparisonId must be provided.",
 });
 
 export async function toggleBookmarkAction(input: z.infer<typeof bookmarkSchema>) {
@@ -18,16 +20,20 @@ export async function toggleBookmarkAction(input: z.infer<typeof bookmarkSchema>
         return { error: "You must be logged in to bookmark content." };
     }
 
-    const { contentId, contentType, path } = input;
+    const { postId, comparisonId, path } = input;
     const { id: userId } = session.user;
 
+    const whereClause = {
+        userId,
+        postId: postId || null,
+        comparisonId: comparisonId || null,
+    };
+
+    // Prisma needs a unique identifier for findUnique, so we construct one.
+    // The schema has @@unique([userId, postId, comparisonId])
     const existingBookmark = await prisma.bookmark.findUnique({
         where: {
-            userId_contentType_contentId: {
-                userId,
-                contentType,
-                contentId,
-            }
+            userId_postId_comparisonId: whereClause
         }
     });
 
@@ -43,8 +49,8 @@ export async function toggleBookmarkAction(input: z.infer<typeof bookmarkSchema>
             await prisma.bookmark.create({
                 data: {
                     userId,
-                    contentType,
-                    contentId,
+                    postId: postId,
+                    comparisonId: comparisonId,
                 }
             });
             revalidatePath(path);
@@ -59,8 +65,10 @@ export async function toggleBookmarkAction(input: z.infer<typeof bookmarkSchema>
 
 
 const isBookmarkedSchema = z.object({
-    contentId: z.string(),
-    contentType: z.enum(["POST", "COMPARISON"]),
+    postId: z.string().optional(),
+    comparisonId: z.string().optional(),
+}).refine(data => data.postId || data.comparisonId, {
+    message: "Either postId or comparisonId must be provided.",
 });
 
 export async function isBookmarkedAction(input: z.infer<typeof isBookmarkedSchema>): Promise<boolean> {
@@ -69,16 +77,16 @@ export async function isBookmarkedAction(input: z.infer<typeof isBookmarkedSchem
         return false;
     }
 
-    const { contentId, contentType } = input;
+    const { postId, comparisonId } = input;
     const { id: userId } = session.user;
 
-    const bookmark = await prisma.bookmark.count({
+    const bookmarkCount = await prisma.bookmark.count({
         where: {
             userId,
-            contentType,
-            contentId,
+            postId: postId,
+            comparisonId: comparisonId,
         }
     });
 
-    return bookmark > 0;
+    return bookmarkCount > 0;
 }
