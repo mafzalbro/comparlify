@@ -38,16 +38,47 @@ export async function createPlatform(prevState: any, formData: FormData) {
     return { error: 'Not authorized' };
   }
 
-  const validatedFields = platformSchema.safeParse(Object.fromEntries(formData.entries()));
+  const formDataObj = Object.fromEntries(formData.entries());
+  const validatedFields = platformSchema.safeParse(formDataObj);
 
   if (!validatedFields.success) {
     return { error: validatedFields.error.flatten().fieldErrors };
   }
+
+  const featuresUpdateData = Object.entries(formDataObj)
+    .filter(([key]) => key.startsWith('features['))
+    .reduce((acc, [key, value]) => {
+      const match = key.match(/features\[(.*?)\]\.(.*)/);
+      if (match) {
+        const [, featureId, field] = match;
+        if (!acc[featureId]) {
+          acc[featureId] = {};
+        }
+        acc[featureId][field] = value;
+      }
+      return acc;
+    }, {} as Record<string, any>);
   
   try {
-    await prisma.platform.create({
-      data: validatedFields.data,
+    await prisma.$transaction(async (tx) => {
+        const newPlatform = await tx.platform.create({
+          data: validatedFields.data,
+        });
+
+        const platformFeatures = Object.entries(featuresUpdateData).map(([featureId, data]) => ({
+            platformId: newPlatform.id,
+            featureId,
+            hasFeature: data.hasFeature === 'on',
+            details: data.details || null,
+        }));
+
+        if (platformFeatures.length > 0) {
+            await tx.platformFeature.createMany({
+                data: platformFeatures
+            });
+        }
     });
+
     revalidatePath('/admin/platforms');
   } catch (error) {
     console.error(error);
