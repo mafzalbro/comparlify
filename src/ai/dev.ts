@@ -16,3 +16,4 @@ import '@/ai/flows/ai-faq-generator.ts';
 import '@/ai/flows/ai-analogy-generator.ts';
 import '@/ai/flows/ai-generic-content-generator.ts';
 import '@/ai/flows/ai-image-generator.ts';
+import '@/ai/flows/ai-logo-generator.ts';

@@ -20,6 +20,7 @@ import { generateFaqs } from "@/ai/flows/ai-faq-generator";
 import { generateAnalogy } from "@/ai/flows/ai-analogy-generator";
 import { generateGenericContent } from "@/ai/flows/ai-generic-content-generator";
 import { generateImage } from "@/ai/flows/ai-image-generator";
+import { generateLogo } from "@/ai/flows/ai-logo-generator";
 import { auth } from "@/lib/auth";
 
 // --- Title Generator Action ---
@@ -672,5 +673,38 @@ export async function generateImageAction(
     } catch (error) {
         console.error(error);
         return { imageUrl: null, error: "Failed to generate image. Please try again." };
+    }
+}
+
+
+// --- AI Logo Generator ---
+const logoGeneratorSchema = z.object({
+    name: z.string().min(2, "Platform name must be at least 2 characters long."),
+});
+
+interface LogoGeneratorState {
+    logoUrl: string | null;
+    error: string | null;
+}
+
+export async function generateLogoAction(
+    input: z.infer<typeof logoGeneratorSchema>
+): Promise<LogoGeneratorState> {
+    const session = await auth();
+    if (session?.user?.role !== 'ADMIN') {
+        return { logoUrl: null, error: "Not authorized." };
+    }
+
+    const validatedFields = logoGeneratorSchema.safeParse(input);
+    if (!validatedFields.success) {
+        return { logoUrl: null, error: "Invalid input." };
+    }
+
+    try {
+        const result = await generateLogo(validatedFields.data);
+        return { logoUrl: result.logoUrl, error: null };
+    } catch (error) {
+        console.error(error);
+        return { logoUrl: null, error: "Failed to generate logo. Please try again." };
     }
 }

@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SubmitButton } from '@/components/submit-button';
+import { AiLogoButton } from './ai-logo-button';
 
 
 type PlatformWithFeatures = Platform & { features: PlatformFeature[] };
@@ -71,8 +72,19 @@ export function PlatformForm({ platform, features, featureCategories }: Platform
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="logoUrl">Logo URL</Label>
-                        <Input id="logoUrl" name="logoUrl" value={logoUrl} onChange={e => setLogoUrl(e.target.value)} required />
+                        <div className="flex items-start gap-2">
+                            <Input id="logoUrl" name="logoUrl" value={logoUrl} onChange={e => setLogoUrl(e.target.value)} required className="flex-1" />
+                             <AiLogoButton 
+                                platformName={name}
+                                onLogoReceived={(url) => setLogoUrl(url)}
+                            />
+                        </div>
                         {typeof state.error !== 'string' && state?.error?.logoUrl && <p className="text-destructive text-sm">{state.error.logoUrl[0]}</p>}
+                        {logoUrl && (
+                            <div className="mt-4 p-4 border rounded-md flex justify-center items-center bg-muted/50 h-32">
+                                <img src={logoUrl} alt="Logo Preview" className="max-h-full max-w-full object-contain" />
+                            </div>
+                        )}
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="description">Description</Label>
