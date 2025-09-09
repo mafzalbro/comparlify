@@ -95,7 +95,8 @@ const getAllPlatforms = cache(async () => {
 });
 
 
-export default async function ComparePage({ searchParams }: { searchParams: SearchParams }) {
+export default async function ComparePage(props: { searchParams: Promise<SearchParams> }) {
+  const searchParams = await props.searchParams;
   const { search, sort } = searchParams;
   const platformsParam = searchParams.platforms;
   const platforms = Array.isArray(platformsParam) ? platformsParam : (platformsParam ? [platformsParam] : []);

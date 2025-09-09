@@ -79,7 +79,8 @@ const getAuthors = cache(async () => {
 });
 
 
-export default async function BlogPage({ searchParams }: { searchParams: SearchParams }) {
+export default async function BlogPage(props: { searchParams: Promise<SearchParams> }) {
+  const searchParams = await props.searchParams;
   const { search, sort, author } = searchParams;
   const [blogPosts, authors] = await Promise.all([
     getBlogPosts({ search: String(search ?? ''), sort: String(sort ?? ''), author: String(author ?? '') }),
@@ -87,7 +88,7 @@ export default async function BlogPage({ searchParams }: { searchParams: SearchP
   ]);
 
   return (
-    <div className="container py-16 md:py-24 px-4 md:px-6">
+    (<div className="container py-16 md:py-24 px-4 md:px-6">
       <div className="text-center mb-12">
         <h1 className="font-headline text-5xl md:text-6xl font-bold text-foreground">
           Creator Insights
@@ -96,7 +97,6 @@ export default async function BlogPage({ searchParams }: { searchParams: SearchP
           Actionable advice, deep dives, and growth strategies for the modern course creator.
         </p>
       </div>
-
       <div className="mb-12 p-4 rounded-lg bg-card/60 border">
         <form className="flex flex-wrap items-center gap-4">
           <div className="relative flex-1 min-w-[250px]">
@@ -159,7 +159,6 @@ export default async function BlogPage({ searchParams }: { searchParams: SearchP
           </Button>
         </form>
       </div>
-
       {blogPosts.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">
           <h3 className="text-2xl font-headline mb-2">No Posts Found</h3>
@@ -208,6 +207,6 @@ export default async function BlogPage({ searchParams }: { searchParams: SearchP
           )}
         </div>
       )}
-    </div>
+    </div>)
   );
 }

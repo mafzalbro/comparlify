@@ -24,28 +24,29 @@ async function getComments({ status }: { status?: CommentStatus | 'ALL' }) {
     return comments as CommentWithRelations[];
 }
 
-export default async function AdminCommentsPage({ searchParams }: { searchParams: SearchParams}) {
-  const { status } = searchParams;
-  const comments = await getComments({ status: (status as CommentStatus) ?? 'PENDING' });
+export default async function AdminCommentsPage(props: { searchParams: Promise<SearchParams>}) {
+    const searchParams = await props.searchParams;
+    const { status } = searchParams;
+    const comments = await getComments({ status: (status as CommentStatus) ?? 'PENDING' });
 
-  return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Manage Comments</h1>
+    return (
+      <div>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Manage Comments</h1>
+        </div>
+        
+        <Card>
+          <CardHeader>
+              <CardTitle>Comment Queue</CardTitle>
+              <CardDescription>Review, approve, or reject user comments. You can select multiple comments and moderate them in bulk.</CardDescription>
+          </CardHeader>
+          <CardContent>
+              <div className="mb-4">
+                  <CommentFilter currentFilter={status as CommentStatus | 'ALL'} />
+              </div>
+              <CommentsDataTable data={comments} />
+          </CardContent>
+        </Card>
       </div>
-      
-      <Card>
-        <CardHeader>
-            <CardTitle>Comment Queue</CardTitle>
-            <CardDescription>Review, approve, or reject user comments. You can select multiple comments and moderate them in bulk.</CardDescription>
-        </CardHeader>
-        <CardContent>
-            <div className="mb-4">
-                <CommentFilter currentFilter={status as CommentStatus | 'ALL'} />
-            </div>
-            <CommentsDataTable data={comments} />
-        </CardContent>
-      </Card>
-    </div>
-  );
+    );
 }
