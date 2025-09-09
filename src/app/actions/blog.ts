@@ -24,7 +24,8 @@ const postSchema = z.object({
   slug: z.string().min(3, "Slug must be at least 3 characters long"),
   description: z
     .string()
-    .min(10, "Description must be at least 10 characters long"),
+    .min(10, "Description must be at least 10 characters long")
+    .max(191, "Description must be 191 characters or less."),
   content: z.string().min(20, "Content must be at least 20 characters long"),
   image: z.string().url("Must be a valid URL"),
   dataAiHint: z.string().optional(),
@@ -60,6 +61,12 @@ export async function createPost(prevState: any, formData: FormData) {
     revalidatePath("/blog");
   } catch (error) {
     console.error(error);
+    if (error instanceof prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2000') {
+            const field = (error.meta?.target as string[])?.pop();
+            return { error: `The provided value for the '${field}' field is too long.` };
+        }
+    }
     return { error: "Failed to create post." };
   }
   redirect("/admin/blog");
@@ -89,6 +96,12 @@ export async function updatePost(id: string, prevState: any, formData: FormData)
     revalidatePath(`/blog/${validatedFields.data.slug}`);
   } catch (error) {
     console.error(error);
+    if (error instanceof prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2000') {
+            const field = (error.meta?.target as string[])?.pop();
+            return { error: `The provided value for the '${field}' field is too long.` };
+        }
+    }
     return { error: "Failed to update post." };
   }
 

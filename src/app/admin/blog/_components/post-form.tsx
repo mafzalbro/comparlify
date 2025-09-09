@@ -35,6 +35,8 @@ export function PostForm({ post }: PostFormProps) {
   const formAction = isEditing ? updatePost.bind(null, post.id) : createPost;
   const [state, action] = useActionState(formAction, { error: null });
 
+  const MAX_DESC_LENGTH = 191;
+
   return (
     <form action={action} ref={formRef}>
       <Card>
@@ -82,7 +84,8 @@ export function PostForm({ post }: PostFormProps) {
                             }}
                         />
                     </div>
-                    <Textarea id="description" name="description" value={description} onChange={e => setDescription(e.target.value)} rows={4} required />
+                    <Textarea id="description" name="description" value={description} onChange={e => setDescription(e.target.value)} rows={4} required maxLength={MAX_DESC_LENGTH} />
+                    <p className="text-xs text-muted-foreground text-right">{description.length} / {MAX_DESC_LENGTH}</p>
                     {typeof state.error !== 'string' && state.error?.description && <p className="text-destructive text-sm">{state.error.description[0]}</p>}
                 </div>
                 <div className="space-y-2">

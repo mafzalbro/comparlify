@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A versatile AI tool to generate content for various form fields.
@@ -27,6 +28,7 @@ const prompt = ai.definePrompt({
   output: {schema: AIGenericContentGeneratorOutputSchema},
   prompt: `You are an expert content creator and copywriter. Your task is to generate content for a specific field based on a given topic and context.
 The generated content should be high-quality, engaging, and written in a natural, human-like voice. Avoid corporate jargon and overly robotic phrasing.
+If the field type is "Blog Post Description", ensure the generated content is concise and under 190 characters.
 
 Content to Generate: {{{fieldType}}}
 Topic/Title: {{{topic}}}
