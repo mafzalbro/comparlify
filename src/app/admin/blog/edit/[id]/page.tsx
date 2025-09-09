@@ -2,6 +2,14 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { EditPostPageClient } from './page-client';
+import { cache } from 'react';
+
+export const generateStaticParams = cache(async () => {
+  const posts = await prisma.post.findMany({ where: { published: true } });
+  return posts.map((post) => ({
+    id: post.id,
+  }));
+});
 
 async function getPost(id: string) {
     const post = await prisma.post.findUnique({
@@ -10,9 +18,9 @@ async function getPost(id: string) {
     return post;
 }
 
-export default async function EditPostPage(props: { params: Promise<{ id: string }> }) {
-    const params = await props.params;
-    const post = await getPost(params.id);
+export default async function EditPostPage(props: { params: { id: string } }) {
+    const { id } = props.params;
+    const post = await getPost(id);
 
     if (!post) {
         notFound();

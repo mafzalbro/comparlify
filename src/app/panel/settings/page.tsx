@@ -86,7 +86,7 @@ export default function UserSettingsPage() {
                 </form>
             </div>
             <div className="md:col-span-1">
-                 <Card className="border-destructive">
+                 <Card className="border-destructive min-h-[178px]">
                     <CardHeader>
                         <CardTitle className="text-destructive">Danger Zone</CardTitle>
                     </CardHeader>

@@ -200,21 +200,19 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
                 >
                   <CardHeader className="p-6">
                     <div className="relative h-20">
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center">
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center h-10 w-[140px]">
                         <ManagedImage
                           src={comp.platformA.logoUrl}
                           alt={`${comp.platformA.name} logo`}
-                          width={140}
-                          height={40}
+                          fill
                           className="object-contain transition-transform group-hover:scale-105"
                         />
                       </div>
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center">
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center h-10 w-[140px]">
                         <ManagedImage
                           src={comp.platformB.logoUrl}
                           alt={`${comp.platformB.name} logo`}
-                          width={140}
-                          height={40}
+                          fill
                           className="object-contain transition-transform group-hover:scale-105"
                         />
                       </div>
