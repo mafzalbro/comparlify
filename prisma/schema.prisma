@@ -94,6 +94,7 @@ enum Role {
   ADMIN
 }
 
+
 model Post {
   id          String     @id @default(cuid())
   slug        String     @unique
@@ -171,8 +172,9 @@ model Notification {
 }
 
 enum NotificationType {
-  NEW_USER
+  NEW_USER_REGISTERED
   COMMENT_APPROVED
+  NEW_COMMENT_AWAITING_APPROVAL
 }
 
 model Subscription {
