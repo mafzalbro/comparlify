@@ -2,7 +2,7 @@
 'use client';
 
 import Link from "next/link";
-import { useSession, signOut, type Session } from "next-auth/react";
+import { signOut, type Session } from "next-auth/react";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -63,7 +63,7 @@ export function UserNav({ user }: { user: Session['user'] }) {
                     )}
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => signOut()}>
+                <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
                 </DropdownMenuItem>

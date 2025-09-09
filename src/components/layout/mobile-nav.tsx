@@ -68,6 +68,11 @@ export function MobileNav({ navLinks, session }: MobileNavProps) {
                    <Button variant="outline" asChild>
                     <Link href="/profile" onClick={() => setSheetOpen(false)}>My Profile</Link>
                   </Button>
+                  {session.user.role === 'ADMIN' && (
+                     <Button variant="outline" asChild>
+                        <Link href="/admin" onClick={() => setSheetOpen(false)}>Admin Panel</Link>
+                     </Button>
+                  )}
                   <Button variant="ghost" onClick={() => {
                       setSheetOpen(false);
                       signOut();
