@@ -14,6 +14,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SubmitButton } from '@/components/submit-button';
 import { AiLogoButton } from './ai-logo-button';
+import { AiFillButton } from '../../blog/_components/ai-fill-button';
 
 
 type PlatformWithFeatures = Platform & { features: PlatformFeature[] };
@@ -87,7 +88,14 @@ export function PlatformForm({ platform, features, featureCategories }: Platform
                         )}
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="description">Description</Label>
+                         <div className="flex items-center justify-between">
+                            <Label htmlFor="description">Description</Label>
+                            <AiFillButton
+                                fieldType="Platform Description"
+                                topic={name}
+                                onContentReceived={setDescription}
+                            />
+                        </div>
                         <Textarea id="description" name="description" value={description} onChange={e => setDescription(e.target.value)} rows={5} required />
                         {typeof state.error !== 'string' && state?.error?.description && <p className="text-destructive text-sm">{state.error.description[0]}</p>}
                     </div>
