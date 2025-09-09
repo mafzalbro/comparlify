@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { ArrowRight, Search } from 'lucide-react';
+import { ArrowRight, Search, ListFilter, User as UserIcon } from 'lucide-react';
 import prisma from '@/lib/prisma';
 import type { Metadata } from 'next';
 import { generateSeoMetadata } from '@/lib/seo';
@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ManagedImage } from '@/components/managed-image';
 import { cache } from 'react';
 
@@ -95,56 +96,68 @@ export default async function BlogPage({ searchParams }: { searchParams: Promise
         </p>
       </div>
 
-      <Card className="mb-12 p-4 md:p-6 shadow-lg bg-card/60">
-        <form className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_auto] gap-4 items-end">
-          <div className="space-y-2">
-            <Label htmlFor="search">Search</Label>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                id="search"
-                name="search"
-                placeholder="Search by title or keyword..."
-                className="pl-10"
-                defaultValue={search}
-              />
-            </div>
+      <div className="mb-12 p-4 rounded-lg bg-card/60 border">
+        <form className="flex flex-wrap items-center gap-4">
+          <div className="relative flex-1 min-w-[250px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input
+              id="search"
+              name="search"
+              placeholder="Search by title or keyword..."
+              className="pl-10 h-10"
+              defaultValue={search}
+            />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="sort">Sort By</Label>
-            <Select name="sort" defaultValue={sort ?? 'newest'}>
-              <SelectTrigger id="sort">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="newest">Newest</SelectItem>
-                <SelectItem value="oldest">Oldest</SelectItem>
-                <SelectItem value="alpha">Alphabetical</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="author">Author</Label>
-            <Select name="author" defaultValue={author ?? 'all'}>
-              <SelectTrigger id="author">
-                <SelectValue placeholder="All Authors" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Authors</SelectItem>
-                {authors.map(author => (
-                  <SelectItem key={author.id} value={author.id}>{author.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex items-end gap-2">
-            <Button type="submit" className="w-full">Apply</Button>
-            <Button asChild variant="outline" className="w-full">
-              <Link href="/blog">Reset</Link>
-            </Button>
-          </div>
+          
+          <Popover>
+            <PopoverTrigger asChild>
+                <Button variant="outline" className="gap-2 h-10"><ListFilter className="h-4 w-4"/> Sort</Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-56">
+                <div className="space-y-2">
+                    <Label htmlFor="sort">Sort By</Label>
+                    <Select name="sort" defaultValue={sort ?? 'newest'}>
+                      <SelectTrigger id="sort">
+                        <SelectValue placeholder="Sort by" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="newest">Newest</SelectItem>
+                        <SelectItem value="oldest">Oldest</SelectItem>
+                        <SelectItem value="alpha">Alphabetical</SelectItem>
+                      </SelectContent>
+                    </Select>
+                </div>
+            </PopoverContent>
+          </Popover>
+          
+           <Popover>
+            <PopoverTrigger asChild>
+                <Button variant="outline" className="gap-2 h-10"><UserIcon className="h-4 w-4"/> Author</Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-56">
+                <div className="space-y-2">
+                    <Label htmlFor="author">Author</Label>
+                     <Select name="author" defaultValue={author ?? 'all'}>
+                      <SelectTrigger id="author">
+                        <SelectValue placeholder="All Authors" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Authors</SelectItem>
+                        {authors.map(author => (
+                          <SelectItem key={author.id} value={author.id}>{author.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                </div>
+            </PopoverContent>
+          </Popover>
+          
+          <Button type="submit" className="h-10">Filter</Button>
+          <Button asChild variant="ghost" className="h-10">
+            <Link href="/blog">Reset</Link>
+          </Button>
         </form>
-      </Card>
+      </div>
 
       {blogPosts.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">
