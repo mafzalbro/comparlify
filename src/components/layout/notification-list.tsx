@@ -4,27 +4,17 @@
 import { useState, useTransition, useEffect } from 'react';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
-import { Bell, CheckCheck, UserPlus, MessageCircle, GitCompareArrows } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { markAllNotificationsAsRead, getNotifications } from '@/app/actions/notifications';
 import { cn } from '@/lib/utils';
-import type { Notification, NotificationType } from '@prisma/client';
+import type { Notification } from '@prisma/client';
+import { NotificationIcon } from './notification-icon';
 
 interface NotificationListProps {
   initialNotifications: Notification[];
   initialUnreadCount: number;
-}
-
-const NotificationIcon = ({ type }: { type: NotificationType }) => {
-    switch (type) {
-        case 'NEW_USER':
-            return <UserPlus className="h-5 w-5 text-blue-500" />;
-        case 'COMMENT_APPROVED':
-            return <MessageCircle className="h-5 w-5 text-green-500" />;
-        default:
-            return <Bell className="h-5 w-5 text-muted-foreground" />;
-    }
 }
 
 export function NotificationList({ initialNotifications, initialUnreadCount }: NotificationListProps) {
@@ -33,7 +23,6 @@ export function NotificationList({ initialNotifications, initialUnreadCount }: N
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    // When the popover opens, if there are unread notifications, mark them as read.
     if (unreadCount > 0) {
       startTransition(async () => {
         await markAllNotificationsAsRead();
@@ -49,7 +38,6 @@ export function NotificationList({ initialNotifications, initialUnreadCount }: N
     <div className="flex flex-col h-[400px]">
       <div className="flex items-center justify-between p-4 border-b">
         <h3 className="font-semibold text-lg">Notifications</h3>
-        {isPending && <CheckCheck className="h-5 w-5 text-muted-foreground animate-pulse" />}
       </div>
       <ScrollArea className="flex-1">
         {notifications.length > 0 ? (

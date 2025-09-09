@@ -31,6 +31,11 @@ export async function addCommentAction(prevState: any, formData: FormData) {
     }
 
     try {
+        const post = await prisma.post.findUnique({ where: { id: validatedFields.data.postId }, select: { slug: true, title: true }});
+        if (!post) {
+             return { error: "Post not found.", success: false };
+        }
+
         await prisma.comment.create({
             data: {
                 content: validatedFields.data.content,
@@ -39,10 +44,19 @@ export async function addCommentAction(prevState: any, formData: FormData) {
                 status: 'PENDING',
             },
         });
-        const post = await prisma.post.findUnique({ where: { id: validatedFields.data.postId }, select: { slug: true }});
-        if (post) {
-          revalidatePath(`/blog/${post.slug}`);
+        
+        // Notify all admins about the new comment
+        const admins = await prisma.user.findMany({ where: { role: 'ADMIN' } });
+        for (const admin of admins) {
+            await createNotification({
+                userId: admin.id,
+                type: 'NEW_COMMENT_AWAITING_APPROVAL',
+                message: `New comment from ${session.user.name} on "${post.title}"`,
+                link: '/admin/comments?status=PENDING'
+            });
         }
+        
+        revalidatePath(`/blog/${post.slug}`);
         revalidatePath('/admin/comments');
         return { error: null, success: true }
     } catch (error) {
@@ -115,12 +129,14 @@ export async function approveCommentAction(commentId: string) {
     });
     
     // Create a notification for the comment author
-    await createNotification({
-        userId: comment.authorId,
-        type: 'COMMENT_APPROVED',
-        message: `Your comment on "${comment.post.title}" was approved.`,
-        link: `/blog/${comment.post.slug}#comments`
-    });
+    if (comment.authorId !== session.user.id) { // Don't notify admin for their own actions
+        await createNotification({
+            userId: comment.authorId,
+            type: 'COMMENT_APPROVED',
+            message: `Your comment on "${comment.post.title}" was approved.`,
+            link: `/blog/${comment.post.slug}#comments`
+        });
+    }
 
     revalidatePath('/admin/comments');
     revalidatePath(`/blog/${comment.post.slug}`);

@@ -61,7 +61,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       for (const admin of admins) {
         await createNotification({
           userId: admin.id,
-          type: 'NEW_USER',
+          type: 'NEW_USER_REGISTERED',
           message: `New user signed up: ${user.name || user.email}`,
           link: `/admin/users`
         });

@@ -1,3 +1,4 @@
+
 model Post {
   id          String     @id @default(cuid())
   slug        String     @unique
@@ -75,7 +76,8 @@ model Notification {
 }
 
 enum NotificationType {
-  NEW_USER
+  NEW_USER_REGISTERED
+  NEW_COMMENT_AWAITING_APPROVAL
   COMMENT_APPROVED
 }
 

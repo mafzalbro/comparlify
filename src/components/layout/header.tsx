@@ -11,6 +11,9 @@ import { useSession } from 'next-auth/react';
 import { MobileNav } from './mobile-nav';
 import { ThemeToggle } from '../theme-toggle';
 import { UserNav } from '../user-nav';
+import { getNotifications } from '@/app/actions/notifications';
+import { NotificationBell } from './notification-bell';
+import type { Notification } from '@prisma/client';
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -25,10 +28,18 @@ export default function Header() {
   const { data: session, status } = useSession();
   const [isClient, setIsClient] = useState(false);
   const pathname = usePathname();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+    if (session) {
+      getNotifications().then(data => {
+        setNotifications(data.notifications);
+        setUnreadCount(data.unreadCount);
+      });
+    }
+  }, [session]);
 
   const NavLink = ({ href, label }: { href: string; label: string }) => {
     const isActive = (href === '/' && pathname === href) || (href !== '/' && pathname.startsWith(href));
@@ -61,7 +72,10 @@ export default function Header() {
           {status === 'loading' ? (
             <div className="h-9 w-20 animate-pulse rounded-md bg-muted" />
           ) : session ? (
-            <UserNav user={session.user} />
+            <>
+              <NotificationBell notifications={notifications} unreadCount={unreadCount} />
+              <UserNav user={session.user} />
+            </>
           ) : (
             <Button asChild>
               <Link href="/login">Log In</Link>
