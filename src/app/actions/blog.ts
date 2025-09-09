@@ -10,6 +10,10 @@ import { Post } from "@prisma/client";
 import { cache } from "react";
 
 export const getPostPreview = cache(async (slug: string): Promise<Post | null> => {
+    const session = await auth();
+    if (session?.user?.role !== 'ADMIN') {
+        return null;
+    }
     return prisma.post.findUnique({
         where: { slug },
     });

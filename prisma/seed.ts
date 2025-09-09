@@ -123,7 +123,7 @@ async function main() {
       const featureId = featureMap.get(featureName);
       if (featureId) {
         const hasFeature = typeof value === 'boolean' ? value : value.hasFeature;
-        const details = typeof value === 'object' ? value.details : null;
+        const details = typeof value === 'object' && value.details ? value.details : null;
         await prisma.platformFeature.create({
           data: { platformId: platform.id, featureId, hasFeature, details }
         });
@@ -209,15 +209,14 @@ async function main() {
 
 
 export const seed = async () => {
-  main()
-    .catch(async (e) => {
-      console.error(e);
-      await prisma.$disconnect();
-      process.exit(1);
-    })
-    .finally(async () => {
-      await prisma.$disconnect();
-    });
+  try {
+    await main();
+  } catch (e) {
+    console.error(e);
+    process.exit(1);
+  } finally {
+    await prisma.$disconnect();
+  }
 };
 
 // If this file is run directly, execute the seed function.

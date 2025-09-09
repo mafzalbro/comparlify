@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -6,13 +7,16 @@ import { Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
-const Input = React.forwardRef<
-  HTMLInputElement,
-  React.ComponentProps<'input'>
->(({ className, type, ...props }, ref) => {
+export interface InputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {}
+
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ className, type, ...props }, ref) => {
   const [showPassword, setShowPassword] = React.useState(false);
 
-  if (type !== 'password') {
+  const isPassword = type === 'password';
+
+  if (!isPassword) {
     return (
       <input
         type={type}
