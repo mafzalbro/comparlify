@@ -77,8 +77,8 @@ model Notification {
 
 enum NotificationType {
   NEW_USER_REGISTERED
-  NEW_COMMENT_AWAITING_APPROVAL
   COMMENT_APPROVED
+  NEW_COMMENT_AWAITING_APPROVAL
 }
 
 model Subscription {
