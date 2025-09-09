@@ -10,9 +10,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Search, ArrowUpDown } from 'lucide-react';
-import type { User, Role } from '@prisma/client';
-import { auth } from '@/lib/auth';
+import { Search } from 'lucide-react';
+import type { Role } from '@prisma/client';
 import type { SearchParams } from '@/types/next';
 import { UsersDataTable } from './_components/data-table';
 import Link from 'next/link';

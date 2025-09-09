@@ -15,11 +15,13 @@ import {
 } from "@/components/ui/sidebar";
 import { Home, Settings, Table, PenSquare, LogOut, BookText, GitCompareArrows, Users, LayoutDashboard, MessageCircle } from "lucide-react";
 import { Logo } from "@/components/logo";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogoutButton } from "@/components/auth/logout-button";
 import Link from "next/link";
-import { auth, signOut } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { UserNav } from "@/components/user-nav";
+import { NotificationBell } from "@/components/layout/notification-bell";
+import { getNotifications } from "@/app/actions/notifications";
+
 
 export default async function AdminLayout({
     children,
@@ -27,6 +29,7 @@ export default async function AdminLayout({
     children: React.ReactNode;
 }) {
     const session = await auth();
+    const { notifications, unreadCount } = await getNotifications();
 
     return (
         <SidebarProvider>
@@ -133,8 +136,13 @@ export default async function AdminLayout({
             </Sidebar>
             <SidebarInset>
                 <header className="flex items-center justify-between p-4 border-b">
-                    <SidebarTrigger />
-                    <h1 className="text-2xl font-headline">Admin Dashboard</h1>
+                    <div className="flex items-center gap-2">
+                        <SidebarTrigger />
+                        <h1 className="text-2xl font-headline">Admin Dashboard</h1>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <NotificationBell notifications={notifications} unreadCount={unreadCount} />
+                    </div>
                 </header>
                 <main className="p-8">
                     {children}

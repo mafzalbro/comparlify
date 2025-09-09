@@ -6,6 +6,9 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { CommentStatus } from "@prisma/client";
+import { cache } from "react";
+import { createNotification } from "@/lib/notifications";
+
 
 const addCommentSchema = z.object({
     content: z.string().min(1, "Comment cannot be empty.").max(1000, "Comment is too long."),
@@ -102,16 +105,25 @@ export async function approveCommentAction(commentId: string) {
     if (session?.user?.role !== 'ADMIN') {
         throw new Error('Not authorized');
     }
+    
+    const comment = await prisma.comment.findUnique({ where: { id: commentId }, include: { post: true }});
+    if (!comment) throw new Error("Comment not found");
+
     await prisma.comment.update({
         where: { id: commentId },
         data: { status: 'APPROVED' },
     });
+    
+    // Create a notification for the comment author
+    await createNotification({
+        userId: comment.authorId,
+        type: 'COMMENT_APPROVED',
+        message: `Your comment on "${comment.post.title}" was approved.`,
+        link: `/blog/${comment.post.slug}#comments`
+    });
+
     revalidatePath('/admin/comments');
-    // Also revalidate the specific blog post if possible, or just the whole blog
-    const comment = await prisma.comment.findUnique({ where: { id: commentId }, include: { post: { select: { slug: true }}}});
-    if (comment) {
-        revalidatePath(`/blog/${comment.post.slug}`);
-    }
+    revalidatePath(`/blog/${comment.post.slug}`);
 }
 
 export async function rejectCommentAction(commentId: string) {

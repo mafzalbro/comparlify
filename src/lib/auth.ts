@@ -6,6 +6,7 @@ import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
 import prisma from "./prisma";
 import { Role } from "@prisma/client";
+import { createNotification } from "./notifications";
 
 export const { handlers, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -60,6 +61,16 @@ export const { handlers, auth } = NextAuth({
         await prisma.user.update({
           where: { id: user.id },
           data: { role: "ADMIN" },
+        });
+      }
+      // Notify all admins about the new user
+      const admins = await prisma.user.findMany({ where: { role: 'ADMIN' } });
+      for (const admin of admins) {
+        await createNotification({
+          userId: admin.id,
+          type: 'NEW_USER',
+          message: `New user signed up: ${user.name || user.email}`,
+          link: `/admin/users`
         });
       }
     },
