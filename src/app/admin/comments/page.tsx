@@ -1,19 +1,10 @@
 
+
 import prisma from '@/lib/prisma';
-import Link from 'next/link';
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from '@/components/ui/table';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import type { Comment, Post, User, CommentStatus } from '@prisma/client';
-import { CommentActions } from './_components/comment-actions';
-import { CommentStatusBadge } from './_components/comment-status-badge';
 import { CommentFilter } from './_components/comment-filter';
+import { CommentsDataTable } from './_components/comments-data-table';
 
 type CommentWithRelations = Comment & { author: User, post: Post };
 
@@ -46,57 +37,16 @@ export default async function AdminCommentsPage({ searchParams }: { searchParams
       <Card>
         <CardHeader>
             <CardTitle>Comment Queue</CardTitle>
-            <CardDescription>Review, approve, or reject user comments.</CardDescription>
+            <CardDescription>Review, approve, or reject user comments. You can select multiple comments and moderate them in bulk.</CardDescription>
         </CardHeader>
         <CardContent>
             <div className="mb-4">
                 <CommentFilter currentFilter={status} />
             </div>
-            <div className="border rounded-lg">
-                <Table>
-                <TableHeader>
-                    <TableRow>
-                    <TableHead className="w-[40%]">Comment</TableHead>
-                    <TableHead>Author</TableHead>
-                    <TableHead>In Response To</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {comments.length > 0 ? comments.map((comment) => (
-                    <TableRow key={comment.id}>
-                        <TableCell>
-                            <p className="text-sm text-muted-foreground line-clamp-3">{comment.content}</p>
-                            <p className="text-xs text-muted-foreground/70 mt-1">{new Date(comment.createdAt).toLocaleString()}</p>
-                        </TableCell>
-                        <TableCell className="font-medium">
-                            {comment.author.name}
-                        </TableCell>
-                        <TableCell>
-                            <Link href={`/blog/${comment.post.slug}`} className="text-sm hover:underline text-primary" target="_blank" rel="noopener noreferrer">
-                                {comment.post.title}
-                            </Link>
-                        </TableCell>
-                        <TableCell>
-                            <CommentStatusBadge status={comment.status} />
-                        </TableCell>
-                        <TableCell className="text-right">
-                           <CommentActions comment={comment} />
-                        </TableCell>
-                    </TableRow>
-                    )) : (
-                        <TableRow>
-                            <TableCell colSpan={5} className="h-24 text-center">
-                                No comments found for this filter.
-                            </TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-                </Table>
-            </div>
+            <CommentsDataTable data={comments} />
         </CardContent>
       </Card>
     </div>
   );
 }
+

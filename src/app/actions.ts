@@ -1,4 +1,5 @@
 
+
 "use server";
 
 import { z } from "zod";
@@ -24,7 +25,7 @@ import { generateFaqs } from "@/ai/flows/ai-faq-generator";
 import { generateAnalogy } from "@/ai/flows/ai-analogy-generator";
 import { generateGenericContent } from "@/ai/flows/ai-generic-content-generator";
 import { auth } from "@/lib/auth";
-import { Post, Role } from "@prisma/client";
+import { CommentStatus, Post, Role } from "@prisma/client";
 import nodemailer from "nodemailer";
 import { cache } from "react";
 
@@ -923,6 +924,38 @@ export async function rejectCommentAction(commentId: string) {
     }
 }
 
+export async function bulkUpdateCommentStatusAction(prevState: any, formData: FormData) {
+    const session = await auth();
+    if (session?.user?.role !== 'ADMIN') {
+        return { error: "Not authorized" };
+    }
+    
+    const commentIds = formData.getAll('commentIds') as string[];
+    const status = formData.get('status') as CommentStatus;
+
+    if (!commentIds || commentIds.length === 0) {
+        return { error: "No comments selected." };
+    }
+    if (!['APPROVED', 'REJECTED'].includes(status)) {
+        return { error: "Invalid status provided." };
+    }
+
+    try {
+        await prisma.comment.updateMany({
+            where: {
+                id: { in: commentIds },
+            },
+            data: {
+                status: status,
+            },
+        });
+        revalidatePath('/admin/comments');
+        revalidatePath('/blog', 'layout'); // Revalidate all blog pages
+        return { success: `${commentIds.length} comments updated to ${status.toLowerCase()}.` };
+    } catch (e) {
+        return { error: "Failed to update comments." };
+    }
+}
 
 
 // --- Comparison Actions ---
@@ -942,11 +975,11 @@ const comparisonSchema = z.object({
 });
 
 function parseDynamicArray(formData: FormData, arrayName: string) {
-    const arrayData = [];
     const keys = Array.from(formData.keys());
     
-    const regex = new RegExp(`^${arrayName}\\[(\\d+)\\]\\[(.*?)\\]$`);
     const items: Record<string, Record<string, any>> = {};
+
+    const regex = new RegExp(`^${arrayName}\\[(\\d+)\\]\\[(.*?)\\]$`);
 
     for (const key of keys) {
         const match = key.match(regex);
