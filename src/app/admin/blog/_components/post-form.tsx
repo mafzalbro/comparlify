@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useRef, useState } from 'react';
+import { useActionState, useRef, useState, useTransition } from 'react';
 import { createPost, updatePost } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,8 @@ import { Switch } from '@/components/ui/switch';
 import { useRouter } from 'next/navigation';
 import { SubmitButton } from '@/components/submit-button';
 import { AiFillButton } from './ai-fill-button';
+import Link from 'next/link';
+import { Eye } from 'lucide-react';
 
 interface PostFormProps {
   post?: Post | null;
@@ -112,9 +114,18 @@ export function PostForm({ post }: PostFormProps) {
                 </div>
             </div>
         </CardContent>
-        <CardFooter className="flex justify-end gap-4">
-            <Button type="button" variant="outline" onClick={() => router.back()}>Cancel</Button>
-            <SubmitButton isEditing={isEditing} />
+        <CardFooter className="flex justify-between items-center">
+            {isEditing && (
+                <Button asChild variant="outline" size="sm">
+                    <Link href={`/blog/${post.slug}?preview=true`} target="_blank">
+                        <Eye className="mr-2 h-4 w-4" /> Preview
+                    </Link>
+                </Button>
+            )}
+            <div className="flex justify-end gap-4 w-full">
+                <Button type="button" variant="outline" onClick={() => router.back()}>Cancel</Button>
+                <SubmitButton isEditing={isEditing} />
+            </div>
         </CardFooter>
       </Card>
     </form>

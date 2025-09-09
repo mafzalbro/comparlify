@@ -1,11 +1,11 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, MessageCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Eye } from 'lucide-react';
 import prisma from '@/lib/prisma';
 import { MarkdownContent } from '@/components/markdown-content';
 import type { Metadata } from 'next';
@@ -15,6 +15,7 @@ import { CommentsSection } from '@/components/comments-section';
 import { TableOfContents } from '@/components/table-of-contents';
 import { ManagedImage } from '@/components/managed-image';
 import { cache } from 'react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export const generateStaticParams = cache(async () => {
   const posts = await prisma.post.findMany({ where: { published: true } });
@@ -23,9 +24,15 @@ export const generateStaticParams = cache(async () => {
   }));
 });
 
-const getPostData = cache(async (slug: string) => {
+const getPostData = cache(async (slug: string, isPreview = false) => {
+    const session = await auth();
+    const canViewDraft = isPreview && session?.user?.role === 'ADMIN';
+
+    // Only allow viewing published posts, unless it's a valid admin preview
+    const whereClause = canViewDraft ? { slug } : { slug, published: true };
+
     const post = await prisma.post.findUnique({
-        where: { slug, published: true },
+        where: whereClause,
         include: { 
             author: true,
             comments: {
@@ -48,7 +55,6 @@ const getPostData = cache(async (slug: string) => {
         where: {
           published: true,
           id: { not: post.id },
-          // A simple related posts logic, could be improved with tags/categories
           authorId: post.authorId,
         },
         take: 3,
@@ -63,9 +69,9 @@ const getPostData = cache(async (slug: string) => {
     return { post, relatedPosts, nextPost };
 });
 
-export async function generateMetadata(props: { params: Promise<{ slug:string }> }): Promise<Metadata> {
-    const params = await props.params;
-    const { post } = await getPostData(params.slug);
+export async function generateMetadata(props: { params: { slug:string }, searchParams: { [key: string]: string | string[] | undefined } }): Promise<Metadata> {
+    const { slug } = props.params;
+    const { post } = await getPostData(slug);
 
     if (!post) {
       return {};
@@ -80,13 +86,20 @@ export async function generateMetadata(props: { params: Promise<{ slug:string }>
 }
 
 
-export default async function BlogPostPage(props: { params: Promise<{ slug: string }> }) {
-    const params = await props.params;
+export default async function BlogPostPage(props: { params: { slug: string }, searchParams: { [key: string]: string | string[] | undefined }}) {
+    const { slug } = props.params;
+    const isPreview = props.searchParams?.preview === 'true';
+
     const session = await auth();
-    const { post, relatedPosts, nextPost } = await getPostData(params.slug);
+    const { post, relatedPosts, nextPost } = await getPostData(slug, isPreview);
 
     if (!post) {
       notFound();
+    }
+    
+    // If it's a draft, redirect non-admins
+    if (!post.published && session?.user?.role !== 'ADMIN') {
+        redirect('/blog');
     }
 
     const readTime = Math.ceil(post.content.split(/\s+/).length / 200);
@@ -119,6 +132,26 @@ export default async function BlogPostPage(props: { params: Promise<{ slug: stri
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        
+        {!post.published && (
+            <Alert variant="default" className="sticky top-0 z-50 rounded-none border-b-2 border-l-0 border-r-0 border-t-0 border-yellow-500 bg-yellow-50 text-yellow-900">
+                <div className="container flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <Eye className="h-5 w-5" />
+                        <div>
+                            <AlertTitle className="font-bold">Preview Mode</AlertTitle>
+                            <AlertDescription className="text-xs">
+                            This is a draft post and is not visible to the public.
+                            </AlertDescription>
+                        </div>
+                    </div>
+                    <Button asChild size="sm" variant="outline" className="border-yellow-300 hover:bg-yellow-100">
+                        <Link href="/admin/blog">Exit Preview</Link>
+                    </Button>
+                </div>
+            </Alert>
+        )}
+
 
         <article>
           {/* Hero Section */}
