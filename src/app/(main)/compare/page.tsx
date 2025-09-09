@@ -21,6 +21,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { Comparison, Platform } from '@prisma/client';
@@ -227,17 +233,37 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
                     </div>
                   </CardHeader>
                   <CardContent className="flex-1 px-6 pb-4 space-y-4">
-                    <h2 className="font-headline text-2xl text-center text-foreground h-20 line-clamp-3">
-                      <Link
-                        href={`/compare/${comp.slug}`}
-                        className="hover:text-primary transition-colors stretched-link"
-                      >
-                        {comp.title}
-                      </Link>
-                    </h2>
-                    <p className="text-muted-foreground text-sm text-center h-12 line-clamp-3">
-                      {comp.summary}
-                    </p>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <h2 className="font-headline text-2xl text-center text-foreground h-20 line-clamp-3">
+                            <Link
+                              href={`/compare/${comp.slug}`}
+                              className="hover:text-primary transition-colors stretched-link"
+                            >
+                              {comp.title}
+                            </Link>
+                          </h2>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs">{comp.title}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+
+                    <TooltipProvider>
+                       <Tooltip>
+                          <TooltipTrigger asChild>
+                            <p className="text-muted-foreground text-sm text-center h-12 line-clamp-3">
+                              {comp.summary}
+                            </p>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="max-w-xs">{comp.summary}</p>
+                          </TooltipContent>
+                       </Tooltip>
+                    </TooltipProvider>
+
                     <div className="flex justify-around pt-4 border-t">
                       <div className="text-center">
                         <div className="flex items-center justify-center gap-1 font-bold text-lg text-amber-500">
