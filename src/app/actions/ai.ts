@@ -19,6 +19,7 @@ import { generateSocialMediaPost } from "@/ai/flows/ai-social-media-post-generat
 import { generateFaqs } from "@/ai/flows/ai-faq-generator";
 import { generateAnalogy } from "@/ai/flows/ai-analogy-generator";
 import { generateGenericContent } from "@/ai/flows/ai-generic-content-generator";
+import { generateImage } from "@/ai/flows/ai-image-generator";
 import { auth } from "@/lib/auth";
 
 // --- Title Generator Action ---
@@ -639,5 +640,37 @@ export async function generateGenericContentAction(
     } catch (error) {
         console.error(error);
         return { generatedContent: null, error: "Failed to generate content. Please try again." };
+    }
+}
+
+// --- AI Image Generator ---
+const imageGeneratorSchema = z.object({
+    prompt: z.string().min(3, "Prompt must be at least 3 characters long."),
+});
+
+interface ImageGeneratorState {
+    imageUrl: string | null;
+    error: string | null;
+}
+
+export async function generateImageAction(
+    input: z.infer<typeof imageGeneratorSchema>
+): Promise<ImageGeneratorState> {
+    const session = await auth();
+    if (session?.user?.role !== 'ADMIN') {
+        return { imageUrl: null, error: "Not authorized." };
+    }
+
+    const validatedFields = imageGeneratorSchema.safeParse(input);
+    if (!validatedFields.success) {
+        return { imageUrl: null, error: "Invalid input." };
+    }
+
+    try {
+        const result = await generateImage(validatedFields.data);
+        return { imageUrl: result.imageUrl, error: null };
+    } catch (error) {
+        console.error(error);
+        return { imageUrl: null, error: "Failed to generate image. Please try again." };
     }
 }

@@ -15,6 +15,7 @@ import { SubmitButton } from '@/components/submit-button';
 import { AiFillButton } from './ai-fill-button';
 import Link from 'next/link';
 import { Eye } from 'lucide-react';
+import { AiImageButton } from './ai-image-button';
 
 interface PostFormProps {
   post?: Post | null;
@@ -105,9 +106,23 @@ export function PostForm({ post }: PostFormProps) {
                      {typeof state.error !== 'string' && state.error?.image && <p className="text-destructive text-sm">{state.error.image[0]}</p>}
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="dataAiHint">AI Hint for Image Search</Label>
+                    <Label htmlFor="dataAiHint">AI Prompt for Image</Label>
                     <Input id="dataAiHint" name="dataAiHint" value={dataAiHint} onChange={e => setDataAiHint(e.target.value)} placeholder="e.g. 'creative workspace'" />
+                    <AiImageButton 
+                        prompt={dataAiHint || title}
+                        onImageReceived={(imageUrl) => {
+                            setImage(imageUrl);
+                        }}
+                    />
                 </div>
+                 {image && (
+                    <div className="space-y-2">
+                        <Label>Image Preview</Label>
+                        <div className="aspect-video relative rounded-md overflow-hidden border">
+                            <img src={image} alt="Preview" className="object-cover w-full h-full" />
+                        </div>
+                    </div>
+                )}
                 <div className="flex items-center space-x-2">
                     <Switch id="published" name="published" defaultChecked={post?.published ?? false} />
                     <Label htmlFor="published">Published</Label>
