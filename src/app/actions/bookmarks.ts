@@ -87,13 +87,17 @@ export async function isBookmarkedAction(
   const { postId, comparisonId } = input;
   const { id: userId } = session.user;
 
-  const bookmarkCount = await prisma.bookmark.count({
+  const whereClause = {
+    userId,
+    postId: postId || null,
+    comparisonId: comparisonId || null,
+  };
+
+  const bookmark = await prisma.bookmark.findUnique({
     where: {
-      userId,
-      ...(postId ? { postId } : {}),
-      ...(comparisonId ? { comparisonId } : {}),
+      userId_postId_comparisonId: whereClause
     },
   });
 
-  return bookmarkCount > 0;
+  return !!bookmark;
 }
