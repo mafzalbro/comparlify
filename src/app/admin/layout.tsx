@@ -21,6 +21,7 @@ import { auth } from "@/lib/auth";
 import { UserNav } from "@/components/user-nav";
 import { NotificationBell } from "@/components/layout/notification-bell";
 import { getNotifications } from "@/app/actions/notifications";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 
 export default async function AdminLayout({
@@ -141,6 +142,7 @@ export default async function AdminLayout({
                         <h1 className="text-2xl font-headline">Admin Dashboard</h1>
                     </div>
                     <div className="flex items-center gap-2">
+                        <ThemeToggle />
                         <NotificationBell notifications={notifications} unreadCount={unreadCount} />
                     </div>
                 </header>
