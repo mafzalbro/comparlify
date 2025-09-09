@@ -13,9 +13,10 @@ interface AiFillButtonProps {
     context?: string;
     onContentReceived: (content: string) => void;
     className?: string;
+    disabled?: boolean;
 }
 
-export function AiFillButton({ fieldType, topic, context, onContentReceived, className }: AiFillButtonProps) {
+export function AiFillButton({ fieldType, topic, context, onContentReceived, className, disabled }: AiFillButtonProps) {
     const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
 
@@ -50,7 +51,7 @@ export function AiFillButton({ fieldType, topic, context, onContentReceived, cla
             variant="ghost"
             size="icon"
             onClick={handleAiFill}
-            disabled={isLoading}
+            disabled={isLoading || disabled}
             className={className}
             title={`Auto-fill ${fieldType.toLowerCase()}`}
         >
