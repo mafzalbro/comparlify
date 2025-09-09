@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/card';
 import { Github, KeyRound } from 'lucide-react';
 import { FcGoogle } from "react-icons/fc";
+import { TempDirectLogin } from './temp-direct-login';
 
 
 export default function LoginPage() {
@@ -35,6 +36,8 @@ export default function LoginPage() {
                 <Github className="mr-2 h-5 w-5"/>
                 Sign in with GitHub
             </Button>
+            {/* Temporary direct login button. Comment out the line below to remove. */}
+            <TempDirectLogin />
         </CardContent>
       </Card>
     </div>
