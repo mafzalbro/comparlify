@@ -26,15 +26,8 @@ const aiLogoGeneratorFlow = ai.defineFlow(
     outputSchema: AIGenerateLogoOutputSchema,
   },
   async input => {
-    const {media} = await ai.generate({
-      model: 'googleai/imagen-4.0-fast-generate-001',
-      prompt: `a simple, modern, iconic, flat, 2d vector logo for a company named "${input.name}". Centered on a clean, solid, white background. Minimalist design.`,
-    });
-    
-    if (!media.url) {
-        throw new Error('Logo generation failed to return a data URI.');
-    }
-
-    return {logoUrl: media.url};
+    // Fallback to a placeholder image service as Imagen requires billing.
+    const logoUrl = `https://picsum.photos/seed/${encodeURIComponent(input.name)}/400/200`;
+    return {logoUrl: logoUrl};
   }
 );

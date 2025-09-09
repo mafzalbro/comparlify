@@ -26,15 +26,8 @@ const aiImageGeneratorFlow = ai.defineFlow(
     outputSchema: AIGenerateImageOutputSchema,
   },
   async input => {
-    const {media} = await ai.generate({
-      model: 'googleai/imagen-4.0-fast-generate-001',
-      prompt: `photorealistic image, blog post header, professional photography, ${input.prompt}`,
-    });
-    
-    if (!media.url) {
-        throw new Error('Image generation failed to return a data URI.');
-    }
-
-    return {imageUrl: media.url};
+    // Fallback to a placeholder image service as Imagen requires billing.
+    const imageUrl = `https://picsum.photos/seed/${encodeURIComponent(input.prompt)}/1200/800`;
+    return {imageUrl: imageUrl};
   }
 );
