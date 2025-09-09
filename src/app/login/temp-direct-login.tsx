@@ -6,23 +6,17 @@ import { Button } from '@/components/ui/button';
 import { signIn } from 'next-auth/react';
 import { Loader2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { directLoginAction } from './temp-direct-login-action';
 
 export function TempDirectLogin() {
     const [isPending, startTransition] = useTransition();
 
     const handleClick = () => {
         startTransition(async () => {
-            const { userId } = await directLoginAction();
-            if (userId) {
-                await signIn('credentials', {
-                    userId: userId,
-                    redirect: true,
-                    callbackUrl: '/',
-                });
-            } else {
-                console.error("Direct login user not found.");
-            }
+            await signIn('credentials', {
+                userId: 'direct-login', // Use a special identifier
+                redirect: true,
+                callbackUrl: '/',
+            });
         });
     }
 

@@ -1,4 +1,3 @@
-
 // lib/auth.ts
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
@@ -19,6 +18,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           userId: { label: "User ID", type: "text" },
         },
         async authorize(credentials) {
+            // This is for the temporary direct login button
+            if (credentials.userId === 'direct-login') {
+                 const user = await prisma.user.findUnique({
+                    where: { email: 'mafzalbro@gmail.com' }
+                });
+                return user;
+            }
+            
+            // This is for the original credentials provider logic if ever needed
             if (!credentials?.userId) {
                 return null;
             }
