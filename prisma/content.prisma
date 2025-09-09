@@ -1,0 +1,86 @@
+model Post {
+  id          String     @id @default(cuid())
+  slug        String     @unique
+  title       String
+  description String
+  content     String     @db.Text
+  image       String
+  dataAiHint  String?
+  published   Boolean    @default(false)
+  authorId    String
+  author      User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments    Comment[]
+  bookmarks   Bookmark[]
+
+  // For post navigation
+  nextId     String? @unique
+  next       Post?   @relation("PostNavigation", fields: [nextId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  previousId String? @unique
+  previous   Post?   @relation("PostNavigation")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([authorId])
+}
+
+model Comment {
+  id        String        @id @default(cuid())
+  content   String
+  status    CommentStatus @default(PENDING)
+  authorId  String
+  author    User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  postId    String
+  post      Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([authorId])
+  @@index([postId])
+}
+
+enum CommentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Bookmark {
+  id           String      @id @default(cuid())
+  userId       String
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId       String?
+  post         Post?       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comparisonId String?
+  comparison   Comparison? @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+  createdAt    DateTime    @default(now())
+
+  @@unique([userId, postId, comparisonId])
+  @@index([userId])
+  @@index([postId])
+  @@index([comparisonId])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  message   String
+  link      String
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
+}
+
+enum NotificationType {
+  NEW_USER
+  COMMENT_APPROVED
+}
+
+model Subscription {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
