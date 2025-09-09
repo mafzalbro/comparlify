@@ -88,9 +88,11 @@ export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
                         fieldType="URL Slug"
                         topic={title}
                         onContentReceived={setSlug}
+                        disabled={isEditing}
                     />
                 </div>
-                <Input id="slug" name="slug" value={slug} onChange={e => setSlug(e.target.value)} required />
+                <Input id="slug" name="slug" value={slug} onChange={e => setSlug(e.target.value)} required disabled={isEditing} />
+                {isEditing && <p className="text-xs text-muted-foreground">The slug cannot be changed for existing comparisons to preserve URL integrity.</p>}
                 {typeof state.error !== 'string' && state?.error?.slug && <p className="text-destructive text-sm">{state.error.slug[0]}</p>}
               </div>
               <div className="space-y-2">
