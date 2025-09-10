@@ -13,10 +13,10 @@ import { Github, KeyRound } from 'lucide-react';
 import { FcGoogle } from "react-icons/fc";
 
 
-export default function LoginPage() {
+export default function RegisterPage() {
 
   const handleSignIn = (provider: 'google' | 'github') => {
-    signIn(provider, { callbackUrl: '/' });
+    signIn(provider, { callbackUrl: '/panel' });
   };
 
   return (
@@ -24,7 +24,7 @@ export default function LoginPage() {
       <Card className="mx-auto max-w-sm">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-headline flex items-center justify-center gap-2"><KeyRound /> Sign Up</CardTitle>
-          <CardDescription>Choose a provider below to sign up to your account.</CardDescription>
+          <CardDescription>Choose a provider below to sign up for your account.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <Button className="w-full" variant="outline" onClick={() => handleSignIn('google')}>

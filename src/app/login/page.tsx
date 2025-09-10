@@ -16,7 +16,7 @@ import { FcGoogle } from "react-icons/fc";
 export default function LoginPage() {
 
   const handleSignIn = (provider: 'google' | 'github') => {
-    signIn(provider, { callbackUrl: '/' });
+    signIn(provider, { callbackUrl: '/panel' });
   };
 
   return (

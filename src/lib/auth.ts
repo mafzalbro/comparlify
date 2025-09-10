@@ -24,26 +24,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user, trigger }) {
-      // On initial sign-in, add the user ID to the token
+    async jwt({ token, user, trigger, session }) {
+      // On initial sign-in, add the user ID and other details to the token
       if (user) {
         token.id = user.id;
+        token.role = user.role ?? "USER";
+        token.onboarded = user.onboarded ?? false;
+        token.newsletter = user.newsletter ?? false;
       }
-
-      // For subsequent JWT creations, or if the session was updated,
-      // re-fetch the user data to ensure the token is fresh.
-      if (token.id && (trigger === "session" || trigger === "update")) {
-        const dbUser = await prisma.user.findUnique({
-          where: { id: token.id as string },
-        });
-        if (dbUser) {
-          token.name = dbUser.name;
-          token.email = dbUser.email;
-          token.picture = dbUser.image;
-          token.role = dbUser.role ?? "USER";
-          token.onboarded = dbUser.onboarded ?? false;
-          token.newsletter = dbUser.newsletter ?? false;
-        }
+      
+      // If the session was updated (e.g. by calling `update()`), merge the new data
+      if (trigger === "update" && session) {
+        token = { ...token, ...session.user };
       }
       
       return token;
@@ -80,5 +72,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   pages: {
     signIn: "/login",
+    signOut: "/auth/signout",
+    error: "/auth/error", // Error code passed in query string as ?error=
+    // verifyRequest: '/auth/verify-request', // (Optional) Used for E-mail providers
+    // newUser: '/auth/new-user' // New users will be directed here on first sign in (leave the property out if not of interest)
   },
 });
