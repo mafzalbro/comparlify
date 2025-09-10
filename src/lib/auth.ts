@@ -1,4 +1,3 @@
-
 // lib/auth.ts
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
@@ -24,18 +23,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
-      // Runs at login
-      if (user) {
-        const dbUser = await prisma.user.findUnique({
-          where: { id: user.id },
-        });
-
-        token.id = dbUser?.id;
-        token.role = dbUser?.role ?? "USER";
-        token.onboarded = dbUser?.onboarded ?? false;
-        token.newsletter = dbUser?.newsletter ?? false;
+    async jwt({ token }) {
+      if (!token.id) {
+        return token;
       }
+      
+      const dbUser = await prisma.user.findUnique({
+        where: { id: token.id as string },
+      });
+
+      if (!dbUser) {
+        return token;
+      }
+
+      token.id = dbUser.id;
+      token.role = dbUser.role ?? "USER";
+      token.onboarded = dbUser.onboarded ?? false;
+      token.newsletter = dbUser.newsletter ?? false;
+      
       return token;
     },
     async session({ session, token }) {
