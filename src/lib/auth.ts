@@ -1,3 +1,4 @@
+
 // lib/auth.ts
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
@@ -23,28 +24,32 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token }) {
-      if (!token.id) {
-        return token;
-      }
-      
-      const dbUser = await prisma.user.findUnique({
-        where: { id: token.id as string },
-      });
-
-      if (!dbUser) {
-        return token;
+    async jwt({ token, user, trigger }) {
+      // On initial sign-in, add the user ID to the token
+      if (user) {
+        token.id = user.id;
       }
 
-      token.id = dbUser.id;
-      token.role = dbUser.role ?? "USER";
-      token.onboarded = dbUser.onboarded ?? false;
-      token.newsletter = dbUser.newsletter ?? false;
+      // For subsequent JWT creations, or if the session was updated,
+      // re-fetch the user data to ensure the token is fresh.
+      if (token.id && (trigger === "session" || trigger === "update")) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+        });
+        if (dbUser) {
+          token.name = dbUser.name;
+          token.email = dbUser.email;
+          token.picture = dbUser.image;
+          token.role = dbUser.role ?? "USER";
+          token.onboarded = dbUser.onboarded ?? false;
+          token.newsletter = dbUser.newsletter ?? false;
+        }
+      }
       
       return token;
     },
     async session({ session, token }) {
-      if (session.user && token) {
+      if (session.user && token.id) {
         session.user.id = token.id as string;
         session.user.role = token.role as Role;
         session.user.onboarded = token.onboarded as boolean;
