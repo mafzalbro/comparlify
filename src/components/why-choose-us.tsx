@@ -45,16 +45,15 @@ export function WhyChooseUs() {
     const targetRef = useRef<HTMLDivElement | null>(null);
     const { scrollYProgress } = useScroll({
         target: targetRef,
-        offset: ['start start', 'end start'],
+        offset: ['start start', 'end end'],
     });
-
-    const featureRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
     useEffect(() => {
         const unsubscribe = scrollYProgress.on('change', (latest) => {
+            const numFeatures = features.length;
             const featureIndex = Math.min(
-                features.length - 1,
-                Math.floor(latest * features.length)
+                numFeatures - 1,
+                Math.floor(latest * numFeatures)
             );
             setActiveFeature(features[featureIndex].id);
         });
@@ -65,7 +64,7 @@ export function WhyChooseUs() {
     const activeFeatureData = features.find(f => f.id === activeFeature);
 
     return (
-        <section ref={targetRef} className="relative py-16 md:py-24 bg-secondary/30 min-h-[200vh]">
+        <section ref={targetRef} className="relative py-16 md:py-24 bg-secondary/30 min-h-[300vh]">
              <div className="absolute inset-0 bg-grid-slate-900/[0.04] dark:bg-grid-slate-400/[0.05] [mask-image:linear-gradient(0deg,transparent,black)]"></div>
             <div className="sticky top-0 container px-4 md:px-6 py-24 min-h-screen flex flex-col justify-center">
                  <div className="mx-auto max-w-3xl text-center mb-12">
@@ -81,7 +80,6 @@ export function WhyChooseUs() {
                         {features.map((feature, index) => (
                             <button
                                 key={feature.id}
-                                ref={el => featureRefs.current[index] = el}
                                 onClick={() => setActiveFeature(feature.id)}
                                 className={cn(
                                     "text-left p-4 rounded-lg transition-all duration-300",
