@@ -4,6 +4,7 @@
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, Home, RefreshCw } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Error({
   error,
@@ -18,7 +19,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-20rem)] text-center px-4 overflow-hidden">
+    <div className="relative flex flex-1 flex-col items-center justify-center text-center px-4 overflow-hidden">
         <div className="absolute inset-0 bg-grid-slate-900/[0.04] dark:bg-grid-slate-400/[0.05] [mask-image:linear-gradient(0deg,transparent,black)]"></div>
         <div className="relative flex flex-col items-center justify-center">
             <div className="bg-destructive/10 p-4 rounded-full mb-6 border border-destructive/20">
@@ -41,10 +42,10 @@ export default function Error({
                     Try Again
                 </Button>
                 <Button asChild variant="outline" size="lg">
-                    <a href="/">
+                    <Link href="/">
                         <Home className="mr-2 h-5 w-5" />
                         Go Back Home
-                    </a>
+                    </Link>
                 </Button>
             </div>
         </div>
