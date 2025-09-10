@@ -46,10 +46,13 @@ export function WelcomeOnboarding({ user }: WelcomeOnboardingProps) {
   const { update } = useSession();
 
   const handleClose = () => {
+    // Prevent re-triggering if already in progress
+    if (isPending) return;
+
     startTransition(async () => {
       try {
         await markUserAsOnboarded();
-        await update(true); // Force a session refetch
+        await update(); // Force a session refetch
         setIsOpen(false);
       } catch (error) {
         console.error("Failed to mark user as onboarded:", error);
@@ -63,7 +66,11 @@ export function WelcomeOnboarding({ user }: WelcomeOnboardingProps) {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open) {
+        handleClose();
+      }
+    }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-2xl font-headline text-center">
