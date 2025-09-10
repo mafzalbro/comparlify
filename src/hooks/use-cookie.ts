@@ -1,19 +1,19 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
 
-export function useCookie(key: string, defaultValue: string) {
-  const [cookie, setCookie] = useState(defaultValue)
+export function useCookie(key: string) {
+  const [cookie, setCookie] = useState<string | null>(null);
 
   useEffect(() => {
     const value = document.cookie
       .split("; ")
       .find((row) => row.startsWith(`${key}=`))
       ?.split("=")[1]
-    if (value) {
-      setCookie(value)
-    }
-  }, [key])
+    
+    setCookie(value || 'false');
+  }, [key]);
 
   const updateCookie = (value: string, options?: any) => {
     let cookieValue = `${key}=${value}; path=/;`;

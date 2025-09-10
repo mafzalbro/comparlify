@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -7,7 +8,7 @@ import { Cookie } from 'lucide-react';
 import { useCookie } from '@/hooks/use-cookie';
 
 export function CookieConsentBanner() {
-  const [consent, setConsent] = useCookie('cookie-consent', 'true');
+  const [consent, setConsent] = useCookie('cookie-consent');
 
   if (consent === 'true') {
     return null;
