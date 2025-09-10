@@ -29,9 +29,9 @@ import { generateSeoMetadata } from '@/lib/seo';
 import { Breadcrumbs } from '@/components/breadcrumb';
 
 export const metadata: Metadata = generateSeoMetadata({
-    title: 'AI Creator Tools',
-    description: 'A suite of intelligent tools designed to streamline your course creation workflow, from outlining content to marketing.',
-    path: '/tools'
+  title: 'AI Creator Tools',
+  description: 'A suite of intelligent tools designed to streamline your course creation workflow, from outlining content to marketing.',
+  path: '/tools'
 });
 
 type ToolCategory = 'Content Creation' | 'Marketing' | 'Productivity' | 'Engagement' | 'Curriculum Design';
@@ -78,7 +78,7 @@ const allTools: Tool[] = [
     category: 'Productivity',
     href: '/tools/lesson-summarizer',
   },
-   {
+  {
     slug: 'quiz-generator',
     title: 'AI Quiz Generator',
     description: 'Create multiple-choice quizzes from your course content to test student knowledge.',
@@ -153,12 +153,12 @@ const categories: ToolCategory[] = [
 ];
 
 function CategoryButton({ category, selectedCategory }: { category: ToolCategory | 'All', selectedCategory: string }) {
-    const isSelected = category.toLowerCase() === selectedCategory.toLowerCase();
-    return (
-        <Button asChild variant={isSelected ? 'default' : 'ghost'} className="rounded-md">
-            <Link href={category === 'All' ? '/tools' : `/tools?category=${category}`} scroll={false}>{category}</Link>
-        </Button>
-    )
+  const isSelected = category.toLowerCase() === selectedCategory.toLowerCase();
+  return (
+    <Button asChild variant={isSelected ? 'default' : 'ghost'} className="rounded-md">
+      <Link href={category === 'All' ? '/tools' : `/tools?category=${category}`} scroll={false}>{category}</Link>
+    </Button>
+  )
 }
 
 export default async function ToolsPage(props: { searchParams?: Promise<{ category?: string }> }) {
@@ -198,14 +198,7 @@ export default async function ToolsPage(props: { searchParams?: Promise<{ catego
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="container py-16 md:py-24 px-4 md:px-6">
-        <Breadcrumbs
-            items={[
-                { name: 'Home', href: '/' },
-                { name: 'Tools' },
-            ]}
-            className="mb-8"
-        />
+      <div className="container py-10 md:py-24 px-4 md:px-6">
         <div className="text-center mb-16">
           <h1 className="font-headline text-5xl md:text-6xl font-bold text-foreground">
             AI-Powered Creator Tools
@@ -232,10 +225,10 @@ export default async function ToolsPage(props: { searchParams?: Promise<{ catego
               <Card className="flex flex-col h-full group overflow-hidden transform hover:-translate-y-1 transition-transform duration-300 shadow-md hover:shadow-xl">
                 <CardHeader>
                   <div className="flex items-start justify-between">
-                      <div className="bg-primary/20 p-3 rounded-lg">
-                          <tool.Icon className="h-8 w-8 text-primary" />
-                      </div>
-                      <Badge variant="outline">{tool.category}</Badge>
+                    <div className="bg-primary/20 p-3 rounded-lg">
+                      <tool.Icon className="h-8 w-8 text-primary" />
+                    </div>
+                    <Badge variant="outline">{tool.category}</Badge>
                   </div>
                   <CardTitle className="font-headline text-2xl pt-4">{tool.title}</CardTitle>
                 </CardHeader>
@@ -244,10 +237,10 @@ export default async function ToolsPage(props: { searchParams?: Promise<{ catego
                 </CardContent>
                 <div className="p-6 pt-0">
                   <Button asChild className="w-full group-hover:bg-primary/90 transition-colors" disabled={tool.href === '#'}>
-                      <Link href={tool.href}>
-                          {tool.href === '#' ? 'Coming Soon' : 'Launch Tool'}
-                          {tool.href !== '#' && <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />}
-                      </Link>
+                    <Link href={tool.href}>
+                      {tool.href === '#' ? 'Coming Soon' : 'Launch Tool'}
+                      {tool.href !== '#' && <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />}
+                    </Link>
                   </Button>
                 </div>
               </Card>

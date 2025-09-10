@@ -1,6 +1,6 @@
 
 import { auth } from "@/lib/auth";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import prisma from "@/lib/prisma";
@@ -38,22 +38,22 @@ function PostBookmarkCard({ post }: { post: Post }) {
     return (
         <Card className="flex flex-col group bg-card/60 backdrop-blur-lg border-border/20 shadow-md hover:shadow-xl transition-shadow duration-300">
             <div className="relative overflow-hidden aspect-[16/10]">
-            <Link href={`/blog/${post.slug}`} className="block">
-                <ManagedImage
-                src={post.image}
-                alt={post.title}
-                data-ai-hint={post.dataAiHint ?? ''}
-                fill
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-            </Link>
+                <Link href={`/blog/${post.slug}`} className="block">
+                    <ManagedImage
+                        src={post.image}
+                        alt={post.title}
+                        data-ai-hint={post.dataAiHint ?? ''}
+                        fill
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                </Link>
             </div>
             <CardHeader>
-            <CardTitle className="font-headline text-lg line-clamp-2">
-                <Link href={`/blog/${post.slug}`} className="hover:text-primary transition-colors">
-                {post.title}
-                </Link>
-            </CardTitle>
+                <CardTitle className="font-headline text-lg line-clamp-2">
+                    <Link href={`/blog/${post.slug}`} className="hover:text-primary transition-colors">
+                        {post.title}
+                    </Link>
+                </CardTitle>
             </CardHeader>
             <CardContent className="flex-1">
                 <p className="text-muted-foreground text-sm line-clamp-2">{post.description}</p>
@@ -72,7 +72,7 @@ function PostBookmarkCard({ post }: { post: Post }) {
     );
 }
 
-function ComparisonBookmarkCard({ comparison }: { comparison: Comparison & { platformA: Platform, platformB: Platform }}) {
+function ComparisonBookmarkCard({ comparison }: { comparison: Comparison & { platformA: Platform, platformB: Platform } }) {
     return (
         <Card className="flex flex-col group overflow-hidden transition-all duration-300 hover:shadow-xl h-full">
             <CardHeader className="p-4">
@@ -81,7 +81,7 @@ function ComparisonBookmarkCard({ comparison }: { comparison: Comparison & { pla
                         <ManagedImage src={comparison.platformA.logoUrl} alt={`${comparison.platformA.name} logo`} width={120} height={35} className="object-contain" />
                     </div>
                     <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center">
-                         <ManagedImage src={comparison.platformB.logoUrl} alt={`${comparison.platformB.name} logo`} width={120} height={35} className="object-contain" />
+                        <ManagedImage src={comparison.platformB.logoUrl} alt={`${comparison.platformB.name} logo`} width={120} height={35} className="object-contain" />
                     </div>
                     <div className="absolute inset-0 flex items-center justify-center">
                         <div className="bg-background text-muted-foreground rounded-full p-1.5 border shadow-inner">
@@ -92,7 +92,7 @@ function ComparisonBookmarkCard({ comparison }: { comparison: Comparison & { pla
             </CardHeader>
             <CardContent className="flex-1 px-4 pb-4 space-y-2">
                 <h3 className="font-headline text-lg text-center text-foreground h-12 line-clamp-2">
-                     <Link href={`/compare/${comparison.slug}`} className="hover:text-primary transition-colors stretched-link">{comparison.title}</Link>
+                    <Link href={`/compare/${comparison.slug}`} className="hover:text-primary transition-colors stretched-link">{comparison.title}</Link>
                 </h3>
             </CardContent>
             <CardFooter className="p-2 bg-secondary/30">
@@ -108,7 +108,7 @@ export default async function UserPanelDashboard() {
     const session = await auth();
     if (!session?.user) return null;
 
-    const { posts, comparisons } = await getBookmarks(session.user.id);
+    const { posts, comparisons } = await getBookmarks(session?.user?.id || "");
     const hasBookmarks = posts.length > 0 || comparisons.length > 0;
 
     return (
@@ -119,7 +119,7 @@ export default async function UserPanelDashboard() {
             </div>
 
             <Card>
-                 <CardHeader>
+                <CardHeader>
                     <CardTitle>My Bookmarks</CardTitle>
                     <CardDescription>All your saved posts and comparisons in one place.</CardDescription>
                 </CardHeader>
@@ -149,13 +149,13 @@ export default async function UserPanelDashboard() {
                             </TabsContent>
                             <TabsContent value="comparisons">
                                 {comparisons.length > 0 ? (
-                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
                                         {comparisons.map(bookmark => (
                                             <ComparisonBookmarkCard key={bookmark.id} comparison={bookmark.comparison} />
                                         ))}
                                     </div>
                                 ) : (
-                                     <div className="text-center py-12 text-muted-foreground">
+                                    <div className="text-center py-12 text-muted-foreground">
                                         <p>You haven't bookmarked any comparisons yet.</p>
                                     </div>
                                 )}

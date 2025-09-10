@@ -50,14 +50,14 @@ export default async function PanelLayout({
                         <SidebarGroup>
                             <SidebarGroupLabel>My Account</SidebarGroupLabel>
                             <SidebarMenuItem>
-                                <Link href="/profile">
+                                <Link href="/panel/profile">
                                     <SidebarMenuButton tooltip="Profile">
                                         <UserCircle />
                                         Profile
                                     </SidebarMenuButton>
                                 </Link>
                             </SidebarMenuItem>
-                             <SidebarMenuItem>
+                            <SidebarMenuItem>
                                 <Link href="/panel/settings">
                                     <SidebarMenuButton tooltip="Settings">
                                         <Settings />
@@ -70,16 +70,16 @@ export default async function PanelLayout({
                 </SidebarContent>
                 <SidebarFooter>
                     <SidebarMenu>
-                         {session?.user.role === 'ADMIN' && (
-                             <SidebarMenuItem>
-                               <Link href="/admin">
-                                 <SidebarMenuButton tooltip="Admin Panel">
-                                   <ShieldCheck />
-                                   Admin Panel
-                                 </SidebarMenuButton>
-                               </Link>
-                             </SidebarMenuItem>
-                         )}
+                        {session?.user.role === 'ADMIN' && (
+                            <SidebarMenuItem>
+                                <Link href="/admin">
+                                    <SidebarMenuButton tooltip="Admin Panel">
+                                        <ShieldCheck />
+                                        Admin Panel
+                                    </SidebarMenuButton>
+                                </Link>
+                            </SidebarMenuItem>
+                        )}
                         <SidebarMenuItem>
                             <LogoutButton>
                                 <SidebarMenuButton tooltip="Logout">
@@ -88,11 +88,11 @@ export default async function PanelLayout({
                                 </SidebarMenuButton>
                             </LogoutButton>
                         </SidebarMenuItem>
-                         {session?.user && (
-                             <SidebarMenuItem>
+                        {session?.user && (
+                            <SidebarMenuItem>
                                 <UserNav user={session.user} />
-                             </SidebarMenuItem>
-                         )}
+                            </SidebarMenuItem>
+                        )}
                     </SidebarMenu>
                 </SidebarFooter>
             </Sidebar>
@@ -102,7 +102,7 @@ export default async function PanelLayout({
                         <SidebarTrigger />
                         <h1 className="text-2xl font-headline">User Panel</h1>
                     </div>
-                     <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2">
                         <NotificationBell notifications={notifications} unreadCount={unreadCount} />
                     </div>
                 </header>
