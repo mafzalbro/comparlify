@@ -44,16 +44,16 @@ const getComparisons = cache(async ({
     where.OR = [
       { title: { contains: search } },
       { summary: { contains: search } },
+      { platformA: { name: { contains: search } } },
+      { platformB: { name: { contains: search } } },
     ];
   }
 
   if (sort === 'oldest') {
     orderBy = { createdAt: 'asc' };
   } else if (sort === 'rating') {
-    orderBy = [
-      { platformA: { rating: 'desc' } },
-      { platformB: { rating: 'desc' } },
-    ];
+    // This is a simplified rating sort. A more complex one might average platform ratings.
+    orderBy = { platformA: { rating: 'desc' } };
   }
 
   if (platforms && platforms.length > 0) {
@@ -84,14 +84,14 @@ const getAllPlatforms = cache(async () => {
 });
 
 
-export default async function ComparePage(props: { searchParams: Promise<SearchParams> }) {
-  const searchParams = await props.searchParams;
+export default async function ComparePage(props: { searchParams: SearchParams }) {
+  const searchParams = props.searchParams;
   const { search, sort } = searchParams;
   const platformsParam = searchParams.platforms;
   const selectedPlatforms = Array.isArray(platformsParam) ? platformsParam : (platformsParam ? [platformsParam] : []);
 
   const [comparisons, allPlatforms] = await Promise.all([
-    getComparisons({ search: String(search ?? ''), sort: String(sort ?? ''), platforms: selectedPlatforms }),
+    getComparisons({ search: String(search ?? ''), sort: String(sort ?? 'newest'), platforms: selectedPlatforms }),
     getAllPlatforms()
   ]);
 
@@ -129,10 +129,10 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
             {comparisons.map((comp, index) => (
               <div key={comp.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 150}ms`, animationFillMode: 'both' }}>
                 <Card
-                  className="flex flex-col group overflow-hidden transition-all duration-300 h-full border hover:border-primary/50 hover:shadow-lg"
+                  className="flex flex-col group overflow-hidden transition-all duration-300 h-full border hover:border-primary/50 hover:shadow-lg rounded-2xl"
                 >
                   <CardHeader className="p-6">
-                    <div className="flex justify-around items-center h-10">
+                     <div className="flex justify-around items-center h-10">
                       <div className="w-2/5 flex justify-center">
                         <ManagedImage
                           src={comp.platformA.logoUrl}
@@ -171,7 +171,7 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
                     <div className="flex justify-around pt-3 border-t">
                       <div className="text-center">
                         <div className="flex items-center justify-center gap-1 font-bold text-lg text-amber-500">
-                          <Star className="w-4 h-4 fill-amber-400 text-amber-500" />{' '}
+                          <Star className="w-4 h-4 fill-current text-current" />{' '}
                           {comp.platformA.rating?.toFixed(1) ?? 'N/A'}
                         </div>
                         <p className="text-xs text-muted-foreground">
@@ -180,7 +180,7 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
                       </div>
                       <div className="text-center">
                         <div className="flex items-center justify-center gap-1 font-bold text-lg text-amber-500">
-                          <Star className="w-4 h-4 fill-amber-400 text-amber-500" />{' '}
+                          <Star className="w-4 h-4 fill-current text-current" />{' '}
                           {comp.platformB.rating?.toFixed(1) ?? 'N/A'}
                         </div>
                         <p className="text-xs text-muted-foreground">

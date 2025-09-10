@@ -2,7 +2,6 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, ListFilter, Columns } from 'lucide-react';
@@ -26,66 +25,44 @@ interface FilterControlsProps {
 }
 
 export function FilterControls({ allPlatforms, searchParams }: FilterControlsProps) {
-    const router = useRouter();
-
-    const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
-        const formData = new FormData(e.currentTarget);
-        const params = new URLSearchParams();
-
-        const search = formData.get('search') as string;
-        if (search) params.set('search', search);
-
-        const sort = formData.get('sort') as string;
-        if (sort) params.set('sort', sort);
-
-        const platforms = formData.getAll('platforms') as string[];
-        platforms.forEach(p => params.append('platforms', p));
-        
-        router.push(`/compare?${params.toString()}`, { scroll: false });
-    };
-    
     const { search, sort } = searchParams;
     const platformsParam = searchParams.platforms;
     const selectedPlatforms = Array.isArray(platformsParam) ? platformsParam : (platformsParam ? [platformsParam] : []);
 
   return (
-    <form className="mb-12 p-4 rounded-lg bg-card/60 border" onChange={handleFormChange}>
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="relative flex-1 min-w-[250px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              id="search"
-              name="search"
-              placeholder="Search by keyword (e.g. Teachable...)"
-              className="pl-10 h-10"
-              defaultValue={search}
-            />
+    <form className="mb-12 p-4 rounded-2xl bg-card/60 border">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+          <div className="md:col-span-2 space-y-2">
+            <Label htmlFor="search">Search</Label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                id="search"
+                name="search"
+                placeholder="Search by keyword (e.g. Teachable...)"
+                className="pl-10 h-10"
+                defaultValue={search}
+              />
+            </div>
           </div>
-
-           <Popover>
-            <PopoverTrigger asChild>
-                <Button type="button" variant="outline" className="gap-2 h-10"><ListFilter className="h-4 w-4"/> Sort</Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-56">
-                <div className="space-y-2">
-                    <Label htmlFor="sort">Sort By</Label>
-                     <Select name="sort" defaultValue={String(sort ?? 'newest')}>
-                      <SelectTrigger id="sort">
-                        <SelectValue placeholder="Sort by" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="newest">Newest</SelectItem>
-                        <SelectItem value="oldest">Oldest</SelectItem>
-                        <SelectItem value="rating">Highest Rated</SelectItem>
-                      </SelectContent>
-                    </Select>
-                </div>
-            </PopoverContent>
-          </Popover>
-
+          
+          <div className="space-y-2">
+              <Label htmlFor="sort">Sort By</Label>
+              <Select name="sort" defaultValue={String(sort ?? 'newest')}>
+                <SelectTrigger id="sort" className="h-10">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Newest</SelectItem>
+                  <SelectItem value="oldest">Oldest</SelectItem>
+                  <SelectItem value="rating">Highest Rated</SelectItem>
+                </SelectContent>
+              </Select>
+          </div>
+          
           <Popover>
             <PopoverTrigger asChild>
-                <Button type="button" variant="outline" className="gap-2 h-10"><Columns className="h-4 w-4"/> Platforms</Button>
+                <Button type="button" variant="outline" className="w-full h-10"><Columns className="mr-2 h-4 w-4"/> Platforms ({selectedPlatforms.length})</Button>
             </PopoverTrigger>
             <PopoverContent className="w-80">
                 <div className="space-y-4">
@@ -109,9 +86,12 @@ export function FilterControls({ allPlatforms, searchParams }: FilterControlsPro
             </PopoverContent>
           </Popover>
 
-          <Button asChild variant="ghost" className="h-10">
-            <Link href="/compare">Reset</Link>
-          </Button>
+        </div>
+        <div className="flex justify-end gap-2 mt-4">
+            <Button asChild variant="ghost">
+              <Link href="/compare">Reset</Link>
+            </Button>
+            <Button type="submit">Apply</Button>
         </div>
     </form>
   );
