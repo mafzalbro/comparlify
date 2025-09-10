@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { BarChart, BrainCircuit, Scaling } from 'lucide-react';
 import Link from 'next/link';
@@ -42,32 +42,45 @@ const features = [
     }
 ];
 
+
+function FeatureCard({ feature, setActiveFeature }: { feature: (typeof features)[0], setActiveFeature: (id: string) => void }) {
+    const ref = useRef<HTMLDivElement>(null);
+    const isInView = useInView(ref, { margin: "-50% 0px -50% 0px" });
+  
+    useEffect(() => {
+      if (isInView) {
+        setActiveFeature(feature.id);
+      }
+    }, [isInView, feature.id, setActiveFeature]);
+  
+    return (
+      <div ref={ref} className="h-screen w-full">
+         <div
+            className={cn(
+                "flex flex-col gap-4 text-left p-6 rounded-xl transition-all duration-300 h-80"
+            )}
+        >
+            <div className="flex items-center gap-4">
+                <div className={cn(
+                    "p-3 rounded-full transition-colors",
+                    'bg-primary/20 text-primary'
+                    )}>
+                    <feature.Icon className="h-6 w-6" />
+                </div>
+                <div>
+                    <h3 className="font-headline text-xl font-bold text-foreground">{feature.title}</h3>
+                    <p className="text-muted-foreground mt-1">{feature.description}</p>
+                </div>
+            </div>
+        </div>
+      </div>
+    );
+  }
+
 export function WhyChooseUs() {
     const [activeFeature, setActiveFeature] = useState(features[0].id);
-    const targetRef = useRef<HTMLDivElement | null>(null);
     const isMobile = useIsMobile();
     
-    const { scrollYProgress } = useScroll({
-        target: targetRef,
-        offset: ['start start', 'end end'],
-    });
-
-    // Effect for DESKTOP scroll-based animation
-    useEffect(() => {
-        if (isMobile) return;
-
-        const unsubscribe = scrollYProgress.on('change', (latest) => {
-            const numFeatures = features.length;
-            const featureIndex = Math.min(
-                numFeatures - 1,
-                Math.floor(latest * numFeatures)
-            );
-            setActiveFeature(features[featureIndex].id);
-        });
-
-        return () => unsubscribe();
-    }, [scrollYProgress, isMobile]);
-
     // Effect for MOBILE auto-cycle animation
     useEffect(() => {
         if (!isMobile) return;
@@ -89,85 +102,49 @@ export function WhyChooseUs() {
     // RENDER FOR DESKTOP
     if (!isMobile) {
         return (
-            <section ref={targetRef} className="relative py-16 md:py-24 bg-secondary/30 min-h-[300vh]">
-                 <div className="absolute inset-0 bg-grid-slate-900/[0.04] dark:bg-grid-slate-400/[0.05] [mask-image:linear-gradient(0deg,transparent,black)]"></div>
-                <div className="sticky top-[10px] min-h-[calc(100vh-20px)] flex flex-col justify-center">
-                     <div className="container px-4 md:px-6 py-12">
-                        <div className="mx-auto max-w-3xl text-center mb-12">
-                            <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
-                                Your All-In-One Creator Hub
-                            </h2>
-                            <p className="mt-4 text-lg text-muted-foreground">
-                                Stop juggling dozens of apps. Get everything you need to succeed from a single, powerful dashboard.
-                            </p>
-                        </div>
-                        <div className="grid lg:grid-cols-2 gap-12 items-center">
-                            <div className="flex flex-col gap-4">
-                                {features.map((feature, index) => (
-                                    <button
-                                        key={feature.id}
-                                        onClick={() => setActiveFeature(feature.id)}
-                                        className={cn(
-                                            "text-left p-4 rounded-lg transition-all duration-300",
-                                            activeFeature === feature.id
-                                                ? "bg-card shadow-lg border"
-                                                : "hover:bg-card/50"
-                                        )}
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <div className={cn(
-                                                "p-3 rounded-full transition-colors",
-                                                activeFeature === feature.id ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'
-                                                )}>
-                                                <feature.Icon className="h-6 w-6" />
-                                            </div>
-                                            <div>
-                                                <h3 className="font-headline text-xl font-bold text-foreground">{feature.title}</h3>
-                                                <p className="text-muted-foreground mt-1">{feature.description}</p>
-                                            </div>
-                                        </div>
-                                    </button>
-                                ))}
-                            </div>
-                            <div className="relative h-96 lg:h-[32rem] rounded-xl">
-                                <AnimatePresence mode="wait">
-                                    <motion.div
-                                        key={activeFeatureData?.id}
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -20 }}
-                                        transition={{ duration: 0.3, ease: 'easeInOut' }}
-                                        className="absolute inset-0"
-                                    >
-                                        {activeFeatureData && (
-                                            <div className="w-full h-full rounded-2xl shadow-2xl p-8 flex flex-col justify-end bg-gradient-to-br from-primary/10 via-background to-secondary/20 border overflow-hidden">
-                                                <div className="absolute -inset-16 opacity-10 dark:opacity-20">
-                                                    <div className="absolute right-[-6rem] top-[8rem] h-64 w-64 bg-primary/20 rounded-full blur-3xl"></div>
-                                                    <div className="absolute left-[-4rem] bottom-[6rem] h-64 w-64 bg-secondary rounded-full blur-3xl"></div>
-                                                </div>
-                                                <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-6 shadow-lg border bg-black/20 backdrop-blur-sm">
-                                                    <ManagedImage
-                                                        src={activeFeatureData.image}
-                                                        alt={activeFeatureData.title}
-                                                        data-ai-hint={activeFeatureData.dataAiHint}
-                                                        fill
-                                                        className="object-cover"
-                                                    />
-                                                </div>
-                                                <h3 className="font-headline text-3xl font-bold text-foreground">{activeFeatureData.title}</h3>
-                                                <p className="text-muted-foreground my-3">{activeFeatureData.description}</p>
-                                                <Button asChild className="group mt-4 self-start">
-                                                    <Link href={activeFeatureData.href}>
-                                                        Learn More <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                                                    </Link>
-                                                </Button>
-                                            </div>
-                                        )}
-                                    </motion.div>
-                                </AnimatePresence>
-                            </div>
-                        </div>
-                     </div>
+            <section className="relative py-16 md:py-24 bg-secondary/30 overflow-hidden">
+                <div className="absolute inset-0 bg-grid-slate-900/[0.04] dark:bg-grid-slate-400/[0.05] [mask-image:linear-gradient(0deg,transparent,black)]"></div>
+                
+                <div className="container px-4 md:px-6 text-center mb-16">
+                    <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
+                        Your All-In-One Creator Hub
+                    </h2>
+                    <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+                        Stop juggling dozens of apps. Get everything you need to succeed from a single, powerful dashboard.
+                    </p>
+                </div>
+
+                <div className="container grid lg:grid-cols-2 gap-12 items-start">
+                    <div className="w-full flex flex-col gap-8">
+                        {features.map((feature) => (
+                           <FeatureCard key={feature.id} feature={feature} setActiveFeature={setActiveFeature} />
+                        ))}
+                    </div>
+
+                    <div className="lg:sticky top-24 self-start h-[600px]">
+                       <AnimatePresence mode="wait">
+                         {activeFeatureData && (
+                            <motion.div
+                                key={activeFeatureData.id}
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: -20 }}
+                                transition={{ duration: 0.5, ease: 'easeInOut' }}
+                                className="w-full h-full"
+                            >
+                               <div className="w-full h-full rounded-2xl shadow-2xl border overflow-hidden">
+                                     <ManagedImage
+                                        src={activeFeatureData.image}
+                                        alt={activeFeatureData.title}
+                                        data-ai-hint={activeFeatureData.dataAiHint}
+                                        fill
+                                        className="object-cover"
+                                    />
+                               </div>
+                            </motion.div>
+                         )}
+                        </AnimatePresence>
+                    </div>
                 </div>
             </section>
         );
@@ -175,7 +152,7 @@ export function WhyChooseUs() {
     
     // RENDER FOR MOBILE
     return (
-        <section className="py-16 md:py-24 bg-secondary/30">
+        <section className="py-16 md:py-24 bg-secondary/30 overflow-hidden">
             <div className="absolute inset-0 bg-grid-slate-900/[0.04] dark:bg-grid-slate-400/[0.05] [mask-image:linear-gradient(0deg,transparent,black)]"></div>
              <div className="container px-4 md:px-6 py-12 relative">
                 <div className="mx-auto max-w-3xl text-center mb-12">
@@ -198,6 +175,10 @@ export function WhyChooseUs() {
                                         initial={{ width: '0%' }}
                                         animate={{ width: '100%' }}
                                         transition={{ duration: 5, ease: 'linear' }}
+                                        onAnimationComplete={() => {
+                                            // This ensures the loop continues.
+                                            // The state update in useEffect will trigger a re-render and restart the animation.
+                                        }}
                                     />
                                 )}
                              </div>
