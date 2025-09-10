@@ -14,7 +14,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { markUserAsOnboarded } from '@/app/actions/user';
 import { BarChart, BrainCircuit, BookText, Loader2, ArrowRight } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
+import { useSession } from 'next-auth/react';
 
 interface WelcomeOnboardingProps {
   user: Session['user'];
@@ -41,11 +42,14 @@ const features = [
 export function WelcomeOnboarding({ user }: WelcomeOnboardingProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [isPending, startTransition] = useTransition();
+  const { toast } = useToast();
+  const { update } = useSession();
 
   const handleClose = () => {
     startTransition(async () => {
       try {
         await markUserAsOnboarded();
+        await update(); // This will refetch the session
         setIsOpen(false);
       } catch (error) {
         console.error("Failed to mark user as onboarded:", error);
