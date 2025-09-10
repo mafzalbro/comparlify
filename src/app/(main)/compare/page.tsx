@@ -213,69 +213,49 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
             {comparisons.map((comp, index) => (
               <div key={comp.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 150}ms`, animationFillMode: 'both' }}>
                 <Card
-                  className="flex flex-col group overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 h-full"
+                  className="flex flex-col group overflow-hidden transition-all duration-300 h-full border hover:border-primary/50 hover:shadow-lg"
                 >
                   <CardHeader className="p-6">
-                    <div className="relative h-20">
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center h-10 w-[140px]">
+                    <div className="flex justify-between items-center h-10">
+                      <div className="w-2/5 flex justify-center">
                         <ManagedImage
                           src={comp.platformA.logoUrl}
                           alt={`${comp.platformA.name} logo`}
-                          fill
-                          className="object-contain transition-transform group-hover:scale-105"
+                          width={140}
+                          height={40}
+                          className="object-contain h-8 w-auto transition-transform group-hover:scale-105"
                         />
                       </div>
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center h-10 w-[140px]">
-                        <ManagedImage
+                      <div className="w-1/5 flex justify-center">
+                        <span className="font-mono text-sm text-muted-foreground">VS</span>
+                      </div>
+                      <div className="w-2/5 flex justify-center">
+                         <ManagedImage
                           src={comp.platformB.logoUrl}
                           alt={`${comp.platformB.name} logo`}
-                          fill
-                          className="object-contain transition-transform group-hover:scale-105"
+                          width={140}
+                          height={40}
+                          className="object-contain h-8 w-auto transition-transform group-hover:scale-105"
                         />
-                      </div>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="bg-background text-muted-foreground rounded-full p-2 border shadow-inner">
-                          <span className="font-mono text-sm">VS</span>
-                        </div>
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="flex-1 px-6 pb-4 space-y-4">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <h2 className="font-headline text-2xl text-center text-foreground truncate">
-                            <Link
-                              href={`/compare/${comp.slug}`}
-                              className="hover:text-primary transition-colors stretched-link"
-                            >
-                              {comp.title}
-                            </Link>
-                          </h2>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="max-w-xs">{comp.title}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-
-                    <TooltipProvider>
-                       <Tooltip>
-                          <TooltipTrigger asChild>
-                            <p className="text-muted-foreground text-sm text-center truncate">
-                              {comp.summary}
-                            </p>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p className="max-w-xs">{comp.summary}</p>
-                          </TooltipContent>
-                       </Tooltip>
-                    </TooltipProvider>
-
-                    <div className="flex justify-around pt-4 border-t">
+                  <CardContent className="flex-1 px-6 pb-6 space-y-3 text-center">
+                    <h2 className="font-headline text-xl text-foreground">
+                        <Link
+                            href={`/compare/${comp.slug}`}
+                            className="hover:text-primary transition-colors stretched-link"
+                        >
+                            {comp.title}
+                        </Link>
+                    </h2>
+                    <p className="text-muted-foreground text-sm line-clamp-2">
+                        {comp.summary}
+                    </p>
+                    <div className="flex justify-around pt-3 border-t">
                       <div className="text-center">
                         <div className="flex items-center justify-center gap-1 font-bold text-lg text-amber-500">
-                          <Star className="w-5 h-5 fill-amber-400 text-amber-500" />{' '}
+                          <Star className="w-4 h-4 fill-amber-400 text-amber-500" />{' '}
                           {comp.platformA.rating?.toFixed(1) ?? 'N/A'}
                         </div>
                         <p className="text-xs text-muted-foreground">
@@ -284,7 +264,7 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
                       </div>
                       <div className="text-center">
                         <div className="flex items-center justify-center gap-1 font-bold text-lg text-amber-500">
-                          <Star className="w-5 h-5 fill-amber-400 text-amber-500" />{' '}
+                          <Star className="w-4 h-4 fill-amber-400 text-amber-500" />{' '}
                           {comp.platformB.rating?.toFixed(1) ?? 'N/A'}
                         </div>
                         <p className="text-xs text-muted-foreground">
@@ -293,7 +273,7 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
                       </div>
                     </div>
                   </CardContent>
-                  <CardFooter className="p-4 bg-secondary/30">
+                  <CardFooter className="p-4 bg-muted/50">
                     <Button
                       asChild
                       className="w-full"
