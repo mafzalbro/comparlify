@@ -1,4 +1,3 @@
-
 // lib/auth.ts
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
@@ -24,7 +23,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user, trigger, session }) {
+    async jwt({ token }) {
+      const user = token.email
+        ? await prisma.user.findUnique({ where: { email: token.email } })
+        : null;
+
       // On initial sign-in, add the user ID and other details to the token
       if (user) {
         token.id = user.id;
@@ -32,12 +35,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.onboarded = user.onboarded ?? false;
         token.newsletter = user.newsletter ?? false;
       }
-      
-      // If the session was updated (e.g. by calling `update()`), merge the new data
-      if (trigger === "update" && session) {
-        token = { ...token, ...session.user };
-      }
-      
+
       return token;
     },
     async session({ session, token }) {
@@ -59,13 +57,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         });
       }
       // Notify all admins about the new user
-      const admins = await prisma.user.findMany({ where: { role: 'ADMIN' } });
+      const admins = await prisma.user.findMany({ where: { role: "ADMIN" } });
       for (const admin of admins) {
         await createNotification({
           userId: admin.id,
-          type: 'NEW_USER_REGISTERED',
+          type: "NEW_USER_REGISTERED",
           message: `New user signed up: ${user.name || user.email}`,
-          link: `/admin/users`
+          link: `/admin/users`,
         });
       }
     },
