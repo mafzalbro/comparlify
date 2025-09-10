@@ -23,7 +23,7 @@
     --border: 45 80% 92%;
     --input: 45 80% 92%;
     --ring: 45 93% 58%;
-    --radius: 0.75rem;
+    --radius: 0.8rem;
     --chart-1: 45 93% 58%;
     --chart-2: 35 93% 68%;
     --chart-3: 25 85% 62%;
@@ -48,10 +48,11 @@
     --accent-foreground: 45 60% 95%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 30 10% 22%;
-    --input: 30 10% 22%;
+    --border: 30 10% 15%;
+    --input: 30 10% 15%;
+    /* --input: 30 10% 22%; */
     --ring: 45 93% 58%;
-    --radius: 0.75rem;
+    --radius: 1rem;
   }
 }
 
