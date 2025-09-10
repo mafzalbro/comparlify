@@ -1,10 +1,12 @@
 
 'use client';
 
+import { useEffect, useState, useCallback } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, ListFilter, Columns } from 'lucide-react';
+import { Search, Columns } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -18,6 +20,24 @@ import { Checkbox } from '@/components/ui/checkbox';
 import type { Platform } from '@prisma/client';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { SearchParams } from '@/types/next';
+import { createQueryString } from '@/lib/utils';
+
+
+function useDebounce<T>(value: T, delay: number): T {
+    const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [value, delay]);
+
+    return debouncedValue;
+}
 
 interface FilterControlsProps {
     allPlatforms: Platform[];
@@ -25,73 +45,113 @@ interface FilterControlsProps {
 }
 
 export function FilterControls({ allPlatforms, searchParams }: FilterControlsProps) {
-    const { search, sort } = searchParams;
-    const platformsParam = searchParams.platforms;
-    const selectedPlatforms = Array.isArray(platformsParam) ? platformsParam : (platformsParam ? [platformsParam] : []);
+    const router = useRouter();
+    const pathname = usePathname();
 
-  return (
-    <form className="mb-12 p-6 rounded-2xl bg-card border">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
-          <div className="space-y-2">
-            <Label htmlFor="search">Search</Label>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                id="search"
-                name="search"
-                placeholder="Search by keyword..."
-                className="pl-10 h-10"
-                defaultValue={search}
-              />
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-              <Label htmlFor="sort">Sort By</Label>
-              <Select name="sort" defaultValue={String(sort ?? 'newest')}>
-                <SelectTrigger id="sort" className="h-10">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="newest">Newest</SelectItem>
-                  <SelectItem value="oldest">Oldest</SelectItem>
-                  <SelectItem value="rating">Highest Rated</SelectItem>
-                </SelectContent>
-              </Select>
-          </div>
-          
-          <Popover>
-            <PopoverTrigger asChild>
-                <Button type="button" variant="outline" className="w-full h-10"><Columns className="mr-2 h-4 w-4"/> Platforms ({selectedPlatforms.length})</Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80">
-                <div className="space-y-4">
-                  <h4 className="font-medium leading-none">Filter by Platform</h4>
-                   <ScrollArea className="h-48">
-                      <div className="grid grid-cols-2 gap-x-6 gap-y-3 p-1">
-                        {allPlatforms.map(platform => (
-                          <div key={platform.id} className="flex items-center gap-2">
-                            <Checkbox
-                              id={`platform-${platform.id}`}
-                              name="platforms"
-                              value={platform.id}
-                              defaultChecked={selectedPlatforms.includes(platform.id)}
-                            />
-                            <Label htmlFor={`platform-${platform.id}`} className="font-normal text-sm cursor-pointer">{platform.name}</Label>
-                          </div>
-                        ))}
-                      </div>
-                  </ScrollArea>
+    const [searchValue, setSearchValue] = useState(String(searchParams.search || ''));
+    const [sortValue, setSortValue] = useState(String(searchParams.sort || 'newest'));
+    const platformsParam = searchParams.platforms;
+    const initialPlatforms = Array.isArray(platformsParam) ? platformsParam : (platformsParam ? [platformsParam] : []);
+    const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(initialPlatforms);
+    
+    const debouncedSearch = useDebounce(searchValue, 300);
+
+    const pushState = useCallback((params: Record<string, any>) => {
+        const newQueryString = createQueryString(params, searchParams);
+        router.push(`${pathname}?${newQueryString}`);
+    }, [pathname, router, searchParams]);
+
+
+    useEffect(() => {
+        pushState({
+            search: debouncedSearch,
+            page: 1, // Reset to first page on search
+        });
+    }, [debouncedSearch, pushState]);
+
+    const handleSortChange = (value: string) => {
+        setSortValue(value);
+        pushState({ sort: value, page: 1 });
+    };
+
+    const handlePlatformChange = (platformId: string, checked: boolean) => {
+        const newSelectedPlatforms = checked
+            ? [...selectedPlatforms, platformId]
+            : selectedPlatforms.filter((id) => id !== platformId);
+        
+        setSelectedPlatforms(newSelectedPlatforms);
+        pushState({ platforms: newSelectedPlatforms, page: 1 });
+    };
+
+    return (
+        <div className="mb-12 p-6 rounded-2xl bg-card border">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
+                <div className="space-y-2">
+                    <Label htmlFor="search">Search</Label>
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                        <Input
+                            id="search"
+                            name="search"
+                            placeholder="Search by keyword..."
+                            className="pl-10 h-10"
+                            value={searchValue}
+                            onChange={(e) => setSearchValue(e.target.value)}
+                        />
+                    </div>
                 </div>
-            </PopoverContent>
-          </Popover>
-          <div className="flex items-end gap-2">
-              <Button asChild variant="outline" className="w-full h-10">
-                <Link href="/compare">Reset</Link>
-              </Button>
-              <Button type="submit" className="w-full h-10">Apply</Button>
-          </div>
+                
+                <div className="space-y-2">
+                    <Label htmlFor="sort">Sort By</Label>
+                    <Select value={sortValue} onValueChange={handleSortChange}>
+                        <SelectTrigger id="sort" className="h-10">
+                            <SelectValue placeholder="Sort by" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="newest">Newest</SelectItem>
+                            <SelectItem value="oldest">Oldest</SelectItem>
+                            <SelectItem value="rating">Highest Rated</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                
+                <div className="space-y-2">
+                    <Label>Platforms</Label>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button type="button" variant="outline" className="w-full h-10">
+                                <Columns className="mr-2 h-4 w-4"/> 
+                                Platforms ({selectedPlatforms.length})
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80">
+                            <div className="space-y-4">
+                                <h4 className="font-medium leading-none">Filter by Platform</h4>
+                                <ScrollArea className="h-48">
+                                    <div className="grid grid-cols-2 gap-x-6 gap-y-3 p-1">
+                                    {allPlatforms.map(platform => (
+                                        <div key={platform.id} className="flex items-center gap-2">
+                                            <Checkbox
+                                                id={`platform-${platform.id}`}
+                                                checked={selectedPlatforms.includes(platform.id)}
+                                                onCheckedChange={(checked) => handlePlatformChange(platform.id, !!checked)}
+                                            />
+                                            <Label htmlFor={`platform-${platform.id}`} className="font-normal text-sm cursor-pointer">{platform.name}</Label>
+                                        </div>
+                                    ))}
+                                    </div>
+                                </ScrollArea>
+                            </div>
+                        </PopoverContent>
+                    </Popover>
+                </div>
+
+                <div className="flex items-end gap-2">
+                    <Button asChild variant="outline" className="w-full h-10">
+                        <Link href="/compare">Reset All</Link>
+                    </Button>
+                </div>
+            </div>
         </div>
-    </form>
-  );
+    );
 }
