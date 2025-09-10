@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -55,7 +55,7 @@ export function FilterControls({ allPlatforms, searchParams }: FilterControlsPro
     const handleFilterChange = useCallback((params: Record<string, any>) => {
         const currentSearchParams = new URLSearchParams(window.location.search);
         const newQueryString = createQueryString(params, currentSearchParams);
-        router.push(`${pathname}?${newQueryString}`);
+        router.push(`${pathname}?${newQueryString}`, { scroll: false });
     }, [pathname, router]);
 
 
