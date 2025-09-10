@@ -28,6 +28,7 @@ import { ManagedImage } from '@/components/managed-image';
 import { cache } from 'react';
 import type { SearchParams } from '@/types/next';
 import { Breadcrumbs } from '@/components/breadcrumb';
+import { FilterControls } from './_components/filter-controls';
 
 export const metadata: Metadata = generateSeoMetadata({
   title: 'Creator Insights Blog',
@@ -51,9 +52,9 @@ const getBlogPosts = cache(async ({
 
   if (search) {
     where.OR = [
-      { title: { contains: search } },
-      { description: { contains: search } },
-      { content: { contains: search } },
+      { title: { contains: search, mode: 'insensitive' } },
+      { description: { contains: search, mode: 'insensitive' } },
+      { content: { contains: search, mode: 'insensitive' } },
     ];
   }
 
@@ -65,6 +66,8 @@ const getBlogPosts = cache(async ({
     orderBy = { createdAt: 'asc' };
   } else if (sort === 'alpha') {
     orderBy = { title: 'asc' };
+  } else {
+    orderBy = { createdAt: 'desc' };
   }
 
   const posts: PostWithAuthor[] = await prisma.post.findMany({
@@ -76,145 +79,94 @@ const getBlogPosts = cache(async ({
 });
 
 const getAuthors = cache(async () => {
-  return prisma.user.findMany({ where: { posts: { some: {} } } });
+  return prisma.user.findMany({ where: { posts: { some: { published: true } } } });
 });
 
 
-export default async function BlogPage(props: { searchParams: Promise<SearchParams> }) {
-  const searchParams = await props.searchParams;
+export default async function BlogPage(props: { searchParams: SearchParams }) {
+  const searchParams = props.searchParams;
   const { search, sort, author } = searchParams;
   const [blogPosts, authors] = await Promise.all([
-    getBlogPosts({ search: String(search ?? ''), sort: String(sort ?? ''), author: String(author ?? '') }),
+    getBlogPosts({ search: String(search ?? ''), sort: String(sort ?? 'newest'), author: String(author ?? 'all') }),
     getAuthors()
   ]);
 
   return (
-    <div className="container py-16 md:py-24 px-4 md:px-6">
-       <Breadcrumbs
-        items={[
-          { name: 'Home', href: '/' },
-          { name: 'Blog' },
-        ]}
-        className="mb-6"
-      />
-      <div className="text-center mb-12">
-        <h1 className="font-headline text-5xl md:text-6xl font-bold text-foreground">
-          Creator Insights
-        </h1>
-        <p className="mt-4 text-xl text-muted-foreground max-w-2xl mx-auto">
-          Actionable advice, deep dives, and growth strategies for the modern course creator.
-        </p>
-      </div>
-      <div className="mb-12 p-4 rounded-lg bg-card/60 border">
-        <form className="flex flex-wrap items-center gap-4">
-          <div className="relative flex-1 min-w-[250px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              id="search"
-              name="search"
-              placeholder="Search by title or keyword..."
-              className="pl-10 h-10"
-              defaultValue={search}
-            />
+    <div className="bg-background">
+      <section className="bg-secondary/30 border-b">
+        <div className="container py-16 md:py-24 px-4 md:px-6">
+          <Breadcrumbs
+            items={[
+              { name: 'Home', href: '/' },
+              { name: 'Blog' },
+            ]}
+            className="mb-8"
+          />
+          <div className="max-w-3xl">
+            <h1 className="font-headline text-5xl md:text-6xl font-bold text-foreground">
+              Creator Insights
+            </h1>
+            <p className="mt-4 text-xl text-muted-foreground">
+              Actionable advice, deep dives, and growth strategies for the modern course creator.
+            </p>
           </div>
-          
-          <Popover>
-            <PopoverTrigger asChild>
-                <Button variant="outline" className="gap-2 h-10"><ListFilter className="h-4 w-4"/> Sort</Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-56">
-                <div className="space-y-2">
-                    <Label htmlFor="sort">Sort By</Label>
-                    <Select name="sort" defaultValue={String(sort ?? 'newest')}>
-                      <SelectTrigger id="sort">
-                        <SelectValue placeholder="Sort by" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="newest">Newest</SelectItem>
-                        <SelectItem value="oldest">Oldest</SelectItem>
-                        <SelectItem value="alpha">Alphabetical</SelectItem>
-                      </SelectContent>
-                    </Select>
-                </div>
-            </PopoverContent>
-          </Popover>
-          
-           <Popover>
-            <PopoverTrigger asChild>
-                <Button variant="outline" className="gap-2 h-10"><UserIcon className="h-4 w-4"/> Author</Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-56">
-                <div className="space-y-2">
-                    <Label htmlFor="author">Author</Label>
-                     <Select name="author" defaultValue={String(author ?? 'all')}>
-                      <SelectTrigger id="author">
-                        <SelectValue placeholder="All Authors" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Authors</SelectItem>
-                        {authors.map(author => (
-                          <SelectItem key={author.id} value={author.id}>{author.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                </div>
-            </PopoverContent>
-          </Popover>
-          
-          <Button type="submit" className="h-10">Filter</Button>
-          <Button asChild variant="ghost" className="h-10">
-            <Link href="/blog">Reset</Link>
-          </Button>
-        </form>
-      </div>
-      {blogPosts.length === 0 ? (
-        <div className="text-center py-16 text-muted-foreground">
-          <h3 className="text-2xl font-headline mb-2">No Posts Found</h3>
-          <p>Try adjusting your search or filters. Or check back soon!</p>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {blogPosts.map((post) => {
-            const readTime = Math.ceil(post.content.split(/\s+/).length / 200);
-            return (
-              <Card key={post.slug} className="flex flex-col overflow-hidden group bg-card/60 backdrop-blur-lg border-border/20 shadow-md hover:shadow-xl transition-shadow duration-300">
-                <div className="relative overflow-hidden aspect-[16/10]">
-                  <Link href={`/blog/${post.slug}`} className="block">
-                    <ManagedImage
-                      src={post.image}
-                      alt={post.title}
-                      data-ai-hint={post.dataAiHint ?? ''}
-                      fill
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  </Link>
-                </div>
-                <CardHeader>
-                  <CardTitle className="font-headline text-xl">
-                    <Link href={`/blog/${post.slug}`} className="hover:text-primary transition-colors">
-                      {post.title}
+      </section>
+
+      <div className="container py-16 md:py-24 px-4 md:px-6">
+        <FilterControls authors={authors} searchParams={searchParams} />
+
+        {blogPosts.length === 0 ? (
+          <div className="text-center py-16 text-muted-foreground animate-fade-in-up">
+            <h3 className="text-2xl font-headline mb-2">No Posts Found</h3>
+            <p>Try adjusting your search or filters. Or check back soon!</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {blogPosts.map((post, index) => {
+              const readTime = Math.ceil(post.content.split(/\s+/).length / 200);
+              return (
+                <div key={post.slug} className="animate-fade-in-up" style={{ animationDelay: `${index * 150}ms`, animationFillMode: 'both' }}>
+                <Card className="flex flex-col h-full group overflow-hidden transition-all duration-300 border hover:border-primary/50 hover:shadow-lg rounded-2xl">
+                  <div className="relative overflow-hidden aspect-[16/10]">
+                    <Link href={`/blog/${post.slug}`} className="block">
+                      <ManagedImage
+                        src={post.image}
+                        alt={post.title}
+                        data-ai-hint={post.dataAiHint ?? ''}
+                        fill
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
                     </Link>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="flex-1">
-                  <p className="text-muted-foreground text-sm line-clamp-3">{post.description}</p>
-                </CardContent>
-                <CardFooter className="flex justify-between items-center bg-secondary/20 py-3 px-6">
-                  <div className="text-sm text-muted-foreground">
-                    <span>{post.author.name}</span> &bull; <span>{readTime} min read</span>
                   </div>
-                  <Button asChild variant="ghost" size="sm" className="group-hover:text-primary">
-                    <Link href={`/blog/${post.slug}`}>
-                      Read More <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    </Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            )
-          }
-          )}
-        </div>
-      )}
+                  <CardHeader>
+                    <CardTitle className="font-headline text-xl">
+                      <Link href={`/blog/${post.slug}`} className="hover:text-primary transition-colors stretched-link">
+                        {post.title}
+                      </Link>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex-1">
+                    <p className="text-muted-foreground text-sm line-clamp-3">{post.description}</p>
+                  </CardContent>
+                  <CardFooter className="flex justify-between items-center bg-muted/50 py-3 px-6">
+                    <div className="text-sm text-muted-foreground">
+                      <span>{post.author.name}</span> &bull; <span>{readTime} min read</span>
+                    </div>
+                    <Button asChild variant="ghost" size="sm" className="group-hover:text-primary -mr-3">
+                      <Link href={`/blog/${post.slug}`}>
+                        Read More <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                      </Link>
+                    </Button>
+                  </CardFooter>
+                </Card>
+                </div>
+              )
+            }
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
