@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState, useCallback, useTransition } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -47,24 +47,26 @@ interface FilterControlsProps {
 export function FilterControls({ allPlatforms, searchParams }: FilterControlsProps) {
     const router = useRouter();
     const pathname = usePathname();
+    const [isPending, startTransition] = useTransition();
 
     const [searchValue, setSearchValue] = useState(String(searchParams.search || ''));
-    
     const debouncedSearch = useDebounce(searchValue, 300);
 
     const handleFilterChange = useCallback((params: Record<string, any>) => {
-        const currentSearchParams = new URLSearchParams(window.location.search);
-        const newQueryString = createQueryString(params, currentSearchParams);
-        router.push(`${pathname}?${newQueryString}`, { scroll: false });
+        startTransition(() => {
+            const currentSearchParams = new URLSearchParams(window.location.search);
+            const newQueryString = createQueryString(params, currentSearchParams);
+            router.push(`${pathname}?${newQueryString}`, { scroll: false });
+        });
     }, [pathname, router]);
 
 
     useEffect(() => {
         handleFilterChange({
             search: debouncedSearch || null, // Pass null to remove from URL if empty
-            page: 1, 
+            page: 1,
         });
-    }, [debouncedSearch, handleFilterChange]);
+    }, [debouncedSearch]);
     
     const sortValue = String(searchParams.sort || 'newest');
     const platformsParam = searchParams.platforms;
@@ -79,7 +81,7 @@ export function FilterControls({ allPlatforms, searchParams }: FilterControlsPro
             ? [...selectedPlatforms, platformId]
             : selectedPlatforms.filter((id) => id !== platformId);
         
-        handleFilterChange({ platforms: newSelectedPlatforms, page: 1 });
+        handleFilterChange({ platforms: newSelectedPlatforms.length > 0 ? newSelectedPlatforms : null, page: 1 });
     };
 
     return (
@@ -102,7 +104,7 @@ export function FilterControls({ allPlatforms, searchParams }: FilterControlsPro
                 
                 <div className="space-y-2">
                     <Label htmlFor="sort">Sort By</Label>
-                    <Select value={sortValue} onValueChange={handleSortChange}>
+                    <Select value={sortValue} onValueChange={handleSortChange} disabled={isPending}>
                         <SelectTrigger id="sort" className="h-10">
                             <SelectValue placeholder="Sort by" />
                         </SelectTrigger>
@@ -118,7 +120,7 @@ export function FilterControls({ allPlatforms, searchParams }: FilterControlsPro
                     <Label>Platforms</Label>
                     <Popover>
                         <PopoverTrigger asChild>
-                            <Button type="button" variant="outline" className="w-full h-10">
+                            <Button type="button" variant="outline" className="w-full h-10" disabled={isPending}>
                                 <Columns className="mr-2 h-4 w-4"/> 
                                 Platforms ({selectedPlatforms.length})
                             </Button>
@@ -134,6 +136,7 @@ export function FilterControls({ allPlatforms, searchParams }: FilterControlsPro
                                                 id={`platform-${platform.id}`}
                                                 checked={selectedPlatforms.includes(platform.id)}
                                                 onCheckedChange={(checked) => handlePlatformChange(platform.id, !!checked)}
+                                                disabled={isPending}
                                             />
                                             <Label htmlFor={`platform-${platform.id}`} className="font-normal text-sm cursor-pointer">{platform.name}</Label>
                                         </div>
@@ -147,7 +150,7 @@ export function FilterControls({ allPlatforms, searchParams }: FilterControlsPro
 
                 <div className="flex items-end gap-2">
                     <Button asChild variant="outline" className="w-full h-10">
-                        <Link href="/compare">Reset All</Link>
+                        <Link href="/compare" scroll={false}>Reset All</Link>
                     </Button>
                 </div>
             </div>
