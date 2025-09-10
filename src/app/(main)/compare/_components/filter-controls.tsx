@@ -49,29 +49,29 @@ export function FilterControls({ allPlatforms, searchParams }: FilterControlsPro
     const pathname = usePathname();
 
     const [searchValue, setSearchValue] = useState(String(searchParams.search || ''));
-    const [sortValue, setSortValue] = useState(String(searchParams.sort || 'newest'));
-    const platformsParam = searchParams.platforms;
-    const initialPlatforms = Array.isArray(platformsParam) ? platformsParam : (platformsParam ? [platformsParam] : []);
-    const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(initialPlatforms);
     
     const debouncedSearch = useDebounce(searchValue, 300);
 
-    const pushState = useCallback((params: Record<string, any>) => {
-        const newQueryString = createQueryString(params, searchParams);
+    const handleFilterChange = useCallback((params: Record<string, any>) => {
+        const currentSearchParams = new URLSearchParams(window.location.search);
+        const newQueryString = createQueryString(params, currentSearchParams);
         router.push(`${pathname}?${newQueryString}`);
-    }, [pathname, router, searchParams]);
+    }, [pathname, router]);
 
 
     useEffect(() => {
-        pushState({
-            search: debouncedSearch,
-            page: 1, // Reset to first page on search
+        handleFilterChange({
+            search: debouncedSearch || null, // Pass null to remove from URL if empty
+            page: 1, 
         });
-    }, [debouncedSearch, pushState]);
+    }, [debouncedSearch, handleFilterChange]);
+    
+    const sortValue = String(searchParams.sort || 'newest');
+    const platformsParam = searchParams.platforms;
+    const selectedPlatforms = Array.isArray(platformsParam) ? platformsParam : (platformsParam ? [platformsParam] : []);
 
     const handleSortChange = (value: string) => {
-        setSortValue(value);
-        pushState({ sort: value, page: 1 });
+        handleFilterChange({ sort: value, page: 1 });
     };
 
     const handlePlatformChange = (platformId: string, checked: boolean) => {
@@ -79,8 +79,7 @@ export function FilterControls({ allPlatforms, searchParams }: FilterControlsPro
             ? [...selectedPlatforms, platformId]
             : selectedPlatforms.filter((id) => id !== platformId);
         
-        setSelectedPlatforms(newSelectedPlatforms);
-        pushState({ platforms: newSelectedPlatforms, page: 1 });
+        handleFilterChange({ platforms: newSelectedPlatforms, page: 1 });
     };
 
     return (
