@@ -21,12 +21,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { Comparison, Platform } from '@prisma/client';
@@ -67,7 +61,6 @@ const getComparisons = cache(async ({
   if (sort === 'oldest') {
     orderBy = { createdAt: 'asc' };
   } else if (sort === 'rating') {
-    // This is a simplified rating sort. A real-world implementation might be more complex.
     orderBy = [
       { platformA: { rating: 'desc' } },
       { platformB: { rating: 'desc' } },
@@ -135,8 +128,8 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
       </section>
 
       <div className="container py-16 md:py-24 px-4 md:px-6">
-        <div className="mb-12 p-4 rounded-lg bg-card/60 border">
-            <form className="flex flex-wrap items-center gap-4">
+        <form className="mb-12 p-4 rounded-lg bg-card/60 border" onChange={(e) => (e.currentTarget as HTMLFormElement).requestSubmit()}>
+            <div className="flex flex-wrap items-center gap-4">
               <div className="relative flex-1 min-w-[250px]">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
@@ -150,7 +143,7 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
 
                <Popover>
                 <PopoverTrigger asChild>
-                    <Button variant="outline" className="gap-2 h-10"><ListFilter className="h-4 w-4"/> Sort</Button>
+                    <Button type="button" variant="outline" className="gap-2 h-10"><ListFilter className="h-4 w-4"/> Sort</Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-56">
                     <div className="space-y-2">
@@ -171,7 +164,7 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
 
               <Popover>
                 <PopoverTrigger asChild>
-                    <Button variant="outline" className="gap-2 h-10"><Columns className="h-4 w-4"/> Platforms</Button>
+                    <Button type="button" variant="outline" className="gap-2 h-10"><Columns className="h-4 w-4"/> Platforms</Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-80">
                     <div className="space-y-4">
@@ -199,8 +192,8 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
               <Button asChild variant="ghost" className="h-10">
                 <Link href="/compare">Reset</Link>
               </Button>
-            </form>
-        </div>
+            </div>
+        </form>
 
 
         {comparisons.length === 0 ? (
@@ -216,7 +209,7 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
                   className="flex flex-col group overflow-hidden transition-all duration-300 h-full border hover:border-primary/50 hover:shadow-lg"
                 >
                   <CardHeader className="p-6">
-                    <div className="flex justify-between items-center h-10">
+                    <div className="flex justify-around items-center h-10">
                       <div className="w-2/5 flex justify-center">
                         <ManagedImage
                           src={comp.platformA.logoUrl}
@@ -294,3 +287,5 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
     </div>
   );
 }
+
+    
