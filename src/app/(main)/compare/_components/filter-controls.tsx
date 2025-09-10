@@ -66,7 +66,7 @@ export function FilterControls({ allPlatforms, searchParams }: FilterControlsPro
             search: debouncedSearch || null, // Pass null to remove from URL if empty
             page: 1,
         });
-    }, [debouncedSearch]);
+    }, [debouncedSearch, handleFilterChange]);
     
     const sortValue = String(searchParams.sort || 'newest');
     const platformsParam = searchParams.platforms;
