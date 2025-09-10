@@ -34,6 +34,7 @@ import prisma from '@/lib/prisma';
 import { HomePageClient } from '@/components/home-page-client';
 import { ManagedImage } from '@/components/managed-image';
 import { cache } from 'react';
+import { WhyChooseUs } from '@/components/why-choose-us';
 
 
 const testimonials = [
@@ -90,33 +91,6 @@ const featuredTools = [
     }
 ]
 
-const whyChooseUsTabs = [
-    {
-        value: 'comparisons',
-        title: 'Unbiased Comparisons',
-        Icon: BarChart,
-        description: 'Get in-depth, data-driven comparisons of the top platforms for course creation. We dig into the details so you can choose with absolute confidence.',
-        image: 'https://picsum.photos/400/400?random=10',
-        dataAiHint: 'data chart graph',
-    },
-    {
-        value: 'ai-tools',
-        title: 'Powerful AI Tools',
-        Icon: BrainCircuit,
-        description: 'From generating catchy titles to outlining entire courses, our suite of AI tools is designed to save you time and spark your creativity.',
-        image: 'https://picsum.photos/400/400?random=11',
-        dataAiHint: 'abstract technology circuit',
-    },
-    {
-        value: 'strategies',
-        title: 'Growth Strategies',
-        Icon: Scaling,
-        description: 'Access our regularly updated blog for expert tips, marketing strategies, and insights to help you scale your course business effectively.',
-        image: 'https://picsum.photos/400/400?random=12',
-        dataAiHint: 'business growth chart',
-    }
-]
-
 type PostWithAuthor = Post & { author: User };
 
 const getRecentPosts = cache(async (): Promise<PostWithAuthor[]> => {
@@ -167,67 +141,7 @@ export default async function Home() {
                 </div>
             </section>
 
-            {/* Why Choose Us Section */}
-            <section id="why-us" className="py-16 md:py-24 bg-secondary/30">
-                <div className="container px-4 md:px-6">
-                    <div
-                        className="mx-auto max-w-3xl text-center mb-12 animate-fade-in-up"
-                    >
-                        <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
-                            Your All-In-One Creator Hub
-                        </h2>
-                        <p className="mt-4 text-lg text-muted-foreground">
-                            Stop juggling dozens of apps. Get everything you need to succeed from a single, powerful dashboard.
-                        </p>
-                    </div>
-
-                    <Tabs defaultValue="comparisons" className="w-full animate-fade-in-up animation-delay-200">
-                        <div>
-                            <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 h-auto">
-                                {whyChooseUsTabs.map(tab => (
-                                    <TabsTrigger key={tab.value} value={tab.value} className="h-full flex flex-col md:flex-row items-center gap-3 p-4 text-base md:text-sm">
-                                        <tab.Icon className="h-6 w-6" /> {tab.title}
-                                    </TabsTrigger>
-                                ))}
-                            </TabsList>
-                        </div>
-
-                        {whyChooseUsTabs.map(tab => (
-                            <TabsContent key={tab.value} value={tab.value}>
-                                <div
-                                    key={tab.value}
-                                    className="mt-8 bg-card/60 backdrop-blur-lg border border-border/20 p-8 rounded-xl shadow-lg"
-                                >
-                                    <div className="grid items-center gap-12 lg:grid-cols-2">
-                                        <div className="space-y-4">
-                                            <div className="bg-primary/20 p-3 rounded-full w-max">
-                                                <tab.Icon className="h-8 w-8 text-primary" />
-                                            </div>
-                                            <h3 className="font-headline text-3xl font-bold text-foreground">{tab.title}</h3>
-                                            <p className="text-lg text-muted-foreground">{tab.description}</p>
-                                            <Button asChild className="group">
-                                                <Link href={tab.value === 'comparisons' ? '/compare' : (tab.value === 'ai-tools' ? '/tools' : '/blog')}>
-                                                    Learn More <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                                                </Link>
-                                            </Button>
-                                        </div>
-                                        <div>
-                                            <ManagedImage
-                                                src={tab.image}
-                                                alt={tab.title}
-                                                data-ai-hint={tab.dataAiHint}
-                                                width={400}
-                                                height={400}
-                                                className="w-full h-auto object-cover rounded-lg shadow-xl"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </TabsContent>
-                        ))}
-                    </Tabs>
-                </div>
-            </section>
+            <WhyChooseUs />
 
             {/* Featured Tools Section */}
             <section className="py-16 md:py-24 bg-background">
