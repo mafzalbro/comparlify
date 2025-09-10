@@ -49,6 +49,7 @@ export function FilterControls({ allPlatforms, searchParams }: FilterControlsPro
     const pathname = usePathname();
     const [isPending, startTransition] = useTransition();
 
+    // Use state for the search input to allow for debouncing
     const [searchValue, setSearchValue] = useState(String(searchParams.search || ''));
     const debouncedSearch = useDebounce(searchValue, 300);
 
@@ -60,14 +61,20 @@ export function FilterControls({ allPlatforms, searchParams }: FilterControlsPro
         });
     }, [pathname, router]);
 
-
+    // Effect to update URL from debounced search value
     useEffect(() => {
         handleFilterChange({
-            search: debouncedSearch || null, // Pass null to remove from URL if empty
+            search: debouncedSearch || null,
             page: 1,
         });
     }, [debouncedSearch, handleFilterChange]);
+
+    // Effect to sync search input with URL params (e.g., on browser back/forward)
+    useEffect(() => {
+        setSearchValue(String(searchParams.search || ''));
+    }, [searchParams.search]);
     
+    // For other filters, derive state directly from searchParams prop
     const sortValue = String(searchParams.sort || 'newest');
     const platformsParam = searchParams.platforms;
     const selectedPlatforms = Array.isArray(platformsParam) ? platformsParam : (platformsParam ? [platformsParam] : []);
