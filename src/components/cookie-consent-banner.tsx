@@ -10,7 +10,9 @@ import { useCookie } from '@/hooks/use-cookie';
 export function CookieConsentBanner() {
   const [consent, setConsent] = useCookie('cookie-consent');
 
-  if (consent === 'true') {
+  // Do not render the banner if consent has been given OR if it's not yet determined (null).
+  // This prevents the flicker on page load. The banner will only appear if consent is explicitly 'false'.
+  if (consent === 'true' || !consent) {
     return null;
   }
 
