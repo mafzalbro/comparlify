@@ -30,16 +30,16 @@ export function FilterControls({ allPlatforms, searchParams }: FilterControlsPro
     const selectedPlatforms = Array.isArray(platformsParam) ? platformsParam : (platformsParam ? [platformsParam] : []);
 
   return (
-    <form className="mb-12 p-4 rounded-2xl bg-card/60 border">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-          <div className="md:col-span-2 space-y-2">
+    <form className="mb-12 p-6 rounded-2xl bg-card border">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
+          <div className="space-y-2">
             <Label htmlFor="search">Search</Label>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
                 id="search"
                 name="search"
-                placeholder="Search by keyword (e.g. Teachable...)"
+                placeholder="Search by keyword..."
                 className="pl-10 h-10"
                 defaultValue={search}
               />
@@ -85,13 +85,12 @@ export function FilterControls({ allPlatforms, searchParams }: FilterControlsPro
                 </div>
             </PopoverContent>
           </Popover>
-
-        </div>
-        <div className="flex justify-end gap-2 mt-4">
-            <Button asChild variant="ghost">
-              <Link href="/compare">Reset</Link>
-            </Button>
-            <Button type="submit">Apply</Button>
+          <div className="flex items-end gap-2">
+              <Button asChild variant="outline" className="w-full h-10">
+                <Link href="/compare">Reset</Link>
+              </Button>
+              <Button type="submit" className="w-full h-10">Apply</Button>
+          </div>
         </div>
     </form>
   );
