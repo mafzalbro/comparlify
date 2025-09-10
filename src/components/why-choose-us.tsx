@@ -66,77 +66,79 @@ export function WhyChooseUs() {
     return (
         <section ref={targetRef} className="relative py-16 md:py-24 bg-secondary/30 min-h-[300vh]">
              <div className="absolute inset-0 bg-grid-slate-900/[0.04] dark:bg-grid-slate-400/[0.05] [mask-image:linear-gradient(0deg,transparent,black)]"></div>
-            <div className="sticky top-0 container px-4 md:px-6 py-24 min-h-screen flex flex-col justify-center">
-                 <div className="mx-auto max-w-3xl text-center mb-12">
-                    <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
-                        Your All-In-One Creator Hub
-                    </h2>
-                    <p className="mt-4 text-lg text-muted-foreground">
-                        Stop juggling dozens of apps. Get everything you need to succeed from a single, powerful dashboard.
-                    </p>
-                </div>
-                <div className="grid lg:grid-cols-2 gap-12 items-center">
-                    <div className="flex flex-col gap-4">
-                        {features.map((feature, index) => (
-                            <button
-                                key={feature.id}
-                                onClick={() => setActiveFeature(feature.id)}
-                                className={cn(
-                                    "text-left p-4 rounded-lg transition-all duration-300",
-                                    activeFeature === feature.id
-                                        ? "bg-card shadow-lg border"
-                                        : "hover:bg-card/50"
-                                )}
-                            >
-                                <div className="flex items-center gap-4">
-                                     <div className={cn(
-                                         "p-3 rounded-full transition-colors",
-                                         activeFeature === feature.id ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'
-                                         )}>
-                                        <feature.Icon className="h-6 w-6" />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-headline text-xl font-bold text-foreground">{feature.title}</h3>
-                                        <p className="text-muted-foreground mt-1">{feature.description}</p>
-                                    </div>
-                                </div>
-                            </button>
-                        ))}
+            <div className="sticky top-[10px] min-h-[calc(100vh-20px)] flex flex-col justify-center">
+                 <div className="container px-4 md:px-6 py-12">
+                    <div className="mx-auto max-w-3xl text-center mb-12">
+                        <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
+                            Your All-In-One Creator Hub
+                        </h2>
+                        <p className="mt-4 text-lg text-muted-foreground">
+                            Stop juggling dozens of apps. Get everything you need to succeed from a single, powerful dashboard.
+                        </p>
                     </div>
-                    <div className="relative h-96 lg:h-[32rem] rounded-xl">
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key={activeFeatureData?.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -20 }}
-                                transition={{ duration: 0.3, ease: 'easeInOut' }}
-                                className="absolute inset-0"
-                            >
-                                {activeFeatureData && (
-                                    <div className="w-full h-full bg-card/60 border rounded-xl shadow-2xl p-6 flex flex-col justify-center items-center text-center">
-                                       <div className="relative w-full h-48 rounded-lg overflow-hidden mb-6">
-                                            <ManagedImage
-                                                src={activeFeatureData.image}
-                                                alt={activeFeatureData.title}
-                                                data-ai-hint={activeFeatureData.dataAiHint}
-                                                fill
-                                                className="object-cover"
-                                            />
-                                       </div>
-                                        <h3 className="font-headline text-3xl font-bold text-foreground">{activeFeatureData.title}</h3>
-                                        <p className="text-muted-foreground my-3 max-w-sm">{activeFeatureData.description}</p>
-                                        <Button asChild className="group mt-4">
-                                            <Link href={activeFeatureData.href}>
-                                                Learn More <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                                            </Link>
-                                        </Button>
+                    <div className="grid lg:grid-cols-2 gap-12 items-center">
+                        <div className="flex flex-col gap-4">
+                            {features.map((feature, index) => (
+                                <button
+                                    key={feature.id}
+                                    onClick={() => setActiveFeature(feature.id)}
+                                    className={cn(
+                                        "text-left p-4 rounded-lg transition-all duration-300",
+                                        activeFeature === feature.id
+                                            ? "bg-card shadow-lg border"
+                                            : "hover:bg-card/50"
+                                    )}
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className={cn(
+                                            "p-3 rounded-full transition-colors",
+                                            activeFeature === feature.id ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'
+                                            )}>
+                                            <feature.Icon className="h-6 w-6" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-headline text-xl font-bold text-foreground">{feature.title}</h3>
+                                            <p className="text-muted-foreground mt-1">{feature.description}</p>
+                                        </div>
                                     </div>
-                                )}
-                            </motion.div>
-                        </AnimatePresence>
+                                </button>
+                            ))}
+                        </div>
+                        <div className="relative h-96 lg:h-[32rem] rounded-xl">
+                            <AnimatePresence mode="wait">
+                                <motion.div
+                                    key={activeFeatureData?.id}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -20 }}
+                                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                                    className="absolute inset-0"
+                                >
+                                    {activeFeatureData && (
+                                        <div className="w-full h-full bg-card/60 border rounded-xl shadow-2xl p-6 flex flex-col justify-center items-center text-center">
+                                        <div className="relative w-full h-48 rounded-lg overflow-hidden mb-6">
+                                                <ManagedImage
+                                                    src={activeFeatureData.image}
+                                                    alt={activeFeatureData.title}
+                                                    data-ai-hint={activeFeatureData.dataAiHint}
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                        </div>
+                                            <h3 className="font-headline text-3xl font-bold text-foreground">{activeFeatureData.title}</h3>
+                                            <p className="text-muted-foreground my-3 max-w-sm">{activeFeatureData.description}</p>
+                                            <Button asChild className="group mt-4">
+                                                <Link href={activeFeatureData.href}>
+                                                    Learn More <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                                                </Link>
+                                            </Button>
+                                        </div>
+                                    )}
+                                </motion.div>
+                            </AnimatePresence>
+                        </div>
                     </div>
-                </div>
+                 </div>
             </div>
         </section>
     );
