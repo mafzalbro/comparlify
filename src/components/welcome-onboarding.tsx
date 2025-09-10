@@ -67,11 +67,12 @@ export function WelcomeOnboarding({ user }: WelcomeOnboardingProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
-      if (!open) {
-        handleClose();
-      }
+        // This logic makes the dialog persistent. It can only be closed by clicking the button.
+        if (!open && !isPending) {
+            setIsOpen(true);
+        }
     }}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" onEscapeKeyDown={(e) => e.preventDefault()} onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="text-2xl font-headline text-center">
             Welcome to Comparlify, {user.name?.split(' ')[0]}!
