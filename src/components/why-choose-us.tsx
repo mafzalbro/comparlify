@@ -140,8 +140,12 @@ export function WhyChooseUs() {
                                         className="absolute inset-0"
                                     >
                                         {activeFeatureData && (
-                                            <div className="w-full h-full bg-card/60 border rounded-xl shadow-2xl p-6 flex flex-col justify-center items-center text-center">
-                                            <div className="relative w-full h-48 rounded-lg overflow-hidden mb-6">
+                                            <div className="w-full h-full rounded-2xl shadow-2xl p-8 flex flex-col justify-end bg-gradient-to-br from-primary/10 via-background to-secondary/20 border overflow-hidden">
+                                                <div className="absolute -inset-16 opacity-10 dark:opacity-20">
+                                                    <div className="absolute right-[-6rem] top-[8rem] h-64 w-64 bg-primary/20 rounded-full blur-3xl"></div>
+                                                    <div className="absolute left-[-4rem] bottom-[6rem] h-64 w-64 bg-secondary rounded-full blur-3xl"></div>
+                                                </div>
+                                                <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-6 shadow-lg border bg-black/20 backdrop-blur-sm">
                                                     <ManagedImage
                                                         src={activeFeatureData.image}
                                                         alt={activeFeatureData.title}
@@ -149,10 +153,10 @@ export function WhyChooseUs() {
                                                         fill
                                                         className="object-cover"
                                                     />
-                                            </div>
+                                                </div>
                                                 <h3 className="font-headline text-3xl font-bold text-foreground">{activeFeatureData.title}</h3>
-                                                <p className="text-muted-foreground my-3 max-w-sm">{activeFeatureData.description}</p>
-                                                <Button asChild className="group mt-4">
+                                                <p className="text-muted-foreground my-3">{activeFeatureData.description}</p>
+                                                <Button asChild className="group mt-4 self-start">
                                                     <Link href={activeFeatureData.href}>
                                                         Learn More <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                                                     </Link>
@@ -201,7 +205,7 @@ export function WhyChooseUs() {
                     </div>
 
                     {/* Animated Content */}
-                    <div className="relative min-h-[30rem] rounded-xl">
+                    <div className="relative min-h-[32rem] rounded-xl">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={activeFeatureData?.id}
@@ -212,8 +216,12 @@ export function WhyChooseUs() {
                                 className="absolute inset-0"
                             >
                                 {activeFeatureData && (
-                                     <div className="w-full h-full bg-card/60 border rounded-xl shadow-2xl p-6 flex flex-col justify-center items-center text-center">
-                                        <div className="relative w-full h-48 rounded-lg overflow-hidden mb-6">
+                                     <div className="w-full h-full rounded-2xl shadow-2xl p-8 flex flex-col justify-end bg-gradient-to-br from-primary/10 via-background to-secondary/20 border overflow-hidden">
+                                        <div className="absolute -inset-16 opacity-10 dark:opacity-20">
+                                            <div className="absolute right-[-6rem] top-[8rem] h-64 w-64 bg-primary/20 rounded-full blur-3xl"></div>
+                                            <div className="absolute left-[-4rem] bottom-[6rem] h-64 w-64 bg-secondary rounded-full blur-3xl"></div>
+                                        </div>
+                                        <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-6 shadow-lg border bg-black/20 backdrop-blur-sm">
                                             <ManagedImage
                                                 src={activeFeatureData.image}
                                                 alt={activeFeatureData.title}
@@ -223,8 +231,8 @@ export function WhyChooseUs() {
                                             />
                                         </div>
                                         <h3 className="font-headline text-3xl font-bold text-foreground">{activeFeatureData.title}</h3>
-                                        <p className="text-muted-foreground my-3 max-w-sm">{activeFeatureData.description}</p>
-                                        <Button asChild className="group mt-4">
+                                        <p className="text-muted-foreground my-3">{activeFeatureData.description}</p>
+                                        <Button asChild className="group mt-4 self-start">
                                             <Link href={activeFeatureData.href}>
                                                 Learn More <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                                             </Link>
