@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/logo';
@@ -51,9 +51,11 @@ export function MobileNav({ navLinks, session }: MobileNavProps) {
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="flex flex-col p-0">
-          <div className="p-4 border-b">
+          <SheetHeader className="p-4 border-b">
+            <SheetTitle className="sr-only">Mobile Navigation Menu</SheetTitle>
+            <SheetDescription className="sr-only">A menu with links to navigate the website.</SheetDescription>
             <Logo />
-          </div>
+          </SheetHeader>
           <ScrollArea className="flex-1 p-4">
               <nav className="flex flex-col gap-6">
                 {navLinks.map((link) => (
