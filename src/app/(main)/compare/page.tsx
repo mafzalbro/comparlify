@@ -42,10 +42,10 @@ const getComparisons = cache(async ({
 
   if (search) {
     where.OR = [
-      { title: { contains: search } },
-      { summary: { contains: search } },
-      { platformA: { name: { contains: search } } },
-      { platformB: { name: { contains: search } } },
+      { title: { contains: search, mode: 'insensitive' } },
+      { summary: { contains: search, mode: 'insensitive' } },
+      { platformA: { name: { contains: search, mode: 'insensitive' } } },
+      { platformB: { name: { contains: search, mode: 'insensitive' } } },
     ];
   }
 
@@ -84,8 +84,8 @@ const getAllPlatforms = cache(async () => {
 });
 
 
-export default async function ComparePage(props: { searchParams: SearchParams }) {
-  const searchParams = props.searchParams;
+export default async function ComparePage(props: { searchParams: Promise<SearchParams> }) {
+  const searchParams = (await props.searchParams);
   const { search, sort } = searchParams;
   const platformsParam = searchParams.platforms;
   const selectedPlatforms = Array.isArray(platformsParam) ? platformsParam : (platformsParam ? [platformsParam] : []);
@@ -129,7 +129,7 @@ export default async function ComparePage(props: { searchParams: SearchParams })
             {comparisons.map((comp, index) => (
               <div key={comp.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 150}ms`, animationFillMode: 'both' }}>
                 <Card
-                  className="flex flex-col group overflow-hidden transition-all duration-300 h-full border hover:border-primary/50 hover:shadow-lg rounded-2xl"
+                  className="flex flex-col group overflow-hidden transition-all duration-300 h-full border hover:border-primary/50 hover:shadow-lg rounded-xl"
                 >
                   <CardHeader className="p-6">
                      <div className="flex justify-around items-center h-10">

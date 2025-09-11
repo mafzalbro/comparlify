@@ -83,8 +83,8 @@ const getAuthors = cache(async () => {
 });
 
 
-export default async function BlogPage(props: { searchParams: SearchParams }) {
-  const searchParams = props.searchParams;
+export default async function BlogPage(props: { searchParams: Promise<SearchParams> }) {
+  const searchParams = (await props.searchParams);
   const { search, sort, author } = searchParams;
   const [blogPosts, authors] = await Promise.all([
     getBlogPosts({ search: String(search ?? ''), sort: String(sort ?? 'newest'), author: String(author ?? 'all') }),
@@ -112,7 +112,6 @@ export default async function BlogPage(props: { searchParams: SearchParams }) {
           </div>
         </div>
       </section>
-
       <div className="container py-16 md:py-24 px-4 md:px-6">
         <FilterControls authors={authors} searchParams={searchParams} />
 
@@ -127,7 +126,7 @@ export default async function BlogPage(props: { searchParams: SearchParams }) {
               const readTime = Math.ceil(post.content.split(/\s+/).length / 200);
               return (
                 <div key={post.slug} className="animate-fade-in-up" style={{ animationDelay: `${index * 150}ms`, animationFillMode: 'both' }}>
-                <Card className="flex flex-col h-full group overflow-hidden transition-all duration-300 border hover:border-primary/50 hover:shadow-lg rounded-2xl">
+                <Card className="flex flex-col h-full group overflow-hidden transition-all duration-300 border hover:border-primary/50 hover:shadow-lg rounded-xl">
                   <div className="relative overflow-hidden aspect-[16/10]">
                     <Link href={`/blog/${post.slug}`} className="block">
                       <ManagedImage
