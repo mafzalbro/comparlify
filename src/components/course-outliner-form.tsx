@@ -95,7 +95,7 @@ export function CourseOutlinerForm() {
   };
 
   return (
-    <>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
       <AIGenerationLoader show={showLoader} />
       <form
         ref={formRef}
@@ -174,6 +174,6 @@ export function CourseOutlinerForm() {
           </AlertDescription>
         </Alert>
       )}
-    </>
+    </div>
   );
 }
