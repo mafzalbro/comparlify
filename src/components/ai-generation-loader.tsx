@@ -1,7 +1,7 @@
 'use client';
 
 import { BrainCircuit } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const sparkVariants = {
   hidden: { scale: 0, opacity: 0 },
@@ -31,40 +31,53 @@ const textVariants = {
     }
 }
 
-export function AIGenerationLoader() {
+interface AIGenerationLoaderProps {
+    show: boolean;
+}
+
+export function AIGenerationLoader({ show }: AIGenerationLoaderProps) {
   return (
-    <div className="flex flex-col items-center justify-center gap-6 p-8 bg-muted/50 rounded-lg border-2 border-dashed my-8">
-      <motion.div
-        className="relative"
-        animate={{ scale: [1, 1.05, 1] }}
-        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-      >
-        <BrainCircuit className="h-16 w-16 text-primary" />
-        {[...Array(5)].map((_, i) => (
-          <motion.div
-            key={i}
-            custom={i}
-            variants={sparkVariants}
-            initial="hidden"
-            animate="visible"
-            className="absolute h-3 w-3 bg-primary rounded-full"
-            style={{
-              top: `${50 + 45 * Math.sin((i * 2 * Math.PI) / 5)}%`,
-              left: `${50 + 45 * Math.cos((i * 2 * Math.PI) / 5)}%`,
-              translateX: '-50%',
-              translateY: '-50%',
-            }}
-          />
-        ))}
-      </motion.div>
-      <motion.p 
-        className="font-semibold text-muted-foreground"
-        variants={textVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        Our AI is thinking...
-      </motion.p>
-    </div>
+    <AnimatePresence>
+        {show && (
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm"
+            >
+                <motion.div
+                    className="relative"
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                    <BrainCircuit className="h-20 w-20 text-primary" />
+                    {[...Array(5)].map((_, i) => (
+                    <motion.div
+                        key={i}
+                        custom={i}
+                        variants={sparkVariants}
+                        initial="hidden"
+                        animate="visible"
+                        className="absolute h-3 w-3 bg-primary rounded-full"
+                        style={{
+                        top: `${50 + 45 * Math.sin((i * 2 * Math.PI) / 5)}%`,
+                        left: `${50 + 45 * Math.cos((i * 2 * Math.PI) / 5)}%`,
+                        translateX: '-50%',
+                        translateY: '-50%',
+                        }}
+                    />
+                    ))}
+                </motion.div>
+                <motion.p 
+                    className="mt-6 font-semibold text-primary-foreground text-lg"
+                    variants={textVariants}
+                    initial="hidden"
+                    animate="visible"
+                >
+                    Our AI is thinking...
+                </motion.p>
+            </motion.div>
+        )}
+    </AnimatePresence>
   );
 }

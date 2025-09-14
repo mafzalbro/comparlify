@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useRef, useState } from 'react';
+import { useActionState, useRef, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateCourseDescriptionAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -9,11 +9,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Sparkles, PlusCircle } from 'lucide-react';
+import { Loader2, Sparkles, PlusCircle, Copy, RefreshCw } from 'lucide-react';
 import { MarkdownContent } from './markdown-content';
 import { Input } from './ui/input';
 import { useContinueGeneration } from '@/hooks/use-continue-generation';
 import { AIGenerationLoader } from './ai-generation-loader';
+import { useToast } from '@/hooks/use-toast';
 
 function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
   const { pending } = useFormStatus();
@@ -59,6 +60,7 @@ export function CourseDescriptionWriterForm() {
   const [courseTitle, setCourseTitle] = useState('');
   const [keyTopics, setKeyTopics] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
+  const { toast } = useToast();
   
   const { isContinuing, isContentIncomplete, handleContinue } = useContinueGeneration({
     formRef,
@@ -67,10 +69,37 @@ export function CourseDescriptionWriterForm() {
   
   const showLoader = isFormSubmitting || isContinuing;
 
+  const handleCopy = () => {
+    if (state.description) {
+      navigator.clipboard.writeText(state.description);
+      toast({
+        title: 'Copied!',
+        description: 'Description copied to clipboard.',
+      });
+    }
+  };
+
+  const handleRegenerate = () => {
+    if (formRef.current) {
+      // Clear previous result before regenerating
+      const clearedState = { ...initialState };
+      const newFormData = new FormData(formRef.current);
+      formAction(newFormData);
+    }
+  };
+
   return (
     <>
+      <AIGenerationLoader show={showLoader} />
       <Card className="shadow-lg">
-        <form action={formAction} ref={formRef}>
+        <form
+          ref={formRef}
+          action={(formData) => {
+            // When submitting, we clear the previous content.
+            formData.delete('existingContent');
+            formAction(formData);
+          }}
+        >
           <CardHeader>
             <CardTitle className="font-headline">Course Details</CardTitle>
             <CardDescription>
@@ -115,14 +144,20 @@ export function CourseDescriptionWriterForm() {
         </form>
       </Card>
 
-      {showLoader && <AIGenerationLoader />}
-
       {state.description && !showLoader && (
         <div className="mt-8 space-y-4">
-          <Alert>
+          <Alert className="relative">
+             <div className="absolute top-2 right-2 flex gap-1">
+                <Button variant="ghost" size="icon" onClick={handleCopy} title="Copy">
+                    <Copy className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={handleRegenerate} title="Regenerate">
+                    <RefreshCw className="h-4 w-4" />
+                </Button>
+            </div>
             <Sparkles className="h-5 w-5" />
             <AlertTitle className="font-bold">Generated Course Description</AlertTitle>
-            <AlertDescription className="mt-4">
+            <AlertDescription className="mt-4 pr-16">
               <MarkdownContent content={state.description} />
             </AlertDescription>
           </Alert>

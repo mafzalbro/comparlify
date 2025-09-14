@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useRef, useState } from 'react';
+import { useActionState, useRef, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateLessonSummaryAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -16,10 +16,11 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Sparkles, PlusCircle } from 'lucide-react';
+import { Loader2, Sparkles, PlusCircle, Copy, RefreshCw } from 'lucide-react';
 import { MarkdownContent } from './markdown-content';
 import { useContinueGeneration } from '@/hooks/use-continue-generation';
 import { AIGenerationLoader } from './ai-generation-loader';
+import { useToast } from '@/hooks/use-toast';
 
 function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
   const { pending } = useFormStatus();
@@ -64,6 +65,7 @@ export function LessonSummarizerForm() {
   const [state, formAction, isFormSubmitting] = useActionState(generateLessonSummaryAction, initialState);
   const [lessonContent, setLessonContent] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
+  const { toast } = useToast();
   
   const { isContinuing, isContentIncomplete, handleContinue } = useContinueGeneration({
     formRef,
@@ -72,10 +74,37 @@ export function LessonSummarizerForm() {
 
   const showLoader = isFormSubmitting || isContinuing;
 
+  const handleCopy = () => {
+    if (state.summary) {
+      navigator.clipboard.writeText(state.summary);
+      toast({
+        title: 'Copied!',
+        description: 'Summary copied to clipboard.',
+      });
+    }
+  };
+
+  const handleRegenerate = () => {
+    if (formRef.current) {
+      // Clear previous result before regenerating
+      const clearedState = { ...initialState };
+      const newFormData = new FormData(formRef.current);
+      formAction(newFormData);
+    }
+  };
+
   return (
     <>
+      <AIGenerationLoader show={showLoader} />
       <Card className="shadow-lg">
-        <form action={formAction} ref={formRef}>
+        <form
+          ref={formRef}
+          action={(formData) => {
+            // When submitting, we clear the previous content.
+            formData.delete('existingContent');
+            formAction(formData);
+          }}
+        >
           <CardHeader>
             <CardTitle className="font-headline">Lesson Content</CardTitle>
             <CardDescription>
@@ -108,16 +137,22 @@ export function LessonSummarizerForm() {
         </form>
       </Card>
 
-      {showLoader && <AIGenerationLoader />}
-
       {state.summary && !showLoader && (
          <div className="mt-8 space-y-4">
-            <Alert>
-                <Sparkles className="h-5 w-5" />
-                <AlertTitle className="font-bold">Generated Summary</AlertTitle>
-                <AlertDescription className="mt-4">
-                    <MarkdownContent content={state.summary} />
-                </AlertDescription>
+            <Alert className="relative">
+              <div className="absolute top-2 right-2 flex gap-1">
+                  <Button variant="ghost" size="icon" onClick={handleCopy} title="Copy">
+                      <Copy className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={handleRegenerate} title="Regenerate">
+                      <RefreshCw className="h-4 w-4" />
+                  </Button>
+              </div>
+              <Sparkles className="h-5 w-5" />
+              <AlertTitle className="font-bold">Generated Summary</AlertTitle>
+              <AlertDescription className="mt-4 pr-16">
+                  <MarkdownContent content={state.summary} />
+              </AlertDescription>
             </Alert>
             {isContentIncomplete && <ContinueButton onClick={handleContinue} isSubmitting={isContinuing} />}
          </div>
