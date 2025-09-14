@@ -1,6 +1,7 @@
 
 'use client';
 
+import * as React from 'react';
 import { useTransition, useMemo, type RefObject, useFormStatus } from 'react';
 
 interface UseContinueGenerationProps {
