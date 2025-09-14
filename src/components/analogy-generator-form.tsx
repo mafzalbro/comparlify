@@ -2,7 +2,6 @@
 'use client';
 
 import { useActionState, useRef } from 'react';
-import { useFormStatus } from 'react-dom';
 import { generateAnalogyAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,10 +13,10 @@ import { MarkdownContent } from './markdown-content';
 import { useContinueGeneration } from '@/hooks/use-continue-generation';
 
 function SubmitButton() {
-  const { pending } = useFormStatus();
+  const { isSubmitting } = useContinueGeneration();
   return (
-    <Button type="submit" disabled={pending} className="w-full">
-      {pending ? (
+    <Button type="submit" disabled={isSubmitting} className="w-full">
+      {isSubmitting ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           Generating...
@@ -32,6 +31,17 @@ function SubmitButton() {
   );
 }
 
+const ContinueButton = ({ onClick, disabled, text }: { onClick: () => void; disabled: boolean, text: string }) => (
+    <Button onClick={onClick} disabled={disabled} className="w-full" variant="outline" type="button">
+        {disabled ? (
+            <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Continuing...</>
+        ) : (
+            <><PlusCircle className="mr-2 h-4 w-4" /> {text}</>
+        )}
+    </Button>
+);
+
+
 export function AnalogyGeneratorForm() {
   const initialState = { analogy: null, error: null };
   const [state, formAction] = useActionState(generateAnalogyAction, initialState);
@@ -40,14 +50,12 @@ export function AnalogyGeneratorForm() {
   const {
     isContinuing,
     isContentIncomplete,
+    isSubmitting,
     handleContinue,
-    ContinueButton,
   } = useContinueGeneration({
     formRef,
     formAction,
     content: state.analogy,
-    fieldToContinue: 'existingContent',
-    buttonText: 'Continue Generating',
   });
 
   return (
@@ -93,7 +101,7 @@ export function AnalogyGeneratorForm() {
               <MarkdownContent content={state.analogy} />
             </AlertDescription>
           </Alert>
-          {isContentIncomplete && <ContinueButton />}
+          {isContentIncomplete && <ContinueButton onClick={handleContinue} disabled={isSubmitting} text="Continue Generating" />}
         </div>
       )}
 

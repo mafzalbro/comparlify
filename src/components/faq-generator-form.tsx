@@ -2,22 +2,21 @@
 'use client';
 
 import { useActionState, useRef } from 'react';
-import { useFormStatus } from 'react-dom';
 import { generateFaqsAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, PlusCircle } from 'lucide-react';
 import { MarkdownContent } from './markdown-content';
 import { useContinueGeneration } from '@/hooks/use-continue-generation';
 
 function SubmitButton() {
-  const { pending } = useFormStatus();
+  const { isSubmitting } = useContinueGeneration();
   return (
-    <Button type="submit" disabled={pending} className="w-full">
-      {pending ? (
+    <Button type="submit" disabled={isSubmitting} className="w-full">
+      {isSubmitting ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           Generating...
@@ -32,6 +31,16 @@ function SubmitButton() {
   );
 }
 
+const ContinueButton = ({ onClick, disabled, text }: { onClick: () => void; disabled: boolean, text: string }) => (
+    <Button onClick={onClick} disabled={disabled} className="w-full" variant="outline" type="button">
+        {disabled ? (
+            <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Continuing...</>
+        ) : (
+            <><PlusCircle className="mr-2 h-4 w-4" /> {text}</>
+        )}
+    </Button>
+);
+
 export function FaqGeneratorForm() {
   const initialState = { faqs: null, error: null };
   const [state, formAction] = useActionState(generateFaqsAction, initialState);
@@ -40,13 +49,12 @@ export function FaqGeneratorForm() {
   const {
     isContinuing,
     isContentIncomplete,
-    ContinueButton,
+    isSubmitting,
+    handleContinue,
   } = useContinueGeneration({
     formRef,
     formAction,
     content: state.faqs,
-    fieldToContinue: 'existingContent',
-    buttonText: 'Generate More FAQs',
   });
 
   return (
@@ -92,7 +100,7 @@ export function FaqGeneratorForm() {
               <MarkdownContent content={state.faqs} />
             </AlertDescription>
           </Alert>
-          {isContentIncomplete && <ContinueButton />}
+          {isContentIncomplete && <ContinueButton onClick={handleContinue} disabled={isSubmitting} text="Generate More FAQs" />}
         </div>
       )}
 

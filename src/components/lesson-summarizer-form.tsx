@@ -2,7 +2,6 @@
 'use client';
 
 import { useActionState, useRef } from 'react';
-import { useFormStatus } from 'react-dom';
 import { generateLessonSummaryAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,15 +15,15 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, PlusCircle } from 'lucide-react';
 import { MarkdownContent } from './markdown-content';
 import { useContinueGeneration } from '@/hooks/use-continue-generation';
 
 function SubmitButton() {
-  const { pending } = useFormStatus();
+  const { isSubmitting } = useContinueGeneration();
   return (
-    <Button type="submit" disabled={pending} className="w-full">
-      {pending ? (
+    <Button type="submit" disabled={isSubmitting} className="w-full">
+      {isSubmitting ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           Summarizing...
@@ -39,6 +38,16 @@ function SubmitButton() {
   );
 }
 
+const ContinueButton = ({ onClick, disabled, text }: { onClick: () => void; disabled: boolean, text: string }) => (
+    <Button onClick={onClick} disabled={disabled} className="w-full" variant="outline" type="button">
+        {disabled ? (
+            <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Continuing...</>
+        ) : (
+            <><PlusCircle className="mr-2 h-4 w-4" /> {text}</>
+        )}
+    </Button>
+);
+
 export function LessonSummarizerForm() {
   const initialState = { summary: null, error: null };
   const [state, formAction] = useActionState(generateLessonSummaryAction, initialState);
@@ -47,13 +56,12 @@ export function LessonSummarizerForm() {
   const {
     isContinuing,
     isContentIncomplete,
-    ContinueButton,
+    isSubmitting,
+    handleContinue,
   } = useContinueGeneration({
     formRef,
     formAction,
     content: state.summary,
-    fieldToContinue: 'existingContent',
-    buttonText: 'Continue Summary',
   });
 
   return (
@@ -99,7 +107,7 @@ export function LessonSummarizerForm() {
                     <MarkdownContent content={state.summary} />
                 </AlertDescription>
             </Alert>
-            {isContentIncomplete && <ContinueButton />}
+            {isContentIncomplete && <ContinueButton onClick={handleContinue} disabled={isSubmitting} text="Continue Summary" />}
          </div>
       )}
 

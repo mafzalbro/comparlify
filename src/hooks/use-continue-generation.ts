@@ -1,40 +1,40 @@
 
 'use client';
 
-import { useState, useTransition, useMemo, type RefObject } from 'react';
-import { Button } from '@/components/ui/button';
-import { Loader2, PlusCircle } from 'lucide-react';
+import { useTransition, useMemo, type RefObject, useFormStatus } from 'react';
 
 interface UseContinueGenerationProps {
   formRef: RefObject<HTMLFormElement>;
   formAction: (payload: FormData) => void;
   content: string | null | undefined;
-  fieldToContinue: string;
-  buttonText?: string;
 }
 
-// Regex to check if the content ends with a common sentence-ending character,
+// Regex to check if the content does NOT end with a common sentence-ending character,
 // optionally followed by whitespace, quotes, parentheses, or brackets.
-const isLikelyIncompleteRegex =
-  /(?<!\w)[.!?]$|[^.!?\])'"`\s]$/i;
+const isLikelyIncompleteRegex = /[^.!?\])'"`\s]$/i;
+
+const ContinueGenerationContext = React.createContext<{
+    isSubmitting: boolean;
+}>({
+    isSubmitting: false,
+});
 
 
 export function useContinueGeneration({
   formRef,
   formAction,
   content,
-  fieldToContinue,
-  buttonText = 'Continue Generating',
 }: UseContinueGenerationProps) {
   const [isContinuing, startTransition] = useTransition();
+  const { pending: isFormSubmitting } = useFormStatus();
+
+  const isSubmitting = isContinuing || isFormSubmitting;
 
   const handleContinue = () => {
     if (!formRef.current || !content) return;
     
     startTransition(() => {
         const formData = new FormData(formRef.current!);
-        // Ensure the hidden field has the latest content before submission
-        formData.set(fieldToContinue, content);
         formAction(formData);
     });
   };
@@ -45,33 +45,10 @@ export function useContinueGeneration({
     return content.trim().length > 0 && isLikelyIncompleteRegex.test(content.trim());
   }, [content]);
 
-
-  const ContinueButton = () => (
-    <Button
-      onClick={handleContinue}
-      className="w-full"
-      variant="outline"
-      type="button"
-      disabled={isContinuing}
-    >
-      {isContinuing ? (
-        <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Continuing...
-        </>
-      ) : (
-        <>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          {buttonText}
-        </>
-      )}
-    </Button>
-  );
-
   return {
     isContinuing,
     isContentIncomplete,
+    isSubmitting,
     handleContinue,
-    ContinueButton,
   };
 }
