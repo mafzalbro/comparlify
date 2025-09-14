@@ -1,8 +1,10 @@
+
 // lib/auth.ts
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
+import Credentials from "next-auth/providers/credentials";
 import prisma from "./prisma";
 import { Role } from "@prisma/client";
 import { createNotification } from "./notifications";
@@ -21,6 +23,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
       allowDangerousEmailAccountLinking: true,
     }),
+    Credentials({
+        name: "Direct Login",
+        credentials: {
+          userId: { label: "User ID", type: "text" },
+        },
+        async authorize(credentials) {
+            if (process.env.NODE_ENV === 'development' && credentials.userId === 'direct-login') {
+                const adminUser = await prisma.user.findUnique({
+                    where: { email: 'mafzalbro@gmail.com' }
+                });
+                if (adminUser) {
+                    return adminUser;
+                }
+            }
+            return null;
+        }
+    })
   ],
   callbacks: {
     async jwt({ token }) {

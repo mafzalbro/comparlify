@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useRef, useState } from 'react';
+import { useActionState, useRef, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateAnalogyAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,6 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Sparkles, PlusCircle, Copy, RefreshCw } from 'lucide-react';
 import { MarkdownContent } from './markdown-content';
-import { useContinueGeneration } from '@/hooks/use-continue-generation';
 import { AIGenerationLoader } from './ai-generation-loader';
 import { useToast } from '@/hooks/use-toast';
 
@@ -69,14 +68,22 @@ export function AnalogyGeneratorForm() {
   const [complexTopic, setComplexTopic] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
   const { toast } = useToast();
+  const [isContinuing, startContinueTransition] = useTransition();
 
-  const { isContinuing, isContentIncomplete, handleContinue } =
-    useContinueGeneration({
-      formRef,
-      content: state.analogy,
-    });
+  const isContentIncomplete = state.analogy ? /[^.!?\])'"`\s]$/i.test(state.analogy) : false;
   
   const showLoader = isFormSubmitting || isContinuing;
+
+  const handleContinue = () => {
+    if (formRef.current) {
+      startContinueTransition(() => {
+        const formData = new FormData(formRef.current!);
+        formData.set('complexTopic', complexTopic);
+        formData.set('existingContent', state.analogy || '');
+        formAction(formData);
+      });
+    }
+  };
 
   const handleCopy = () => {
     if (state.analogy) {
@@ -91,95 +98,95 @@ export function AnalogyGeneratorForm() {
   const handleRegenerate = () => {
     if (formRef.current) {
       const formData = new FormData(formRef.current);
-      // Remove existing content for regeneration
-      if(formData.has('existingContent')) {
-        formData.delete('existingContent');
-      }
+      formData.delete('existingContent');
       formAction(formData);
     }
   };
 
+  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    formAction(formData);
+  };
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+    <>
       <AIGenerationLoader show={showLoader} />
-      <form
-        ref={formRef}
-        action={(formData) => {
-          formAction(formData);
-        }}
-        className="space-y-6"
-      >
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="font-headline">Enter Complex Topic</CardTitle>
-            <CardDescription>
-              Describe a complex topic or concept, and the AI will generate a simple analogy to explain it.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid w-full items-center gap-4">
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="complexTopic">Complex Topic</Label>
-                <Textarea
-                  id="complexTopic"
-                  name="complexTopic"
-                  value={complexTopic}
-                  onChange={(e) => setComplexTopic(e.target.value)}
-                  placeholder="e.g., 'Blockchain technology' or 'Quantum computing'"
-                  rows={4}
-                  required
-                />
-                {typeof state.error === 'object' && state.error?.complexTopic && (
-                  <p className="text-sm text-destructive">{state.error.complexTopic[0]}</p>
-                )}
-              </div>
-            </div>
-            {isContinuing && state.analogy && (
-                <input type="hidden" name="existingContent" value={state.analogy} />
-            )}
-          </CardContent>
-          <CardFooter>
-            <SubmitButton isSubmitting={isContinuing} />
-          </CardFooter>
-        </Card>
-      </form>
-
-      {state.analogy && !showLoader && (
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-6 w-6 text-primary" />
-              <CardTitle className="font-bold">Generated Analogy</CardTitle>
-            </div>
-            <div className="flex gap-1">
-                <Button variant="ghost" size="icon" onClick={handleCopy} title="Copy">
-                    <Copy className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={handleRegenerate} title="Regenerate">
-                    <RefreshCw className="h-4 w-4" />
-                </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-              <MarkdownContent content={state.analogy} />
-              {isContentIncomplete && (
-                <div className="mt-4 pt-4 border-t">
-                  <ContinueButton
-                    onClick={handleContinue}
-                    isSubmitting={isContinuing}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+        <form
+          ref={formRef}
+          onSubmit={handleFormSubmit}
+          className="space-y-6"
+        >
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="font-headline">Enter Complex Topic</CardTitle>
+              <CardDescription>
+                Describe a complex topic or concept, and the AI will generate a simple analogy to explain it.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid w-full items-center gap-4">
+                <div className="flex flex-col space-y-1.5">
+                  <Label htmlFor="complexTopic">Complex Topic</Label>
+                  <Textarea
+                    id="complexTopic"
+                    name="complexTopic"
+                    value={complexTopic}
+                    onChange={(e) => setComplexTopic(e.target.value)}
+                    placeholder="e.g., 'Blockchain technology' or 'Quantum computing'"
+                    rows={4}
+                    required
                   />
+                  {typeof state.error === 'object' && state.error?.complexTopic && (
+                    <p className="text-sm text-destructive">{state.error.complexTopic[0]}</p>
+                  )}
                 </div>
-              )}
-          </CardContent>
-        </Card>
-      )}
+              </div>
+            </CardContent>
+            <CardFooter>
+              <SubmitButton isSubmitting={isContinuing} />
+            </CardFooter>
+          </Card>
+        </form>
 
-      {typeof state.error === 'string' && !showLoader && (
-        <Alert variant="destructive" className="mt-8">
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{state.error}</AlertDescription>
-        </Alert>
-      )}
-    </div>
+        {state.analogy && (
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-6 w-6 text-primary" />
+                <CardTitle className="font-bold">Generated Analogy</CardTitle>
+              </div>
+              <div className="flex gap-1">
+                  <Button variant="ghost" size="icon" onClick={handleCopy} title="Copy">
+                      <Copy className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={handleRegenerate} title="Regenerate">
+                      <RefreshCw className="h-4 w-4" />
+                  </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+                <MarkdownContent content={state.analogy} />
+                {isContentIncomplete && (
+                  <div className="mt-4 pt-4 border-t">
+                    <ContinueButton
+                      onClick={handleContinue}
+                      isSubmitting={isContinuing}
+                    />
+                  </div>
+                )}
+            </CardContent>
+          </Card>
+        )}
+
+        {typeof state.error === 'string' && (
+          <Alert variant="destructive" className="mt-8 lg:col-span-2">
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{state.error}</AlertDescription>
+          </Alert>
+        )}
+      </div>
+    </>
   );
 }

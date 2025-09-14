@@ -121,10 +121,10 @@ export default async function AdminLayout({
                             </Link>
                         </SidebarMenuItem>
                          <SidebarMenuItem>
-                           <Link href="/panel">
-                             <SidebarMenuButton tooltip="User Panel">
+                           <Link href="/">
+                             <SidebarMenuButton tooltip="View Site">
                                <LayoutDashboard />
-                               User Panel
+                               View Site
                              </SidebarMenuButton>
                            </Link>
                          </SidebarMenuItem>
