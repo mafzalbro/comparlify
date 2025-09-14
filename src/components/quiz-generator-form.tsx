@@ -20,6 +20,7 @@ import { Loader2, Sparkles } from 'lucide-react';
 import { Slider } from './ui/slider';
 import React from 'react';
 import { MarkdownContent } from './markdown-content';
+import { QuizViewer } from './quiz-viewer';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -96,13 +97,13 @@ export function QuizGeneratorForm() {
       </Card>
 
       {state.quiz && (
-        <Alert className="mt-8">
-            <Sparkles className="h-5 w-5" />
-            <AlertTitle className="font-bold">Generated Quiz</AlertTitle>
-            <AlertDescription className="mt-4">
-                 <MarkdownContent content={state.quiz} />
-            </AlertDescription>
-        </Alert>
+        <div className="mt-8">
+            <div className="flex items-center gap-2 mb-4">
+                <Sparkles className="h-6 w-6 text-primary" />
+                <h2 className="text-2xl font-bold font-headline">Generated Quiz</h2>
+            </div>
+            <QuizViewer quizMarkdown={state.quiz} />
+        </div>
       )}
 
       {typeof state.error === 'string' && (
