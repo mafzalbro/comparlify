@@ -13,7 +13,7 @@ import { Loader2, Sparkles, Copy, RefreshCw } from 'lucide-react';
 import { MarkdownContent } from './markdown-content';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { AIGenerationLoader } from './ai-generation-loader';
-import { useToast } from './use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 function SubmitButton() {
   const { pending } = useFormStatus();

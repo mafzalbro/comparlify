@@ -90,7 +90,9 @@ export function VideoScripterForm() {
   const handleRegenerate = () => {
     if (formRef.current) {
         const formData = new FormData(formRef.current);
-        formData.delete('existingScript');
+        if(formData.has('existingScript')) {
+          formData.delete('existingScript');
+        }
         formAction(formData);
     }
   };

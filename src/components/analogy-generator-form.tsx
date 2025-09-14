@@ -92,7 +92,9 @@ export function AnalogyGeneratorForm() {
     if (formRef.current) {
       const formData = new FormData(formRef.current);
       // Remove existing content for regeneration
-      formData.delete('existingContent');
+      if(formData.has('existingContent')) {
+        formData.delete('existingContent');
+      }
       formAction(formData);
     }
   };

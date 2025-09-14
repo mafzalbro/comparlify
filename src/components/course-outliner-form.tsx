@@ -87,7 +87,9 @@ export function CourseOutlinerForm() {
   const handleRegenerate = () => {
     if (formRef.current) {
         const formData = new FormData(formRef.current);
-        formData.delete('existingContent');
+        if(formData.has('existingContent')) {
+          formData.delete('existingContent');
+        }
         formAction(formData);
     }
   };

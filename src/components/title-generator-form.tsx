@@ -18,7 +18,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Sparkles, Copy, RefreshCw } from 'lucide-react';
 import { AIGenerationLoader } from './ai-generation-loader';
-import { useToast } from './use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
