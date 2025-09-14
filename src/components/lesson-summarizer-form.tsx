@@ -48,10 +48,6 @@ export function LessonSummarizerForm() {
   const handleContinue = () => {
     if (formRef.current && hiddenTextareaRef.current && lessonContentRef.current && state.summary) {
       hiddenTextareaRef.current.value = state.summary;
-      
-      lessonContentRef.current.focus();
-      lessonContentRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
       formRef.current.requestSubmit();
     }
   };

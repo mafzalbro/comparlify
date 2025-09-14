@@ -48,10 +48,6 @@ export function CourseOutlinerForm() {
   const handleContinue = () => {
     if (formRef.current && hiddenTextareaRef.current && courseDescriptionRef.current && state.courseOutline) {
       hiddenTextareaRef.current.value = state.courseOutline;
-
-      courseDescriptionRef.current.focus();
-      courseDescriptionRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
       formRef.current.requestSubmit();
     }
   };

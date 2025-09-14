@@ -41,10 +41,6 @@ export function AudiencePersonaGeneratorForm() {
   const handleContinue = () => {
     if (formRef.current && hiddenTextareaRef.current && courseIdeaRef.current && state.persona) {
       hiddenTextareaRef.current.value = state.persona;
-      
-      courseIdeaRef.current.focus();
-      courseIdeaRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
       formRef.current.requestSubmit();
     }
   };

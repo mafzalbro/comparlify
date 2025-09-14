@@ -41,10 +41,6 @@ export function AnalogyGeneratorForm() {
   const handleContinue = () => {
     if (formRef.current && hiddenTextareaRef.current && complexTopicRef.current && state.analogy) {
       hiddenTextareaRef.current.value = state.analogy;
-      
-      complexTopicRef.current.focus();
-      complexTopicRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
       formRef.current.requestSubmit();
     }
   };

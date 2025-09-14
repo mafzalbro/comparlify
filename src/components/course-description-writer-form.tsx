@@ -42,10 +42,6 @@ export function CourseDescriptionWriterForm() {
   const handleContinue = () => {
     if (formRef.current && hiddenTextareaRef.current && keyTopicsRef.current && state.description) {
       hiddenTextareaRef.current.value = state.description;
-
-      keyTopicsRef.current.focus();
-      keyTopicsRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
       formRef.current.requestSubmit();
     }
   };

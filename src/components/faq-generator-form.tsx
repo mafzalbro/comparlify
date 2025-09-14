@@ -41,10 +41,6 @@ export function FaqGeneratorForm() {
   const handleContinue = () => {
     if (formRef.current && hiddenTextareaRef.current && topicContentRef.current && state.faqs) {
       hiddenTextareaRef.current.value = state.faqs;
-      
-      topicContentRef.current.focus();
-      topicContentRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
       formRef.current.requestSubmit();
     }
   };
