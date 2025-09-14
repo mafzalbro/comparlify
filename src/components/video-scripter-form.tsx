@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useRef } from 'react';
+import { useActionState, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateVideoScriptAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -41,12 +41,12 @@ function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
   );
 }
 
-const ContinueButton = ({ onClick, disabled, text }: { onClick: () => void; disabled: boolean, text: string }) => (
+const ContinueButton = ({ onClick, disabled }: { onClick: () => void; }) => (
     <Button onClick={onClick} disabled={disabled} className="w-full" variant="outline" type="button">
         {disabled ? (
             <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Continuing...</>
         ) : (
-            <><PlusCircle className="mr-2 h-4 w-4" /> {text}</>
+            <><PlusCircle className="mr-2 h-4 w-4" /> Continue Script</>
         )}
     </Button>
 );
@@ -54,24 +54,23 @@ const ContinueButton = ({ onClick, disabled, text }: { onClick: () => void; disa
 export function VideoScripterForm() {
   const initialState = { videoScript: null, error: null };
   const [state, formAction] = useActionState(generateVideoScriptAction, initialState);
+  const [topic, setTopic] = useState('');
   const [duration, setDuration] = React.useState(5);
   const formRef = useRef<HTMLFormElement>(null);
 
   const {
     isContinuing,
     isContentIncomplete,
-    isSubmitting,
     handleContinue,
   } = useContinueGeneration({
     formRef,
-    formAction,
     content: state.videoScript,
   });
 
   return (
     <>
       <Card className="shadow-lg">
-        <form action={(payload) => { formAction(payload); }} ref={formRef}>
+        <form action={formAction} ref={formRef}>
           <CardHeader>
             <CardTitle className="font-headline">Describe Your Lesson</CardTitle>
             <CardDescription>
@@ -84,6 +83,8 @@ export function VideoScripterForm() {
               <Textarea
                 id="lessonTopic"
                 name="lessonTopic"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
                 placeholder="e.g., 'How to choose the right flour for sourdough bread' or 'An introduction to React Hooks: useState and useEffect'"
                 rows={4}
                 required
@@ -114,7 +115,7 @@ export function VideoScripterForm() {
              <input type="hidden" name="existingScript" value={state.videoScript ?? ''} />
           </CardContent>
           <CardFooter>
-            <SubmitButton isSubmitting={isSubmitting} />
+            <SubmitButton isSubmitting={isContinuing} />
           </CardFooter>
         </form>
       </Card>
@@ -128,7 +129,7 @@ export function VideoScripterForm() {
                    <MarkdownContent content={state.videoScript} />
               </AlertDescription>
           </Alert>
-          {isContentIncomplete && <ContinueButton onClick={handleContinue} disabled={isSubmitting} text="Continue Script" />}
+          {isContentIncomplete && <ContinueButton onClick={handleContinue} disabled={isContinuing} />}
         </div>
       )}
 

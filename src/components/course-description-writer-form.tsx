@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useRef } from 'react';
+import { useActionState, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateCourseDescriptionAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -33,12 +33,12 @@ function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
   );
 }
 
-const ContinueButton = ({ onClick, disabled, text }: { onClick: () => void; disabled: boolean, text: string }) => (
+const ContinueButton = ({ onClick, disabled }: { onClick: () => void; disabled: boolean; }) => (
     <Button onClick={onClick} disabled={disabled} className="w-full" variant="outline" type="button">
         {disabled ? (
             <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Continuing...</>
         ) : (
-            <><PlusCircle className="mr-2 h-4 w-4" /> {text}</>
+            <><PlusCircle className="mr-2 h-4 w-4" /> Continue Writing</>
         )}
     </Button>
 );
@@ -46,23 +46,23 @@ const ContinueButton = ({ onClick, disabled, text }: { onClick: () => void; disa
 export function CourseDescriptionWriterForm() {
   const initialState = { description: null, error: null };
   const [state, formAction] = useActionState(generateCourseDescriptionAction, initialState);
+  const [courseTitle, setCourseTitle] = useState('');
+  const [keyTopics, setKeyTopics] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
   
   const {
     isContinuing,
     isContentIncomplete,
-    isSubmitting,
     handleContinue,
   } = useContinueGeneration({
     formRef,
-    formAction,
     content: state.description,
   });
 
   return (
     <>
       <Card className="shadow-lg">
-        <form action={(payload) => { formAction(payload); }} ref={formRef}>
+        <form action={formAction} ref={formRef}>
           <CardHeader>
             <CardTitle className="font-headline">Course Details</CardTitle>
             <CardDescription>
@@ -72,7 +72,14 @@ export function CourseDescriptionWriterForm() {
           <CardContent className="space-y-4">
             <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="courseTitle">Course Title</Label>
-                <Input id="courseTitle" name="courseTitle" placeholder="e.g., The Ultimate Guide to Sourdough Baking" required />
+                <Input 
+                  id="courseTitle" 
+                  name="courseTitle" 
+                  value={courseTitle}
+                  onChange={(e) => setCourseTitle(e.target.value)}
+                  placeholder="e.g., The Ultimate Guide to Sourdough Baking" 
+                  required 
+                />
                  {typeof state.error === 'object' && state.error?.courseTitle && (
                   <p className="text-sm text-destructive">{state.error.courseTitle[0]}</p>
                 )}
@@ -82,6 +89,8 @@ export function CourseDescriptionWriterForm() {
               <Textarea
                 id="keyTopics"
                 name="keyTopics"
+                value={keyTopics}
+                onChange={(e) => setKeyTopics(e.target.value)}
                 placeholder="e.g., Creating a starter, kneading and folding, scoring techniques, baking in a Dutch oven, different types of flour..."
                 rows={6}
                 required
@@ -93,7 +102,7 @@ export function CourseDescriptionWriterForm() {
             </div>
           </CardContent>
           <CardFooter>
-            <SubmitButton isSubmitting={isSubmitting} />
+            <SubmitButton isSubmitting={isContinuing} />
           </CardFooter>
         </form>
       </Card>
@@ -107,7 +116,7 @@ export function CourseDescriptionWriterForm() {
               <MarkdownContent content={state.description} />
             </AlertDescription>
           </Alert>
-          {isContentIncomplete && <ContinueButton onClick={handleContinue} disabled={isSubmitting} text="Continue Writing" />}
+          {isContentIncomplete && <ContinueButton onClick={handleContinue} disabled={isContinuing} />}
         </div>
       )}
 

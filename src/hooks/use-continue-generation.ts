@@ -6,7 +6,6 @@ import { useTransition, useMemo, type RefObject } from 'react';
 
 interface UseContinueGenerationProps {
   formRef: RefObject<HTMLFormElement>;
-  formAction: (payload: FormData) => void;
   content: string | null | undefined;
 }
 
@@ -14,16 +13,8 @@ interface UseContinueGenerationProps {
 // optionally followed by whitespace, quotes, parentheses, or brackets.
 const isLikelyIncompleteRegex = /[^.!?\])'"`\s]$/i;
 
-const ContinueGenerationContext = React.createContext<{
-    isSubmitting: boolean;
-}>({
-    isSubmitting: false,
-});
-
-
 export function useContinueGeneration({
   formRef,
-  formAction,
   content,
 }: UseContinueGenerationProps) {
   const [isContinuing, startTransition] = useTransition();
@@ -32,8 +23,12 @@ export function useContinueGeneration({
     if (!formRef.current || !content) return;
     
     startTransition(() => {
-        const formData = new FormData(formRef.current!);
-        formAction(formData);
+        const submitter = document.createElement('button');
+        submitter.type = 'submit';
+        submitter.style.display = 'none';
+        formRef.current?.appendChild(submitter);
+        submitter.click();
+        formRef.current?.removeChild(submitter);
     });
   };
 
@@ -46,7 +41,6 @@ export function useContinueGeneration({
   return {
     isContinuing,
     isContentIncomplete,
-    isSubmitting: isContinuing, // The hook now only manages its own transition state
     handleContinue,
   };
 }

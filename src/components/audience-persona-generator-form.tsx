@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useRef } from 'react';
+import { useActionState, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateAudiencePersonaAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -32,12 +32,12 @@ function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
   );
 }
 
-const ContinueButton = ({ onClick, disabled, text }: { onClick: () => void; disabled: boolean, text: string }) => (
+const ContinueButton = ({ onClick, disabled }: { onClick: () => void; disabled: boolean }) => (
     <Button onClick={onClick} disabled={disabled} className="w-full" variant="outline" type="button">
         {disabled ? (
             <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Continuing...</>
         ) : (
-            <><PlusCircle className="mr-2 h-4 w-4" /> {text}</>
+            <><PlusCircle className="mr-2 h-4 w-4" /> Continue Generating</>
         )}
     </Button>
 );
@@ -45,23 +45,22 @@ const ContinueButton = ({ onClick, disabled, text }: { onClick: () => void; disa
 export function AudiencePersonaGeneratorForm() {
   const initialState = { persona: null, error: null };
   const [state, formAction] = useActionState(generateAudiencePersonaAction, initialState);
+  const [courseIdea, setCourseIdea] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
 
   const {
     isContinuing,
     isContentIncomplete,
-    isSubmitting,
     handleContinue,
   } = useContinueGeneration({
     formRef,
-    formAction,
     content: state.persona,
   });
 
   return (
     <>
       <Card className="shadow-lg">
-        <form action={(payload) => { formAction(payload); }} ref={formRef}>
+        <form action={formAction} ref={formRef}>
           <CardHeader>
             <CardTitle className="font-headline">Describe Your Course Idea</CardTitle>
             <CardDescription>
@@ -75,6 +74,8 @@ export function AudiencePersonaGeneratorForm() {
                 <Textarea
                   id="courseIdea"
                   name="courseIdea"
+                  value={courseIdea}
+                  onChange={(e) => setCourseIdea(e.target.value)}
                   placeholder="e.g., 'A course for busy professionals who want to learn photography on their weekends.'"
                   rows={4}
                   required
@@ -87,7 +88,7 @@ export function AudiencePersonaGeneratorForm() {
             </div>
           </CardContent>
           <CardFooter>
-            <SubmitButton isSubmitting={isSubmitting} />
+            <SubmitButton isSubmitting={isContinuing} />
           </CardFooter>
         </form>
       </Card>
@@ -101,7 +102,7 @@ export function AudiencePersonaGeneratorForm() {
               <MarkdownContent content={state.persona} />
             </AlertDescription>
           </Alert>
-          {isContentIncomplete && <ContinueButton onClick={handleContinue} disabled={isSubmitting} text="Continue Generating" />}
+          {isContentIncomplete && <ContinueButton onClick={handleContinue} disabled={isContinuing} />}
         </div>
       )}
 

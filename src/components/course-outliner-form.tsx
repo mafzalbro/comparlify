@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useRef } from 'react';
+import { useActionState, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateCourseOutlineAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -39,12 +39,12 @@ function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
   );
 }
 
-const ContinueButton = ({ onClick, disabled, text }: { onClick: () => void; disabled: boolean, text: string }) => (
+const ContinueButton = ({ onClick, disabled }: { onClick: () => void; disabled: boolean }) => (
     <Button onClick={onClick} disabled={disabled} className="w-full" variant="outline" type="button">
         {disabled ? (
             <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Continuing...</>
         ) : (
-            <><PlusCircle className="mr-2 h-4 w-4" /> {text}</>
+            <><PlusCircle className="mr-2 h-4 w-4" /> Continue Generating</>
         )}
     </Button>
 );
@@ -52,23 +52,22 @@ const ContinueButton = ({ onClick, disabled, text }: { onClick: () => void; disa
 export function CourseOutlinerForm() {
   const initialState = { courseOutline: null, error: null };
   const [state, formAction] = useActionState(generateCourseOutlineAction, initialState);
+  const [courseDescription, setCourseDescription] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
 
   const {
     isContinuing,
     isContentIncomplete,
-    isSubmitting,
     handleContinue,
   } = useContinueGeneration({
     formRef,
-    formAction,
     content: state.courseOutline,
   });
 
   return (
     <>
       <Card className="shadow-lg">
-        <form action={(payload) => { formAction(payload); }} ref={formRef}>
+        <form action={formAction} ref={formRef}>
           <CardHeader>
             <CardTitle className="font-headline">Describe Your Course</CardTitle>
             <CardDescription>
@@ -82,6 +81,8 @@ export function CourseOutlinerForm() {
                 <Textarea
                   id="courseDescription"
                   name="courseDescription"
+                  value={courseDescription}
+                  onChange={(e) => setCourseDescription(e.target.value)}
                   placeholder="e.g., 'An introductory course on baking sourdough bread at home, covering starters, kneading techniques, and different types of loaves...'"
                   rows={6}
                   required
@@ -94,7 +95,7 @@ export function CourseOutlinerForm() {
             </div>
           </CardContent>
           <CardFooter>
-            <SubmitButton isSubmitting={isSubmitting} />
+            <SubmitButton isSubmitting={isContinuing} />
           </CardFooter>
         </form>
       </Card>
@@ -108,7 +109,7 @@ export function CourseOutlinerForm() {
                     <MarkdownContent content={state.courseOutline} />
                 </AlertDescription>
             </Alert>
-            {isContentIncomplete && <ContinueButton onClick={handleContinue} disabled={isSubmitting} text="Continue Generating" />}
+            {isContentIncomplete && <ContinueButton onClick={handleContinue} disabled={isContinuing} />}
          </div>
       )}
 
