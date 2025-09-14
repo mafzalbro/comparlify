@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useRef } from 'react';
+import { useActionState, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateCourseDescriptionAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -35,23 +35,31 @@ function SubmitButton() {
 export function CourseDescriptionWriterForm() {
   const initialState = { description: null, error: null };
   const [state, formAction] = useActionState(generateCourseDescriptionAction, initialState);
+  const [isContinuing, setIsContinuing] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const hiddenTextareaRef = useRef<HTMLTextAreaElement>(null);
-  const keyTopicsRef = useRef<HTMLTextAreaElement>(null);
 
   const handleContinue = () => {
-    if (formRef.current && hiddenTextareaRef.current && keyTopicsRef.current && state.description) {
+    if (formRef.current && hiddenTextareaRef.current && state.description) {
+      setIsContinuing(true);
       hiddenTextareaRef.current.value = state.description;
-      formRef.current.requestSubmit();
+      
+      const formData = new FormData(formRef.current);
+      formAction(formData);
     }
   };
+
+  // This effect helps manage the loading state for the continue button
+  if (isContinuing && !state.description) {
+      setIsContinuing(false);
+  }
 
   const isContentIncomplete = state.description && !/[.!?\])'"`]\s*$/.test(state.description.trim());
 
   return (
     <>
       <Card className="shadow-lg">
-        <form action={formAction} ref={formRef}>
+        <form action={formAction} ref={formRef} onSubmit={() => setIsContinuing(false)}>
           <CardHeader>
             <CardTitle className="font-headline">Course Details</CardTitle>
             <CardDescription>
@@ -71,7 +79,6 @@ export function CourseDescriptionWriterForm() {
               <Textarea
                 id="keyTopics"
                 name="keyTopics"
-                ref={keyTopicsRef}
                 placeholder="e.g., Creating a starter, kneading and folding, scoring techniques, baking in a Dutch oven, different types of flour..."
                 rows={6}
                 required
@@ -98,8 +105,18 @@ export function CourseDescriptionWriterForm() {
             </AlertDescription>
           </Alert>
           {isContentIncomplete && (
-            <Button onClick={handleContinue} className="w-full" variant="outline" type="button">
-              <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
+            <Button onClick={handleContinue} className="w-full" variant="outline" type="button" disabled={isContinuing}>
+              {isContinuing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Continuing...
+                </>
+              ) : (
+                <>
+                  <PlusCircle className="mr-2 h-4 w-4" /> 
+                  Continue Generating
+                </>
+              )}
             </Button>
           )}
         </div>

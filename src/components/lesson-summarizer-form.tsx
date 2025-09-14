@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useRef } from 'react';
+import { useActionState, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateLessonSummaryAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -41,23 +41,31 @@ function SubmitButton() {
 export function LessonSummarizerForm() {
   const initialState = { summary: null, error: null };
   const [state, formAction] = useActionState(generateLessonSummaryAction, initialState);
+  const [isContinuing, setIsContinuing] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const hiddenTextareaRef = useRef<HTMLTextAreaElement>(null);
-  const lessonContentRef = useRef<HTMLTextAreaElement>(null);
 
   const handleContinue = () => {
-    if (formRef.current && hiddenTextareaRef.current && lessonContentRef.current && state.summary) {
+    if (formRef.current && hiddenTextareaRef.current && state.summary) {
+      setIsContinuing(true);
       hiddenTextareaRef.current.value = state.summary;
-      formRef.current.requestSubmit();
+      
+      const formData = new FormData(formRef.current);
+      formAction(formData);
     }
   };
+
+  // This effect helps manage the loading state for the continue button
+  if (isContinuing && !state.summary) {
+      setIsContinuing(false);
+  }
 
   const isContentIncomplete = state.summary && !/[.!?\])'"`]\s*$/.test(state.summary.trim());
 
   return (
     <>
       <Card className="shadow-lg">
-        <form action={formAction} ref={formRef}>
+        <form action={formAction} ref={formRef} onSubmit={() => setIsContinuing(false)}>
           <CardHeader>
             <CardTitle className="font-headline">Lesson Content</CardTitle>
             <CardDescription>
@@ -71,7 +79,6 @@ export function LessonSummarizerForm() {
                 <Textarea
                   id="lessonContent"
                   name="lessonContent"
-                  ref={lessonContentRef}
                   placeholder="Paste your entire lesson transcript or text here..."
                   rows={12}
                   required
@@ -99,8 +106,18 @@ export function LessonSummarizerForm() {
                 </AlertDescription>
             </Alert>
             {isContentIncomplete && (
-              <Button onClick={handleContinue} className="w-full" variant="outline" type="button">
-                  <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
+              <Button onClick={handleContinue} className="w-full" variant="outline" type="button" disabled={isContinuing}>
+                  {isContinuing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Continuing...
+                    </>
+                  ) : (
+                    <>
+                      <PlusCircle className="mr-2 h-4 w-4" /> 
+                      Continue Generating
+                    </>
+                  )}
               </Button>
             )}
          </div>

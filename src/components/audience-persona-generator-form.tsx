@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useRef } from 'react';
+import { useActionState, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateAudiencePersonaAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -34,23 +34,31 @@ function SubmitButton() {
 export function AudiencePersonaGeneratorForm() {
   const initialState = { persona: null, error: null };
   const [state, formAction] = useActionState(generateAudiencePersonaAction, initialState);
+  const [isContinuing, setIsContinuing] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const hiddenTextareaRef = useRef<HTMLTextAreaElement>(null);
-  const courseIdeaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleContinue = () => {
-    if (formRef.current && hiddenTextareaRef.current && courseIdeaRef.current && state.persona) {
+    if (formRef.current && hiddenTextareaRef.current && state.persona) {
+      setIsContinuing(true);
       hiddenTextareaRef.current.value = state.persona;
-      formRef.current.requestSubmit();
+      
+      const formData = new FormData(formRef.current);
+      formAction(formData);
     }
   };
+
+  // This effect helps manage the loading state for the continue button
+  if (isContinuing && !state.persona) {
+      setIsContinuing(false);
+  }
 
   const isContentIncomplete = state.persona && !/[.!?\])'"`]\s*$/.test(state.persona.trim());
 
   return (
     <>
       <Card className="shadow-lg">
-        <form action={formAction} ref={formRef}>
+        <form action={formAction} ref={formRef} onSubmit={() => setIsContinuing(false)}>
           <CardHeader>
             <CardTitle className="font-headline">Describe Your Course Idea</CardTitle>
             <CardDescription>
@@ -64,7 +72,6 @@ export function AudiencePersonaGeneratorForm() {
                 <Textarea
                   id="courseIdea"
                   name="courseIdea"
-                  ref={courseIdeaRef}
                   placeholder="e.g., 'A course for busy professionals who want to learn photography on their weekends.'"
                   rows={4}
                   required
@@ -92,8 +99,18 @@ export function AudiencePersonaGeneratorForm() {
             </AlertDescription>
           </Alert>
           {isContentIncomplete && (
-            <Button onClick={handleContinue} className="w-full" variant="outline" type="button">
-              <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
+            <Button onClick={handleContinue} className="w-full" variant="outline" type="button" disabled={isContinuing}>
+              {isContinuing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Continuing...
+                </>
+              ) : (
+                <>
+                  <PlusCircle className="mr-2 h-4 w-4" /> 
+                  Continue Generating
+                </>
+              )}
             </Button>
           )}
         </div>

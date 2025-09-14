@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useRef } from 'react';
+import { useActionState, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateFaqsAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -34,23 +34,31 @@ function SubmitButton() {
 export function FaqGeneratorForm() {
   const initialState = { faqs: null, error: null };
   const [state, formAction] = useActionState(generateFaqsAction, initialState);
+  const [isContinuing, setIsContinuing] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const hiddenTextareaRef = useRef<HTMLTextAreaElement>(null);
-  const topicContentRef = useRef<HTMLTextAreaElement>(null);
 
   const handleContinue = () => {
-    if (formRef.current && hiddenTextareaRef.current && topicContentRef.current && state.faqs) {
+    if (formRef.current && hiddenTextareaRef.current && state.faqs) {
+      setIsContinuing(true);
       hiddenTextareaRef.current.value = state.faqs;
-      formRef.current.requestSubmit();
+      
+      const formData = new FormData(formRef.current);
+      formAction(formData);
     }
   };
+
+  // This effect helps manage the loading state for the continue button
+  if (isContinuing && !state.faqs) {
+      setIsContinuing(false);
+  }
 
   const isContentIncomplete = state.faqs && !/[.!?\])'"`]\s*$/.test(state.faqs.trim());
 
   return (
     <>
       <Card className="shadow-lg">
-        <form action={formAction} ref={formRef}>
+        <form action={formAction} ref={formRef} onSubmit={() => setIsContinuing(false)}>
           <CardHeader>
             <CardTitle className="font-headline">Topic Content</CardTitle>
             <CardDescription>
@@ -64,7 +72,6 @@ export function FaqGeneratorForm() {
                 <Textarea
                   id="topicContent"
                   name="topicContent"
-                  ref={topicContentRef}
                   placeholder="e.g., Paste your full course description or a lesson transcript here..."
                   rows={10}
                   required
@@ -92,8 +99,18 @@ export function FaqGeneratorForm() {
             </AlertDescription>
           </Alert>
           {isContentIncomplete && (
-            <Button onClick={handleContinue} className="w-full" variant="outline" type="button">
-              <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
+            <Button onClick={handleContinue} className="w-full" variant="outline" type="button" disabled={isContinuing}>
+               {isContinuing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Continuing...
+                </>
+              ) : (
+                <>
+                  <PlusCircle className="mr-2 h-4 w-4" /> 
+                  Continue Generating
+                </>
+              )}
             </Button>
           )}
         </div>

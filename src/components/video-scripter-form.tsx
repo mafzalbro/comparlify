@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useRef } from 'react';
+import { useActionState, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateVideoScriptAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -44,25 +44,33 @@ export function VideoScripterForm() {
   const initialState = { videoScript: null, error: null };
   const [state, formAction] = useActionState(generateVideoScriptAction, initialState);
   const [duration, setDuration] = React.useState(5);
+  const [isContinuing, setIsContinuing] = useState(false);
 
   const formRef = useRef<HTMLFormElement>(null);
   const hiddenTextareaRef = useRef<HTMLTextAreaElement>(null);
-  const lessonTopicRef = useRef<HTMLTextAreaElement>(null);
 
   const handleContinue = () => {
-    if (formRef.current && hiddenTextareaRef.current && lessonTopicRef.current && state.videoScript) {
+    if (formRef.current && hiddenTextareaRef.current && state.videoScript) {
+      setIsContinuing(true);
       // Set the value of the hidden textarea to the current script
       hiddenTextareaRef.current.value = state.videoScript;
-      formRef.current.requestSubmit();
+      
+      const formData = new FormData(formRef.current);
+      formAction(formData);
     }
   };
+
+  // This effect helps manage the loading state for the continue button
+  if (isContinuing && !state.videoScript) {
+      setIsContinuing(false);
+  }
 
   const isContentIncomplete = state.videoScript && !/[.!?\])'"`]\s*$/.test(state.videoScript.trim());
 
   return (
     <>
       <Card className="shadow-lg">
-        <form action={formAction} ref={formRef}>
+        <form action={formAction} ref={formRef} onSubmit={() => setIsContinuing(false)}>
           <CardHeader>
             <CardTitle className="font-headline">Describe Your Lesson</CardTitle>
             <CardDescription>
@@ -75,7 +83,6 @@ export function VideoScripterForm() {
               <Textarea
                 id="lessonTopic"
                 name="lessonTopic"
-                ref={lessonTopicRef}
                 placeholder="e.g., 'How to choose the right flour for sourdough bread' or 'An introduction to React Hooks: useState and useEffect'"
                 rows={4}
                 required
@@ -122,8 +129,18 @@ export function VideoScripterForm() {
               </AlertDescription>
           </Alert>
           {isContentIncomplete && (
-            <Button onClick={handleContinue} className="w-full" variant="outline" type="button">
-              <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
+            <Button onClick={handleContinue} className="w-full" variant="outline" type="button" disabled={isContinuing}>
+              {isContinuing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Continuing...
+                </>
+              ) : (
+                <>
+                  <PlusCircle className="mr-2 h-4 w-4" /> 
+                  Continue Generating
+                </>
+              )}
             </Button>
           )}
         </div>
