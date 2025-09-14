@@ -49,7 +49,7 @@ export function AudiencePersonaGeneratorForm() {
     }
   };
 
-  const isContentIncomplete = state.persona && !/[.!?]\s*$/.test(state.persona.trim());
+  const isContentIncomplete = state.persona && !/[.!?\])'"`]\s*$/.test(state.persona.trim());
 
   return (
     <>

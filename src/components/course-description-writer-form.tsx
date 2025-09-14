@@ -50,7 +50,7 @@ export function CourseDescriptionWriterForm() {
     }
   };
 
-  const isContentIncomplete = state.description && !/[.!?]\s*$/.test(state.description.trim());
+  const isContentIncomplete = state.description && !/[.!?\])'"`]\s*$/.test(state.description.trim());
 
   return (
     <>

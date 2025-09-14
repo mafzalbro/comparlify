@@ -56,7 +56,7 @@ export function CourseOutlinerForm() {
     }
   };
 
-  const isContentIncomplete = state.courseOutline && !/[.!?]\s*$/.test(state.courseOutline.trim());
+  const isContentIncomplete = state.courseOutline && !/[.!?\])'"`]\s*$/.test(state.courseOutline.trim());
 
   return (
     <>

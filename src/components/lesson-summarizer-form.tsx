@@ -56,7 +56,7 @@ export function LessonSummarizerForm() {
     }
   };
 
-  const isContentIncomplete = state.summary && !/[.!?]\s*$/.test(state.summary.trim());
+  const isContentIncomplete = state.summary && !/[.!?\])'"`]\s*$/.test(state.summary.trim());
 
   return (
     <>

@@ -53,7 +53,7 @@ export function VideoScripterForm() {
     if (formRef.current && hiddenTextareaRef.current && lessonTopicRef.current && state.videoScript) {
       // Set the value of the hidden textarea to the current script
       hiddenTextareaRef.current.value = state.videoScript;
-
+      
       lessonTopicRef.current.focus();
       lessonTopicRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
       
@@ -61,7 +61,7 @@ export function VideoScripterForm() {
     }
   };
 
-  const isContentIncomplete = state.videoScript && !/[.!?]\s*$/.test(state.videoScript.trim());
+  const isContentIncomplete = state.videoScript && !/[.!?\])'"`]\s*$/.test(state.videoScript.trim());
 
   return (
     <>

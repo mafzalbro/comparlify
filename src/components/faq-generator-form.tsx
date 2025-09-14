@@ -49,7 +49,7 @@ export function FaqGeneratorForm() {
     }
   };
 
-  const isContentIncomplete = state.faqs && !/[.!?]\s*$/.test(state.faqs.trim());
+  const isContentIncomplete = state.faqs && !/[.!?\])'"`]\s*$/.test(state.faqs.trim());
 
   return (
     <>

@@ -49,7 +49,7 @@ export function AnalogyGeneratorForm() {
     }
   };
 
-  const isContentIncomplete = state.analogy && !/[.!?]\s*$/.test(state.analogy.trim());
+  const isContentIncomplete = state.analogy && !/[.!?\])'"`]\s*$/.test(state.analogy.trim());
 
   return (
     <>
