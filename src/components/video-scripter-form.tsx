@@ -21,7 +21,7 @@ import { Slider } from './ui/slider';
 import React from 'react';
 import { MarkdownContent } from './markdown-content';
 
-function SubmitButton({ isContinuing }: { isContinuing?: boolean }) {
+function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="w-full">
@@ -32,8 +32,8 @@ function SubmitButton({ isContinuing }: { isContinuing?: boolean }) {
         </>
       ) : (
         <>
-          {isContinuing ? <PlusCircle className="mr-2 h-4 w-4" /> : <Sparkles className="mr-2 h-4 w-4" />}
-          {isContinuing ? 'Continue Generating' : 'Generate Script'}
+          <Sparkles className="mr-2 h-4 w-4" />
+          Generate Script
         </>
       )}
     </Button>
@@ -50,20 +50,14 @@ export function VideoScripterForm() {
   const lessonTopicRef = useRef<HTMLTextAreaElement>(null);
 
   const handleContinue = () => {
-    if (formRef.current && hiddenTextareaRef.current && state.videoScript) {
+    if (formRef.current && hiddenTextareaRef.current && lessonTopicRef.current && state.videoScript) {
       // Set the value of the hidden textarea to the current script
       hiddenTextareaRef.current.value = state.videoScript;
 
-      if (lessonTopicRef.current) {
-        lessonTopicRef.current.focus();
-        lessonTopicRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+      lessonTopicRef.current.focus();
+      lessonTopicRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
       
-      const submitButton = formRef.current.querySelector('button[type="submit"]') as HTMLElement | null;
-      if (submitButton) {
-        formRef.current.setAttribute('data-continuing', 'true');
-        submitButton.click();
-      }
+      formRef.current.requestSubmit();
     }
   };
 
@@ -132,7 +126,7 @@ export function VideoScripterForm() {
               </AlertDescription>
           </Alert>
           {isContentIncomplete && (
-            <Button onClick={handleContinue} className="w-full" variant="outline">
+            <Button onClick={handleContinue} className="w-full" variant="outline" type="button">
               <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
             </Button>
           )}

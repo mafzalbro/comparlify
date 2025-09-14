@@ -19,19 +19,19 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Sparkles, PlusCircle } from 'lucide-react';
 import { MarkdownContent } from './markdown-content';
 
-function SubmitButton({ isContinuing }: { isContinuing?: boolean }) {
+function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="w-full">
       {pending ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          {isContinuing ? 'Continuing...' : 'Summarizing...'}
+          Summarizing...
         </>
       ) : (
         <>
-          {isContinuing ? <PlusCircle className="mr-2 h-4 w-4" /> : <Sparkles className="mr-2 h-4 w-4" />}
-          {isContinuing ? 'Continue Generating' : 'Generate Summary'}
+          <Sparkles className="mr-2 h-4 w-4" />
+          Generate Summary
         </>
       )}
     </Button>
@@ -46,13 +46,11 @@ export function LessonSummarizerForm() {
   const lessonContentRef = useRef<HTMLTextAreaElement>(null);
 
   const handleContinue = () => {
-    if (formRef.current && hiddenTextareaRef.current && state.summary) {
+    if (formRef.current && hiddenTextareaRef.current && lessonContentRef.current && state.summary) {
       hiddenTextareaRef.current.value = state.summary;
       
-      if (lessonContentRef.current) {
-        lessonContentRef.current.focus();
-        lessonContentRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+      lessonContentRef.current.focus();
+      lessonContentRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
       formRef.current.requestSubmit();
     }
@@ -105,7 +103,7 @@ export function LessonSummarizerForm() {
                 </AlertDescription>
             </Alert>
             {isContentIncomplete && (
-              <Button onClick={handleContinue} className="w-full" variant="outline">
+              <Button onClick={handleContinue} className="w-full" variant="outline" type="button">
                   <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
               </Button>
             )}

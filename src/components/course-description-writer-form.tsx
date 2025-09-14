@@ -13,19 +13,19 @@ import { Loader2, Sparkles, PlusCircle } from 'lucide-react';
 import { MarkdownContent } from './markdown-content';
 import { Input } from './ui/input';
 
-function SubmitButton({ isContinuing }: { isContinuing?: boolean }) {
+function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="w-full">
       {pending ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          {isContinuing ? 'Continuing...' : 'Writing...'}
+          Writing...
         </>
       ) : (
         <>
-          {isContinuing ? <PlusCircle className="mr-2 h-4 w-4" /> : <Sparkles className="mr-2 h-4 w-4" />}
-          {isContinuing ? 'Continue Generating' : 'Generate Description'}
+          <Sparkles className="mr-2 h-4 w-4" />
+          Generate Description
         </>
       )}
     </Button>
@@ -40,13 +40,11 @@ export function CourseDescriptionWriterForm() {
   const keyTopicsRef = useRef<HTMLTextAreaElement>(null);
 
   const handleContinue = () => {
-    if (formRef.current && hiddenTextareaRef.current && state.description) {
+    if (formRef.current && hiddenTextareaRef.current && keyTopicsRef.current && state.description) {
       hiddenTextareaRef.current.value = state.description;
 
-      if (keyTopicsRef.current) {
-        keyTopicsRef.current.focus();
-        keyTopicsRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+      keyTopicsRef.current.focus();
+      keyTopicsRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
       formRef.current.requestSubmit();
     }
@@ -104,7 +102,7 @@ export function CourseDescriptionWriterForm() {
             </AlertDescription>
           </Alert>
           {isContentIncomplete && (
-            <Button onClick={handleContinue} className="w-full" variant="outline">
+            <Button onClick={handleContinue} className="w-full" variant="outline" type="button">
               <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
             </Button>
           )}

@@ -12,7 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Sparkles, PlusCircle } from 'lucide-react';
 import { MarkdownContent } from './markdown-content';
 
-function SubmitButton({ isContinuing }: { isContinuing?: boolean }) {
+function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="w-full">
@@ -23,8 +23,8 @@ function SubmitButton({ isContinuing }: { isContinuing?: boolean }) {
         </>
       ) : (
         <>
-           {isContinuing ? <PlusCircle className="mr-2 h-4 w-4" /> : <Sparkles className="mr-2 h-4 w-4" />}
-           {isContinuing ? 'Continue Generating' : 'Generate Persona'}
+           <Sparkles className="mr-2 h-4 w-4" />
+           Generate Persona
         </>
       )}
     </Button>
@@ -39,13 +39,11 @@ export function AudiencePersonaGeneratorForm() {
   const courseIdeaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleContinue = () => {
-    if (formRef.current && hiddenTextareaRef.current && state.persona) {
+    if (formRef.current && hiddenTextareaRef.current && courseIdeaRef.current && state.persona) {
       hiddenTextareaRef.current.value = state.persona;
       
-      if (courseIdeaRef.current) {
-        courseIdeaRef.current.focus();
-        courseIdeaRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+      courseIdeaRef.current.focus();
+      courseIdeaRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
       formRef.current.requestSubmit();
     }
@@ -98,7 +96,7 @@ export function AudiencePersonaGeneratorForm() {
             </AlertDescription>
           </Alert>
           {isContentIncomplete && (
-            <Button onClick={handleContinue} className="w-full" variant="outline">
+            <Button onClick={handleContinue} className="w-full" variant="outline" type="button">
               <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
             </Button>
           )}

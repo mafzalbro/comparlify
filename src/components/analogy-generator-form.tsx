@@ -12,7 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Sparkles, PlusCircle } from 'lucide-react';
 import { MarkdownContent } from './markdown-content';
 
-function SubmitButton({ isContinuing }: { isContinuing?: boolean }) {
+function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="w-full">
@@ -23,8 +23,8 @@ function SubmitButton({ isContinuing }: { isContinuing?: boolean }) {
         </>
       ) : (
         <>
-          {isContinuing ? <PlusCircle className="mr-2 h-4 w-4" /> : <Sparkles className="mr-2 h-4 w-4" />}
-          {isContinuing ? 'Continue Generating' : 'Generate Analogy'}
+          <Sparkles className="mr-2 h-4 w-4" />
+          Generate Analogy
         </>
       )}
     </Button>
@@ -39,17 +39,12 @@ export function AnalogyGeneratorForm() {
   const complexTopicRef = useRef<HTMLTextAreaElement>(null);
 
   const handleContinue = () => {
-    if (formRef.current && hiddenTextareaRef.current && state.analogy) {
-      // Set the value of the hidden textarea
+    if (formRef.current && hiddenTextareaRef.current && complexTopicRef.current && state.analogy) {
       hiddenTextareaRef.current.value = state.analogy;
       
-      // Focus and scroll to the input field
-      if (complexTopicRef.current) {
-        complexTopicRef.current.focus();
-        complexTopicRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+      complexTopicRef.current.focus();
+      complexTopicRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-      // Submit the form
       formRef.current.requestSubmit();
     }
   };
@@ -101,7 +96,7 @@ export function AnalogyGeneratorForm() {
             </AlertDescription>
           </Alert>
           {isContentIncomplete && (
-            <Button onClick={handleContinue} className="w-full" variant="outline">
+            <Button onClick={handleContinue} className="w-full" variant="outline" type="button">
               <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
             </Button>
           )}
