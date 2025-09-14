@@ -29,6 +29,7 @@ const postSchema = z.object({
   content: z.string().min(20, "Content must be at least 20 characters long"),
   image: z.string().url("Must be a valid URL"),
   dataAiHint: z.string().optional(),
+  categoryId: z.string().min(1, "A category must be selected"),
   published: z.preprocess((val) => val === "on", z.boolean()),
 });
 

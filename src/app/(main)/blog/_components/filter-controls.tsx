@@ -16,10 +16,10 @@ import {
 } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Label } from '@/components/ui/label';
-import type { User } from '@prisma/client';
+import type { User, PostCategory } from '@prisma/client';
 import type { SearchParams } from '@/types/next';
 import { createQueryString } from '@/lib/utils';
-
+import { Separator } from '@/components/ui/separator';
 
 function useDebounce<T>(value: T, delay: number): T {
     const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -39,10 +39,11 @@ function useDebounce<T>(value: T, delay: number): T {
 
 interface FilterControlsProps {
     authors: User[];
+    categories: PostCategory[];
     searchParams: SearchParams;
 }
 
-export function FilterControls({ authors, searchParams }: FilterControlsProps) {
+export function FilterControls({ authors, categories, searchParams }: FilterControlsProps) {
     const router = useRouter();
     const pathname = usePathname();
     const [isPending, startTransition] = useTransition();
@@ -70,6 +71,7 @@ export function FilterControls({ authors, searchParams }: FilterControlsProps) {
 
     const sortValue = String(searchParams.sort || 'newest');
     const authorValue = String(searchParams.author || 'all');
+    const categoryValue = String(searchParams.category || 'all');
 
     const handleSortChange = (value: string) => {
         handleFilterChange({ sort: value, page: 1 });
@@ -78,8 +80,12 @@ export function FilterControls({ authors, searchParams }: FilterControlsProps) {
     const handleAuthorChange = (value: string) => {
         handleFilterChange({ author: value, page: 1 });
     };
+    
+    const handleCategoryChange = (value: string) => {
+        handleFilterChange({ category: value, page: 1 });
+    };
 
-    const hasActiveFilters = !!searchParams.search || !!searchParams.sort || !!searchParams.author;
+    const hasActiveFilters = !!searchParams.search || !!searchParams.sort || !!searchParams.author || !!searchParams.category;
 
 
     return (
@@ -101,7 +107,7 @@ export function FilterControls({ authors, searchParams }: FilterControlsProps) {
                     <Button type="button" variant="outline" className="h-10" disabled={isPending}>
                         <ListFilter className="mr-2 h-4 w-4"/> 
                         Filters
-                        {(!!searchParams.sort || !!searchParams.author) && <span className="ml-2 h-2 w-2 rounded-full bg-primary" />}
+                        {(!!searchParams.sort || !!searchParams.author || !!searchParams.category) && <span className="ml-2 h-2 w-2 rounded-full bg-primary" />}
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-64" align="start">
@@ -116,6 +122,21 @@ export function FilterControls({ authors, searchParams }: FilterControlsProps) {
                                     <SelectItem value="newest">Newest</SelectItem>
                                     <SelectItem value="oldest">Oldest</SelectItem>
                                     <SelectItem value="alpha">Alphabetical</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <Separator />
+                        <div className="space-y-2">
+                             <Label htmlFor="category">Category</Label>
+                            <Select value={categoryValue} onValueChange={handleCategoryChange} disabled={isPending}>
+                                <SelectTrigger id="category" className="h-10">
+                                    <SelectValue placeholder="All Categories" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Categories</SelectItem>
+                                    {categories.map(category => (
+                                        <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                         </div>

@@ -13,7 +13,7 @@ import { ArrowRight, Search, ListFilter, User as UserIcon } from 'lucide-react';
 import prisma from '@/lib/prisma';
 import type { Metadata } from 'next';
 import { generateSeoMetadata } from '@/lib/seo';
-import type { User, Post } from '@prisma/client';
+import type { User, Post, PostCategory } from '@prisma/client';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -29,6 +29,7 @@ import { cache } from 'react';
 import type { SearchParams } from '@/types/next';
 import { Breadcrumbs } from '@/components/breadcrumb';
 import { FilterControls } from './_components/filter-controls';
+import { Badge } from '@/components/ui/badge';
 
 export const metadata: Metadata = generateSeoMetadata({
   title: 'Creator Insights Blog',
@@ -36,16 +37,18 @@ export const metadata: Metadata = generateSeoMetadata({
   path: '/blog'
 });
 
-type PostWithAuthor = Post & { author: User };
+type PostWithAuthorAndCategory = Post & { author: User, category: PostCategory | null };
 
 const getBlogPosts = cache(async ({
   search,
   sort,
   author,
+  category,
 }: {
   search?: string;
   sort?: string;
   author?: string;
+  category?: string;
 }) => {
   let where: any = { published: true };
   let orderBy: any = { createdAt: 'desc' };
@@ -61,6 +64,10 @@ const getBlogPosts = cache(async ({
   if (author && author !== 'all') {
     where.authorId = author;
   }
+  
+  if (category && category !== 'all') {
+    where.categoryId = category;
+  }
 
   if (sort === 'oldest') {
     orderBy = { createdAt: 'asc' };
@@ -70,9 +77,9 @@ const getBlogPosts = cache(async ({
     orderBy = { createdAt: 'desc' };
   }
 
-  const posts: PostWithAuthor[] = await prisma.post.findMany({
+  const posts: PostWithAuthorAndCategory[] = await prisma.post.findMany({
     where,
-    include: { author: true },
+    include: { author: true, category: true },
     orderBy,
   });
   return posts;
@@ -82,13 +89,18 @@ const getAuthors = cache(async () => {
   return prisma.user.findMany({ where: { posts: { some: { published: true } } } });
 });
 
+const getPostCategories = cache(async () => {
+  return prisma.postCategory.findMany({ orderBy: { name: 'asc' } });
+});
+
 
 export default async function BlogPage(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = (await props.searchParams);
-  const { search, sort, author } = searchParams;
-  const [blogPosts, authors] = await Promise.all([
-    getBlogPosts({ search: String(search ?? ''), sort: String(sort ?? 'newest'), author: String(author ?? 'all') }),
-    getAuthors()
+  const { search, sort, author, category } = searchParams;
+  const [blogPosts, authors, categories] = await Promise.all([
+    getBlogPosts({ search: String(search ?? ''), sort: String(sort ?? 'newest'), author: String(author ?? 'all'), category: String(category ?? 'all') }),
+    getAuthors(),
+    getPostCategories()
   ]);
 
   return (
@@ -113,7 +125,7 @@ export default async function BlogPage(props: { searchParams: Promise<SearchPara
         </div>
       </section>
       <div className="container py-16 md:py-24 px-4 md:px-6">
-        <FilterControls authors={authors} searchParams={searchParams} />
+        <FilterControls authors={authors} categories={categories} searchParams={searchParams} />
 
         {blogPosts.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground animate-fade-in-up">
@@ -137,6 +149,9 @@ export default async function BlogPage(props: { searchParams: Promise<SearchPara
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     </Link>
+                    {post.category && (
+                      <Badge className="absolute top-3 right-3">{post.category.name}</Badge>
+                    )}
                   </div>
                   <CardHeader>
                     <CardTitle className="font-headline text-xl">

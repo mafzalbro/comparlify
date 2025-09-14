@@ -16,6 +16,8 @@ async function main() {
   await prisma.featureCategory.deleteMany();
   await prisma.platform.deleteMany();
   await prisma.user.deleteMany();
+  await prisma.postCategory.deleteMany();
+  await prisma.comparisonCategory.deleteMany();
   console.log("Cleaned up existing data.");
 
   // --- 2. Seed Users ---
@@ -132,19 +134,39 @@ async function main() {
   }
   console.log("Seeded platform features.");
 
-  // --- 6. Seed Blog Posts ---
-  const postsData: Omit<Prisma.PostCreateInput, "author">[] = [
-      { slug: "choosing-the-right-platform", title: "10 Things to Consider When Choosing a Course Platform", description: "From pricing and features to scalability and support, here are the key factors to weigh before committing to a platform.", content: "Full content about choosing platforms...", image: "https://picsum.photos/400/250?random=1", dataAiHint: "decision making choices", published: true, authorId: adminUser.id },
-      { slug: "engaging-course-content", title: "5 Secrets to Creating Wildly Engaging Course Content", description: "Move beyond static videos. Discover interactive techniques that captivate students and boost completion rates.", content: "Full content about engaging content...", image: "https://picsum.photos/400/250?random=2", dataAiHint: "creative content creation", published: true, authorId: adminUser.id },
-      { slug: "marketing-your-online-course", title: "The Ultimate Guide to Marketing Your Online Course in 2024", description: "Explore the latest strategies for social media, email marketing, and SEO to attract your ideal students.", content: "Full content about marketing courses...", image: "https://picsum.photos/400/250?random=3", dataAiHint: "digital marketing strategy", published: true, authorId: adminUser.id },
-      { slug: "ai-in-education", title: "How AI is Revolutionizing the E-Learning Industry", description: "Learn how artificial intelligence is personalizing learning paths, automating grading, and creating smarter content.", content: "Full content about AI in education...", image: "https://picsum.photos/400/250?random=4", dataAiHint: "artificial intelligence education", published: false, authorId: adminUser.id },
+  // --- 6. Seed Blog Post Categories ---
+  const postCategories = await prisma.postCategory.createManyAndReturn({
+    data: [
+      { name: "Platform Guides", slug: "platform-guides" },
+      { name: "Course Creation", slug: "course-creation" },
+      { name: "Marketing", slug: "marketing" },
+      { name: "Tech Trends", slug: "tech-trends" },
+    ]
+  });
+  console.log("Seeded post categories.");
+  const postCategoryMap = new Map(postCategories.map(c => [c.name, c.id]));
+
+
+  // --- 7. Seed Blog Posts ---
+  const postsData: (Omit<Prisma.PostCreateInput, "author" | "category"> & {categoryName: string})[] = [
+      { slug: "choosing-the-right-platform", title: "10 Things to Consider When Choosing a Course Platform", description: "From pricing and features to scalability and support, here are the key factors to weigh before committing to a platform.", content: "Full content about choosing platforms...", image: "https://picsum.photos/400/250?random=1", dataAiHint: "decision making choices", published: true, authorId: adminUser.id, categoryName: "Platform Guides" },
+      { slug: "engaging-course-content", title: "5 Secrets to Creating Wildly Engaging Course Content", description: "Move beyond static videos. Discover interactive techniques that captivate students and boost completion rates.", content: "Full content about engaging content...", image: "https://picsum.photos/400/250?random=2", dataAiHint: "creative content creation", published: true, authorId: adminUser.id, categoryName: "Course Creation" },
+      { slug: "marketing-your-online-course", title: "The Ultimate Guide to Marketing Your Online Course in 2024", description: "Explore the latest strategies for social media, email marketing, and SEO to attract your ideal students.", content: "Full content about marketing courses...", image: "https://picsum.photos/400/250?random=3", dataAiHint: "digital marketing strategy", published: true, authorId: adminUser.id, categoryName: "Marketing" },
+      { slug: "ai-in-education", title: "How AI is Revolutionizing the E-Learning Industry", description: "Learn how artificial intelligence is personalizing learning paths, automating grading, and creating smarter content.", content: "Full content about AI in education...", image: "https://picsum.photos/400/250?random=4", dataAiHint: "artificial intelligence education", published: false, authorId: adminUser.id, categoryName: "Tech Trends" },
   ];
   
   let previousPostId: string | null = null;
   for (let i = 0; i < postsData.length; i++) {
+    const { categoryName, ...rest } = postsData[i];
+    const categoryId = postCategoryMap.get(categoryName);
+    if (!categoryId) {
+      console.warn(`Category '${categoryName}' not found for post '${postsData[i].title}'. Skipping post.`);
+      continue;
+    }
     const post = await prisma.post.create({
         data: {
-            ...postsData[i],
+            ...rest,
+            categoryId,
             previousId: previousPostId,
         }
     });
@@ -162,7 +184,7 @@ async function main() {
   const post1 = allPosts.find(p => p.slug === 'choosing-the-right-platform')!;
   const post2 = allPosts.find(p => p.slug === 'engaging-course-content')!;
 
-  // --- 7. Seed Comments ---
+  // --- 8. Seed Comments ---
   await prisma.comment.createMany({
     data: [
         { content: "This was incredibly helpful! I was stuck between Teachable and Thinkific, and this breakdown made the choice clear.", postId: post1.id, authorId: charlieUser.id, status: 'APPROVED' },
@@ -173,7 +195,19 @@ async function main() {
   });
   console.log("Seeded comments.");
 
-  // --- 8. Seed Comparisons ---
+
+  // --- 9. Seed Comparison Categories ---
+  const compCategories = await prisma.comparisonCategory.createManyAndReturn({
+    data: [
+      { name: "Flagship Showdowns", slug: "flagship-showdowns" },
+      { name: "All-in-One vs. Standalone", slug: "all-in-one-vs-standalone" },
+    ]
+  });
+  console.log("Seeded comparison categories.");
+  const compCategoryMap = new Map(compCategories.map(c => [c.name, c.id]));
+
+
+  // --- 10. Seed Comparisons ---
   const platformTeachable = createdPlatforms.find(p => p.name === "Teachable")!;
   const platformThinkific = createdPlatforms.find(p => p.name === "Thinkific")!;
 
@@ -184,6 +218,7 @@ async function main() {
         summary: "We dive deep into the features, pricing, and user experience of Teachable and Thinkific to help you decide which is the best fit for your course creation journey.",
         platformAId: platformTeachable.id,
         platformBId: platformThinkific.id,
+        categoryId: compCategoryMap.get("Flagship Showdowns"),
         introduction: "### Introduction\nChoosing between Teachable and Thinkific is a common dilemma for course creators. Both are industry leaders, but they cater to slightly different needs. This comparison will break down the key differences.",
         conclusion: "### Conclusion\nFor beginners who prioritize simplicity, Teachable is a fantastic starting point. For those needing more customization and advanced features, Thinkific offers a more robust platform to grow into.",
         published: true,
