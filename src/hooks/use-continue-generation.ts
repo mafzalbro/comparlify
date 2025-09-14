@@ -24,15 +24,17 @@ export const useContinueGeneration = () => {
     return useContext(ContinueGenerationContext);
 };
 
-export const ContinueGenerationProvider = ({
-    formRef,
-    content,
-    children,
-    }: {
+interface ContinueGenerationProviderProps {
     formRef: RefObject<HTMLFormElement>;
     content: string | null | undefined;
     children: React.ReactNode;
-    }) => {
+}
+
+export const ContinueGenerationProvider: React.FC<ContinueGenerationProviderProps> = ({
+    formRef,
+    content,
+    children,
+}) => {
     const [isContinuing, startTransition] = useTransition();
 
     const isContentIncomplete = useMemo(() => {
@@ -42,9 +44,9 @@ export const ContinueGenerationProvider = ({
 
     const handleContinue = () => {
         if (formRef.current) {
-        startTransition(() => {
-            formRef.current?.requestSubmit();
-        });
+            startTransition(() => {
+                formRef.current?.requestSubmit();
+            });
         }
     };
     
