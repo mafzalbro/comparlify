@@ -30,9 +30,11 @@ const prompt = ai.definePrompt({
   output: {schema: AIGenerateQuizOutputSchema},
   prompt: `You are an expert educator and quiz creator. Based on the provided text content, create a multiple-choice quiz with {{{numQuestions}}} questions.
 
-Each question should have 4 possible answers (A, B, C, D), with only one correct answer.
-Indicate the correct answer for each question.
-Format the entire output in Markdown. Use bold for the questions and a list for the options.
+Format the entire output in Markdown. 
+For each question:
+- Use a Level 3 Markdown heading (###) for the question itself.
+- Provide 4 possible answers (A, B, C, D) as a numbered list.
+- After the options, clearly state the correct answer on a new line, like this: **Correct Answer:** C
 
 Text Content: {{{textContent}}}
 
