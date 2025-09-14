@@ -43,14 +43,22 @@ export function LessonSummarizerForm() {
   const [state, formAction] = useActionState(generateLessonSummaryAction, initialState);
   const formRef = useRef<HTMLFormElement>(null);
   const hiddenTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const lessonContentRef = useRef<HTMLTextAreaElement>(null);
 
   const handleContinue = () => {
     if (formRef.current && hiddenTextareaRef.current && state.summary) {
       hiddenTextareaRef.current.value = state.summary;
+      
+      if (lessonContentRef.current) {
+        lessonContentRef.current.focus();
+        lessonContentRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
       formRef.current.requestSubmit();
     }
   };
 
+  const isContentIncomplete = state.summary && !/[.!?]\s*$/.test(state.summary.trim());
 
   return (
     <>
@@ -69,6 +77,7 @@ export function LessonSummarizerForm() {
                 <Textarea
                   id="lessonContent"
                   name="lessonContent"
+                  ref={lessonContentRef}
                   placeholder="Paste your entire lesson transcript or text here..."
                   rows={12}
                   required
@@ -95,9 +104,11 @@ export function LessonSummarizerForm() {
                     <MarkdownContent content={state.summary} />
                 </AlertDescription>
             </Alert>
-            <Button onClick={handleContinue} className="w-full" variant="outline">
-                <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
-            </Button>
+            {isContentIncomplete && (
+              <Button onClick={handleContinue} className="w-full" variant="outline">
+                  <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
+              </Button>
+            )}
          </div>
       )}
 

@@ -36,15 +36,25 @@ export function AnalogyGeneratorForm() {
   const [state, formAction] = useActionState(generateAnalogyAction, initialState);
   const formRef = useRef<HTMLFormElement>(null);
   const hiddenTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const complexTopicRef = useRef<HTMLTextAreaElement>(null);
 
   const handleContinue = () => {
     if (formRef.current && hiddenTextareaRef.current && state.analogy) {
       // Set the value of the hidden textarea
       hiddenTextareaRef.current.value = state.analogy;
+      
+      // Focus and scroll to the input field
+      if (complexTopicRef.current) {
+        complexTopicRef.current.focus();
+        complexTopicRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
       // Submit the form
       formRef.current.requestSubmit();
     }
   };
+
+  const isContentIncomplete = state.analogy && !/[.!?]\s*$/.test(state.analogy.trim());
 
   return (
     <>
@@ -63,6 +73,7 @@ export function AnalogyGeneratorForm() {
                 <Textarea
                   id="complexTopic"
                   name="complexTopic"
+                  ref={complexTopicRef}
                   placeholder="e.g., 'Blockchain technology' or 'Quantum computing'"
                   rows={4}
                   required
@@ -89,9 +100,11 @@ export function AnalogyGeneratorForm() {
               <MarkdownContent content={state.analogy} />
             </AlertDescription>
           </Alert>
-          <Button onClick={handleContinue} className="w-full" variant="outline">
-            <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
-          </Button>
+          {isContentIncomplete && (
+            <Button onClick={handleContinue} className="w-full" variant="outline">
+              <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
+            </Button>
+          )}
         </div>
       )}
 

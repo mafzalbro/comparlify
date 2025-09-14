@@ -47,26 +47,27 @@ export function VideoScripterForm() {
 
   const formRef = useRef<HTMLFormElement>(null);
   const hiddenTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const lessonTopicRef = useRef<HTMLTextAreaElement>(null);
 
   const handleContinue = () => {
     if (formRef.current && hiddenTextareaRef.current && state.videoScript) {
       // Set the value of the hidden textarea to the current script
       hiddenTextareaRef.current.value = state.videoScript;
-      // We can create a new FormData or directly submit the form.
-      // Submitting the form is easier as it respects the form's action.
-      // We'll use a specific submit button for this action if needed, or just trigger submit.
+
+      if (lessonTopicRef.current) {
+        lessonTopicRef.current.focus();
+        lessonTopicRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
       
-      // Since we have only one submit button, we can just trigger the form submission.
-      // The `formAction` will receive the `existingScript` from the hidden textarea.
       const submitButton = formRef.current.querySelector('button[type="submit"]') as HTMLElement | null;
       if (submitButton) {
-        // A helper state for the button text
         formRef.current.setAttribute('data-continuing', 'true');
         submitButton.click();
       }
     }
   };
 
+  const isContentIncomplete = state.videoScript && !/[.!?]\s*$/.test(state.videoScript.trim());
 
   return (
     <>
@@ -84,6 +85,7 @@ export function VideoScripterForm() {
               <Textarea
                 id="lessonTopic"
                 name="lessonTopic"
+                ref={lessonTopicRef}
                 placeholder="e.g., 'How to choose the right flour for sourdough bread' or 'An introduction to React Hooks: useState and useEffect'"
                 rows={4}
                 required
@@ -129,9 +131,11 @@ export function VideoScripterForm() {
                    <MarkdownContent content={state.videoScript} />
               </AlertDescription>
           </Alert>
-          <Button onClick={handleContinue} className="w-full" variant="outline">
-            <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
-          </Button>
+          {isContentIncomplete && (
+            <Button onClick={handleContinue} className="w-full" variant="outline">
+              <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
+            </Button>
+          )}
         </div>
       )}
 

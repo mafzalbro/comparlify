@@ -60,8 +60,7 @@ export function MarkdownContent({ content, className }: MarkdownContentProps) {
         ol: ({ node, ...props }) => <ol className="list-decimal pl-6 my-4 space-y-2" {...props} />,
         blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-primary/20 pl-4 italic my-6 text-muted-foreground" {...props} />,
         code: ({ node, className, children, ...props }) => {
-          const match = /language-(\w+)/.exec(className || '')
-          const isInline = !match && !props.inline;
+          const isInline = !className?.includes('language-');
           
           if (isInline) {
              return (

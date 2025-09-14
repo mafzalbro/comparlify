@@ -36,13 +36,22 @@ export function FaqGeneratorForm() {
   const [state, formAction] = useActionState(generateFaqsAction, initialState);
   const formRef = useRef<HTMLFormElement>(null);
   const hiddenTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const topicContentRef = useRef<HTMLTextAreaElement>(null);
 
   const handleContinue = () => {
     if (formRef.current && hiddenTextareaRef.current && state.faqs) {
       hiddenTextareaRef.current.value = state.faqs;
+      
+      if (topicContentRef.current) {
+        topicContentRef.current.focus();
+        topicContentRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
       formRef.current.requestSubmit();
     }
   };
+
+  const isContentIncomplete = state.faqs && !/[.!?]\s*$/.test(state.faqs.trim());
 
   return (
     <>
@@ -61,6 +70,7 @@ export function FaqGeneratorForm() {
                 <Textarea
                   id="topicContent"
                   name="topicContent"
+                  ref={topicContentRef}
                   placeholder="e.g., Paste your full course description or a lesson transcript here..."
                   rows={10}
                   required
@@ -87,9 +97,11 @@ export function FaqGeneratorForm() {
               <MarkdownContent content={state.faqs} />
             </AlertDescription>
           </Alert>
-          <Button onClick={handleContinue} className="w-full" variant="outline">
-            <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
-          </Button>
+          {isContentIncomplete && (
+            <Button onClick={handleContinue} className="w-full" variant="outline">
+              <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
+            </Button>
+          )}
         </div>
       )}
 

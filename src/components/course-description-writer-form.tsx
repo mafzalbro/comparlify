@@ -37,14 +37,22 @@ export function CourseDescriptionWriterForm() {
   const [state, formAction] = useActionState(generateCourseDescriptionAction, initialState);
   const formRef = useRef<HTMLFormElement>(null);
   const hiddenTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const keyTopicsRef = useRef<HTMLTextAreaElement>(null);
 
   const handleContinue = () => {
     if (formRef.current && hiddenTextareaRef.current && state.description) {
       hiddenTextareaRef.current.value = state.description;
+
+      if (keyTopicsRef.current) {
+        keyTopicsRef.current.focus();
+        keyTopicsRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
       formRef.current.requestSubmit();
     }
   };
 
+  const isContentIncomplete = state.description && !/[.!?]\s*$/.test(state.description.trim());
 
   return (
     <>
@@ -69,6 +77,7 @@ export function CourseDescriptionWriterForm() {
               <Textarea
                 id="keyTopics"
                 name="keyTopics"
+                ref={keyTopicsRef}
                 placeholder="e.g., Creating a starter, kneading and folding, scoring techniques, baking in a Dutch oven, different types of flour..."
                 rows={6}
                 required
@@ -94,9 +103,11 @@ export function CourseDescriptionWriterForm() {
               <MarkdownContent content={state.description} />
             </AlertDescription>
           </Alert>
-          <Button onClick={handleContinue} className="w-full" variant="outline">
-             <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
-          </Button>
+          {isContentIncomplete && (
+            <Button onClick={handleContinue} className="w-full" variant="outline">
+              <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
+            </Button>
+          )}
         </div>
       )}
 

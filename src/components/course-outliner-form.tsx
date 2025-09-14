@@ -43,14 +43,22 @@ export function CourseOutlinerForm() {
   const [state, formAction] = useActionState(generateCourseOutlineAction, initialState);
   const formRef = useRef<HTMLFormElement>(null);
   const hiddenTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const courseDescriptionRef = useRef<HTMLTextAreaElement>(null);
   
   const handleContinue = () => {
     if (formRef.current && hiddenTextareaRef.current && state.courseOutline) {
       hiddenTextareaRef.current.value = state.courseOutline;
+
+      if (courseDescriptionRef.current) {
+        courseDescriptionRef.current.focus();
+        courseDescriptionRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
       formRef.current.requestSubmit();
     }
   };
 
+  const isContentIncomplete = state.courseOutline && !/[.!?]\s*$/.test(state.courseOutline.trim());
 
   return (
     <>
@@ -69,6 +77,7 @@ export function CourseOutlinerForm() {
                 <Textarea
                   id="courseDescription"
                   name="courseDescription"
+                  ref={courseDescriptionRef}
                   placeholder="e.g., 'An introductory course on baking sourdough bread at home, covering starters, kneading techniques, and different types of loaves...'"
                   rows={6}
                   required
@@ -95,9 +104,11 @@ export function CourseOutlinerForm() {
                     <MarkdownContent content={state.courseOutline} />
                 </AlertDescription>
             </Alert>
-             <Button onClick={handleContinue} className="w-full" variant="outline">
-                <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
-            </Button>
+            {isContentIncomplete && (
+              <Button onClick={handleContinue} className="w-full" variant="outline">
+                  <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
+              </Button>
+            )}
          </div>
       )}
 

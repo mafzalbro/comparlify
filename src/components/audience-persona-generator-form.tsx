@@ -36,14 +36,22 @@ export function AudiencePersonaGeneratorForm() {
   const [state, formAction] = useActionState(generateAudiencePersonaAction, initialState);
   const formRef = useRef<HTMLFormElement>(null);
   const hiddenTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const courseIdeaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleContinue = () => {
     if (formRef.current && hiddenTextareaRef.current && state.persona) {
       hiddenTextareaRef.current.value = state.persona;
+      
+      if (courseIdeaRef.current) {
+        courseIdeaRef.current.focus();
+        courseIdeaRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
       formRef.current.requestSubmit();
     }
   };
 
+  const isContentIncomplete = state.persona && !/[.!?]\s*$/.test(state.persona.trim());
 
   return (
     <>
@@ -62,6 +70,7 @@ export function AudiencePersonaGeneratorForm() {
                 <Textarea
                   id="courseIdea"
                   name="courseIdea"
+                  ref={courseIdeaRef}
                   placeholder="e.g., 'A course for busy professionals who want to learn photography on their weekends.'"
                   rows={4}
                   required
@@ -88,9 +97,11 @@ export function AudiencePersonaGeneratorForm() {
               <MarkdownContent content={state.persona} />
             </AlertDescription>
           </Alert>
-          <Button onClick={handleContinue} className="w-full" variant="outline">
-            <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
-          </Button>
+          {isContentIncomplete && (
+            <Button onClick={handleContinue} className="w-full" variant="outline">
+              <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
+            </Button>
+          )}
         </div>
       )}
 
