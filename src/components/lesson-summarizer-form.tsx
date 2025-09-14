@@ -86,27 +86,23 @@ export function LessonSummarizerForm() {
 
   const handleRegenerate = () => {
     if (formRef.current) {
-      const newFormData = new FormData(formRef.current);
-      newFormData.delete('existingContent');
-      formAction(newFormData);
+        const formData = new FormData(formRef.current);
+        formData.delete('existingContent');
+        formAction(formData);
     }
   };
 
   return (
-    <div className="w-full space-y-6">
+    <>
       <AIGenerationLoader show={showLoader} />
-      <Card className="shadow-lg">
-        <form
-          ref={formRef}
-          action={(formData) => {
-             if (isContinuing) {
-               formData.set('existingContent', state.summary ?? '');
-            } else {
-               formData.delete('existingContent');
-            }
-            formAction(formData);
-          }}
-        >
+      <form
+        ref={formRef}
+        action={(formData) => {
+          formAction(formData);
+        }}
+        className="space-y-6"
+      >
+        <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="font-headline">Lesson Content</CardTitle>
             <CardDescription>
@@ -131,15 +127,18 @@ export function LessonSummarizerForm() {
                 )}
               </div>
             </div>
+             {isContinuing && state.summary && (
+                <input type="hidden" name="existingContent" value={state.summary} />
+            )}
           </CardContent>
           <CardFooter>
             <SubmitButton isSubmitting={isContinuing} />
           </CardFooter>
-        </form>
-      </Card>
+        </Card>
+      </form>
 
       {state.summary && !showLoader && (
-         <Card className="mt-8">
+         <Card>
             <CardHeader className="flex flex-row items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Sparkles className="h-6 w-6 text-primary" />
@@ -173,6 +172,6 @@ export function LessonSummarizerForm() {
           </AlertDescription>
         </Alert>
       )}
-    </div>
+    </>
   );
 }

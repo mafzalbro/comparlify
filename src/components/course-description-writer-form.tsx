@@ -81,27 +81,23 @@ export function CourseDescriptionWriterForm() {
 
   const handleRegenerate = () => {
     if (formRef.current) {
-      const newFormData = new FormData(formRef.current);
-      newFormData.delete('existingContent');
-      formAction(newFormData);
+      const formData = new FormData(formRef.current);
+      formData.delete('existingContent');
+      formAction(formData);
     }
   };
 
   return (
-    <div className="w-full space-y-6">
+    <>
       <AIGenerationLoader show={showLoader} />
-      <Card className="shadow-lg">
-        <form
-          ref={formRef}
-          action={(formData) => {
-             if (isContinuing) {
-               formData.set('existingContent', state.description ?? '');
-            } else {
-               formData.delete('existingContent');
-            }
-            formAction(formData);
-          }}
-        >
+      <form
+        ref={formRef}
+        action={(formData) => {
+          formAction(formData);
+        }}
+        className="space-y-6"
+      >
+        <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="font-headline">Course Details</CardTitle>
             <CardDescription>
@@ -138,15 +134,18 @@ export function CourseDescriptionWriterForm() {
                 <p className="text-sm text-destructive">{state.error.keyTopics[0]}</p>
               )}
             </div>
+             {isContinuing && state.description && (
+                <input type="hidden" name="existingContent" value={state.description} />
+            )}
           </CardContent>
           <CardFooter>
             <SubmitButton isSubmitting={isContinuing} />
           </CardFooter>
-        </form>
-      </Card>
+        </Card>
+      </form>
 
       {state.description && !showLoader && (
-        <Card className="mt-8">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-6 w-6 text-primary" />
@@ -178,6 +177,6 @@ export function CourseDescriptionWriterForm() {
           <AlertDescription>{state.error}</AlertDescription>
         </Alert>
       )}
-    </div>
+    </>
   );
 }

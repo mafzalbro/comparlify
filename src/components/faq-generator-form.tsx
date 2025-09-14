@@ -79,27 +79,23 @@ export function FaqGeneratorForm() {
 
   const handleRegenerate = () => {
     if (formRef.current) {
-      const newFormData = new FormData(formRef.current);
-      newFormData.delete('existingContent');
-      formAction(newFormData);
+        const formData = new FormData(formRef.current);
+        formData.delete('existingContent');
+        formAction(formData);
     }
   };
 
   return (
-    <div className="w-full space-y-6">
+    <>
       <AIGenerationLoader show={showLoader} />
-      <Card className="shadow-lg">
-        <form
-          ref={formRef}
-          action={(formData) => {
-             if (isContinuing) {
-               formData.set('existingContent', state.faqs ?? '');
-            } else {
-               formData.delete('existingContent');
-            }
-            formAction(formData);
-          }}
-        >
+      <form
+        ref={formRef}
+        action={(formData) => {
+          formAction(formData);
+        }}
+        className="space-y-6"
+      >
+        <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="font-headline">Topic Content</CardTitle>
             <CardDescription>
@@ -124,15 +120,18 @@ export function FaqGeneratorForm() {
                 )}
               </div>
             </div>
+             {isContinuing && state.faqs && (
+                <input type="hidden" name="existingContent" value={state.faqs} />
+            )}
           </CardContent>
           <CardFooter>
             <SubmitButton isSubmitting={isContinuing} />
           </CardFooter>
-        </form>
-      </Card>
+        </Card>
+      </form>
 
       {state.faqs && !showLoader && (
-        <Card className="mt-8">
+        <Card>
             <CardHeader className="flex flex-row items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Sparkles className="h-6 w-6 text-primary" />
@@ -164,6 +163,6 @@ export function FaqGeneratorForm() {
           <AlertDescription>{state.error}</AlertDescription>
         </Alert>
       )}
-    </div>
+    </>
   );
 }

@@ -89,27 +89,23 @@ export function VideoScripterForm() {
 
   const handleRegenerate = () => {
     if (formRef.current) {
-      const newFormData = new FormData(formRef.current);
-      newFormData.delete('existingScript');
-      formAction(newFormData);
+        const formData = new FormData(formRef.current);
+        formData.delete('existingScript');
+        formAction(formData);
     }
   };
 
   return (
-    <div className="w-full space-y-6">
+    <>
       <AIGenerationLoader show={showLoader} />
-      <Card className="shadow-lg">
-        <form
-          ref={formRef}
-          action={(formData) => {
-             if (isContinuing) {
-               formData.set('existingScript', state.videoScript ?? '');
-            } else {
-               formData.delete('existingScript');
-            }
-            formAction(formData);
-          }}
-        >
+      <form
+        ref={formRef}
+        action={(formData) => {
+          formAction(formData);
+        }}
+        className="space-y-6"
+      >
+        <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="font-headline">Describe Your Lesson</CardTitle>
             <CardDescription>
@@ -151,15 +147,18 @@ export function VideoScripterForm() {
                     <p className="text-sm text-destructive">{state.error.videoDuration[0]}</p>
                 )}
              </div>
+              {isContinuing && state.videoScript && (
+                <input type="hidden" name="existingScript" value={state.videoScript} />
+            )}
           </CardContent>
           <CardFooter>
             <SubmitButton isSubmitting={isContinuing} />
           </CardFooter>
-        </form>
-      </Card>
+        </Card>
+      </form>
 
       {state.videoScript && !showLoader && (
-        <Card className="mt-8">
+        <Card>
             <CardHeader className="flex flex-row items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Sparkles className="h-6 w-6 text-primary" />
@@ -193,6 +192,6 @@ export function VideoScripterForm() {
           </AlertDescription>
         </Alert>
       )}
-    </div>
+    </>
   );
 }
