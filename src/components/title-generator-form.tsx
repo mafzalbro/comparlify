@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateCourseTitleAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,9 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, Copy, RefreshCw } from 'lucide-react';
+import { AIGenerationLoader } from './ai-generation-loader';
+import { useToast } from './use-toast';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -39,10 +41,23 @@ function SubmitButton() {
 
 export function TitleGeneratorForm() {
   const initialState = { courseTitle: null, error: null };
-  const [state, formAction] = useActionState(generateCourseTitleAction, initialState);
+  const [state, formAction, isSubmitting] = useActionState(generateCourseTitleAction, initialState);
+  const [courseDescription, setCourseDescription] = useState('');
+  const { toast } = useToast();
+
+  const handleCopy = () => {
+    if (state.courseTitle) {
+      navigator.clipboard.writeText(state.courseTitle);
+      toast({
+        title: 'Copied!',
+        description: 'Title copied to clipboard.',
+      });
+    }
+  };
 
   return (
-    <>
+    <div className="w-full space-y-6">
+      <AIGenerationLoader show={isSubmitting} />
       <Card className="shadow-lg">
         <form action={formAction}>
           <CardHeader>
@@ -58,6 +73,8 @@ export function TitleGeneratorForm() {
                 <Textarea
                   id="courseDescription"
                   name="courseDescription"
+                  value={courseDescription}
+                  onChange={(e) => setCourseDescription(e.target.value)}
                   placeholder="e.g., 'A comprehensive course on modern JavaScript, covering ES6+, React, Node.js, and building full-stack applications...'"
                   rows={8}
                   required
@@ -74,17 +91,27 @@ export function TitleGeneratorForm() {
         </form>
       </Card>
 
-      {state.courseTitle && (
-        <Alert className="mt-8 bg-green-50 border-green-200 text-green-800 dark:bg-green-950 dark:border-green-800 dark:text-green-300">
-          <Sparkles className="h-5 w-5 text-green-500 dark:text-green-400" />
-          <AlertTitle className="font-bold text-green-900 dark:text-green-200">Generated Title Suggestion</AlertTitle>
-          <AlertDescription>
-            {state.courseTitle}
-          </AlertDescription>
-        </Alert>
+      {state.courseTitle && !isSubmitting && (
+        <Card>
+           <CardHeader className="flex flex-row items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <Sparkles className="h-6 w-6 text-primary" />
+                    <CardTitle className="font-bold">Generated Title</CardTitle>
+                </div>
+                <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" onClick={handleCopy} title="Copy">
+                        <Copy className="h-4 w-4" />
+                    </Button>
+                     <form action={formAction}><input type="hidden" name="courseDescription" value={courseDescription} /><Button variant="ghost" size="icon" title="Regenerate"><RefreshCw className="h-4 w-4" /></Button></form>
+                </div>
+            </CardHeader>
+          <CardContent>
+            <p className="text-lg">{state.courseTitle}</p>
+          </CardContent>
+        </Card>
       )}
 
-      {typeof state.error === 'string' && (
+      {typeof state.error === 'string' && !isSubmitting && (
         <Alert variant="destructive" className="mt-8">
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>
@@ -92,6 +119,6 @@ export function TitleGeneratorForm() {
           </AlertDescription>
         </Alert>
       )}
-    </>
+    </div>
   );
 }

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateSocialMediaPostAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -9,9 +9,11 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, Copy, RefreshCw } from 'lucide-react';
 import { MarkdownContent } from './markdown-content';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { AIGenerationLoader } from './ai-generation-loader';
+import { useToast } from './use-toast';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -34,10 +36,24 @@ function SubmitButton() {
 
 export function SocialMediaPostGeneratorForm() {
   const initialState = { post: null, error: null };
-  const [state, formAction] = useActionState(generateSocialMediaPostAction, initialState);
+  const [state, formAction, isSubmitting] = useActionState(generateSocialMediaPostAction, initialState);
+  const [postTopic, setPostTopic] = useState('');
+  const [platform, setPlatform] = useState('Twitter');
+  const { toast } = useToast();
+
+  const handleCopy = () => {
+    if (state.post) {
+      navigator.clipboard.writeText(state.post);
+      toast({
+        title: 'Copied!',
+        description: 'Post copied to clipboard.',
+      });
+    }
+  };
 
   return (
-    <>
+    <div className="w-full space-y-6">
+      <AIGenerationLoader show={isSubmitting} />
       <Card className="shadow-lg">
         <form action={formAction}>
           <CardHeader>
@@ -52,6 +68,8 @@ export function SocialMediaPostGeneratorForm() {
                 <Textarea
                   id="postTopic"
                   name="postTopic"
+                  value={postTopic}
+                  onChange={(e) => setPostTopic(e.target.value)}
                   placeholder="e.g., 'The importance of A/B testing for landing pages' or 'Announcing a 50% discount on my course for Black Friday'"
                   rows={4}
                   required
@@ -62,7 +80,7 @@ export function SocialMediaPostGeneratorForm() {
             </div>
             <div className="flex flex-col space-y-1.5">
               <Label>Platform</Label>
-                <RadioGroup name="platform" defaultValue="Twitter" className="flex flex-wrap gap-4 pt-2">
+                <RadioGroup name="platform" value={platform} onValueChange={setPlatform} className="flex flex-wrap gap-4 pt-2">
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="Twitter" id="p-twitter" />
                         <Label htmlFor="p-twitter">Twitter / X</Label>
@@ -87,22 +105,38 @@ export function SocialMediaPostGeneratorForm() {
         </form>
       </Card>
 
-      {state.post && (
-        <Alert className="mt-8">
-          <Sparkles className="h-5 w-5" />
-          <AlertTitle className="font-bold">Generated Post</AlertTitle>
-          <AlertDescription className="mt-4">
-            <MarkdownContent content={state.post} />
-          </AlertDescription>
-        </Alert>
+      {state.post && !isSubmitting && (
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <Sparkles className="h-6 w-6 text-primary" />
+                    <CardTitle className="font-bold">Generated Post</CardTitle>
+                </div>
+                <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" onClick={handleCopy} title="Copy">
+                        <Copy className="h-4 w-4" />
+                    </Button>
+                    <form action={formAction}>
+                        <input type="hidden" name="postTopic" value={postTopic} />
+                        <input type="hidden" name="platform" value={platform} />
+                        <Button variant="ghost" size="icon" title="Regenerate">
+                            <RefreshCw className="h-4 w-4" />
+                        </Button>
+                    </form>
+                </div>
+            </CardHeader>
+            <CardContent>
+                <MarkdownContent content={state.post} />
+            </CardContent>
+        </Card>
       )}
 
-      {typeof state.error === 'string' && (
+      {typeof state.error === 'string' && !isSubmitting && (
         <Alert variant="destructive" className="mt-8">
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{state.error}</AlertDescription>
         </Alert>
       )}
-    </>
+    </div>
   );
 }

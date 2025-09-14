@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useRef, useState, useTransition } from 'react';
+import { useActionState, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateAnalogyAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -90,22 +90,24 @@ export function AnalogyGeneratorForm() {
 
   const handleRegenerate = () => {
     if (formRef.current) {
-      // Clear previous result before regenerating
-      const clearedState = { ...initialState };
       const newFormData = new FormData(formRef.current);
+      newFormData.delete('existingContent');
       formAction(newFormData);
     }
   };
 
   return (
-    <>
+    <div className="w-full space-y-6">
       <AIGenerationLoader show={showLoader} />
       <Card className="shadow-lg">
         <form
           ref={formRef}
           action={(formData) => {
-            // When submitting, we clear the previous content.
-            formData.delete('existingContent');
+            if (isContinuing) {
+               formData.set('existingContent', state.analogy ?? '');
+            } else {
+               formData.delete('existingContent');
+            }
             formAction(formData);
           }}
         >
@@ -131,7 +133,6 @@ export function AnalogyGeneratorForm() {
                 {typeof state.error === 'object' && state.error?.complexTopic && (
                   <p className="text-sm text-destructive">{state.error.complexTopic[0]}</p>
                 )}
-                 <input type="hidden" name="existingContent" value={state.analogy ?? ''} />
               </div>
             </div>
           </CardContent>
@@ -142,9 +143,13 @@ export function AnalogyGeneratorForm() {
       </Card>
 
       {state.analogy && !showLoader && (
-        <div className="mt-8 space-y-4">
-          <Alert className="relative">
-            <div className="absolute top-2 right-2 flex gap-1">
+        <Card className="mt-8">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-6 w-6 text-primary" />
+              <CardTitle className="font-bold">Generated Analogy</CardTitle>
+            </div>
+            <div className="flex gap-1">
                 <Button variant="ghost" size="icon" onClick={handleCopy} title="Copy">
                     <Copy className="h-4 w-4" />
                 </Button>
@@ -152,19 +157,19 @@ export function AnalogyGeneratorForm() {
                     <RefreshCw className="h-4 w-4" />
                 </Button>
             </div>
-            <Sparkles className="h-5 w-5" />
-            <AlertTitle className="font-bold">Generated Analogy</AlertTitle>
-            <AlertDescription className="mt-4 pr-16">
+          </CardHeader>
+          <CardContent>
               <MarkdownContent content={state.analogy} />
-            </AlertDescription>
-          </Alert>
-          {isContentIncomplete && (
-            <ContinueButton
-              onClick={handleContinue}
-              isSubmitting={isContinuing}
-            />
-          )}
-        </div>
+              {isContentIncomplete && (
+                <div className="mt-4 pt-4 border-t">
+                  <ContinueButton
+                    onClick={handleContinue}
+                    isSubmitting={isContinuing}
+                  />
+                </div>
+              )}
+          </CardContent>
+        </Card>
       )}
 
       {typeof state.error === 'string' && !showLoader && (
@@ -173,6 +178,6 @@ export function AnalogyGeneratorForm() {
           <AlertDescription>{state.error}</AlertDescription>
         </Alert>
       )}
-    </>
+    </div>
   );
 }

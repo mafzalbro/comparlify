@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateQuizAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -16,11 +16,11 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, RefreshCw } from 'lucide-react';
 import { Slider } from './ui/slider';
 import React from 'react';
-import { MarkdownContent } from './markdown-content';
 import { QuizViewer } from './quiz-viewer';
+import { AIGenerationLoader } from './ai-generation-loader';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -43,11 +43,13 @@ function SubmitButton() {
 
 export function QuizGeneratorForm() {
   const initialState = { quiz: null, error: null };
-  const [state, formAction] = useActionState(generateQuizAction, initialState);
+  const [state, formAction, isSubmitting] = useActionState(generateQuizAction, initialState);
+  const [textContent, setTextContent] = useState('');
   const [numQuestions, setNumQuestions] = React.useState(5);
 
   return (
-    <>
+    <div className="w-full space-y-6">
+      <AIGenerationLoader show={isSubmitting} />
       <Card className="shadow-lg">
         <form action={formAction}>
           <CardHeader>
@@ -62,6 +64,8 @@ export function QuizGeneratorForm() {
               <Textarea
                 id="textContent"
                 name="textContent"
+                value={textContent}
+                onChange={(e) => setTextContent(e.target.value)}
                 placeholder="Paste the content you want to create a quiz from..."
                 rows={10}
                 required
@@ -96,17 +100,28 @@ export function QuizGeneratorForm() {
         </form>
       </Card>
 
-      {state.quiz && (
-        <div className="mt-8">
-            <div className="flex items-center gap-2 mb-4">
-                <Sparkles className="h-6 w-6 text-primary" />
-                <h2 className="text-2xl font-bold font-headline">Generated Quiz</h2>
-            </div>
-            <QuizViewer quizMarkdown={state.quiz} />
-        </div>
+      {state.quiz && !isSubmitting && (
+        <Card className="mt-8">
+            <CardHeader className="flex flex-row items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <Sparkles className="h-6 w-6 text-primary" />
+                    <CardTitle className="font-bold">Generated Quiz</CardTitle>
+                </div>
+                 <form action={formAction}>
+                    <input type="hidden" name="textContent" value={textContent} />
+                    <input type="hidden" name="numQuestions" value={numQuestions} />
+                    <Button variant="ghost" size="icon" title="Regenerate">
+                        <RefreshCw className="h-4 w-4" />
+                    </Button>
+                </form>
+            </CardHeader>
+            <CardContent>
+              <QuizViewer quizMarkdown={state.quiz} />
+            </CardContent>
+        </Card>
       )}
 
-      {typeof state.error === 'string' && (
+      {typeof state.error === 'string' && !isSubmitting && (
         <Alert variant="destructive" className="mt-8">
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>
@@ -114,6 +129,6 @@ export function QuizGeneratorForm() {
           </AlertDescription>
         </Alert>
       )}
-    </>
+    </div>
   );
 }

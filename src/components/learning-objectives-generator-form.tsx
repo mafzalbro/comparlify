@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateLearningObjectivesAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -9,8 +9,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, Copy, RefreshCw } from 'lucide-react';
 import { MarkdownContent } from './markdown-content';
+import { AIGenerationLoader } from './ai-generation-loader';
+import { useToast } from './use-toast';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -33,10 +35,23 @@ function SubmitButton() {
 
 export function LearningObjectivesGeneratorForm() {
   const initialState = { objectives: null, error: null };
-  const [state, formAction] = useActionState(generateLearningObjectivesAction, initialState);
+  const [state, formAction, isSubmitting] = useActionState(generateLearningObjectivesAction, initialState);
+  const [courseTopic, setCourseTopic] = useState('');
+  const { toast } = useToast();
+
+  const handleCopy = () => {
+    if (state.objectives) {
+      navigator.clipboard.writeText(state.objectives);
+      toast({
+        title: 'Copied!',
+        description: 'Objectives copied to clipboard.',
+      });
+    }
+  };
 
   return (
-    <>
+    <div className="w-full space-y-6">
+      <AIGenerationLoader show={isSubmitting} />
       <Card className="shadow-lg">
         <form action={formAction}>
           <CardHeader>
@@ -52,6 +67,8 @@ export function LearningObjectivesGeneratorForm() {
                 <Textarea
                   id="courseTopic"
                   name="courseTopic"
+                  value={courseTopic}
+                  onChange={(e) => setCourseTopic(e.target.value)}
                   placeholder="e.g., 'An introduction to digital marketing for small business owners.'"
                   rows={4}
                   required
@@ -68,22 +85,32 @@ export function LearningObjectivesGeneratorForm() {
         </form>
       </Card>
 
-      {state.objectives && (
-        <Alert className="mt-8">
-          <Sparkles className="h-5 w-5" />
-          <AlertTitle className="font-bold">Generated Learning Objectives</AlertTitle>
-          <AlertDescription className="mt-4">
+      {state.objectives && !isSubmitting && (
+         <Card>
+           <CardHeader className="flex flex-row items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <Sparkles className="h-6 w-6 text-primary" />
+                    <CardTitle className="font-bold">Generated Learning Objectives</CardTitle>
+                </div>
+                <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" onClick={handleCopy} title="Copy">
+                        <Copy className="h-4 w-4" />
+                    </Button>
+                     <form action={formAction}><input type="hidden" name="courseTopic" value={courseTopic} /><Button variant="ghost" size="icon" title="Regenerate"><RefreshCw className="h-4 w-4" /></Button></form>
+                </div>
+            </CardHeader>
+          <CardContent>
             <MarkdownContent content={state.objectives} />
-          </AlertDescription>
-        </Alert>
+          </CardContent>
+        </Card>
       )}
 
-      {typeof state.error === 'string' && (
+      {typeof state.error === 'string' && !isSubmitting && (
         <Alert variant="destructive" className="mt-8">
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{state.error}</AlertDescription>
         </Alert>
       )}
-    </>
+    </div>
   );
 }

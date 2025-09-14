@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useRef, useState, useTransition } from 'react';
+import { useActionState, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateVideoScriptAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -89,22 +89,24 @@ export function VideoScripterForm() {
 
   const handleRegenerate = () => {
     if (formRef.current) {
-      // Clear previous result before regenerating
-      const clearedState = { ...initialState };
       const newFormData = new FormData(formRef.current);
+      newFormData.delete('existingScript');
       formAction(newFormData);
     }
   };
 
   return (
-    <>
+    <div className="w-full space-y-6">
       <AIGenerationLoader show={showLoader} />
       <Card className="shadow-lg">
         <form
           ref={formRef}
           action={(formData) => {
-            // When submitting, we clear the previous content.
-            formData.delete('existingScript');
+             if (isContinuing) {
+               formData.set('existingScript', state.videoScript ?? '');
+            } else {
+               formData.delete('existingScript');
+            }
             formAction(formData);
           }}
         >
@@ -149,7 +151,6 @@ export function VideoScripterForm() {
                     <p className="text-sm text-destructive">{state.error.videoDuration[0]}</p>
                 )}
              </div>
-             <input type="hidden" name="existingScript" value={state.videoScript ?? ''} />
           </CardContent>
           <CardFooter>
             <SubmitButton isSubmitting={isContinuing} />
@@ -158,24 +159,30 @@ export function VideoScripterForm() {
       </Card>
 
       {state.videoScript && !showLoader && (
-        <div className="mt-8 space-y-4">
-          <Alert className="relative">
-             <div className="absolute top-2 right-2 flex gap-1">
-                <Button variant="ghost" size="icon" onClick={handleCopy} title="Copy">
-                    <Copy className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={handleRegenerate} title="Regenerate">
-                    <RefreshCw className="h-4 w-4" />
-                </Button>
-            </div>
-              <Sparkles className="h-5 w-5" />
-              <AlertTitle className="font-bold">Generated Video Script</AlertTitle>
-              <AlertDescription className="mt-4 pr-16">
-                   <MarkdownContent content={state.videoScript} />
-              </AlertDescription>
-          </Alert>
-          {isContentIncomplete && <ContinueButton onClick={handleContinue} isSubmitting={isContinuing} />}
-        </div>
+        <Card className="mt-8">
+            <CardHeader className="flex flex-row items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <Sparkles className="h-6 w-6 text-primary" />
+                    <CardTitle className="font-bold">Generated Video Script</CardTitle>
+                </div>
+                <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" onClick={handleCopy} title="Copy">
+                        <Copy className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={handleRegenerate} title="Regenerate">
+                        <RefreshCw className="h-4 w-4" />
+                    </Button>
+                </div>
+            </CardHeader>
+            <CardContent>
+                <MarkdownContent content={state.videoScript} />
+                {isContentIncomplete && (
+                    <div className="mt-4 pt-4 border-t">
+                    <ContinueButton onClick={handleContinue} isSubmitting={isContinuing} />
+                    </div>
+                )}
+            </CardContent>
+        </Card>
       )}
 
       {typeof state.error === 'string' && !showLoader && (
@@ -186,6 +193,6 @@ export function VideoScripterForm() {
           </AlertDescription>
         </Alert>
       )}
-    </>
+    </div>
   );
 }

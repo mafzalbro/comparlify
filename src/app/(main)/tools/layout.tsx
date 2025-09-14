@@ -7,15 +7,17 @@ export default function ToolsLayout({
   children: React.ReactNode;
 }) {
   return (
-      <div className="bg-secondary/50 flex-1 py-12 md:py-20">
-          <Breadcrumbs
-            items={[
-                { name: 'Home', href: '/' },
-                { name: 'Tools', href: '/tools' },
-            ]}
-            className="mb-12"
-          />
-          {children}
+      <div className="bg-secondary/50 flex-1">
+          <div className="container py-12">
+            <Breadcrumbs
+                items={[
+                    { name: 'Home', href: '/' },
+                    { name: 'Tools', href: '/tools' },
+                ]}
+                className="mb-12"
+            />
+            {children}
+          </div>
       </div>
   );
 }
