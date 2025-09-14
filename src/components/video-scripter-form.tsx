@@ -20,7 +20,8 @@ import { Loader2, Sparkles, PlusCircle } from 'lucide-react';
 import { Slider } from './ui/slider';
 import React from 'react';
 import { MarkdownContent } from './markdown-content';
-import { useContinueGeneration } from '@/hooks/use-continue-generation';
+import { useContinueGeneration, ContinueGenerationProvider } from '@/hooks/use-continue-generation';
+import { AIGenerationLoader } from './ai-generation-loader';
 
 function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
   const { pending } = useFormStatus();
@@ -41,31 +42,32 @@ function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
   );
 }
 
-const ContinueButton = ({ onClick, disabled }: { onClick: () => void; }) => (
-    <Button onClick={onClick} disabled={disabled} className="w-full" variant="outline" type="button">
-        {disabled ? (
-            <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Continuing...</>
-        ) : (
-            <><PlusCircle className="mr-2 h-4 w-4" /> Continue Script</>
-        )}
-    </Button>
-);
+const ContinueButton = () => {
+    const { handleContinue, isSubmitting } = useContinueGeneration();
+    return (
+        <Button onClick={handleContinue} disabled={isSubmitting} className="w-full" variant="outline" type="button">
+            {isSubmitting ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Continuing...</>
+            ) : (
+                <><PlusCircle className="mr-2 h-4 w-4" /> Continue Script</>
+            )}
+        </Button>
+    )
+};
 
-export function VideoScripterForm() {
+function VideoScripterFormInner() {
   const initialState = { videoScript: null, error: null };
   const [state, formAction] = useActionState(generateVideoScriptAction, initialState);
-  const [topic, setTopic] = useState('');
-  const [duration, setDuration] = React.useState(5);
+  const [lessonTopic, setLessonTopic] = useState('');
+  const [videoDuration, setVideoDuration] = React.useState(5);
   const formRef = useRef<HTMLFormElement>(null);
 
   const {
-    isContinuing,
+    isSubmitting,
     isContentIncomplete,
-    handleContinue,
-  } = useContinueGeneration({
-    formRef,
-    content: state.videoScript,
-  });
+  } = useContinueGeneration();
+  
+  const showLoader = isSubmitting;
 
   return (
     <>
@@ -83,8 +85,8 @@ export function VideoScripterForm() {
               <Textarea
                 id="lessonTopic"
                 name="lessonTopic"
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
+                value={lessonTopic}
+                onChange={(e) => setLessonTopic(e.target.value)}
                 placeholder="e.g., 'How to choose the right flour for sourdough bread' or 'An introduction to React Hooks: useState and useEffect'"
                 rows={4}
                 required
@@ -102,11 +104,11 @@ export function VideoScripterForm() {
                         min={1} 
                         max={30} 
                         step={1} 
-                        value={[duration]}
-                        onValueChange={(value) => setDuration(value[0])}
+                        value={[videoDuration]}
+                        onValueChange={(value) => setVideoDuration(value[0])}
                         className="flex-1"
                     />
-                    <span className="font-mono text-lg w-16 text-center bg-muted py-1 rounded-md">{duration} min</span>
+                    <span className="font-mono text-lg w-16 text-center bg-muted py-1 rounded-md">{videoDuration} min</span>
                 </div>
                  {typeof state.error === 'object' && state.error?.videoDuration && (
                     <p className="text-sm text-destructive">{state.error.videoDuration[0]}</p>
@@ -115,12 +117,14 @@ export function VideoScripterForm() {
              <input type="hidden" name="existingScript" value={state.videoScript ?? ''} />
           </CardContent>
           <CardFooter>
-            <SubmitButton isSubmitting={isContinuing} />
+            <SubmitButton isSubmitting={isSubmitting} />
           </CardFooter>
         </form>
       </Card>
 
-      {state.videoScript && (
+      {showLoader && <AIGenerationLoader />}
+
+      {state.videoScript && !showLoader && (
         <div className="mt-8 space-y-4">
           <Alert>
               <Sparkles className="h-5 w-5" />
@@ -129,11 +133,11 @@ export function VideoScripterForm() {
                    <MarkdownContent content={state.videoScript} />
               </AlertDescription>
           </Alert>
-          {isContentIncomplete && <ContinueButton onClick={handleContinue} disabled={isContinuing} />}
+          {isContentIncomplete && <ContinueButton />}
         </div>
       )}
 
-      {typeof state.error === 'string' && !isContinuing && (
+      {typeof state.error === 'string' && !isSubmitting && (
         <Alert variant="destructive" className="mt-8">
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>
@@ -143,4 +147,12 @@ export function VideoScripterForm() {
       )}
     </>
   );
+}
+
+export function VideoScripterForm() {
+    return (
+        <ContinueGenerationProvider>
+            <VideoScripterFormInner />
+        </ContinueGenerationProvider>
+    )
 }

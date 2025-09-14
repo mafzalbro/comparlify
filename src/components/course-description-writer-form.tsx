@@ -12,7 +12,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Sparkles, PlusCircle } from 'lucide-react';
 import { MarkdownContent } from './markdown-content';
 import { Input } from './ui/input';
-import { useContinueGeneration } from '@/hooks/use-continue-generation';
+import { useContinueGeneration, ContinueGenerationProvider } from '@/hooks/use-continue-generation';
+import { AIGenerationLoader } from './ai-generation-loader';
 
 function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
   const { pending } = useFormStatus();
@@ -33,17 +34,20 @@ function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
   );
 }
 
-const ContinueButton = ({ onClick, disabled }: { onClick: () => void; disabled: boolean; }) => (
-    <Button onClick={onClick} disabled={disabled} className="w-full" variant="outline" type="button">
-        {disabled ? (
-            <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Continuing...</>
-        ) : (
-            <><PlusCircle className="mr-2 h-4 w-4" /> Continue Writing</>
-        )}
-    </Button>
-);
+const ContinueButton = () => {
+    const { handleContinue, isSubmitting } = useContinueGeneration();
+    return (
+        <Button onClick={handleContinue} disabled={isSubmitting} className="w-full" variant="outline" type="button">
+            {isSubmitting ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Continuing...</>
+            ) : (
+                <><PlusCircle className="mr-2 h-4 w-4" /> Continue Writing</>
+            )}
+        </Button>
+    )
+};
 
-export function CourseDescriptionWriterForm() {
+function CourseDescriptionWriterFormInner() {
   const initialState = { description: null, error: null };
   const [state, formAction] = useActionState(generateCourseDescriptionAction, initialState);
   const [courseTitle, setCourseTitle] = useState('');
@@ -51,13 +55,11 @@ export function CourseDescriptionWriterForm() {
   const formRef = useRef<HTMLFormElement>(null);
   
   const {
-    isContinuing,
+    isSubmitting,
     isContentIncomplete,
-    handleContinue,
-  } = useContinueGeneration({
-    formRef,
-    content: state.description,
-  });
+  } = useContinueGeneration();
+  
+  const showLoader = isSubmitting;
 
   return (
     <>
@@ -102,12 +104,14 @@ export function CourseDescriptionWriterForm() {
             </div>
           </CardContent>
           <CardFooter>
-            <SubmitButton isSubmitting={isContinuing} />
+            <SubmitButton isSubmitting={isSubmitting} />
           </CardFooter>
         </form>
       </Card>
 
-      {state.description && (
+      {showLoader && <AIGenerationLoader />}
+
+      {state.description && !showLoader && (
         <div className="mt-8 space-y-4">
           <Alert>
             <Sparkles className="h-5 w-5" />
@@ -116,11 +120,11 @@ export function CourseDescriptionWriterForm() {
               <MarkdownContent content={state.description} />
             </AlertDescription>
           </Alert>
-          {isContentIncomplete && <ContinueButton onClick={handleContinue} disabled={isContinuing} />}
+          {isContentIncomplete && <ContinueButton />}
         </div>
       )}
 
-      {typeof state.error === 'string' && !isContinuing && (
+      {typeof state.error === 'string' && !isSubmitting && (
         <Alert variant="destructive" className="mt-8">
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{state.error}</AlertDescription>
@@ -128,4 +132,12 @@ export function CourseDescriptionWriterForm() {
       )}
     </>
   );
+}
+
+export function CourseDescriptionWriterForm() {
+    return (
+        <ContinueGenerationProvider>
+            <CourseDescriptionWriterFormInner />
+        </ContinueGenerationProvider>
+    )
 }

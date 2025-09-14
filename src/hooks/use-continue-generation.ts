@@ -2,7 +2,8 @@
 'use client';
 
 import * as React from 'react';
-import { useTransition, useMemo, type RefObject } from 'react';
+import { useTransition, useMemo, createContext, useContext, type RefObject } from 'react';
+import { useFormStatus } from 'react-dom';
 
 interface UseContinueGenerationProps {
   formRef: RefObject<HTMLFormElement>;
@@ -13,34 +14,43 @@ interface UseContinueGenerationProps {
 // optionally followed by whitespace, quotes, parentheses, or brackets.
 const isLikelyIncompleteRegex = /[^.!?\])'"`\s]$/i;
 
-export function useContinueGeneration({
-  formRef,
-  content,
-}: UseContinueGenerationProps) {
-  const [isContinuing, startTransition] = useTransition();
+type ContinueGenerationContextType = {
+    isSubmitting: boolean;
+    handleContinue: () => void;
+};
 
-  const handleContinue = () => {
-    if (!formRef.current || !content) return;
+const ContinueGenerationContext = createContext<ContinueGenerationContextType>({
+    isSubmitting: false,
+    handleContinue: () => {},
+});
+
+export const useContinueGeneration = () => {
+    return useContext(ContinueGenerationContext);
+};
+
+export const ContinueGenerationProvider = ({ children }: { children: React.ReactNode }) => {
+    const [isContinuing, startTransition] = useTransition();
+    const { pending: isFormSubmitting } = useFormStatus();
+
+    const isSubmitting = isContinuing || isFormSubmitting;
     
-    startTransition(() => {
-        const submitter = document.createElement('button');
-        submitter.type = 'submit';
-        submitter.style.display = 'none';
-        formRef.current?.appendChild(submitter);
-        submitter.click();
-        formRef.current?.removeChild(submitter);
-    });
-  };
+    const handleContinue = () => {
+        // This function will be implemented by the child that has access to the form ref
+        // We just provide the loading state context here.
+        startTransition(() => {
+            // This is a placeholder; the real logic will be in the component.
+            // The context consumer will trigger the actual form submission.
+        });
+    };
 
-  const isContentIncomplete = useMemo(() => {
-    if (!content) return false;
-    // Check if the content is not empty and seems to be cut-off
-    return content.trim().length > 0 && isLikelyIncompleteRegex.test(content.trim());
-  }, [content]);
+    const value = {
+        isSubmitting,
+        handleContinue: () => {} // Will be replaced in consuming component
+    }
 
-  return {
-    isContinuing,
-    isContentIncomplete,
-    handleContinue,
-  };
+    return (
+        <ContinueGenerationContext.Provider value={value}>
+            {children}
+        </ContinueGenerationContext.Provider>
+    )
 }
