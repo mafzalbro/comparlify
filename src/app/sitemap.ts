@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import prisma from '@/lib/prisma';
+import { allTools } from './(main)/tools/tools';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = 'https://www.comparlify.com'; // Replace with your actual domain
@@ -29,6 +30,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.9,
   }));
 
+  const toolUrls = allTools.map(tool => ({
+    url: `${siteUrl}${tool.href}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.6,
+  }));
+
   // Define static routes
   const staticRoutes = [
     '/',
@@ -37,26 +45,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/compare',
     '/contact',
     '/tools',
-    '/tools/title-generator',
-    '/tools/course-outliner',
-    '/tools/video-scripter',
-    '/tools/lesson-summarizer',
-    '/tools/quiz-generator',
-    '/tools/audience-persona-generator',
-    '/tools/course-description-writer',
-    '/tools/learning-objectives-generator',
-    '/tools/email-subject-line-generator',
-    '/tools/social-media-post-generator',
-    '/tools/faq-generator',
-    '/tools/analogy-generator',
   ];
 
   const staticUrls = staticRoutes.map(route => ({
     url: `${siteUrl}${route}`,
     lastModified: new Date(),
     changeFrequency: 'monthly' as const,
-    priority: route === '/' ? 1.0 : (route.startsWith('/tools/') ? 0.6 : 0.7),
+    priority: route === '/' ? 1.0 : 0.7,
   }));
 
-  return [...staticUrls, ...postUrls, ...comparisonUrls];
+  return [...staticUrls, ...postUrls, ...comparisonUrls, ...toolUrls];
 }

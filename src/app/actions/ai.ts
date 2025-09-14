@@ -21,6 +21,10 @@ import { generateAnalogy } from "@/ai/flows/ai-analogy-generator";
 import { generateGenericContent } from "@/ai/flows/ai-generic-content-generator";
 import { generateImage } from "@/ai/flows/ai-image-generator";
 import { generateLogo } from "@/ai/flows/ai-logo-generator";
+import { generateCoursePrerequisites } from "@/ai/flows/ai-course-prerequisites-generator";
+import { generateContentRepurposeIdeas } from "@/ai/flows/ai-content-repurposer";
+import { generateIceBreakers } from "@/ai/flows/ai-ice-breaker-generator";
+import { generatePromoVideoIdeas } from "@/ai/flows/ai-promotional-video-ideas-generator";
 import { auth } from "@/lib/auth";
 
 // --- Title Generator Action ---
@@ -95,7 +99,7 @@ export async function generateCourseOutlineAction(
 ): Promise<CourseOutlineState> {
   const validatedFields = courseOutlineSchema.safeParse({
     courseDescription: formData.get("courseDescription"),
-    existingContent: formData.get("existingContent"),
+    existingContent: formData.get("existingContent") || undefined,
   });
 
   if (!validatedFields.success) {
@@ -148,7 +152,7 @@ export async function generateVideoScriptAction(
   const validatedFields = videoScriptSchema.safeParse({
     lessonTopic: formData.get("lessonTopic"),
     videoDuration: formData.get("videoDuration"),
-    existingScript: formData.get("existingScript"),
+    existingScript: formData.get("existingScript") || undefined,
   });
 
   if (!validatedFields.success) {
@@ -238,7 +242,7 @@ export async function generateLessonSummaryAction(
 ): Promise<LessonSummaryState> {
   const validatedFields = lessonSummarySchema.safeParse({
     lessonContent: formData.get("lessonContent"),
-    existingContent: formData.get("existingContent"),
+    existingContent: formData.get("existingContent") || undefined,
   });
 
   if (!validatedFields.success) {
@@ -330,7 +334,7 @@ export async function generateAudiencePersonaAction(
 ): Promise<PersonaState> {
   const validatedFields = personaSchema.safeParse({
     courseIdea: formData.get("courseIdea"),
-    existingContent: formData.get("existingContent"),
+    existingContent: formData.get("existingContent") || undefined,
   });
 
   if (!validatedFields.success) {
@@ -383,7 +387,7 @@ export async function generateCourseDescriptionAction(
   const validatedFields = courseDescriptionSchema.safeParse({
     courseTitle: formData.get("courseTitle"),
     keyTopics: formData.get("keyTopics"),
-    existingContent: formData.get("existingContent"),
+    existingContent: formData.get("existingContent") || undefined,
   });
 
   if (!validatedFields.success) {
@@ -559,7 +563,7 @@ export async function generateFaqsAction(
 ): Promise<FaqState> {
   const validatedFields = faqSchema.safeParse({
     topicContent: formData.get("topicContent"),
-    existingContent: formData.get("existingContent"),
+    existingContent: formData.get("existingContent") || undefined,
   });
 
   if (!validatedFields.success) {
@@ -600,7 +604,7 @@ export async function generateAnalogyAction(
 ): Promise<AnalogyState> {
   const validatedFields = analogySchema.safeParse({
     complexTopic: formData.get("complexTopic"),
-    existingContent: formData.get("existingContent"),
+    existingContent: formData.get("existingContent") || undefined,
   });
 
   if (!validatedFields.success) {
@@ -719,4 +723,134 @@ export async function generateLogoAction(
         console.error(error);
         return { logoUrl: null, error: "Failed to generate logo. Please try again." };
     }
+}
+
+// --- Course Prerequisites Generator ---
+const coursePrereqsSchema = z.object({
+  courseTopic: z.string().min(10).max(2000),
+});
+
+interface CoursePrereqsState {
+  prerequisites: string | null;
+  error: { courseTopic?: string[] } | string | null;
+}
+
+export async function generateCoursePrerequisitesAction(
+  prevState: CoursePrereqsState,
+  formData: FormData
+): Promise<CoursePrereqsState> {
+  const validatedFields = coursePrereqsSchema.safeParse({
+    courseTopic: formData.get("courseTopic"),
+  });
+
+  if (!validatedFields.success) {
+    return { prerequisites: null, error: validatedFields.error.flatten().fieldErrors };
+  }
+
+  try {
+    const result = await generateCoursePrerequisites(validatedFields.data);
+    return { prerequisites: result.prerequisites, error: null };
+  } catch (error) {
+    return { prerequisites: null, error: "Failed to generate prerequisites." };
+  }
+}
+
+// --- Content Repurposer ---
+const contentRepurposeSchema = z.object({
+  originalContent: z.string().min(50).max(10000),
+  originalFormat: z.string(),
+  targetFormats: z.array(z.string()).min(1),
+});
+
+interface ContentRepurposeState {
+  repurposedIdeas: string | null;
+  error: { originalContent?: string[], originalFormat?: string[], targetFormats?: string[] } | string | null;
+}
+
+export async function generateContentRepurposeIdeasAction(
+  prevState: ContentRepurposeState,
+  formData: FormData
+): Promise<ContentRepurposeState> {
+  const validatedFields = contentRepurposeSchema.safeParse({
+    originalContent: formData.get("originalContent"),
+    originalFormat: formData.get("originalFormat"),
+    targetFormats: formData.getAll("targetFormats"),
+  });
+
+  if (!validatedFields.success) {
+    return { repurposedIdeas: null, error: validatedFields.error.flatten().fieldErrors };
+  }
+
+  try {
+    const result = await generateContentRepurposeIdeas(validatedFields.data);
+    return { repurposedIdeas: result.repurposedIdeas, error: null };
+  } catch (error) {
+    return { repurposedIdeas: null, error: "Failed to generate ideas." };
+  }
+}
+
+// --- Ice Breaker Generator ---
+const iceBreakerSchema = z.object({
+  audience: z.string().min(10).max(1000),
+  topic: z.string().min(5).max(500),
+  count: z.coerce.number().min(1).max(10),
+});
+
+interface IceBreakerState {
+  iceBreakers: string | null;
+  error: { audience?: string[], topic?: string[], count?: string[] } | string | null;
+}
+
+export async function generateIceBreakersAction(
+  prevState: IceBreakerState,
+  formData: FormData
+): Promise<IceBreakerState> {
+  const validatedFields = iceBreakerSchema.safeParse({
+    audience: formData.get("audience"),
+    topic: formData.get("topic"),
+    count: formData.get("count"),
+  });
+
+  if (!validatedFields.success) {
+    return { iceBreakers: null, error: validatedFields.error.flatten().fieldErrors };
+  }
+
+  try {
+    const result = await generateIceBreakers(validatedFields.data);
+    return { iceBreakers: result.iceBreakers, error: null };
+  } catch (error) {
+    return { iceBreakers: null, error: "Failed to generate ice breakers." };
+  }
+}
+
+// --- Promotional Video Ideas Generator ---
+const promoVideoIdeasSchema = z.object({
+  courseTopic: z.string().min(10).max(2000),
+  targetAudience: z.string().min(10).max(2000),
+});
+
+interface PromoVideoIdeasState {
+  videoIdeas: string | null;
+  error: { courseTopic?: string[], targetAudience?: string[] } | string | null;
+}
+
+export async function generatePromoVideoIdeasAction(
+  prevState: PromoVideoIdeasState,
+  formData: FormData
+): Promise<PromoVideoIdeasState> {
+  const validatedFields = promoVideoIdeasSchema.safeParse({
+    courseTopic: formData.get("courseTopic"),
+    targetAudience: formData.get("targetAudience"),
+  });
+
+  if (!validatedFields.success) {
+    return { videoIdeas: null, error: validatedFields.error.flatten().fieldErrors };
+  }
+
+  try {
+    const result = await generatePromoVideoIdeas(validatedFields.data);
+    return { videoIdeas: result.videoIdeas, error: null };
+  } catch (error) {
+    return { videoIdeas: null, error: "Failed to generate video ideas." };
+  }
 }
