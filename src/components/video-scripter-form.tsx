@@ -2,6 +2,7 @@
 'use client';
 
 import { useActionState, useRef } from 'react';
+import { useFormStatus } from 'react-dom';
 import { generateVideoScriptAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,11 +22,11 @@ import React from 'react';
 import { MarkdownContent } from './markdown-content';
 import { useContinueGeneration } from '@/hooks/use-continue-generation';
 
-function SubmitButton() {
-  const { isSubmitting } = useContinueGeneration();
+function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
+  const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={isSubmitting} className="w-full">
-      {isSubmitting ? (
+    <Button type="submit" disabled={isSubmitting || pending} className="w-full">
+      {(isSubmitting || pending) ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           Generating...
@@ -113,7 +114,7 @@ export function VideoScripterForm() {
              <input type="hidden" name="existingScript" value={state.videoScript ?? ''} />
           </CardContent>
           <CardFooter>
-            <SubmitButton />
+            <SubmitButton isSubmitting={isSubmitting} />
           </CardFooter>
         </form>
       </Card>

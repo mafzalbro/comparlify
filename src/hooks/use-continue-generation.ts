@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import { useTransition, useMemo, type RefObject, useFormStatus } from 'react';
+import { useTransition, useMemo, type RefObject } from 'react';
 
 interface UseContinueGenerationProps {
   formRef: RefObject<HTMLFormElement>;
@@ -27,9 +27,6 @@ export function useContinueGeneration({
   content,
 }: UseContinueGenerationProps) {
   const [isContinuing, startTransition] = useTransition();
-  const { pending: isFormSubmitting } = useFormStatus();
-
-  const isSubmitting = isContinuing || isFormSubmitting;
 
   const handleContinue = () => {
     if (!formRef.current || !content) return;
@@ -49,7 +46,7 @@ export function useContinueGeneration({
   return {
     isContinuing,
     isContentIncomplete,
-    isSubmitting,
+    isSubmitting: isContinuing, // The hook now only manages its own transition state
     handleContinue,
   };
 }
