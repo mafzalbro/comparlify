@@ -59,18 +59,24 @@ export function MarkdownContent({ content, className }: MarkdownContentProps) {
         ul: ({ node, ...props }) => <ul className="list-disc pl-6 my-4 space-y-2" {...props} />,
         ol: ({ node, ...props }) => <ol className="list-decimal pl-6 my-4 space-y-2" {...props} />,
         blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-primary/20 pl-4 italic my-6 text-muted-foreground" {...props} />,
-        code: ({ node, inlist, className, children, ...props }) => {
+        code: ({ node, className, children, ...props }) => {
           const match = /language-(\w+)/.exec(className || '')
-          return !inlist ? (
+          const isInline = !match && !props.inline;
+          
+          if (isInline) {
+             return (
+              <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold" {...props}>
+                {children}
+              </code>
+            )
+          }
+
+          return (
             <pre className="bg-muted p-4 rounded-md overflow-x-auto">
               <code className={cn('text-sm', className)} {...props}>
                 {children}
               </code>
             </pre>
-          ) : (
-            <code className={cn('relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold', className)} {...props}>
-              {children}
-            </code>
           )
         }
       }}

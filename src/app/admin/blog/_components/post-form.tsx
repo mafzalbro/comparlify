@@ -16,6 +16,7 @@ import { AiFillButton } from './ai-fill-button';
 import Link from 'next/link';
 import { Eye } from 'lucide-react';
 import { AiImageButton } from './ai-image-button';
+import { Editor } from '@/components/ui/editor';
 
 interface PostFormProps {
   post?: Post | null;
@@ -39,6 +40,7 @@ export function PostForm({ post }: PostFormProps) {
 
   return (
     <form action={action} ref={formRef}>
+      <input type="hidden" name="content" value={content} />
       <Card>
         <CardContent className="p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="md:col-span-2 space-y-6">
@@ -90,17 +92,19 @@ export function PostForm({ post }: PostFormProps) {
                 </div>
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <Label htmlFor="content">Content (Markdown supported)</Label>
+                        <Label htmlFor="content">Content</Label>
                         <AiFillButton
                             fieldType="Blog Post Content"
                             topic={title}
                             context={description}
                             onContentReceived={(content) => {
-                                setContent(content);
+                                // We need a key change to force re-render of editor
+                                setContent(''); 
+                                setTimeout(() => setContent(content), 0);
                             }}
                         />
                     </div>
-                    <Textarea id="content" name="content" value={content} onChange={e => setContent(e.target.value)} rows={15} required />
+                    <Editor key={content} initialContent={content} onChange={setContent} />
                     {typeof state.error !== 'string' && state.error?.content && <p className="text-destructive text-sm">{state.error.content[0]}</p>}
                 </div>
             </div>

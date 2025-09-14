@@ -10,7 +10,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Sparkles } from 'lucide-react';
-import { ScrollArea } from './ui/scroll-area';
 import { MarkdownContent } from './markdown-content';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 
@@ -92,10 +91,8 @@ export function SocialMediaPostGeneratorForm() {
         <Alert className="mt-8">
           <Sparkles className="h-5 w-5" />
           <AlertTitle className="font-bold">Generated Post</AlertTitle>
-          <AlertDescription>
-            <ScrollArea className="h-72 mt-4">
-              <MarkdownContent content={state.post} />
-            </ScrollArea>
+          <AlertDescription className="mt-4">
+            <MarkdownContent content={state.post} />
           </AlertDescription>
         </Alert>
       )}

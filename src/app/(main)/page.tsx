@@ -107,7 +107,7 @@ export default async function Home() {
     const session = await auth();
     const recentPosts = await getRecentPosts();
 
-    console.log(session);
+
 
 
     return (

@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { SubmitButton } from '@/components/submit-button';
 import { Trash2, PlusCircle } from 'lucide-react';
 import { AiFillButton } from '../../blog/_components/ai-fill-button';
+import { Editor } from '@/components/ui/editor';
 
 
 type ComparisonWithRelations = Comparison & {
@@ -62,6 +63,8 @@ export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
 
   return (
     <form action={action}>
+      <input type="hidden" name="introduction" value={introduction} />
+      <input type="hidden" name="conclusion" value={conclusion} />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-6">
           <Card>
@@ -114,10 +117,13 @@ export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
                         fieldType="Comparison Introduction"
                         topic={title}
                         context={summary}
-                        onContentReceived={setIntroduction}
+                        onContentReceived={(content) => {
+                            setIntroduction('');
+                            setTimeout(() => setIntroduction(content), 0);
+                        }}
                     />
                 </div>
-                <Textarea id="introduction" name="introduction" value={introduction} onChange={e => setIntroduction(e.target.value)} rows={10} required />
+                <Editor key={`intro-${introduction}`} initialContent={introduction} onChange={setIntroduction} />
                 {typeof state.error !== 'string' && state?.error?.introduction && <p className="text-destructive text-sm">{state.error.introduction[0]}</p>}
               </div>
               <div className="space-y-2">
@@ -127,10 +133,13 @@ export function ComparisonForm({ comparison, platforms }: ComparisonFormProps) {
                         fieldType="Comparison Conclusion"
                         topic={title}
                         context={summary}
-                        onContentReceived={setConclusion}
+                        onContentReceived={(content) => {
+                            setConclusion('');
+                            setTimeout(() => setConclusion(content), 0);
+                        }}
                     />
                 </div>
-                <Textarea id="conclusion" name="conclusion" value={conclusion} onChange={e => setConclusion(e.target.value)} rows={10} required />
+                <Editor key={`conclusion-${conclusion}`} initialContent={conclusion} onChange={setConclusion} />
                 {typeof state.error !== 'string' && state?.error?.conclusion && <p className="text-destructive text-sm">{state.error.conclusion[0]}</p>}
               </div>
             </CardContent>

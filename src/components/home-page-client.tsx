@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { Session } from 'next-auth';
@@ -8,7 +9,6 @@ interface HomePageClientProps {
 }
 
 export function HomePageClient({ session }: HomePageClientProps) {
-  console.log(session)
   const showOnboarding = session?.user && !session.user.onboarded;
 
   if (!showOnboarding) {

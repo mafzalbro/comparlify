@@ -19,7 +19,6 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Sparkles } from 'lucide-react';
 import { Slider } from './ui/slider';
 import React from 'react';
-import { ScrollArea } from './ui/scroll-area';
 import { MarkdownContent } from './markdown-content';
 
 function SubmitButton() {
@@ -100,10 +99,8 @@ export function QuizGeneratorForm() {
         <Alert className="mt-8">
             <Sparkles className="h-5 w-5" />
             <AlertTitle className="font-bold">Generated Quiz</AlertTitle>
-            <AlertDescription>
-              <ScrollArea className="h-96 mt-4">
+            <AlertDescription className="mt-4">
                  <MarkdownContent content={state.quiz} />
-              </ScrollArea>
             </AlertDescription>
         </Alert>
       )}
