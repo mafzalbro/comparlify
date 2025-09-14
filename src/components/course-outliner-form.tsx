@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useRef, useState } from 'react';
+import { useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateCourseOutlineAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -16,8 +16,9 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Sparkles, PlusCircle } from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
 import { MarkdownContent } from './markdown-content';
+import { useContinueGeneration } from '@/hooks/use-continue-generation';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -41,31 +42,24 @@ function SubmitButton() {
 export function CourseOutlinerForm() {
   const initialState = { courseOutline: null, error: null };
   const [state, formAction] = useActionState(generateCourseOutlineAction, initialState);
-  const [isContinuing, setIsContinuing] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
-  const hiddenTextareaRef = useRef<HTMLTextAreaElement>(null);
-  
-  const handleContinue = () => {
-    if (formRef.current && hiddenTextareaRef.current && state.courseOutline) {
-      setIsContinuing(true);
-      hiddenTextareaRef.current.value = state.courseOutline;
 
-      const formData = new FormData(formRef.current);
-      formAction(formData);
-    }
-  };
-
-  // This effect helps manage the loading state for the continue button
-  if (isContinuing && !state.courseOutline) {
-      setIsContinuing(false);
-  }
-  
-  const isContentIncomplete = state.courseOutline && !/[.!?\])'"`]\s*$/.test(state.courseOutline.trim());
+  const {
+    isContinuing,
+    isContentIncomplete,
+    ContinueButton,
+  } = useContinueGeneration({
+    formRef,
+    formAction,
+    content: state.courseOutline,
+    fieldToContinue: 'existingContent',
+    buttonText: 'Continue Generating',
+  });
 
   return (
     <>
       <Card className="shadow-lg">
-        <form action={formAction} ref={formRef} onSubmit={() => setIsContinuing(false)}>
+        <form action={(payload) => { formAction(payload); }} ref={formRef}>
           <CardHeader>
             <CardTitle className="font-headline">Describe Your Course</CardTitle>
             <CardDescription>
@@ -86,7 +80,7 @@ export function CourseOutlinerForm() {
                 {typeof state.error === 'object' && state.error?.courseDescription && (
                   <p className="text-sm text-destructive">{state.error.courseDescription[0]}</p>
                 )}
-                 <textarea name="existingContent" ref={hiddenTextareaRef} className="hidden" />
+                 <input type="hidden" name="existingContent" value={state.courseOutline ?? ''} />
               </div>
             </div>
           </CardContent>
@@ -105,25 +99,11 @@ export function CourseOutlinerForm() {
                     <MarkdownContent content={state.courseOutline} />
                 </AlertDescription>
             </Alert>
-            {isContentIncomplete && (
-              <Button onClick={handleContinue} className="w-full" variant="outline" type="button" disabled={isContinuing}>
-                  {isContinuing ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Continuing...
-                    </>
-                  ) : (
-                    <>
-                      <PlusCircle className="mr-2 h-4 w-4" /> 
-                      Continue Generating
-                    </>
-                  )}
-              </Button>
-            )}
+            {isContentIncomplete && <ContinueButton />}
          </div>
       )}
 
-      {typeof state.error === 'string' && (
+      {typeof state.error === 'string' && !isContinuing && (
         <Alert variant="destructive" className="mt-8">
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>

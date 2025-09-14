@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useRef, useState } from 'react';
+import { useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateVideoScriptAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -16,10 +16,11 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Sparkles, PlusCircle } from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
 import { Slider } from './ui/slider';
 import React from 'react';
 import { MarkdownContent } from './markdown-content';
+import { useContinueGeneration } from '@/hooks/use-continue-generation';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -44,33 +45,24 @@ export function VideoScripterForm() {
   const initialState = { videoScript: null, error: null };
   const [state, formAction] = useActionState(generateVideoScriptAction, initialState);
   const [duration, setDuration] = React.useState(5);
-  const [isContinuing, setIsContinuing] = useState(false);
-
   const formRef = useRef<HTMLFormElement>(null);
-  const hiddenTextareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleContinue = () => {
-    if (formRef.current && hiddenTextareaRef.current && state.videoScript) {
-      setIsContinuing(true);
-      // Set the value of the hidden textarea to the current script
-      hiddenTextareaRef.current.value = state.videoScript;
-      
-      const formData = new FormData(formRef.current);
-      formAction(formData);
-    }
-  };
-
-  // This effect helps manage the loading state for the continue button
-  if (isContinuing && !state.videoScript) {
-      setIsContinuing(false);
-  }
-
-  const isContentIncomplete = state.videoScript && !/[.!?\])'"`]\s*$/.test(state.videoScript.trim());
+  const {
+    isContinuing,
+    isContentIncomplete,
+    ContinueButton,
+  } = useContinueGeneration({
+    formRef,
+    formAction,
+    content: state.videoScript,
+    fieldToContinue: 'existingScript',
+    buttonText: 'Continue Script',
+  });
 
   return (
     <>
       <Card className="shadow-lg">
-        <form action={formAction} ref={formRef} onSubmit={() => setIsContinuing(false)}>
+        <form action={(payload) => { formAction(payload); }} ref={formRef}>
           <CardHeader>
             <CardTitle className="font-headline">Describe Your Lesson</CardTitle>
             <CardDescription>
@@ -110,8 +102,7 @@ export function VideoScripterForm() {
                     <p className="text-sm text-destructive">{state.error.videoDuration[0]}</p>
                 )}
              </div>
-             {/* Hidden field to pass the existing script when continuing */}
-             <textarea name="existingScript" ref={hiddenTextareaRef} className="hidden" />
+             <input type="hidden" name="existingScript" value={state.videoScript ?? ''} />
           </CardContent>
           <CardFooter>
             <SubmitButton />
@@ -128,25 +119,11 @@ export function VideoScripterForm() {
                    <MarkdownContent content={state.videoScript} />
               </AlertDescription>
           </Alert>
-          {isContentIncomplete && (
-            <Button onClick={handleContinue} className="w-full" variant="outline" type="button" disabled={isContinuing}>
-              {isContinuing ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Continuing...
-                </>
-              ) : (
-                <>
-                  <PlusCircle className="mr-2 h-4 w-4" /> 
-                  Continue Generating
-                </>
-              )}
-            </Button>
-          )}
+          {isContentIncomplete && <ContinueButton />}
         </div>
       )}
 
-      {typeof state.error === 'string' && (
+      {typeof state.error === 'string' && !isContinuing && (
         <Alert variant="destructive" className="mt-8">
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useRef, useState } from 'react';
+import { useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateFaqsAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -9,8 +9,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Sparkles, PlusCircle } from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
 import { MarkdownContent } from './markdown-content';
+import { useContinueGeneration } from '@/hooks/use-continue-generation';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -34,31 +35,24 @@ function SubmitButton() {
 export function FaqGeneratorForm() {
   const initialState = { faqs: null, error: null };
   const [state, formAction] = useActionState(generateFaqsAction, initialState);
-  const [isContinuing, setIsContinuing] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
-  const hiddenTextareaRef = useRef<HTMLTextAreaElement>(null);
-
-  const handleContinue = () => {
-    if (formRef.current && hiddenTextareaRef.current && state.faqs) {
-      setIsContinuing(true);
-      hiddenTextareaRef.current.value = state.faqs;
-      
-      const formData = new FormData(formRef.current);
-      formAction(formData);
-    }
-  };
-
-  // This effect helps manage the loading state for the continue button
-  if (isContinuing && !state.faqs) {
-      setIsContinuing(false);
-  }
-
-  const isContentIncomplete = state.faqs && !/[.!?\])'"`]\s*$/.test(state.faqs.trim());
+  
+  const {
+    isContinuing,
+    isContentIncomplete,
+    ContinueButton,
+  } = useContinueGeneration({
+    formRef,
+    formAction,
+    content: state.faqs,
+    fieldToContinue: 'existingContent',
+    buttonText: 'Generate More FAQs',
+  });
 
   return (
     <>
       <Card className="shadow-lg">
-        <form action={formAction} ref={formRef} onSubmit={() => setIsContinuing(false)}>
+        <form action={(payload) => { formAction(payload); }} ref={formRef}>
           <CardHeader>
             <CardTitle className="font-headline">Topic Content</CardTitle>
             <CardDescription>
@@ -79,7 +73,7 @@ export function FaqGeneratorForm() {
                 {typeof state.error === 'object' && state.error?.topicContent && (
                   <p className="text-sm text-destructive">{state.error.topicContent[0]}</p>
                 )}
-                 <textarea name="existingContent" ref={hiddenTextareaRef} className="hidden" />
+                 <input type="hidden" name="existingContent" value={state.faqs ?? ''} />
               </div>
             </div>
           </CardContent>
@@ -98,25 +92,11 @@ export function FaqGeneratorForm() {
               <MarkdownContent content={state.faqs} />
             </AlertDescription>
           </Alert>
-          {isContentIncomplete && (
-            <Button onClick={handleContinue} className="w-full" variant="outline" type="button" disabled={isContinuing}>
-               {isContinuing ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Continuing...
-                </>
-              ) : (
-                <>
-                  <PlusCircle className="mr-2 h-4 w-4" /> 
-                  Continue Generating
-                </>
-              )}
-            </Button>
-          )}
+          {isContentIncomplete && <ContinueButton />}
         </div>
       )}
 
-      {typeof state.error === 'string' && (
+      {typeof state.error === 'string' && !isContinuing && (
         <Alert variant="destructive" className="mt-8">
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{state.error}</AlertDescription>

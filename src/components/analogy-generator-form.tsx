@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useRef, useState } from 'react';
+import { useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateAnalogyAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Sparkles, PlusCircle } from 'lucide-react';
 import { MarkdownContent } from './markdown-content';
+import { useContinueGeneration } from '@/hooks/use-continue-generation';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -34,31 +35,25 @@ function SubmitButton() {
 export function AnalogyGeneratorForm() {
   const initialState = { analogy: null, error: null };
   const [state, formAction] = useActionState(generateAnalogyAction, initialState);
-  const [isContinuing, setIsContinuing] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
-  const hiddenTextareaRef = useRef<HTMLTextAreaElement>(null);
-  
-  const handleContinue = () => {
-    if (formRef.current && hiddenTextareaRef.current && state.analogy) {
-      setIsContinuing(true);
-      hiddenTextareaRef.current.value = state.analogy;
-      
-      const formData = new FormData(formRef.current);
-      formAction(formData);
-    }
-  };
 
-  // This effect helps manage the loading state for the continue button
-  if (isContinuing && !state.analogy) {
-      setIsContinuing(false);
-  }
-
-  const isContentIncomplete = state.analogy && !/[.!?\])'"`]\s*$/.test(state.analogy.trim());
+  const {
+    isContinuing,
+    isContentIncomplete,
+    handleContinue,
+    ContinueButton,
+  } = useContinueGeneration({
+    formRef,
+    formAction,
+    content: state.analogy,
+    fieldToContinue: 'existingContent',
+    buttonText: 'Continue Generating',
+  });
 
   return (
     <>
       <Card className="shadow-lg">
-        <form action={formAction} ref={formRef} onSubmit={() => setIsContinuing(false)}>
+        <form action={(payload) => { formAction(payload); }} ref={formRef}>
           <CardHeader>
             <CardTitle className="font-headline">Enter Complex Topic</CardTitle>
             <CardDescription>
@@ -79,7 +74,7 @@ export function AnalogyGeneratorForm() {
                 {typeof state.error === 'object' && state.error?.complexTopic && (
                   <p className="text-sm text-destructive">{state.error.complexTopic[0]}</p>
                 )}
-                 <textarea name="existingContent" ref={hiddenTextareaRef} className="hidden" />
+                 <input type="hidden" name="existingContent" value={state.analogy ?? ''} />
               </div>
             </div>
           </CardContent>
@@ -98,25 +93,11 @@ export function AnalogyGeneratorForm() {
               <MarkdownContent content={state.analogy} />
             </AlertDescription>
           </Alert>
-          {isContentIncomplete && (
-            <Button onClick={handleContinue} className="w-full" variant="outline" type="button" disabled={isContinuing}>
-               {isContinuing ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Continuing...
-                </>
-              ) : (
-                <>
-                  <PlusCircle className="mr-2 h-4 w-4" /> 
-                  Continue Generating
-                </>
-              )}
-            </Button>
-          )}
+          {isContentIncomplete && <ContinueButton />}
         </div>
       )}
 
-      {typeof state.error === 'string' && (
+      {typeof state.error === 'string' && !isContinuing && (
         <Alert variant="destructive" className="mt-8">
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{state.error}</AlertDescription>
