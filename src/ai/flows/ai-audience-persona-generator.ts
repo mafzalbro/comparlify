@@ -9,6 +9,7 @@ const AIGenerateAudiencePersonaInputSchema = z.object({
   courseIdea: z
     .string()
     .describe('A description of the course idea or topic.'),
+  existingContent: z.string().optional().describe('Existing persona content to continue or expand upon.'),
 });
 type AIGenerateAudiencePersonaInput = z.infer<typeof AIGenerateAudiencePersonaInputSchema>;
 
@@ -25,7 +26,17 @@ const prompt = ai.definePrompt({
   name: 'aiAudiencePersonaGeneratorPrompt',
   input: {schema: AIGenerateAudiencePersonaInputSchema},
   output: {schema: AIGenerateAudiencePersonaOutputSchema},
-  prompt: `You are an expert market researcher and strategist. Based on the provided course idea, create a detailed audience persona for the ideal student.
+  prompt: `You are an expert market researcher and strategist.
+{{#if existingContent}}
+You have already started generating a persona. Continue where you left off, expanding upon the existing text.
+Do not repeat the existing content in your response.
+
+Existing Persona:
+{{{existingContent}}}
+
+Continue From There:
+{{else}}
+Based on the provided course idea, create a detailed audience persona for the ideal student.
 
 The persona should be formatted in Markdown and include:
 - A name and photo suggestion (e.g., "[Photo of a curious young professional in a cafe]").
@@ -37,7 +48,9 @@ The persona should be formatted in Markdown and include:
 
 Course Idea: {{{courseIdea}}}
 
-Persona:`,
+Persona:
+{{/if}}
+`,
 });
 
 const aiAudiencePersonaGeneratorFlow = ai.defineFlow(
@@ -48,6 +61,7 @@ const aiAudiencePersonaGeneratorFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return output!;
+    const finalPersona = input.existingContent ? `${input.existingContent}\n${output!.persona}` : output!.persona;
+    return { persona: finalPersona };
   }
 );

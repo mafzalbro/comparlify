@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateVideoScriptAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -16,24 +16,24 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, PlusCircle } from 'lucide-react';
 import { Slider } from './ui/slider';
 import React from 'react';
 import { MarkdownContent } from './markdown-content';
 
-function SubmitButton() {
+function SubmitButton({ isContinuing }: { isContinuing?: boolean }) {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="w-full">
       {pending ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Generating Script...
+          Generating...
         </>
       ) : (
         <>
-          <Sparkles className="mr-2 h-4 w-4" />
-          Generate Script
+          {isContinuing ? <PlusCircle className="mr-2 h-4 w-4" /> : <Sparkles className="mr-2 h-4 w-4" />}
+          {isContinuing ? 'Continue Generating' : 'Generate Script'}
         </>
       )}
     </Button>
@@ -45,10 +45,33 @@ export function VideoScripterForm() {
   const [state, formAction] = useActionState(generateVideoScriptAction, initialState);
   const [duration, setDuration] = React.useState(5);
 
+  const formRef = useRef<HTMLFormElement>(null);
+  const hiddenTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleContinue = () => {
+    if (formRef.current && hiddenTextareaRef.current && state.videoScript) {
+      // Set the value of the hidden textarea to the current script
+      hiddenTextareaRef.current.value = state.videoScript;
+      // We can create a new FormData or directly submit the form.
+      // Submitting the form is easier as it respects the form's action.
+      // We'll use a specific submit button for this action if needed, or just trigger submit.
+      
+      // Since we have only one submit button, we can just trigger the form submission.
+      // The `formAction` will receive the `existingScript` from the hidden textarea.
+      const submitButton = formRef.current.querySelector('button[type="submit"]') as HTMLElement | null;
+      if (submitButton) {
+        // A helper state for the button text
+        formRef.current.setAttribute('data-continuing', 'true');
+        submitButton.click();
+      }
+    }
+  };
+
+
   return (
     <>
       <Card className="shadow-lg">
-        <form action={formAction}>
+        <form action={formAction} ref={formRef}>
           <CardHeader>
             <CardTitle className="font-headline">Describe Your Lesson</CardTitle>
             <CardDescription>
@@ -88,6 +111,8 @@ export function VideoScripterForm() {
                     <p className="text-sm text-destructive">{state.error.videoDuration[0]}</p>
                 )}
              </div>
+             {/* Hidden field to pass the existing script when continuing */}
+             <textarea name="existingScript" ref={hiddenTextareaRef} className="hidden" />
           </CardContent>
           <CardFooter>
             <SubmitButton />
@@ -96,13 +121,18 @@ export function VideoScripterForm() {
       </Card>
 
       {state.videoScript && (
-        <Alert className="mt-8">
-            <Sparkles className="h-5 w-5" />
-            <AlertTitle className="font-bold">Generated Video Script</AlertTitle>
-            <AlertDescription className="mt-4">
-                 <MarkdownContent content={state.videoScript} />
-            </AlertDescription>
-        </Alert>
+        <div className="mt-8 space-y-4">
+          <Alert>
+              <Sparkles className="h-5 w-5" />
+              <AlertTitle className="font-bold">Generated Video Script</AlertTitle>
+              <AlertDescription className="mt-4">
+                   <MarkdownContent content={state.videoScript} />
+              </AlertDescription>
+          </Alert>
+          <Button onClick={handleContinue} className="w-full" variant="outline">
+            <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
+          </Button>
+        </div>
       )}
 
       {typeof state.error === 'string' && (

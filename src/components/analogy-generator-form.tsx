@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateAnalogyAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -9,10 +9,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, PlusCircle } from 'lucide-react';
 import { MarkdownContent } from './markdown-content';
 
-function SubmitButton() {
+function SubmitButton({ isContinuing }: { isContinuing?: boolean }) {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="w-full">
@@ -23,8 +23,8 @@ function SubmitButton() {
         </>
       ) : (
         <>
-          <Sparkles className="mr-2 h-4 w-4" />
-          Generate Analogy
+          {isContinuing ? <PlusCircle className="mr-2 h-4 w-4" /> : <Sparkles className="mr-2 h-4 w-4" />}
+          {isContinuing ? 'Continue Generating' : 'Generate Analogy'}
         </>
       )}
     </Button>
@@ -34,11 +34,22 @@ function SubmitButton() {
 export function AnalogyGeneratorForm() {
   const initialState = { analogy: null, error: null };
   const [state, formAction] = useActionState(generateAnalogyAction, initialState);
+  const formRef = useRef<HTMLFormElement>(null);
+  const hiddenTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleContinue = () => {
+    if (formRef.current && hiddenTextareaRef.current && state.analogy) {
+      // Set the value of the hidden textarea
+      hiddenTextareaRef.current.value = state.analogy;
+      // Submit the form
+      formRef.current.requestSubmit();
+    }
+  };
 
   return (
     <>
       <Card className="shadow-lg">
-        <form action={formAction}>
+        <form action={formAction} ref={formRef}>
           <CardHeader>
             <CardTitle className="font-headline">Enter Complex Topic</CardTitle>
             <CardDescription>
@@ -59,6 +70,7 @@ export function AnalogyGeneratorForm() {
                 {typeof state.error === 'object' && state.error?.complexTopic && (
                   <p className="text-sm text-destructive">{state.error.complexTopic[0]}</p>
                 )}
+                 <textarea name="existingContent" ref={hiddenTextareaRef} className="hidden" />
               </div>
             </div>
           </CardContent>
@@ -69,13 +81,18 @@ export function AnalogyGeneratorForm() {
       </Card>
 
       {state.analogy && (
-        <Alert className="mt-8">
-          <Sparkles className="h-5 w-5" />
-          <AlertTitle className="font-bold">Generated Analogy</AlertTitle>
-          <AlertDescription className="mt-4">
-            <MarkdownContent content={state.analogy} />
-          </AlertDescription>
-        </Alert>
+        <div className="mt-8 space-y-4">
+          <Alert>
+            <Sparkles className="h-5 w-5" />
+            <AlertTitle className="font-bold">Generated Analogy</AlertTitle>
+            <AlertDescription className="mt-4">
+              <MarkdownContent content={state.analogy} />
+            </AlertDescription>
+          </Alert>
+          <Button onClick={handleContinue} className="w-full" variant="outline">
+            <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
+          </Button>
+        </div>
       )}
 
       {typeof state.error === 'string' && (

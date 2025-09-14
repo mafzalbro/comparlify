@@ -76,6 +76,7 @@ const courseOutlineSchema = z.object({
     .string()
     .min(10, { message: "Description must be at least 10 characters long." })
     .max(5000, { message: "Description must be less than 5000 characters." }),
+  existingContent: z.string().optional(),
 });
 
 interface CourseOutlineState {
@@ -94,6 +95,7 @@ export async function generateCourseOutlineAction(
 ): Promise<CourseOutlineState> {
   const validatedFields = courseOutlineSchema.safeParse({
     courseDescription: formData.get("courseDescription"),
+    existingContent: formData.get("existingContent"),
   });
 
   if (!validatedFields.success) {
@@ -104,9 +106,7 @@ export async function generateCourseOutlineAction(
   }
 
   try {
-    const result = await generateCourseOutline({
-      courseDescription: validatedFields.data.courseDescription,
-    });
+    const result = await generateCourseOutline(validatedFields.data);
     return { courseOutline: result.courseOutline, error: null };
   } catch (error) {
     console.error(error);
@@ -127,6 +127,7 @@ const videoScriptSchema = z.object({
     .number()
     .min(1, { message: "Duration must be at least 1 minute." })
     .max(30, { message: "Duration cannot exceed 30 minutes." }),
+  existingScript: z.string().optional(),
 });
 
 interface VideoScriptState {
@@ -147,6 +148,7 @@ export async function generateVideoScriptAction(
   const validatedFields = videoScriptSchema.safeParse({
     lessonTopic: formData.get("lessonTopic"),
     videoDuration: formData.get("videoDuration"),
+    existingScript: formData.get("existingScript"),
   });
 
   if (!validatedFields.success) {
@@ -217,6 +219,7 @@ const lessonSummarySchema = z.object({
     .string()
     .min(20, { message: "Content must be at least 20 characters long." })
     .max(10000, { message: "Content must be less than 10000 characters." }),
+  existingContent: z.string().optional(),
 });
 
 interface LessonSummaryState {
@@ -235,6 +238,7 @@ export async function generateLessonSummaryAction(
 ): Promise<LessonSummaryState> {
   const validatedFields = lessonSummarySchema.safeParse({
     lessonContent: formData.get("lessonContent"),
+    existingContent: formData.get("existingContent"),
   });
 
   if (!validatedFields.success) {
@@ -307,6 +311,7 @@ const personaSchema = z.object({
     .string()
     .min(10, { message: "Idea must be at least 10 characters long." })
     .max(2000),
+  existingContent: z.string().optional(),
 });
 
 interface PersonaState {
@@ -325,6 +330,7 @@ export async function generateAudiencePersonaAction(
 ): Promise<PersonaState> {
   const validatedFields = personaSchema.safeParse({
     courseIdea: formData.get("courseIdea"),
+    existingContent: formData.get("existingContent"),
   });
 
   if (!validatedFields.success) {
@@ -356,6 +362,7 @@ const courseDescriptionSchema = z.object({
     .string()
     .min(10, { message: "Topics must be at least 10 characters long." })
     .max(2000),
+  existingContent: z.string().optional(),
 });
 
 interface CourseDescriptionState {
@@ -376,6 +383,7 @@ export async function generateCourseDescriptionAction(
   const validatedFields = courseDescriptionSchema.safeParse({
     courseTitle: formData.get("courseTitle"),
     keyTopics: formData.get("keyTopics"),
+    existingContent: formData.get("existingContent"),
   });
 
   if (!validatedFields.success) {
@@ -532,6 +540,7 @@ export async function generateSocialMediaPostAction(
 // --- FAQ Generator Action ---
 const faqSchema = z.object({
   topicContent: z.string().min(20).max(10000),
+  existingContent: z.string().optional(),
 });
 
 interface FaqState {
@@ -550,6 +559,7 @@ export async function generateFaqsAction(
 ): Promise<FaqState> {
   const validatedFields = faqSchema.safeParse({
     topicContent: formData.get("topicContent"),
+    existingContent: formData.get("existingContent"),
   });
 
   if (!validatedFields.success) {
@@ -571,6 +581,7 @@ export async function generateFaqsAction(
 // --- Analogy Generator Action ---
 const analogySchema = z.object({
   complexTopic: z.string().min(10).max(1000),
+  existingContent: z.string().optional(),
 });
 
 interface AnalogyState {
@@ -589,6 +600,7 @@ export async function generateAnalogyAction(
 ): Promise<AnalogyState> {
   const validatedFields = analogySchema.safeParse({
     complexTopic: formData.get("complexTopic"),
+    existingContent: formData.get("existingContent"),
   });
 
   if (!validatedFields.success) {

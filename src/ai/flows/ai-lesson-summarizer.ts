@@ -9,6 +9,7 @@ const AIGenerateLessonSummaryInputSchema = z.object({
   lessonContent: z
     .string()
     .describe('The full text content of the lesson.'),
+  existingContent: z.string().optional().describe('Existing summary to continue or expand upon.'),
 });
 type AIGenerateLessonSummaryInput = z.infer<typeof AIGenerateLessonSummaryInputSchema>;
 
@@ -25,7 +26,17 @@ const prompt = ai.definePrompt({
   name: 'aiLessonSummarizerPrompt',
   input: {schema: AIGenerateLessonSummaryInputSchema},
   output: {schema: AIGenerateLessonSummaryOutputSchema},
-  prompt: `You are an expert at distilling information. Based on the provided lesson content, create a concise summary.
+  prompt: `You are an expert at distilling information.
+{{#if existingContent}}
+You have already started generating a summary. Continue where you left off, expanding upon the existing text.
+Do not repeat the existing content in your response.
+
+Existing Summary:
+{{{existingContent}}}
+
+Continue From There:
+{{else}}
+Based on the provided lesson content, create a concise summary.
 
 The summary should:
 - Be a short paragraph.
@@ -34,7 +45,9 @@ The summary should:
 
 Lesson Content: {{{lessonContent}}}
 
-Summary:`,
+Summary:
+{{/if}}
+`,
 });
 
 const aiLessonSummarizerFlow = ai.defineFlow(
@@ -45,6 +58,7 @@ const aiLessonSummarizerFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return output!;
+    const finalSummary = input.existingContent ? `${input.existingContent}\n${output!.summary}` : output!.summary;
+    return { summary: finalSummary };
   }
 );

@@ -9,6 +9,7 @@ const AIGenerateAnalogyInputSchema = z.object({
   complexTopic: z
     .string()
     .describe('The complex topic that needs a simple analogy.'),
+  existingContent: z.string().optional().describe('Existing analogy content to continue or expand upon.'),
 });
 type AIGenerateAnalogyInput = z.infer<typeof AIGenerateAnalogyInputSchema>;
 
@@ -30,9 +31,20 @@ Based on the provided complex topic, create a clear and effective analogy.
 
 Format the output in Markdown.
 
+{{#if existingContent}}
+You have already started generating an analogy. Continue where you left off, expanding upon the existing text.
+Do not repeat the existing content in your response.
+
+Existing Analogy:
+{{{existingContent}}}
+
+Continue From There:
+{{else}}
 Complex Topic: {{{complexTopic}}}
 
-Analogy:`,
+Analogy:
+{{/if}}
+`,
 });
 
 const aiAnalogyGeneratorFlow = ai.defineFlow(
@@ -43,6 +55,7 @@ const aiAnalogyGeneratorFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return output!;
+    const finalAnalogy = input.existingContent ? `${input.existingContent}\n${output!.analogy}` : output!.analogy;
+    return { analogy: finalAnalogy };
   }
 );

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateLessonSummaryAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -16,22 +16,22 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, PlusCircle } from 'lucide-react';
 import { MarkdownContent } from './markdown-content';
 
-function SubmitButton() {
+function SubmitButton({ isContinuing }: { isContinuing?: boolean }) {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="w-full">
       {pending ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Summarizing...
+          {isContinuing ? 'Continuing...' : 'Summarizing...'}
         </>
       ) : (
         <>
-          <Sparkles className="mr-2 h-4 w-4" />
-          Generate Summary
+          {isContinuing ? <PlusCircle className="mr-2 h-4 w-4" /> : <Sparkles className="mr-2 h-4 w-4" />}
+          {isContinuing ? 'Continue Generating' : 'Generate Summary'}
         </>
       )}
     </Button>
@@ -41,11 +41,21 @@ function SubmitButton() {
 export function LessonSummarizerForm() {
   const initialState = { summary: null, error: null };
   const [state, formAction] = useActionState(generateLessonSummaryAction, initialState);
+  const formRef = useRef<HTMLFormElement>(null);
+  const hiddenTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleContinue = () => {
+    if (formRef.current && hiddenTextareaRef.current && state.summary) {
+      hiddenTextareaRef.current.value = state.summary;
+      formRef.current.requestSubmit();
+    }
+  };
+
 
   return (
     <>
       <Card className="shadow-lg">
-        <form action={formAction}>
+        <form action={formAction} ref={formRef}>
           <CardHeader>
             <CardTitle className="font-headline">Lesson Content</CardTitle>
             <CardDescription>
@@ -66,6 +76,7 @@ export function LessonSummarizerForm() {
                 {typeof state.error === 'object' && state.error?.lessonContent && (
                   <p className="text-sm text-destructive">{state.error.lessonContent[0]}</p>
                 )}
+                 <textarea name="existingContent" ref={hiddenTextareaRef} className="hidden" />
               </div>
             </div>
           </CardContent>
@@ -76,13 +87,18 @@ export function LessonSummarizerForm() {
       </Card>
 
       {state.summary && (
-         <Alert className="mt-8">
-            <Sparkles className="h-5 w-5" />
-            <AlertTitle className="font-bold">Generated Summary</AlertTitle>
-            <AlertDescription className="mt-4">
-                <MarkdownContent content={state.summary} />
-            </AlertDescription>
-        </Alert>
+         <div className="mt-8 space-y-4">
+            <Alert>
+                <Sparkles className="h-5 w-5" />
+                <AlertTitle className="font-bold">Generated Summary</AlertTitle>
+                <AlertDescription className="mt-4">
+                    <MarkdownContent content={state.summary} />
+                </AlertDescription>
+            </Alert>
+            <Button onClick={handleContinue} className="w-full" variant="outline">
+                <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
+            </Button>
+         </div>
       )}
 
       {typeof state.error === 'string' && (

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateFaqsAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -9,10 +9,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, PlusCircle } from 'lucide-react';
 import { MarkdownContent } from './markdown-content';
 
-function SubmitButton() {
+function SubmitButton({ isContinuing }: { isContinuing?: boolean }) {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="w-full">
@@ -23,8 +23,8 @@ function SubmitButton() {
         </>
       ) : (
         <>
-          <Sparkles className="mr-2 h-4 w-4" />
-          Generate FAQs
+          {isContinuing ? <PlusCircle className="mr-2 h-4 w-4" /> : <Sparkles className="mr-2 h-4 w-4" />}
+          {isContinuing ? 'Continue Generating' : 'Generate FAQs'}
         </>
       )}
     </Button>
@@ -34,11 +34,20 @@ function SubmitButton() {
 export function FaqGeneratorForm() {
   const initialState = { faqs: null, error: null };
   const [state, formAction] = useActionState(generateFaqsAction, initialState);
+  const formRef = useRef<HTMLFormElement>(null);
+  const hiddenTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleContinue = () => {
+    if (formRef.current && hiddenTextareaRef.current && state.faqs) {
+      hiddenTextareaRef.current.value = state.faqs;
+      formRef.current.requestSubmit();
+    }
+  };
 
   return (
     <>
       <Card className="shadow-lg">
-        <form action={formAction}>
+        <form action={formAction} ref={formRef}>
           <CardHeader>
             <CardTitle className="font-headline">Topic Content</CardTitle>
             <CardDescription>
@@ -59,6 +68,7 @@ export function FaqGeneratorForm() {
                 {typeof state.error === 'object' && state.error?.topicContent && (
                   <p className="text-sm text-destructive">{state.error.topicContent[0]}</p>
                 )}
+                 <textarea name="existingContent" ref={hiddenTextareaRef} className="hidden" />
               </div>
             </div>
           </CardContent>
@@ -69,13 +79,18 @@ export function FaqGeneratorForm() {
       </Card>
 
       {state.faqs && (
-        <Alert className="mt-8">
-          <Sparkles className="h-5 w-5" />
-          <AlertTitle className="font-bold">Generated FAQs</AlertTitle>
-          <AlertDescription className="mt-4">
-            <MarkdownContent content={state.faqs} />
-          </AlertDescription>
-        </Alert>
+        <div className="mt-8 space-y-4">
+          <Alert>
+            <Sparkles className="h-5 w-5" />
+            <AlertTitle className="font-bold">Generated FAQs</AlertTitle>
+            <AlertDescription className="mt-4">
+              <MarkdownContent content={state.faqs} />
+            </AlertDescription>
+          </Alert>
+          <Button onClick={handleContinue} className="w-full" variant="outline">
+            <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
+          </Button>
+        </div>
       )}
 
       {typeof state.error === 'string' && (

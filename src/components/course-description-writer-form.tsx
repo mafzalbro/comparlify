@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateCourseDescriptionAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -9,23 +9,23 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, PlusCircle } from 'lucide-react';
 import { MarkdownContent } from './markdown-content';
 import { Input } from './ui/input';
 
-function SubmitButton() {
+function SubmitButton({ isContinuing }: { isContinuing?: boolean }) {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="w-full">
       {pending ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Writing...
+          {isContinuing ? 'Continuing...' : 'Writing...'}
         </>
       ) : (
         <>
-          <Sparkles className="mr-2 h-4 w-4" />
-          Generate Description
+          {isContinuing ? <PlusCircle className="mr-2 h-4 w-4" /> : <Sparkles className="mr-2 h-4 w-4" />}
+          {isContinuing ? 'Continue Generating' : 'Generate Description'}
         </>
       )}
     </Button>
@@ -35,11 +35,21 @@ function SubmitButton() {
 export function CourseDescriptionWriterForm() {
   const initialState = { description: null, error: null };
   const [state, formAction] = useActionState(generateCourseDescriptionAction, initialState);
+  const formRef = useRef<HTMLFormElement>(null);
+  const hiddenTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleContinue = () => {
+    if (formRef.current && hiddenTextareaRef.current && state.description) {
+      hiddenTextareaRef.current.value = state.description;
+      formRef.current.requestSubmit();
+    }
+  };
+
 
   return (
     <>
       <Card className="shadow-lg">
-        <form action={formAction}>
+        <form action={formAction} ref={formRef}>
           <CardHeader>
             <CardTitle className="font-headline">Course Details</CardTitle>
             <CardDescription>
@@ -66,6 +76,7 @@ export function CourseDescriptionWriterForm() {
               {typeof state.error === 'object' && state.error?.keyTopics && (
                 <p className="text-sm text-destructive">{state.error.keyTopics[0]}</p>
               )}
+               <textarea name="existingContent" ref={hiddenTextareaRef} className="hidden" />
             </div>
           </CardContent>
           <CardFooter>
@@ -75,13 +86,18 @@ export function CourseDescriptionWriterForm() {
       </Card>
 
       {state.description && (
-        <Alert className="mt-8">
-          <Sparkles className="h-5 w-5" />
-          <AlertTitle className="font-bold">Generated Course Description</AlertTitle>
-          <AlertDescription className="mt-4">
-            <MarkdownContent content={state.description} />
-          </AlertDescription>
-        </Alert>
+        <div className="mt-8 space-y-4">
+          <Alert>
+            <Sparkles className="h-5 w-5" />
+            <AlertTitle className="font-bold">Generated Course Description</AlertTitle>
+            <AlertDescription className="mt-4">
+              <MarkdownContent content={state.description} />
+            </AlertDescription>
+          </Alert>
+          <Button onClick={handleContinue} className="w-full" variant="outline">
+             <PlusCircle className="mr-2 h-4 w-4" /> Continue Generating
+          </Button>
+        </div>
       )}
 
       {typeof state.error === 'string' && (
