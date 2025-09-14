@@ -11,14 +11,15 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Sparkles, PlusCircle } from 'lucide-react';
 import { MarkdownContent } from './markdown-content';
-import { useContinueGeneration, ContinueGenerationProvider } from '@/hooks/use-continue-generation';
+import { useContinueGeneration } from '@/hooks/use-continue-generation';
 import { AIGenerationLoader } from './ai-generation-loader';
 
 function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
   const { pending } = useFormStatus();
+  const isDisabled = isSubmitting || pending;
   return (
-    <Button type="submit" disabled={isSubmitting || pending} className="w-full">
-      {(isSubmitting || pending) ? (
+    <Button type="submit" disabled={isDisabled} className="w-full">
+      {isDisabled ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           Generating...
@@ -33,10 +34,15 @@ function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
   );
 }
 
-const ContinueButton = () => {
-    const { handleContinue, isSubmitting } = useContinueGeneration();
+const ContinueButton = ({
+  onClick,
+  isSubmitting,
+}: {
+  onClick: () => void;
+  isSubmitting: boolean;
+}) => {
     return (
-        <Button onClick={handleContinue} disabled={isSubmitting} className="w-full" variant="outline" type="button">
+        <Button onClick={onClick} disabled={isSubmitting} className="w-full" variant="outline" type="button">
             {isSubmitting ? (
                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Continuing...</>
             ) : (
@@ -46,16 +52,16 @@ const ContinueButton = () => {
     )
 };
 
-function FaqGeneratorFormInner() {
+export function FaqGeneratorForm() {
   const initialState = { faqs: null, error: null };
   const [state, formAction] = useActionState(generateFaqsAction, initialState);
   const [topicContent, setTopicContent] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
   
-  const {
-    isSubmitting,
-    isContentIncomplete,
-  } = useContinueGeneration();
+  const { isSubmitting, isContentIncomplete, handleContinue } = useContinueGeneration({
+    formRef,
+    content: state.faqs,
+  });
 
   const showLoader = isSubmitting;
 
@@ -106,7 +112,7 @@ function FaqGeneratorFormInner() {
               <MarkdownContent content={state.faqs} />
             </AlertDescription>
           </Alert>
-          {isContentIncomplete && <ContinueButton />}
+          {isContentIncomplete && <ContinueButton onClick={handleContinue} isSubmitting={isSubmitting} />}
         </div>
       )}
 
@@ -118,12 +124,4 @@ function FaqGeneratorFormInner() {
       )}
     </>
   );
-}
-
-export function FaqGeneratorForm() {
-    return (
-        <ContinueGenerationProvider>
-            <FaqGeneratorFormInner />
-        </ContinueGenerationProvider>
-    )
 }
