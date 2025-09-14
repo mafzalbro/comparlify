@@ -34,7 +34,7 @@ export function useContinueGeneration({
   };
 
   return {
-    isSubmitting: isContinuing,
+    isContinuing,
     isContentIncomplete,
     handleContinue,
   };

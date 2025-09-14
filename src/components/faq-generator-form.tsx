@@ -54,16 +54,16 @@ const ContinueButton = ({
 
 export function FaqGeneratorForm() {
   const initialState = { faqs: null, error: null };
-  const [state, formAction] = useActionState(generateFaqsAction, initialState);
+  const [state, formAction, isFormSubmitting] = useActionState(generateFaqsAction, initialState);
   const [topicContent, setTopicContent] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
   
-  const { isSubmitting, isContentIncomplete, handleContinue } = useContinueGeneration({
+  const { isContinuing, isContentIncomplete, handleContinue } = useContinueGeneration({
     formRef,
     content: state.faqs,
   });
 
-  const showLoader = isSubmitting;
+  const showLoader = isFormSubmitting || isContinuing;
 
   return (
     <>
@@ -96,7 +96,7 @@ export function FaqGeneratorForm() {
             </div>
           </CardContent>
           <CardFooter>
-            <SubmitButton isSubmitting={isSubmitting} />
+            <SubmitButton isSubmitting={isContinuing} />
           </CardFooter>
         </form>
       </Card>
@@ -112,11 +112,11 @@ export function FaqGeneratorForm() {
               <MarkdownContent content={state.faqs} />
             </AlertDescription>
           </Alert>
-          {isContentIncomplete && <ContinueButton onClick={handleContinue} isSubmitting={isSubmitting} />}
+          {isContentIncomplete && <ContinueButton onClick={handleContinue} isSubmitting={isContinuing} />}
         </div>
       )}
 
-      {typeof state.error === 'string' && !isSubmitting && (
+      {typeof state.error === 'string' && !showLoader && (
         <Alert variant="destructive" className="mt-8">
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{state.error}</AlertDescription>

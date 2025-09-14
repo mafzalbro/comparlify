@@ -63,17 +63,17 @@ const ContinueButton = ({
 
 export function VideoScripterForm() {
   const initialState = { videoScript: null, error: null };
-  const [state, formAction] = useActionState(generateVideoScriptAction, initialState);
+  const [state, formAction, isFormSubmitting] = useActionState(generateVideoScriptAction, initialState);
   const [lessonTopic, setLessonTopic] = useState('');
   const [videoDuration, setVideoDuration] = React.useState(5);
   const formRef = useRef<HTMLFormElement>(null);
 
-  const { isSubmitting, isContentIncomplete, handleContinue } = useContinueGeneration({
+  const { isContinuing, isContentIncomplete, handleContinue } = useContinueGeneration({
     formRef,
     content: state.videoScript,
   });
   
-  const showLoader = isSubmitting;
+  const showLoader = isFormSubmitting || isContinuing;
 
   return (
     <>
@@ -123,7 +123,7 @@ export function VideoScripterForm() {
              <input type="hidden" name="existingScript" value={state.videoScript ?? ''} />
           </CardContent>
           <CardFooter>
-            <SubmitButton isSubmitting={isSubmitting} />
+            <SubmitButton isSubmitting={isContinuing} />
           </CardFooter>
         </form>
       </Card>
@@ -139,11 +139,11 @@ export function VideoScripterForm() {
                    <MarkdownContent content={state.videoScript} />
               </AlertDescription>
           </Alert>
-          {isContentIncomplete && <ContinueButton onClick={handleContinue} isSubmitting={isSubmitting} />}
+          {isContentIncomplete && <ContinueButton onClick={handleContinue} isSubmitting={isContinuing} />}
         </div>
       )}
 
-      {typeof state.error === 'string' && !isSubmitting && (
+      {typeof state.error === 'string' && !showLoader && (
         <Alert variant="destructive" className="mt-8">
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>

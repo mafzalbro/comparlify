@@ -55,17 +55,17 @@ const ContinueButton = ({
 
 export function CourseDescriptionWriterForm() {
   const initialState = { description: null, error: null };
-  const [state, formAction] = useActionState(generateCourseDescriptionAction, initialState);
+  const [state, formAction, isFormSubmitting] = useActionState(generateCourseDescriptionAction, initialState);
   const [courseTitle, setCourseTitle] = useState('');
   const [keyTopics, setKeyTopics] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
   
-  const { isSubmitting, isContentIncomplete, handleContinue } = useContinueGeneration({
+  const { isContinuing, isContentIncomplete, handleContinue } = useContinueGeneration({
     formRef,
     content: state.description,
   });
   
-  const showLoader = isSubmitting;
+  const showLoader = isFormSubmitting || isContinuing;
 
   return (
     <>
@@ -110,7 +110,7 @@ export function CourseDescriptionWriterForm() {
             </div>
           </CardContent>
           <CardFooter>
-            <SubmitButton isSubmitting={isSubmitting} />
+            <SubmitButton isSubmitting={isContinuing} />
           </CardFooter>
         </form>
       </Card>
@@ -126,11 +126,11 @@ export function CourseDescriptionWriterForm() {
               <MarkdownContent content={state.description} />
             </AlertDescription>
           </Alert>
-          {isContentIncomplete && <ContinueButton onClick={handleContinue} isSubmitting={isSubmitting} />}
+          {isContentIncomplete && <ContinueButton onClick={handleContinue} isSubmitting={isContinuing} />}
         </div>
       )}
 
-      {typeof state.error === 'string' && !isSubmitting && (
+      {typeof state.error === 'string' && !showLoader && (
         <Alert variant="destructive" className="mt-8">
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{state.error}</AlertDescription>
