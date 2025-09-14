@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Star } from 'lucide-react';
 import type { Metadata } from 'next';
 import { generateSeoMetadata } from '@/lib/seo';
-import type { Comparison, Platform } from '@prisma/client';
+import type { Comparison, Platform, ComparisonCategory } from '@prisma/client';
 import { ManagedImage } from '@/components/managed-image';
 import { cache } from 'react';
 import type { SearchParams } from '@/types/next';
@@ -32,10 +32,12 @@ const getComparisons = cache(async ({
   search,
   sort,
   platforms,
+  category,
 }: {
   search?: string;
   sort?: string;
   platforms?: string[];
+  category?: string;
 }) => {
   let where: any = { published: true };
   let orderBy: any = { createdAt: 'desc' };
@@ -47,6 +49,10 @@ const getComparisons = cache(async ({
       { platformA: { name: { contains: search, mode: 'insensitive' } } },
       { platformB: { name: { contains: search, mode: 'insensitive' } } },
     ];
+  }
+
+  if (category && category !== 'all') {
+    where.categoryId = category;
   }
 
   if (sort === 'oldest') {
@@ -83,16 +89,21 @@ const getAllPlatforms = cache(async () => {
   return prisma.platform.findMany({ orderBy: { name: 'asc' } });
 });
 
+const getComparisonCategories = cache(async () => {
+  return prisma.comparisonCategory.findMany({ orderBy: { name: 'asc' } });
+});
+
 
 export default async function ComparePage(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = (await props.searchParams);
-  const { search, sort } = searchParams;
+  const { search, sort, category } = searchParams;
   const platformsParam = searchParams.platforms;
   const selectedPlatforms = Array.isArray(platformsParam) ? platformsParam : (platformsParam ? [platformsParam] : []);
 
-  const [comparisons, allPlatforms] = await Promise.all([
-    getComparisons({ search: String(search ?? ''), sort: String(sort ?? 'newest'), platforms: selectedPlatforms }),
-    getAllPlatforms()
+  const [comparisons, allPlatforms, categories] = await Promise.all([
+    getComparisons({ search: String(search ?? ''), sort: String(sort ?? 'newest'), platforms: selectedPlatforms, category: String(category ?? 'all') }),
+    getAllPlatforms(),
+    getComparisonCategories()
   ]);
 
   return (
@@ -117,7 +128,7 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
       </section>
 
       <div className="container py-16 md:py-24 px-4 md:px-6">
-        <FilterControls allPlatforms={allPlatforms} searchParams={searchParams} />
+        <FilterControls allPlatforms={allPlatforms} categories={categories} searchParams={searchParams} />
 
         {comparisons.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground animate-fade-in-up">

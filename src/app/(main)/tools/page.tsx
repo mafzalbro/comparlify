@@ -26,7 +26,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import type { Metadata } from 'next';
 import { generateSeoMetadata } from '@/lib/seo';
-import { Breadcrumbs } from '@/components/breadcrumb';
+import type { SearchParams } from '@/types/next';
 
 export const metadata: Metadata = generateSeoMetadata({
   title: 'AI Creator Tools',
@@ -34,7 +34,7 @@ export const metadata: Metadata = generateSeoMetadata({
   path: '/tools'
 });
 
-type ToolCategory = 'Content Creation' | 'Marketing' | 'Productivity' | 'Engagement' | 'Curriculum Design';
+type ToolCategory = 'Content Creation' | 'Marketing' | 'Productivity' | 'Curriculum Design';
 
 type Tool = {
   slug: string;
@@ -149,7 +149,6 @@ const categories: ToolCategory[] = [
   'Marketing',
   'Curriculum Design',
   'Productivity',
-  'Engagement',
 ];
 
 function CategoryButton({ category, selectedCategory }: { category: ToolCategory | 'All', selectedCategory: string }) {
@@ -161,7 +160,7 @@ function CategoryButton({ category, selectedCategory }: { category: ToolCategory
   )
 }
 
-export default async function ToolsPage(props: { searchParams?: Promise<{ category?: string }> }) {
+export default async function ToolsPage(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
   const selectedCategory = searchParams?.category || 'All';
 
@@ -210,9 +209,9 @@ export default async function ToolsPage(props: { searchParams?: Promise<{ catego
 
         <div className="flex justify-center mb-12">
           <div className="flex flex-wrap gap-2 bg-muted p-2 rounded-lg">
-            <CategoryButton category="All" selectedCategory={selectedCategory} />
+            <CategoryButton category="All" selectedCategory={selectedCategory as string} />
             {categories.map((category) => (
-              <CategoryButton key={category} category={category} selectedCategory={selectedCategory} />
+              <CategoryButton key={category} category={category} selectedCategory={selectedCategory as string} />
             ))}
           </div>
         </div>

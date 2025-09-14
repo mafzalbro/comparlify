@@ -17,7 +17,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import type { Platform } from '@prisma/client';
+import type { Platform, ComparisonCategory } from '@prisma/client';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { SearchParams } from '@/types/next';
 import { createQueryString } from '@/lib/utils';
@@ -42,10 +42,11 @@ function useDebounce<T>(value: T, delay: number): T {
 
 interface FilterControlsProps {
     allPlatforms: Platform[];
+    categories: ComparisonCategory[];
     searchParams: SearchParams;
 }
 
-export function FilterControls({ allPlatforms, searchParams }: FilterControlsProps) {
+export function FilterControls({ allPlatforms, categories, searchParams }: FilterControlsProps) {
     const router = useRouter();
     const pathname = usePathname();
     const [isPending, startTransition] = useTransition();
@@ -73,11 +74,16 @@ export function FilterControls({ allPlatforms, searchParams }: FilterControlsPro
     }, [searchParams.search]);
     
     const sortValue = String(searchParams.sort || 'newest');
+    const categoryValue = String(searchParams.category || 'all');
     const platformsParam = searchParams.platforms;
     const selectedPlatforms = Array.isArray(platformsParam) ? platformsParam : (platformsParam ? [platformsParam] : []);
 
     const handleSortChange = (value: string) => {
         handleFilterChange({ sort: value, page: 1 });
+    };
+    
+    const handleCategoryChange = (value: string) => {
+        handleFilterChange({ category: value, page: 1 });
     };
 
     const handlePlatformChange = (platformId: string, checked: boolean) => {
@@ -88,7 +94,7 @@ export function FilterControls({ allPlatforms, searchParams }: FilterControlsPro
         handleFilterChange({ platforms: newSelectedPlatforms.length > 0 ? newSelectedPlatforms : null, page: 1 });
     };
     
-    const hasActiveFilters = !!searchParams.search || !!searchParams.sort || !!searchParams.platforms;
+    const hasActiveFilters = !!searchParams.search || !!searchParams.sort || !!searchParams.platforms || !!searchParams.category;
 
     return (
         <div className="mb-12 flex flex-wrap items-center gap-4">
@@ -109,7 +115,7 @@ export function FilterControls({ allPlatforms, searchParams }: FilterControlsPro
                     <Button type="button" variant="outline" className="h-10" disabled={isPending}>
                         <ListFilter className="mr-2 h-4 w-4"/> 
                         Filters
-                         {(!!searchParams.sort || !!searchParams.platforms) && <span className="ml-2 h-2 w-2 rounded-full bg-primary" />}
+                         {(!!searchParams.sort || !!searchParams.platforms || !!searchParams.category) && <span className="ml-2 h-2 w-2 rounded-full bg-primary" />}
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-80">
@@ -124,6 +130,21 @@ export function FilterControls({ allPlatforms, searchParams }: FilterControlsPro
                                     <SelectItem value="newest">Newest</SelectItem>
                                     <SelectItem value="oldest">Oldest</SelectItem>
                                     <SelectItem value="rating">Highest Rated</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <Separator />
+                        <div className="space-y-2">
+                             <Label htmlFor="category">Category</Label>
+                            <Select value={categoryValue} onValueChange={handleCategoryChange} disabled={isPending}>
+                                <SelectTrigger id="category" className="h-10">
+                                    <SelectValue placeholder="All Categories" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Categories</SelectItem>
+                                    {categories.map(category => (
+                                        <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                         </div>
