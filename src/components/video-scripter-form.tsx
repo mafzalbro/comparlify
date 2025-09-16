@@ -87,16 +87,6 @@ export function VideoScripterForm() {
     }
   };
 
-  const handleRegenerate = () => {
-    if (formRef.current) {
-        const formData = new FormData(formRef.current);
-        if(formData.has('existingContent')) {
-          formData.delete('existingContent');
-        }
-        formAction(formData);
-    }
-  };
-
   return (
     <>
         <AIGenerationLoader show={showLoader} />
@@ -108,14 +98,14 @@ export function VideoScripterForm() {
             }}
             className="space-y-6"
         >
-            <Card className="shadow-lg">
+            <Card className="shadow-lg h-full flex flex-col">
             <CardHeader>
                 <CardTitle className="font-headline">Describe Your Lesson</CardTitle>
                 <CardDescription>
                 Provide the topic for your video lesson and choose the desired length. The AI will generate a complete script for you.
                 </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 flex-1">
                 <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="lessonTopic">Lesson Topic</Label>
                 <Textarea
@@ -138,7 +128,7 @@ export function VideoScripterForm() {
                             id="videoDuration"
                             name="videoDuration"
                             min={1} 
-                            max={30} 
+                            max={10} 
                             step={1} 
                             value={[videoDuration]}
                             onValueChange={(value) => setVideoDuration(value[0])}
@@ -172,9 +162,13 @@ export function VideoScripterForm() {
                             <Button variant="ghost" size="icon" onClick={handleCopy} title="Copy">
                                 <Copy className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon" onClick={handleRegenerate} title="Regenerate">
-                                <RefreshCw className="h-4 w-4" />
-                            </Button>
+                            <form action={formAction}>
+                                <input type="hidden" name="lessonTopic" value={lessonTopic} />
+                                <input type="hidden" name="videoDuration" value={videoDuration} />
+                                <Button variant="ghost" size="icon" title="Regenerate" type="submit">
+                                    <RefreshCw className="h-4 w-4" />
+                                </Button>
+                            </form>
                         </div>
                     </CardHeader>
                     <CardContent className="flex-1">

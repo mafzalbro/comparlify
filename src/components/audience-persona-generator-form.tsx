@@ -77,16 +77,6 @@ export function AudiencePersonaGeneratorForm() {
     }
   };
 
-  const handleRegenerate = () => {
-    if (formRef.current) {
-        const formData = new FormData(formRef.current);
-        if(formData.has('existingContent')) {
-          formData.delete('existingContent');
-        }
-        formAction(formData);
-    }
-  };
-
   return (
     <>
         <AIGenerationLoader show={showLoader} />
@@ -98,14 +88,14 @@ export function AudiencePersonaGeneratorForm() {
             }}
             className="space-y-6"
         >
-            <Card className="shadow-lg">
+            <Card className="shadow-lg h-full flex flex-col">
             <CardHeader>
                 <CardTitle className="font-headline">Describe Your Course Idea</CardTitle>
                 <CardDescription>
                 Provide a description of your course, and the AI will generate a detailed persona for your ideal student.
                 </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1">
                 <div className="grid w-full items-center gap-4">
                 <div className="flex flex-col space-y-1.5">
                     <Label htmlFor="courseIdea">Course Idea</Label>
@@ -145,9 +135,12 @@ export function AudiencePersonaGeneratorForm() {
                             <Button variant="ghost" size="icon" onClick={handleCopy} title="Copy">
                                 <Copy className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon" onClick={handleRegenerate} title="Regenerate">
-                                <RefreshCw className="h-4 w-4" />
-                            </Button>
+                            <form action={formAction}>
+                                <input type="hidden" name="courseIdea" value={courseIdea} />
+                                <Button variant="ghost" size="icon" title="Regenerate" type="submit">
+                                    <RefreshCw className="h-4 w-4" />
+                                </Button>
+                            </form>
                         </div>
                     </CardHeader>
                     <CardContent className="flex-1">

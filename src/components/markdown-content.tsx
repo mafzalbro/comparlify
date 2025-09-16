@@ -14,7 +14,7 @@ export function MarkdownContent({ content, className }: MarkdownContentProps) {
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
-      className={cn('prose dark:prose-invert max-w-none', className)}
+      className={cn('prose dark:prose-invert max-w-none h-[50vh] overflow-y-auto', className)}
     >
       {content}
     </ReactMarkdown>

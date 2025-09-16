@@ -53,7 +53,7 @@ export function EmailSubjectLineGeneratorForm() {
     <>
       <AIGenerationLoader show={isSubmitting} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-        <Card className="shadow-lg">
+        <Card className="shadow-lg h-full flex flex-col">
           <form action={formAction}>
             <CardHeader>
               <CardTitle className="font-headline">Email Content</CardTitle>
@@ -61,7 +61,7 @@ export function EmailSubjectLineGeneratorForm() {
                 Paste the body of your email or a summary of its content, and the AI will generate a list of effective subject lines.
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1">
               <div className="grid w-full items-center gap-4">
                 <div className="flex flex-col space-y-1.5">
                   <Label htmlFor="emailContent">Email Content or Summary</Label>
@@ -98,7 +98,12 @@ export function EmailSubjectLineGeneratorForm() {
                             <Button variant="ghost" size="icon" onClick={handleCopy} title="Copy">
                                 <Copy className="h-4 w-4" />
                             </Button>
-                            <form action={formAction}><input type="hidden" name="emailContent" value={emailContent} /><Button variant="ghost" size="icon" title="Regenerate"><RefreshCw className="h-4 w-4" /></Button></form>
+                            <form action={formAction}>
+                                <input type="hidden" name="emailContent" value={emailContent} />
+                                <Button variant="ghost" size="icon" title="Regenerate" type="submit">
+                                    <RefreshCw className="h-4 w-4" />
+                                </Button>
+                            </form>
                         </div>
                     </CardHeader>
                     <CardContent className="flex-1">

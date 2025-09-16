@@ -55,7 +55,7 @@ export function SocialMediaPostGeneratorForm() {
     <>
       <AIGenerationLoader show={isSubmitting} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-        <Card className="shadow-lg">
+        <Card className="shadow-lg h-full flex flex-col">
           <form action={formAction}>
             <CardHeader>
               <CardTitle className="font-headline">Post Details</CardTitle>
@@ -63,7 +63,7 @@ export function SocialMediaPostGeneratorForm() {
                 Provide your topic and select a platform. The AI will generate a tailored social media post.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 flex-1">
               <div className="flex flex-col space-y-1.5">
                   <Label htmlFor="postTopic">Topic</Label>
                   <Textarea
@@ -121,7 +121,7 @@ export function SocialMediaPostGeneratorForm() {
                             <form action={formAction}>
                                 <input type="hidden" name="postTopic" value={postTopic} />
                                 <input type="hidden" name="platform" value={platform} />
-                                <Button variant="ghost" size="icon" title="Regenerate">
+                                <Button variant="ghost" size="icon" title="Regenerate" type="submit">
                                     <RefreshCw className="h-4 w-4" />
                                 </Button>
                             </form>

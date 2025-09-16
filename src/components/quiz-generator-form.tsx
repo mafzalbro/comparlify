@@ -51,7 +51,7 @@ export function QuizGeneratorForm() {
     <>
       <AIGenerationLoader show={isSubmitting} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-        <Card className="shadow-lg">
+        <Card className="shadow-lg h-full flex flex-col">
           <form action={formAction}>
             <CardHeader>
               <CardTitle className="font-headline">Lesson Content</CardTitle>
@@ -59,7 +59,7 @@ export function QuizGeneratorForm() {
                 Paste your lesson text below and choose the number of questions. The AI will generate a multiple-choice quiz.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 flex-1">
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="textContent">Lesson Text</Label>
                 <Textarea
@@ -112,7 +112,7 @@ export function QuizGeneratorForm() {
                         <form action={formAction}>
                             <input type="hidden" name="textContent" value={textContent} />
                             <input type="hidden" name="numQuestions" value={numQuestions} />
-                            <Button variant="ghost" size="icon" title="Regenerate">
+                            <Button variant="ghost" size="icon" title="Regenerate" type="submit">
                                 <RefreshCw className="h-4 w-4" />
                             </Button>
                         </form>

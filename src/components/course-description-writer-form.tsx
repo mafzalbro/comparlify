@@ -79,16 +79,6 @@ export function CourseDescriptionWriterForm() {
     }
   };
 
-  const handleRegenerate = () => {
-    if (formRef.current) {
-      const formData = new FormData(formRef.current);
-      if(formData.has('existingContent')) {
-        formData.delete('existingContent');
-      }
-      formAction(formData);
-    }
-  };
-
   return (
     <>
         <AIGenerationLoader show={showLoader} />
@@ -100,14 +90,14 @@ export function CourseDescriptionWriterForm() {
             }}
             className="space-y-6"
         >
-            <Card className="shadow-lg">
+            <Card className="shadow-lg h-full flex flex-col">
             <CardHeader>
                 <CardTitle className="font-headline">Course Details</CardTitle>
                 <CardDescription>
                 Provide your course title and the key topics you'll cover. The AI will write a compelling sales description.
                 </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 flex-1">
                 <div className="flex flex-col space-y-1.5">
                     <Label htmlFor="courseTitle">Course Title</Label>
                     <Input 
@@ -159,9 +149,13 @@ export function CourseDescriptionWriterForm() {
                             <Button variant="ghost" size="icon" onClick={handleCopy} title="Copy">
                                 <Copy className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon" onClick={handleRegenerate} title="Regenerate">
-                                <RefreshCw className="h-4 w-4" />
-                            </Button>
+                            <form action={formAction}>
+                                <input type="hidden" name="courseTitle" value={courseTitle} />
+                                <input type="hidden" name="keyTopics" value={keyTopics} />
+                                <Button variant="ghost" size="icon" title="Regenerate" type="submit">
+                                    <RefreshCw className="h-4 w-4" />
+                                </Button>
+                            </form>
                         </div>
                     </CardHeader>
                     <CardContent className="flex-1">

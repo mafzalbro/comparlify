@@ -87,16 +87,6 @@ export function AnalogyGeneratorForm() {
     }
   };
 
-  const handleRegenerate = () => {
-    if (formRef.current) {
-        const formData = new FormData(formRef.current);
-        if(formData.has('existingContent')) {
-          formData.delete('existingContent');
-        }
-        formAction(formData);
-    }
-  };
-
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
@@ -112,14 +102,14 @@ export function AnalogyGeneratorForm() {
           onSubmit={handleFormSubmit}
           className="space-y-6"
         >
-          <Card className="shadow-lg">
+          <Card className="shadow-lg h-full flex flex-col">
             <CardHeader>
               <CardTitle className="font-headline">Enter Complex Topic</CardTitle>
               <CardDescription>
                 Describe a complex topic or concept, and the AI will generate a simple analogy to explain it.
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1">
               <div className="grid w-full items-center gap-4">
                 <div className="flex flex-col space-y-1.5">
                   <Label htmlFor="complexTopic">Complex Topic</Label>
@@ -159,9 +149,12 @@ export function AnalogyGeneratorForm() {
                         <Button variant="ghost" size="icon" onClick={handleCopy} title="Copy">
                             <Copy className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={handleRegenerate} title="Regenerate">
-                            <RefreshCw className="h-4 w-4" />
-                        </Button>
+                        <form action={formAction}>
+                            <input type="hidden" name="complexTopic" value={complexTopic} />
+                            <Button variant="ghost" size="icon" title="Regenerate" type="submit">
+                                <RefreshCw className="h-4 w-4" />
+                            </Button>
+                        </form>
                     </div>
                     </CardHeader>
                     <CardContent className="flex-1">
