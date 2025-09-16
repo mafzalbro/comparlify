@@ -94,43 +94,61 @@ enum Role {
   ADMIN
 }
 
+model PostCategory {
+  id    String @id @default(cuid())
+  slug  String @unique
+  name  String
+  posts Post[]
+}
+
+model ComparisonCategory {
+  id          String       @id @default(cuid())
+  slug        String       @unique
+  name        String
+  comparisons Comparison[]
+}
 
 model Post {
   id          String     @id @default(cuid())
-  slug        String     @unique
   title       String
-  description String
+  slug        String     @unique
+  description String     @db.VarChar(191)
   content     String     @db.Text
   image       String
   dataAiHint  String?
   published   Boolean    @default(false)
-  authorId    String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   author      User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId    String
   comments    Comment[]
   bookmarks   Bookmark[]
 
-  // For post navigation
-  nextId     String? @unique
-  next       Post?   @relation("PostNavigation", fields: [nextId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  previousId String? @unique
-  previous   Post?   @relation("PostNavigation")
+  // New category relation
+  categoryId String?
+  category   PostCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  // For post navigation
+  previousId String? @unique
+  nextId     String? @unique
+
+  previous Post? @relation("PostNavigation")
+  next     Post? @relation("PostNavigation", fields: [nextId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([authorId])
+  @@index([categoryId])
 }
 
 model Comment {
   id        String        @id @default(cuid())
-  content   String
-  status    CommentStatus @default(PENDING)
-  authorId  String
-  author    User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  postId    String
-  post      Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  content   String        @db.Text
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
+  status    CommentStatus @default(PENDING)
+  author    User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+  post      Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
 
   @@index([authorId])
   @@index([postId])
@@ -142,20 +160,35 @@ enum CommentStatus {
   REJECTED
 }
 
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  message   String   @db.Text
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Subscription {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
 model Bookmark {
-  id           String      @id @default(cuid())
-  userId       String
-  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  postId       String?
-  post         Post?       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  postId String?
+  post   Post?   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
   comparisonId String?
   comparison   Comparison? @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
-  createdAt    DateTime    @default(now())
 
   @@unique([userId, postId, comparisonId])
-  @@index([userId])
-  @@index([postId])
-  @@index([comparisonId])
 }
 
 model Notification {
@@ -175,12 +208,6 @@ enum NotificationType {
   NEW_USER_REGISTERED
   COMMENT_APPROVED
   NEW_COMMENT_AWAITING_APPROVAL
-}
-
-model Subscription {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  createdAt DateTime @default(now())
 }
 
 model Platform {
@@ -252,8 +279,13 @@ model Comparison {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
+  // New category relation
+  categoryId String?
+  category   ComparisonCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
   @@index([platformAId])
   @@index([platformBId])
+  @@index([categoryId])
 }
 
 model Fact {

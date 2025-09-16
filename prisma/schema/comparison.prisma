@@ -18,8 +18,13 @@ model Comparison {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
+  // New category relation
+  categoryId String?
+  category   ComparisonCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
   @@index([platformAId])
   @@index([platformBId])
+  @@index([categoryId])
 }
 
 model Fact {
