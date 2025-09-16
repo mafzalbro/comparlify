@@ -9,6 +9,7 @@ import {
     SidebarMenuButton,
     SidebarGroup,
     SidebarGroupLabel,
+    SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { allTools, categories } from '../tools';
 import Link from 'next/link';
@@ -23,7 +24,7 @@ export function ToolsSidebar() {
                 <SidebarTrigger />
                 <h2 className="font-headline text-lg">AI Tools</h2>
             </SidebarHeader>
-            <SidebarContent>
+            <SidebarContent className="h-screen overflow-auto bg-white">
                 <SidebarMenu>
                     {categories.map((category) => (
                         <SidebarGroup key={category}>

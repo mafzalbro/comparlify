@@ -29,7 +29,7 @@ import {
   BrainCog
 } from 'lucide-react';
 
-export type ToolCategory = 'Content Creation' | 'Marketing' | 'Curriculum Design' | 'Productivity' | 'Engagement & Interaction' | 'SEO';
+export type ToolCategory = 'All' | 'Content Creation' | 'Marketing' | 'Curriculum Design' | 'Productivity' | 'Engagement & Interaction' | 'SEO';
 
 export type Tool = {
   slug: string;
