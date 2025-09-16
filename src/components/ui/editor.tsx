@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Editor as NovelEditor } from 'novel';
+import NovelEditor from 'novel';
 
 interface EditorProps {
   initialContent?: string;
