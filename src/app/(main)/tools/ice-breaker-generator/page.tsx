@@ -1,6 +1,6 @@
+
 import { MessageSquarePlus } from 'lucide-react';
-// import { IceBreakerForm } from '@/components/ice-breaker-form';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { IceBreakerForm } from '@/components/ice-breaker-form';
 
 
 export default function IceBreakerGeneratorPage() {
@@ -17,14 +17,7 @@ export default function IceBreakerGeneratorPage() {
           </p>
         </div>
       </div>
-      <Card>
-          <CardHeader>
-              <CardTitle>Coming Soon!</CardTitle>
-          </CardHeader>
-          <CardContent>
-              <p className="text-muted-foreground">This tool is currently under development. Check back soon!</p>
-          </CardContent>
-      </Card>
+      <IceBreakerForm />
     </div>
   );
 }

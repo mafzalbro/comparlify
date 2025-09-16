@@ -131,7 +131,7 @@ const videoScriptSchema = z.object({
     .number()
     .min(1, { message: "Duration must be at least 1 minute." })
     .max(30, { message: "Duration cannot exceed 30 minutes." }),
-  existingScript: z.string().optional(),
+  existingContent: z.string().optional(),
 });
 
 interface VideoScriptState {
@@ -152,7 +152,7 @@ export async function generateVideoScriptAction(
   const validatedFields = videoScriptSchema.safeParse({
     lessonTopic: formData.get("lessonTopic"),
     videoDuration: formData.get("videoDuration"),
-    existingScript: formData.get("existingScript") || undefined,
+    existingContent: formData.get("existingContent") || undefined,
   });
 
   if (!validatedFields.success) {
@@ -757,9 +757,9 @@ export async function generateCoursePrerequisitesAction(
 
 // --- Content Repurposer ---
 const contentRepurposeSchema = z.object({
-  originalContent: z.string().min(50).max(10000),
+  originalContent: z.string().min(50, 'Content must be at least 50 characters.').max(10000),
   originalFormat: z.string(),
-  targetFormats: z.array(z.string()).min(1),
+  targetFormats: z.array(z.string()).min(1, 'Please select at least one target format.'),
 });
 
 interface ContentRepurposeState {

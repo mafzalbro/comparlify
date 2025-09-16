@@ -1,3 +1,4 @@
+
 import type { LucideIcon } from 'lucide-react';
 import {
   Lightbulb,
@@ -15,10 +16,20 @@ import {
   ClipboardList,
   Recycle,
   MessageSquarePlus,
-  Clapperboard
+  Clapperboard,
+  Key,
+  FilePenLine,
+  Presentation,
+  Rocket,
+  MessageCircleQuestion,
+  LightbulbIcon,
+  VideoIcon,
+  Puzzle,
+  ThumbsUp,
+  BrainCog
 } from 'lucide-react';
 
-export type ToolCategory = 'Content Creation' | 'Marketing' | 'Curriculum Design' | 'Productivity' | 'Engagement & Interaction';
+export type ToolCategory = 'Content Creation' | 'Marketing' | 'Curriculum Design' | 'Productivity' | 'Engagement & Interaction' | 'SEO';
 
 export type Tool = {
   slug: string;
@@ -30,6 +41,7 @@ export type Tool = {
 };
 
 export const allTools: Tool[] = [
+  // Existing Tools
   {
     slug: 'title-generator',
     title: 'AI Title Generator',
@@ -94,14 +106,6 @@ export const allTools: Tool[] = [
     category: 'Curriculum Design',
     href: '/tools/learning-objectives-generator',
   },
-   {
-    slug: 'course-prerequisites-generator',
-    title: 'AI Prerequisite Generator',
-    description: 'Outline the required skills and tools students need before starting your course.',
-    Icon: ClipboardList,
-    category: 'Curriculum Design',
-    href: '/tools/course-prerequisites-generator',
-  },
   {
     slug: 'email-subject-line-generator',
     title: 'AI Email Subject Line Generator',
@@ -134,7 +138,16 @@ export const allTools: Tool[] = [
     category: 'Content Creation',
     href: '/tools/analogy-generator',
   },
-   {
+  // Implemented "Coming Soon"
+  {
+    slug: 'course-prerequisites-generator',
+    title: 'AI Prerequisite Generator',
+    description: 'Outline the required skills and tools students need before starting your course.',
+    Icon: ClipboardList,
+    category: 'Curriculum Design',
+    href: '/tools/course-prerequisites-generator',
+  },
+  {
     slug: 'content-repurposer',
     title: 'AI Content Repurposer',
     description: 'Get ideas for turning your existing content (like a blog post) into multiple new formats.',
@@ -158,12 +171,94 @@ export const allTools: Tool[] = [
     category: 'Marketing',
     href: '/tools/promotional-video-ideas-generator',
   },
+  // New Tools
+  {
+    slug: 'seo-keyword-generator',
+    title: 'SEO Keyword Generator',
+    description: 'Discover relevant keywords to improve your course\'s search engine ranking.',
+    Icon: Key,
+    category: 'SEO',
+    href: '/tools/seo-keyword-generator',
+  },
+  {
+    slug: 'blog-post-idea-generator',
+    title: 'Blog Post Idea Generator',
+    description: 'Generate a list of blog post ideas to attract your target audience.',
+    Icon: FilePenLine,
+    category: 'SEO',
+    href: '/tools/blog-post-idea-generator',
+  },
+  {
+    slug: 'course-elevator-pitch-generator',
+    title: 'Course Elevator Pitch Generator',
+    description: 'Create a concise and compelling pitch to quickly explain the value of your course.',
+    Icon: Presentation,
+    category: 'Marketing',
+    href: '/tools/course-elevator-pitch-generator',
+  },
+  {
+    slug: 'course-landing-page-copywriter',
+    title: 'Course Landing Page Copywriter',
+    description: 'Generate persuasive copy for your course\'s landing page to increase conversions.',
+    Icon: Rocket,
+    category: 'Marketing',
+    href: '/tools/course-landing-page-copywriter',
+  },
+  {
+    slug: 'lesson-hook-generator',
+    title: 'Lesson Hook Generator',
+    description: 'Craft captivating introductions for your lessons to grab students\' attention immediately.',
+    Icon: LightbulbIcon,
+    category: 'Content Creation',
+    href: '/tools/lesson-hook-generator',
+  },
+  {
+    slug: 'interactive-scenario-generator',
+    title: 'Interactive Scenario Generator',
+    description: 'Create branching scenarios or case studies to make your lessons more interactive.',
+    Icon: MessageCircleQuestion,
+    category: 'Content Creation',
+    href: '/tools/interactive-scenario-generator',
+  },
+  {
+    slug: 'explainer-video-script-generator',
+    title: 'Explainer Video Script Generator',
+    description: 'Generate a script for a short animated explainer video about your course.',
+    Icon: VideoIcon,
+    category: 'Content Creation',
+    href: '/tools/explainer-video-script-generator',
+  },
+  {
+    slug: 'gamification-idea-generator',
+    title: 'Gamification Idea Generator',
+    description: 'Get ideas for adding points, badges, and leaderboards to your course.',
+    Icon: Puzzle,
+    category: 'Engagement & Interaction',
+    href: '/tools/gamification-idea-generator',
+  },
+  {
+    slug: 'student-feedback-analyzer',
+    title: 'Student Feedback Analyzer',
+    description: 'Analyze student feedback to identify common themes, sentiments, and areas for improvement.',
+    Icon: ThumbsUp,
+    category: 'Engagement & Interaction',
+    href: '/tools/student-feedback-analyzer',
+  },
+  {
+    slug: 'course-naming-brainstormer',
+    title: 'Course Naming Brainstormer',
+    description: 'Brainstorm creative and memorable names for your new online course.',
+    Icon: BrainCog,
+    category: 'Curriculum Design',
+    href: '/tools/course-naming-brainstormer',
+  },
 ];
 
 export const categories: ToolCategory[] = [
   'Content Creation',
   'Marketing',
   'Curriculum Design',
+  'SEO',
   'Productivity',
   'Engagement & Interaction',
 ];

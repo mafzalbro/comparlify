@@ -1,6 +1,6 @@
+
 import { ClipboardList } from 'lucide-react';
-// import { CoursePrerequisitesForm } from '@/components/course-prerequisites-form';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CoursePrerequisitesForm } from '@/components/course-prerequisites-form';
 
 export default function CoursePrerequisitesGeneratorPage() {
   return (
@@ -16,14 +16,7 @@ export default function CoursePrerequisitesGeneratorPage() {
           </p>
         </div>
       </div>
-       <Card>
-          <CardHeader>
-              <CardTitle>Coming Soon!</CardTitle>
-          </CardHeader>
-          <CardContent>
-              <p className="text-muted-foreground">This tool is currently under development. Check back soon!</p>
-          </CardContent>
-      </Card>
+      <CoursePrerequisitesForm />
     </div>
   );
 }

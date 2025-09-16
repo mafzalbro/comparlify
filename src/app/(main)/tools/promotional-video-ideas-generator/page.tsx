@@ -1,6 +1,6 @@
+
 import { Clapperboard } from 'lucide-react';
-// import { PromoVideoIdeasForm } from '@/components/promo-video-ideas-form';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PromoVideoIdeasForm } from '@/components/promo-video-ideas-form';
 
 export default function PromotionalVideoIdeasGeneratorPage() {
   return (
@@ -16,14 +16,7 @@ export default function PromotionalVideoIdeasGeneratorPage() {
           </p>
         </div>
       </div>
-       <Card>
-          <CardHeader>
-              <CardTitle>Coming Soon!</CardTitle>
-          </CardHeader>
-          <CardContent>
-              <p className="text-muted-foreground">This tool is currently under development. Check back soon!</p>
-          </CardContent>
-      </Card>
+       <PromoVideoIdeasForm />
     </div>
   );
 }

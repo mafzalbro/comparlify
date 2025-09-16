@@ -1,7 +1,6 @@
+
 import { Recycle } from 'lucide-react';
-// This is a placeholder for the real form component
-// import { ContentRepurposerForm } from '@/components/content-repurposer-form';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ContentRepurposerForm } from '@/components/content-repurposer-form';
 
 export default function ContentRepurposerPage() {
   return (
@@ -17,15 +16,7 @@ export default function ContentRepurposerPage() {
           </p>
         </div>
       </div>
-      {/* <ContentRepurposerForm /> */}
-      <Card>
-          <CardHeader>
-              <CardTitle>Coming Soon!</CardTitle>
-          </CardHeader>
-          <CardContent>
-              <p className="text-muted-foreground">This tool is currently under development. Check back soon!</p>
-          </CardContent>
-      </Card>
+      <ContentRepurposerForm />
     </div>
   );
 }

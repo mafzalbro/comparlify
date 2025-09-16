@@ -18,9 +18,13 @@ import { EmailSubjectLineGeneratorForm } from '@/components/email-subject-line-g
 import { SocialMediaPostGeneratorForm } from '@/components/social-media-post-generator-form';
 import { FaqGeneratorForm } from '@/components/faq-generator-form';
 import { AnalogyGeneratorForm } from '@/components/analogy-generator-form';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CoursePrerequisitesForm } from '@/components/course-prerequisites-form';
+import { ContentRepurposerForm } from '@/components/content-repurposer-form';
+import { IceBreakerForm } from '@/components/ice-breaker-form';
+import { PromoVideoIdeasForm } from '@/components/promo-video-ideas-form';
+import { AIGenericForm } from '@/components/ai-generic-form';
 
-const toolComponents: Record<string, React.ComponentType> = {
+const toolComponents: Record<string, React.ComponentType<any>> = {
     'title-generator': TitleGeneratorForm,
     'course-outliner': CourseOutlinerForm,
     'video-scripter': VideoScripterForm,
@@ -33,24 +37,30 @@ const toolComponents: Record<string, React.ComponentType> = {
     'social-media-post-generator': SocialMediaPostGeneratorForm,
     'faq-generator': FaqGeneratorForm,
     'analogy-generator': AnalogyGeneratorForm,
+    'course-prerequisites-generator': CoursePrerequisitesForm,
+    'content-repurposer': ContentRepurposerForm,
+    'ice-breaker-generator': IceBreakerForm,
+    'promotional-video-ideas-generator': PromoVideoIdeasForm,
+    // New tools using the generic form
+    'seo-keyword-generator': AIGenericForm,
+    'blog-post-idea-generator': AIGenericForm,
+    'course-elevator-pitch-generator': AIGenericForm,
+    'course-landing-page-copywriter': AIGenericForm,
+    'lesson-hook-generator': AIGenericForm,
+    'interactive-scenario-generator': AIGenericForm,
+    'explainer-video-script-generator': AIGenericForm,
+    'gamification-idea-generator': AIGenericForm,
+    'student-feedback-analyzer': AIGenericForm,
+    'course-naming-brainstormer': AIGenericForm,
 };
-
-const ComingSoonTool = () => (
-    <Card>
-        <CardHeader>
-            <CardTitle>Coming Soon!</CardTitle>
-        </CardHeader>
-        <CardContent>
-            <p className="text-muted-foreground">This tool is currently under development. Check back soon!</p>
-        </CardContent>
-    </Card>
-);
 
 export function ToolsClientPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeTool, setActiveTool] = useState(allTools[0]);
 
-    const ToolComponent = toolComponents[activeTool.slug] || ComingSoonTool;
+    const ToolComponent = toolComponents[activeTool.slug] || (() => <div>Tool not found</div>);
+
+    const allCategories: ToolCategory[] = ["All", ...categories];
 
     return (
         <div>
@@ -64,15 +74,15 @@ export function ToolsClientPage() {
             </div>
 
             <Tabs defaultValue="Content Creation" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-5 h-auto">
-                    {categories.map(category => (
+                <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6 h-auto">
+                    {allCategories.map(category => (
                         <TabsTrigger key={category} value={category}>{category}</TabsTrigger>
                     ))}
                 </TabsList>
 
-                {categories.map(category => {
+                {allCategories.map(category => {
                     const filteredTools = allTools.filter(tool =>
-                        tool.category === category &&
+                        (category === "All" || tool.category === category) &&
                         tool.title.toLowerCase().includes(searchTerm.toLowerCase())
                     );
 
@@ -116,7 +126,7 @@ export function ToolsClientPage() {
                                             <p className="mt-1 text-lg text-muted-foreground">{activeTool.description}</p>
                                         </div>
                                     </div>
-                                    <ToolComponent />
+                                    <ToolComponent tool={activeTool} />
                                 </div>
                             </div>
                         </TabsContent>
