@@ -60,7 +60,10 @@ const aiFaqGeneratorFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    const finalFaqs = input.existingContent ? `${input.existingContent}\n${output!.faqs}` : output!.faqs;
+    if (!output) {
+      throw new Error('Failed to generate FAQs from prompt.');
+    }
+    const finalFaqs = input.existingContent ? `${input.existingContent}\n${output.faqs}` : output.faqs;
     return { faqs: finalFaqs };
   }
 );

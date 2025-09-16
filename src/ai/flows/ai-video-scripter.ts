@@ -18,7 +18,7 @@ const AIGenerateVideoScriptInputSchema = z.object({
   videoDuration: z
     .number()
     .describe('The desired duration of the video in minutes.'),
-  existingScript: z.string().optional().describe('An existing script to continue generating from.'),
+  existingContent: z.string().optional().describe('An existing script to continue generating from.'),
 });
 export type AIGenerateVideoScriptInput = z.infer<typeof AIGenerateVideoScriptInputSchema>;
 
@@ -36,7 +36,7 @@ const prompt = ai.definePrompt({
   input: {schema: AIGenerateVideoScriptInputSchema},
   output: {schema: AIGenerateVideoScriptOutputSchema},
   prompt: `You are an expert scriptwriter who specializes in creating engaging educational video content.
-{{#if existingScript}}
+{{#if existingContent}}
 You have already started writing a script. Your task is to continue generating the script from where the existing content ends.
 Do not repeat the existing script in your response. Ensure a natural transition.
 
@@ -44,7 +44,7 @@ Lesson Topic: {{{lessonTopic}}}
 Desired Total Duration: {{{videoDuration}}} minutes
 
 Existing Script:
-{{{existingScript}}}
+{{{existingContent}}}
 
 Continue writing the script from here:
 {{else}}
@@ -74,7 +74,10 @@ const aiVideoScripterFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    const finalScript = input.existingScript ? `${input.existingScript}\n${output!.videoScript}` : output!.videoScript;
+    if (!output) {
+      throw new Error('Failed to generate video script from prompt.');
+    }
+    const finalScript = input.existingContent ? `${input.existingContent}\n${output.videoScript}` : output.videoScript;
     return { videoScript: finalScript };
   }
 );

@@ -63,7 +63,10 @@ const aiCourseDescriptionWriterFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    const finalDescription = input.existingContent ? `${input.existingContent}\n${output!.description}` : output!.description;
+    if (!output) {
+      throw new Error('Failed to generate description from prompt.');
+    }
+    const finalDescription = input.existingContent ? `${input.existingContent}\n${output.description}` : output.description;
     return { description: finalDescription };
   }
 );

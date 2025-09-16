@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useRef, useState, useTransition } from 'react';
+import { useActionState, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { generateAnalogyAction } from '@/app/actions/ai';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Sparkles, PlusCircle, Copy, RefreshCw, Wand2 } from 'lucide-react';
 import { MarkdownContent } from './markdown-content';
+import { useContinueGeneration } from '@/hooks/use-continue-generation';
 import { AIGenerationLoader } from './ai-generation-loader';
 import { useToast } from '@/hooks/use-toast';
 
@@ -68,22 +69,13 @@ export function AnalogyGeneratorForm() {
   const [complexTopic, setComplexTopic] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
   const { toast } = useToast();
-  const [isContinuing, startContinueTransition] = useTransition();
-
-  const isContentIncomplete = state.analogy ? /[^.!?\])'"`\s]$/i.test(state.analogy) : false;
   
-  const showLoader = isFormSubmitting || isContinuing;
+  const { isContinuing, isContentIncomplete, handleContinue } = useContinueGeneration({
+    formRef,
+    content: state.analogy,
+  });
 
-  const handleContinue = () => {
-    if (formRef.current) {
-      startContinueTransition(() => {
-        const formData = new FormData(formRef.current!);
-        formData.set('complexTopic', complexTopic);
-        formData.set('existingContent', state.analogy || '');
-        formAction(formData);
-      });
-    }
-  };
+  const showLoader = isFormSubmitting || isContinuing;
 
   const handleCopy = () => {
     if (state.analogy) {
@@ -97,9 +89,11 @@ export function AnalogyGeneratorForm() {
 
   const handleRegenerate = () => {
     if (formRef.current) {
-      const formData = new FormData(formRef.current);
-      formData.delete('existingContent');
-      formAction(formData);
+        const formData = new FormData(formRef.current);
+        if(formData.has('existingContent')) {
+          formData.delete('existingContent');
+        }
+        formAction(formData);
     }
   };
 
@@ -142,6 +136,9 @@ export function AnalogyGeneratorForm() {
                     <p className="text-sm text-destructive">{state.error.complexTopic[0]}</p>
                   )}
                 </div>
+                 {isContinuing && state.analogy && (
+                    <input type="hidden" name="existingContent" value={state.analogy} />
+                )}
               </div>
             </CardContent>
             <CardFooter>

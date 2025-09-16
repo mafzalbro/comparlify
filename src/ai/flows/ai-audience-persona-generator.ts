@@ -61,7 +61,10 @@ const aiAudiencePersonaGeneratorFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    const finalPersona = input.existingContent ? `${input.existingContent}\n${output!.persona}` : output!.persona;
+    if (!output) {
+      throw new Error('Failed to generate persona from prompt.');
+    }
+    const finalPersona = input.existingContent ? `${input.existingContent}\n${output.persona}` : output.persona;
     return { persona: finalPersona };
   }
 );

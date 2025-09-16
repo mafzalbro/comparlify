@@ -90,8 +90,8 @@ export function VideoScripterForm() {
   const handleRegenerate = () => {
     if (formRef.current) {
         const formData = new FormData(formRef.current);
-        if(formData.has('existingScript')) {
-          formData.delete('existingScript');
+        if(formData.has('existingContent')) {
+          formData.delete('existingContent');
         }
         formAction(formData);
     }
@@ -151,7 +151,7 @@ export function VideoScripterForm() {
                     )}
                 </div>
                 {isContinuing && state.videoScript && (
-                    <input type="hidden" name="existingScript" value={state.videoScript} />
+                    <input type="hidden" name="existingContent" value={state.videoScript} />
                 )}
             </CardContent>
             <CardFooter>

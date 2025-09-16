@@ -63,7 +63,10 @@ const aiCourseOutlinerFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    const finalOutline = input.existingContent ? `${input.existingContent}\n${output!.courseOutline}` : output!.courseOutline;
+    if (!output) {
+      throw new Error('Failed to generate outline from prompt.');
+    }
+    const finalOutline = input.existingContent ? `${input.existingContent}\n${output.courseOutline}` : output.courseOutline;
     return { courseOutline: finalOutline };
   }
 );

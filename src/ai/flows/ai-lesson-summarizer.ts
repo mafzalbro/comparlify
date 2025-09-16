@@ -58,7 +58,10 @@ const aiLessonSummarizerFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    const finalSummary = input.existingContent ? `${input.existingContent}\n${output!.summary}` : output!.summary;
+    if (!output) {
+      throw new Error('Failed to generate summary from prompt.');
+    }
+    const finalSummary = input.existingContent ? `${input.existingContent}\n${output.summary}` : output.summary;
     return { summary: finalSummary };
   }
 );

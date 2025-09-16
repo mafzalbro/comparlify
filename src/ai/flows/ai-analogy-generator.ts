@@ -55,7 +55,10 @@ const aiAnalogyGeneratorFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    const finalAnalogy = input.existingContent ? `${input.existingContent}\n${output!.analogy}` : output!.analogy;
+    if (!output) {
+      throw new Error('Failed to generate analogy from prompt.');
+    }
+    const finalAnalogy = input.existingContent ? `${input.existingContent}\n${output.analogy}` : output.analogy;
     return { analogy: finalAnalogy };
   }
 );
