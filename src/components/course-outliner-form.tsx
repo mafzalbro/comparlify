@@ -16,7 +16,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Sparkles, PlusCircle, Copy, RefreshCw } from 'lucide-react';
+import { Loader2, Sparkles, PlusCircle, Copy, RefreshCw, Wand2 } from 'lucide-react';
 import { MarkdownContent } from './markdown-content';
 import { useContinueGeneration } from '@/hooks/use-continue-generation';
 import { AIGenerationLoader } from './ai-generation-loader';
@@ -95,85 +95,96 @@ export function CourseOutlinerForm() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-      <AIGenerationLoader show={showLoader} />
-      <form
-        ref={formRef}
-        action={(formData) => {
-          formAction(formData);
-        }}
-        className="space-y-6"
-      >
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="font-headline">Describe Your Course</CardTitle>
-            <CardDescription>
-              Provide a high-level description of your course topic. The more specific you are, the better the generated outline will be.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid w-full items-center gap-4">
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="courseDescription">Course Description</Label>
-                <Textarea
-                  id="courseDescription"
-                  name="courseDescription"
-                  value={courseDescription}
-                  onChange={(e) => setCourseDescription(e.target.value)}
-                  placeholder="e.g., 'An introductory course on baking sourdough bread at home, covering starters, kneading techniques, and different types of loaves...'"
-                  rows={6}
-                  required
-                />
-                {typeof state.error === 'object' && state.error?.courseDescription && (
-                  <p className="text-sm text-destructive">{state.error.courseDescription[0]}</p>
-                )}
-              </div>
-            </div>
-             {isContinuing && state.courseOutline && (
-                <input type="hidden" name="existingContent" value={state.courseOutline} />
-            )}
-          </CardContent>
-          <CardFooter>
-            <SubmitButton isSubmitting={isContinuing} />
-          </CardFooter>
-        </Card>
-      </form>
-
-      {state.courseOutline && !showLoader && (
-         <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <Sparkles className="h-6 w-6 text-primary" />
-                    <CardTitle className="font-bold">Generated Course Outline</CardTitle>
-                </div>
-                <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" onClick={handleCopy} title="Copy">
-                        <Copy className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={handleRegenerate} title="Regenerate">
-                        <RefreshCw className="h-4 w-4" />
-                    </Button>
-                </div>
+    <>
+        <AIGenerationLoader show={showLoader} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+        <form
+            ref={formRef}
+            action={(formData) => {
+            formAction(formData);
+            }}
+            className="space-y-6"
+        >
+            <Card className="shadow-lg">
+            <CardHeader>
+                <CardTitle className="font-headline">Describe Your Course</CardTitle>
+                <CardDescription>
+                Provide a high-level description of your course topic. The more specific you are, the better the generated outline will be.
+                </CardDescription>
             </CardHeader>
             <CardContent>
-                <MarkdownContent content={state.courseOutline} />
-                {isContentIncomplete && (
-                    <div className="mt-4 pt-4 border-t">
-                    <ContinueButton onClick={handleContinue} isSubmitting={isContinuing} />
-                    </div>
+                <div className="grid w-full items-center gap-4">
+                <div className="flex flex-col space-y-1.5">
+                    <Label htmlFor="courseDescription">Course Description</Label>
+                    <Textarea
+                    id="courseDescription"
+                    name="courseDescription"
+                    value={courseDescription}
+                    onChange={(e) => setCourseDescription(e.target.value)}
+                    placeholder="e.g., 'An introductory course on baking sourdough bread at home, covering starters, kneading techniques, and different types of loaves...'"
+                    rows={6}
+                    required
+                    />
+                    {typeof state.error === 'object' && state.error?.courseDescription && (
+                    <p className="text-sm text-destructive">{state.error.courseDescription[0]}</p>
+                    )}
+                </div>
+                </div>
+                {isContinuing && state.courseOutline && (
+                    <input type="hidden" name="existingContent" value={state.courseOutline} />
                 )}
             </CardContent>
-        </Card>
-      )}
+            <CardFooter>
+                <SubmitButton isSubmitting={isContinuing} />
+            </CardFooter>
+            </Card>
+        </form>
 
-      {typeof state.error === 'string' && !showLoader && (
-        <Alert variant="destructive" className="mt-8">
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>
-            {state.error}
-          </AlertDescription>
-        </Alert>
-      )}
-    </div>
+        <div className="h-full">
+            {state.courseOutline && !showLoader ? (
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <Sparkles className="h-6 w-6 text-primary" />
+                        <CardTitle className="font-bold">Generated Course Outline</CardTitle>
+                    </div>
+                    <div className="flex gap-1">
+                        <Button variant="ghost" size="icon" onClick={handleCopy} title="Copy">
+                            <Copy className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={handleRegenerate} title="Regenerate">
+                            <RefreshCw className="h-4 w-4" />
+                        </Button>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <MarkdownContent content={state.courseOutline} />
+                    {isContentIncomplete && (
+                        <div className="mt-4 pt-4 border-t">
+                        <ContinueButton onClick={handleContinue} isSubmitting={isContinuing} />
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+            ) : (
+                <Card className="flex items-center justify-center h-full min-h-[300px] border-dashed">
+                    <div className="text-center text-muted-foreground">
+                        <Wand2 className="mx-auto h-12 w-12" />
+                        <h3 className="mt-4 text-lg font-semibold">Your generated content will appear here.</h3>
+                    </div>
+                </Card>
+            )}
+
+            {typeof state.error === 'string' && !showLoader && (
+                <Alert variant="destructive" className="mt-8">
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>
+                    {state.error}
+                </AlertDescription>
+                </Alert>
+            )}
+        </div>
+        </div>
+    </>
   );
 }

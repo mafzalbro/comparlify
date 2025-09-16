@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Sparkles, PlusCircle, Copy, RefreshCw } from 'lucide-react';
+import { Loader2, Sparkles, PlusCircle, Copy, RefreshCw, Wand2 } from 'lucide-react';
 import { MarkdownContent } from './markdown-content';
 import { AIGenerationLoader } from './ai-generation-loader';
 import { useToast } from '@/hooks/use-toast';
@@ -150,42 +150,50 @@ export function AnalogyGeneratorForm() {
           </Card>
         </form>
 
-        {state.analogy && (
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-6 w-6 text-primary" />
-                <CardTitle className="font-bold">Generated Analogy</CardTitle>
-              </div>
-              <div className="flex gap-1">
-                  <Button variant="ghost" size="icon" onClick={handleCopy} title="Copy">
-                      <Copy className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={handleRegenerate} title="Regenerate">
-                      <RefreshCw className="h-4 w-4" />
-                  </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-                <MarkdownContent content={state.analogy} />
-                {isContentIncomplete && (
-                  <div className="mt-4 pt-4 border-t">
-                    <ContinueButton
-                      onClick={handleContinue}
-                      isSubmitting={isContinuing}
-                    />
-                  </div>
-                )}
-            </CardContent>
-          </Card>
-        )}
-
-        {typeof state.error === 'string' && (
-          <Alert variant="destructive" className="mt-8 lg:col-span-2">
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{state.error}</AlertDescription>
-          </Alert>
-        )}
+        <div className="h-full">
+            {state.analogy && !showLoader ? (
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <Sparkles className="h-6 w-6 text-primary" />
+                        <CardTitle className="font-bold">Generated Analogy</CardTitle>
+                    </div>
+                    <div className="flex gap-1">
+                        <Button variant="ghost" size="icon" onClick={handleCopy} title="Copy">
+                            <Copy className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={handleRegenerate} title="Regenerate">
+                            <RefreshCw className="h-4 w-4" />
+                        </Button>
+                    </div>
+                    </CardHeader>
+                    <CardContent>
+                        <MarkdownContent content={state.analogy} />
+                        {isContentIncomplete && (
+                        <div className="mt-4 pt-4 border-t">
+                            <ContinueButton
+                            onClick={handleContinue}
+                            isSubmitting={isContinuing}
+                            />
+                        </div>
+                        )}
+                    </CardContent>
+                </Card>
+            ) : (
+                 <Card className="flex items-center justify-center h-full min-h-[300px] border-dashed">
+                    <div className="text-center text-muted-foreground">
+                        <Wand2 className="mx-auto h-12 w-12" />
+                        <h3 className="mt-4 text-lg font-semibold">Your generated content will appear here.</h3>
+                    </div>
+                </Card>
+            )}
+             {typeof state.error === 'string' && (
+                <Alert variant="destructive" className="mt-8">
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>{state.error}</AlertDescription>
+                </Alert>
+            )}
+        </div>
       </div>
     </>
   );
