@@ -149,7 +149,7 @@ export function CourseDescriptionWriterForm() {
 
         <div className="h-full">
             {state.description && !showLoader ? (
-                <Card>
+                <Card className="h-full flex flex-col">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Sparkles className="h-6 w-6 text-primary" />
@@ -164,7 +164,7 @@ export function CourseDescriptionWriterForm() {
                             </Button>
                         </div>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="flex-1">
                         <MarkdownContent content={state.description} />
                         {isContentIncomplete && (
                             <div className="mt-4 pt-4 border-t">

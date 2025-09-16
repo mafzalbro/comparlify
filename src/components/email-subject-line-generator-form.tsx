@@ -88,7 +88,7 @@ export function EmailSubjectLineGeneratorForm() {
 
         <div className="h-full">
             {state.subjectLines && !isSubmitting ? (
-                <Card>
+                <Card className="h-full flex flex-col">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Sparkles className="h-6 w-6 text-primary" />
@@ -101,7 +101,7 @@ export function EmailSubjectLineGeneratorForm() {
                             <form action={formAction}><input type="hidden" name="emailContent" value={emailContent} /><Button variant="ghost" size="icon" title="Regenerate"><RefreshCw className="h-4 w-4" /></Button></form>
                         </div>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="flex-1">
                         <MarkdownContent content={state.subjectLines} />
                     </CardContent>
                 </Card>

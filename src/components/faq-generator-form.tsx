@@ -135,7 +135,7 @@ export function FaqGeneratorForm() {
 
         <div className="h-full">
             {state.faqs && !showLoader ? (
-                <Card>
+                <Card className="h-full flex flex-col">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Sparkles className="h-6 w-6 text-primary" />
@@ -150,7 +150,7 @@ export function FaqGeneratorForm() {
                             </Button>
                         </div>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="flex-1">
                         <MarkdownContent content={state.faqs} />
                         {isContentIncomplete && (
                             <div className="mt-4 pt-4 border-t">

@@ -108,7 +108,7 @@ export function SocialMediaPostGeneratorForm() {
 
         <div className="h-full">
             {state.post && !isSubmitting ? (
-                <Card>
+                <Card className="h-full flex flex-col">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Sparkles className="h-6 w-6 text-primary" />
@@ -127,7 +127,7 @@ export function SocialMediaPostGeneratorForm() {
                             </form>
                         </div>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="flex-1">
                         <MarkdownContent content={state.post} />
                     </CardContent>
                 </Card>

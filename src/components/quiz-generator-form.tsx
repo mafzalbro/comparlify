@@ -103,7 +103,7 @@ export function QuizGeneratorForm() {
 
         <div className="h-full">
             {state.quiz && !isSubmitting ? (
-                <Card>
+                <Card className="h-full flex flex-col">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Sparkles className="h-6 w-6 text-primary" />
@@ -117,7 +117,7 @@ export function QuizGeneratorForm() {
                             </Button>
                         </form>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="flex-1">
                     <QuizViewer quizMarkdown={state.quiz} />
                     </CardContent>
                 </Card>
