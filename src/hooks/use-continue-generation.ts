@@ -1,16 +1,15 @@
+"use client";
 
-'use client';
-
-import { useTransition, useMemo, type RefObject } from 'react';
+import { useTransition, useMemo, type RefObject } from "react";
 
 // Regex to check if the content does NOT end with a common sentence-ending character,
-// optionally followed by whitespace, quotes, parentheses, or brackets.
-const isLikelyIncompleteRegex = /[^.!?\])'"`\s]$/i;
+// optionally followed by whitespace, quotes, parentheses, ** or brackets.
 
+const isLikelyIncompleteRegex = /(?:[^!\.\]\)]\s*$|^\s*$|\*\*\s*$)/;
 
 interface UseContinueGenerationProps {
-    formRef: RefObject<HTMLFormElement>;
-    content: string | null | undefined;
+  formRef: RefObject<HTMLFormElement>;
+  content: string | null | undefined;
 }
 
 export function useContinueGeneration({
