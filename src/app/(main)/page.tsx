@@ -116,6 +116,8 @@ export default async function Home() {
         'homepage.whyus.strategies.description': content['homepage.whyus.strategies.description'],
     };
 
+    const toolsHref = session ? '/tools' : '/register';
+
     return (
         <>
             <HomePageClient session={session} />
@@ -135,7 +137,7 @@ export default async function Home() {
                     </p>
                     <div className="mt-8 flex flex-wrap justify-center gap-4 animate-fade-in-up animation-delay-600">
                         <Button asChild size="lg" className="group">
-                            <Link href="/tools">
+                            <Link href={toolsHref}>
                                 {content['homepage.cta.primary']}
                                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                             </Link>
@@ -179,7 +181,7 @@ export default async function Home() {
                                         <p>{tool.description}</p>
                                     </CardContent>
                                     <Button asChild variant="link" className="mt-4">
-                                        <Link href={tool.href}>Use Tool <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                                        <Link href={toolsHref}>Use Tool <ArrowRight className="ml-2 h-4 w-4" /></Link>
                                     </Button>
                                 </Card>
                             </div>

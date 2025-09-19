@@ -10,27 +10,7 @@ export default async function MainLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // DUMMY CODE: START - To simulate an admin session for testing.
-  // This code can be removed when the temporary login is no longer needed.
   let session = await auth();
-  const isDevelopment = process.env.NODE_ENV === 'development';
-
-  if (isDevelopment && (!session || session.user.role !== 'ADMIN')) {
-      // console.log("Creating dummy admin session for development.");
-      session = {
-          user: {
-              id: 'dummy-admin-id',
-              name: 'Admin (Dev)',
-              email: 'mafzalbro@gmail.com',
-              image: null,
-              role: 'ADMIN',
-              onboarded: true,
-              newsletter: true,
-          },
-          expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-      };
-  }
-  // DUMMY CODE: END
   const content = await getContent();
   const footerContent = {
     'footer.tagline': content['footer.tagline'],
@@ -52,7 +32,7 @@ export default async function MainLayout({
       <main className="flex-1">
         {children}
       </main>
-      <Chatbot />
+      {session?.user && <Chatbot />}
       <Footer content={footerContent} />
     </>
   );
