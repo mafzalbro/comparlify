@@ -20,6 +20,7 @@ import { BookmarkButton } from '@/components/bookmark-button';
 import type { SearchParams } from '@/types/next';
 import { format } from 'date-fns';
 import { Breadcrumbs } from '@/components/breadcrumb';
+import { getContent } from '@/lib/content';
 
 export const generateStaticParams = cache(async () => {
   const posts = await prisma.post.findMany({ where: { published: true } });
@@ -101,7 +102,10 @@ export default async function BlogPostPage(
   const { slug } = params;
   const isPreview = searchParams?.preview === 'true';
 
-  const session = await auth();
+  const [session, content] = await Promise.all([
+    auth(),
+    getContent()
+  ]);
   const { post, relatedPosts, nextPost } = await getPostData(slug, isPreview);
 
   if (!post) {
@@ -150,14 +154,14 @@ export default async function BlogPostPage(
                   <div className="flex items-center gap-2">
                       <Eye className="h-5 w-5" />
                       <div>
-                          <AlertTitle className="font-bold">Preview Mode</AlertTitle>
+                          <AlertTitle className="font-bold">{content['blog.post.preview.title']}</AlertTitle>
                           <AlertDescription className="text-xs">
-                          This is a draft post and is not visible to the public.
+                           {content['blog.post.preview.subtitle']}
                           </AlertDescription>
                       </div>
                   </div>
                   <Button asChild size="sm" variant="outline" className="border-yellow-300 hover:bg-yellow-100">
-                      <Link href="/admin/blog">Exit Preview</Link>
+                      <Link href="/admin/blog">{content['blog.post.preview.exitButton']}</Link>
                   </Button>
               </div>
           </Alert>
@@ -213,7 +217,7 @@ export default async function BlogPostPage(
             <Button asChild variant="ghost">
               <Link href="/blog">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Blog
+                {content['blog.post.backLink']}
               </Link>
             </Button>
             {session?.user && (
@@ -260,7 +264,7 @@ export default async function BlogPostPage(
                 <TableOfContents content={post.content} />
                 {relatedPosts.length > 0 && (
                   <div>
-                    <h3 className="font-headline text-xl font-semibold mb-4">Related Posts</h3>
+                    <h3 className="font-headline text-xl font-semibold mb-4">{content['blog.post.relatedTitle']}</h3>
                     <div className="space-y-4">
                       {relatedPosts.map(related => (
                         <Link key={related.slug} href={`/blog/${related.slug}`} className="flex items-center gap-4 group">

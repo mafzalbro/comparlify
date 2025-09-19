@@ -18,6 +18,7 @@ import { cache } from 'react';
 import type { SearchParams } from '@/types/next';
 import { Breadcrumbs } from '@/components/breadcrumb';
 import { FilterControls } from './_components/filter-controls';
+import { getContent } from '@/lib/content';
 
 type ComparisonWithPlatforms = Comparison & { platformA: Platform, platformB: Platform };
 
@@ -100,10 +101,11 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
   const platformsParam = searchParams.platforms;
   const selectedPlatforms = Array.isArray(platformsParam) ? platformsParam : (platformsParam ? [platformsParam] : []);
 
-  const [comparisons, allPlatforms, categories] = await Promise.all([
+  const [comparisons, allPlatforms, categories, content] = await Promise.all([
     getComparisons({ search: String(search ?? ''), sort: String(sort ?? 'newest'), platforms: selectedPlatforms, category: String(category ?? 'all') }),
     getAllPlatforms(),
-    getComparisonCategories()
+    getComparisonCategories(),
+    getContent()
   ]);
 
   return (
@@ -118,11 +120,10 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
             className="mb-8 justify-center"
           />
           <h1 className="font-headline text-5xl md:text-6xl font-bold text-foreground">
-            Course Platform Face-Off
+            {content['compare.hero.title']}
           </h1>
           <p className="mt-4 text-xl text-muted-foreground max-w-3xl mx-auto">
-            We've put the top platforms head-to-head. Get unbiased, in-depth
-            analysis to make the right choice.
+            {content['compare.hero.subtitle']}
           </p>
         </div>
       </section>
@@ -132,8 +133,8 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
 
         {comparisons.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground animate-fade-in-up">
-            <h3 className="text-2xl font-headline mb-2">No Comparisons Found</h3>
-            <p>Try adjusting your search or filters. Or check back soon!</p>
+            <h3 className="text-2xl font-headline mb-2">{content['compare.empty.title']}</h3>
+            <p>{content['compare.empty.subtitle']}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

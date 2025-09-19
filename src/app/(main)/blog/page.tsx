@@ -30,6 +30,7 @@ import type { SearchParams } from '@/types/next';
 import { Breadcrumbs } from '@/components/breadcrumb';
 import { FilterControls } from './_components/filter-controls';
 import { Badge } from '@/components/ui/badge';
+import { getContent } from '@/lib/content';
 
 export const metadata: Metadata = generateSeoMetadata({
   title: 'Creator Insights Blog',
@@ -97,10 +98,11 @@ const getPostCategories = cache(async () => {
 export default async function BlogPage(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = (await props.searchParams);
   const { search, sort, author, category } = searchParams;
-  const [blogPosts, authors, categories] = await Promise.all([
+  const [blogPosts, authors, categories, content] = await Promise.all([
     getBlogPosts({ search: String(search ?? ''), sort: String(sort ?? 'newest'), author: String(author ?? 'all'), category: String(category ?? 'all') }),
     getAuthors(),
-    getPostCategories()
+    getPostCategories(),
+    getContent(),
   ]);
 
   return (
@@ -116,10 +118,10 @@ export default async function BlogPage(props: { searchParams: Promise<SearchPara
           />
           <div className="max-w-3xl">
             <h1 className="font-headline text-5xl md:text-6xl font-bold text-foreground">
-              Creator Insights
+              {content['blog.hero.title']}
             </h1>
             <p className="mt-4 text-xl text-muted-foreground">
-              Actionable advice, deep dives, and growth strategies for the modern course creator.
+              {content['blog.hero.subtitle']}
             </p>
           </div>
         </div>
@@ -129,8 +131,8 @@ export default async function BlogPage(props: { searchParams: Promise<SearchPara
 
         {blogPosts.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground animate-fade-in-up">
-            <h3 className="text-2xl font-headline mb-2">No Posts Found</h3>
-            <p>Try adjusting your search or filters. Or check back soon!</p>
+            <h3 className="text-2xl font-headline mb-2">{content['blog.empty.title']}</h3>
+            <p>{content['blog.empty.subtitle']}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">

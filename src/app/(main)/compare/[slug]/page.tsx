@@ -33,6 +33,7 @@ import { cache } from 'react';
 import { auth } from '@/lib/auth';
 import { BookmarkButton } from '@/components/bookmark-button';
 import { Breadcrumbs } from '@/components/breadcrumb';
+import { getContent } from '@/lib/content';
 
 
 const getComparisonBySlug = cache(async (slug: string) => {
@@ -75,9 +76,10 @@ export const generateStaticParams = cache(async () => {
 export default async function ComparisonDetailPage(props: { params: Promise<{ slug: string }> }) {
     const params = await props.params;
     const { slug } = params;
-    const [session, comparison] = await Promise.all([
+    const [session, comparison, content] = await Promise.all([
       auth(),
-      getComparisonBySlug(slug)
+      getComparisonBySlug(slug),
+      getContent()
     ]);
 
     if (!comparison) {
@@ -127,7 +129,7 @@ export default async function ComparisonDetailPage(props: { params: Promise<{ sl
                     <Button asChild variant="ghost">
                         <Link href="/compare">
                         <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to All Comparisons
+                        {content['compare.detail.backLink']}
                         </Link>
                     </Button>
                      {session?.user && (
@@ -158,7 +160,7 @@ export default async function ComparisonDetailPage(props: { params: Promise<{ sl
           </div>
 
           <section className="my-12 md:my-20">
-              <h2 className="font-headline text-3xl font-bold text-center mb-8">At a Glance</h2>
+              <h2 className="font-headline text-3xl font-bold text-center mb-8">{content['compare.detail.glance.title']}</h2>
               <Card>
                   <CardContent className="p-0">
                       <Table>
@@ -190,10 +192,10 @@ export default async function ComparisonDetailPage(props: { params: Promise<{ sl
 
           {chartData.length > 0 && (
             <section className="my-12 md:my-20">
-                <h2 className="font-headline text-3xl font-bold text-center mb-8">Ratings Breakdown</h2>
+                <h2 className="font-headline text-3xl font-bold text-center mb-8">{content['compare.detail.ratings.title']}</h2>
                 <Card>
                     <CardHeader>
-                        <CardTitle>Side-by-Side Ratings</CardTitle>
+                        <CardTitle>{content['compare.detail.ratings.chartTitle']}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <ComparisonChart
@@ -208,7 +210,7 @@ export default async function ComparisonDetailPage(props: { params: Promise<{ sl
           )}
 
           <section className="my-12 md:my-20">
-              <h2 className="font-headline text-3xl font-bold text-center mb-8">Feature Comparison</h2>
+              <h2 className="font-headline text-3xl font-bold text-center mb-8">{content['compare.detail.features.title']}</h2>
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -262,7 +264,7 @@ export default async function ComparisonDetailPage(props: { params: Promise<{ sl
 
           {comparison.faqs.length > 0 && (
                <section className="my-12 md:my-20">
-                  <h2 className="font-headline text-3xl font-bold text-center mb-8">Frequently Asked Questions</h2>
+                  <h2 className="font-headline text-3xl font-bold text-center mb-8">{content['compare.detail.faq.title']}</h2>
                   <Accordion type="single" collapsible className="w-full max-w-3xl mx-auto">
                       {comparison.faqs.map((faq, index) => (
                            <AccordionItem value={`item-${index}`} key={faq.id}>
