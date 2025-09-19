@@ -1,49 +1,36 @@
 
 'use client';
 
-import { useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { revalidateCacheAction } from '@/app/actions/admin';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Trash2, Globe, BookOpen, GitCompareArrows } from 'lucide-react';
 import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
 } from "@/components/ui/tabs";
 import { ContentForm } from '../content/_components/content-form';
-import prisma from '@/lib/prisma';
-import type { SiteContent } from '@prisma/client';
+import { getSettingsContent } from '@/app/actions/content';
 
-async function getSettingsContent() {
-    const content = await prisma.siteContent.findMany({
-        where: {
-            OR: [
-                { group: 'Email Settings' },
-                { group: 'Globals' },
-            ]
-        },
-        orderBy: { key: 'asc' },
-    });
-
-    const groupedContent = content.reduce((acc, item) => {
-        if (!acc[item.group]) {
-          acc[item.group] = [];
-        }
-        acc[item.group].push(item);
-        return acc;
-      }, {} as Record<string, typeof content>);
-
-    return groupedContent;
-}
-
-
-export default async function AdminSettingsPage() {
+export default function AdminSettingsPage() {
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
-    const settingsContent = await getSettingsContent();
+    // const settingsContent = await getSettingsContent();
+
+    const [settingsContent, setSettingsContent] = useState<any>([]);
+
+    const fetchContent = async () => {
+        const content = await getSettingsContent();
+        setSettingsContent(content);
+    };
+
+    useEffect(() => {
+        fetchContent();
+    }, []);
 
     const handleRevalidation = (path: 'all' | 'blog' | 'compare') => {
         startTransition(async () => {
@@ -67,7 +54,7 @@ export default async function AdminSettingsPage() {
         <div>
             <h1 className="text-3xl font-bold mb-6">Settings</h1>
             <Tabs defaultValue="general" className="w-full">
-                 <TabsList className="mb-6">
+                <TabsList className="mb-6">
                     <TabsTrigger value="general">General</TabsTrigger>
                     <TabsTrigger value="email">Email</TabsTrigger>
                     <TabsTrigger value="cache">Cache</TabsTrigger>
@@ -86,7 +73,7 @@ export default async function AdminSettingsPage() {
                     </Card>
                 </TabsContent>
                 <TabsContent value="email">
-                     <Card>
+                    <Card>
                         <CardHeader>
                             <CardTitle>Email Settings</CardTitle>
                             <CardDescription>
@@ -130,7 +117,7 @@ export default async function AdminSettingsPage() {
                         </CardContent>
                         <CardFooter className="border-t pt-6 mt-6">
                             <div className="flex items-center justify-between w-full">
-                            <div>
+                                <div>
                                     <h3 className="font-semibold flex items-center gap-2"><Globe className="h-4 w-4 text-muted-foreground" /> Full Site Cache</h3>
                                     <p className="text-sm text-muted-foreground">This is a heavy operation. Only use if needed.</p>
                                 </div>
