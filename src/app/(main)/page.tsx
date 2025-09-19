@@ -1,4 +1,5 @@
 
+
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -35,6 +36,7 @@ import { HomePageClient } from '@/components/home-page-client';
 import { ManagedImage } from '@/components/managed-image';
 import { cache } from 'react';
 import { WhyChooseUs } from '@/components/why-choose-us';
+import { getContent } from '@/lib/content';
 
 
 const testimonials = [
@@ -106,6 +108,7 @@ const getRecentPosts = cache(async (): Promise<PostWithAuthor[]> => {
 export default async function Home() {
     const session = await auth();
     const recentPosts = await getRecentPosts();
+    const content = await getContent();
 
 
 
@@ -119,26 +122,24 @@ export default async function Home() {
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
                 <div className="container relative z-10 flex flex-col items-center justify-center text-center px-4 md:px-6 text-foreground">
                     <div className="inline-block rounded-full bg-primary/20 px-4 py-1.5 text-sm font-medium text-primary mb-4 backdrop-blur-sm animate-fade-in-up">
-                        The Ultimate Co-pilot for Course Creators
+                        {content['homepage.hero.supertitle']}
                     </div>
-                    <h1 className="font-headline text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl animate-fade-in-up animation-delay-200">
-                        Build, Market & Sell
-                        <br />
-                        <span className="text-primary">Smarter, Not Harder</span>
+                    <h1 className="font-headline text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl animate-fade-in-up animation-delay-200 whitespace-pre-line">
+                        {content['homepage.hero.title']}
                     </h1>
                     <p className="mt-6 text-lg md:text-xl max-w-2xl animate-fade-in-up animation-delay-400">
-                        Comparlify provides the tools, comparisons, and insights you need to turn your expertise into a thriving online business.
+                        {content['homepage.hero.subtitle']}
                     </p>
                     <div className="mt-8 flex flex-wrap justify-center gap-4 animate-fade-in-up animation-delay-600">
                         <Button asChild size="lg" className="group">
                             <Link href="/tools">
-                                Explore AI Tools
+                                {content['homepage.cta.primary']}
                                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                             </Link>
                         </Button>
                         <Button asChild size="lg" variant="outline">
                             <Link href="/compare">
-                                Compare Platforms
+                                {content['homepage.cta.secondary']}
                             </Link>
                         </Button>
                     </div>

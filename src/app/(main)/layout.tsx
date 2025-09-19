@@ -1,7 +1,9 @@
+
 import { Chatbot } from '@/components/chatbot';
 import Footer from '@/components/layout/footer';
 import Header from '@/components/layout/header';
 import { auth } from '@/lib/auth';
+import { getContent } from '@/lib/content';
 
 export default async function MainLayout({
   children,
@@ -29,6 +31,12 @@ export default async function MainLayout({
       };
   }
   // DUMMY CODE: END
+  const content = await getContent();
+  const footerContent = {
+    'footer.tagline': content['footer.tagline'],
+    'footer.newsletter.title': content['footer.newsletter.title'],
+    'footer.newsletter.subtitle': content['footer.newsletter.subtitle'],
+  };
 
   return (
     <>
@@ -37,7 +45,7 @@ export default async function MainLayout({
         {children}
       </main>
       <Chatbot />
-      <Footer />
+      <Footer content={footerContent} />
     </>
   );
 }

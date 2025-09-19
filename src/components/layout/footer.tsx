@@ -10,7 +10,7 @@ import { subscribeAction } from '@/app/actions/subscriptions';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { Github, Twitter, Linkedin, Loader2, ArrowRight } from 'lucide-react';
+import { Github, Twitter, Linkedin, Loader2 } from 'lucide-react';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -25,13 +25,22 @@ function SubmitButton() {
   );
 }
 
-export default function Footer() {
+interface FooterContent {
+    'footer.tagline'?: string;
+    'footer.newsletter.title'?: string;
+    'footer.newsletter.subtitle'?: string;
+}
+
+interface FooterProps {
+    content: FooterContent;
+}
+
+export default function Footer({ content }: FooterProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useActionState(subscribeAction, {
     message: null,
     error: null,
   });
-
   const { toast } = useToast();
 
   useEffect(() => {
@@ -59,7 +68,7 @@ export default function Footer() {
           <div className="space-y-4 md:col-span-1">
             <Logo />
             <p className="text-sm text-muted-foreground">
-              Helping course creators thrive with better tools and insights.
+              {content['footer.tagline']}
             </p>
             <div className="flex space-x-4">
               <Link href="#" className="text-muted-foreground hover:text-primary">
@@ -92,8 +101,8 @@ export default function Footer() {
             </div>
           </div>
           <div className="space-y-4 md:col-span-1">
-            <h3 className="font-headline text-lg font-semibold">Stay Updated</h3>
-            <p className="text-sm text-muted-foreground">Get the latest tips and tool updates straight to your inbox.</p>
+            <h3 className="font-headline text-lg font-semibold">{content['footer.newsletter.title']}</h3>
+            <p className="text-sm text-muted-foreground">{content['footer.newsletter.subtitle']}</p>
             <form ref={formRef} action={formAction} className="flex gap-2">
               <Input name="email" type="email" placeholder="Enter your email" className="bg-background" required />
               <SubmitButton />

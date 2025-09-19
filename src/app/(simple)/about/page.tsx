@@ -8,6 +8,8 @@ import { Lightbulb, Users, HeartHandshake, ArrowRight } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { getContent } from '@/lib/content';
+import { MarkdownContent } from '@/components/markdown-content';
 
 
 export const metadata: Metadata = generateSeoMetadata({
@@ -49,7 +51,9 @@ const team = [
     }
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+    const content = await getContent();
+
   return (
     <>
       {/* Hero Section */}
@@ -63,10 +67,10 @@ export default function AboutPage() {
                 className="mb-8 justify-center"
             />
             <h1 className="font-headline text-5xl md:text-6xl font-bold text-foreground">
-                We're Here to Help Creators Thrive
+                {content['about.hero.title']}
             </h1>
             <p className="mt-4 text-xl text-muted-foreground max-w-3xl mx-auto">
-                Discover the story, mission, and people behind Comparlify.
+                {content['about.hero.subtitle']}
             </p>
         </div>
       </section>
@@ -75,16 +79,7 @@ export default function AboutPage() {
       <section className="container py-16 md:py-24 px-4 md:px-6">
         <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="prose prose-lg dark:prose-invert text-foreground max-w-none">
-                <h2 className="font-headline text-4xl">Our Story</h2>
-                <p>
-                    Comparlify was born from a simple observation: the world of online course creation is both exciting and overwhelming. With countless platforms, tools, and strategies available, creators often find themselves lost in a sea of options, spending more time on research than on what they do best—creating amazing content.
-                </p>
-                <p>
-                    We decided to change that. Our mission is to be the trusted guide for every course creator. We provide unbiased, in-depth comparisons, innovative AI-powered tools, and actionable insights to help you make informed decisions, save time, and accelerate your growth.
-                </p>
-                 <blockquote>
-                    "We believe that every creator, regardless of their technical skill or budget, deserves a clear path to success."
-                </blockquote>
+               <MarkdownContent content={content['about.story.content']} className="h-auto" />
             </div>
              <div className="relative h-80 md:h-96 w-full">
                 <ManagedImage 

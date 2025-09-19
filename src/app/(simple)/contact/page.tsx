@@ -12,6 +12,9 @@ import { Mail, Phone, MapPin, Loader2, Send, CheckCircle, AlertTriangle } from "
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useSession } from 'next-auth/react';
 import { Breadcrumbs } from '@/components/breadcrumb';
+import type { SiteContent } from '@prisma/client';
+import { getContent } from '@/lib/content';
+import { useState } from 'react';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -40,6 +43,15 @@ export default function ContactPage() {
     success: false,
   });
 
+   const [content, setContent] = useState<Record<string, string>>({});
+    useEffect(() => {
+        const fetchContent = async () => {
+            const fetchedContent = await getContent();
+            setContent(fetchedContent);
+        }
+        fetchContent();
+    }, []);
+
    useEffect(() => {
     if (state.success) {
       formRef.current?.reset();
@@ -59,10 +71,10 @@ export default function ContactPage() {
       <div className="mx-auto max-w-4xl">
         <div className="text-center mb-12">
           <h1 className="font-headline text-5xl md:text-6xl font-bold text-foreground">
-            Get in Touch
+            {content['contact.hero.title']}
           </h1>
           <p className="mt-4 text-xl text-muted-foreground">
-            We'd love to hear from you! Whether you have a question, feedback, or a partnership proposal, feel free to reach out.
+            {content['contact.hero.subtitle']}
           </p>
         </div>
 
@@ -73,9 +85,9 @@ export default function ContactPage() {
                 <Mail className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h3 className="font-headline text-xl font-semibold">Email</h3>
-                <p className="text-muted-foreground">Send us an email for general inquiries.</p>
-                <a href="mailto:hello@comparlify.com" className="text-primary font-medium hover:underline">hello@comparlify.com</a>
+                <h3 className="font-headline text-xl font-semibold">{content['contact.email.title']}</h3>
+                <p className="text-muted-foreground">{content['contact.email.description']}</p>
+                <a href={`mailto:${content['contact.email.value']}`} className="text-primary font-medium hover:underline">{content['contact.email.value']}</a>
               </div>
             </div>
              <div className="flex items-start gap-4">
@@ -83,9 +95,9 @@ export default function ContactPage() {
                 <Phone className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h3 className="font-headline text-xl font-semibold">Phone</h3>
-                <p className="text-muted-foreground">Give us a call during business hours.</p>
-                <a href="tel:+1234567890" className="text-primary font-medium hover:underline">+1 (234) 567-890</a>
+                <h3 className="font-headline text-xl font-semibold">{content['contact.phone.title']}</h3>
+                <p className="text-muted-foreground">{content['contact.phone.description']}</p>
+                <a href={`tel:${content['contact.phone.value']}`} className="text-primary font-medium hover:underline">{content['contact.phone.value']}</a>
               </div>
             </div>
              <div className="flex items-start gap-4">
@@ -93,8 +105,8 @@ export default function ContactPage() {
                 <MapPin className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h3 className="font-headline text-xl font-semibold">Office</h3>
-                <p className="text-muted-foreground">123 Creator Lane, Suite 100<br/>Innovation City, 12345</p>
+                <h3 className="font-headline text-xl font-semibold">{content['contact.office.title']}</h3>
+                <p className="text-muted-foreground whitespace-pre-line">{content['contact.office.description']}</p>
               </div>
             </div>
           </div>
