@@ -89,7 +89,7 @@ export function ToolsClientPage() {
                     return (
                         <TabsContent key={category} value={category}>
                             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mt-8">
-                                <div className="lg:col-span-1 lg:sticky lg:top-24 self-start">
+                                <div className="lg:col-span-1 lg:sticky lg:h-[80vh] lg:overflow-y-auto lg:top-24 self-start">
                                     <div className="relative mb-4">
                                         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                                         <Input

@@ -37,10 +37,17 @@ export default async function AdminLayout({
         <SidebarProvider>
             <Sidebar>
                 <SidebarHeader>
-                    <Logo />
+
                 </SidebarHeader>
                 <SidebarContent>
                     <SidebarMenu>
+                        <SidebarMenuItem>
+                            <Link href="/admin">
+                                <SidebarMenuButton tooltip={"Comparlify"}>
+                                    <Logo />
+                                </SidebarMenuButton>
+                            </Link>
+                        </SidebarMenuItem>
                         <SidebarMenuItem>
                             <Link href="/admin">
                                 <SidebarMenuButton tooltip="Dashboard">
@@ -67,7 +74,7 @@ export default async function AdminLayout({
                                     </SidebarMenuButton>
                                 </Link>
                             </SidebarMenuItem>
-                             <SidebarMenuItem>
+                            <SidebarMenuItem>
                                 <Link href="/admin/comments">
                                     <SidebarMenuButton tooltip="Comments">
                                         <MessageCircle />
@@ -75,7 +82,7 @@ export default async function AdminLayout({
                                     </SidebarMenuButton>
                                 </Link>
                             </SidebarMenuItem>
-                             <SidebarMenuItem>
+                            <SidebarMenuItem>
                                 <Link href="/admin/contacts">
                                     <SidebarMenuButton tooltip="Contacts">
                                         <Mail />
@@ -83,7 +90,7 @@ export default async function AdminLayout({
                                     </SidebarMenuButton>
                                 </Link>
                             </SidebarMenuItem>
-                             <SidebarMenuItem>
+                            <SidebarMenuItem>
                                 <Link href="/admin/comparisons">
                                     <SidebarMenuButton tooltip="Comparisons">
                                         <GitCompareArrows />
@@ -107,7 +114,7 @@ export default async function AdminLayout({
                                     </SidebarMenuButton>
                                 </Link>
                             </SidebarMenuItem>
-                             <SidebarMenuItem>
+                            <SidebarMenuItem>
                                 <Link href="/admin/users">
                                     <SidebarMenuButton tooltip="Users">
                                         <Users />
@@ -128,14 +135,14 @@ export default async function AdminLayout({
                                 </SidebarMenuButton>
                             </Link>
                         </SidebarMenuItem>
-                         <SidebarMenuItem>
-                           <Link href="/">
-                             <SidebarMenuButton tooltip="View Site">
-                               <LayoutDashboard />
-                               View Site
-                             </SidebarMenuButton>
-                           </Link>
-                         </SidebarMenuItem>
+                        <SidebarMenuItem>
+                            <Link href="/">
+                                <SidebarMenuButton tooltip="View Site">
+                                    <LayoutDashboard />
+                                    View Site
+                                </SidebarMenuButton>
+                            </Link>
+                        </SidebarMenuItem>
                         <SidebarMenuItem>
                             <LogoutButton>
                                 <SidebarMenuButton tooltip="Logout">
@@ -144,11 +151,11 @@ export default async function AdminLayout({
                                 </SidebarMenuButton>
                             </LogoutButton>
                         </SidebarMenuItem>
-                         {session?.user && (
-                             <SidebarMenuItem>
+                        {session?.user && (
+                            <SidebarMenuItem>
                                 <UserNav user={session.user} />
-                             </SidebarMenuItem>
-                         )}
+                            </SidebarMenuItem>
+                        )}
                     </SidebarMenu>
                 </SidebarFooter>
             </Sidebar>
