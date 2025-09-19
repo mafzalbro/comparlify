@@ -278,6 +278,7 @@ async function main() {
     { key: 'homepage.finalCta.title', group: 'Homepage', value: 'Ready to Elevate Your Course Business?' },
     { key: 'homepage.finalCta.subtitle', group: 'Homepage', value: 'Join thousands of successful creators. Access all our tools and resources for free.' },
     { key: 'homepage.finalCta.button', group: 'Homepage', value: 'Sign Up for Free' },
+    { key: 'header.navLinks', group: 'Header', type: 'TEXTAREA', value: JSON.stringify([ { "href": "/", "label": "Home" }, { "href": "/compare", "label": "Comparisons" }, { "href": "/blog", "label": "Blog" }, { "href": "/tools", "label": "Tools" }, { "href": "/about", "label": "About" }, { "href": "/contact", "label": "Contact" } ], null, 2) },
     { key: 'footer.tagline', group: 'Footer', value: 'Helping course creators thrive with better tools and insights.' },
     { key: 'footer.newsletter.title', group: 'Footer', value: 'Stay Updated' },
     { key: 'footer.newsletter.subtitle', group: 'Footer', value: 'Get the latest tips and tool updates straight to your inbox.' },

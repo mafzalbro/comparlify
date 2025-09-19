@@ -15,16 +15,16 @@ import { getNotifications } from '@/app/actions/notifications';
 import { NotificationBell } from './notification-bell';
 import type { Notification } from '@prisma/client';
 
-const navLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/compare', label: 'Comparisons' },
-  { href: '/blog', label: 'Blog' },
-  { href: '/tools', label: 'Tools' },
-  { href: '/about', label: 'About' },
-  { href: '/contact', label: 'Contact' },
-];
+type NavLink = {
+  href: string;
+  label: string;
+};
 
-export default function Header() {
+interface HeaderProps {
+  navLinks: NavLink[];
+}
+
+export default function Header({ navLinks = [] }: HeaderProps) {
   const { data: session, status } = useSession();
   const [isClient, setIsClient] = useState(false);
   const pathname = usePathname();

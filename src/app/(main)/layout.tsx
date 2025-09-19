@@ -37,10 +37,18 @@ export default async function MainLayout({
     'footer.newsletter.title': content['footer.newsletter.title'],
     'footer.newsletter.subtitle': content['footer.newsletter.subtitle'],
   };
+  
+  let navLinks = [];
+  try {
+    navLinks = JSON.parse(content['header.navLinks'] || '[]');
+  } catch (e) {
+    console.error("Failed to parse header.navLinks", e);
+  }
+
 
   return (
     <>
-      <Header />
+      <Header navLinks={navLinks} />
       <main className="flex-1">
         {children}
       </main>
