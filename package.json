@@ -1,5 +1,5 @@
 {
-  "name": "nextn",
+  "name": "comparlify",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -60,11 +60,7 @@
     "next-auth": "^5.0.0-beta.23",
     "next-themes": "^0.3.0",
     "nodemailer": "^6.9.14",
-<<<<<<< HEAD
-    "novel": "0.4.2",
-=======
     "novel": "^1.0.2",
->>>>>>> refs/remotes/origin/main
     "patch-package": "^8.0.0",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
