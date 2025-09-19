@@ -135,7 +135,7 @@ async function main() {
   console.log("Seeded platform features.");
 
   // --- 6. Seed Blog Post Categories ---
-  const postCategories = await prisma.postCategory.createManyAndReturn({
+  await prisma.postCategory.createMany({
     data: [
       { name: "Platform Guides", slug: "platform-guides" },
       { name: "Course Creation", slug: "course-creation" },
@@ -143,6 +143,7 @@ async function main() {
       { name: "Tech Trends", slug: "tech-trends" },
     ]
   });
+  const postCategories = await prisma.postCategory.findMany();
   console.log("Seeded post categories.");
   const postCategoryMap = new Map(postCategories.map(c => [c.name, c.id]));
 
@@ -197,12 +198,13 @@ async function main() {
 
 
   // --- 9. Seed Comparison Categories ---
-  const compCategories = await prisma.comparisonCategory.createManyAndReturn({
+  await prisma.comparisonCategory.createMany({
     data: [
       { name: "Flagship Showdowns", slug: "flagship-showdowns" },
       { name: "All-in-One vs. Standalone", slug: "all-in-one-vs-standalone" },
     ]
   });
+  const compCategories = await prisma.comparisonCategory.findMany();
   console.log("Seeded comparison categories.");
   const compCategoryMap = new Map(compCategories.map(c => [c.name, c.id]));
 
