@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Logo } from '@/components/logo-client';
+import { Logo } from '@/components/logo';
 import { useSession } from 'next-auth/react';
 import { MobileNav } from './mobile-nav';
 import { ThemeToggle } from '../theme-toggle';
@@ -22,9 +22,10 @@ type NavLink = {
 
 interface HeaderProps {
   navLinks: NavLink[];
+  siteName: string
 }
 
-export default function Header({ navLinks = [] }: HeaderProps) {
+export default function Header({ navLinks = [], siteName }: HeaderProps) {
   const { data: session, status } = useSession();
   const [isClient, setIsClient] = useState(false);
   const pathname = usePathname();
@@ -60,7 +61,7 @@ export default function Header({ navLinks = [] }: HeaderProps) {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-6">
-          <Logo />
+          <Logo siteName={siteName} />
           <nav className="hidden md:flex items-center gap-6">
             {navLinks.map((link) => (
               <NavLink key={link.href} {...link} />
@@ -84,7 +85,7 @@ export default function Header({ navLinks = [] }: HeaderProps) {
         </div>
         <div className="md:hidden flex items-center gap-2">
           <ThemeToggle />
-          {isClient && <MobileNav navLinks={navLinks} session={session} />}
+          {isClient && <MobileNav navLinks={navLinks} session={session} siteName={siteName} />}
         </div>
       </div>
     </header>

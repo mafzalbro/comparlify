@@ -21,6 +21,7 @@ export default async function SimplePagesLayout({
     'footer.newsletter.subtitle': content['footer.newsletter.subtitle'],
   };
 
+  const siteName = content['header.siteName']
   let navLinks = [];
   try {
     navLinks = JSON.parse(content['header.navLinks'] || '[]');
@@ -30,10 +31,10 @@ export default async function SimplePagesLayout({
 
   return (
     <>
-      <Header navLinks={navLinks} />
+      <Header navLinks={navLinks} siteName={siteName} />
       <main>{children}</main>
       {session?.user && <Chatbot />}
-      <Footer content={footerContent}/>
+      <Footer content={footerContent} siteName={siteName} />
     </>
   );
 }

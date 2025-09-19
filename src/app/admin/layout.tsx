@@ -23,6 +23,7 @@ import { UserNav } from "@/components/user-nav";
 import { NotificationBell } from "@/components/layout/notification-bell";
 import { getNotifications } from "@/app/actions/notifications";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { getContent, getSiteName } from "@/lib/content";
 
 
 export default async function AdminLayout({
@@ -32,6 +33,7 @@ export default async function AdminLayout({
 }) {
     const session = await auth();
     const { notifications, unreadCount } = await getNotifications();
+    const siteName = await getSiteName()
 
     return (
         <SidebarProvider>
@@ -44,7 +46,7 @@ export default async function AdminLayout({
                         <SidebarMenuItem>
                             <Link href="/admin">
                                 <SidebarMenuButton tooltip={"Comparlify"}>
-                                    <Logo />
+                                    <Logo siteName={siteName} />
                                 </SidebarMenuButton>
                             </Link>
                         </SidebarMenuItem>
@@ -74,7 +76,7 @@ export default async function AdminLayout({
                                     </SidebarMenuButton>
                                 </Link>
                             </SidebarMenuItem>
-                             <SidebarMenuItem>
+                            <SidebarMenuItem>
                                 <Link href="/admin/emails">
                                     <SidebarMenuButton tooltip="Emails">
                                         <Send />

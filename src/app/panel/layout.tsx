@@ -21,6 +21,7 @@ import { auth } from "@/lib/auth";
 import { UserNav } from "@/components/user-nav";
 import { NotificationBell } from "@/components/layout/notification-bell";
 import { getNotifications } from "@/app/actions/notifications";
+import { getSiteName } from "@/lib/content";
 
 
 export default async function PanelLayout({
@@ -30,12 +31,13 @@ export default async function PanelLayout({
 }) {
     const session = await auth();
     const { notifications, unreadCount } = await getNotifications();
+    const siteName = await getSiteName()
 
     return (
         <SidebarProvider>
             <Sidebar>
                 <SidebarHeader>
-                    <Logo />
+                    <Logo siteName={siteName} />
                 </SidebarHeader>
                 <SidebarContent>
                     <SidebarMenu>

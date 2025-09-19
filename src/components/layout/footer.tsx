@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { subscribeAction } from '@/app/actions/subscriptions';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Logo } from '@/components/logo-client';
+import { Logo } from '@/components/logo';
 import { Github, Twitter, Linkedin, Loader2 } from 'lucide-react';
 
 function SubmitButton() {
@@ -33,9 +33,10 @@ interface FooterContent {
 
 interface FooterProps {
   content: FooterContent;
+  siteName: string;
 }
 
-export default function Footer({ content }: FooterProps) {
+export default function Footer({ content, siteName }: FooterProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useActionState(subscribeAction, {
     message: null,
@@ -66,7 +67,7 @@ export default function Footer({ content }: FooterProps) {
       <div className="container py-12 px-4 md:px-6">
         <div className="grid gap-8 md:grid-cols-4">
           <div className="space-y-4 md:col-span-1">
-            <Logo />
+            <Logo siteName={siteName} />
             <p className="text-sm text-muted-foreground">
               {content['footer.tagline']}
             </p>
