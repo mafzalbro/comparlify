@@ -43,17 +43,17 @@ export function ContentForm({ items }: ContentFormProps) {
             {item.type === 'MARKDOWN' && (
               <Editor
                 key={item.id}
-                initialContent={item.value}
+                initialContent={item.value as any}
                 onChange={value => {
                   // This is a bit of a hack to get the value into the form
                   const hiddenInput = document.querySelector(`input[name="${item.key}"]`) as HTMLInputElement;
                   if (hiddenInput) {
-                    hiddenInput.value = value;
+                    hiddenInput.value = value as any;
                   }
                 }}
               />
             )}
-             <input type="hidden" name={item.key} defaultValue={item.value} />
+            <input type="hidden" name={item.key} defaultValue={item.value} />
           </div>
         ))}
       </div>

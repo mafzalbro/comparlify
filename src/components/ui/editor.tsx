@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { EditorContent as NovelEditor } from "novel";
+import { useState, useEffect } from "react";
 
 interface EditorProps {
   initialContent?: string;
@@ -9,24 +8,28 @@ interface EditorProps {
 }
 
 export function Editor({ initialContent = "", onChange }: EditorProps) {
-  const [content, setContent] = useState(initialContent);
+  const [content, setContent] = useState<string>(initialContent);
 
   // Sync when initialContent changes from parent
   useEffect(() => {
-    setContent(initialContent);
+    if (initialContent !== null) {
+      setContent(initialContent);
+    } else {
+      setContent("");
+    }
   }, [initialContent]);
 
   return (
-    <div className="relative w-full rounded-lg border bg-background shadow-sm">
-      <NovelEditor
-        // assume there is a `value` prop; check docs if exists
+    <div className="relative w-full rounded-lg shadow-sm">
+      <textarea
         value={content}
-        onUpdate={(editor) => {
-          const md = editor?.storage.markdown.getMarkdown() || "";
-          onChange(md);
-          setContent(md);
+        onChange={(e) => {
+          const newContent = e.target.value;
+          setContent(newContent);
+          onChange(newContent);
         }}
-        disableLocalStorage
+        className="w-full h-48 p-4 rounded-lg"
+        placeholder="Start typing..."
       />
     </div>
   );
