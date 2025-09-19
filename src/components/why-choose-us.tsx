@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -9,39 +10,50 @@ import { Button } from './ui/button';
 import { ArrowRight } from 'lucide-react';
 import { ManagedImage } from './managed-image';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { getContent } from '@/lib/content';
 
-
-const features = [
-    {
-        id: 'comparisons',
-        title: 'Unbiased Comparisons',
-        Icon: BarChart,
-        description: 'Get in-depth, data-driven comparisons of the top platforms. We dig into the details so you can choose with absolute confidence.',
-        image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop',
-        dataAiHint: 'data chart graph analytics',
-        href: '/compare'
-    },
-    {
-        id: 'ai-tools',
-        title: 'Powerful AI Tools',
-        Icon: BrainCircuit,
-        description: 'From generating catchy titles to outlining entire courses, our suite of AI tools is designed to save you time and spark your creativity.',
-        image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=600&fit=crop',
-        dataAiHint: 'abstract technology AI brain circuit',
-        href: '/tools'
-    },
-    {
-        id: 'strategies',
-        title: 'Growth Strategies',
-        Icon: Scaling,
-        description: 'Access our regularly updated blog for expert tips, marketing strategies, and insights to help you scale your course business effectively.',
-        image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop',
-        dataAiHint: 'business growth chart upward trend',
-        href: '/blog'
-    }
-];
 
 export function WhyChooseUs() {
+    const [content, setContent] = useState<Record<string, string>>({});
+    
+    useEffect(() => {
+        const fetchContent = async () => {
+            const fetchedContent = await getContent();
+            setContent(fetchedContent);
+        }
+        fetchContent();
+    }, []);
+
+    const features = [
+        {
+            id: 'comparisons',
+            title: content['homepage.whyus.comparisons.title'] || 'Unbiased Comparisons',
+            Icon: BarChart,
+            description: content['homepage.whyus.comparisons.description'] || 'Get in-depth, data-driven comparisons of the top platforms. We dig into the details so you can choose with absolute confidence.',
+            image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop',
+            dataAiHint: 'data chart graph analytics',
+            href: '/compare'
+        },
+        {
+            id: 'ai-tools',
+            title: content['homepage.whyus.aitools.title'] || 'Powerful AI Tools',
+            Icon: BrainCircuit,
+            description: content['homepage.whyus.aitools.description'] || 'From generating catchy titles to outlining entire courses, our suite of AI tools is designed to save you time and spark your creativity.',
+            image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=600&fit=crop',
+            dataAiHint: 'abstract technology AI brain circuit',
+            href: '/tools'
+        },
+        {
+            id: 'strategies',
+            title: content['homepage.whyus.strategies.title'] || 'Growth Strategies',
+            Icon: Scaling,
+            description: content['homepage.whyus.strategies.description'] || 'Access our regularly updated blog for expert tips, marketing strategies, and insights to help you scale your course business effectively.',
+            image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop',
+            dataAiHint: 'business growth chart upward trend',
+            href: '/blog'
+        }
+    ];
+
     const [activeFeature, setActiveFeature] = useState(features[0].id);
     const targetRef = useRef<HTMLDivElement | null>(null);
     const headerRef = useRef<HTMLDivElement | null>(null);
@@ -58,7 +70,7 @@ export function WhyChooseUs() {
 
     // Effect for DESKTOP scroll-based animation
     useEffect(() => {
-        if (isMobile) return;
+        if (isMobile || features.some(f => !f.title)) return;
 
         const unsubscribe = scrollYProgress.on('change', (latest) => {
             const numFeatures = features.length;
@@ -70,11 +82,11 @@ export function WhyChooseUs() {
         });
 
         return () => unsubscribe();
-    }, [scrollYProgress, isMobile]);
+    }, [scrollYProgress, isMobile, features]);
 
     // Effect for MOBILE auto-cycle animation
     useEffect(() => {
-        if (!isMobile) return;
+        if (!isMobile || features.some(f => !f.title)) return;
 
         const interval = setInterval(() => {
             setActiveFeature(prevId => {
@@ -85,7 +97,7 @@ export function WhyChooseUs() {
         }, 5000); // Change feature every 5 seconds
 
         return () => clearInterval(interval); // Cleanup on unmount
-    }, [isMobile]);
+    }, [isMobile, features]);
 
     const activeFeatureData = features.find(f => f.id === activeFeature);
 
@@ -104,7 +116,7 @@ export function WhyChooseUs() {
                             transition={{ duration: 0.8, ease: "easeOut" }}
                         >
                             <h2 className="font-headline text-5xl font-bold md:text-6xl bg-gradient-to-r from-primary via-foreground to-primary bg-clip-text text-transparent">
-                                Your All-In-One Creator Hub
+                                {content['homepage.whyus.title']}
                             </h2>
                             <motion.p
                                 className="mt-6 text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
@@ -112,7 +124,7 @@ export function WhyChooseUs() {
                                 animate={headerInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                                 transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                             >
-                                Stop juggling dozens of apps. Get everything you need to succeed from a single, powerful dashboard.
+                                {content['homepage.whyus.subtitle']}
                             </motion.p>
                         </motion.div>
                     </div>
@@ -288,10 +300,10 @@ export function WhyChooseUs() {
             <div className="container px-4 md:px-6 py-12 relative">
                 <div className="mx-auto max-w-3xl text-center mb-12">
                     <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
-                        Your All-In-One Creator Hub
+                         {content['homepage.whyus.title']}
                     </h2>
                     <p className="mt-4 text-lg text-muted-foreground">
-                        Stop juggling dozens of apps. Get everything you need to succeed from a single, powerful dashboard.
+                        {content['homepage.whyus.subtitle']}
                     </p>
                 </div>
 

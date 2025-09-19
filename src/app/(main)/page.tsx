@@ -1,5 +1,4 @@
 
-
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -110,9 +109,6 @@ export default async function Home() {
     const recentPosts = await getRecentPosts();
     const content = await getContent();
 
-
-
-
     return (
         <>
             <HomePageClient session={session} />
@@ -155,10 +151,10 @@ export default async function Home() {
                         className="mx-auto max-w-3xl text-center mb-12 animate-fade-in-up"
                     >
                         <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
-                            Supercharge Your Workflow
+                            {content['homepage.tools.title']}
                         </h2>
                         <p className="mt-4 text-lg text-muted-foreground">
-                            Our suite of AI-powered tools is designed to handle the tedious tasks, so you can focus on creating.
+                            {content['homepage.tools.subtitle']}
                         </p>
                     </div>
 
@@ -193,10 +189,10 @@ export default async function Home() {
                             className="mx-auto max-w-3xl text-center mb-12 animate-fade-in-up"
                         >
                             <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
-                                Creator Insights
+                                {content['homepage.blog.title']}
                             </h2>
                             <p className="mt-4 text-lg text-muted-foreground">
-                                The latest strategies, tips, and news from our blog.
+                                {content['homepage.blog.subtitle']}
                             </p>
                         </div>
                         <div
@@ -254,11 +250,10 @@ export default async function Home() {
                         className="mx-auto max-w-3xl text-center mb-12 animate-fade-in-up"
                     >
                         <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
-                            Loved by Creators Worldwide
+                           {content['homepage.testimonials.title']}
                         </h2>
                         <p className="mt-4 text-lg text-muted-foreground">
-                            Don't just take our word for it. Here's what creators are saying
-                            about Comparlify.
+                            {content['homepage.testimonials.subtitle']}
                         </p>
                     </div>
                     <div
@@ -315,16 +310,15 @@ export default async function Home() {
                 >
                     <div className="mx-auto max-w-2xl">
                         <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
-                            Ready to Elevate Your Course Business?
+                            {content['homepage.finalCta.title']}
                         </h2>
                         <p className="mt-4 text-lg text-muted-foreground">
-                            Join thousands of successful creators. Access all our tools and
-                            resources for free.
+                            {content['homepage.finalCta.subtitle']}
                         </p>
                         <div className="mt-8">
                             <Button size="lg" className="group" asChild>
                                 <Link href="/register">
-                                    Sign Up for Free
+                                    {content['homepage.finalCta.button']}
                                     <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                                 </Link>
                             </Button>
