@@ -10,51 +10,53 @@ import { Button } from './ui/button';
 import { ArrowRight } from 'lucide-react';
 import { ManagedImage } from './managed-image';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { getContent } from '@/lib/content';
+
+interface WhyChooseUsProps {
+    content: {
+        'homepage.whyus.title': string;
+        'homepage.whyus.subtitle': string;
+        'homepage.whyus.comparisons.title': string;
+        'homepage.whyus.comparisons.description': string;
+        'homepage.whyus.aitools.title': string;
+        'homepage.whyus.aitools.description': string;
+        'homepage.whyus.strategies.title': string;
+        'homepage.whyus.strategies.description': string;
+    }
+}
 
 
-export function WhyChooseUs() {
-    const [content, setContent] = useState<Record<string, string>>({});
-    
-    useEffect(() => {
-        const fetchContent = async () => {
-            const fetchedContent = await getContent();
-            setContent(fetchedContent);
-        }
-        fetchContent();
-    }, []);
-
+export function WhyChooseUs({ content }: WhyChooseUsProps) {
     const features = [
         {
             id: 'comparisons',
-            title: content['homepage.whyus.comparisons.title'] || 'Unbiased Comparisons',
+            title: content['homepage.whyus.comparisons.title'] || '',
             Icon: BarChart,
-            description: content['homepage.whyus.comparisons.description'] || 'Get in-depth, data-driven comparisons of the top platforms. We dig into the details so you can choose with absolute confidence.',
+            description: content['homepage.whyus.comparisons.description'] || '',
             image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop',
             dataAiHint: 'data chart graph analytics',
             href: '/compare'
         },
         {
             id: 'ai-tools',
-            title: content['homepage.whyus.aitools.title'] || 'Powerful AI Tools',
+            title: content['homepage.whyus.aitools.title'] || '',
             Icon: BrainCircuit,
-            description: content['homepage.whyus.aitools.description'] || 'From generating catchy titles to outlining entire courses, our suite of AI tools is designed to save you time and spark your creativity.',
+            description: content['homepage.whyus.aitools.description'] || '',
             image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=600&fit=crop',
             dataAiHint: 'abstract technology AI brain circuit',
             href: '/tools'
         },
         {
             id: 'strategies',
-            title: content['homepage.whyus.strategies.title'] || 'Growth Strategies',
+            title: content['homepage.whyus.strategies.title'] || '',
             Icon: Scaling,
-            description: content['homepage.whyus.strategies.description'] || 'Access our regularly updated blog for expert tips, marketing strategies, and insights to help you scale your course business effectively.',
+            description: content['homepage.whyus.strategies.description'] || '',
             image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop',
             dataAiHint: 'business growth chart upward trend',
             href: '/blog'
         }
-    ];
+    ].filter(f => f.title && f.description); // Filter out empty features before content loads
 
-    const [activeFeature, setActiveFeature] = useState(features[0].id);
+    const [activeFeature, setActiveFeature] = useState(features.length > 0 ? features[0].id : '');
     const targetRef = useRef<HTMLDivElement | null>(null);
     const headerRef = useRef<HTMLDivElement | null>(null);
     const cardsRef = useRef<HTMLDivElement | null>(null);
@@ -70,7 +72,7 @@ export function WhyChooseUs() {
 
     // Effect for DESKTOP scroll-based animation
     useEffect(() => {
-        if (isMobile || features.some(f => !f.title)) return;
+        if (isMobile || features.length === 0) return;
 
         const unsubscribe = scrollYProgress.on('change', (latest) => {
             const numFeatures = features.length;
@@ -78,7 +80,9 @@ export function WhyChooseUs() {
                 numFeatures - 1,
                 Math.floor(latest * numFeatures)
             );
-            setActiveFeature(features[featureIndex].id);
+            if (features[featureIndex]) {
+               setActiveFeature(features[featureIndex].id);
+            }
         });
 
         return () => unsubscribe();
@@ -86,7 +90,11 @@ export function WhyChooseUs() {
 
     // Effect for MOBILE auto-cycle animation
     useEffect(() => {
-        if (!isMobile || features.some(f => !f.title)) return;
+        if (!isMobile || features.length === 0) return;
+
+        if (!activeFeature && features.length > 0) {
+            setActiveFeature(features[0].id);
+        }
 
         const interval = setInterval(() => {
             setActiveFeature(prevId => {
@@ -97,7 +105,7 @@ export function WhyChooseUs() {
         }, 5000); // Change feature every 5 seconds
 
         return () => clearInterval(interval); // Cleanup on unmount
-    }, [isMobile, features]);
+    }, [isMobile, features, activeFeature]);
 
     const activeFeatureData = features.find(f => f.id === activeFeature);
 

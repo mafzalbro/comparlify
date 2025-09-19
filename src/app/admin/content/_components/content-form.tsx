@@ -28,32 +28,41 @@ export function ContentForm({ items }: ContentFormProps) {
     }
   }, [state, toast]);
 
+  const renderInput = (item: SiteContent) => {
+    // This hidden input ensures the value is always submitted, even for the Editor which manages its own state.
+    const hiddenInput = <input type="hidden" name={item.key} defaultValue={item.value} />;
+
+    switch(item.type) {
+        case 'TEXTAREA':
+            return <Textarea id={item.key} name={item.key} defaultValue={item.value} rows={5} />
+        case 'MARKDOWN':
+            return (
+                <>
+                    {hiddenInput}
+                    <Editor
+                        key={item.id}
+                        initialContent={item.value}
+                        onChange={value => {
+                            const input = document.querySelector(`input[name="${item.key}"]`) as HTMLInputElement;
+                            if (input) input.value = value;
+                        }}
+                    />
+                </>
+            );
+        case 'TEXT':
+        default:
+            return <Input id={item.key} name={item.key} defaultValue={item.value} />
+    }
+  }
+
+
   return (
     <form action={formAction}>
       <div className="space-y-6">
         {items.map(item => (
           <div key={item.id} className="space-y-2">
             <Label htmlFor={item.key}>{item.key}</Label>
-            {item.type === 'TEXT' && (
-              <Input id={item.key} name={item.key} defaultValue={item.value} />
-            )}
-            {item.type === 'TEXTAREA' && (
-              <Textarea id={item.key} name={item.key} defaultValue={item.value} rows={5} />
-            )}
-            {item.type === 'MARKDOWN' && (
-              <Editor
-                key={item.id}
-                initialContent={item.value as any}
-                onChange={value => {
-                  // This is a bit of a hack to get the value into the form
-                  const hiddenInput = document.querySelector(`input[name="${item.key}"]`) as HTMLInputElement;
-                  if (hiddenInput) {
-                    hiddenInput.value = value as any;
-                  }
-                }}
-              />
-            )}
-            <input type="hidden" name={item.key} defaultValue={item.value} />
+            {renderInput(item)}
           </div>
         ))}
       </div>

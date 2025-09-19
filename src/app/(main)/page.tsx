@@ -23,11 +23,7 @@ import {
     FileText,
     Video,
     BookOpen,
-    BrainCircuit,
-    Scaling,
-    BarChart,
 } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { Post, User } from '@prisma/client';
 import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
@@ -109,6 +105,17 @@ export default async function Home() {
     const recentPosts = await getRecentPosts();
     const content = await getContent();
 
+    const whyChooseUsContent = {
+        'homepage.whyus.title': content['homepage.whyus.title'],
+        'homepage.whyus.subtitle': content['homepage.whyus.subtitle'],
+        'homepage.whyus.comparisons.title': content['homepage.whyus.comparisons.title'],
+        'homepage.whyus.comparisons.description': content['homepage.whyus.comparisons.description'],
+        'homepage.whyus.aitools.title': content['homepage.whyus.aitools.title'],
+        'homepage.whyus.aitools.description': content['homepage.whyus.aitools.description'],
+        'homepage.whyus.strategies.title': content['homepage.whyus.strategies.title'],
+        'homepage.whyus.strategies.description': content['homepage.whyus.strategies.description'],
+    };
+
     return (
         <>
             <HomePageClient session={session} />
@@ -142,7 +149,7 @@ export default async function Home() {
                 </div>
             </section>
 
-            <WhyChooseUs />
+            <WhyChooseUs content={whyChooseUsContent}/>
 
             {/* Featured Tools Section */}
             <section className="py-16 md:py-24 bg-background">
