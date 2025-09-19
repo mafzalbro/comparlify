@@ -1,20 +1,30 @@
+"use client";
 
-'use client';
-
-import { Editor as NovelEditor } from 'novel';
+import { useEffect, useState } from "react";
+import { EditorContent as NovelEditor } from "novel";
 
 interface EditorProps {
   initialContent?: string;
   onChange: (content: string) => void;
 }
 
-export function Editor({ initialContent, onChange }: EditorProps) {
+export function Editor({ initialContent = "", onChange }: EditorProps) {
+  const [content, setContent] = useState(initialContent);
+
+  // Sync when initialContent changes from parent
+  useEffect(() => {
+    setContent(initialContent);
+  }, [initialContent]);
+
   return (
     <div className="relative w-full rounded-lg border bg-background shadow-sm">
       <NovelEditor
-        defaultValue={initialContent}
+        // assume there is a `value` prop; check docs if exists
+        value={content}
         onUpdate={(editor) => {
-          onChange(editor?.storage.markdown.getMarkdown() || '');
+          const md = editor?.storage.markdown.getMarkdown() || "";
+          onChange(md);
+          setContent(md);
         }}
         disableLocalStorage
       />
