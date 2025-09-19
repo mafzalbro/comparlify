@@ -40,6 +40,7 @@ const getPostData = cache(async (slug: string, isPreview = false) => {
         where: whereClause,
         include: { 
             author: true,
+            category: true,
             comments: {
                 where: { status: 'APPROVED' },
                 include: { author: true },
@@ -118,6 +119,7 @@ export default async function BlogPostPage(
   }
 
   const readTime = Math.ceil(post.content.split(/\s+/).length / 200);
+  const siteName = content['global.siteName'] || 'Comparlify';
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -133,7 +135,7 @@ export default async function BlogPostPage(
     },
     publisher: {
       '@type': 'Organization',
-      name: 'Comparlify',
+      name: siteName,
       logo: {
         '@type': 'ImageObject',
         url: 'https://www.comparlify.com/logo.png', // Replace with actual logo URL
@@ -191,10 +193,8 @@ export default async function BlogPostPage(
                 ]}
                 className="justify-center text-white/80 mb-6"
             />
-            <p className="text-sm uppercase tracking-widest mb-4">
-              {format(new Date(post.createdAt), 'MMMM d, yyyy')} &middot; {readTime} min read
-            </p>
-            <h1 className="font-headline text-4xl md:text-6xl font-bold leading-tight">
+            <Badge>{post.category?.name}</Badge>
+            <h1 className="font-headline text-4xl md:text-6xl font-bold leading-tight mt-4">
               {post.title}
             </h1>
             <p className="mt-4 text-lg md:text-xl text-white/80 max-w-2xl mx-auto">{post.description}</p>
@@ -205,7 +205,7 @@ export default async function BlogPostPage(
               </Avatar>
               <div>
                 <p className="font-semibold">{post.author.name}</p>
-                <p className="text-sm text-white/70">Author</p>
+                <p className="text-sm text-white/70">{format(new Date(post.createdAt), 'MMMM d, yyyy')} &middot; {readTime} min read</p>
               </div>
             </div>
           </div>

@@ -3,6 +3,7 @@
 
 import nodemailer from 'nodemailer';
 import prisma from './prisma';
+import { getContent } from './content';
 
 interface MailOptions {
   to: string;
@@ -11,11 +12,13 @@ interface MailOptions {
 }
 
 const getEmailSettings = async () => {
-    const fromName = await prisma.siteContent.findUnique({ where: { key: 'settings.email.fromName' } });
-    const fromEmail = await prisma.siteContent.findUnique({ where: { key: 'settings.email.fromEmail' } });
+    const content = await getContent();
+    const siteName = content['global.siteName'] || 'Comparlify';
+    const fromName = content['settings.email.fromName'] || siteName;
+    const fromEmail = content['settings.email.fromEmail'] || `noreply@${siteName.toLowerCase()}.com`;
 
     return {
-        from: `"${fromName?.value || process.env.SMTP_FROM_NAME || 'Comparlify'}" <${fromEmail?.value || process.env.SMTP_FROM_EMAIL}>`,
+        from: `"${fromName}" <${fromEmail}>`,
     };
 };
 

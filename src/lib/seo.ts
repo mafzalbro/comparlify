@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
+import { getContent } from './content';
 
-const seoConfig = {
+const defaultConfig = {
     title: 'Comparlify',
     description: 'Unbiased comparisons, AI-powered tools, and community insights to help course creators succeed.',
     keywords: ['online course platform', 'course creation', 'e-learning', 'ai tools for creators', 'teachable vs thinkific', 'course marketing'],
@@ -17,32 +18,35 @@ type GenerateMetadataProps = {
     path: string;
 };
 
-export function generateSeoMetadata({
+export async function generateSeoMetadata({
     title,
     description,
     keywords,
     image,
     path
-}: GenerateMetadataProps): Metadata {
-    const pageTitle = title ? `${title} | ${seoConfig.title}` : `${seoConfig.title} - Helping Course Creators Grow`;
-    const pageDescription = description || seoConfig.description;
-    const pageKeywords = Array.isArray(keywords) ? [...seoConfig.keywords, ...keywords] : [seoConfig.keywords, keywords].join(', ');
-    const ogImage = image || seoConfig.image;
-    const canonicalUrl = `${seoConfig.url}${path}`;
+}: GenerateMetadataProps): Promise<Metadata> {
+    const content = await getContent();
+    const siteName = content['global.siteName'] || defaultConfig.title;
+    
+    const pageTitle = title ? `${title} | ${siteName}` : `${siteName} - Helping Course Creators Grow`;
+    const pageDescription = description || defaultConfig.description;
+    const pageKeywords = Array.isArray(keywords) ? [...defaultConfig.keywords, ...keywords] : [defaultConfig.keywords, keywords].join(', ');
+    const ogImage = image || defaultConfig.image;
+    const canonicalUrl = `${defaultConfig.url}${path}`;
 
     return {
         title: pageTitle,
         description: pageDescription,
         keywords: pageKeywords,
-        authors: [{ name: 'Comparlify Team', url: seoConfig.url }],
-        creator: 'Comparlify',
-        publisher: 'Comparlify',
+        authors: [{ name: `${siteName} Team`, url: defaultConfig.url }],
+        creator: siteName,
+        publisher: siteName,
 
         openGraph: {
             title: pageTitle,
             description: pageDescription,
             url: canonicalUrl,
-            siteName: seoConfig.title,
+            siteName: siteName,
             images: [
                 {
                     url: ogImage,
@@ -58,11 +62,11 @@ export function generateSeoMetadata({
             card: 'summary_large_image',
             title: pageTitle,
             description: pageDescription,
-            site: seoConfig.twitter,
-            creator: seoConfig.twitter,
+            site: defaultConfig.twitter,
+            creator: defaultConfig.twitter,
             images: [ogImage],
         },
-        metadataBase: new URL(seoConfig.url),
+        metadataBase: new URL(defaultConfig.url),
         alternates: {
             canonical: canonicalUrl,
         },

@@ -18,7 +18,7 @@ import { ContentForm } from "./_components/content-form";
 async function getSiteContent() {
   const content = await prisma.siteContent.findMany({
     orderBy: {
-      group: 'asc',
+      key: 'asc',
     },
   });
 
@@ -35,7 +35,7 @@ async function getSiteContent() {
 
 export default async function AdminContentPage() {
   const groupedContent = await getSiteContent();
-  const groups = Object.keys(groupedContent);
+  const groups = Object.keys(groupedContent).sort();
 
   return (
     <div>
@@ -47,7 +47,7 @@ export default async function AdminContentPage() {
       </div>
 
       <Tabs defaultValue={groups[0]} className="w-full">
-        <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 lg:grid-cols-6 h-auto mb-6">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 h-auto mb-6">
             {groups.map(group => (
                 <TabsTrigger key={group} value={group}>{group}</TabsTrigger>
             ))}

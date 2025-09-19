@@ -26,6 +26,7 @@ type TeamMember = {
 
 export default async function AboutPage() {
     const content = await getContent();
+    const siteName = content['global.siteName'] || 'Comparlify';
 
     const values = [
         {
@@ -68,7 +69,7 @@ export default async function AboutPage() {
                 {content['about.hero.title']}
             </h1>
             <p className="mt-4 text-xl text-muted-foreground max-w-3xl mx-auto">
-                {content['about.hero.subtitle']}
+                {content['about.hero.subtitle'].replace('Comparlify', siteName)}
             </p>
         </div>
       </section>
@@ -77,7 +78,7 @@ export default async function AboutPage() {
       <section className="container py-16 md:py-24 px-4 md:px-6">
         <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="prose prose-lg dark:prose-invert text-foreground max-w-none">
-               <MarkdownContent content={content['about.story.content']} className="h-auto" />
+               <MarkdownContent content={content['about.story.content'].replace('Comparlify', siteName)} className="h-auto" />
             </div>
              <div className="relative h-80 md:h-96 w-full">
                 <ManagedImage 

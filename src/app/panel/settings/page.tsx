@@ -15,12 +15,23 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { DeleteAccountDialog } from './_components/delete-account-dialog';
+import { getContent } from '@/lib/content';
+import { useState } from 'react';
 
 export default function UserSettingsPage() {
   const { data: session, update } = useSession();
   const [state, formAction, isPending] = useActionState(updateUserProfileAction, { error: null, success: false });
   const { toast } = useToast();
   const hasUpdated = useRef(false);
+  const [content, setContent] = useState<Record<string,string>>({});
+
+  useEffect(() => {
+    async function fetchContent() {
+      const siteContent = await getContent();
+      setContent(siteContent);
+    }
+    fetchContent();
+  }, [])
 
   useEffect(() => {
     if (state.success && !hasUpdated.current) {
@@ -54,6 +65,7 @@ export default function UserSettingsPage() {
   }
 
   const { user } = session;
+  const siteName = content['global.siteName'] || 'The Site';
 
   return (
     <div>
@@ -65,7 +77,7 @@ export default function UserSettingsPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle>Public Profile</CardTitle>
-                            <CardDescription>This information may be displayed publicly.</CardDescription>
+                            <CardDescription>This information may be displayed publicly on comments.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
                             <div className="space-y-2">
@@ -87,7 +99,7 @@ export default function UserSettingsPage() {
                              <div className="flex items-center justify-between rounded-lg border p-4">
                                 <div>
                                     <Label htmlFor="newsletter" className="font-medium">Email Newsletter</Label>
-                                    <p className="text-sm text-muted-foreground">Receive updates about new tools and content.</p>
+                                    <p className="text-sm text-muted-foreground">Receive updates from {siteName} about new tools and content.</p>
                                 </div>
                                 <Switch id="newsletter" name="newsletter" defaultChecked={user.newsletter} />
                              </div>

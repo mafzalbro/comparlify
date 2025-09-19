@@ -9,6 +9,7 @@ import { CookieConsentBanner } from '@/components/cookie-consent-banner';
 import { seed } from '../../prisma/seed';
 import { Poppins, Lato } from 'next/font/google';
 import { cn } from '@/lib/utils';
+import { getContent } from '@/lib/content';
 
 const fontHeadline = Poppins({
   subsets: ['latin'],
@@ -27,18 +28,20 @@ export const metadata: Metadata = generateSeoMetadata({
   path: '/',
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
 
   // seed()
+  const content = await getContent();
+  const siteName = content['global.siteName'] || 'Comparlify';
 
   const websiteSchema = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'Comparlify',
+    name: siteName,
     url: 'https://www.comparlify.com', // Replace with your actual domain
     potentialAction: {
       '@type': 'SearchAction',

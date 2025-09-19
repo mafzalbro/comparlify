@@ -12,6 +12,7 @@ import { Message } from "genkit";
 import { promises as fs } from 'fs';
 import path from 'path';
 import { XMLParser } from "fast-xml-parser";
+import { getContent } from "@/lib/content";
 
 const getPlatformsTool = ai.defineTool(
   {
@@ -199,14 +200,6 @@ export async function aiQueryComparlifyChatbot(
   return aiQueryComparlifyChatbotFlow(input);
 }
 
-const systemPrompt = `You are a helpful and friendly AI assistant for a website called Comparlify.
-Your goal is to provide helpful and informative responses to user queries about course creation platforms and content on the site.
-Use the tools provided to access information from the database to answer user questions.
-When a user asks for information that might be in a blog post, comparison, or page, use the 'searchSiteContent' tool to find it.
-When you find relevant content, summarize the information and provide a direct link to the page in your response.
-Format links in Markdown, like this: [Link Text](https://www.comparlify.com/path-to-page).
-Keep your answers concise and easy to read.
-Do not make up information. If you don't know the answer, say that you don't know.`;
 
 const aiQueryComparlifyChatbotFlow = ai.defineFlow(
   {
@@ -215,6 +208,17 @@ const aiQueryComparlifyChatbotFlow = ai.defineFlow(
     outputSchema: AIQueryComparlifyChatbotOutputSchema,
   },
   async ({ query, history }) => {
+    const content = await getContent();
+    const siteName = content['global.siteName'] || 'Comparlify';
+    const systemPrompt = `You are a helpful and friendly AI assistant for a website called ${siteName}.
+Your goal is to provide helpful and informative responses to user queries about course creation platforms and content on the site.
+Use the tools provided to access information from the database to answer user questions.
+When a user asks for information that might be in a blog post, comparison, or page, use the 'searchSiteContent' tool to find it.
+When you find relevant content, summarize the information and provide a direct link to the page in your response.
+Format links in Markdown, like this: [Link Text](https://www.comparlify.com/path-to-page).
+Keep your answers concise and easy to read.
+Do not make up information. If you don't know the answer, say that you don't know.`;
+
     const llmResponse = await ai.generate({
       model: ai.model,
       tools: [getPlatformsTool, getPlatformDetailsTool, searchSiteContent],

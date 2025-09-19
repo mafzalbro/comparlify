@@ -256,6 +256,10 @@ async function main() {
 
   // --- 11. Seed Site Content ---
   const siteContent = [
+    // Globals
+    { key: 'global.siteName', group: 'Globals', value: 'Comparlify' },
+    
+    // Homepage
     { key: 'homepage.hero.supertitle', group: 'Homepage', value: 'The Ultimate Co-pilot for Course Creators' },
     { key: 'homepage.hero.title', group: 'Homepage', value: 'Build, Market & Sell\nSmarter, Not Harder' },
     { key: 'homepage.hero.subtitle', group: 'Homepage', value: 'Comparlify provides the tools, comparisons, and insights you need to turn your expertise into a thriving online business.' },
@@ -278,10 +282,14 @@ async function main() {
     { key: 'homepage.finalCta.title', group: 'Homepage', value: 'Ready to Elevate Your Course Business?' },
     { key: 'homepage.finalCta.subtitle', group: 'Homepage', value: 'Join thousands of successful creators. Access all our tools and resources for free.' },
     { key: 'homepage.finalCta.button', group: 'Homepage', value: 'Sign Up for Free' },
+
+    // Header & Footer
     { key: 'header.navLinks', group: 'Header', type: 'TEXTAREA', value: JSON.stringify([ { "href": "/", "label": "Home" }, { "href": "/compare", "label": "Comparisons" }, { "href": "/blog", "label": "Blog" }, { "href": "/tools", "label": "Tools" }, { "href": "/about", "label": "About" }, { "href": "/contact", "label": "Contact" } ], null, 2) },
     { key: 'footer.tagline', group: 'Footer', value: 'Helping course creators thrive with better tools and insights.' },
     { key: 'footer.newsletter.title', group: 'Footer', value: 'Stay Updated' },
     { key: 'footer.newsletter.subtitle', group: 'Footer', value: 'Get the latest tips and tool updates straight to your inbox.' },
+
+    // About Page
     { key: 'about.hero.title', group: 'About Page', value: "We're Here to Help Creators Thrive" },
     { key: 'about.hero.subtitle', group: 'About Page', value: 'Discover the story, mission, and people behind Comparlify.' },
     { key: 'about.story.content', group: 'About Page', type: 'MARKDOWN', value: `## Our Story\n\nComparlify was born from a simple observation: the world of online course creation is both exciting and overwhelming. With countless platforms, tools, and strategies available, creators often find themselves lost in a sea of options, spending more time on research than on what they do best—creating amazing content.\n\nWe decided to change that. Our mission is to be the trusted guide for every course creator. We provide unbiased, in-depth comparisons, innovative AI-powered tools, and actionable insights to help you make informed decisions, save time, and accelerate your growth.\n\n> "We believe that every creator, regardless of their technical skill or budget, deserves a clear path to success."` },
@@ -299,6 +307,8 @@ async function main() {
     { key: 'about.cta.title', group: 'About Page', value: 'Ready to Join Us?' },
     { key: 'about.cta.subtitle', group: 'About Page', value: 'Become part of a community of forward-thinking creators. Explore our tools and insights today.' },
     { key: 'about.cta.button', group: 'About Page', value: 'Get Started for Free' },
+    
+    // Contact Page
     { key: 'contact.hero.title', group: 'Contact Page', value: 'Get in Touch' },
     { key: 'contact.hero.subtitle', group: 'Contact Page', value: "We'd love to hear from you! Whether you have a question, feedback, or a partnership proposal, feel free to reach out." },
     { key: 'contact.email.title', group: 'Contact Page', value: 'Email' },
@@ -309,6 +319,8 @@ async function main() {
     { key: 'contact.phone.value', group: 'Contact Page', value: '+1 (234) 567-890' },
     { key: 'contact.office.title', group: 'Contact Page', value: 'Office' },
     { key: 'contact.office.description', group: 'Contact Page', value: '123 Creator Lane, Suite 100\nInnovation City, 12345' },
+    
+    // Privacy Page
     { key: 'privacy.policy', group: 'Privacy Page', type: 'MARKDOWN', value: `
 Your privacy is important to us. It is Comparlify's policy to respect your privacy regarding any information we may collect from you across our website, and other sites we own and operate.
 
@@ -345,6 +357,7 @@ We reserve the right to modify this privacy policy at any time, so please review
 ## 6. Contact Us
 If you have any questions about our privacy policy, please contact us at <a href="mailto:privacy@comparlify.com">privacy@comparlify.com</a>.
 `},
+    
     // Blog Page Content
     { key: 'blog.hero.title', group: 'Blog Page', value: 'Creator Insights' },
     { key: 'blog.hero.subtitle', group: 'Blog Page', value: 'Actionable advice, deep dives, and growth strategies for the modern course creator.' },
@@ -367,6 +380,10 @@ If you have any questions about our privacy policy, please contact us at <a href
     { key: 'compare.detail.ratings.chartTitle', group: 'Comparison Page', value: 'Side-by-Side Ratings' },
     { key: 'compare.detail.features.title', group: 'Comparison Page', value: 'Feature Comparison' },
     { key: 'compare.detail.faq.title', group: 'Comparison Page', value: 'Frequently Asked Questions' },
+
+    // Admin Settings
+    { key: 'settings.email.fromName', group: 'Email Settings', value: 'Comparlify' },
+    { key: 'settings.email.fromEmail', group: 'Email Settings', value: 'noreply@comparlify.com' },
   ];
   await prisma.siteContent.createMany({ data: siteContent });
   console.log("Seeded site content.");
