@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { subscribeAction } from '@/app/actions/subscriptions';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Logo } from '@/components/logo';
+import { Logo } from '@/components/logo-client';
 import { Github, Twitter, Linkedin, Loader2 } from 'lucide-react';
 
 function SubmitButton() {
@@ -26,13 +26,13 @@ function SubmitButton() {
 }
 
 interface FooterContent {
-    'footer.tagline'?: string;
-    'footer.newsletter.title'?: string;
-    'footer.newsletter.subtitle'?: string;
+  'footer.tagline'?: string;
+  'footer.newsletter.title'?: string;
+  'footer.newsletter.subtitle'?: string;
 }
 
 interface FooterProps {
-    content: FooterContent;
+  content: FooterContent;
 }
 
 export default function Footer({ content }: FooterProps) {

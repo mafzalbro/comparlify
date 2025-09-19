@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Logo } from '@/components/logo';
+import { Logo } from '@/components/logo-client';
 import { useSession } from 'next-auth/react';
 import { MobileNav } from './mobile-nav';
 import { ThemeToggle } from '../theme-toggle';
