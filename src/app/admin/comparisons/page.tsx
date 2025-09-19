@@ -13,9 +13,14 @@ export default async function AdminComparisonsPage(props: { searchParams: Promis
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Manage Comparisons</h1>
-        <Button asChild>
-          <Link href="/admin/comparisons/new"><PlusCircle className="mr-2 h-4 w-4" />Create New Comparison</Link>
-        </Button>
+        <div className="flex gap-2">
+            <Button asChild variant="outline">
+                <Link href="/admin/comparisons/categories">Manage Categories</Link>
+            </Button>
+            <Button asChild>
+                <Link href="/admin/comparisons/new"><PlusCircle className="mr-2 h-4 w-4" />Create New Comparison</Link>
+            </Button>
+        </div>
       </div>
       
        <ComparisonsDataTable 

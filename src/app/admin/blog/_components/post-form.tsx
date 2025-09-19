@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { type Post } from '@prisma/client';
+import { type Post, type PostCategory } from '@prisma/client';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { useRouter } from 'next/navigation';
@@ -17,12 +17,14 @@ import Link from 'next/link';
 import { Eye } from 'lucide-react';
 import { AiImageButton } from './ai-image-button';
 import { Editor } from '@/components/ui/editor';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface PostFormProps {
   post?: Post | null;
+  categories: PostCategory[];
 }
 
-export function PostForm({ post }: PostFormProps) {
+export function PostForm({ post, categories }: PostFormProps) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [title, setTitle] = useState(post?.title ?? '');
@@ -109,6 +111,18 @@ export function PostForm({ post }: PostFormProps) {
                 </div>
             </div>
             <div className="space-y-6">
+                 <div className="space-y-2">
+                    <Label htmlFor="categoryId">Category</Label>
+                    <Select name="categoryId" defaultValue={post?.categoryId}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                    {typeof state.error !== 'string' && state?.error?.categoryId && <p className="text-destructive text-sm">{state.error.categoryId[0]}</p>}
+                </div>
                  <div className="space-y-2">
                     <Label htmlFor="image">Image URL</Label>
                     <Input id="image" name="image" value={image} onChange={e => setImage(e.target.value)} required />

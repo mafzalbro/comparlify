@@ -2,12 +2,12 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { EditComparisonPageClient } from './page-client';
-import type { Comparison, Platform, Fact, FAQ } from '@prisma/client';
+import type { Comparison, Platform, Fact, Faq, ComparisonCategory } from '@prisma/client';
 import { cache } from 'react';
 
 type ComparisonWithRelations = Comparison & {
     facts: Fact[];
-    faqs: FAQ[];
+    faqs: Faq[];
 }
 
 export const generateStaticParams = cache(async () => {
@@ -31,17 +31,22 @@ async function getPlatforms(): Promise<Platform[]> {
     return prisma.platform.findMany({ orderBy: { name: 'asc' }});
 }
 
+async function getCategories(): Promise<ComparisonCategory[]> {
+    return prisma.comparisonCategory.findMany({ orderBy: { name: 'asc' }});
+}
+
 export default async function EditComparisonPage(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
     const { id } = params;
-    const [comparison, platforms] = await Promise.all([
+    const [comparison, platforms, categories] = await Promise.all([
         getComparison(id),
-        getPlatforms()
+        getPlatforms(),
+        getCategories()
     ]);
 
     if (!comparison) {
         notFound();
     }
 
-    return <EditComparisonPageClient comparison={comparison} platforms={platforms} />;
+    return <EditComparisonPageClient comparison={comparison} platforms={platforms} categories={categories} />;
 }
