@@ -8,17 +8,30 @@ async function main() {
   console.log("Start seeding...");
 
   // --- 1. Clean up existing data ---
+  console.log("Cleaning up existing data...");
+
+  // First, break the navigation links
+  await prisma.$executeRaw`UPDATE Post SET previousId = NULL, nextId = NULL`;
+
+  // Then delete in correct order
+  await prisma.siteContent.deleteMany();
   await prisma.comment.deleteMany();
+  await prisma.bookmark.deleteMany(); // Delete bookmarks before posts
   await prisma.post.deleteMany();
   await prisma.comparison.deleteMany();
   await prisma.platformFeature.deleteMany();
+  await prisma.fact.deleteMany(); // Delete facts before comparisons
+  await prisma.faq.deleteMany(); // Delete FAQs before comparisons
+  await prisma.bookmark.deleteMany(); // Delete any remaining bookmarks
   await prisma.feature.deleteMany();
   await prisma.featureCategory.deleteMany();
   await prisma.platform.deleteMany();
   await prisma.user.deleteMany();
   await prisma.postCategory.deleteMany();
   await prisma.comparisonCategory.deleteMany();
+
   console.log("Cleaned up existing data.");
+
 
   // --- 2. Seed Users ---
   const usersData = [
@@ -240,6 +253,69 @@ async function main() {
     }
   });
   console.log("Seeded comparisons.");
+
+  // --- 11. Seed Site Content ---
+  const siteContent = [
+    { key: 'homepage.hero.supertitle', group: 'Homepage', value: 'The Ultimate Co-pilot for Course Creators' },
+    { key: 'homepage.hero.title', group: 'Homepage', value: 'Build, Market & Sell\nSmarter, Not Harder' },
+    { key: 'homepage.hero.subtitle', group: 'Homepage', value: 'Comparlify provides the tools, comparisons, and insights you need to turn your expertise into a thriving online business.' },
+    { key: 'homepage.cta.primary', group: 'Homepage', value: 'Explore AI Tools' },
+    { key: 'homepage.cta.secondary', group: 'Homepage', value: 'Compare Platforms' },
+    { key: 'footer.tagline', group: 'Footer', value: 'Helping course creators thrive with better tools and insights.' },
+    { key: 'footer.newsletter.title', group: 'Footer', value: 'Stay Updated' },
+    { key: 'footer.newsletter.subtitle', group: 'Footer', value: 'Get the latest tips and tool updates straight to your inbox.' },
+    { key: 'about.hero.title', group: 'About Page', value: "We're Here to Help Creators Thrive" },
+    { key: 'about.hero.subtitle', group: 'About Page', value: 'Discover the story, mission, and people behind Comparlify.' },
+    { key: 'about.story.content', group: 'About Page', type: 'MARKDOWN', value: `## Our Story\n\nComparlify was born from a simple observation: the world of online course creation is both exciting and overwhelming. With countless platforms, tools, and strategies available, creators often find themselves lost in a sea of options, spending more time on research than on what they do best—creating amazing content.\n\nWe decided to change that. Our mission is to be the trusted guide for every course creator. We provide unbiased, in-depth comparisons, innovative AI-powered tools, and actionable insights to help you make informed decisions, save time, and accelerate your growth.\n\n> "We believe that every creator, regardless of their technical skill or budget, deserves a clear path to success."` },
+    { key: 'contact.hero.title', group: 'Contact Page', value: 'Get in Touch' },
+    { key: 'contact.hero.subtitle', group: 'Contact Page', value: "We'd love to hear from you! Whether you have a question, feedback, or a partnership proposal, feel free to reach out." },
+    { key: 'contact.email.title', group: 'Contact Page', value: 'Email' },
+    { key: 'contact.email.description', group: 'Contact Page', value: 'Send us an email for general inquiries.' },
+    { key: 'contact.email.value', group: 'Contact Page', value: 'hello@comparlify.com' },
+    { key: 'contact.phone.title', group: 'Contact Page', value: 'Phone' },
+    { key: 'contact.phone.description', group: 'Contact Page', value: 'Give us a call during business hours.' },
+    { key: 'contact.phone.value', group: 'Contact Page', value: '+1 (234) 567-890' },
+    { key: 'contact.office.title', group: 'Contact Page', value: 'Office' },
+    { key: 'contact.office.description', group: 'Contact Page', value: '123 Creator Lane, Suite 100\nInnovation City, 12345' },
+    { key: 'privacy.policy', group: 'Privacy Page', type: 'MARKDOWN', value: `
+Your privacy is important to us. It is Comparlify's policy to respect your privacy regarding any information we may collect from you across our website, and other sites we own and operate.
+
+## 1. Information We Collect
+We only ask for personal information when we truly need it to provide a service to you. We collect it by fair and lawful means, with your knowledge and consent. We also let you know why we’re collecting it and how it will be used.
+
+### Log Data
+When you visit our website, our servers may automatically log the standard data provided by your web browser. It may include your computer’s Internet Protocol (IP) address, your browser type and version, the pages you visit, the time and date of your visit, the time spent on each page, and other details.
+
+### Personal Information
+We may ask for personal information, such as your: Name, Email, Social media profiles, Date of birth, Phone/mobile number.
+
+## 2. How We Use Your Information
+We may use the information we collect for various purposes, including to:
+<ul>
+  <li>Provide, operate, and maintain our website</li>
+  <li>Improve, personalize, and expand our website</li>
+  <li>Understand and analyze how you use our website</li>
+  <li>Develop new products, services, features, and functionality</li>
+  <li>Communicate with you, either directly or through one of our partners, including for customer service, to provide you with updates and other information relating to the website, and for marketing and promotional purposes</li>
+  <li>Send you emails</li>
+  <li>Find and prevent fraud</li>
+</ul>
+
+## 3. Security of Your Personal Information
+We retain collected information for as long as necessary to provide you with your requested service. What data we store, we’ll protect within commercially acceptable means to prevent loss and theft, as well as unauthorized access, disclosure, copying, use or modification.
+
+## 4. Links to Other Sites
+Our website may link to external sites that are not operated by us. Please be aware that we have no control over the content and practices of these sites, and cannot accept responsibility or liability for their respective privacy policies.
+
+## 5. Changes to Our Privacy Policy
+We reserve the right to modify this privacy policy at any time, so please review it frequently. Changes and clarifications will take effect immediately upon their posting on the website.
+
+## 6. Contact Us
+If you have any questions about our privacy policy, please contact us at <a href="mailto:privacy@comparlify.com">privacy@comparlify.com</a>.
+`},
+  ];
+  await prisma.siteContent.createMany({ data: siteContent });
+  console.log("Seeded site content.");
 
   console.log("Seeding finished.");
 }
