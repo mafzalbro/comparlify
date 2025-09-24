@@ -6,10 +6,13 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { sendEmail } from "@/lib/email";
+import { render } from "@react-email/render";
+import { marked } from "marked";
 
 const emailCampaignSchema = z.object({
   subject: z.string().min(5, "Subject must be at least 5 characters long."),
   content: z.string().min(20, "Email content must be at least 20 characters long."),
+  excludedUserIds: z.array(z.string()).optional(),
 });
 
 // Create Email Campaign
@@ -19,14 +22,28 @@ export async function createEmailCampaign(prevState: any, formData: FormData) {
     return { error: 'Not authorized' };
   }
   
-  const validatedFields = emailCampaignSchema.safeParse(Object.fromEntries(formData.entries()));
+  const validatedFields = emailCampaignSchema.safeParse({
+    subject: formData.get('subject'),
+    content: formData.get('content'),
+    excludedUserIds: formData.getAll('excludedUserIds')
+  });
 
   if (!validatedFields.success) {
     return { error: validatedFields.error.flatten().fieldErrors };
   }
 
+  const { subject, content, excludedUserIds } = validatedFields.data;
+
   try {
-    await prisma.emailCampaign.create({ data: validatedFields.data });
+    await prisma.emailCampaign.create({ 
+      data: {
+        subject,
+        content,
+        excludedUsers: {
+          connect: excludedUserIds?.map(id => ({ id }))
+        }
+      }
+    });
     revalidatePath("/admin/emails");
   } catch (error) {
     console.error(error);
@@ -42,11 +59,17 @@ export async function updateEmailCampaign(id: string, prevState: any, formData: 
     return { error: 'Not authorized' };
   }
 
-  const validatedFields = emailCampaignSchema.safeParse(Object.fromEntries(formData.entries()));
+  const validatedFields = emailCampaignSchema.safeParse({
+    subject: formData.get('subject'),
+    content: formData.get('content'),
+    excludedUserIds: formData.getAll('excludedUserIds')
+  });
 
   if (!validatedFields.success) {
     return { error: validatedFields.error.flatten().fieldErrors };
   }
+  
+  const { subject, content, excludedUserIds } = validatedFields.data;
   
   try {
     const campaign = await prisma.emailCampaign.findUnique({ where: { id }});
@@ -56,7 +79,13 @@ export async function updateEmailCampaign(id: string, prevState: any, formData: 
 
     await prisma.emailCampaign.update({
       where: { id },
-      data: validatedFields.data,
+      data: {
+        subject,
+        content,
+        excludedUsers: {
+          set: excludedUserIds?.map(id => ({ id }))
+        }
+      },
     });
     revalidatePath("/admin/emails");
   } catch (error) {
@@ -104,10 +133,11 @@ export async function sendTestEmailAction(input: z.infer<typeof testEmailSchema>
         return { error: 'Invalid input', success: false };
     }
     try {
+        const htmlContent = marked.parse(validatedFields.data.content);
         await sendEmail({
             to: validatedFields.data.to,
             subject: `[Test] ${validatedFields.data.subject}`,
-            html: validatedFields.data.content,
+            html: htmlContent,
         });
         return { success: true, error: null };
     } catch(e) {
@@ -132,16 +162,25 @@ export async function sendCampaignAction(prevState: any, formData: FormData) {
     const { campaignId } = validatedFields.data;
 
     try {
-        const campaign = await prisma.emailCampaign.findUnique({ where: { id: campaignId }});
+        const campaign = await prisma.emailCampaign.findUnique({ 
+          where: { id: campaignId },
+          include: { excludedUsers: { select: { id: true }}}
+        });
         if (!campaign) {
             return { error: "Campaign not found", success: false };
         }
         if (campaign.status !== 'PENDING') {
-            return { error: "Campaign has already been sent.", success: false };
+            return { error: "Campaign has already been sent or is sending.", success: false };
         }
+        
+        const excludedUserIds = campaign.excludedUsers.map(u => u.id);
 
         const subscribers = await prisma.user.findMany({
-            where: { newsletter: true, email: { not: null } },
+            where: { 
+              newsletter: true, 
+              email: { not: null },
+              id: { notIn: excludedUserIds }
+            },
             select: { id: true, email: true }
         });
 
@@ -151,17 +190,19 @@ export async function sendCampaignAction(prevState: any, formData: FormData) {
                 data: { status: 'SENDING' }
             });
 
-            await tx.emailRecipient.createMany({
-                data: subscribers.map(sub => ({
-                    campaignId: campaignId,
-                    userId: sub.id,
-                    status: 'PENDING'
-                })),
-                skipDuplicates: true
-            });
+            if (subscribers.length > 0) {
+              await tx.emailRecipient.createMany({
+                  data: subscribers.map(sub => ({
+                      campaignId: campaignId,
+                      userId: sub.id,
+                      status: 'PENDING'
+                  })),
+                  skipDuplicates: true
+              });
+            }
         });
 
-        // Trigger background job (simulated here)
+        // Trigger background job (simulated here with an async call)
         processEmailCampaign(campaignId);
 
         revalidatePath('/admin/emails');
@@ -179,7 +220,7 @@ async function processEmailCampaign(campaignId: string) {
     include: {
       recipients: {
         where: { status: 'PENDING' },
-        include: { user: { select: { email: true } } }
+        include: { user: { select: { id: true, email: true } } }
       }
     }
   });
@@ -189,11 +230,19 @@ async function processEmailCampaign(campaignId: string) {
   for (const recipient of campaign.recipients) {
     if (recipient.user.email) {
       try {
+        const unsubscribeToken = Buffer.from(recipient.user.id).toString('base64');
+        const unsubscribeUrl = `${process.env.NEXTAUTH_URL}/unsubscribe?token=${unsubscribeToken}`;
+        
+        const emailBodyWithUnsubscribe = `${campaign.content}\n\n<hr>\n<p style="font-size: 12px; color: #666;">To unsubscribe from future emails, <a href="${unsubscribeUrl}">click here</a>.</p>`;
+
+        const htmlContent = marked.parse(emailBodyWithUnsubscribe);
+        
         await sendEmail({
           to: recipient.user.email,
           subject: campaign.subject,
-          html: campaign.content,
+          html: htmlContent,
         });
+
         await prisma.emailRecipient.update({
           where: { id: recipient.id },
           data: { status: 'SUCCESS', sentAt: new Date() },
@@ -207,10 +256,14 @@ async function processEmailCampaign(campaignId: string) {
     }
   }
 
-  await prisma.emailCampaign.update({
-    where: { id: campaignId },
-    data: { status: 'SENT', sentAt: new Date() },
-  });
+  const remainingPending = await prisma.emailRecipient.count({ where: { campaignId, status: 'PENDING' }});
+  
+  if (remainingPending === 0) {
+    await prisma.emailCampaign.update({
+        where: { id: campaignId },
+        data: { status: 'SENT', sentAt: new Date() },
+    });
+  }
   
   revalidatePath(`/admin/emails/view/${campaignId}`);
   revalidatePath('/admin/emails');
@@ -230,7 +283,7 @@ export async function retryFailedEmailsAction(prevState: any, formData: FormData
         include: {
             recipients: {
                 where: { status: 'FAILED' },
-                include: { user: { select: { email: true }}}
+                include: { user: { select: { id: true, email: true }}}
             }
         }
     });
@@ -242,10 +295,15 @@ export async function retryFailedEmailsAction(prevState: any, formData: FormData
     for (const recipient of campaign.recipients) {
         if (recipient.user.email) {
             try {
+                const unsubscribeToken = Buffer.from(recipient.user.id).toString('base64');
+                const unsubscribeUrl = `${process.env.NEXTAUTH_URL}/unsubscribe?token=${unsubscribeToken}`;
+                const emailBodyWithUnsubscribe = `${campaign.content}\n\n<hr>\n<p style="font-size: 12px; color: #666;">To unsubscribe from future emails, <a href="${unsubscribeUrl}">click here</a>.</p>`;
+                const htmlContent = marked.parse(emailBodyWithUnsubscribe);
+
                 await sendEmail({
                     to: recipient.user.email,
                     subject: campaign.subject,
-                    html: campaign.content,
+                    html: htmlContent,
                 });
                 await prisma.emailRecipient.update({
                     where: { id: recipient.id },
@@ -262,4 +320,25 @@ export async function retryFailedEmailsAction(prevState: any, formData: FormData
     }
     revalidatePath(`/admin/emails/view/${campaignId}`);
     return { success: true, error: null };
+}
+
+
+export async function unsubscribeUserAction(token: string) {
+    if (!token) {
+        return { error: 'Invalid unsubscribe link.' };
+    }
+    try {
+        const userId = Buffer.from(token, 'base64').toString('ascii');
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            return { error: 'User not found.' };
+        }
+        await prisma.user.update({
+            where: { id: userId },
+            data: { newsletter: false }
+        });
+        return { success: true, email: user.email };
+    } catch (e) {
+        return { error: 'An error occurred during unsubscription.' };
+    }
 }

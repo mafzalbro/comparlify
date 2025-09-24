@@ -61,8 +61,8 @@ export function SendCampaignButton({ campaignId }: { campaignId: string }) {
           <AlertDialogHeader>
             <AlertDialogTitle>Ready to Send?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will send the campaign to all subscribed users. This action cannot be undone. Are you sure you want to proceed?
-              {state?.error && <p className="text-destructive mt-2">{state.error}</p>}
+              This will send the campaign to all subscribed users (excluding any you have selected to skip). This action cannot be undone. Are you sure?
+              {typeof state.error === 'string' && <p className="text-destructive mt-2">{state.error}</p>}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

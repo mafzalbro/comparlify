@@ -1,8 +1,8 @@
-
 'use server';
 
 import nodemailer from 'nodemailer';
 import { getContent } from './content';
+import { marked } from 'marked';
 
 interface MailOptions {
   to: string;

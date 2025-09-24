@@ -5,7 +5,7 @@ import { createEmailCampaign, updateEmailCampaign, sendTestEmailAction } from '@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { type EmailCampaign } from '@prisma/client';
+import { type EmailCampaign, type User } from '@prisma/client';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import { SubmitButton } from '@/components/submit-button';
@@ -14,12 +14,14 @@ import { Send, Mail } from 'lucide-react';
 import { SendCampaignButton } from './send-campaign-button';
 import { useSession } from 'next-auth/react';
 import { useToast } from '@/hooks/use-toast';
+import { UserMultiSelect } from './user-multi-select';
 
 interface EmailFormProps {
-  campaign?: EmailCampaign | null;
+  campaign?: (EmailCampaign & { excludedUsers: User[] }) | null;
+  users: User[];
 }
 
-export function EmailForm({ campaign }: EmailFormProps) {
+export function EmailForm({ campaign, users }: EmailFormProps) {
   const router = useRouter();
   const isEditing = !!campaign;
   const formAction = isEditing ? updateEmailCampaign.bind(null, campaign.id) : createEmailCampaign;
@@ -27,6 +29,8 @@ export function EmailForm({ campaign }: EmailFormProps) {
   const [content, setContent] = useState(campaign?.content ?? '');
   const { data: session } = useSession();
   const { toast } = useToast();
+  
+  const [excludedUsers, setExcludedUsers] = useState<string[]>(campaign?.excludedUsers.map(u => u.id) ?? []);
 
   const handleSendTest = async () => {
     if (!session?.user?.email) {
@@ -51,6 +55,9 @@ export function EmailForm({ campaign }: EmailFormProps) {
   return (
     <form action={action}>
       <input type="hidden" name="content" value={content} />
+       {excludedUsers.map(userId => (
+        <input type="hidden" name="excludedUserIds" key={userId} value={userId} />
+      ))}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-6">
           <Card>
@@ -64,10 +71,23 @@ export function EmailForm({ campaign }: EmailFormProps) {
                 {typeof state.error !== 'string' && state?.error?.subject && <p className="text-destructive text-sm">{state.error.subject[0]}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="content">Body</Label>
+                <Label htmlFor="content">Body (Markdown enabled)</Label>
                 <Editor initialContent={content} onChange={setContent} />
                 {typeof state.error !== 'string' && state?.error?.content && <p className="text-destructive text-sm">{state.error.content[0]}</p>}
               </div>
+            </CardContent>
+          </Card>
+           <Card>
+            <CardHeader>
+              <CardTitle>Exclude Recipients</CardTitle>
+              <CardDescription>Select users who should NOT receive this email campaign, even if they are subscribed.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <UserMultiSelect 
+                  allUsers={users}
+                  selectedUsers={excludedUsers}
+                  onSelectedUsersChange={setExcludedUsers}
+                />
             </CardContent>
           </Card>
         </div>
@@ -82,7 +102,7 @@ export function EmailForm({ campaign }: EmailFormProps) {
                     <Mail className="mr-2 h-4 w-4" /> Send Test Email
                 </Button>
             </CardContent>
-            {isEditing && (
+            {isEditing && campaign.status === 'PENDING' && (
                 <CardFooter className="flex-col gap-4">
                     <div className="w-full h-px bg-border" />
                     <SendCampaignButton campaignId={campaign.id} />
