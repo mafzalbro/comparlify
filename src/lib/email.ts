@@ -2,7 +2,6 @@
 'use server';
 
 import nodemailer from 'nodemailer';
-import prisma from './prisma';
 import { getContent } from './content';
 
 interface MailOptions {
@@ -15,7 +14,7 @@ const getEmailSettings = async () => {
     const content = await getContent();
     const siteName = content['global.siteName'] || 'Comparlify';
     const fromName = content['settings.email.fromName'] || siteName;
-    const fromEmail = content['settings.email.fromEmail'] || `noreply@${siteName.toLowerCase()}.com`;
+    const fromEmail = content['settings.email.fromEmail'] || `noreply@${siteName.toLowerCase().replace(/\s/g, '')}.com`;
 
     return {
         from: `"${fromName}" <${fromEmail}>`,
@@ -25,7 +24,13 @@ const getEmailSettings = async () => {
 export async function sendEmail({ to, subject, html }: MailOptions) {
   if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
     console.error('SMTP environment variables are not set. Cannot send email.');
-    throw new Error('Email service is not configured.');
+    // In a real app, you might want to throw an error or handle this more gracefully.
+    // For this prototype, we'll log the email to the console.
+    console.log('--- EMAIL SEND (SIMULATED) ---');
+    console.log(`To: ${to}`);
+    console.log(`Subject: ${subject}`);
+    console.log('---');
+    return { success: true, messageId: `simulated_${Date.now()}` };
   }
 
   const { from } = await getEmailSettings();

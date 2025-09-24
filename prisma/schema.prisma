@@ -12,25 +12,24 @@ datasource db {
 }
 
 model User {
-  id            String          @id @default(cuid())
+  id            String    @id @default(cuid())
   name          String?
-  email         String?         @unique
+  email         String?   @unique
   emailVerified DateTime?
   image         String?
-  role          Role            @default(USER)
-  onboarded     Boolean         @default(false)
-  newsletter    Boolean         @default(true)
+  role          Role      @default(USER)
+  onboarded     Boolean   @default(false)
+  newsletter    Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
   accounts      Account[]
   sessions      Session[]
   posts         Post[]
   comments      Comment[]
   bookmarks     Bookmark[]
   notifications Notification[]
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  Authenticator Authenticator[]
-
-  @@index([role])
+  emailRecipients EmailRecipient[]
 }
 
 model Account {
@@ -47,12 +46,9 @@ model Account {
   id_token          String? @db.Text
   session_state     String?
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
-  @@index([userId])
 }
 
 model Session {
@@ -61,8 +57,6 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
 }
 
 model VerificationToken {
@@ -70,28 +64,44 @@ model VerificationToken {
   token      String   @unique
   expires    DateTime
 
-  @@id([identifier, token])
+  @@unique([identifier, token])
 }
 
-model Authenticator {
-  id                   String  @id @default(cuid())
-  credentialID         String  @unique
-  userId               String
-  providerAccountId    String
-  credentialPublicKey  String
-  counter              Int
-  credentialDeviceType String
-  credentialBackedUp   Boolean
-  transports           String?
+model Notification {
+  id        String           @id @default(cuid())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  type      NotificationType
+  message   String
+  link      String
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+}
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+model Subscription {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
 
-  @@index([userId])
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  message   String   @db.Text
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
 
 enum Role {
   USER
   ADMIN
+}
+
+enum NotificationType {
+  NEW_USER_REGISTERED
+  NEW_COMMENT_AWAITING_APPROVAL
+  COMMENT_APPROVED
 }
 
 model SiteContent {
@@ -327,4 +337,42 @@ model Faq {
   updatedAt    DateTime   @updatedAt
 
   @@index([comparisonId])
+}
+
+
+model EmailCampaign {
+  id        String            @id @default(cuid())
+  subject   String
+  content   String            @db.Text
+  status    CampaignStatus    @default(PENDING) // PENDING, SENDING, SENT
+  sentAt    DateTime?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  recipients EmailRecipient[]
+}
+
+model EmailRecipient {
+  id              String        @id @default(cuid())
+  campaign        EmailCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignId      String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  status          DeliveryStatus @default(PENDING) // PENDING, SUCCESS, FAILED
+  sentAt          DateTime?
+  errorMessage    String?       @db.Text
+  createdAt       DateTime      @default(now())
+
+  @@unique([campaignId, userId])
+}
+
+enum CampaignStatus {
+  PENDING
+  SENDING
+  SENT
+}
+
+enum DeliveryStatus {
+  PENDING
+  SUCCESS
+  FAILED
 }

@@ -12,24 +12,26 @@ async function main() {
 
   // First, break the navigation links
   await prisma.$executeRaw`UPDATE Post SET previousId = NULL, nextId = NULL`;
-
-  // Then delete in correct order
+  await prisma.emailRecipient.deleteMany();
+  await prisma.emailCampaign.deleteMany();
+  await prisma.contactMessage.deleteMany();
+  await prisma.subscription.deleteMany();
+  await prisma.notification.deleteMany();
   await prisma.siteContent.deleteMany();
   await prisma.comment.deleteMany();
-  await prisma.bookmark.deleteMany(); // Delete bookmarks before posts
+  await prisma.bookmark.deleteMany();
   await prisma.post.deleteMany();
   await prisma.comparison.deleteMany();
   await prisma.platformFeature.deleteMany();
-  await prisma.fact.deleteMany(); // Delete facts before comparisons
-  await prisma.faq.deleteMany(); // Delete FAQs before comparisons
-  await prisma.bookmark.deleteMany(); // Delete any remaining bookmarks
+  await prisma.fact.deleteMany();
+  await prisma.faq.deleteMany();
   await prisma.feature.deleteMany();
   await prisma.featureCategory.deleteMany();
   await prisma.platform.deleteMany();
   await prisma.user.deleteMany();
   await prisma.postCategory.deleteMany();
   await prisma.comparisonCategory.deleteMany();
-
+  
   console.log("Cleaned up existing data.");
 
 
@@ -40,18 +42,21 @@ async function main() {
       email: "mafzalbro@gmail.com",
       role: Role.ADMIN,
       onboarded: true,
+      newsletter: true,
     },
     {
       name: "Bob Builder",
       email: "maf415415@gmail.com",
       role: Role.USER,
       onboarded: false,
+      newsletter: true,
     },
     {
       name: "Charlie User",
       email: "ma4156250@gmail.com",
       role: Role.USER,
       onboarded: false,
+      newsletter: false,
     }
   ];
   await prisma.user.createMany({ data: usersData });
@@ -407,3 +412,5 @@ export const seed = async () => {
 if (require.main === module) {
   seed();
 }
+
+    

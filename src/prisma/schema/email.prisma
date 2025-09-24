@@ -1,0 +1,36 @@
+model EmailCampaign {
+  id         String           @id @default(cuid())
+  subject    String
+  content    String           @db.Text
+  status     CampaignStatus   @default(PENDING)
+  sentAt     DateTime?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  recipients EmailRecipient[]
+}
+
+model EmailRecipient {
+  id           String       @id @default(cuid())
+  campaign     EmailCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignId   String
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  status       DeliveryStatus @default(PENDING)
+  sentAt       DateTime?
+  errorMessage String?
+  createdAt    DateTime     @default(now())
+
+  @@unique([campaignId, userId])
+}
+
+enum CampaignStatus {
+  PENDING
+  SENDING
+  SENT
+}
+
+enum DeliveryStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
