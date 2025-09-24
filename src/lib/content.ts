@@ -11,3 +11,9 @@ export const getContent = cache(async () => {
   }, {} as Record<string, string>);
   return contentMap;
 });
+export const getSiteName = cache(async () => {
+  return (
+    (await prisma.siteContent.findUnique({ where: { key: "siteName" } }))
+      ?.value || ""
+  );
+});

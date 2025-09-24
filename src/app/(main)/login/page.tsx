@@ -12,12 +12,15 @@ import {
 import { Github, KeyRound } from 'lucide-react';
 import { FcGoogle } from "react-icons/fc";
 import { TempDirectLogin } from './temp-direct-login';
+import { useSearchParams } from 'next/navigation';
 
 
 export default function LoginPage() {
+  const searchParams = useSearchParams();
+  const callbackUrl = decodeURIComponent(searchParams.get('callbackUrl') || '/');
 
   const handleSignIn = (provider: 'google' | 'github') => {
-    signIn(provider, { callbackUrl: '/' });
+    signIn(provider, { callbackUrl: callbackUrl || '/' });
   };
 
   return (

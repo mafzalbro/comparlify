@@ -9,16 +9,14 @@ import { getContent } from '@/lib/content';
 export function Logo({ className }: { className?: string }) {
   const [content, setContent] = useState<any>(null);
 
-  if (!content) {
-    return null;
-  }
-
 
   useEffect(() => {
     getContent().then(setContent);
-  }, []);
+  }, [content]);
 
-
+  if (!content) {
+    return null;
+  }
 
   const siteName = content['global.siteName'] || 'Comparlify';
 

@@ -108,7 +108,7 @@ model SiteContent {
   id        String      @id @default(cuid())
   key       String      @unique // e.g., "homepage.hero.title"
   value     String      @db.Text
-  group     String      // e.g., "Homepage", "Footer"
+  group     String // e.g., "Homepage", "Footer"
   type      ContentType @default(TEXT)
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt

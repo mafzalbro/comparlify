@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Logo } from '@/components/logo-client';
+import { Logo } from '@/components/logo';
 import { signOut } from 'next-auth/react';
 import type { Session } from 'next-auth';
 import { ScrollArea } from '../ui/scroll-area';
@@ -21,9 +21,10 @@ type NavLink = {
 interface MobileNavProps {
   navLinks: NavLink[];
   session: Session | null;
+  siteName: string;
 }
 
-export function MobileNav({ navLinks, session }: MobileNavProps) {
+export function MobileNav({ navLinks, session, siteName }: MobileNavProps) {
   const [isSheetOpen, setSheetOpen] = useState(false);
   const pathname = usePathname();
 
@@ -55,7 +56,7 @@ export function MobileNav({ navLinks, session }: MobileNavProps) {
         <SheetHeader className="p-4 border-b">
           <SheetTitle className="sr-only">Mobile Navigation Menu</SheetTitle>
           <SheetDescription className="sr-only">A menu with links to navigate the website.</SheetDescription>
-          <Logo />
+          <Logo siteName={siteName} />
         </SheetHeader>
         <ScrollArea className="flex-1 p-4">
           <nav className="flex flex-col gap-6">

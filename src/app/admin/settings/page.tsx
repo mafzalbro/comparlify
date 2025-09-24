@@ -1,20 +1,21 @@
+
+'use client';
+
+import { useTransition } from 'react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from '@/components/ui/button';
+import { revalidateCacheAction } from '@/app/actions/admin';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2, Trash2, Globe, BookOpen, GitCompareArrows } from 'lucide-react';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
 } from "@/components/ui/tabs";
 import { ContentForm } from '../content/_components/content-form';
 import prisma from '@/lib/prisma';
 import type { SiteContent } from '@prisma/client';
-import { CacheManagement } from './_components/cache-management';
 
 async function getSettingsContent() {
     const content = await prisma.siteContent.findMany({
@@ -40,13 +41,33 @@ async function getSettingsContent() {
 
 
 export default async function AdminSettingsPage() {
+    const [isPending, startTransition] = useTransition();
+    const { toast } = useToast();
     const settingsContent = await getSettingsContent();
+
+    const handleRevalidation = (path: 'all' | 'blog' | 'compare') => {
+        startTransition(async () => {
+            const result = await revalidateCacheAction(path);
+            if (result.success) {
+                toast({
+                    title: 'Success!',
+                    description: result.success,
+                });
+            } else if (result.error) {
+                toast({
+                    title: 'Error',
+                    description: result.error,
+                    variant: 'destructive',
+                });
+            }
+        });
+    };
 
     return (
         <div>
             <h1 className="text-3xl font-bold mb-6">Settings</h1>
             <Tabs defaultValue="general" className="w-full">
-                 <TabsList className="mb-6 grid w-full grid-cols-3">
+                 <TabsList className="mb-6">
                     <TabsTrigger value="general">General</TabsTrigger>
                     <TabsTrigger value="email">Email</TabsTrigger>
                     <TabsTrigger value="cache">Cache</TabsTrigger>
@@ -65,7 +86,7 @@ export default async function AdminSettingsPage() {
                     </Card>
                 </TabsContent>
                 <TabsContent value="email">
-                     <Card>
+                    <Card>
                         <CardHeader>
                             <CardTitle>Email Settings</CardTitle>
                             <CardDescription>
@@ -78,7 +99,48 @@ export default async function AdminSettingsPage() {
                     </Card>
                 </TabsContent>
                 <TabsContent value="cache">
-                    <CacheManagement />
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Cache Management</CardTitle>
+                            <CardDescription>
+                                If you make changes to content and don't see them reflected on the live site, you can manually clear the cache here. This will force the server to fetch the latest content.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="flex items-center justify-between p-4 border rounded-lg">
+                                <div>
+                                    <h3 className="font-semibold flex items-center gap-2"><BookOpen className="h-4 w-4 text-muted-foreground" /> Blog Cache</h3>
+                                    <p className="text-sm text-muted-foreground">Revalidate all blog posts and the main blog page.</p>
+                                </div>
+                                <Button variant="secondary" onClick={() => handleRevalidation('blog')} disabled={isPending}>
+                                    {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                    Revalidate Blog
+                                </Button>
+                            </div>
+                            <div className="flex items-center justify-between p-4 border rounded-lg">
+                                <div>
+                                    <h3 className="font-semibold flex items-center gap-2"><GitCompareArrows className="h-4 w-4 text-muted-foreground" /> Comparisons Cache</h3>
+                                    <p className="text-sm text-muted-foreground">Revalidate all comparison pages.</p>
+                                </div>
+                                <Button variant="secondary" onClick={() => handleRevalidation('compare')} disabled={isPending}>
+                                    {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                    Revalidate Comparisons
+                                </Button>
+                            </div>
+                        </CardContent>
+                        <CardFooter className="border-t pt-6 mt-6">
+                            <div className="flex items-center justify-between w-full">
+                            <div>
+                                    <h3 className="font-semibold flex items-center gap-2"><Globe className="h-4 w-4 text-muted-foreground" /> Full Site Cache</h3>
+                                    <p className="text-sm text-muted-foreground">This is a heavy operation. Only use if needed.</p>
+                                </div>
+                                <Button variant="destructive" onClick={() => handleRevalidation('all')} disabled={isPending}>
+                                    {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                                    Revalidate Everything
+                                </Button>
+                            </div>
+                        </CardFooter>
+                    </Card>
                 </TabsContent>
             </Tabs>
         </div>

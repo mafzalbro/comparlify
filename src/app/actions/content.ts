@@ -54,3 +54,22 @@ export async function updateContentAction(
     return { error: "Failed to update content.", success: false };
   }
 }
+
+export async function getSettingsContent() {
+  const content = await prisma.siteContent.findMany({
+    where: {
+      OR: [{ group: "Email Settings" }, { group: "Globals" }],
+    },
+    orderBy: { key: "asc" },
+  });
+
+  const groupedContent = content.reduce((acc, item) => {
+    if (!acc[item.group]) {
+      acc[item.group] = [];
+    }
+    acc[item.group].push(item);
+    return acc;
+  }, {} as Record<string, typeof content>);
+
+  return groupedContent;
+}
