@@ -1,4 +1,3 @@
-
 "use server";
 
 import { z } from "zod";
@@ -9,15 +8,17 @@ import { auth } from "@/lib/auth";
 import { Post } from "@prisma/client";
 import { cache } from "react";
 
-export const getPostPreview = cache(async (slug: string): Promise<Post | null> => {
+export const getPostPreview = cache(
+  async (slug: string): Promise<Post | null> => {
     const session = await auth();
-    if (session?.user?.role !== 'ADMIN') {
-        return null;
+    if (session?.user?.role !== "ADMIN") {
+      return null;
     }
     return prisma.post.findUnique({
-        where: { slug },
+      where: { slug },
     });
-});
+  }
+);
 
 const postSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters long"),
@@ -35,10 +36,10 @@ const postSchema = z.object({
 
 export async function createPost(prevState: any, formData: FormData) {
   const session = await auth();
-  if (session?.user?.role !== 'ADMIN') {
-    return { error: 'Not authorized' };
+  if (session?.user?.role !== "ADMIN") {
+    return { error: "Not authorized" };
   }
-  
+
   const validatedFields = postSchema.safeParse(
     Object.fromEntries(formData.entries())
   );
@@ -63,20 +64,26 @@ export async function createPost(prevState: any, formData: FormData) {
   } catch (error) {
     console.error(error);
     if (error instanceof prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2000') {
-            const field = (error.meta?.target as string[])?.pop();
-            return { error: `The provided value for the '${field}' field is too long.` };
-        }
+      if (error.code === "P2000") {
+        const field = (error.meta?.target as string[])?.pop();
+        return {
+          error: `The provided value for the '${field}' field is too long.`,
+        };
+      }
     }
     return { error: "Failed to create post." };
   }
   redirect("/admin/blog");
 }
 
-export async function updatePost(id: string, prevState: any, formData: FormData) {
+export async function updatePost(
+  id: string,
+  prevState: any,
+  formData: FormData
+) {
   const session = await auth();
-  if (session?.user?.role !== 'ADMIN') {
-    return { error: 'Not authorized' };
+  if (session?.user?.role !== "ADMIN") {
+    return { error: "Not authorized" };
   }
 
   const validatedFields = postSchema.safeParse(
@@ -98,10 +105,12 @@ export async function updatePost(id: string, prevState: any, formData: FormData)
   } catch (error) {
     console.error(error);
     if (error instanceof prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2000') {
-            const field = (error.meta?.target as string[])?.pop();
-            return { error: `The provided value for the '${field}' field is too long.` };
-        }
+      if (error.code === "P2000") {
+        const field = (error.meta?.target as string[])?.pop();
+        return {
+          error: `The provided value for the '${field}' field is too long.`,
+        };
+      }
     }
     return { error: "Failed to update post." };
   }
@@ -109,13 +118,16 @@ export async function updatePost(id: string, prevState: any, formData: FormData)
   redirect("/admin/blog");
 }
 
-export async function deletePost(prevState: { error: string | null }, formData: FormData) {
+export async function deletePost(
+  prevState: { error: string | null },
+  formData: FormData
+) {
   const session = await auth();
-  if (session?.user?.role !== 'ADMIN') {
-    return { error: 'Not authorized' };
+  if (session?.user?.role !== "ADMIN") {
+    return { error: "Not authorized" };
   }
 
-  const id = formData.get('id') as string;
+  const id = formData.get("id") as string;
   if (!id) {
     return { error: "Post ID is missing." };
   }
@@ -125,7 +137,7 @@ export async function deletePost(prevState: { error: string | null }, formData: 
     });
     revalidatePath("/admin/blog");
     revalidatePath("/blog");
-    return { error: null }
+    return { error: null };
   } catch (error) {
     console.error(error);
     return { error: "Failed to delete post." };
