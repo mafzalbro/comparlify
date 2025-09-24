@@ -11,7 +11,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "postinstall": "npm run prisma:cat && prisma generate",
-    "prisma:seed": "npm run prisma:cat && tsx prisma/seed.ts",
+    "prisma:seed": "npm run prisma:cat && tsx src/prisma/seed.ts",
     "prisma:cat": "concat-cli  -f prisma/schema/_base.prisma -f prisma/schema/user.prisma -f prisma/schema/content.prisma -f prisma/schema/platform.prisma -f prisma/schema/comparison.prisma -o prisma/schema.prisma"
   },
   "dependencies": {
