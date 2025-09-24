@@ -39,6 +39,7 @@ export function PostForm({ post, categories }: PostFormProps) {
     const [state, action] = useActionState(formAction, { error: null });
 
     const MAX_DESC_LENGTH = 191;
+    const MAX_TITLE_LENGTH = 80;
 
     return (
         <form action={action} ref={formRef}>
@@ -57,7 +58,7 @@ export function PostForm({ post, categories }: PostFormProps) {
                                     }}
                                 />
                             </div>
-                            <Input id="title" name="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
+                            <Input id="title" name="title" maxLength={MAX_TITLE_LENGTH} value={title} onChange={(e) => setTitle(e.target.value)} required />
                             {typeof state.error !== 'string' && state.error?.title && <p className="text-destructive text-sm">{state.error.title[0]}</p>}
                         </div>
                         <div className="space-y-2">
@@ -72,7 +73,9 @@ export function PostForm({ post, categories }: PostFormProps) {
                                     disabled={isEditing}
                                 />
                             </div>
-                            <Input id="slug" name="slug" value={slug} onChange={(e) => setSlug(e.target.value)} required disabled={isEditing} />
+                            <Input id="slug" name="slug" value={slug} defaultValue={slug} onChange={(e) => setSlug(e.target.value)} required disabled={isEditing} />
+
+                            {isEditing && <Input id="slug" name="slug" value={slug} required type="hidden" />}
                             {isEditing && <p className="text-xs text-muted-foreground">The slug cannot be changed for existing posts to preserve URL integrity.</p>}
                             {typeof state.error !== 'string' && state.error?.slug && <p className="text-destructive text-sm">{state.error.slug[0]}</p>}
                         </div>

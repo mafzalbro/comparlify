@@ -128,7 +128,7 @@ export default async function BlogPage(props: { searchParams: Promise<SearchPara
           </div>
         </div>
       </section>
-      <div className="container py-16 md:py-24 px-4 md:px-6">
+      <div className="container py-8 md:py-12 px-4 md:px-6">
         <FilterControls
           // authors={authors}
           categories={categories} searchParams={searchParams} />

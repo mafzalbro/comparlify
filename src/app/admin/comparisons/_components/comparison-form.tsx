@@ -46,13 +46,13 @@ export function ComparisonForm({ comparison, platforms, categories }: Comparison
 
   const addFact = () => setFacts([...facts, { title: '', platformAValue: '', platformBValue: '' }]);
   const removeFact = (index: number) => setFacts(facts.filter((_, i) => i !== index));
-  
+
   const handleFactChange = (index: number, field: keyof Fact, value: string) => {
     const newFacts = [...facts];
     newFacts[index] = { ...newFacts[index], [field]: value };
     setFacts(newFacts);
   };
-  
+
   const addFaq = () => setFaqs([...faqs, { question: '', answer: '' }]);
   const removeFaq = (index: number) => setFaqs(faqs.filter((_, i) => i !== index));
 
@@ -74,71 +74,72 @@ export function ComparisonForm({ comparison, platforms, categories }: Comparison
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                 <div className="flex items-center justify-between">
-                    <Label htmlFor="title">Title</Label>
-                    <AiFillButton
-                        fieldType="Comparison Title"
-                        topic={summary || title}
-                        onContentReceived={setTitle}
-                    />
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="title">Title</Label>
+                  <AiFillButton
+                    fieldType="Comparison Title"
+                    topic={summary || title}
+                    onContentReceived={setTitle}
+                  />
                 </div>
                 <Input id="title" name="title" value={title} onChange={e => setTitle(e.target.value)} required />
                 {typeof state.error !== 'string' && state?.error?.title && <p className="text-destructive text-sm">{state.error.title[0]}</p>}
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                    <Label htmlFor="slug">Slug</Label>
-                    <AiFillButton
-                        fieldType="URL Slug"
-                        topic={title}
-                        onContentReceived={setSlug}
-                        disabled={isEditing}
-                    />
+                  <Label htmlFor="slug">Slug</Label>
+                  <AiFillButton
+                    fieldType="URL Slug"
+                    topic={title}
+                    onContentReceived={setSlug}
+                    disabled={isEditing}
+                  />
                 </div>
                 <Input id="slug" name="slug" value={slug} onChange={e => setSlug(e.target.value)} required disabled={isEditing} />
+                {isEditing && <Input type="hidden" id="slug" name="slug" value={slug} required />}
                 {isEditing && <p className="text-xs text-muted-foreground">The slug cannot be changed for existing comparisons to preserve URL integrity.</p>}
                 {typeof state.error !== 'string' && state?.error?.slug && <p className="text-destructive text-sm">{state.error.slug[0]}</p>}
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                    <Label htmlFor="summary">Summary</Label>
-                    <AiFillButton
-                        fieldType="Comparison Summary"
-                        topic={title}
-                        onContentReceived={setSummary}
-                    />
+                  <Label htmlFor="summary">Summary</Label>
+                  <AiFillButton
+                    fieldType="Comparison Summary"
+                    topic={title}
+                    onContentReceived={setSummary}
+                  />
                 </div>
                 <Textarea id="summary" name="summary" value={summary} onChange={e => setSummary(e.target.value)} rows={4} required />
                 {typeof state.error !== 'string' && state?.error?.summary && <p className="text-destructive text-sm">{state.error.summary[0]}</p>}
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                    <Label htmlFor="introduction">Introduction (Markdown)</Label>
-                    <AiFillButton
-                        fieldType="Comparison Introduction"
-                        topic={title}
-                        context={summary}
-                        onContentReceived={(content) => {
-                            setIntroduction('');
-                            setTimeout(() => setIntroduction(content), 0);
-                        }}
-                    />
+                  <Label htmlFor="introduction">Introduction (Markdown)</Label>
+                  <AiFillButton
+                    fieldType="Comparison Introduction"
+                    topic={title}
+                    context={summary}
+                    onContentReceived={(content) => {
+                      setIntroduction('');
+                      setTimeout(() => setIntroduction(content), 0);
+                    }}
+                  />
                 </div>
                 <Editor key={`intro-${introduction}`} initialContent={introduction} onChange={setIntroduction} />
                 {typeof state.error !== 'string' && state?.error?.introduction && <p className="text-destructive text-sm">{state.error.introduction[0]}</p>}
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                    <Label htmlFor="conclusion">Conclusion (Markdown)</Label>
-                    <AiFillButton
-                        fieldType="Comparison Conclusion"
-                        topic={title}
-                        context={summary}
-                        onContentReceived={(content) => {
-                            setConclusion('');
-                            setTimeout(() => setConclusion(content), 0);
-                        }}
-                    />
+                  <Label htmlFor="conclusion">Conclusion (Markdown)</Label>
+                  <AiFillButton
+                    fieldType="Comparison Conclusion"
+                    topic={title}
+                    context={summary}
+                    onContentReceived={(content) => {
+                      setConclusion('');
+                      setTimeout(() => setConclusion(content), 0);
+                    }}
+                  />
                 </div>
                 <Editor key={`conclusion-${conclusion}`} initialContent={conclusion} onChange={setConclusion} />
                 {typeof state.error !== 'string' && state?.error?.conclusion && <p className="text-destructive text-sm">{state.error.conclusion[0]}</p>}
@@ -154,22 +155,22 @@ export function ComparisonForm({ comparison, platforms, categories }: Comparison
             <CardContent className="space-y-4">
               {facts.map((fact, index) => (
                 <div key={index} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 items-end p-3 border rounded-md">
-                   <input type="hidden" name={`facts[${index}][id]`} value={fact.id ?? ''} />
-                   <div className="space-y-1">
-                        <Label htmlFor={`fact-title-${index}`} className="text-xs">Title</Label>
-                        <Input id={`fact-title-${index}`} name={`facts[${index}][title]`} value={fact.title ?? ''} onChange={(e) => handleFactChange(index, 'title', e.target.value)} placeholder="e.g., Best For"/>
-                   </div>
-                   <div className="space-y-1">
-                        <Label htmlFor={`fact-valA-${index}`} className="text-xs">Platform A Value</Label>
-                        <Input id={`fact-valA-${index}`} name={`facts[${index}][platformAValue]`} value={fact.platformAValue ?? ''} onChange={(e) => handleFactChange(index, 'platformAValue', e.target.value)} placeholder="e.g., Beginners"/>
-                   </div>
-                   <div className="space-y-1">
-                        <Label htmlFor={`fact-valB-${index}`} className="text-xs">Platform B Value</Label>
-                        <Input id={`fact-valB-${index}`} name={`facts[${index}][platformBValue]`} value={fact.platformBValue ?? ''} onChange={(e) => handleFactChange(index, 'platformBValue', e.target.value)} placeholder="e.g., Experts"/>
-                   </div>
-                   <Button type="button" variant="ghost" size="icon" className="text-destructive" onClick={() => removeFact(index)}>
-                       <Trash2 className="h-4 w-4" />
-                   </Button>
+                  <input type="hidden" name={`facts[${index}][id]`} value={fact.id ?? ''} />
+                  <div className="space-y-1">
+                    <Label htmlFor={`fact-title-${index}`} className="text-xs">Title</Label>
+                    <Input id={`fact-title-${index}`} name={`facts[${index}][title]`} value={fact.title ?? ''} onChange={(e) => handleFactChange(index, 'title', e.target.value)} placeholder="e.g., Best For" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor={`fact-valA-${index}`} className="text-xs">Platform A Value</Label>
+                    <Input id={`fact-valA-${index}`} name={`facts[${index}][platformAValue]`} value={fact.platformAValue ?? ''} onChange={(e) => handleFactChange(index, 'platformAValue', e.target.value)} placeholder="e.g., Beginners" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor={`fact-valB-${index}`} className="text-xs">Platform B Value</Label>
+                    <Input id={`fact-valB-${index}`} name={`facts[${index}][platformBValue]`} value={fact.platformBValue ?? ''} onChange={(e) => handleFactChange(index, 'platformBValue', e.target.value)} placeholder="e.g., Experts" />
+                  </div>
+                  <Button type="button" variant="ghost" size="icon" className="text-destructive" onClick={() => removeFact(index)}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               ))}
               <Button type="button" variant="outline" size="sm" onClick={addFact}>
@@ -177,8 +178,8 @@ export function ComparisonForm({ comparison, platforms, categories }: Comparison
               </Button>
             </CardContent>
           </Card>
-          
-           <Card>
+
+          <Card>
             <CardHeader>
               <CardTitle>FAQs</CardTitle>
               <CardDescription>Frequently Asked Questions section.</CardDescription>
@@ -188,15 +189,15 @@ export function ComparisonForm({ comparison, platforms, categories }: Comparison
                 <div key={index} className="space-y-2 p-3 border rounded-md relative">
                   <input type="hidden" name={`faqs[${index}][id]`} value={faq.id ?? ''} />
                   <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 text-destructive h-7 w-7" onClick={() => removeFaq(index)}>
-                       <Trash2 className="h-4 w-4" />
-                   </Button>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                   <div className="space-y-1">
                     <Label htmlFor={`faq-q-${index}`}>Question</Label>
                     <Input id={`faq-q-${index}`} name={`faqs[${index}][question]`} value={faq.question ?? ''} onChange={(e) => handleFaqChange(index, 'question', e.target.value)} />
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor={`faq-a-${index}`}>Answer</Label>
-                    <Textarea id={`faq-a-${index}`} name={`faqs[${index}][answer]`} value={faq.answer ?? ''} onChange={(e) => handleFaqChange(index, 'answer', e.target.value)} rows={3}/>
+                    <Textarea id={`faq-a-${index}`} name={`faqs[${index}][answer]`} value={faq.answer ?? ''} onChange={(e) => handleFaqChange(index, 'answer', e.target.value)} rows={3} />
                   </div>
                 </div>
               ))}
@@ -213,7 +214,7 @@ export function ComparisonForm({ comparison, platforms, categories }: Comparison
               <CardTitle>Configuration</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-               <div className="space-y-2">
+              <div className="space-y-2">
                 <Label htmlFor="categoryId">Category</Label>
                 <Select name="categoryId" defaultValue={comparison?.categoryId ?? undefined}>
                   <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
