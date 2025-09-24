@@ -1,6 +1,7 @@
 import { Logo } from "@/components/logo";
 import { getContent, getSiteName } from "@/lib/content";
 import Link from "next/link";
+import { Suspense } from "react";
 
 export default async function AuthLayout({
   children,
@@ -16,7 +17,9 @@ export default async function AuthLayout({
         </Link>
       </header>
       <main className="flex-1 flex items-center justify-center">
-        {children}
+        <Suspense fallback={null}>
+          {children}
+        </Suspense>
       </main>
     </div>
   );

@@ -6,10 +6,10 @@ import { ThemeProvider } from '@/components/theme-provider';
 import type { Metadata } from 'next';
 import { generateSeoMetadata } from '@/lib/seo';
 import { CookieConsentBanner } from '@/components/cookie-consent-banner';
-import { seed } from '../../prisma/seed';
 import { Poppins, Lato } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { getContent } from '@/lib/content';
+import { Suspense } from 'react';
 
 const fontHeadline = Poppins({
   subsets: ['latin'],
@@ -24,8 +24,9 @@ const fontBody = Lato({
 });
 
 
-export const metadata: Metadata = generateSeoMetadata({
+export const metadata: Metadata = await generateSeoMetadata({
   path: '/',
+  description: 'Compare course creation platforms and find the best fit for your business.',
 });
 
 export default async function RootLayout({
@@ -55,7 +56,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
-       <head>
+      <head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
@@ -70,7 +71,9 @@ export default async function RootLayout({
         >
           <AuthProvider>
             <div className='flex-1 flex flex-col'>
-              {children}
+              <Suspense fallback={null}>
+                {children}
+              </Suspense>
             </div>
             <Toaster />
             <CookieConsentBanner />

@@ -32,7 +32,7 @@ import { FilterControls } from './_components/filter-controls';
 import { Badge } from '@/components/ui/badge';
 import { getContent } from '@/lib/content';
 
-export const metadata: Metadata = generateSeoMetadata({
+export const metadata: Metadata = await generateSeoMetadata({
   title: 'Creator Insights Blog',
   description: 'Actionable advice, deep dives, and growth strategies for the modern course creator.',
   path: '/blog'
@@ -65,7 +65,7 @@ const getBlogPosts = cache(async ({
   if (author && author !== 'all') {
     where.authorId = author;
   }
-  
+
   if (category && category !== 'all') {
     where.categoryId = category;
   }
@@ -86,9 +86,9 @@ const getBlogPosts = cache(async ({
   return posts;
 });
 
-const getAuthors = cache(async () => {
-  return prisma.user.findMany({ where: { posts: { some: { published: true } } } });
-});
+// const getAuthors = cache(async () => {
+//   return prisma.user.findMany({ where: { posts: { some: { published: true } } } });
+// });
 
 const getPostCategories = cache(async () => {
   return prisma.postCategory.findMany({ orderBy: { name: 'asc' } });
@@ -98,17 +98,19 @@ const getPostCategories = cache(async () => {
 export default async function BlogPage(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = (await props.searchParams);
   const { search, sort, author, category } = searchParams;
-  const [blogPosts, authors, categories, content] = await Promise.all([
-    getBlogPosts({ search: String(search ?? ''), sort: String(sort ?? 'newest'), author: String(author ?? 'all'), category: String(category ?? 'all') }),
-    getAuthors(),
-    getPostCategories(),
-    getContent(),
-  ]);
+  const [blogPosts,
+    // authors,
+    categories, content] = await Promise.all([
+      getBlogPosts({ search: String(search ?? ''), sort: String(sort ?? 'newest'), author: String(author ?? 'all'), category: String(category ?? 'all') }),
+      // getAuthors(),
+      getPostCategories(),
+      getContent(),
+    ]);
 
   return (
     <div className="bg-background">
       <section className="bg-secondary/30 border-b">
-        <div className="container py-16 md:py-24 px-4 md:px-6">
+        <div className="container py-12 md:py-16 px-4 md:px-6">
           <Breadcrumbs
             items={[
               { name: 'Home', href: '/' },
@@ -127,7 +129,9 @@ export default async function BlogPage(props: { searchParams: Promise<SearchPara
         </div>
       </section>
       <div className="container py-16 md:py-24 px-4 md:px-6">
-        <FilterControls authors={authors} categories={categories} searchParams={searchParams} />
+        <FilterControls
+          // authors={authors}
+          categories={categories} searchParams={searchParams} />
 
         {blogPosts.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground animate-fade-in-up">
@@ -140,42 +144,42 @@ export default async function BlogPage(props: { searchParams: Promise<SearchPara
               const readTime = Math.ceil(post.content.split(/\s+/).length / 200);
               return (
                 <div key={post.slug} className="animate-fade-in-up" style={{ animationDelay: `${index * 150}ms`, animationFillMode: 'both' }}>
-                <Card className="flex flex-col h-full group overflow-hidden transition-all duration-300 border hover:border-primary/50 hover:shadow-lg rounded-xl">
-                  <div className="relative overflow-hidden aspect-[16/10]">
-                    <Link href={`/blog/${post.slug}`} className="block">
-                      <ManagedImage
-                        src={post.image}
-                        alt={post.title}
-                        data-ai-hint={post.dataAiHint ?? ''}
-                        fill
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                    </Link>
-                    {post.category && (
-                      <Badge className="absolute top-3 right-3">{post.category.name}</Badge>
-                    )}
-                  </div>
-                  <CardHeader>
-                    <CardTitle className="font-headline text-xl">
-                      <Link href={`/blog/${post.slug}`} className="hover:text-primary transition-colors stretched-link">
-                        {post.title}
+                  <Card className="flex flex-col h-full group overflow-hidden transition-all duration-300 border hover:border-primary/50 hover:shadow-lg rounded-xl">
+                    <div className="relative overflow-hidden aspect-[16/10]">
+                      <Link href={`/blog/${post.slug}`} className="block">
+                        <ManagedImage
+                          src={post.image}
+                          alt={post.title}
+                          data-ai-hint={post.dataAiHint ?? ''}
+                          fill
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
                       </Link>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="flex-1">
-                    <p className="text-muted-foreground text-sm line-clamp-3">{post.description}</p>
-                  </CardContent>
-                  <CardFooter className="flex justify-between items-center bg-muted/50 py-3 px-6">
-                    <div className="text-sm text-muted-foreground">
-                      <span>{post.author.name}</span> &bull; <span>{readTime} min read</span>
+                      {post.category && (
+                        <Badge className="absolute top-3 right-3">{post.category.name}</Badge>
+                      )}
                     </div>
-                    <Button asChild variant="ghost" size="sm" className="group-hover:text-primary -mr-3">
-                      <Link href={`/blog/${post.slug}`}>
-                        Read More <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                      </Link>
-                    </Button>
-                  </CardFooter>
-                </Card>
+                    <CardHeader>
+                      <CardTitle className="font-headline text-xl">
+                        <Link href={`/blog/${post.slug}`} className="hover:text-primary transition-colors stretched-link">
+                          {post.title}
+                        </Link>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex-1">
+                      <p className="text-muted-foreground text-sm line-clamp-3">{post.description}</p>
+                    </CardContent>
+                    <CardFooter className="flex justify-between items-center bg-muted/50 py-3 px-6">
+                      <div className="text-sm text-muted-foreground">
+                        <span>{post.author.name}</span> &bull; <span>{readTime} min read</span>
+                      </div>
+                      <Button asChild variant="ghost" size="sm" className="group-hover:text-primary -mr-3">
+                        <Link href={`/blog/${post.slug}`}>
+                          Read More <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                        </Link>
+                      </Button>
+                    </CardFooter>
+                  </Card>
                 </div>
               )
             }

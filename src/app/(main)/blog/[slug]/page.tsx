@@ -30,49 +30,49 @@ export const generateStaticParams = cache(async () => {
 });
 
 const getPostData = cache(async (slug: string, isPreview = false) => {
-    const session = await auth();
-    const canViewDraft = isPreview && session?.user?.role === 'ADMIN';
+  const session = await auth();
+  const canViewDraft = isPreview && session?.user?.role === 'ADMIN';
 
-    // Only allow viewing published posts, unless it's a valid admin preview
-    const whereClause = canViewDraft ? { slug } : { slug, published: true };
+  // Only allow viewing published posts, unless it's a valid admin preview
+  const whereClause = canViewDraft ? { slug } : { slug, published: true };
 
-    const post = await prisma.post.findUnique({
-        where: whereClause,
-        include: { 
-            author: true,
-            category: true,
-            comments: {
-                where: { status: 'APPROVED' },
-                include: { author: true },
-                orderBy: { createdAt: 'desc' }
-            },
-            previous: {
-                select: { slug: true, title: true }
-            }
-        },
-    });
-
-    if (!post) {
-      return { post: null, relatedPosts: [], nextPost: null };
-    }
-
-    const [relatedPosts, nextPost] = await Promise.all([
-      prisma.post.findMany({
-        where: {
-          published: true,
-          id: { not: post.id },
-          authorId: post.authorId,
-        },
-        take: 3,
-        select: { slug: true, title: true, image: true, dataAiHint: true }
-      }),
-      post.nextId ? prisma.post.findFirst({
-        where: { id: post.nextId },
+  const post = await prisma.post.findUnique({
+    where: whereClause,
+    include: {
+      author: true,
+      category: true,
+      comments: {
+        where: { status: 'APPROVED' },
+        include: { author: true },
+        orderBy: { createdAt: 'desc' }
+      },
+      previous: {
         select: { slug: true, title: true }
-      }) : Promise.resolve(null)
-    ]);
+      }
+    },
+  });
 
-    return { post, relatedPosts, nextPost };
+  if (!post) {
+    return { post: null, relatedPosts: [], nextPost: null };
+  }
+
+  const [relatedPosts, nextPost] = await Promise.all([
+    prisma.post.findMany({
+      where: {
+        published: true,
+        id: { not: post.id },
+        authorId: post.authorId,
+      },
+      take: 3,
+      select: { slug: true, title: true, image: true, dataAiHint: true }
+    }),
+    post.nextId ? prisma.post.findFirst({
+      where: { id: post.nextId },
+      select: { slug: true, title: true }
+    }) : Promise.resolve(null)
+  ]);
+
+  return { post, relatedPosts, nextPost };
 });
 
 export async function generateMetadata(
@@ -115,7 +115,7 @@ export default async function BlogPostPage(
 
   // If it's a draft, redirect non-admins
   if (!post.published && session?.user?.role !== 'ADMIN') {
-      redirect('/blog');
+    redirect('/blog');
   }
 
   const readTime = Math.ceil(post.content.split(/\s+/).length / 200);
@@ -146,33 +146,33 @@ export default async function BlogPostPage(
   return (
     <>
       <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      
+
       {!post.published && (
-          <Alert variant="default" className="sticky top-0 z-50 rounded-none border-b-2 border-l-0 border-r-0 border-t-0 border-yellow-500 bg-yellow-50 text-yellow-900">
-              <div className="container flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                      <Eye className="h-5 w-5" />
-                      <div>
-                          <AlertTitle className="font-bold">{content['blog.post.preview.title']}</AlertTitle>
-                          <AlertDescription className="text-xs">
-                           {content['blog.post.preview.subtitle']}
-                          </AlertDescription>
-                      </div>
-                  </div>
-                  <Button asChild size="sm" variant="outline" className="border-yellow-300 hover:bg-yellow-100">
-                      <Link href="/admin/blog">{content['blog.post.preview.exitButton']}</Link>
-                  </Button>
+        <Alert variant="default" className="sticky top-0 z-50 rounded-none border-b-2 border-l-0 border-r-0 border-t-0 border-yellow-500 bg-yellow-50 text-yellow-900">
+          <div className="container flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Eye className="h-5 w-5" />
+              <div>
+                <AlertTitle className="font-bold">{content['blog.post.preview.title']}</AlertTitle>
+                <AlertDescription className="text-xs">
+                  {content['blog.post.preview.subtitle']}
+                </AlertDescription>
               </div>
-          </Alert>
+            </div>
+            <Button asChild size="sm" variant="outline" className="border-yellow-300 hover:bg-yellow-100">
+              <Link href="/admin/blog">{content['blog.post.preview.exitButton']}</Link>
+            </Button>
+          </div>
+        </Alert>
       )}
 
 
       <article>
         {/* Hero Section */}
-        <section className="relative w-full py-16 md:py-24 lg:py-32 flex items-center justify-center text-center text-white overflow-hidden">
+        <section className="relative w-full py-16 md:py-24 lg:py-32 flex items-center justify-center text-center text-white overflow-hidden h-[80vh]">
           <div className="absolute inset-0">
             <ManagedImage
               src={post.image.replace('400/250', '1920/1080')}
@@ -186,12 +186,12 @@ export default async function BlogPostPage(
           </div>
           <div className="relative container max-w-4xl z-10 drop-shadow-lg">
             <Breadcrumbs
-                items={[
-                    { name: 'Home', href: '/' },
-                    { name: 'Blog', href: '/blog' },
-                    { name: post.title },
-                ]}
-                className="justify-center text-white/80 mb-6"
+              items={[
+                { name: 'Home', href: '/' },
+                { name: 'Blog', href: '/blog' },
+                { name: post.title },
+              ]}
+              className="justify-center text-white/80 mb-6"
             />
             <Badge>{post.category?.name}</Badge>
             <h1 className="font-headline text-4xl md:text-6xl font-bold leading-tight mt-4">
@@ -221,7 +221,7 @@ export default async function BlogPostPage(
               </Link>
             </Button>
             {session?.user && (
-              <BookmarkButton 
+              <BookmarkButton
                 postId={post.id}
               />
             )}
@@ -253,10 +253,10 @@ export default async function BlogPostPage(
                   )}
                 </div>
               </nav>
-              <CommentsSection 
-                postId={post.id} 
-                comments={post.comments} 
-                session={session} 
+              <CommentsSection
+                postId={post.id}
+                comments={post.comments}
+                session={session}
               />
             </div>
             <aside className="hidden lg:block lg:col-span-1">
@@ -269,8 +269,8 @@ export default async function BlogPostPage(
                       {relatedPosts.map(related => (
                         <Link key={related.slug} href={`/blog/${related.slug}`} className="flex items-center gap-4 group">
                           <div className="relative w-20 h-16 rounded-md overflow-hidden shrink-0">
-                            <ManagedImage 
-                              src={related.image.replace('400/250', '200/150')} 
+                            <ManagedImage
+                              src={related.image.replace('400/250', '200/150')}
                               alt={related.title}
                               data-ai-hint={related.dataAiHint ?? ''}
                               fill

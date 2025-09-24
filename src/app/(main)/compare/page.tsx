@@ -22,7 +22,7 @@ import { getContent } from '@/lib/content';
 
 type ComparisonWithPlatforms = Comparison & { platformA: Platform, platformB: Platform };
 
-export const metadata: Metadata = generateSeoMetadata({
+export const metadata: Metadata = await generateSeoMetadata({
   title: 'Platform Comparisons',
   description:
     'In-depth, side-by-side comparisons of the top course creation platforms. Find the perfect fit for your business.',
@@ -110,12 +110,12 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
 
   return (
     <div className="bg-background">
-       <section className="bg-secondary/30 border-b">
-        <div className="container text-center py-16 md:py-24 px-4 md:px-6">
+      <section className="bg-secondary/30 border-b">
+        <div className="container text-center py-8 md:py-12 px-4 md:px-6">
           <Breadcrumbs
             items={[
-                { name: 'Home', href: '/' },
-                { name: 'Compare' },
+              { name: 'Home', href: '/' },
+              { name: 'Compare' },
             ]}
             className="mb-8 justify-center"
           />
@@ -128,7 +128,7 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
         </div>
       </section>
 
-      <div className="container py-16 md:py-24 px-4 md:px-6">
+      <div className="container py-8 md:py-12 px-4 md:px-6">
         <FilterControls allPlatforms={allPlatforms} categories={categories} searchParams={searchParams} />
 
         {comparisons.length === 0 ? (
@@ -144,7 +144,7 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
                   className="flex flex-col group overflow-hidden transition-all duration-300 h-full border hover:border-primary/50 hover:shadow-lg rounded-xl"
                 >
                   <CardHeader className="p-6">
-                     <div className="flex justify-around items-center h-10">
+                    <div className="flex justify-around items-center h-10">
                       <div className="w-2/5 flex justify-center">
                         <ManagedImage
                           src={comp.platformA.logoUrl}
@@ -158,7 +158,7 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
                         <span className="font-mono text-sm text-muted-foreground">VS</span>
                       </div>
                       <div className="w-2/5 flex justify-center">
-                         <ManagedImage
+                        <ManagedImage
                           src={comp.platformB.logoUrl}
                           alt={`${comp.platformB.name} logo`}
                           width={140}
@@ -170,15 +170,15 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
                   </CardHeader>
                   <CardContent className="flex-1 px-6 pb-6 space-y-3 text-center">
                     <h2 className="font-headline text-xl text-foreground">
-                        <Link
-                            href={`/compare/${comp.slug}`}
-                            className="hover:text-primary transition-colors stretched-link"
-                        >
-                            {comp.title}
-                        </Link>
+                      <Link
+                        href={`/compare/${comp.slug}`}
+                        className="hover:text-primary transition-colors stretched-link"
+                      >
+                        {comp.title}
+                      </Link>
                     </h2>
                     <p className="text-muted-foreground text-sm line-clamp-2">
-                        {comp.summary}
+                      {comp.summary}
                     </p>
                     <div className="flex justify-around pt-3 border-t">
                       <div className="text-center">

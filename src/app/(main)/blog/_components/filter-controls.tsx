@@ -8,11 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, ListFilter, User as UserIcon, X } from 'lucide-react';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Label } from '@/components/ui/label';
@@ -38,7 +38,7 @@ function useDebounce<T>(value: T, delay: number): T {
 }
 
 interface FilterControlsProps {
-    authors: User[];
+    authors?: User[];
     categories: PostCategory[];
     searchParams: SearchParams;
 }
@@ -80,7 +80,7 @@ export function FilterControls({ authors, categories, searchParams }: FilterCont
     const handleAuthorChange = (value: string) => {
         handleFilterChange({ author: value, page: 1 });
     };
-    
+
     const handleCategoryChange = (value: string) => {
         handleFilterChange({ category: value, page: 1 });
     };
@@ -90,7 +90,7 @@ export function FilterControls({ authors, categories, searchParams }: FilterCont
 
     return (
         <div className="mb-12 flex flex-wrap items-center gap-4">
-             <div className="relative flex-1 min-w-[200px] md:min-w-[300px]">
+            <div className="relative flex-1 min-w-[200px] md:min-w-[300px]">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                     id="search"
@@ -101,11 +101,11 @@ export function FilterControls({ authors, categories, searchParams }: FilterCont
                     onChange={(e) => setSearchValue(e.target.value)}
                 />
             </div>
-            
+
             <Popover>
                 <PopoverTrigger asChild>
                     <Button type="button" variant="outline" className="h-10" disabled={isPending}>
-                        <ListFilter className="mr-2 h-4 w-4"/> 
+                        <ListFilter className="mr-2 h-4 w-4" />
                         Filters
                         {(!!searchParams.sort || !!searchParams.author || !!searchParams.category) && <span className="ml-2 h-2 w-2 rounded-full bg-primary" />}
                     </Button>
@@ -127,7 +127,7 @@ export function FilterControls({ authors, categories, searchParams }: FilterCont
                         </div>
                         <Separator />
                         <div className="space-y-2">
-                             <Label htmlFor="category">Category</Label>
+                            <Label htmlFor="category">Category</Label>
                             <Select value={categoryValue} onValueChange={handleCategoryChange} disabled={isPending}>
                                 <SelectTrigger id="category" className="h-10">
                                     <SelectValue placeholder="All Categories" />
@@ -140,8 +140,8 @@ export function FilterControls({ authors, categories, searchParams }: FilterCont
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="space-y-2">
-                             <Label htmlFor="author">Author</Label>
+                        {authors && <div className="space-y-2">
+                            <Label htmlFor="author">Author</Label>
                             <Select value={authorValue} onValueChange={handleAuthorChange} disabled={isPending}>
                                 <SelectTrigger id="author" className="h-10">
                                     <SelectValue placeholder="All Authors" />
@@ -153,14 +153,14 @@ export function FilterControls({ authors, categories, searchParams }: FilterCont
                                     ))}
                                 </SelectContent>
                             </Select>
-                        </div>
+                        </div>}
                     </div>
                 </PopoverContent>
             </Popover>
 
             {hasActiveFilters && (
                 <Button asChild variant="ghost" className="h-10">
-                    <Link href="/blog" scroll={false}><X className="mr-2 h-4 w-4"/>Reset</Link>
+                    <Link href="/blog" scroll={false}><X className="mr-2 h-4 w-4" />Reset</Link>
                 </Button>
             )}
         </div>
