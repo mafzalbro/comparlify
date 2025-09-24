@@ -80,21 +80,6 @@ enum CommentStatus {
   REJECTED
 }
 
-model ContactMessage {
-  id        String   @id @default(cuid())
-  name      String
-  email     String
-  message   String   @db.Text
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
-}
-
-model Subscription {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  createdAt DateTime @default(now())
-}
-
 model Bookmark {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())

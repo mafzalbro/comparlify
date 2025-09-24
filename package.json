@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit",
     "postinstall": "npm run prisma:cat && prisma generate",
     "prisma:seed": "npm run prisma:cat && tsx src/prisma/seed.ts",
-    "prisma:cat": "concat-cli  -f prisma/schema/_base.prisma -f prisma/schema/user.prisma -f prisma/schema/content.prisma -f prisma/schema/platform.prisma -f prisma/schema/comparison.prisma -o prisma/schema.prisma"
+    "prisma:cat": "concat-cli  -f prisma/schema/_base.prisma -f prisma/schema/user.prisma -f prisma/schema/email.prisma -f prisma/schema/content.prisma -f prisma/schema/platform.prisma -f prisma/schema/comparison.prisma -o prisma/schema.prisma"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.4.1",
