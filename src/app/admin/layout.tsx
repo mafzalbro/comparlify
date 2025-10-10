@@ -23,7 +23,7 @@ import { UserNav } from "@/components/user-nav";
 import { NotificationBell } from "@/components/layout/notification-bell";
 import { getNotifications } from "@/app/actions/notifications";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { getContent, getSiteName } from "@/lib/content";
+import { getSiteName, } from "@/lib/content";
 
 
 export default async function AdminLayout({
@@ -45,7 +45,7 @@ export default async function AdminLayout({
                     <SidebarMenu>
                         <SidebarMenuItem>
                             <Link href="/admin">
-                                <SidebarMenuButton tooltip={"Comparlify"}>
+                                <SidebarMenuButton tooltip={siteName}>
                                     <Logo siteName={siteName} />
                                 </SidebarMenuButton>
                             </Link>

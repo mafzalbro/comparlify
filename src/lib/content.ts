@@ -13,7 +13,7 @@ export const getContent = cache(async () => {
 });
 export const getSiteName = cache(async () => {
   return (
-    (await prisma.siteContent.findUnique({ where: { key: "siteName" } }))
+    (await prisma.siteContent.findUnique({ where: { key: "global.siteName" } }))
       ?.value || ""
   );
 });

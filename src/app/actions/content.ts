@@ -3,11 +3,25 @@
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { $Enums } from "@prisma/client";
 
 interface UpdateContentState {
   error: string | null;
   success: boolean;
 }
+
+export type AdminSettings = Record<
+  string,
+  {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    type: $Enums.ContentType;
+    key: string;
+    value: string;
+    group: string;
+  }[]
+>;
 
 export async function updateContentAction(
   prevState: UpdateContentState,
@@ -55,7 +69,7 @@ export async function updateContentAction(
   }
 }
 
-export async function getSettingsContent() {
+export async function getSettingsContent(): Promise<AdminSettings> {
   const content = await prisma.siteContent.findMany({
     where: {
       OR: [{ group: "Email Settings" }, { group: "Globals" }],
