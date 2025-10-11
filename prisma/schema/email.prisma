@@ -1,27 +1,43 @@
+// prisma/schema/email.prisma
 
 model EmailCampaign {
-  id        String            @id @default(cuid())
-  subject   String
-  content   String            @db.Text
-  status    CampaignStatus    @default(PENDING) // PENDING, SENDING, SENT
-  sentAt    DateTime?
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-  recipients EmailRecipient[]
+  id              String           @id @default(cuid())
+  subject         String
+  content         String           @db.Text
+  status          CampaignStatus   @default(PENDING)
+  sentAt          DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  recipients      EmailRecipient[]
+  excludedUsers   User[]           @relation("ExcludedUsers")
 }
 
 model EmailRecipient {
-  id              String        @id @default(cuid())
-  campaign        EmailCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  campaignId      String
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId          String
-  status          DeliveryStatus @default(PENDING) // PENDING, SUCCESS, FAILED
-  sentAt          DateTime?
-  errorMessage    String?       @db.Text
-  createdAt       DateTime      @default(now())
+  id          String   @id @default(cuid())
+  campaign    EmailCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignId  String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  status      RecipientStatus @default(PENDING)
+  sentAt      DateTime?
+  errorMessage String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
 
-  @@unique([campaignId, userId])
+model Subscription {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  message   String   @db.Text
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
 
 enum CampaignStatus {
@@ -30,8 +46,10 @@ enum CampaignStatus {
   SENT
 }
 
-enum DeliveryStatus {
+enum RecipientStatus {
   PENDING
   SUCCESS
   FAILED
 }
+
+    

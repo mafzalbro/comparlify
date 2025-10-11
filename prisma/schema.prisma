@@ -12,6 +12,25 @@ datasource db {
 }
 
 
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  message   String
+  link      String
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
+}
+
+enum NotificationType {
+  NEW_USER_REGISTERED
+  COMMENT_APPROVED
+  NEW_COMMENT_AWAITING_APPROVAL
+}
+
 model User {
   id              String    @id @default(cuid())
   name            String?
@@ -226,25 +245,6 @@ model Bookmark {
   comparison   Comparison? @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
 
   @@unique([userId, postId, comparisonId])
-}
-
-model Notification {
-  id        String           @id @default(cuid())
-  userId    String
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type      NotificationType
-  message   String
-  link      String
-  read      Boolean          @default(false)
-  createdAt DateTime         @default(now())
-
-  @@index([userId])
-}
-
-enum NotificationType {
-  NEW_USER_REGISTERED
-  COMMENT_APPROVED
-  NEW_COMMENT_AWAITING_APPROVAL
 }
 
 model Platform {

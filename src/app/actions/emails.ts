@@ -38,7 +38,7 @@ export async function createEmailCampaign(prevState: any, formData: FormData) {
   const { subject, content, excludedUserIds } = validatedFields.data;
 
   try {
-    await prisma.emailCampaign.create({ 
+    await prisma.emailCampaign.create({
       data: {
         subject,
         content,
@@ -376,3 +376,5 @@ export async function unsubscribeUserAction(token: string) {
         return { error: 'An error occurred during unsubscription.' };
     }
 }
+
+    
