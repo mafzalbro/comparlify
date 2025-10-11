@@ -61,15 +61,14 @@ export async function createPost(prevState: any, formData: FormData) {
 
     revalidatePath("/admin/blog");
     revalidatePath("/blog");
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    if (error instanceof prisma.PrismaClientKnownRequestError) {
-      if (error.code === "P2000") {
-        const field = (error.meta?.target as string[])?.pop();
-        return {
-          error: `The provided value for the '${field}' field is too long.`,
-        };
-      }
+
+    if (error?.code === "P2000") {
+      const field = (error?.meta?.target as string[])?.pop();
+      return {
+        error: `The provided value for the '${field}' field is too long.`,
+      };
     }
     return { error: "Failed to create post." };
   }
@@ -102,11 +101,11 @@ export async function updatePost(
     });
     revalidatePath("/admin/blog");
     revalidatePath(`/blog/${validatedFields.data.slug}`);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    if (error instanceof prisma.PrismaClientKnownRequestError) {
-      if (error.code === "P2000") {
-        const field = (error.meta?.target as string[])?.pop();
+    if (error) {
+      if (error?.code === "P2000") {
+        const field = (error?.meta?.target as string[])?.pop();
         return {
           error: `The provided value for the '${field}' field is too long.`,
         };
