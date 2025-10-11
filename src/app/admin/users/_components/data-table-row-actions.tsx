@@ -8,12 +8,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, UserCog } from "lucide-react";
+import { MoreHorizontal, UserCog, Loader2 } from "lucide-react";
 import type { User, Role } from "@prisma/client";
 import { useTransition } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -40,49 +37,41 @@ export function DataTableRowActions({ user, currentUserId }: DataTableRowActions
         }
 
         startTransition(async () => {
-        try {
-            await updateUserRole(user.id, newRole);
-            toast({
-            title: 'Success!',
-            description: `Successfully updated ${user.name}'s role to ${newRole}.`,
-            });
-        } catch (error) {
-            toast({
-            title: 'Error',
-            description: (error as Error).message || 'Failed to update role.',
-            variant: 'destructive',
-            });
-        }
+            try {
+                await updateUserRole(user.id, newRole);
+                toast({
+                    title: 'Success!',
+                    description: `Successfully updated ${user.name}'s role to ${newRole}.`,
+                });
+            } catch (error) {
+                toast({
+                    title: 'Error',
+                    description: (error as Error).message || 'Failed to update role.',
+                    variant: 'destructive',
+                });
+            }
         });
     };
 
+    const nextRole = user.role === 'ADMIN' ? 'USER' : 'ADMIN';
+    const buttonText = `Make ${nextRole.charAt(0) + nextRole.slice(1).toLowerCase()}`;
+
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                    <span className="sr-only">Open menu</span>
-                    <MoreHorizontal className="h-4 w-4" />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                 <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                        <UserCog className="mr-2 h-4 w-4" />
-                        Change Role
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
-                        <DropdownMenuItem onClick={() => onRoleChange('USER')} disabled={isPending || isCurrentUser || user.role === 'USER'}>
-                            Set as User
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onRoleChange('ADMIN')} disabled={isPending || isCurrentUser || user.role === 'ADMIN'}>
-                            Set as Admin
-                        </DropdownMenuItem>
-                    </DropdownMenuSubContent>
-                </DropdownMenuSub>
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex justify-end items-center">
+            <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onRoleChange(nextRole)}
+                disabled={isPending || isCurrentUser}
+                className="w-[120px]"
+            >
+                {isPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                    <UserCog className="mr-2 h-4 w-4" />
+                )}
+                {buttonText}
+            </Button>
+        </div>
     );
 }
-
