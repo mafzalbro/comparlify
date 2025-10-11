@@ -42,9 +42,7 @@ export async function createEmailCampaign(prevState: any, formData: FormData) {
       data: {
         subject,
         content,
-        excludedUsers: {
-          connect: excludedUserIds?.map(id => ({ id }))
-        }
+        excludedUserIds: excludedUserIds,
       }
     });
     revalidatePath("/admin/emails");
@@ -85,9 +83,7 @@ export async function updateEmailCampaign(id: string, prevState: any, formData: 
       data: {
         subject,
         content,
-        excludedUsers: {
-          set: excludedUserIds?.map(id => ({ id }))
-        }
+        excludedUserIds: excludedUserIds,
       },
     });
     revalidatePath("/admin/emails");
@@ -179,7 +175,6 @@ export async function sendCampaignAction(prevState: any, formData: FormData) {
     try {
         const campaign = await prisma.emailCampaign.findUnique({ 
           where: { id: campaignId },
-          include: { excludedUsers: { select: { id: true }}}
         });
         if (!campaign) {
             return { error: "Campaign not found", success: false };
@@ -188,7 +183,7 @@ export async function sendCampaignAction(prevState: any, formData: FormData) {
             return { error: "Campaign has already been sent or is sending.", success: false };
         }
         
-        const excludedUserIds = campaign.excludedUsers.map(u => u.id);
+        const excludedUserIds = campaign.excludedUserIds;
 
         const subscribers = await prisma.user.findMany({
             where: { 
@@ -397,7 +392,6 @@ export async function cloneCampaignAction(campaignId: string) {
   try {
     const originalCampaign = await prisma.emailCampaign.findUnique({
       where: { id: campaignId },
-      include: { excludedUsers: { select: { id: true } } },
     });
 
     if (!originalCampaign) {
@@ -408,9 +402,7 @@ export async function cloneCampaignAction(campaignId: string) {
       data: {
         subject: `[Clone] ${originalCampaign.subject}`,
         content: originalCampaign.content,
-        excludedUsers: {
-          connect: originalCampaign.excludedUsers.map(u => ({ id: u.id })),
-        },
+        excludedUserIds: originalCampaign.excludedUserIds,
         status: 'PENDING',
       },
     });

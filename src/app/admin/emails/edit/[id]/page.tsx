@@ -7,9 +7,6 @@ import type { User } from '@prisma/client';
 async function getCampaign(id: string) {
     return prisma.emailCampaign.findUnique({
         where: { id },
-        include: {
-          excludedUsers: true
-        }
     });
 }
 

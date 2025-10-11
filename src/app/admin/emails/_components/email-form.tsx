@@ -17,7 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { UserMultiSelect } from './user-multi-select';
 
 interface EmailFormProps {
-  campaign?: (EmailCampaign & { excludedUsers: User[] }) | null;
+  campaign?: EmailCampaign | null;
   users: User[];
 }
 
@@ -30,7 +30,7 @@ export function EmailForm({ campaign, users }: EmailFormProps) {
   const { data: session } = useSession();
   const { toast } = useToast();
   
-  const [excludedUsers, setExcludedUsers] = useState<string[]>(campaign?.excludedUsers.map(u => u.id) ?? []);
+  const [excludedUsers, setExcludedUsers] = useState<string[]>(campaign?.excludedUserIds ?? []);
 
   const handleSendTest = async () => {
     if (!session?.user?.email) {
