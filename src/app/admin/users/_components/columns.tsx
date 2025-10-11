@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { RoleSwitcher } from "./role-switcher"
 import { useSession } from "next-auth/react"
+import { SuspensionSwitcher } from "./suspension-switcher"
 
 export const columns: ColumnDef<User>[] = [
   {
@@ -46,6 +47,18 @@ export const columns: ColumnDef<User>[] = [
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id))
+    },
+  },
+   {
+    accessorKey: "suspended",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Status" />
+    ),
+    cell: ({ row }) => {
+      const { data: session } = useSession();
+      return (
+        <SuspensionSwitcher user={row.original} currentUserId={session?.user.id} />
+      );
     },
   },
   {

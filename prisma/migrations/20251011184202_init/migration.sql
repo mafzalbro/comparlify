@@ -8,11 +8,11 @@ CREATE TABLE `User` (
     `role` ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
     `onboarded` BOOLEAN NOT NULL DEFAULT false,
     `newsletter` BOOLEAN NOT NULL DEFAULT true,
+    `suspended` BOOLEAN NOT NULL DEFAULT false,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `User_email_key`(`email`),
-    INDEX `User_role_idx`(`role`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -30,10 +30,7 @@ CREATE TABLE `Account` (
     `scope` VARCHAR(191) NULL,
     `id_token` TEXT NULL,
     `session_state` VARCHAR(191) NULL,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
 
-    INDEX `Account_userId_idx`(`userId`),
     UNIQUE INDEX `Account_provider_providerAccountId_key`(`provider`, `providerAccountId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -46,69 +43,138 @@ CREATE TABLE `Session` (
     `expires` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `Session_sessionToken_key`(`sessionToken`),
-    INDEX `Session_userId_idx`(`userId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `VerificationToken` (
+    `id` VARCHAR(191) NOT NULL,
     `identifier` VARCHAR(191) NOT NULL,
     `token` VARCHAR(191) NOT NULL,
     `expires` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `VerificationToken_token_key`(`token`),
-    PRIMARY KEY (`identifier`, `token`)
+    UNIQUE INDEX `VerificationToken_identifier_token_key`(`identifier`, `token`),
+    PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Authenticator` (
+CREATE TABLE `Subscription` (
     `id` VARCHAR(191) NOT NULL,
-    `credentialID` VARCHAR(191) NOT NULL,
-    `userId` VARCHAR(191) NOT NULL,
-    `providerAccountId` VARCHAR(191) NOT NULL,
-    `credentialPublicKey` VARCHAR(191) NOT NULL,
-    `counter` INTEGER NOT NULL,
-    `credentialDeviceType` VARCHAR(191) NOT NULL,
-    `credentialBackedUp` BOOLEAN NOT NULL,
-    `transports` VARCHAR(191) NULL,
+    `email` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
-    UNIQUE INDEX `Authenticator_credentialID_key`(`credentialID`),
-    INDEX `Authenticator_userId_idx`(`userId`),
+    UNIQUE INDEX `Subscription_email_key`(`email`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `ContactMessage` (
+    `id` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `email` VARCHAR(191) NOT NULL,
+    `message` TEXT NOT NULL,
+    `read` BOOLEAN NOT NULL DEFAULT false,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `EmailCampaign` (
+    `id` VARCHAR(191) NOT NULL,
+    `subject` VARCHAR(191) NOT NULL,
+    `content` TEXT NOT NULL,
+    `status` ENUM('PENDING', 'SENDING', 'SENT') NOT NULL DEFAULT 'PENDING',
+    `sentAt` DATETIME(3) NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `EmailRecipient` (
+    `id` VARCHAR(191) NOT NULL,
+    `campaignId` VARCHAR(191) NOT NULL,
+    `userId` VARCHAR(191) NOT NULL,
+    `status` ENUM('PENDING', 'SUCCESS', 'FAILED') NOT NULL DEFAULT 'PENDING',
+    `sentAt` DATETIME(3) NULL,
+    `errorMessage` TEXT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    UNIQUE INDEX `EmailRecipient_campaignId_userId_key`(`campaignId`, `userId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `SiteContent` (
+    `id` VARCHAR(191) NOT NULL,
+    `key` VARCHAR(191) NOT NULL,
+    `value` TEXT NOT NULL,
+    `group` VARCHAR(191) NOT NULL,
+    `type` ENUM('TEXT', 'TEXTAREA', 'MARKDOWN') NOT NULL DEFAULT 'TEXT',
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `SiteContent_key_key`(`key`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `PostCategory` (
+    `id` VARCHAR(191) NOT NULL,
+    `slug` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+
+    UNIQUE INDEX `PostCategory_slug_key`(`slug`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `ComparisonCategory` (
+    `id` VARCHAR(191) NOT NULL,
+    `slug` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+
+    UNIQUE INDEX `ComparisonCategory_slug_key`(`slug`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `Post` (
     `id` VARCHAR(191) NOT NULL,
-    `slug` VARCHAR(191) NOT NULL,
     `title` VARCHAR(191) NOT NULL,
+    `slug` VARCHAR(191) NOT NULL,
     `description` VARCHAR(191) NOT NULL,
     `content` TEXT NOT NULL,
     `image` VARCHAR(191) NOT NULL,
     `dataAiHint` VARCHAR(191) NULL,
     `published` BOOLEAN NOT NULL DEFAULT false,
-    `authorId` VARCHAR(191) NOT NULL,
-    `nextId` VARCHAR(191) NULL,
-    `previousId` VARCHAR(191) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
+    `authorId` VARCHAR(191) NOT NULL,
+    `categoryId` VARCHAR(191) NULL,
+    `previousId` VARCHAR(191) NULL,
+    `nextId` VARCHAR(191) NULL,
 
     UNIQUE INDEX `Post_slug_key`(`slug`),
-    UNIQUE INDEX `Post_nextId_key`(`nextId`),
     UNIQUE INDEX `Post_previousId_key`(`previousId`),
+    UNIQUE INDEX `Post_nextId_key`(`nextId`),
     INDEX `Post_authorId_idx`(`authorId`),
+    INDEX `Post_categoryId_idx`(`categoryId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `Comment` (
     `id` VARCHAR(191) NOT NULL,
-    `content` VARCHAR(191) NOT NULL,
+    `content` TEXT NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
     `status` ENUM('PENDING', 'APPROVED', 'REJECTED') NOT NULL DEFAULT 'PENDING',
     `authorId` VARCHAR(191) NOT NULL,
     `postId` VARCHAR(191) NOT NULL,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
 
     INDEX `Comment_authorId_idx`(`authorId`),
     INDEX `Comment_postId_idx`(`postId`),
@@ -118,14 +184,11 @@ CREATE TABLE `Comment` (
 -- CreateTable
 CREATE TABLE `Bookmark` (
     `id` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `userId` VARCHAR(191) NOT NULL,
     `postId` VARCHAR(191) NULL,
     `comparisonId` VARCHAR(191) NULL,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
-    INDEX `Bookmark_userId_idx`(`userId`),
-    INDEX `Bookmark_postId_idx`(`postId`),
-    INDEX `Bookmark_comparisonId_idx`(`comparisonId`),
     UNIQUE INDEX `Bookmark_userId_postId_comparisonId_key`(`userId`, `postId`, `comparisonId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -141,16 +204,6 @@ CREATE TABLE `Notification` (
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     INDEX `Notification_userId_idx`(`userId`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `Subscription` (
-    `id` VARCHAR(191) NOT NULL,
-    `email` VARCHAR(191) NOT NULL,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-
-    UNIQUE INDEX `Subscription_email_key`(`email`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -219,10 +272,12 @@ CREATE TABLE `Comparison` (
     `platformBId` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
+    `categoryId` VARCHAR(191) NULL,
 
     UNIQUE INDEX `Comparison_slug_key`(`slug`),
     INDEX `Comparison_platformAId_idx`(`platformAId`),
     INDEX `Comparison_platformBId_idx`(`platformBId`),
+    INDEX `Comparison_categoryId_idx`(`categoryId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

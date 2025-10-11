@@ -1,23 +1,26 @@
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  role          Role      @default(USER)
-  onboarded     Boolean   @default(false)
-  newsletter    Boolean   @default(true)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
 
-  accounts        Account[]
-  sessions        Session[]
-  posts           Post[]
-  comments        Comment[]
-  bookmarks       Bookmark[]
-  notifications   Notification[]
+model User {
+  id              String    @id @default(cuid())
+  name            String?
+  email           String?   @unique
+  emailVerified   DateTime?
+  image           String?
+  role            Role      @default(USER)
+  onboarded       Boolean   @default(false)
+  newsletter      Boolean   @default(true)
+  suspended       Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  accounts Account[]
+  sessions Session[]
+  posts    Post[]
+  comments Comment[]
+  bookmarks Bookmark[]
+  notifications Notification[]
   emailRecipients EmailRecipient[]
 }
+
 
 model Account {
   id                String  @id @default(cuid())
@@ -47,12 +50,14 @@ model Session {
 }
 
 model VerificationToken {
+  id         String   @id @default(cuid())
   identifier String
   token      String   @unique
   expires    DateTime
 
   @@unique([identifier, token])
 }
+
 
 model Subscription {
   id        String   @id @default(cuid())

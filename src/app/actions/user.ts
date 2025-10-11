@@ -93,6 +93,29 @@ export async function updateUserRole(userId: string, role: Role) {
     }
 }
 
+// --- User Suspension Management ---
+export async function updateUserSuspension(userId: string, suspended: boolean) {
+    const session = await auth();
+    if (session?.user?.role !== 'ADMIN') {
+        throw new Error('Not authorized');
+    }
+    if (session.user.id === userId) {
+        throw new Error('Admins cannot suspend themselves.');
+    }
+
+    try {
+        await prisma.user.update({
+            where: { id: userId },
+            data: { suspended },
+        });
+        revalidatePath('/admin/users');
+    } catch (error) {
+        console.error('Failed to update user suspension status:', error);
+        throw new Error('Failed to update user suspension status.');
+    }
+}
+
+
 // --- Delete User Account ---
 export async function deleteSelfAction() {
     const session = await auth();

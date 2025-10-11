@@ -34,7 +34,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     where: { email: 'mafzalbro@gmail.com' }
                 });
                 if (adminUser) {
-                    return adminUser;
+                  if (adminUser.suspended) {
+                      throw new Error("This account is currently suspended.");
+                  }
+                  return adminUser;
                 }
             }
             return null;
@@ -42,6 +45,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     })
   ],
   callbacks: {
+    async signIn({ user }) {
+        const dbUser = await prisma.user.findUnique({ where: { email: user.email! } });
+        if (dbUser?.suspended) {
+            return false; // Reject sign-in if user is suspended
+        }
+        return true;
+    },
     async jwt({ token }) {
       const user = token.email
         ? await prisma.user.findUnique({ where: { email: token.email } })
@@ -49,6 +59,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       // On initial sign-in, add the user ID and other details to the token
       if (user) {
+        if (user.suspended) {
+           throw new Error("User is suspended");
+        }
         token.id = user.id;
         token.role = user.role ?? "USER";
         token.onboarded = user.onboarded ?? false;
