@@ -5,6 +5,7 @@ import type { SearchParams } from '@/types/next';
 import { UsersDataTable } from './_components/data-table';
 import { UserFilters } from './_components/user-filters';
 import prisma from '@/lib/prisma';
+import { columns } from './_components/columns';
 
 
 async function getUsers({ search, sort, page, per_page, role }: {
