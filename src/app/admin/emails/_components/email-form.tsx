@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useActionState, useState } from 'react';
@@ -53,64 +54,66 @@ export function EmailForm({ campaign, users }: EmailFormProps) {
   };
 
   return (
-    <form action={action}>
-      <input type="hidden" name="content" value={content} />
-       {excludedUsers.map(userId => (
-        <input type="hidden" name="excludedUserIds" key={userId} value={userId} />
-      ))}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Email Content</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="subject">Subject</Label>
-                <Input id="subject" name="subject" defaultValue={campaign?.subject} required />
-                {typeof state.error !== 'string' && state?.error?.subject && <p className="text-destructive text-sm">{state.error.subject[0]}</p>}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="content">Body (Markdown enabled)</Label>
-                <Editor initialContent={content} onChange={setContent} />
-                {typeof state.error !== 'string' && state?.error?.content && <p className="text-destructive text-sm">{state.error.content[0]}</p>}
-              </div>
-            </CardContent>
-          </Card>
-           <Card>
-            <CardHeader>
-              <CardTitle>Exclude Recipients</CardTitle>
-              <CardDescription>Select users who should NOT receive this email campaign, even if they are subscribed.</CardDescription>
-            </CardHeader>
-            <CardContent>
+    <div>
+      <form action={action}>
+        <input type="hidden" name="content" value={content} />
+        {excludedUsers.map(userId => (
+          <input type="hidden" name="excludedUserIds" key={userId} value={userId} />
+        ))}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="md:col-span-2 space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Email Content</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="subject">Subject</Label>
+                  <Input id="subject" name="subject" defaultValue={campaign?.subject} required />
+                  {typeof state.error !== 'string' && state?.error?.subject && <p className="text-destructive text-sm">{state.error.subject[0]}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="content">Body (Markdown enabled)</Label>
+                  <Editor initialContent={content} onChange={setContent} />
+                  {typeof state.error !== 'string' && state?.error?.content && <p className="text-destructive text-sm">{state.error.content[0]}</p>}
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Exclude Recipients</CardTitle>
+                <CardDescription>Select users who should NOT receive this email campaign, even if they are subscribed.</CardDescription>
+              </CardHeader>
+              <CardContent>
                 <UserMultiSelect 
                   allUsers={users}
                   selectedUsers={excludedUsers}
                   onSelectedUsersChange={setExcludedUsers}
                 />
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Actions</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                  <SubmitButton isEditing={isEditing} defaultText='Save Draft' editingText='Save Changes' />
+                  <Button type="button" variant="secondary" className="w-full" onClick={handleSendTest}>
+                      <Mail className="mr-2 h-4 w-4" /> Send Test Email
+                  </Button>
+              </CardContent>
+              {isEditing && campaign.status === 'PENDING' && (
+                  <CardFooter className="flex-col gap-4">
+                      <div className="w-full h-px bg-border" />
+                      <SendCampaignButton campaignId={campaign.id} />
+                  </CardFooter>
+              )}
+            </Card>
+          </div>
         </div>
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <SubmitButton isEditing={isEditing} defaultText='Save Draft' editingText='Save Changes' />
-                <Button type="button" variant="secondary" className="w-full" onClick={handleSendTest}>
-                    <Mail className="mr-2 h-4 w-4" /> Send Test Email
-                </Button>
-            </CardContent>
-            {isEditing && campaign.status === 'PENDING' && (
-                <CardFooter className="flex-col gap-4">
-                    <div className="w-full h-px bg-border" />
-                    <SendCampaignButton campaignId={campaign.id} />
-                </CardFooter>
-            )}
-          </Card>
-        </div>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 }
