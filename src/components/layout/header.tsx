@@ -49,7 +49,7 @@ export default function Header({ navLinks = [], siteName }: HeaderProps) {
         href={href}
         className={cn(
           'text-sm font-medium transition-colors hover:text-primary',
-          isActive ? 'text-primary' : 'text-muted-foreground'
+          isActive ? 'font-semibold text-primary' : 'text-muted-foreground'
         )}
       >
         {label}
