@@ -31,60 +31,69 @@ enum NotificationType {
   NEW_COMMENT_AWAITING_APPROVAL
 }
 model User {
-  id                    String                @id @default(cuid())
-  name                  String?
-  email                 String?               @unique
-  emailVerified         DateTime?
-  image                 String?
-  role                  Role                  @default(USER)
-  onboarded             Boolean               @default(false)
-  suspended             Boolean               @default(false)
-  newsletter            Boolean               @default(true)
-  createdAt             DateTime              @default(now())
-  updatedAt             DateTime              @updatedAt
-  accounts              Account[]
-  sessions              Session[]
-  posts                 Post[]
-  comments              Comment[]
-  bookmarks             Bookmark[]
-  notifications         Notification[]
-  sentEmails            EmailRecipient[]
-  excludedFromCampaigns EmailCampaign[]       @relation("EmailCampaignExclusions")
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(USER)
+  onboarded     Boolean   @default(false)
+  newsletter    Boolean   @default(true)
+  suspended     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  posts         Post[]
+  comments      Comment[]
+  bookmarks     Bookmark[]
+  notifications Notification[]
+  emailRecipients EmailRecipient[]
+
+  // Community
+  newsArticles  NewsArticle[]
+  forumTopics   ForumTopic[] @relation("TopicAuthor")
+  forumPosts    ForumPost[] @relation("PostAuthor")
 }
 
 model Account {
-  id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([provider, providerAccountId])
+  @@id([provider, providerAccountId])
 }
 
 model Session {
-  id           String   @id @default(cuid())
   sessionToken String   @unique
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model VerificationToken {
   identifier String
-  token      String   @unique
+  token      String
   expires    DateTime
 
-  @@unique([identifier, token])
+  @@id([identifier, token])
 }
 
 enum Role {
@@ -92,30 +101,10 @@ enum Role {
   ADMIN
 }
 
-model EmailCampaign {
-  id              String           @id @default(cuid())
-  subject         String
-  content         String           @db.Text
-  status          CampaignStatus   @default(PENDING)
-  sentAt          DateTime?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  excludedUsers   User[]           @relation("EmailCampaignExclusions")
-  recipients      EmailRecipient[]
-}
-
-model EmailRecipient {
-  id           String         @id @default(cuid())
-  campaign     EmailCampaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  campaignId   String
-  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId       String
-  status       SentStatus     @default(PENDING)
-  sentAt       DateTime?
-  errorMessage String?
-  createdAt    DateTime       @default(now())
-
-  @@unique([campaignId, userId])
+model Subscription {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
 }
 
 model ContactMessage {
@@ -128,10 +117,30 @@ model ContactMessage {
   updatedAt DateTime @updatedAt
 }
 
-model Subscription {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  createdAt DateTime @default(now())
+model EmailCampaign {
+  id              String           @id @default(cuid())
+  subject         String
+  content         String           @db.Text
+  status          CampaignStatus   @default(PENDING)
+  sentAt          DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  excludedUserIds String? // Comma-separated list of User IDs
+  recipients      EmailRecipient[]
+}
+
+model EmailRecipient {
+  id           String         @id @default(cuid())
+  campaignId   String
+  campaign     EmailCampaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status       SendStatus     @default(PENDING)
+  sentAt       DateTime?
+  errorMessage String?
+  createdAt    DateTime       @default(now())
+
+  @@unique([campaignId, userId])
 }
 
 enum CampaignStatus {
@@ -140,7 +149,7 @@ enum CampaignStatus {
   SENT
 }
 
-enum SentStatus {
+enum SendStatus {
   PENDING
   SUCCESS
   FAILED
@@ -345,4 +354,51 @@ model Faq {
   updatedAt    DateTime   @updatedAt
 
   @@index([comparisonId])
+}
+
+model NewsArticle {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  content     String   @db.Text
+  image       String
+  dataAiHint  String?
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+model ForumCategory {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  topics      ForumTopic[]
+}
+
+model ForumTopic {
+  id         String      @id @default(cuid())
+  title      String
+  content    String      @db.Text
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  authorId   String
+  author     User        @relation("TopicAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  categoryId String
+  category   ForumCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  posts      ForumPost[]
+}
+
+model ForumPost {
+  id        String     @id @default(cuid())
+  content   String     @db.Text
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  authorId  String
+  author    User       @relation("PostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  topicId   String
+  topic     ForumTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 }

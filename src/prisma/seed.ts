@@ -12,6 +12,10 @@ async function main() {
 
   // First, break the navigation links
   await prisma.$executeRaw`UPDATE Post SET previousId = NULL, nextId = NULL`;
+  await prisma.forumPost.deleteMany();
+  await prisma.forumTopic.deleteMany();
+  await prisma.forumCategory.deleteMany();
+  await prisma.newsArticle.deleteMany();
   await prisma.emailRecipient.deleteMany();
   await prisma.emailCampaign.deleteMany();
   await prisma.contactMessage.deleteMany();
@@ -392,6 +396,44 @@ If you have any questions about our privacy policy, please contact us at <a href
   ];
   await prisma.siteContent.createMany({ data: siteContent });
   console.log("Seeded site content.");
+
+  // --- 12. Seed News ---
+  await prisma.newsArticle.create({
+    data: {
+      title: "Comparlify Launches New AI-Powered Tool Suite",
+      slug: "comparlify-launches-ai-tools",
+      content: "We're excited to announce a major update to our platform...",
+      image: "https://picsum.photos/400/250?random=10",
+      dataAiHint: "technology launch announcement",
+      published: true,
+      authorId: adminUser.id,
+    }
+  });
+  console.log("Seeded news articles.");
+
+  // --- 13. Seed Community ---
+  const generalCategory = await prisma.forumCategory.create({
+    data: { name: "General Discussion", description: "Talk about anything related to course creation."}
+  });
+
+  const introductionsTopic = await prisma.forumTopic.create({
+    data: {
+      title: "Welcome! Introduce Yourself",
+      content: "Welcome to the community! Take a moment to introduce yourself and tell us what you're working on.",
+      authorId: adminUser.id,
+      categoryId: generalCategory.id,
+    }
+  });
+
+  await prisma.forumPost.create({
+    data: {
+      content: "Hey everyone! I'm Bob, and I'm building a course on woodworking for beginners.",
+      authorId: bobUser.id,
+      topicId: introductionsTopic.id,
+    }
+  });
+  console.log("Seeded community forums.");
+
 
   console.log("Seeding finished.");
 }

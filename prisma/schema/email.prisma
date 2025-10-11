@@ -1,27 +1,7 @@
-model EmailCampaign {
-  id              String           @id @default(cuid())
-  subject         String
-  content         String           @db.Text
-  status          CampaignStatus   @default(PENDING)
-  sentAt          DateTime?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  excludedUsers   User[]           @relation("EmailCampaignExclusions")
-  recipients      EmailRecipient[]
-}
-
-model EmailRecipient {
-  id           String         @id @default(cuid())
-  campaign     EmailCampaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  campaignId   String
-  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId       String
-  status       SentStatus     @default(PENDING)
-  sentAt       DateTime?
-  errorMessage String?
-  createdAt    DateTime       @default(now())
-
-  @@unique([campaignId, userId])
+model Subscription {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
 }
 
 model ContactMessage {
@@ -34,10 +14,30 @@ model ContactMessage {
   updatedAt DateTime @updatedAt
 }
 
-model Subscription {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  createdAt DateTime @default(now())
+model EmailCampaign {
+  id              String           @id @default(cuid())
+  subject         String
+  content         String           @db.Text
+  status          CampaignStatus   @default(PENDING)
+  sentAt          DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  excludedUserIds String? // Comma-separated list of User IDs
+  recipients      EmailRecipient[]
+}
+
+model EmailRecipient {
+  id           String         @id @default(cuid())
+  campaignId   String
+  campaign     EmailCampaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status       SendStatus     @default(PENDING)
+  sentAt       DateTime?
+  errorMessage String?
+  createdAt    DateTime       @default(now())
+
+  @@unique([campaignId, userId])
 }
 
 enum CampaignStatus {
@@ -46,7 +46,7 @@ enum CampaignStatus {
   SENT
 }
 
-enum SentStatus {
+enum SendStatus {
   PENDING
   SUCCESS
   FAILED

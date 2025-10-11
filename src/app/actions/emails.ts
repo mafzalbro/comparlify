@@ -42,7 +42,7 @@ export async function createEmailCampaign(prevState: any, formData: FormData) {
       data: {
         subject,
         content,
-        excludedUserIds: excludedUserIds,
+        excludedUserIds: excludedUserIds?.join(',') ?? '',
       }
     });
     revalidatePath("/admin/emails");
@@ -83,7 +83,7 @@ export async function updateEmailCampaign(id: string, prevState: any, formData: 
       data: {
         subject,
         content,
-        excludedUserIds: excludedUserIds,
+        excludedUserIds: excludedUserIds?.join(',') ?? '',
       },
     });
     revalidatePath("/admin/emails");
@@ -183,7 +183,7 @@ export async function sendCampaignAction(prevState: any, formData: FormData) {
             return { error: "Campaign has already been sent or is sending.", success: false };
         }
         
-        const excludedUserIds = campaign.excludedUserIds;
+        const excludedUserIds = campaign.excludedUserIds?.split(',') ?? [];
 
         const subscribers = await prisma.user.findMany({
             where: { 

@@ -1,58 +1,67 @@
 model User {
-  id                    String                @id @default(cuid())
-  name                  String?
-  email                 String?               @unique
-  emailVerified         DateTime?
-  image                 String?
-  role                  Role                  @default(USER)
-  onboarded             Boolean               @default(false)
-  suspended             Boolean               @default(false)
-  newsletter            Boolean               @default(true)
-  createdAt             DateTime              @default(now())
-  updatedAt             DateTime              @updatedAt
-  accounts              Account[]
-  sessions              Session[]
-  posts                 Post[]
-  comments              Comment[]
-  bookmarks             Bookmark[]
-  notifications         Notification[]
-  sentEmails            EmailRecipient[]
-  excludedFromCampaigns EmailCampaign[]       @relation("EmailCampaignExclusions")
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(USER)
+  onboarded     Boolean   @default(false)
+  newsletter    Boolean   @default(true)
+  suspended     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  posts         Post[]
+  comments      Comment[]
+  bookmarks     Bookmark[]
+  notifications Notification[]
+  emailRecipients EmailRecipient[]
+
+  // Community
+  newsArticles  NewsArticle[]
+  forumTopics   ForumTopic[] @relation("TopicAuthor")
+  forumPosts    ForumPost[] @relation("PostAuthor")
 }
 
 model Account {
-  id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([provider, providerAccountId])
+  @@id([provider, providerAccountId])
 }
 
 model Session {
-  id           String   @id @default(cuid())
   sessionToken String   @unique
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model VerificationToken {
   identifier String
-  token      String   @unique
+  token      String
   expires    DateTime
 
-  @@unique([identifier, token])
+  @@id([identifier, token])
 }
 
 enum Role {
