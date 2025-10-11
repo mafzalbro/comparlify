@@ -199,29 +199,37 @@ export async function sendCampaignAction(prevState: any, formData: FormData) {
             select: { id: true, email: true }
         });
 
+        if (subscribers.length === 0) {
+            // No one to send to, just mark as sent.
+            await prisma.emailCampaign.update({
+                where: { id: campaignId },
+                data: { status: 'SENT', sentAt: new Date() }
+            });
+            revalidatePath('/admin/emails');
+            return { success: true, error: null, message: "Campaign sent (0 recipients)." };
+        }
+
         await prisma.$transaction(async (tx) => {
             await tx.emailCampaign.update({
                 where: { id: campaignId },
                 data: { status: 'SENDING' }
             });
 
-            if (subscribers.length > 0) {
-              await tx.emailRecipient.createMany({
-                  data: subscribers.map(sub => ({
-                      campaignId: campaignId,
-                      userId: sub.id,
-                      status: 'PENDING'
-                  })),
-                  skipDuplicates: true
-              });
-            }
+            await tx.emailRecipient.createMany({
+                data: subscribers.map(sub => ({
+                    campaignId: campaignId,
+                    userId: sub.id,
+                    status: 'PENDING'
+                })),
+                skipDuplicates: true
+            });
         });
 
-        // Trigger background job (simulated here with an async call)
-        processEmailCampaign(campaignId);
+        // Trigger background job without awaiting it
+        processEmailCampaign(campaignId).catch(console.error);
 
         revalidatePath('/admin/emails');
-        return { success: true, error: null };
+        return { success: true, error: null, message: `Campaign is now sending to ${subscribers.length} recipients.` };
 
     } catch (e) {
         console.error(e);
@@ -376,5 +384,3 @@ export async function unsubscribeUserAction(token: string) {
         return { error: 'An error occurred during unsubscription.' };
     }
 }
-
-    

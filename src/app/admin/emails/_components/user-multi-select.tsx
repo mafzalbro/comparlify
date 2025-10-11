@@ -19,12 +19,14 @@ interface UserMultiSelectProps {
   allUsers: User[];
   selectedUsers: string[];
   onSelectedUsersChange: (selected: string[]) => void;
+  disabled?: boolean;
 }
 
 export function UserMultiSelect({
   allUsers,
   selectedUsers,
   onSelectedUsersChange,
+  disabled = false,
 }: UserMultiSelectProps) {
   const [search, setSearch] = React.useState('');
   const [open, setOpen] = React.useState(false);
@@ -62,6 +64,7 @@ export function UserMultiSelect({
             role="combobox"
             aria-expanded={open}
             className="w-full justify-between h-auto min-h-10"
+            disabled={disabled}
           >
             <div className="flex flex-wrap gap-1 items-center">
               {selectedUserDetails.length > 0 ? (
@@ -71,6 +74,7 @@ export function UserMultiSelect({
                     variant="secondary"
                     className="gap-1 pr-1"
                     onClick={(e) => {
+                      if (disabled) return;
                       e.stopPropagation(); // prevent opening dropdown
                       handleRemove(user.id);
                     }}

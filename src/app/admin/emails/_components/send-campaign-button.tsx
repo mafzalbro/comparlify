@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useActionState } from 'react';
@@ -32,15 +33,15 @@ function SubmitButton() {
     )
 }
 
-export function SendCampaignButton({ campaignId }: { campaignId: string }) {
-  const [state, formAction] = useActionState(sendCampaignAction, { error: null, success: false });
+export function SendCampaignButton({ campaignId, disabled }: { campaignId: string, disabled?: boolean }) {
+  const [state, formAction] = useActionState(sendCampaignAction, { error: null, success: false, message: null });
   const { toast } = useToast();
   const router = useRouter();
 
   useEffect(() => {
-    if (state.success) {
-      toast({ title: 'Campaign Sending!', description: 'Your email campaign is now being sent to all subscribers.'});
-      router.push(`/admin/emails/view/${campaignId}`);
+    if (state.success && state.message) {
+      toast({ title: 'Campaign Processing!', description: state.message});
+      router.refresh();
     }
     if (state.error) {
         toast({ title: 'Error', description: state.error, variant: 'destructive' });
@@ -51,7 +52,7 @@ export function SendCampaignButton({ campaignId }: { campaignId: string }) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button className="w-full">
+        <Button className="w-full" disabled={disabled}>
             <Send className="mr-2 h-4 w-4" /> Send to Subscribers
         </Button>
       </AlertDialogTrigger>

@@ -12,7 +12,7 @@ import Link from 'next/link';
 function UnsubscribeComponent() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
-  const [state, formAction, isPending] = useActionState(unsubscribeUserAction.bind(null, token || ''), { error: null, success: false, email: null });
+  const [state, formAction, isPending] = useActionState(unsubscribeUserAction.bind(null, token || ''), { error: undefined, success: false, email: null });
 
   if (!token) {
     return <ErrorCard title="Invalid Link" message="This unsubscribe link is invalid or has expired." />;
