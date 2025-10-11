@@ -7,8 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Copy } from 'lucide-react';
 import { RetryFailedButton } from '../../_components/retry-failed-button';
+import { CloneCampaignButton } from '../../_components/clone-campaign-button';
 
 async function getCampaignDetails(id: string) {
     return prisma.emailCampaign.findUnique({
@@ -38,13 +39,17 @@ export default async function ViewEmailCampaignPage(props: { params: Promise<{ i
 
     return (
         <div>
-            <div className="mb-6">
+            <div className="mb-6 flex justify-between items-center">
                 <Button asChild variant="ghost">
                     <Link href="/admin/emails">
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Back to Campaigns
                     </Link>
                 </Button>
+                <div className="flex items-center gap-2">
+                    {hasFailedRecipients && <RetryFailedButton campaignId={campaign.id} />}
+                    <CloneCampaignButton campaignId={campaign.id} />
+                </div>
             </div>
             <div className="flex justify-between items-start mb-6">
                 <div>
@@ -56,7 +61,6 @@ export default async function ViewEmailCampaignPage(props: { params: Promise<{ i
                         </p>
                     </div>
                 </div>
-                {hasFailedRecipients && <RetryFailedButton campaignId={campaign.id} />}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

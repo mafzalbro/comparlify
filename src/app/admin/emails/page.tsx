@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { DeleteCampaignButton } from './_components/delete-campaign-button';
+import { CloneCampaignButton } from './_components/clone-campaign-button';
 
 async function getCampaigns() {
     return prisma.emailCampaign.findMany({
@@ -71,6 +72,7 @@ export default async function AdminEmailsPage() {
                                                 <Link href={`/admin/emails/edit/${campaign.id}`}>Edit</Link>
                                             </Button>
                                         )}
+                                        <CloneCampaignButton campaignId={campaign.id} size="sm" />
                                         <DeleteCampaignButton id={campaign.id} />
                                     </TableCell>
                                 </TableRow>

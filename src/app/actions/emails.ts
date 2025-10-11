@@ -199,6 +199,11 @@ export async function sendCampaignAction(prevState: any, formData: FormData) {
             select: { id: true, email: true }
         });
 
+        await prisma.emailCampaign.update({
+            where: { id: campaignId },
+            data: { status: 'SENDING' }
+        });
+
         if (subscribers.length === 0) {
             // No one to send to, just mark as sent.
             await prisma.emailCampaign.update({
@@ -209,20 +214,13 @@ export async function sendCampaignAction(prevState: any, formData: FormData) {
             return { success: true, error: null, message: "Campaign sent (0 recipients)." };
         }
 
-        await prisma.$transaction(async (tx) => {
-            await tx.emailCampaign.update({
-                where: { id: campaignId },
-                data: { status: 'SENDING' }
-            });
-
-            await tx.emailRecipient.createMany({
-                data: subscribers.map(sub => ({
-                    campaignId: campaignId,
-                    userId: sub.id,
-                    status: 'PENDING'
-                })),
-                skipDuplicates: true
-            });
+        await prisma.emailRecipient.createMany({
+            data: subscribers.map(sub => ({
+                campaignId: campaignId,
+                userId: sub.id,
+                status: 'PENDING'
+            })),
+            skipDuplicates: true
         });
 
         // Trigger background job without awaiting it
@@ -383,4 +381,44 @@ export async function unsubscribeUserAction(token: string) {
     } catch (e) {
         return { error: 'An error occurred during unsubscription.' };
     }
+}
+
+// Clone Email Campaign
+export async function cloneCampaignAction(campaignId: string) {
+  const session = await auth();
+  if (session?.user?.role !== 'ADMIN') {
+    return { error: 'Not authorized' };
+  }
+
+  if (!campaignId) {
+    return { error: 'Campaign ID is missing.' };
+  }
+
+  try {
+    const originalCampaign = await prisma.emailCampaign.findUnique({
+      where: { id: campaignId },
+      include: { excludedUsers: { select: { id: true } } },
+    });
+
+    if (!originalCampaign) {
+      return { error: 'Original campaign not found.' };
+    }
+
+    const newCampaign = await prisma.emailCampaign.create({
+      data: {
+        subject: `[Clone] ${originalCampaign.subject}`,
+        content: originalCampaign.content,
+        excludedUsers: {
+          connect: originalCampaign.excludedUsers.map(u => ({ id: u.id })),
+        },
+        status: 'PENDING',
+      },
+    });
+
+    revalidatePath('/admin/emails');
+    return { success: true, newCampaignId: newCampaign.id };
+  } catch (error) {
+    console.error(error);
+    return { error: 'Failed to clone campaign.' };
+  }
 }
