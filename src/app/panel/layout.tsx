@@ -1,4 +1,5 @@
 
+
 import {
     Sidebar,
     SidebarContent,
@@ -22,6 +23,7 @@ import { UserNav } from "@/components/user-nav";
 import { NotificationBell } from "@/components/layout/notification-bell";
 import { getNotifications } from "@/app/actions/notifications";
 import { getSiteName } from "@/lib/content";
+import { PanelNav } from "./_components/panel-nav";
 
 
 export default async function PanelLayout({
@@ -33,6 +35,11 @@ export default async function PanelLayout({
     const { notifications, unreadCount } = await getNotifications();
     const siteName = await getSiteName()
 
+    if (!session) {
+        // This should be handled by middleware, but as a fallback
+        return null;
+    }
+
     return (
         <SidebarProvider>
             <Sidebar>
@@ -40,35 +47,7 @@ export default async function PanelLayout({
                     <Logo siteName={siteName} />
                 </SidebarHeader>
                 <SidebarContent>
-                    <SidebarMenu>
-                        <SidebarMenuItem>
-                            <Link href="/panel">
-                                <SidebarMenuButton tooltip="Dashboard">
-                                    <LayoutDashboard />
-                                    Dashboard
-                                </SidebarMenuButton>
-                            </Link>
-                        </SidebarMenuItem>
-                        <SidebarGroup>
-                            <SidebarGroupLabel>My Account</SidebarGroupLabel>
-                            <SidebarMenuItem>
-                                <Link href="/panel/profile">
-                                    <SidebarMenuButton tooltip="Profile">
-                                        <UserCircle />
-                                        Profile
-                                    </SidebarMenuButton>
-                                </Link>
-                            </SidebarMenuItem>
-                            <SidebarMenuItem>
-                                <Link href="/panel/settings">
-                                    <SidebarMenuButton tooltip="Settings">
-                                        <Settings />
-                                        Settings
-                                    </SidebarMenuButton>
-                                </Link>
-                            </SidebarMenuItem>
-                        </SidebarGroup>
-                    </SidebarMenu>
+                    <PanelNav user={session.user} />
                 </SidebarContent>
                 <SidebarFooter>
                     <SidebarMenu>
@@ -91,9 +70,9 @@ export default async function PanelLayout({
                             </LogoutButton>
                         </SidebarMenuItem>
                         {session?.user && (
-                            <SidebarMenuItem>
+                            <div className="p-2 flex items-center justify-center">
                                 <UserNav user={session.user} />
-                            </SidebarMenuItem>
+                            </div>
                         )}
                     </SidebarMenu>
                 </SidebarFooter>
@@ -106,6 +85,7 @@ export default async function PanelLayout({
                     </div>
                     <div className="flex items-center gap-2">
                         <NotificationBell notifications={notifications} unreadCount={unreadCount} />
+                         {session?.user && <UserNav user={session.user} />}
                     </div>
                 </header>
                 <main className="p-8">

@@ -1,4 +1,5 @@
 
+
 import { auth } from "@/lib/auth";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
@@ -50,7 +51,7 @@ function PostBookmarkCard({ post }: { post: Post }) {
             </div>
             <CardHeader>
                 <CardTitle className="font-headline text-lg line-clamp-2">
-                    <Link href={`/blog/${post.slug}`} className="hover:text-primary transition-colors">
+                    <Link href={`/blog/${post.slug}`} className="hover:text-primary transition-colors stretched-link">
                         {post.title}
                     </Link>
                 </CardTitle>
@@ -62,7 +63,7 @@ function PostBookmarkCard({ post }: { post: Post }) {
                 <div className="text-sm text-muted-foreground">
                     <span>{readTime} min read</span>
                 </div>
-                <Button asChild variant="ghost" size="sm" className="group-hover:text-primary">
+                <Button asChild variant="ghost" size="sm" className="group-hover:text-primary -mr-3">
                     <Link href={`/blog/${post.slug}`}>
                         Read More <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </Link>

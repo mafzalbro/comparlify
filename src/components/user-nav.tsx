@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import Link from "next/link";
@@ -14,7 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from "./ui/button";
-import { LogOut, UserCircle, LayoutDashboard, ShieldCheck } from "lucide-react";
+import { LogOut, UserCircle, LayoutDashboard, ShieldCheck, Settings } from "lucide-react";
 
 
 export function UserNav({ user }: { user: Session['user'] }) {
@@ -51,6 +52,12 @@ export function UserNav({ user }: { user: Session['user'] }) {
                         <Link href="/panel/profile">
                             <UserCircle className="mr-2 h-4 w-4" />
                             <span>Profile</span>
+                        </Link>
+                    </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/panel/settings">
+                            <Settings className="mr-2 h-4 w-4" />
+                            <span>Settings</span>
                         </Link>
                     </DropdownMenuItem>
                     {user.role === 'ADMIN' && (
