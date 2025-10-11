@@ -30,29 +30,7 @@ enum NotificationType {
   COMMENT_APPROVED
   NEW_COMMENT_AWAITING_APPROVAL
 }
-
-model User {
-  id              String    @id @default(cuid())
-  name            String?
-  email           String?   @unique
-  emailVerified   DateTime?
-  image           String?
-  role            Role      @default(USER)
-  onboarded       Boolean   @default(false)
-  newsletter      Boolean   @default(true)
-  suspended       Boolean   @default(false)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-
-  accounts Account[]
-  sessions Session[]
-  posts    Post[]
-  comments Comment[]
-  bookmarks Bookmark[]
-  notifications Notification[]
-  emailRecipients EmailRecipient[]
-}
-
+// prisma/schema/user.prisma
 
 model Account {
   id                String  @id @default(cuid())
@@ -81,8 +59,29 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(USER)
+  onboarded     Boolean   @default(false)
+  suspended     Boolean   @default(false)
+  newsletter    Boolean   @default(true)
+  accounts      Account[]
+  sessions      Session[]
+  posts         Post[]
+  comments      Comment[]
+  bookmarks     Bookmark[]
+  notifications Notification[]
+  emailRecipients EmailRecipient[]
+  excludedFromCampaigns EmailCampaign[] @relation("ExcludedUsers")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
 model VerificationToken {
-  id         String   @id @default(cuid())
   identifier String
   token      String   @unique
   expires    DateTime
@@ -90,6 +89,38 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
+    
+// prisma/schema/email.prisma
+
+model EmailCampaign {
+  id              String           @id @default(cuid())
+  subject         String
+  content         String           @db.Text
+  status          CampaignStatus   @default(PENDING)
+  sentAt          DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  recipients      EmailRecipient[]
+  excludedUsers   User[]           @relation("ExcludedUsers")
+}
+
+model EmailRecipient {
+  id          String   @id @default(cuid())
+  campaign    EmailCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignId  String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  status      RecipientStatus @default(PENDING)
+  sentAt      DateTime?
+  errorMessage String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
 
 model Subscription {
   id        String   @id @default(cuid())
@@ -106,49 +137,19 @@ model ContactMessage {
   createdAt DateTime @default(now())
 }
 
-enum Role {
-  USER
-  ADMIN
-}
-
-
-model EmailCampaign {
-  id        String            @id @default(cuid())
-  subject   String
-  content   String            @db.Text
-  status    CampaignStatus    @default(PENDING) // PENDING, SENDING, SENT
-  sentAt    DateTime?
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-  recipients EmailRecipient[]
-}
-
-model EmailRecipient {
-  id              String        @id @default(cuid())
-  campaign        EmailCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  campaignId      String
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId          String
-  status          DeliveryStatus @default(PENDING) // PENDING, SUCCESS, FAILED
-  sentAt          DateTime?
-  errorMessage    String?       @db.Text
-  createdAt       DateTime      @default(now())
-
-  @@unique([campaignId, userId])
-}
-
 enum CampaignStatus {
   PENDING
   SENDING
   SENT
 }
 
-enum DeliveryStatus {
+enum RecipientStatus {
   PENDING
   SUCCESS
   FAILED
 }
 
+    
 model SiteContent {
   id        String      @id @default(cuid())
   key       String      @unique // e.g., "homepage.hero.title"

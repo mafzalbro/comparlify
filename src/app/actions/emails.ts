@@ -138,7 +138,7 @@ export async function sendTestEmailAction(input: z.infer<typeof testEmailSchema>
     try {
         const content = await getContent();
         const siteName = content['global.siteName'] || 'Comparlify';
-        const htmlContent = marked.parse(validatedFields.data.content);
+        const htmlContent = await marked.parse(validatedFields.data.content);
         const emailHtml = render(
           CampaignTemplate({
               siteName,
@@ -244,7 +244,7 @@ async function processEmailCampaign(campaignId: string) {
 
   if (!campaign || campaign.status !== 'SENDING') return;
 
-  const htmlContent = marked.parse(campaign.content);
+  const htmlContent = await marked.parse(campaign.content);
   
   for (const recipient of campaign.recipients) {
     if (recipient.user.email) {
@@ -317,7 +317,7 @@ export async function retryFailedEmailsAction(prevState: any, formData: FormData
         return { error: 'Campaign not found.', success: false };
     }
 
-    const htmlContent = marked.parse(campaign.content);
+    const htmlContent = await marked.parse(campaign.content);
 
     for (const recipient of campaign.recipients) {
         if (recipient.user.email) {

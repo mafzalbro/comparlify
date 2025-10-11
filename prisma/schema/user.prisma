@@ -1,4 +1,24 @@
-// prisma/schema/user.prisma
+model User {
+  id                    String                @id @default(cuid())
+  name                  String?
+  email                 String?               @unique
+  emailVerified         DateTime?
+  image                 String?
+  role                  Role                  @default(USER)
+  onboarded             Boolean               @default(false)
+  suspended             Boolean               @default(false)
+  newsletter            Boolean               @default(true)
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  accounts              Account[]
+  sessions              Session[]
+  posts                 Post[]
+  comments              Comment[]
+  bookmarks             Bookmark[]
+  notifications         Notification[]
+  sentEmails            EmailRecipient[]
+  excludedFromCampaigns EmailCampaign[]       @relation("EmailCampaignExclusions")
+}
 
 model Account {
   id                String  @id @default(cuid())
@@ -27,28 +47,6 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  role          Role      @default(USER)
-  onboarded     Boolean   @default(false)
-  suspended     Boolean   @default(false)
-  newsletter    Boolean   @default(true)
-  accounts      Account[]
-  sessions      Session[]
-  posts         Post[]
-  comments      Comment[]
-  bookmarks     Bookmark[]
-  notifications Notification[]
-  emailRecipients EmailRecipient[]
-  excludedFromCampaigns EmailCampaign[] @relation("ExcludedUsers")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-}
-
 model VerificationToken {
   identifier String
   token      String   @unique
@@ -61,5 +59,3 @@ enum Role {
   USER
   ADMIN
 }
-
-    
