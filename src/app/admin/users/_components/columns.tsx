@@ -3,15 +3,15 @@
 
 import { type User } from "@prisma/client"
 import { type ColumnDef } from "@tanstack/react-table"
-import { Check, X } from "lucide-react"
 import { format } from 'date-fns';
 
 import { DataTableColumnHeader } from "@/components/data-table-column-header"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { RoleSwitcher } from "./role-switcher"
 import { useSession } from "next-auth/react"
 import { SuspensionSwitcher } from "./suspension-switcher"
+import { DataTableRowActions } from "./data-table-row-actions";
+import { Check, X } from "lucide-react";
 
 export const columns: ColumnDef<User>[] = [
   {
@@ -40,10 +40,7 @@ export const columns: ColumnDef<User>[] = [
       <DataTableColumnHeader column={column} title="Role" />
     ),
     cell: ({ row }) => {
-      const { data: session } = useSession();
-      return (
-        <RoleSwitcher user={row.original} currentUserId={session?.user.id} />
-      )
+        return <Badge variant={row.original.role === 'ADMIN' ? 'destructive' : 'secondary'}>{row.original.role}</Badge>
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id))
@@ -80,5 +77,12 @@ export const columns: ColumnDef<User>[] = [
       <DataTableColumnHeader column={column} title="Joined" />
     ),
     cell: ({ row }) => format(new Date(row.original.createdAt), 'P'),
+  },
+   {
+    id: "actions",
+    cell: ({ row }) => {
+        const { data: session } = useSession();
+        return <DataTableRowActions user={row.original} currentUserId={session?.user.id} />
+    },
   },
 ]
