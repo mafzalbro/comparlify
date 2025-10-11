@@ -9,7 +9,6 @@ import { Label } from '@/components/ui/label';
 import { type EmailCampaign, type User } from '@prisma/client';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
-import { SubmitButton } from '@/components/submit-button';
 import { Editor } from '@/components/ui/editor';
 import { Send, Mail } from 'lucide-react';
 import { SendCampaignButton } from './send-campaign-button';
@@ -58,15 +57,17 @@ export function EmailForm({ campaign, users }: EmailFormProps) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="md:col-span-2 space-y-6">
                 <form action={action}>
-                    <input type="hidden" name="content" value={content} />
-                    {excludedUsers.map(userId => (
-                        <input type="hidden" name="excludedUserIds" key={userId} value={userId} />
-                    ))}
                     <Card>
                         <CardHeader>
                             <CardTitle>Email Content</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-6">
+                             {/* Hidden inputs to pass state to the form action */}
+                            <input type="hidden" name="content" value={content} />
+                            {excludedUsers.map(userId => (
+                                <input type="hidden" name="excludedUserIds" key={userId} value={userId} />
+                            ))}
+
                             <div className="space-y-2">
                             <Label htmlFor="subject">Subject</Label>
                             <Input id="subject" name="subject" defaultValue={campaign?.subject} required />

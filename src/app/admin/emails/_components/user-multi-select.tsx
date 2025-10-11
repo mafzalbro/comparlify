@@ -1,25 +1,19 @@
+
 'use client';
 
 import * as React from 'react';
-import { Check, ChevronsUpDown, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { ChevronsUpDown, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList
-} from '@/components/ui/command';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import type { User } from '@prisma/client';
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+} from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Input } from '@/components/ui/input';
+import { User } from '@prisma/client';
 
 interface UserMultiSelectProps {
   allUsers: User[];
@@ -32,6 +26,7 @@ export function UserMultiSelect({
   selectedUsers,
   onSelectedUsersChange,
 }: UserMultiSelectProps) {
+  const [search, setSearch] = React.useState('');
   const [open, setOpen] = React.useState(false);
 
   const handleToggle = (userId: string) => {
@@ -45,72 +40,84 @@ export function UserMultiSelect({
   const handleRemove = (userId: string) => {
     onSelectedUsersChange(selectedUsers.filter((id) => id !== userId));
   };
-  
-  const selectedUserDetails = allUsers.filter(user => selectedUsers.includes(user.id));
+
+  const selectedUserDetails = allUsers.filter((user) =>
+    selectedUsers.includes(user.id)
+  );
+
+  const filteredUsers = allUsers.filter((user) => {
+    const query = search.toLowerCase();
+    return (
+      user?.name?.toLowerCase().includes(query) ||
+      user?.email?.toLowerCase().includes(query)
+    );
+  });
 
   return (
     <div className="space-y-2">
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
+      <DropdownMenu open={open} onOpenChange={setOpen}>
+        <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
             aria-expanded={open}
             className="w-full justify-between h-auto min-h-10"
           >
-            <span className="flex flex-wrap gap-1">
-                {selectedUserDetails.length > 0 ? (
-                     selectedUserDetails.map(user => (
-                        <Badge key={user.id} variant="secondary" className="gap-1 pr-1">
-                            {user.name}
-                            <button
-                                onClick={(e) => {
-                                e.stopPropagation();
-                                handleRemove(user.id);
-                                }}
-                                className="rounded-full bg-muted-foreground/20 p-0.5 hover:bg-muted-foreground/40"
-                            >
-                                <X className="h-3 w-3" />
-                            </button>
-                        </Badge>
-                     ))
-                ) : (
-                    'Select users to exclude...'
-                )}
-            </span>
+            <div className="flex flex-wrap gap-1 items-center">
+              {selectedUserDetails.length > 0 ? (
+                selectedUserDetails.map((user) => (
+                  <Badge
+                    key={user.id}
+                    variant="secondary"
+                    className="gap-1 pr-1"
+                    onClick={(e) => {
+                      e.stopPropagation(); // prevent opening dropdown
+                      handleRemove(user.id);
+                    }}
+                  >
+                    {user.name}
+                    <X className="h-3 w-3" />
+                  </Badge>
+                ))
+              ) : (
+                <span className="text-muted-foreground">Select users to exclude...</span>
+              )}
+            </div>
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-            <Command>
-              <CommandInput placeholder="Search users..." />
-              <CommandEmpty>No user found.</CommandEmpty>
-              <CommandList>
-                <ScrollArea className="h-64">
-                    <CommandGroup>
-                        {allUsers.map((user) => (
-                        <CommandItem
-                            key={user.id}
-                            value={user.name || user.email || ''}
-                            onSelect={() => {
-                              handleToggle(user.id);
-                            }}
-                        >
-                            <Check
-                            className={cn(
-                                'mr-2 h-4 w-4',
-                                selectedUsers.includes(user.id) ? 'opacity-100' : 'opacity-0'
-                            )}
-                            />
-                            {user.name} ({user.email})
-                        </CommandItem>
-                        ))}
-                    </CommandGroup>
-                </ScrollArea>
-              </CommandList>
-            </Command>
-        </PopoverContent>
-      </Popover>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] p-2">
+          {/* Search Input */}
+          <Input
+            placeholder="Search users..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="mb-2"
+            autoFocus
+          />
+
+          {/* User list with checkboxes */}
+          <ScrollArea className="h-64 pr-2">
+            <div className="space-y-1">
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map((user) => (
+                  <DropdownMenuCheckboxItem
+                    key={user.id}
+                    checked={selectedUsers.includes(user.id)}
+                    onCheckedChange={() => handleToggle(user.id)}
+                    onSelect={(e) => e.preventDefault()} // prevent closing on select
+                  >
+                    {user.name} ({user.email})
+                  </DropdownMenuCheckboxItem>
+                ))
+              ) : (
+                <div className="px-2 py-1 text-sm text-muted-foreground">No users found.</div>
+              )}
+            </div>
+          </ScrollArea>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }
