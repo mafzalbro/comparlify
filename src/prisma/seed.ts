@@ -293,7 +293,7 @@ async function main() {
     { key: 'homepage.finalCta.button', group: 'Homepage', value: 'Sign Up for Free' },
 
     // Header & Footer
-    { key: 'header.navLinks', group: 'Header', type: 'TEXTAREA', value: JSON.stringify([ { "href": "/", "label": "Home" }, { "href": "/compare", "label": "Comparisons" }, { "href": "/blog", "label": "Blog" }, { "href": "/tools", "label": "Tools" }, { "href": "/about", "label": "About" }, { "href": "/contact", "label": "Contact" } ], null, 2) },
+    { key: 'header.navLinks', group: 'Header', type: 'TEXTAREA', value: JSON.stringify([ { "href": "/", "label": "Home" }, { "href": "/compare", "label": "Comparisons" }, { "href": "/blog", "label": "Blog" }, { "href": "/news", "label": "News" }, { "href": "/community", "label": "Community" }, { "href": "/tools", "label": "Tools" }, { "href": "/about", "label": "About" }, { "href": "/contact", "label": "Contact" } ], null, 2) },
     { key: 'footer.tagline', group: 'Footer', value: 'Helping course creators thrive with better tools and insights.' },
     { key: 'footer.newsletter.title', group: 'Footer', value: 'Stay Updated' },
     { key: 'footer.newsletter.subtitle', group: 'Footer', value: 'Get the latest tips and tool updates straight to your inbox.' },
