@@ -17,22 +17,26 @@ interface UsersDataTableProps {
 async function getUsers({ search, sort, page, per_page, role }: UsersDataTableProps) {
   const pageNumber = parseInt(page) || 1;
   const perPageNumber = parseInt(per_page) || 10;
-  const [column, order] = sort?.split(".") ?? ["createdAt", "desc"];
+  // Default to 'createdAt' if an invalid sort column is provided
+  const [column = 'createdAt', order = 'desc'] = sort?.split(".") ?? [];
+  const validSortColumns = ['name', 'email', 'role', 'createdAt'];
 
   let where: any = {};
   if (search) {
     where.OR = [
-      { name: { contains: search } },
-      { email: { contains: search } },
+      { name: { contains: search, mode: 'insensitive' } },
+      { email: { contains: search, mode: 'insensitive' } },
     ];
   }
   if (role && role !== 'all') {
     where.role = role;
   }
   
+  const orderBy = validSortColumns.includes(column) ? { [column]: order } : { createdAt: 'desc' };
+
   const users: User[] = await prisma.user.findMany({
     where,
-    orderBy: { [column]: order },
+    orderBy,
     skip: (pageNumber - 1) * perPageNumber,
     take: perPageNumber,
   })
