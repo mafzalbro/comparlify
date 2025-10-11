@@ -1,0 +1,43 @@
+model SiteContent {
+  id        String      @id @default(cuid())
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  key       String      @unique
+  value     String      @db.Text
+  group     String
+  type      ContentType @default(TEXT)
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  type      NotificationType
+  message   String
+  link      String
+  read      Boolean          @default(false)
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String
+  email     String
+  message   String   @db.Text
+  read      Boolean  @default(false)
+}
+
+enum ContentType {
+  TEXT
+  TEXTAREA
+  MARKDOWN
+}
+
+enum NotificationType {
+  NEW_USER_REGISTERED
+  NEW_COMMENT_AWAITING_APPROVAL
+  COMMENT_APPROVED
+}

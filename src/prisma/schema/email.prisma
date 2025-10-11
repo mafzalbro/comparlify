@@ -1,31 +1,33 @@
-
 model EmailCampaign {
-  id        String   @id @default(cuid())
-  subject   String
-  content   String   @db.Text
-  status    CampaignStatus @default(PENDING)
-  sentAt    DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  recipients    EmailRecipient[]
-  excludedUsers User[]           @relation("ExcludedUsers")
+  id              String           @id @default(cuid())
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  subject         String
+  content         String           @db.Text
+  status          CampaignStatus   @default(PENDING)
+  sentAt          DateTime?
+  excludedUserIds String?          @db.Text
+  recipients      EmailRecipient[]
 }
 
 model EmailRecipient {
-  id         String   @id @default(cuid())
-  campaign   EmailCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  campaignId String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     String
-  status     RecipientStatus @default(PENDING)
+  id         String         @id @default(cuid())
+  createdAt  DateTime       @default(now())
   sentAt     DateTime?
+  status     SentStatus     @default(PENDING)
   errorMessage String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  campaign   EmailCampaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignId String
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
 
   @@unique([campaignId, userId])
+}
+
+model Subscription {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
 }
 
 enum CampaignStatus {
@@ -34,7 +36,7 @@ enum CampaignStatus {
   SENT
 }
 
-enum RecipientStatus {
+enum SentStatus {
   PENDING
   SUCCESS
   FAILED
