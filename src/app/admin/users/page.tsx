@@ -1,20 +1,9 @@
 
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { Search } from 'lucide-react';
 import type { Role } from '@prisma/client';
 import type { SearchParams } from '@/types/next';
 import { UsersDataTable } from './_components/data-table';
-import Link from 'next/link';
+import { UserFilters } from './_components/user-filters';
 
 
 export default async function AdminUsersPage(props: { searchParams: Promise<SearchParams> }) {
@@ -30,40 +19,7 @@ export default async function AdminUsersPage(props: { searchParams: Promise<Sear
           <CardTitle>Filters</CardTitle>
         </CardHeader>
         <CardContent>
-          <form className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="search">Search</Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                  id="search"
-                  name="search"
-                  placeholder="Search by name or email..."
-                  className="pl-10"
-                  defaultValue={search}
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="role">Filter by Role</Label>
-              <Select name="role" defaultValue={role as string ?? 'all'}>
-                <SelectTrigger id="role">
-                  <SelectValue placeholder="All Roles" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Roles</SelectItem>
-                  <SelectItem value="USER">User</SelectItem>
-                  <SelectItem value="ADMIN">Admin</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex items-end gap-2">
-              <Button type="submit" className="w-full">Apply</Button>
-              <Button asChild variant="outline" className="w-full">
-                <Link href="/admin/users">Reset</Link>
-              </Button>
-            </div>
-          </form>
+          <UserFilters initialSearch={String(search)} initialRole={role as string} />
         </CardContent>
       </Card>
       
