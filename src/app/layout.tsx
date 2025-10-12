@@ -1,3 +1,4 @@
+
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/components/auth/auth-provider';
@@ -61,7 +62,7 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
-        {headCode && <script dangerouslySetInnerHTML={{ __html: headCode }} />}
+        {headCode && <div dangerouslySetInnerHTML={{ __html: headCode }} />}
       </head>
       <body className={cn("font-body antialiased flex flex-col min-h-screen bg-background", fontHeadline.variable, fontBody.variable)}>
         <ThemeProvider
