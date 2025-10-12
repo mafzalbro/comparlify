@@ -3,9 +3,13 @@
 
 import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, X, Loader2 } from "lucide-react";
+import { Check, X, Loader2, Trash2 } from "lucide-react";
 import type { ModerationItem } from "../page";
-import { updateCommunityItemStatus } from "@/app/actions/community";
+import { updateCommunityItemStatus, deleteCommunityItemAction } from "@/app/actions/community";
+import { useToast } from "@/hooks/use-toast";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { MoreHorizontal } from "lucide-react";
 
 interface ModerationActionsProps {
   item: ModerationItem;
@@ -13,33 +17,72 @@ interface ModerationActionsProps {
 
 export function ModerationActions({ item }: ModerationActionsProps) {
   const [isPending, startTransition] = useTransition();
+  const { toast } = useToast();
 
-  const handleApprove = () => {
-    startTransition(() => {
-        updateCommunityItemStatus(item.id, item.type, 'APPROVED');
+  const handleStatusChange = (status: 'APPROVED' | 'REJECTED') => {
+    startTransition(async () => {
+        try {
+            await updateCommunityItemStatus(item.id, item.type, status);
+            toast({ title: 'Success', description: `Item marked as ${status.toLowerCase()}.` });
+        } catch(e) {
+            toast({ title: 'Error', description: (e as Error).message, variant: 'destructive' });
+        }
     });
   };
-  
-  const handleReject = () => {
-    startTransition(() => {
-        updateCommunityItemStatus(item.id, item.type, 'REJECTED');
+
+  const handleDelete = () => {
+    startTransition(async () => {
+        const result = await deleteCommunityItemAction(item.id, item.type);
+        if (result.success) {
+            toast({ title: 'Success', description: 'Item has been deleted.' });
+        } else {
+            toast({ title: 'Error', description: result.error, variant: 'destructive' });
+        }
     });
-  };
+  }
 
   return (
     <div className="flex gap-2 justify-end">
-      {item.status !== 'APPROVED' && (
-        <Button size="sm" onClick={handleApprove} disabled={isPending} variant="ghost" className="text-green-600 hover:text-green-700 hover:bg-green-50">
-          {isPending ? <Loader2 className="h-4 w-4 animate-spin"/> : <Check className="h-4 w-4"/>}
-          <span className="ml-2">Approve</span>
-        </Button>
-      )}
-      {item.status !== 'REJECTED' && (
-        <Button size="sm" onClick={handleReject} disabled={isPending} variant="ghost" className="text-red-600 hover:text-red-700 hover:bg-red-50">
-          {isPending ? <Loader2 className="h-4 w-4 animate-spin"/> : <X className="h-4 w-4"/>}
-           <span className="ml-2">Reject</span>
-        </Button>
-      )}
+      <AlertDialog>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0" disabled={isPending}>
+                {isPending ? <Loader2 className="h-4 w-4 animate-spin"/> : <MoreHorizontal className="h-4 w-4"/>}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {item.status !== 'APPROVED' && (
+                <DropdownMenuItem onClick={() => handleStatusChange('APPROVED')}>
+                    <Check className="mr-2 h-4 w-4" /> Approve
+                </DropdownMenuItem>
+            )}
+            {item.status !== 'REJECTED' && (
+                <DropdownMenuItem onClick={() => handleStatusChange('REJECTED')}>
+                    <X className="mr-2 h-4 w-4" /> Reject
+                </DropdownMenuItem>
+            )}
+             <DropdownMenuSeparator />
+             <AlertDialogTrigger asChild>
+                <DropdownMenuItem className="text-destructive focus:text-destructive">
+                    <Trash2 className="mr-2 h-4 w-4" /> Delete
+                </DropdownMenuItem>
+             </AlertDialogTrigger>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete this {item.type.toLowerCase()}.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

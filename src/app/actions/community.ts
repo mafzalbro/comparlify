@@ -1,3 +1,4 @@
+
 "use server";
 
 import { z } from "zod";
@@ -147,4 +148,40 @@ export async function updateCommunityItemStatus(
         console.error(e);
         throw new Error(`Failed to update ${itemType.toLowerCase()} status.`);
     }
+}
+
+
+export async function deleteCommunityItemAction(itemId: string, itemType: 'TOPIC' | 'POST') {
+  const session = await auth();
+  if (session?.user?.role !== 'ADMIN') {
+    return { error: 'Not authorized' };
+  }
+
+  try {
+    if (itemType === 'TOPIC') {
+      const topic = await prisma.forumTopic.findUnique({
+        where: { id: itemId },
+        include: { category: true }
+      });
+      if (!topic) return { error: 'Topic not found.' };
+
+      await prisma.forumTopic.delete({ where: { id: itemId } });
+      revalidatePath(`/admin/community`);
+      revalidatePath(`/community/category/${topic.category.slug}`);
+    } else { // POST
+      const post = await prisma.forumPost.findUnique({
+        where: { id: itemId },
+        include: { topic: true }
+      });
+      if (!post) return { error: 'Post not found.' };
+
+      await prisma.forumPost.delete({ where: { id: itemId } });
+      revalidatePath(`/admin/community`);
+      revalidatePath(`/community/topic/${post.topic.id}`);
+    }
+    return { success: true };
+  } catch (e) {
+    console.error(e);
+    return { error: `Failed to delete ${itemType.toLowerCase()}.` };
+  }
 }

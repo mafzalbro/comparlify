@@ -8,9 +8,8 @@ import { useSearchParams } from "next/navigation";
 
 const filters: (ForumPostStatus | 'ALL')[] = ['PENDING', 'APPROVED', 'REJECTED', 'ALL'];
 
-export function CommunityFilter() {
+export function CommunityFilter({ currentFilter }: { currentFilter: ForumPostStatus | 'ALL' }) {
     const searchParams = useSearchParams();
-    const currentFilter = searchParams.get('status');
     const activeFilter = currentFilter || 'PENDING';
 
     return (
@@ -22,7 +21,7 @@ export function CommunityFilter() {
                     variant={activeFilter === filter ? 'default' : 'outline'}
                     size="sm"
                 >
-                    <Link href={`/admin/community?status=${filter}`}>
+                    <Link href={`/admin/community?status=${filter}`} scroll={false}>
                         {filter.charAt(0).toUpperCase() + filter.slice(1).toLowerCase()}
                     </Link>
                 </Button>

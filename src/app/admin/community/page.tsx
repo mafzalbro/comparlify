@@ -11,7 +11,6 @@ import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { PlusCircle } from 'lucide-react';
 
 export type ModerationItem =
     | ({ type: 'TOPIC' } & (ForumTopic & { author: User, category: ForumCategory }))
@@ -42,8 +41,10 @@ async function getModerationItems(status: ForumTopicStatus | 'ALL') {
 
 
 export default async function AdminCommunityPage({ searchParams }: { searchParams: SearchParams }) {
-  const statusParam = searchParams?.status || 'PENDING';
-  const currentStatus = (['PENDING', 'APPROVED', 'REJECTED', 'ALL'].includes(statusParam as string) ? statusParam : 'PENDING') as ForumTopicStatus | 'ALL';
+  const statusParam = searchParams?.status as string | undefined;
+  const currentStatus = (statusParam && ['PENDING', 'APPROVED', 'REJECTED', 'ALL'].includes(statusParam)) 
+    ? statusParam as ForumTopicStatus | 'ALL' 
+    : 'PENDING';
 
   const moderationItems = await getModerationItems(currentStatus);
 
@@ -60,13 +61,13 @@ export default async function AdminCommunityPage({ searchParams }: { searchParam
         <CardHeader>
           <CardTitle>Content Queue</CardTitle>
           <CardDescription>
-            Review, approve, or reject user-submitted topics and posts.
+            Review, approve, reject, or delete user-submitted topics and posts.
           </CardDescription>
         </CardHeader>
         <CardContent>
             <div className="mb-4">
               <Suspense fallback={<Skeleton className="h-8 w-full" />}>
-                <CommunityFilter />
+                <CommunityFilter currentFilter={currentStatus} />
               </Suspense>
             </div>
           <CommunityModerationDataTable data={moderationItems} />
