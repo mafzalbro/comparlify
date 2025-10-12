@@ -3,7 +3,7 @@
 
 import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
-import { deleteLegalDocument } from '@/app/actions/legal';
+import { deleteLegalDocumentAction } from '@/app/actions/content';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -32,7 +32,7 @@ function SubmitButton() {
 }
 
 export function DeleteLegalDocumentButton({ id }: { id: string }) {
-  const [state, formAction] = useActionState(deleteLegalDocument, { error: null });
+  const [state, formAction] = useActionState(deleteLegalDocumentAction, { error: null });
   const { toast } = useToast();
 
   useEffect(() => {

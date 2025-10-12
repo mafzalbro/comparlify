@@ -12,14 +12,14 @@ import {
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { DeleteLegalDocumentButton } from './_components/delete-document-button';
-import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
+import { DeleteLegalDocumentButton } from './_components/delete-document-button';
 
 async function getDocuments() {
-  const documents = await prisma.legalDocument.findMany({
+  const documents = await prisma.siteContent.findMany({
+    where: { group: 'Legal Pages' },
     orderBy: {
-      title: 'asc',
+      key: 'asc',
     },
   });
   return documents;
@@ -44,36 +44,34 @@ export default async function AdminLegalPage() {
                 <TableRow>
                 <TableHead>Title</TableHead>
                 <TableHead>Slug</TableHead>
-                <TableHead>Status</TableHead>
                 <TableHead>Last Updated</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {documents.map((doc) => (
-                <TableRow key={doc.id}>
-                    <TableCell className="font-medium">
-                        <Link href={`/admin/legal/edit/${doc.id}`} className="hover:underline">{doc.title}</Link>
-                    </TableCell>
-                     <TableCell>
-                        <span className="font-mono text-sm bg-muted px-2 py-1 rounded-md">{doc.slug}</span>
-                    </TableCell>
-                    <TableCell>
-                        <Badge variant={doc.published ? 'default' : 'secondary'}>
-                          {doc.published ? 'Published' : 'Draft'}
-                        </Badge>
-                    </TableCell>
-                    <TableCell>
-                        {format(new Date(doc.updatedAt), 'P')}
-                    </TableCell>
-                    <TableCell className="text-right">
-                    <Button asChild variant="ghost" size="sm">
-                        <Link href={`/admin/legal/edit/${doc.id}`}>Edit</Link>
-                    </Button>
-                    <DeleteLegalDocumentButton id={doc.id} />
-                    </TableCell>
-                </TableRow>
-                ))}
+                {documents.map((doc) => {
+                    const title = doc.key.replace('legal.', '').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    const slug = doc.key.replace('legal.', '');
+                    return (
+                        <TableRow key={doc.id}>
+                            <TableCell className="font-medium">
+                                <Link href={`/admin/legal/edit/${doc.id}`} className="hover:underline">{title}</Link>
+                            </TableCell>
+                            <TableCell>
+                                <span className="font-mono text-sm bg-muted px-2 py-1 rounded-md">{slug}</span>
+                            </TableCell>
+                            <TableCell>
+                                {format(new Date(doc.updatedAt), 'P')}
+                            </TableCell>
+                            <TableCell className="text-right">
+                            <Button asChild variant="ghost" size="sm">
+                                <Link href={`/admin/legal/edit/${doc.id}`}>Edit</Link>
+                            </Button>
+                            <DeleteLegalDocumentButton id={doc.id} />
+                            </TableCell>
+                        </TableRow>
+                    )
+                })}
             </TableBody>
             </Table>
         </CardContent>

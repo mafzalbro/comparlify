@@ -31,7 +31,7 @@ export function AdminNav() {
                 { href: "/admin/comparisons", label: "Comparisons", Icon: GitCompareArrows },
                 { href: "/admin/news", label: "News", Icon: Newspaper },
                 { href: "/admin/community", label: "Community", Icon: MessageSquare },
-                { href: "/admin/content?group=Legal+Pages", label: "Legal", Icon: Gavel },
+                { href: "/admin/legal", label: "Legal", Icon: Gavel },
             ]
         },
         {
@@ -68,7 +68,7 @@ export function AdminNav() {
                             <Link href={item.href}>
                                 <SidebarMenuButton
                                     tooltip={item.label}
-                                    isActive={pathname === item.href}
+                                    isActive={pathname.startsWith(item.href) && (item.href !== '/admin' || pathname === '/admin')}
                                 >
                                     <item.Icon />
                                     {item.label}

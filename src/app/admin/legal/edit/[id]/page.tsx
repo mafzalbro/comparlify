@@ -2,12 +2,14 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { LegalDocumentForm } from '../../_components/legal-document-form';
-import type { LegalDocument } from '@prisma/client';
+import type { SiteContent } from '@prisma/client';
 
-async function getDocument(id: string): Promise<LegalDocument | null> {
-    return prisma.legalDocument.findUnique({
-        where: { id },
+async function getDocument(id: string): Promise<SiteContent | null> {
+    const doc = await prisma.siteContent.findUnique({
+        where: { id, group: 'Legal Pages' },
     });
+    if (!doc) return null;
+    return doc;
 }
 
 export default async function EditLegalDocumentPage(props: { params: Promise<{ id: string }> }) {
