@@ -25,14 +25,10 @@ export default function AdminSettingsPage() {
     const { toast } = useToast();
     const router = useRouter();
 
-    const fetchContent = async () => {
+    useEffect(() => {
         getSettingsContent().then(content => {
             setSettingsContent(content);
         })
-    }
-
-    useEffect(() => {
-        fetchContent();
     }, []);
 
     const handleRevalidation = (path: 'all' | 'blog' | 'compare') => {
@@ -54,8 +50,8 @@ export default function AdminSettingsPage() {
     };
     
     const handleFormSuccess = () => {
-        fetchContent(); // Re-fetch the content to update the form state
-        router.refresh(); // Re-fetch server components
+        // Just refresh the server components. The form will get the new data.
+        router.refresh(); 
     }
     
     const renderFormOrSkeleton = (groupName: string) => {

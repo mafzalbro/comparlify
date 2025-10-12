@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useEffect } from 'react';
+import { useActionState, useEffect, useRef } from 'react';
 import { updateContentAction } from '@/app/actions/content';
 import { type SiteContent } from '@prisma/client';
 import { Button } from '@/components/ui/button';
@@ -20,13 +20,19 @@ interface ContentFormProps {
 export function ContentForm({ items, onFormSuccess }: ContentFormProps) {
   const [state, formAction] = useActionState(updateContentAction, { error: null, success: false });
   const { toast } = useToast();
+  const successShownRef = useRef(false);
 
   useEffect(() => {
-    if (state.success) {
+    if (state.success && !successShownRef.current) {
       toast({ title: 'Success!', description: 'Content updated successfully.' });
       onFormSuccess?.();
+      successShownRef.current = true;
     } else if (state.error) {
       toast({ title: 'Error', description: state.error, variant: 'destructive' });
+      successShownRef.current = false; // Reset on error
+    } else if (!state.success && !state.error) {
+        // Reset the flag if the form is in its initial state
+        successShownRef.current = false;
     }
   }, [state, toast, onFormSuccess]);
 
