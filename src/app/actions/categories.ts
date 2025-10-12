@@ -153,3 +153,81 @@ export async function deleteComparisonCategory(prevState: { error: string | null
         return { error: "Failed to delete category." };
     }
 }
+
+
+// --- Forum Category Actions ---
+const forumCategorySchema = z.object({
+    name: z.string().min(2, "Name must be at least 2 characters long."),
+    slug: z.string().min(2, "Slug must be at least 2 characters long."),
+    description: z.string().min(10, "Description must be at least 10 characters long."),
+});
+
+export async function createForumCategory(prevState: any, formData: FormData) {
+    const session = await auth();
+    if (session?.user?.role !== 'ADMIN') {
+      return { error: 'Not authorized' };
+    }
+    const validatedFields = forumCategorySchema.safeParse(Object.fromEntries(formData.entries()));
+
+    if (!validatedFields.success) {
+        return { error: validatedFields.error.flatten().fieldErrors };
+    }
+
+    try {
+        await prisma.forumCategory.create({ data: validatedFields.data });
+        revalidatePath('/admin/community/categories');
+        revalidatePath('/community');
+    } catch (error) {
+        console.error(error);
+        return { error: "Failed to create category." };
+    }
+    redirect('/admin/community/categories');
+}
+
+export async function updateForumCategory(id: string, prevState: any, formData: FormData) {
+    const session = await auth();
+    if (session?.user?.role !== 'ADMIN') {
+      return { error: 'Not authorized' };
+    }
+    const validatedFields = forumCategorySchema.safeParse(Object.fromEntries(formData.entries()));
+
+    if (!validatedFields.success) {
+        return { error: validatedFields.error.flatten().fieldErrors };
+    }
+
+    try {
+        await prisma.forumCategory.update({
+            where: { id },
+            data: validatedFields.data,
+        });
+        revalidatePath('/admin/community/categories');
+        revalidatePath('/community');
+    } catch (error) {
+        console.error(error);
+        return { error: "Failed to update category." };
+    }
+    redirect('/admin/community/categories');
+}
+
+export async function deleteForumCategory(prevState: { error: string | null }, formData: FormData) {
+    const session = await auth();
+    if (session?.user?.role !== 'ADMIN') {
+      return { error: 'Not authorized' };
+    }
+    const id = formData.get('id') as string;
+    if (!id) {
+        return { error: "Category ID is missing." };
+    }
+    try {
+        await prisma.forumCategory.delete({ where: { id } });
+        revalidatePath('/admin/community/categories');
+        revalidatePath('/community');
+        return { error: null };
+    } catch (error) {
+        if (error instanceof prisma.PrismaClientKnownRequestError && error.code === 'P2003') {
+            return { error: "Cannot delete category. It still contains topics." };
+        }
+        console.error(error);
+        return { error: "Failed to delete category." };
+    }
+}

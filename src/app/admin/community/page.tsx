@@ -9,13 +9,16 @@ import type { SearchParams } from '@/types/next';
 import type { ForumPost, ForumTopic, User, ForumCategory, ForumTopicStatus, ForumPostStatus } from '@prisma/client';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { PlusCircle } from 'lucide-react';
 
 export type ModerationItem =
     | ({ type: 'TOPIC' } & (ForumTopic & { author: User, category: ForumCategory }))
     | ({ type: 'POST' } & (ForumPost & { author: User, topic: ForumTopic }));
 
-async function getModerationItems(status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'ALL') {
-  const whereClause = status === 'ALL' ? {} : { status: status };
+async function getModerationItems(status: ForumTopicStatus | 'ALL') {
+  const whereClause = status === 'ALL' ? {} : { status };
 
   const topics = await prisma.forumTopic.findMany({
     where: whereClause,
@@ -29,18 +32,18 @@ async function getModerationItems(status: 'PENDING' | 'APPROVED' | 'REJECTED' | 
     orderBy: { createdAt: 'desc' }
   });
 
-  const moderationItems: ModerationItem[] = [
+  const allItems: ModerationItem[] = [
     ...topics.map(t => ({ ...t, type: 'TOPIC' as const })),
     ...posts.map(p => ({ ...p, type: 'POST' as const })),
-  ].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  ];
   
-  return moderationItems;
+  return allItems.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 }
 
 
 export default async function AdminCommunityPage({ searchParams }: { searchParams: SearchParams }) {
   const statusParam = searchParams?.status || 'PENDING';
-  const currentStatus = (['PENDING', 'APPROVED', 'REJECTED', 'ALL'].includes(statusParam as string) ? statusParam : 'PENDING') as 'PENDING' | 'APPROVED' | 'REJECTED' | 'ALL';
+  const currentStatus = (['PENDING', 'APPROVED', 'REJECTED', 'ALL'].includes(statusParam as string) ? statusParam : 'PENDING') as ForumTopicStatus | 'ALL';
 
   const moderationItems = await getModerationItems(currentStatus);
 
@@ -48,6 +51,9 @@ export default async function AdminCommunityPage({ searchParams }: { searchParam
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Community Moderation</h1>
+        <Button asChild variant="outline">
+          <Link href="/admin/community/categories">Manage Categories</Link>
+        </Button>
       </div>
 
       <Card>
