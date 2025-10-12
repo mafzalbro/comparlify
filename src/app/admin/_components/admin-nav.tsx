@@ -31,6 +31,7 @@ export function AdminNav() {
                 { href: "/admin/comparisons", label: "Comparisons", Icon: GitCompareArrows },
                 { href: "/admin/news", label: "News", Icon: Newspaper },
                 { href: "/admin/community", label: "Community", Icon: MessageSquare },
+                { href: "/admin/content?group=Legal+Pages", label: "Legal", Icon: Gavel },
             ]
         },
         {
@@ -63,11 +64,11 @@ export function AdminNav() {
                 <SidebarGroup key={group.group}>
                     <SidebarGroupLabel>{group.group}</SidebarGroupLabel>
                     {group.items.map(item => (
-                        <SidebarMenuItem key={item.href}>
+                        <SidebarMenuItem key={item.label}>
                             <Link href={item.href}>
                                 <SidebarMenuButton
                                     tooltip={item.label}
-                                    isActive={pathname.startsWith(item.href) && (item.href !== '/admin' || pathname === '/admin')}
+                                    isActive={pathname === item.href}
                                 >
                                     <item.Icon />
                                     {item.label}

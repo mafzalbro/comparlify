@@ -14,6 +14,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { ContentForm } from "./_components/content-form";
+import type { SearchParams } from "@/types/next";
 
 async function getSiteContent() {
   const content = await prisma.siteContent.findMany({
@@ -33,9 +34,10 @@ async function getSiteContent() {
   return groupedContent;
 }
 
-export default async function AdminContentPage() {
+export default async function AdminContentPage(props: { searchParams: SearchParams }) {
   const groupedContent = await getSiteContent();
   const groups = Object.keys(groupedContent).sort();
+  const defaultTab = props.searchParams?.group as string || groups[0];
 
   return (
     <div>
@@ -46,7 +48,7 @@ export default async function AdminContentPage() {
         </p>
       </div>
 
-      <Tabs defaultValue={groups[0]} className="w-full">
+      <Tabs defaultValue={defaultTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 h-auto mb-6">
             {groups.map(group => (
                 <TabsTrigger key={group} value={group}>{group}</TabsTrigger>
