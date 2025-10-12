@@ -9,6 +9,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DataTableViewOptions } from "./data-table-view-options"
+import Link from "next/link";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>,
@@ -79,17 +80,12 @@ export function DataTableToolbar<TData>({
           className="h-8 w-[150px] lg:w-[250px]"
         />
         {hasSearchFilter && (
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setSearchValue('');
-              router.push(pathname, { scroll: false });
-            }}
-            className="h-8 px-2 lg:px-3"
-          >
-            Reset
-            <Cross2Icon className="ml-2 h-4 w-4" />
-          </Button>
+            <Button asChild variant="ghost" className="h-8 px-2 lg:px-3">
+              <Link href={pathname} scroll={false}>
+                  Reset
+                  <Cross2Icon className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
         )}
       </div>
       <DataTableViewOptions table={table} />
