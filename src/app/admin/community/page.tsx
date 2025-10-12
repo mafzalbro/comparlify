@@ -40,7 +40,8 @@ async function getModerationItems(status: ForumTopicStatus | 'ALL') {
 }
 
 
-export default async function AdminCommunityPage({ searchParams }: { searchParams: SearchParams }) {
+export default async function AdminCommunityPage(props: { searchParams: Promise<SearchParams> }) {
+  const searchParams = await props.searchParams;
   const statusParam = searchParams?.status as string | undefined;
   const currentStatus = (statusParam && ['PENDING', 'APPROVED', 'REJECTED', 'ALL'].includes(statusParam)) 
     ? statusParam as ForumTopicStatus | 'ALL' 

@@ -28,7 +28,8 @@ const getCategory = cache(async (slug: string) => {
     });
 });
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+    const params = await props.params;
     const category = await getCategory(params.slug);
     if (!category) return {};
 
@@ -40,41 +41,42 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 
-export default async function CategoryPage({ params }: { params: { slug: string } }) {
-  const [category, session] = await Promise.all([
-    getCategory(params.slug),
-    auth()
-  ]);
+export default async function CategoryPage(props: { params: Promise<{ slug: string }> }) {
+    const params = await props.params;
+    const [category, session] = await Promise.all([
+      getCategory(params.slug),
+      auth()
+    ]);
 
-  if (!category) {
-    notFound();
-  }
+    if (!category) {
+      notFound();
+    }
 
-  return (
-    <div className="container py-12">
-        <Breadcrumbs 
-            items={[
-                { name: 'Home', href: '/' },
-                { name: 'Community', href: '/community' },
-                { name: category.name }
-            ]}
-            className="mb-8"
-        />
+    return (
+      <div className="container py-12">
+          <Breadcrumbs 
+              items={[
+                  { name: 'Home', href: '/' },
+                  { name: 'Community', href: '/community' },
+                  { name: category.name }
+              ]}
+              className="mb-8"
+          />
 
-        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-8">
-            <div>
-                <h1 className="text-4xl font-bold font-headline">{category.name}</h1>
-                <p className="text-muted-foreground mt-2">{category.description}</p>
-            </div>
-             <div className="flex-shrink-0">
-                <Button asChild disabled={!session?.user}>
-                    <Link href={`/community/new-topic?category=${category.id}`}>New Topic</Link>
-                </Button>
-                {!session?.user && <p className="text-xs text-muted-foreground mt-2 text-right">You must be logged in to create a topic.</p>}
-            </div>
-        </div>
+          <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-8">
+              <div>
+                  <h1 className="text-4xl font-bold font-headline">{category.name}</h1>
+                  <p className="text-muted-foreground mt-2">{category.description}</p>
+              </div>
+               <div className="flex-shrink-0">
+                  <Button asChild disabled={!session?.user}>
+                      <Link href={`/community/new-topic?category=${category.id}`}>New Topic</Link>
+                  </Button>
+                  {!session?.user && <p className="text-xs text-muted-foreground mt-2 text-right">You must be logged in to create a topic.</p>}
+              </div>
+          </div>
 
-        <TopicList topics={category.topics} />
-    </div>
-  )
+          <TopicList topics={category.topics} />
+      </div>
+    )
 }
