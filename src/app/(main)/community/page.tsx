@@ -17,7 +17,8 @@ async function getForumCategories() {
   return prisma.forumCategory.findMany({
     include: {
       topics: {
-        select: { id: true, _count: { select: { posts: true } } },
+        where: { status: 'APPROVED' },
+        select: { id: true, _count: { select: { posts: { where: { status: 'APPROVED' }}} } },
       },
     },
     orderBy: { name: 'asc' },
@@ -59,13 +60,13 @@ export default async function CommunityPage() {
           <div className="space-y-8">
             {categories.map((category) => {
               const topicCount = category.topics.length;
-              const postCount = category.topics.reduce((sum, topic) => sum + topic._count.posts, 0);
+              const postCount = category.topics.reduce((sum, topic) => sum + topic._count.posts + 1, 0);
 
               return (
               <Card key={category.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <CardTitle className="font-headline text-2xl">
-                    <Link href={`/community/category/${category.id}`} className="hover:text-primary transition-colors">
+                    <Link href={`/community/category/${category.slug}`} className="hover:text-primary transition-colors">
                       {category.name}
                     </Link>
                   </CardTitle>
@@ -76,7 +77,7 @@ export default async function CommunityPage() {
                     <span>{topicCount} {topicCount === 1 ? 'Topic' : 'Topics'}</span>
                     <span>{postCount} {postCount === 1 ? 'Post' : 'Posts'}</span>
                   </div>
-                  <Link href={`/community/category/${category.id}`} className="flex items-center text-primary font-semibold hover:underline">
+                  <Link href={`/community/category/${category.slug}`} className="flex items-center text-primary font-semibold hover:underline">
                     View Forum <ChevronsRight className="ml-1 h-4 w-4" />
                   </Link>
                 </CardContent>
