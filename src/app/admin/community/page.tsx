@@ -7,6 +7,8 @@ import { CommunityModerationDataTable } from './_components/community-moderation
 import { CommunityFilter } from './_components/community-filter';
 import type { SearchParams } from '@/types/next';
 import type { ForumPost, ForumTopic, User, ForumCategory, ForumTopicStatus, ForumPostStatus } from '@prisma/client';
+import { Suspense } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export type ModerationItem =
     | ({ type: 'TOPIC' } & (ForumTopic & { author: User, category: ForumCategory }))
@@ -51,7 +53,9 @@ export default async function AdminCommunityPage({ searchParams }: { searchParam
         </CardHeader>
         <CardContent>
             <div className="mb-4">
-                <CommunityFilter currentFilter={status} />
+              <Suspense fallback={<Skeleton className="h-8 w-full" />}>
+                <CommunityFilter />
+              </Suspense>
             </div>
           <CommunityModerationDataTable data={moderationItems} />
         </CardContent>

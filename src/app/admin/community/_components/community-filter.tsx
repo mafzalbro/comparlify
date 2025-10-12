@@ -1,12 +1,16 @@
+
 'use client';
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import type { ForumPostStatus } from "@prisma/client";
+import { useSearchParams } from "next/navigation";
 
 const filters: (ForumPostStatus | 'ALL')[] = ['PENDING', 'APPROVED', 'REJECTED', 'ALL'];
 
-export function CommunityFilter({ currentFilter }: { currentFilter?: ForumPostStatus | 'ALL' }) {
+export function CommunityFilter() {
+    const searchParams = useSearchParams();
+    const currentFilter = searchParams.get('status');
     const activeFilter = currentFilter || 'PENDING';
 
     return (
