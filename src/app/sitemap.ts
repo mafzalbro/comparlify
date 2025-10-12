@@ -1,3 +1,4 @@
+
 import { MetadataRoute } from 'next';
 import prisma from '@/lib/prisma';
 import { allTools } from './(main)/tools/tools';
@@ -12,6 +13,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
 
   const comparisons = await prisma.comparison.findMany({
+    where: { published: true },
+    select: { slug: true, updatedAt: true },
+  });
+
+  const legalDocs = await prisma.legalDocument.findMany({
     where: { published: true },
     select: { slug: true, updatedAt: true },
   });
@@ -37,6 +43,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
+  const legalUrls = legalDocs.map(doc => ({
+    url: `${siteUrl}/legal/${doc.slug}`,
+    lastModified: doc.updatedAt,
+    changeFrequency: 'yearly' as const,
+    priority: 0.3,
+  }));
+
   // Define static routes
   const staticRoutes = [
     '/',
@@ -54,5 +67,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: route === '/' ? 1.0 : 0.7,
   }));
 
-  return [...staticUrls, ...postUrls, ...comparisonUrls, ...toolUrls];
+  return [...staticUrls, ...postUrls, ...comparisonUrls, ...toolUrls, ...legalUrls];
 }

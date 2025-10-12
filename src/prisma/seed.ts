@@ -15,6 +15,7 @@ async function main() {
   await prisma.forumPost.deleteMany();
   await prisma.forumTopic.deleteMany();
   await prisma.forumCategory.deleteMany();
+  await prisma.legalDocument.deleteMany();
   await prisma.newsArticle.deleteMany();
   await prisma.emailRecipient.deleteMany();
   await prisma.emailCampaign.deleteMany();
@@ -393,6 +394,8 @@ If you have any questions about our privacy policy, please contact us at <a href
     // Admin Settings
     { key: 'settings.email.fromName', group: 'Email Settings', value: 'Comparlify' },
     { key: 'settings.email.fromEmail', group: 'Email Settings', value: 'noreply@comparlify.com' },
+    { key: 'settings.code.head', group: 'Code Injection', type: 'TEXTAREA', value: '' },
+
   ];
   await prisma.siteContent.createMany({ data: siteContent });
   console.log("Seeded site content.");
@@ -445,6 +448,49 @@ If you have any questions about our privacy policy, please contact us at <a href
   });
 
   console.log("Seeded community forums.");
+
+  // --- 14. Seed Legal Documents ---
+  await prisma.legalDocument.createMany({
+    data: [
+        {
+            title: "Terms of Service",
+            slug: "terms-of-service",
+            published: true,
+            content: `
+# Terms of Service
+
+**Last Updated:** ${new Date().toLocaleDateString()}
+
+Welcome to Comparlify! These terms and conditions outline the rules and regulations for the use of Comparlify's Website, located at comparlify.com.
+
+By accessing this website we assume you accept these terms and conditions. Do not continue to use Comparlify if you do not agree to take all of the terms and conditions stated on this page.
+
+... (full terms content) ...
+            `,
+        },
+        {
+            title: "Sponsor & Affiliate Policy",
+            slug: "sponsor-policy",
+            published: true,
+            content: `
+# Sponsor & Affiliate Policy
+
+**Last Updated:** ${new Date().toLocaleDateString()}
+
+At Comparlify, our mission is to provide clear, unbiased, and valuable information to course creators. To support our work and keep our content free, we may partner with companies through sponsorships or affiliate links. This policy outlines our commitment to transparency.
+
+## Our Principles
+
+1.  **Editorial Independence:** Our content is created independently. Sponsors do not influence our reviews, comparisons, or opinions.
+2.  **Transparency:** We will always clearly disclose sponsored content or affiliate relationships.
+3.  **Relevance:** We only partner with companies whose products or services we believe are genuinely valuable to our audience.
+
+... (full policy content) ...
+            `,
+        }
+    ]
+  });
+  console.log("Seeded legal documents.");
 
 
   console.log("Seeding finished.");

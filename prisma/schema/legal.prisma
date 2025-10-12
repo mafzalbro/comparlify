@@ -1,0 +1,10 @@
+
+model LegalDocument {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title     String   @unique
+  slug      String   @unique
+  content   String   @db.Text
+  published Boolean  @default(false)
+}

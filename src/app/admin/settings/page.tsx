@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useEffect, useState, useTransition } from 'react';
@@ -5,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { revalidateCacheAction } from '@/app/actions/admin';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Trash2, Globe, BookOpen, GitCompareArrows } from 'lucide-react';
+import { Loader2, Trash2, Globe, BookOpen, GitCompareArrows, Code } from 'lucide-react';
 import {
     Tabs,
     TabsContent,
@@ -49,9 +50,10 @@ export default function AdminSettingsPage() {
         <div>
             <h1 className="text-3xl font-bold mb-6">Settings</h1>
             <Tabs defaultValue="general" className="w-full">
-                <TabsList className="mb-6">
+                <TabsList className="mb-6 h-auto flex-wrap justify-start">
                     <TabsTrigger value="general">General</TabsTrigger>
                     <TabsTrigger value="email">Email</TabsTrigger>
+                    <TabsTrigger value="codeInjection">Code Injection</TabsTrigger>
                     <TabsTrigger value="cache">Cache</TabsTrigger>
                 </TabsList>
                 <TabsContent value="general">
@@ -77,6 +79,19 @@ export default function AdminSettingsPage() {
                         </CardHeader>
                         <CardContent>
                             <ContentForm items={settingsContent?.['Email Settings'] || []} />
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+                <TabsContent value="codeInjection">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2"><Code /> Code Injection</CardTitle>
+                            <CardDescription>
+                                Add custom code snippets to the &lt;head&gt; section of your site. Use this for analytics, tracking pixels, or other third-party scripts. Use with caution.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <ContentForm items={settingsContent?.['Code Injection'] || []} />
                         </CardContent>
                     </Card>
                 </TabsContent>

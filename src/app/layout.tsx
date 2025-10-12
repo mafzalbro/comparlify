@@ -10,6 +10,7 @@ import { Poppins, Lato } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { getContent } from '@/lib/content';
 import { Suspense } from 'react';
+import Head from 'next/head';
 
 const fontHeadline = Poppins({
   subsets: ['latin'],
@@ -38,6 +39,8 @@ export default async function RootLayout({
   // seed()
   const content = await getContent();
   const siteName = content['global.siteName'] || 'Comparlify';
+  const headCode = content['settings.code.head'] || '';
+
 
   const websiteSchema = {
     '@context': 'https://schema.org',
@@ -61,6 +64,7 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
+        {headCode && <script dangerouslySetInnerHTML={{ __html: headCode }} />}
       </head>
       <body className={cn("font-body antialiased flex flex-col min-h-screen bg-background", fontHeadline.variable, fontBody.variable)}>
         <ThemeProvider

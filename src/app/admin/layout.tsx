@@ -34,15 +34,13 @@ export default async function AdminLayout({
 }) {
     const session = await auth();
     const { notifications, unreadCount } = await getNotifications();
-    const siteName = await getSiteName()
+    let siteName = await getSiteName()
 
     return (
         <SidebarProvider>
             <Sidebar>
-                <SidebarHeader>
-                    <Link href="/admin">
-                        <Logo siteName={siteName} />
-                    </Link>
+                <SidebarHeader className="!overflow-hidden">
+                        <Logo siteName={siteName} className="justify-start"/>
                 </SidebarHeader>
                 <SidebarContent>
                     <AdminNav />

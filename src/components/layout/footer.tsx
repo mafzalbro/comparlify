@@ -98,6 +98,8 @@ export default function Footer({ content, siteName }: FooterProps) {
                 <li><Link href="/about" className="text-sm text-muted-foreground hover:text-primary">About Us</Link></li>
                 <li><Link href="/contact" className="text-sm text-muted-foreground hover:text-primary">Contact</Link></li>
                 <li><Link href="/privacy" className="text-sm text-muted-foreground hover:text-primary">Privacy Policy</Link></li>
+                 <li><Link href="/legal/terms-of-service" className="text-sm text-muted-foreground hover:text-primary">Terms of Service</Link></li>
+                 <li><Link href="/legal/sponsor-policy" className="text-sm text-muted-foreground hover:text-primary">Sponsor Policy</Link></li>
               </ul>
             </div>
           </div>
