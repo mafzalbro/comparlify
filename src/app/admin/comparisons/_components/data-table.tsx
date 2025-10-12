@@ -24,9 +24,9 @@ async function getComparisons({ search, sort, page, per_page }: ComparisonsDataT
   if (search) {
       where = {
           OR: [
-            { title: { contains: search, mode: 'insensitive' } },
-            { platformA: { name: { contains: search, mode: 'insensitive' } } },
-            { platformB: { name: { contains: search, mode: 'insensitive' } } },
+            { title: { contains: search } },
+            { platformA: { name: { contains: search } } },
+            { platformB: { name: { contains: search } } },
           ]
       }
   }

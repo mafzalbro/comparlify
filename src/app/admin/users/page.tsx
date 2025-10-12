@@ -24,8 +24,8 @@ async function getUsers({ search, sort, page, per_page, role }: {
   let where: any = {};
   if (search) {
     where.OR = [
-      { name: { contains: search, mode: 'insensitive' } },
-      { email: { contains: search, mode: 'insensitive' } },
+      { name: { contains: search } },
+      { email: { contains: search } },
     ];
   }
   if (role && role !== 'all') {
