@@ -2,7 +2,6 @@
 import { MetadataRoute } from 'next';
 import prisma from '@/lib/prisma';
 import { allTools } from './(main)/tools/tools';
-import { getContent } from '@/lib/content';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = 'https://www.comparlify.com'; // Replace with your actual domain
@@ -18,15 +17,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     select: { slug: true, updatedAt: true },
   });
   
-  const content = await getContent();
-  
-  const legalDocs = Object.entries(content)
-    .filter(([key, value]) => key.startsWith('legal.'))
-    .map(([key, value]) => ({
-      slug: key.replace('legal.', ''),
-      // We don't have an updatedAt for siteContent, so we'll use the current date
-      updatedAt: new Date(), 
-    }));
+  const legalDocs = await prisma.legalDocument.findMany({
+    where: { published: true },
+    select: { slug: true, updatedAt: true },
+  });
 
 
   const postUrls = posts.map(post => ({
@@ -66,6 +60,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/compare',
     '/contact',
     '/tools',
+    '/news',
+    '/community'
   ];
 
   const staticUrls = staticRoutes.map(route => ({

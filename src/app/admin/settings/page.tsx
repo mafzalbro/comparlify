@@ -62,7 +62,6 @@ export default function AdminSettingsPage() {
                     <TabsTrigger value="general">General</TabsTrigger>
                     <TabsTrigger value="email">Email</TabsTrigger>
                     <TabsTrigger value="codeInjection">Code Injection</TabsTrigger>
-                    <TabsTrigger value="legal">Legal Pages</TabsTrigger>
                     <TabsTrigger value="cache">Cache</TabsTrigger>
                 </TabsList>
                 <TabsContent value="general">
@@ -101,19 +100,6 @@ export default function AdminSettingsPage() {
                         </CardHeader>
                         <CardContent>
                             {renderFormOrSkeleton('Code Injection')}
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-                 <TabsContent value="legal">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2"><Gavel /> Legal Pages</CardTitle>
-                            <CardDescription>
-                                Manage the content for your Terms of Service, Privacy Policy, etc. These are displayed on the site under the `/legal/[slug]` path.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            {renderFormOrSkeleton('Legal Pages')}
                         </CardContent>
                     </Card>
                 </TabsContent>

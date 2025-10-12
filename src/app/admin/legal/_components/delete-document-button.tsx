@@ -1,89 +1,71 @@
-"use server";
 
-import prisma from "@/lib/prisma";
-import { auth } from "@/lib/auth";
-import { revalidatePath } from "next/cache";
-import { $Enums } from "@prisma/client";
+'use client';
 
-interface UpdateContentState {
-  error: string | null;
-  success: boolean;
+import { useActionState, useEffect } from 'react';
+import { useFormStatus } from 'react-dom';
+import { deleteLegalDocument } from '@/app/actions/legal';
+import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
+function SubmitButton() {
+    const { pending } = useFormStatus();
+    return (
+        <AlertDialogAction asChild>
+            <Button variant="destructive" type="submit" disabled={pending}>
+                {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Delete
+            </Button>
+        </AlertDialogAction>
+    )
 }
 
-export type AdminSettings = Record<
-  string,
-  {
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    type: $Enums.ContentType;
-    key: string;
-    value: string;
-    group: string;
-  }[]
->;
+export function DeleteLegalDocumentButton({ id }: { id: string }) {
+  const [state, formAction] = useActionState(deleteLegalDocument, { error: null });
+  const { toast } = useToast();
 
-export async function updateContentAction(
-  prevState: UpdateContentState,
-  formData: FormData
-): Promise<UpdateContentState> {
-  const session = await auth();
-  if (session?.user?.role !== "ADMIN") {
-    return { error: "Not authorized", success: false };
-  }
-
-  const updates = Array.from(formData.entries());
-
-  const keys = updates.map(([key, _]) => key);
-
-  const existing = await prisma.siteContent.findMany({
-    where: { key: { in: keys } },
-    select: { key: true },
-  });
-  const existingKeys = new Set(existing.map((r) => r.key));
-
-  const missingKeys = keys.filter((k) => !existingKeys.has(k));
-
-  if (missingKeys.length > 0) {
-    return {
-      error: `Missing keys: ${missingKeys.join(", ")}`,
-      success: false,
-    };
-  }
-
-  try {
-    await prisma.$transaction(
-      updates.map(([key, value]) =>
-        prisma.siteContent.update({
-          where: { key },
-          data: { value: value as string },
-        })
-      )
-    );
-
-    revalidatePath("/", "layout"); // Revalidate all pages
-    return { error: null, success: true };
-  } catch (error) {
-    console.error("Failed to update site content:", error);
-    return { error: "Failed to update content.", success: false };
-  }
-}
-
-export async function getSettingsContent(): Promise<AdminSettings> {
-  const content = await prisma.siteContent.findMany({
-    where: {
-      OR: [{ group: "Email Settings" }, { group: "Globals" }, { group: "Code Injection" }, { group: "Legal Pages" }],
-    },
-    orderBy: { key: "asc" },
-  });
-
-  const groupedContent = content.reduce((acc, item) => {
-    if (!acc[item.group]) {
-      acc[item.group] = [];
+  useEffect(() => {
+    if (state?.error) {
+        toast({
+            title: 'Error',
+            description: state.error,
+            variant: 'destructive',
+        });
     }
-    acc[item.group].push(item);
-    return acc;
-  }, {} as Record<string, typeof content>);
+  }, [state, toast]);
 
-  return groupedContent;
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant="destructive" size="sm">Delete</Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <form action={formAction}>
+          <input type="hidden" name="id" value={id} />
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete this document.
+              {state?.error && <p className="text-destructive mt-2">{state.error}</p>}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <SubmitButton />
+          </AlertDialogFooter>
+        </form>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
 }
