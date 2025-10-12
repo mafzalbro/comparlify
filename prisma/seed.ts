@@ -394,6 +394,7 @@ If you have any questions about our privacy policy, please contact us at <a href
     { key: 'settings.email.fromName', group: 'Email Settings', value: 'Comparlify' },
     { key: 'settings.email.fromEmail', group: 'Email Settings', value: 'noreply@comparlify.com' },
     { key: 'settings.code.head', group: 'Code Injection', type: 'TEXTAREA', value: '' },
+    { key: 'settings.code.body', group: 'Code Injection', type: 'TEXTAREA', value: '' },
 
     // Legal Pages
     {

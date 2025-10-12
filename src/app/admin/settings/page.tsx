@@ -1,6 +1,8 @@
+
 "use client"
 
 import { useEffect, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { revalidateCacheAction } from '@/app/actions/admin';
@@ -21,11 +23,16 @@ export default function AdminSettingsPage() {
     const [settingsContent, setSettingsContent] = useState<AdminSettings>()
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
+    const router = useRouter();
 
-    useEffect(() => {
+    const fetchContent = async () => {
         getSettingsContent().then(content => {
             setSettingsContent(content);
         })
+    }
+
+    useEffect(() => {
+        fetchContent();
     }, []);
 
     const handleRevalidation = (path: 'all' | 'blog' | 'compare') => {
@@ -46,11 +53,16 @@ export default function AdminSettingsPage() {
         });
     };
     
+    const handleFormSuccess = () => {
+        fetchContent(); // Re-fetch the content to update the form state
+        router.refresh(); // Re-fetch server components
+    }
+    
     const renderFormOrSkeleton = (groupName: string) => {
         if (!settingsContent) {
             return <Skeleton className="h-48 w-full" />;
         }
-        return <ContentForm items={settingsContent?.[groupName] || []} />;
+        return <ContentForm items={settingsContent?.[groupName] || []} onFormSuccess={handleFormSuccess} />;
     }
 
     return (
@@ -94,7 +106,7 @@ export default function AdminSettingsPage() {
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2"><Code /> Code Injection</CardTitle>
                             <CardDescription>
-                                Add custom code snippets to the &lt;head&gt; section of your site. Use this for analytics, tracking pixels, or other third-party scripts. Use with caution.
+                                Add custom code snippets. Use this for analytics, tracking pixels, or other third-party scripts. Use with caution.
                             </CardDescription>
                         </CardHeader>
                         <CardContent>

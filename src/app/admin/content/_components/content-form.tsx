@@ -14,19 +14,21 @@ import { Editor } from '@/components/ui/editor';
 
 interface ContentFormProps {
   items: SiteContent[];
+  onFormSuccess?: () => void;
 }
 
-export function ContentForm({ items }: ContentFormProps) {
+export function ContentForm({ items, onFormSuccess }: ContentFormProps) {
   const [state, formAction] = useActionState(updateContentAction, { error: null, success: false });
   const { toast } = useToast();
 
   useEffect(() => {
     if (state.success) {
       toast({ title: 'Success!', description: 'Content updated successfully.' });
+      onFormSuccess?.();
     } else if (state.error) {
       toast({ title: 'Error', description: state.error, variant: 'destructive' });
     }
-  }, [state, toast]);
+  }, [state, toast, onFormSuccess]);
 
   const renderInput = (item: SiteContent) => {
     // This hidden input ensures the value is always submitted, even for the Editor which manages its own state.
