@@ -25,7 +25,6 @@ async function getArticles({ search, sort, page, per_page }: NewsArticlesDataTab
       where = {
           title: {
               contains: search,
-              mode: 'insensitive'
           }
       }
   }
