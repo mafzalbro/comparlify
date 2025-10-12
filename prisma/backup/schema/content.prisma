@@ -1,11 +1,33 @@
 model SiteContent {
   id        String      @id @default(cuid())
-  key       String      @unique // e.g., "homepage.hero.title"
-  value     String      @db.Text
-  group     String      // e.g., "Homepage", "Footer"
-  type      ContentType @default(TEXT)
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+  key       String      @unique
+  value     String      @db.Text
+  group     String
+  type      ContentType @default(TEXT)
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  type      NotificationType
+  message   String
+  link      String
+  read      Boolean          @default(false)
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String
+  email     String
+  message   String   @db.Text
+  read      Boolean  @default(false)
 }
 
 enum ContentType {
@@ -14,118 +36,8 @@ enum ContentType {
   MARKDOWN
 }
 
-model PostCategory {
-  id    String @id @default(cuid())
-  slug  String @unique
-  name  String
-  posts Post[]
-}
-
-model ComparisonCategory {
-  id          String       @id @default(cuid())
-  slug        String       @unique
-  name        String
-  comparisons Comparison[]
-}
-
-model Post {
-  id          String     @id @default(cuid())
-  title       String
-  slug        String     @unique
-  description String     @db.VarChar(191)
-  content     String     @db.Text
-  image       String
-  dataAiHint  String?
-  published   Boolean    @default(false)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  author      User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  authorId    String
-  comments    Comment[]
-  bookmarks   Bookmark[]
-
-  // New category relation
-  categoryId String?
-  category   PostCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-
-  // For post navigation
-  previousId String? @unique
-  nextId     String? @unique
-
-  previous Post? @relation("PostNavigation")
-  next     Post? @relation("PostNavigation", fields: [nextId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([authorId])
-  @@index([categoryId])
-}
-
-model Comment {
-  id        String        @id @default(cuid())
-  content   String        @db.Text
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  status    CommentStatus @default(PENDING)
-  author    User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  authorId  String
-  post      Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId    String
-
-  @@index([authorId])
-  @@index([postId])
-}
-
-enum CommentStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-model ContactMessage {
-  id        String   @id @default(cuid())
-  name      String
-  email     String
-  message   String   @db.Text
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
-}
-
-model Subscription {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  createdAt DateTime @default(now())
-}
-
-model Bookmark {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  postId String?
-  post   Post?   @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-  comparisonId String?
-  comparison   Comparison? @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, postId, comparisonId])
-}
-
-model Notification {
-  id        String           @id @default(cuid())
-  userId    String
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type      NotificationType
-  message   String
-  link      String
-  read      Boolean          @default(false)
-  createdAt DateTime         @default(now())
-
-  @@index([userId])
-}
-
 enum NotificationType {
   NEW_USER_REGISTERED
-  COMMENT_APPROVED
   NEW_COMMENT_AWAITING_APPROVAL
+  COMMENT_APPROVED
 }

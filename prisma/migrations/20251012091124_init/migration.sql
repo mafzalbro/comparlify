@@ -330,10 +330,13 @@ CREATE TABLE `NewsArticle` (
 CREATE TABLE `ForumCategory` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
-    `description` VARCHAR(191) NULL,
+    `slug` VARCHAR(191) NOT NULL,
+    `description` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
+    UNIQUE INDEX `ForumCategory_name_key`(`name`),
+    UNIQUE INDEX `ForumCategory_slug_key`(`slug`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -346,7 +349,10 @@ CREATE TABLE `ForumTopic` (
     `updatedAt` DATETIME(3) NOT NULL,
     `authorId` VARCHAR(191) NOT NULL,
     `categoryId` VARCHAR(191) NOT NULL,
+    `status` ENUM('PENDING', 'APPROVED', 'REJECTED') NOT NULL DEFAULT 'PENDING',
 
+    INDEX `ForumTopic_authorId_idx`(`authorId`),
+    INDEX `ForumTopic_categoryId_idx`(`categoryId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -358,6 +364,9 @@ CREATE TABLE `ForumPost` (
     `updatedAt` DATETIME(3) NOT NULL,
     `authorId` VARCHAR(191) NOT NULL,
     `topicId` VARCHAR(191) NOT NULL,
+    `status` ENUM('PENDING', 'APPROVED', 'REJECTED') NOT NULL DEFAULT 'PENDING',
 
+    INDEX `ForumPost_authorId_idx`(`authorId`),
+    INDEX `ForumPost_topicId_idx`(`topicId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

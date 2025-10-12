@@ -7,7 +7,7 @@ import type { Metadata } from 'next';
 import { generateSeoMetadata } from '@/lib/seo';
 import { cache } from 'react';
 import { Breadcrumbs } from '@/components/breadcrumb';
-import { TopicList } from '../_components/topic-list';
+import { TopicList } from '../../_components/topic-list';
 import { auth } from '@/lib/auth';
 
 const getCategory = cache(async (slug: string) => {
