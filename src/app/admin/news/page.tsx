@@ -27,7 +27,7 @@ export default async function AdminNewsPage(props: { searchParams: Promise<Searc
         <CardHeader>
           <CardTitle>News Articles</CardTitle>
           <CardDescription>
-            Manage news articles and announcements for your site.
+            Manage articles about news and trends in the tech world.
           </CardDescription>
         </CardHeader>
         <CardContent>

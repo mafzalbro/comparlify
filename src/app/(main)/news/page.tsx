@@ -11,8 +11,8 @@ import { Breadcrumbs } from '@/components/breadcrumb';
 import { format } from 'date-fns';
 
 export const metadata: Metadata = generateSeoMetadata({
-  title: 'News & Announcements',
-  description: 'The latest news, updates, and announcements from Comparlify.',
+  title: 'Tech World News',
+  description: 'The latest news, trends, and updates from across the tech world relevant to creators.',
   path: '/news',
 });
 
@@ -40,10 +40,10 @@ export default async function NewsPage() {
           />
           <div className="max-w-3xl">
             <h1 className="font-headline text-5xl md:text-6xl font-bold text-foreground">
-              News & Announcements
+              Tech World News
             </h1>
             <p className="mt-4 text-xl text-muted-foreground">
-              The latest news, updates, and announcements from Comparlify.
+              The latest trends, updates, and stories from the world of technology and online creation.
             </p>
           </div>
         </div>

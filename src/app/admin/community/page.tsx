@@ -5,39 +5,25 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/com
 import { CommunityModerationDataTable } from './_components/community-moderation-table';
 import { CommunityFilter } from './_components/community-filter';
 import type { SearchParams } from '@/types/next';
-import type { ForumPostStatus, ForumTopicStatus } from '@prisma/client';
+import type { ForumPost, ForumPostStatus, ForumTopic, ForumTopicStatus, User, ForumCategory } from '@prisma/client';
 
 export type ModerationItem = 
-    | ({ type: 'TOPIC' } & Awaited<ReturnType<typeof getTopics>>[0])
-    | ({ type: 'POST' } & Awaited<ReturnType<typeof getPosts>>[0]);
-
-async function getTopics() {
-    return prisma.forumTopic.findMany({
-        where: { status: 'PENDING' },
-        include: { author: true, category: true },
-        orderBy: { createdAt: 'desc' }
-    });
-}
-
-async function getPosts() {
-    return prisma.forumPost.findMany({
-        where: { status: 'PENDING' },
-        include: { author: true, topic: true },
-        orderBy: { createdAt: 'desc' }
-    });
-}
+    | ({ type: 'TOPIC' } & (ForumTopic & { author: User, category: ForumCategory }))
+    | ({ type: 'POST' } & (ForumPost & { author: User, topic: ForumTopic }));
 
 export default async function AdminCommunityPage({ searchParams }: { searchParams: SearchParams }) {
   const status = (searchParams?.status as 'PENDING' | 'APPROVED' | 'REJECTED' | 'ALL' | undefined) ?? 'PENDING';
 
+  const whereClause = status === 'ALL' ? {} : { status: status };
+
   const topics = await prisma.forumTopic.findMany({
-    where: status === 'ALL' ? {} : { status: status as ForumTopicStatus },
+    where: whereClause,
     include: { author: true, category: true },
     orderBy: { createdAt: 'desc' }
   });
 
   const posts = await prisma.forumPost.findMany({
-    where: status === 'ALL' ? {} : { status: status as ForumPostStatus },
+    where: whereClause,
     include: { author: true, topic: true },
     orderBy: { createdAt: 'desc' }
   });
