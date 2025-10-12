@@ -1,3 +1,4 @@
+
 "use server";
 
 import prisma from "@/lib/prisma";
@@ -80,15 +81,17 @@ export async function getSettingsContent(): Promise<AdminSettings> {
   });
 
   const groupedContent = content.reduce((acc, item) => {
-    if (!acc[item.group]) {
-      acc[item.group] = [];
+    const group = item.group;
+    if (!acc[group]) {
+      acc[group] = [];
     }
-    acc[item.group].push(item);
+    acc[group].push(item);
     return acc;
   }, {} as Record<string, typeof content>);
 
   return groupedContent;
 }
+
 
 const legalDocumentSchema = z.object({
     key: z.string().min(3, "Key must be at least 3 characters long."),
