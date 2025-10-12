@@ -1,3 +1,4 @@
+
 'use server';
 
 import prisma from '@/lib/prisma';
@@ -5,14 +6,15 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/com
 import { CommunityModerationDataTable } from './_components/community-moderation-table';
 import { CommunityFilter } from './_components/community-filter';
 import type { SearchParams } from '@/types/next';
-import type { ForumPost, ForumPostStatus, ForumTopic, ForumTopicStatus, User, ForumCategory } from '@prisma/client';
+import type { ForumPost, ForumTopic, User, ForumCategory, ForumTopicStatus, ForumPostStatus } from '@prisma/client';
 
-export type ModerationItem = 
+export type ModerationItem =
     | ({ type: 'TOPIC' } & (ForumTopic & { author: User, category: ForumCategory }))
     | ({ type: 'POST' } & (ForumPost & { author: User, topic: ForumTopic }));
 
 export default async function AdminCommunityPage({ searchParams }: { searchParams: SearchParams }) {
-  const status = (searchParams?.status as 'PENDING' | 'APPROVED' | 'REJECTED' | 'ALL' | undefined) ?? 'PENDING';
+  const statusParam = searchParams?.status || 'PENDING';
+  const status = (['PENDING', 'APPROVED', 'REJECTED', 'ALL'].includes(statusParam as string) ? statusParam : 'PENDING') as 'PENDING' | 'APPROVED' | 'REJECTED' | 'ALL';
 
   const whereClause = status === 'ALL' ? {} : { status: status };
 
