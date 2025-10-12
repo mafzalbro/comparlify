@@ -17,9 +17,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     select: { slug: true, updatedAt: true },
   });
   
-  const legalDocs = await prisma.legalDocument.findMany({
-    where: { published: true },
-    select: { slug: true, updatedAt: true },
+  const siteContent = await prisma.siteContent.findMany({
+    where: {
+      group: 'Legal Pages',
+    },
+    select: { key: true, updatedAt: true },
   });
 
 
@@ -44,8 +46,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
   
-  const legalUrls = legalDocs.map(doc => ({
-    url: `${siteUrl}/legal/${doc.slug}`,
+  const legalUrls = siteContent.map(doc => ({
+    url: `${siteUrl}/legal/${doc.key.replace('legal.', '')}`,
     lastModified: doc.updatedAt,
     changeFrequency: 'yearly' as const,
     priority: 0.3,

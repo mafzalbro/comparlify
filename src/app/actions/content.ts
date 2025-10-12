@@ -73,7 +73,7 @@ export async function updateContentAction(
 export async function getSettingsContent(): Promise<AdminSettings> {
   const content = await prisma.siteContent.findMany({
     where: {
-      OR: [{ group: "Email Settings" }, { group: "Globals" }, { group: "Code Injection" }, { group: "Legal Pages" }],
+      OR: [{ group: "Email Settings" }, { group: "Globals" }, { group: "Code Injection" }],
     },
     orderBy: { key: "asc" },
   });

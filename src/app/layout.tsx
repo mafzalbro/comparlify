@@ -36,7 +36,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
 
-  // seed()
   const content = await getContent();
   const siteName = content['global.siteName'] || 'Comparlify';
   const headCode = content['settings.code.head'] || '';
