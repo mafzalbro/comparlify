@@ -34,19 +34,14 @@ function useDebounce<T>(value: T, delay: number): T {
     return debouncedValue;
 }
 
-interface UserFiltersProps {
-    initialSearch: string;
-    initialRole?: string;
-}
-
-export function UserFilters({ initialSearch, initialRole }: UserFiltersProps) {
+export function UserFilters() {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const [isPending, startTransition] = useTransition();
 
-    const [searchValue, setSearchValue] = useState(initialSearch);
-    const [roleValue, setRoleValue] = useState(initialRole ?? 'all');
+    const [searchValue, setSearchValue] = useState(searchParams.get('search') || '');
+    const [roleValue, setRoleValue] = useState(searchParams.get('role') || 'all');
     const debouncedSearch = useDebounce(searchValue, 300);
 
     const handleFilterChange = useCallback((params: Record<string, any>) => {
@@ -71,12 +66,6 @@ export function UserFilters({ initialSearch, initialRole }: UserFiltersProps) {
     }, [roleValue, handleFilterChange]);
     
     const hasActiveFilters = searchParams.get('search') || searchParams.get('role');
-
-    const handleReset = () => {
-      setSearchValue('');
-      setRoleValue('all');
-      router.push(pathname, { scroll: false });
-    };
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
@@ -109,8 +98,10 @@ export function UserFilters({ initialSearch, initialRole }: UserFiltersProps) {
             </div>
             <div className="flex items-end gap-2">
                 {hasActiveFilters && (
-                    <Button onClick={handleReset} variant="ghost" className="w-full">
-                        <X className="mr-2 h-4 w-4" />Reset
+                     <Button asChild variant="ghost" className="w-full">
+                        <Link href="/admin/users" scroll={false}>
+                            <X className="mr-2 h-4 w-4" />Reset
+                        </Link>
                     </Button>
                 )}
             </div>

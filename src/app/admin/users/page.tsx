@@ -3,9 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Role, User } from '@prisma/client';
 import type { SearchParams } from '@/types/next';
 import { UsersDataTable } from './_components/data-table';
-import { UserFilters } from './_components/user-filters';
 import prisma from '@/lib/prisma';
 import { columns } from './_components/columns';
+import { UserFilters } from './_components/user-filters';
 
 
 async function getUsers({ search, sort, page, per_page, role }: {
@@ -19,13 +19,13 @@ async function getUsers({ search, sort, page, per_page, role }: {
   const perPageNumber = parseInt(per_page) || 10;
   // Default to 'createdAt' if an invalid sort column is provided
   const [column = 'createdAt', order = 'desc'] = sort?.split(".") ?? [];
-  const validSortColumns = ['name', 'email', 'role', 'createdAt'];
+  const validSortColumns = ['name', 'email', 'role', 'createdAt', 'suspended', 'newsletter'];
 
   let where: any = {};
   if (search) {
     where.OR = [
-      { name: { contains: search } },
-      { email: { contains: search } },
+      { name: { contains: search, mode: 'insensitive' } },
+      { email: { contains: search, mode: 'insensitive' } },
     ];
   }
   if (role && role !== 'all') {
@@ -76,7 +76,7 @@ export default async function AdminUsersPage(props: { searchParams: Promise<Sear
           <CardTitle>Filters</CardTitle>
         </CardHeader>
         <CardContent>
-          <UserFilters initialSearch={String(search)} initialRole={role as string} />
+          <UserFilters />
         </CardContent>
       </Card>
       

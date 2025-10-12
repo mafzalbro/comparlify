@@ -23,9 +23,10 @@ async function getPosts({ search, sort, page, per_page }: BlogPostsDataTableProp
   let where = {};
   if (search) {
       where = {
-          title: {
-              contains: search,
-          }
+          OR: [
+            { title: { contains: search, mode: 'insensitive' } },
+            { author: { name: { contains: search, mode: 'insensitive' } } },
+          ]
       }
   }
 
