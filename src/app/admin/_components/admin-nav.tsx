@@ -31,7 +31,6 @@ export function AdminNav() {
                 { href: "/admin/comparisons", label: "Comparisons", Icon: GitCompareArrows },
                 { href: "/admin/news", label: "News", Icon: Newspaper },
                 { href: "/admin/community", label: "Community", Icon: MessageSquare },
-                { href: "/admin/legal", label: "Legal Docs", Icon: Gavel },
             ]
         },
         {

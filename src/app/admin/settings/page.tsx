@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/tabs";
 import { ContentForm } from '../content/_components/content-form';
 import { AdminSettings, getSettingsContent } from '@/app/actions/content';
+import { Skeleton } from '@/components/ui/skeleton';
 
 
 export default function AdminSettingsPage() {
@@ -45,6 +46,13 @@ export default function AdminSettingsPage() {
             }
         });
     };
+    
+    const renderFormOrSkeleton = (groupName: string) => {
+        if (!settingsContent) {
+            return <Skeleton className="h-48 w-full" />;
+        }
+        return <ContentForm items={settingsContent?.[groupName] || []} />;
+    }
 
     return (
         <div>
@@ -54,6 +62,7 @@ export default function AdminSettingsPage() {
                     <TabsTrigger value="general">General</TabsTrigger>
                     <TabsTrigger value="email">Email</TabsTrigger>
                     <TabsTrigger value="codeInjection">Code Injection</TabsTrigger>
+                    <TabsTrigger value="legal">Legal Pages</TabsTrigger>
                     <TabsTrigger value="cache">Cache</TabsTrigger>
                 </TabsList>
                 <TabsContent value="general">
@@ -65,7 +74,7 @@ export default function AdminSettingsPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <ContentForm items={settingsContent?.['Globals'] || []} />
+                           {renderFormOrSkeleton('Globals')}
                         </CardContent>
                     </Card>
                 </TabsContent>
@@ -78,7 +87,7 @@ export default function AdminSettingsPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <ContentForm items={settingsContent?.['Email Settings'] || []} />
+                           {renderFormOrSkeleton('Email Settings')}
                         </CardContent>
                     </Card>
                 </TabsContent>
@@ -91,7 +100,20 @@ export default function AdminSettingsPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <ContentForm items={settingsContent?.['Code Injection'] || []} />
+                            {renderFormOrSkeleton('Code Injection')}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+                 <TabsContent value="legal">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2"><Gavel /> Legal Pages</CardTitle>
+                            <CardDescription>
+                                Manage the content for your Terms of Service, Privacy Policy, etc. These are displayed on the site under the `/legal/[slug]` path.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {renderFormOrSkeleton('Legal Pages')}
                         </CardContent>
                     </Card>
                 </TabsContent>

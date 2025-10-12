@@ -1,3 +1,4 @@
+
 "use server";
 
 import prisma from "@/lib/prisma";
@@ -72,7 +73,7 @@ export async function updateContentAction(
 export async function getSettingsContent(): Promise<AdminSettings> {
   const content = await prisma.siteContent.findMany({
     where: {
-      OR: [{ group: "Email Settings" }, { group: "Globals" }],
+      OR: [{ group: "Email Settings" }, { group: "Globals" }, { group: "Code Injection" }, { group: "Legal Pages" }],
     },
     orderBy: { key: "asc" },
   });

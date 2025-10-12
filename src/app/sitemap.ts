@@ -2,6 +2,7 @@
 import { MetadataRoute } from 'next';
 import prisma from '@/lib/prisma';
 import { allTools } from './(main)/tools/tools';
+import { getContent } from '@/lib/content';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = 'https://www.comparlify.com'; // Replace with your actual domain
@@ -16,11 +17,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     where: { published: true },
     select: { slug: true, updatedAt: true },
   });
+  
+  const content = await getContent();
+  
+  const legalDocs = Object.entries(content)
+    .filter(([key, value]) => key.startsWith('legal.'))
+    .map(([key, value]) => ({
+      slug: key.replace('legal.', ''),
+      // We don't have an updatedAt for siteContent, so we'll use the current date
+      updatedAt: new Date(), 
+    }));
 
-  const legalDocs = await prisma.legalDocument.findMany({
-    where: { published: true },
-    select: { slug: true, updatedAt: true },
-  });
 
   const postUrls = posts.map(post => ({
     url: `${siteUrl}/blog/${post.slug}`,
@@ -42,13 +49,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: 'monthly' as const,
     priority: 0.6,
   }));
-
+  
   const legalUrls = legalDocs.map(doc => ({
     url: `${siteUrl}/legal/${doc.slug}`,
     lastModified: doc.updatedAt,
     changeFrequency: 'yearly' as const,
     priority: 0.3,
   }));
+
 
   // Define static routes
   const staticRoutes = [
