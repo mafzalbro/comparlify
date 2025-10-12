@@ -85,8 +85,7 @@ export function FilterControls({ authors, categories, searchParams }: FilterCont
         handleFilterChange({ category: value, page: 1 });
     };
 
-    const hasActiveFilters = !!searchParams.search || !!searchParams.sort || !!searchParams.author || !!searchParams.category;
-
+    const hasActiveFilters = !!searchParams.search || searchParams.sort !== 'newest' || searchParams.author !== 'all' || searchParams.category !== 'all';
 
     return (
         <div className="mb-12 flex flex-wrap items-center gap-4">

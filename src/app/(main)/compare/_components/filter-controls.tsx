@@ -94,7 +94,7 @@ export function FilterControls({ allPlatforms, categories, searchParams }: Filte
         handleFilterChange({ platforms: newSelectedPlatforms.length > 0 ? newSelectedPlatforms : null, page: 1 });
     };
     
-    const hasActiveFilters = !!searchParams.search || !!searchParams.sort || !!searchParams.platforms || !!searchParams.category;
+    const hasActiveFilters = !!searchParams.search || searchParams.sort !== 'newest' || selectedPlatforms.length > 0 || categoryValue !== 'all';
 
     return (
         <div className="mb-12 flex flex-wrap items-center gap-4">

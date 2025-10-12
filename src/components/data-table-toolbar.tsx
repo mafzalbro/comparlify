@@ -68,6 +68,11 @@ export function DataTableToolbar<TData>({
     router.push(`${pathname}?${newQueryString}`, { scroll: false });
   }, [debouncedSearch, router, pathname, createQueryString]);
 
+  // Sync searchValue with URL search params
+  useEffect(() => {
+    setSearchValue(searchParams.get('search') ?? '');
+  }, [searchParams]);
+
   const hasSearchFilter = !!searchParams.get('search');
 
   return (
