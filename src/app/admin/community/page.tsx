@@ -14,10 +14,7 @@ export type ModerationItem =
     | ({ type: 'TOPIC' } & (ForumTopic & { author: User, category: ForumCategory }))
     | ({ type: 'POST' } & (ForumPost & { author: User, topic: ForumTopic }));
 
-export default async function AdminCommunityPage({ searchParams }: { searchParams: SearchParams }) {
-  const statusParam = searchParams?.status || 'PENDING';
-  const status = (['PENDING', 'APPROVED', 'REJECTED', 'ALL'].includes(statusParam as string) ? statusParam : 'PENDING') as 'PENDING' | 'APPROVED' | 'REJECTED' | 'ALL';
-
+async function getModerationItems(status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'ALL') {
   const whereClause = status === 'ALL' ? {} : { status: status };
 
   const topics = await prisma.forumTopic.findMany({
@@ -36,7 +33,16 @@ export default async function AdminCommunityPage({ searchParams }: { searchParam
     ...topics.map(t => ({ ...t, type: 'TOPIC' as const })),
     ...posts.map(p => ({ ...p, type: 'POST' as const })),
   ].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  
+  return moderationItems;
+}
 
+
+export default async function AdminCommunityPage({ searchParams }: { searchParams: SearchParams }) {
+  const statusParam = searchParams?.status || 'PENDING';
+  const currentStatus = (['PENDING', 'APPROVED', 'REJECTED', 'ALL'].includes(statusParam as string) ? statusParam : 'PENDING') as 'PENDING' | 'APPROVED' | 'REJECTED' | 'ALL';
+
+  const moderationItems = await getModerationItems(currentStatus);
 
   return (
     <div>
