@@ -1,4 +1,3 @@
-
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/components/auth/auth-provider';
@@ -10,7 +9,6 @@ import { Poppins, Lato } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { getContent } from '@/lib/content';
 import { Suspense } from 'react';
-import Head from 'next/head';
 
 const fontHeadline = Poppins({
   subsets: ['latin'],

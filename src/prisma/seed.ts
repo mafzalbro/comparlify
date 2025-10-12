@@ -1,4 +1,3 @@
-
 "use server";
 import prisma from "@/lib/prisma";
 import { Prisma, Role } from "@prisma/client";
