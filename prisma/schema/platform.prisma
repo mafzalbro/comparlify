@@ -46,3 +46,4 @@ model PlatformFeature {
   @@id([platformId, featureId])
   @@index([featureId])
 }
+

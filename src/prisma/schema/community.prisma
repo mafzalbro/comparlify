@@ -1,32 +1,56 @@
+enum ForumTopicStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ForumPostStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model ForumCategory {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id          String      @id @default(cuid())
+  slug        String      @unique
+  name        String
+  description String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
   topics      ForumTopic[]
+
+  @@index([slug])
 }
 
 model ForumTopic {
-  id         String      @id @default(cuid())
-  title      String
-  content    String      @db.Text
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  authorId   String
-  author     User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  categoryId String
-  category   ForumCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  posts      ForumPost[]
+  id          String           @id @default(cuid())
+  title       String
+  content     String           @db.Text
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  status      ForumTopicStatus @default(PENDING)
+
+  authorId    String
+  author      User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  categoryId  String
+  category    ForumCategory    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  posts       ForumPost[]
 }
 
 model ForumPost {
-  id        String     @id @default(cuid())
-  content   String     @db.Text
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  authorId  String
-  author    User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  topicId   String
-  topic     ForumTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  id          String          @id @default(cuid())
+  content     String          @db.Text
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  status      ForumPostStatus @default(PENDING)
+
+  authorId    String
+  author      User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  topicId     String
+  topic       ForumTopic      @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@index([topicId])
 }

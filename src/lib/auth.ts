@@ -66,6 +66,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.role = user.role ?? "USER";
         token.onboarded = user.onboarded ?? false;
         token.newsletter = user.newsletter ?? false;
+        token.suspended = user.suspended ?? false;
       }
 
       return token;
@@ -76,6 +77,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.role = token.role as Role;
         session.user.onboarded = token.onboarded as boolean;
         session.user.newsletter = token.newsletter as boolean;
+        session.user.suspended = token.suspended as boolean;
       }
       return session;
     },

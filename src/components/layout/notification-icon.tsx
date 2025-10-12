@@ -9,6 +9,8 @@ export const NotificationIcon = ({ type }: { type: NotificationType }) => {
         case 'COMMENT_APPROVED':
         case 'NEW_COMMENT_AWAITING_APPROVAL':
             return <MessageCircle className="h-5 w-5 text-green-500" />;
+        case 'NEW_FORUM_CONTENT':
+            return <MessageCircle className="h-5 w-5 text-purple-500" />;
         default:
             return <Bell className="h-5 w-5 text-muted-foreground" />;
     }

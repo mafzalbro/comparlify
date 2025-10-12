@@ -1,14 +1,29 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Newspaper } from 'lucide-react';
+'use server';
 
-export default function AdminNewsPage() {
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { PlusCircle } from 'lucide-react';
+import type { SearchParams } from '@/types/next';
+import { NewsArticlesDataTable } from './_components/data-table';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
+
+export default async function AdminNewsPage(props: { searchParams: Promise<SearchParams> }) {
+  const searchParams = await props.searchParams;
+  const { search = "", sort = "createdAt.desc", page = "1", per_page = "10" } = searchParams;
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Manage News</h1>
+        <h1 className="text-3xl font-bold">Manage News Articles</h1>
+        <div className="flex gap-2">
+            <Button asChild>
+                <Link href="/admin/news/new"><PlusCircle className="mr-2 h-4 w-4" />Create New Article</Link>
+            </Button>
+        </div>
       </div>
-
-      <Card>
+      
+       <Card>
         <CardHeader>
           <CardTitle>News Articles</CardTitle>
           <CardDescription>
@@ -16,11 +31,12 @@ export default function AdminNewsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col items-center justify-center text-center text-muted-foreground border-2 border-dashed rounded-lg p-12">
-            <Newspaper className="h-16 w-16 mb-4" />
-            <h3 className="text-xl font-semibold">News Module Coming Soon</h3>
-            <p className="mt-2 max-w-md">The functionality to create, edit, and delete news articles is currently under construction. Check back soon!</p>
-          </div>
+            <NewsArticlesDataTable 
+                search={String(search)}
+                sort={String(sort)}
+                page={String(page)}
+                per_page={String(per_page)}
+            />
         </CardContent>
       </Card>
     </div>

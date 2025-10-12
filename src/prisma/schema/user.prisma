@@ -1,23 +1,69 @@
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
 
 model User {
-  id            String       @id @default(cuid())
+  id            String    @id @default(cuid())
   name          String?
-  email         String?      @unique
+  email         String?   @unique
   emailVerified DateTime?
   image         String?
-  role          Role         @default(USER)
-  onboarded     Boolean      @default(false)
-  newsletter    Boolean      @default(true)
-  suspended     Boolean      @default(false)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  role          Role      @default(USER)
+  onboarded     Boolean   @default(false)
+  newsletter    Boolean   @default(true)
+  suspended     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
   accounts      Account[]
   sessions      Session[]
+  
   posts         Post[]
   comments      Comment[]
   bookmarks     Bookmark[]
   notifications Notification[]
   emailRecipients EmailRecipient[]
 
-  excludedFromCampaigns EmailCampaign[] @relation("ExcludedUsers")
+  // News
+  newsArticles  NewsArticle[]
+
+  // Community
+  forumTopics   ForumTopic[]
+  forumPosts    ForumPost[]
+}
+
+enum Role {
+  USER
+  ADMIN
 }

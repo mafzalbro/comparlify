@@ -402,7 +402,7 @@ If you have any questions about our privacy policy, please contact us at <a href
     data: {
       title: "Comparlify Launches New AI-Powered Tool Suite",
       slug: "comparlify-launches-ai-tools",
-      content: "We're excited to announce a major update to our platform...",
+      content: "We're excited to announce a major update to our platform. Our new suite of AI-powered tools is designed to help course creators streamline their workflow and produce higher-quality content faster than ever before. From generating course outlines to scripting video lessons, these tools are your new creative co-pilot.",
       image: "https://picsum.photos/400/250?random=10",
       dataAiHint: "technology launch announcement",
       published: true,
@@ -413,7 +413,7 @@ If you have any questions about our privacy policy, please contact us at <a href
 
   // --- 13. Seed Community ---
   const generalCategory = await prisma.forumCategory.create({
-    data: { name: "General Discussion", description: "Talk about anything related to course creation."}
+    data: { name: "General Discussion", slug: "general-discussion", description: "Talk about anything related to course creation."}
   });
 
   const introductionsTopic = await prisma.forumTopic.create({
@@ -422,16 +422,28 @@ If you have any questions about our privacy policy, please contact us at <a href
       content: "Welcome to the community! Take a moment to introduce yourself and tell us what you're working on.",
       authorId: adminUser.id,
       categoryId: generalCategory.id,
+      status: 'APPROVED',
     }
   });
 
   await prisma.forumPost.create({
     data: {
-      content: "Hey everyone! I'm Bob, and I'm building a course on woodworking for beginners.",
+      content: "Hey everyone! I'm Bob, and I'm building a course on woodworking for beginners. Excited to learn from you all!",
       authorId: bobUser.id,
       topicId: introductionsTopic.id,
+      status: 'APPROVED',
     }
   });
+
+  await prisma.forumPost.create({
+    data: {
+      content: "Welcome, Bob! Glad to have you here.",
+      authorId: adminUser.id,
+      topicId: introductionsTopic.id,
+      status: 'APPROVED',
+    }
+  });
+
   console.log("Seeded community forums.");
 
 

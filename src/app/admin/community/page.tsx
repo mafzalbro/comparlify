@@ -1,26 +1,71 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MessageSquare } from 'lucide-react';
+'use server';
 
-export default function AdminCommunityPage() {
+import prisma from '@/lib/prisma';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
+import { CommunityModerationDataTable } from './_components/community-moderation-table';
+import { CommunityFilter } from './_components/community-filter';
+import type { SearchParams } from '@/types/next';
+import type { ForumPostStatus, ForumTopicStatus } from '@prisma/client';
+
+export type ModerationItem = 
+    | ({ type: 'TOPIC' } & Awaited<ReturnType<typeof getTopics>>[0])
+    | ({ type: 'POST' } & Awaited<ReturnType<typeof getPosts>>[0]);
+
+async function getTopics() {
+    return prisma.forumTopic.findMany({
+        where: { status: 'PENDING' },
+        include: { author: true, category: true },
+        orderBy: { createdAt: 'desc' }
+    });
+}
+
+async function getPosts() {
+    return prisma.forumPost.findMany({
+        where: { status: 'PENDING' },
+        include: { author: true, topic: true },
+        orderBy: { createdAt: 'desc' }
+    });
+}
+
+export default async function AdminCommunityPage({ searchParams }: { searchParams: SearchParams }) {
+  const status = (searchParams?.status as 'PENDING' | 'APPROVED' | 'REJECTED' | 'ALL' | undefined) ?? 'PENDING';
+
+  const topics = await prisma.forumTopic.findMany({
+    where: status === 'ALL' ? {} : { status: status as ForumTopicStatus },
+    include: { author: true, category: true },
+    orderBy: { createdAt: 'desc' }
+  });
+
+  const posts = await prisma.forumPost.findMany({
+    where: status === 'ALL' ? {} : { status: status as ForumPostStatus },
+    include: { author: true, topic: true },
+    orderBy: { createdAt: 'desc' }
+  });
+
+  const moderationItems: ModerationItem[] = [
+    ...topics.map(t => ({ ...t, type: 'TOPIC' as const })),
+    ...posts.map(p => ({ ...p, type: 'POST' as const })),
+  ].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Manage Community</h1>
+        <h1 className="text-3xl font-bold">Community Moderation</h1>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Community Forums</CardTitle>
+          <CardTitle>Content Queue</CardTitle>
           <CardDescription>
-            Manage forum categories, topics, and replies.
+            Review, approve, or reject user-submitted topics and posts.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col items-center justify-center text-center text-muted-foreground border-2 border-dashed rounded-lg p-12">
-            <MessageSquare className="h-16 w-16 mb-4" />
-            <h3 className="text-xl font-semibold">Community Module Coming Soon</h3>
-            <p className="mt-2 max-w-md">The functionality to manage your community forums is currently under construction. Check back soon!</p>
-          </div>
+            <div className="mb-4">
+                <CommunityFilter currentFilter={status} />
+            </div>
+          <CommunityModerationDataTable data={moderationItems} />
         </CardContent>
       </Card>
     </div>
