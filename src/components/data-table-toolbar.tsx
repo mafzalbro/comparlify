@@ -66,7 +66,8 @@ export function DataTableToolbar<TData>({
       page: 1,
     });
     router.push(`${pathname}?${newQueryString}`, { scroll: false });
-  }, [debouncedSearch, router, pathname, createQueryString]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch, router, pathname]);
 
   // Sync searchValue with URL search params
   useEffect(() => {
