@@ -1,9 +1,14 @@
 
+'use server';
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { BlogPostsDataTable } from './_components/data-table';
 import { PlusCircle } from 'lucide-react';
 import type { SearchParams } from '@/types/next';
+import { BlogPostsDataTable } from './_components/data-table';
+import { DataTableToolbar } from '@/components/data-table-toolbar';
+import { Suspense } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default async function AdminBlogPage(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
@@ -22,13 +27,14 @@ export default async function AdminBlogPage(props: { searchParams: Promise<Searc
             </Button>
         </div>
       </div>
-      
-      <BlogPostsDataTable 
-        search={String(search)}
-        sort={String(sort)}
-        page={String(page)}
-        per_page={String(per_page)}
-      />
+      <Suspense fallback={<Skeleton className="h-[500px] w-full" />}>
+        <BlogPostsDataTable 
+          search={String(search)}
+          sort={String(sort)}
+          page={String(page)}
+          per_page={String(per_page)}
+        />
+      </Suspense>
     </div>
   );
 }

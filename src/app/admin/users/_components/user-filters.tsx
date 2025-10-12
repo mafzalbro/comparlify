@@ -99,7 +99,7 @@ export function UserFilters() {
             <div className="flex items-end gap-2">
                 {hasActiveFilters && (
                      <Button asChild variant="ghost" className="w-full">
-                        <Link href="/admin/users" scroll={false}>
+                        <Link href={pathname} scroll={false}>
                             <X className="mr-2 h-4 w-4" />Reset
                         </Link>
                     </Button>

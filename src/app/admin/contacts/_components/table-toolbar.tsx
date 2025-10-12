@@ -12,6 +12,7 @@ import { bulkDeleteContactMessages } from "@/app/actions/contact"
 import { useToast } from "@/hooks/use-toast"
 import { useTransition } from "react"
 import { Loader2, Trash2 } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
@@ -20,6 +21,7 @@ interface DataTableToolbarProps<TData> {
 export function ContactsTableToolbar<TData>({
   table,
 }: DataTableToolbarProps<TData>) {
+  const router = useRouter();
   const isFiltered = table.getState().columnFilters.length > 0
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
@@ -62,7 +64,7 @@ export function ContactsTableToolbar<TData>({
         {isFiltered && (
           <Button
             variant="ghost"
-            onClick={() => table.resetColumnFilters()}
+            onClick={() => router.push('/admin/contacts')}
             className="h-8 px-2 lg:px-3"
           >
             Reset

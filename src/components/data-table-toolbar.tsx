@@ -4,7 +4,7 @@
 import { Cross2Icon } from "@radix-ui/react-icons"
 import { type Table } from "@tanstack/react-table"
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,6 +15,22 @@ interface DataTableToolbarProps<TData> {
   searchKey?: string
 }
 
+function useDebounce<T>(value: T, delay: number): T {
+    const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [value, delay]);
+
+    return debouncedValue;
+}
+
 export function DataTableToolbar<TData>({
   table,
   searchKey = "title"
@@ -22,7 +38,9 @@ export function DataTableToolbar<TData>({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const isFiltered = table.getState().columnFilters.length > 0
+
+  const [searchValue, setSearchValue] = useState(searchParams.get('search') || '');
+  const debouncedSearch = useDebounce(searchValue, 300);
 
   const createQueryString = useCallback(
     (params: Record<string, string | number | null>) => {
@@ -41,26 +59,32 @@ export function DataTableToolbar<TData>({
     [searchParams]
   );
   
+  useEffect(() => {
+    const newQueryString = createQueryString({
+      search: debouncedSearch || null,
+      page: 1,
+    });
+    router.push(`${pathname}?${newQueryString}`, { scroll: false });
+  }, [debouncedSearch, router, pathname, createQueryString]);
+
+  const hasSearchFilter = !!searchParams.get('search');
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
         <Input
           placeholder={`Search by ${searchKey}...`}
-          value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ""}
-          onChange={(event) => {
-            router.push(
-                `${pathname}?${createQueryString({
-                    search: event.target.value,
-                })}`
-            )
-            table.getColumn(searchKey)?.setFilterValue(event.target.value)
-          }}
+          value={searchValue}
+          onChange={(event) => setSearchValue(event.target.value)}
           className="h-8 w-[150px] lg:w-[250px]"
         />
-        {isFiltered && (
+        {hasSearchFilter && (
           <Button
             variant="ghost"
-            onClick={() => table.resetColumnFilters()}
+            onClick={() => {
+              setSearchValue('');
+              router.push(pathname, { scroll: false });
+            }}
             className="h-8 px-2 lg:px-3"
           >
             Reset

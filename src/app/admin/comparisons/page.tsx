@@ -1,9 +1,12 @@
 
+'use server';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import type { SearchParams } from '@/types/next';
 import { ComparisonsDataTable } from './_components/data-table';
+import { Suspense } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default async function AdminComparisonsPage(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
@@ -22,13 +25,14 @@ export default async function AdminComparisonsPage(props: { searchParams: Promis
             </Button>
         </div>
       </div>
-      
-       <ComparisonsDataTable 
-        search={String(search)}
-        sort={String(sort)}
-        page={String(page)}
-        per_page={String(per_page)}
-      />
+      <Suspense fallback={<Skeleton className="h-[500px] w-full" />}>
+        <ComparisonsDataTable 
+          search={String(search)}
+          sort={String(sort)}
+          page={String(page)}
+          per_page={String(per_page)}
+        />
+       </Suspense>
     </div>
   );
 }
