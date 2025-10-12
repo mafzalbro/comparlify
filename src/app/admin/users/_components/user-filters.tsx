@@ -72,6 +72,12 @@ export function UserFilters({ initialSearch, initialRole }: UserFiltersProps) {
     
     const hasActiveFilters = searchParams.get('search') || searchParams.get('role');
 
+    const handleReset = () => {
+      setSearchValue('');
+      setRoleValue('all');
+      router.push(pathname, { scroll: false });
+    };
+
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
             <div className="space-y-2">
@@ -103,8 +109,8 @@ export function UserFilters({ initialSearch, initialRole }: UserFiltersProps) {
             </div>
             <div className="flex items-end gap-2">
                 {hasActiveFilters && (
-                    <Button asChild variant="ghost" className="w-full">
-                        <Link href="/admin/users" scroll={false}><X className="mr-2 h-4 w-4" />Reset</Link>
+                    <Button onClick={handleReset} variant="ghost" className="w-full">
+                        <X className="mr-2 h-4 w-4" />Reset
                     </Button>
                 )}
             </div>
