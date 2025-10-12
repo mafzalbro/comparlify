@@ -1,3 +1,41 @@
+// src/prisma/schema/community.prisma
+
+model ForumCategory {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  slug        String       @unique
+  description String?
+  topics      ForumTopic[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model ForumTopic {
+  id         String         @id @default(cuid())
+  title      String
+  content    String         @db.Text
+  status     ForumTopicStatus @default(PENDING)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  authorId   String
+  author     User           @relation("TopicAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  categoryId String
+  category   ForumCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  posts      ForumPost[]
+}
+
+model ForumPost {
+  id        String        @id @default(cuid())
+  content   String        @db.Text
+  status    ForumPostStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  authorId  String
+  author    User          @relation("PostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  topicId   String
+  topic     ForumTopic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+}
+
 enum ForumTopicStatus {
   PENDING
   APPROVED
@@ -8,49 +46,4 @@ enum ForumPostStatus {
   PENDING
   APPROVED
   REJECTED
-}
-
-model ForumCategory {
-  id          String      @id @default(cuid())
-  slug        String      @unique
-  name        String
-  description String
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  topics      ForumTopic[]
-
-  @@index([slug])
-}
-
-model ForumTopic {
-  id          String           @id @default(cuid())
-  title       String
-  content     String           @db.Text
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  status      ForumTopicStatus @default(PENDING)
-
-  authorId    String
-  author      User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
-
-  categoryId  String
-  category    ForumCategory    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  
-  posts       ForumPost[]
-}
-
-model ForumPost {
-  id          String          @id @default(cuid())
-  content     String          @db.Text
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  status      ForumPostStatus @default(PENDING)
-
-  authorId    String
-  author      User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
-
-  topicId     String
-  topic       ForumTopic      @relation(fields: [topicId], references: [id], onDelete: Cascade)
-
-  @@index([topicId])
 }
