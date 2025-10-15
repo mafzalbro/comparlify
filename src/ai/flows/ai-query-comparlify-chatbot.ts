@@ -171,6 +171,43 @@ const searchSiteContent = ai.defineTool(
   }
 );
 
+const getTopComparisons = ai.defineTool(
+    {
+      name: "getTopComparisons",
+      description: "Gets the top-rated comparisons from the database. Use this when the user asks for the 'best', 'top', or 'most popular' comparisons.",
+      inputSchema: z.object({
+        count: z.number().describe("The number of top comparisons to retrieve.").default(3),
+      }),
+      outputSchema: z.array(z.object({
+        title: z.string(),
+        url: z.string(),
+        averageRating: z.number(),
+      })),
+    },
+    async ({ count }) => {
+      const comparisons = await prisma.comparison.findMany({
+        where: { published: true },
+        include: {
+          platformA: true,
+          platformB: true,
+        },
+      });
+  
+      // Calculate average rating for each comparison and sort
+      const ratedComparisons = comparisons.map(c => {
+        const ratingA = c.platformA.rating ?? 0;
+        const ratingB = c.platformB.rating ?? 0;
+        const averageRating = (ratingA + ratingB) / 2;
+        return {
+          title: c.title,
+          url: `/compare/${c.slug}`,
+          averageRating,
+        };
+      }).sort((a, b) => b.averageRating - a.averageRating);
+      
+      return ratedComparisons.slice(0, count);
+    }
+  );
 
 const HistorySchema = z.array(
   z.object({
@@ -213,15 +250,16 @@ const aiQueryComparlifyChatbotFlow = ai.defineFlow(
     const systemPrompt = `You are a helpful and friendly AI assistant for a website called ${siteName}.
 Your goal is to provide helpful and informative responses to user queries about course creation platforms and content on the site.
 Use the tools provided to access information from the database to answer user questions.
+When a user asks for the "best", "top", or "most popular" comparisons, use the 'getTopComparisons' tool.
 When a user asks for information that might be in a blog post, comparison, or page, use the 'searchSiteContent' tool to find it.
 When you find relevant content, summarize the information and provide a direct link to the page in your response.
-Format links in Markdown, like this: [Link Text](https://www.comparlify.com/path-to-page).
+Format links in Markdown, like this: [Link Text](/path-to-page).
 Keep your answers concise and easy to read.
 Do not make up information. If you don't know the answer, say that you don't know.`;
 
     const llmResponse = await ai.generate({
       model: ai.model,
-      tools: [getPlatformsTool, getPlatformDetailsTool, searchSiteContent],
+      tools: [getPlatformsTool, getPlatformDetailsTool, searchSiteContent, getTopComparisons],
       system: systemPrompt,
       prompt: query,
       history: history as Message[],
