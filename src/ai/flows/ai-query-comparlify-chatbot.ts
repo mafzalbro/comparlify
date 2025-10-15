@@ -100,75 +100,62 @@ const searchSiteContent = ai.defineTool(
     })),
   },
   async ({ query }) => {
-    const sitemapPath = path.join(process.cwd(), 'public', 'sitemap.xml');
-    const sitemapXml = await fs.readFile(sitemapPath, 'utf-8');
-    const parser = new XMLParser();
-    const sitemap = parser.parse(sitemapXml);
-
-    const urls = sitemap.urlset.url.map((u: any) => u.loc);
-
     const lowerCaseQuery = query.toLowerCase();
-    
+
+    // Specific word mappings
+    const queryWords = lowerCaseQuery.split(/\s+/);
+    if (queryWords.includes('courses') || queryWords.includes('course')) {
+        // Expand search to include related terms for "courses"
+        const searchTerms = ['course', 'platform', 'e-learning', 'lesson', 'teach'];
+        const orConditions = searchTerms.map(term => ({
+            OR: [
+                { title: { contains: term } },
+                { description: { contains: term } },
+                { content: { contains: term } },
+            ]
+        }));
+        
+        const posts = await prisma.post.findMany({
+            where: { published: true, AND: { OR: orConditions } },
+            select: { title: true, slug: true, description: true }
+        });
+        
+        return posts.map(p => ({
+            url: `/blog/${p.slug}`,
+            title: p.title,
+            snippet: p.description
+        }));
+    }
+
+    // Generic search for other queries
     const posts = await prisma.post.findMany({
-        where: { published: true },
-        select: { title: true, slug: true, content: true, description: true }
+        where: { published: true, OR: [
+            { title: { contains: lowerCaseQuery }},
+            { description: { contains: lowerCaseQuery }},
+            { content: { contains: lowerCaseQuery }},
+        ]},
+        select: { title: true, slug: true, description: true }
     });
 
     const comparisons = await prisma.comparison.findMany({
-        where: { published: true },
-        select: { title: true, slug: true, summary: true, introduction: true, conclusion: true }
+        where: { published: true, OR: [
+            { title: { contains: lowerCaseQuery }},
+            { summary: { contains: lowerCaseQuery }},
+        ]},
+        select: { title: true, slug: true, summary: true }
     });
-
-    const siteContent = await prisma.siteContent.findMany();
-
-    const searchCorpus = [
-        ...posts.map(p => ({ 
-            type: 'blog', 
-            id: p.slug, 
-            title: p.title, 
-            text: `${p.title} ${p.description} ${p.content}`,
-            url: `/blog/${p.slug}`
-        })),
-        ...comparisons.map(c => ({ 
-            type: 'compare', 
-            id: c.slug, 
-            title: c.title, 
-            text: `${c.title} ${c.summary} ${c.introduction} ${c.conclusion}`,
-            url: `/compare/${c.slug}`
-        })),
-        ...siteContent.map(sc => ({
-            type: 'page',
-            id: sc.key,
-            title: sc.key.split('.').pop()?.replace(/([A-Z])/g, ' $1').trim() || sc.group,
-            text: sc.value,
-            url: `/${sc.group.toLowerCase().replace(' page', '')}`
-        }))
+    
+    const results = [
+        ...posts.map(p => ({ url: `/blog/${p.slug}`, title: p.title, snippet: p.description })),
+        ...comparisons.map(c => ({ url: `/compare/${c.slug}`, title: c.title, snippet: c.summary }))
     ];
 
-    const results: any[] = [];
-
-    searchCorpus.forEach(doc => {
-        if (doc.text.toLowerCase().includes(lowerCaseQuery)) {
-            const snippetIndex = doc.text.toLowerCase().indexOf(lowerCaseQuery);
-            const start = Math.max(0, snippetIndex - 50);
-            const end = Math.min(doc.text.length, snippetIndex + 150);
-            const snippet = `...${doc.text.substring(start, end)}...`;
-
-            results.push({
-                url: doc.url,
-                title: doc.title,
-                snippet
-            });
-        }
-    });
-
-    // Deduplicate results based on URL
     const uniqueResults = Array.from(new Map(results.map(item => [item['url'], item])).values());
-
-    // Limit to top 5 results for LLM context
-    return uniqueResults.slice(0, 5);
+    
+    return uniqueResults.slice(0, 10); // Return up to 10 results
   }
 );
+
 
 const getTopComparisons = ai.defineTool(
     {
@@ -250,9 +237,10 @@ Your goal is to provide helpful and informative responses to user queries about 
 Use the tools provided to access information from the database to answer user questions.
 When a user asks for the "best", "top", or "most popular" comparisons, use the 'getTopComparisons' tool.
 For any other questions about site content, such as "how many articles about X" or "do you have a post on Y", use the 'searchSiteContent' tool.
+When you use the 'searchSiteContent' tool to answer a "how many" question, you MUST count the number of items returned by the tool and state that number in your response. For example, if the tool returns 3 items for a search on "courses", you should respond with "There are 3 posts related to courses on the site."
 When you find relevant content, summarize the information and provide a direct link to the page in your response.
 Format links in Markdown, like this: [Link Text](/path-to-page).
-If the search tool returns results for a "how many" question, count the number of unique results and provide that count to the user, along with links.
+If the search tool returns no results, inform the user that you couldn't find anything on that topic.
 Keep your answers concise and easy to read.
 Do not make up information. If you don't know the answer, say that you don't know.`;
 
