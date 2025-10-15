@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef, useEffect, use } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Bot, Send, User, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,6 +18,10 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { getChatbotResponse } from '@/app/actions/ai';
 import { MarkdownContent } from './markdown-content';
+import { useRateLimiter } from '@/hooks/use-rate-limiter';
+import { useToast } from '@/hooks/use-toast';
+import { formatDistanceToNow } from 'date-fns';
+
 
 type Message = {
   id: string;
@@ -42,6 +46,12 @@ export function Chatbot() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
+  const { isAllowed, recordQuery, timeUntilNextQuery } = useRateLimiter({
+    limit: 15,
+    window: 60 * 60 * 1000, // 1 hour in milliseconds
+  });
+
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -60,6 +70,16 @@ export function Chatbot() {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
+    if (!isAllowed()) {
+      const timeRemaining = formatDistanceToNow(new Date(Date.now() + timeUntilNextQuery()), { addSuffix: true });
+      toast({
+        title: 'Rate Limit Exceeded',
+        description: `You've sent too many messages. Please try again ${timeRemaining}.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
@@ -70,6 +90,8 @@ export function Chatbot() {
     setMessages(newMessages);
     setInput('');
     setIsLoading(true);
+
+    recordQuery();
 
     const history: HistoryMessage[] = newMessages.slice(0, -1).map(msg => ({
       role: msg.role === 'assistant' ? 'model' : 'user',
@@ -128,7 +150,7 @@ export function Chatbot() {
                     className={cn(
                       'max-w-xs rounded-lg px-4 py-2 text-sm',
                       message.role === 'user'
-                        ? 'bg-primary dark:bg-primary-foreground text-primary-foreground'
+                        ? 'bg-primary text-primary-foreground'
                         : 'bg-muted'
                     )}
                   >
