@@ -12,7 +12,6 @@ import { Message } from "genkit";
 import { promises as fs } from 'fs';
 import path from 'path';
 import { XMLParser } from "fast-xml-parser";
-import { getContent } from "@/lib/content";
 
 const getPlatformsTool = ai.defineTool(
   {
@@ -245,8 +244,7 @@ const aiQueryComparlifyChatbotFlow = ai.defineFlow(
     outputSchema: AIQueryComparlifyChatbotOutputSchema,
   },
   async ({ query, history }) => {
-    const content = await getContent();
-    const siteName = content['global.siteName'] || 'Comparlify';
+    const siteName = (await prisma.siteContent.findUnique({ where: { key: "global.siteName" }}))?.value || 'Comparlify';
     const systemPrompt = `You are a helpful and friendly AI assistant for a website called ${siteName}.
 Your goal is to provide helpful and informative responses to user queries about course creation platforms and content on the site.
 Use the tools provided to access information from the database to answer user questions.
