@@ -90,7 +90,7 @@ const getPlatformDetailsTool = ai.defineTool(
 const searchSiteContent = ai.defineTool(
   {
     name: "searchSiteContent",
-    description: "Searches the entire website content (blog posts, comparisons, pages) to answer user questions or find relevant links and resources. Use this tool for any queries that go beyond simple platform data.",
+    description: "Searches the entire website content (blog posts, comparisons, pages) to answer user questions or find relevant links and resources. Use this tool for any queries that go beyond simple platform data, such as asking 'how many' or looking for specific topics.",
     inputSchema: z.object({
       query: z.string().describe("The user's query to search for within the site content."),
     }),
@@ -166,8 +166,8 @@ const searchSiteContent = ai.defineTool(
     // Deduplicate results based on URL
     const uniqueResults = Array.from(new Map(results.map(item => [item['url'], item])).values());
 
-    // Limit to top 3 results
-    return uniqueResults.slice(0, 3);
+    // Limit to top 5 results for LLM context
+    return uniqueResults.slice(0, 5);
   }
 );
 
@@ -251,9 +251,10 @@ const aiQueryComparlifyChatbotFlow = ai.defineFlow(
 Your goal is to provide helpful and informative responses to user queries about course creation platforms and content on the site.
 Use the tools provided to access information from the database to answer user questions.
 When a user asks for the "best", "top", or "most popular" comparisons, use the 'getTopComparisons' tool.
-When a user asks for information that might be in a blog post, comparison, or page, use the 'searchSiteContent' tool to find it.
+For any other questions about site content, such as "how many articles about X" or "do you have a post on Y", use the 'searchSiteContent' tool.
 When you find relevant content, summarize the information and provide a direct link to the page in your response.
 Format links in Markdown, like this: [Link Text](/path-to-page).
+If the search tool returns results for a "how many" question, count the number of unique results and provide that count to the user, along with links.
 Keep your answers concise and easy to read.
 Do not make up information. If you don't know the answer, say that you don't know.`;
 
