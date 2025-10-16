@@ -1,13 +1,23 @@
 
+'use client';
+
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getContent } from '@/lib/content';
+import { useEffect, useState } from 'react';
 
-interface PromoBannerProps {
-    content: Record<string, string>;
-}
+export function PromoBanner() {
+    const [content, setContent] = useState<Record<string,string>>({});
 
-export function PromoBanner({ content }: PromoBannerProps) {
+    useEffect(() => {
+        async function fetchContent() {
+            const siteContent = await getContent();
+            setContent(siteContent);
+        }
+        fetchContent();
+    }, []);
+
     const isEnabled = content['global.banner.enabled'] === 'true';
     const text = content['global.banner.text'];
     const linkText = content['global.banner.link.text'];
@@ -18,19 +28,34 @@ export function PromoBanner({ content }: PromoBannerProps) {
     }
 
     return (
-        <div className="bg-primary text-primary-foreground">
-            <div className="container flex items-center justify-center gap-x-6 py-2 px-6 sm:px-3.5">
+        <div className="relative isolate flex items-center gap-x-6 overflow-hidden bg-primary/90 px-6 py-2.5 sm:px-3.5 sm:before:flex-1 text-white">
+             <div
+                className="absolute left-[max(-7rem,calc(50%-52rem))] top-1/2 -z-10 -translate-y-1/2 transform-gpu blur-2xl"
+                aria-hidden="true"
+            >
+                <div
+                className="aspect-[577/310] w-[36.0625rem] bg-gradient-to-r from-primary to-amber-400 opacity-30"
+                style={{
+                    clipPath:
+                    'polygon(74.8% 41.9%, 97.2% 73.2%, 100% 34.9%, 92.5% 0.4%, 87.5% 0%, 75% 28.6%, 58.5% 54.6%, 50.1% 56.8%, 46.9% 44%, 48.3% 17.4%, 24.7% 53.9%, 0% 27.9%, 11.9% 74.2%, 24.9% 54.1%, 68.6% 100%, 74.8% 41.9%)',
+                }}
+                />
+            </div>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                 <p className="text-sm leading-6">
-                    {text}
+                {text}
                 </p>
                 {linkText && linkHref && (
                     <Link
                         href={linkHref}
-                        className="flex-none rounded-full bg-secondary/20 px-3.5 py-1 text-sm font-semibold text-white shadow-sm hover:bg-secondary/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                        className="flex-none rounded-full bg-background px-3.5 py-1 text-sm font-semibold text-primary shadow-sm hover:bg-muted/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
                     >
-                        {linkText} <span aria-hidden="true">&rarr;</span>
+                       {linkText} <span aria-hidden="true">&rarr;</span>
                     </Link>
                 )}
+            </div>
+            <div className="flex flex-1 justify-end">
+                 {/* You can add a close button here if needed in the future */}
             </div>
         </div>
     );
