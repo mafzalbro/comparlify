@@ -3,6 +3,7 @@ import { Chatbot } from '@/components/chatbot';
 import Footer from '@/components/layout/footer';
 import Header from '@/components/layout/header';
 import { Logo } from '@/components/logo';
+import { PromoBanner } from '@/components/layout/promo-banner';
 import { auth } from '@/lib/auth';
 import { getContent } from '@/lib/content';
 
@@ -33,6 +34,7 @@ export default async function MainLayout({
 
   return (
     <>
+      <PromoBanner content={content} />
       <Header navLinks={navLinks} siteName={siteName} />
       <main className="flex-1">
         {children}

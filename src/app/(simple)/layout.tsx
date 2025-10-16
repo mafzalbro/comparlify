@@ -1,9 +1,11 @@
 
+
 import Footer from "@/components/layout/footer";
 import Header from "@/components/layout/header";
 import { Chatbot } from "@/components/chatbot";
 import { getContent } from "@/lib/content";
 import { auth } from "@/lib/auth";
+import { PromoBanner } from "@/components/layout/promo-banner";
 
 export default async function SimplePagesLayout({
   children,
@@ -33,6 +35,7 @@ export default async function SimplePagesLayout({
 
   return (
     <>
+      <PromoBanner content={content} />
       <Header navLinks={navLinks} siteName={siteName} />
       <main>{children}</main>
       {session?.user && <Chatbot />}
