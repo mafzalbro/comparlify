@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Editor as NovelEditor } from 'novel';
+import NovelEditor from 'novel';
 
 interface EditorProps {
   initialContent?: string;
