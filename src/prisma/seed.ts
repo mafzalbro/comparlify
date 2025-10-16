@@ -296,6 +296,9 @@ async function main() {
     { key: 'footer.tagline', group: 'Footer', value: 'Helping course creators thrive with better tools and insights.' },
     { key: 'footer.newsletter.title', group: 'Footer', value: 'Stay Updated' },
     { key: 'footer.newsletter.subtitle', group: 'Footer', value: 'Get the latest tips and tool updates straight to your inbox.' },
+    { key: 'footer.navLinks.navigate', group: 'Footer', type: 'TEXTAREA', value: JSON.stringify([{"label": "Comparisons", "href": "/compare"}, {"label": "Blog", "href": "/blog"}, {"label": "Tools", "href": "/tools"}], null, 2) },
+    { key: 'footer.navLinks.company', group: 'Footer', type: 'TEXTAREA', value: JSON.stringify([{"label": "About Us", "href": "/about"}, {"label": "Contact", "href": "/contact"}, {"label": "Privacy Policy", "href": "/privacy"}, {"label": "Terms of Service", "href": "/legal/terms-of-service"}, {"label": "Sponsor Policy", "href": "/legal/sponsor-policy"}], null, 2) },
+
 
     // About Page
     { key: 'about.hero.title', group: 'About Page', value: "We're Here to Help Creators Thrive" },
@@ -393,6 +396,7 @@ If you have any questions about our privacy policy, please contact us at <a href
     { key: 'settings.email.fromName', group: 'Email Settings', value: 'Comparlify' },
     { key: 'settings.email.fromEmail', group: 'Email Settings', value: 'noreply@comparlify.com' },
     { key: 'settings.code.head', group: 'Code Injection', type: 'TEXTAREA', value: '' },
+    { key: 'settings.code.body', group: 'Code Injection', type: 'TEXTAREA', value: '' },
 
     // Legal Pages
     {
@@ -505,5 +509,7 @@ export const seed = async () => {
 if (require.main === module) {
   seed();
 }
+
+    
 
     

@@ -29,11 +29,18 @@ interface FooterContent {
   'footer.tagline'?: string;
   'footer.newsletter.title'?: string;
   'footer.newsletter.subtitle'?: string;
+  'footer.navLinks.navigate'?: string;
+  'footer.navLinks.company'?: string;
 }
 
 interface FooterProps {
   content: FooterContent;
   siteName: string;
+}
+
+type FooterLink = {
+    label: string;
+    href: string;
 }
 
 export default function Footer({ content, siteName }: FooterProps) {
@@ -61,6 +68,20 @@ export default function Footer({ content, siteName }: FooterProps) {
     }
   }, [state, toast]);
 
+  let navigateLinks: FooterLink[] = [];
+  let companyLinks: FooterLink[] = [];
+
+  try {
+    if (content['footer.navLinks.navigate']) {
+        navigateLinks = JSON.parse(content['footer.navLinks.navigate']);
+    }
+    if (content['footer.navLinks.company']) {
+        companyLinks = JSON.parse(content['footer.navLinks.company']);
+    }
+  } catch (e) {
+    console.error("Failed to parse footer links from site content:", e);
+  }
+
 
   return (
     <footer className="bg-secondary/50 border-t border-border/40">
@@ -87,19 +108,17 @@ export default function Footer({ content, siteName }: FooterProps) {
             <div>
               <h3 className="font-headline text-lg font-semibold mb-4">Navigate</h3>
               <ul className="space-y-2">
-                <li><Link href="/compare" className="text-sm text-muted-foreground hover:text-primary">Comparisons</Link></li>
-                <li><Link href="/blog" className="text-sm text-muted-foreground hover:text-primary">Blog</Link></li>
-                <li><Link href="/tools" className="text-sm text-muted-foreground hover:text-primary">Tools</Link></li>
+                {navigateLinks.map(link => (
+                    <li key={link.href}><Link href={link.href} className="text-sm text-muted-foreground hover:text-primary">{link.label}</Link></li>
+                ))}
               </ul>
             </div>
             <div>
               <h3 className="font-headline text-lg font-semibold mb-4">Company</h3>
               <ul className="space-y-2">
-                <li><Link href="/about" className="text-sm text-muted-foreground hover:text-primary">About Us</Link></li>
-                <li><Link href="/contact" className="text-sm text-muted-foreground hover:text-primary">Contact</Link></li>
-                <li><Link href="/privacy" className="text-sm text-muted-foreground hover:text-primary">Privacy Policy</Link></li>
-                 <li><Link href="/legal/terms-of-service" className="text-sm text-muted-foreground hover:text-primary">Terms of Service</Link></li>
-                 <li><Link href="/legal/sponsor-policy" className="text-sm text-muted-foreground hover:text-primary">Sponsor Policy</Link></li>
+                 {companyLinks.map(link => (
+                    <li key={link.href}><Link href={link.href} className="text-sm text-muted-foreground hover:text-primary">{link.label}</Link></li>
+                ))}
               </ul>
             </div>
           </div>
@@ -119,3 +138,5 @@ export default function Footer({ content, siteName }: FooterProps) {
     </footer>
   );
 }
+
+    

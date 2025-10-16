@@ -19,9 +19,11 @@ export default async function SimplePagesLayout({
     'footer.tagline': content['footer.tagline'],
     'footer.newsletter.title': content['footer.newsletter.title'],
     'footer.newsletter.subtitle': content['footer.newsletter.subtitle'],
+    'footer.navLinks.navigate': content['footer.navLinks.navigate'],
+    'footer.navLinks.company': content['footer.navLinks.company'],
   };
 
-  const siteName = content['header.siteName']
+  const siteName = content['global.siteName'] || 'Comparlify';
   let navLinks = [];
   try {
     navLinks = JSON.parse(content['header.navLinks'] || '[]');
@@ -38,3 +40,5 @@ export default async function SimplePagesLayout({
     </>
   );
 }
+
+    
