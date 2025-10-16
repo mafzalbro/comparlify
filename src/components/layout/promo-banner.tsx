@@ -2,13 +2,15 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getContent } from '@/lib/content';
 import { useEffect, useState } from 'react';
+import { useLocalStorage } from '@/hooks/use-local-storage';
 
 export function PromoBanner() {
     const [content, setContent] = useState<Record<string,string>>({});
+    const [dismissed, setDismissed] = useLocalStorage('promoBannerDismissed', false);
 
     useEffect(() => {
         async function fetchContent() {
@@ -23,7 +25,7 @@ export function PromoBanner() {
     const linkText = content['global.banner.link.text'];
     const linkHref = content['global.banner.link.href'];
 
-    if (!isEnabled || !text) {
+    if (!isEnabled || !text || dismissed) {
         return null;
     }
 
@@ -55,7 +57,14 @@ export function PromoBanner() {
                 )}
             </div>
             <div className="flex flex-1 justify-end">
-                 {/* You can add a close button here if needed in the future */}
+                 <button
+                    type="button"
+                    className="-m-3 p-3 focus-visible:outline-offset-[-4px] text-white/80 hover:text-white"
+                    onClick={() => setDismissed(true)}
+                    aria-label="Dismiss"
+                >
+                    <X className="h-5 w-5" />
+                </button>
             </div>
         </div>
     );
