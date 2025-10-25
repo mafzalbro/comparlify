@@ -1,5 +1,4 @@
 
-
 import {
     Sidebar,
     SidebarContent,
@@ -14,7 +13,7 @@ import {
     SidebarGroupLabel,
     SidebarFooter
 } from "@/components/ui/sidebar";
-import { Home, Settings, Table, PenSquare, LogOut, BookText, GitCompareArrows, Users, LayoutDashboard, MessageCircle, Mail, Globe, Send, ShieldCheck } from "lucide-react";
+import { Settings, LogOut, LayoutDashboard, ShieldCheck } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { LogoutButton } from "@/components/auth/logout-button";
 import Link from "next/link";
@@ -25,6 +24,7 @@ import { getNotifications } from "@/app/actions/notifications";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { getSiteName, } from "@/lib/content";
 import { AdminNav } from "./_components/admin-nav";
+import { redirect } from "next/navigation";
 
 
 export default async function AdminLayout({
@@ -35,6 +35,10 @@ export default async function AdminLayout({
     const session = await auth();
     const { notifications, unreadCount } = await getNotifications();
     let siteName = await getSiteName()
+
+    if (!session || !['ADMIN', 'AUTHOR', 'MODERATOR'].includes(session.user.role)) {
+        redirect('/');
+    }
 
     return (
         <SidebarProvider>

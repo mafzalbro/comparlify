@@ -66,6 +66,8 @@ export function RoleSwitcher({ user, currentUserId }: RoleSwitcherProps) {
                 </SelectTrigger>
                 <SelectContent>
                     <SelectItem value="USER">User</SelectItem>
+                    <SelectItem value="AUTHOR">Author</SelectItem>
+                    <SelectItem value="MODERATOR">Moderator</SelectItem>
                     <SelectItem value="ADMIN">Admin</SelectItem>
                 </SelectContent>
             </Select>

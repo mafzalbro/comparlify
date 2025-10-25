@@ -10,8 +10,8 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useSession } from "next-auth/react"
 import { SuspensionSwitcher } from "./suspension-switcher"
-import { DataTableRowActions } from "./data-table-row-actions";
 import { Check, X } from "lucide-react";
+import { RoleSwitcher } from "./role-switcher";
 
 export const columns: ColumnDef<User>[] = [
   {
@@ -40,7 +40,8 @@ export const columns: ColumnDef<User>[] = [
       <DataTableColumnHeader column={column} title="Role" />
     ),
     cell: ({ row }) => {
-        return <Badge variant={row.original.role === 'ADMIN' ? 'destructive' : 'secondary'}>{row.original.role}</Badge>
+        const { data: session } = useSession();
+        return <RoleSwitcher user={row.original} currentUserId={session?.user.id} />
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id))
@@ -77,12 +78,5 @@ export const columns: ColumnDef<User>[] = [
       <DataTableColumnHeader column={column} title="Joined" />
     ),
     cell: ({ row }) => format(new Date(row.original.createdAt), 'P'),
-  },
-   {
-    id: "actions",
-    cell: ({ row }) => {
-        const { data: session } = useSession();
-        return <DataTableRowActions user={row.original} currentUserId={session?.user.id} />
-    },
   },
 ]
