@@ -10,6 +10,7 @@ import { Poppins, Lato } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { getContent } from '@/lib/content';
 import { Suspense } from 'react';
+import NextTopLoader from 'nextjs-toploader';
 
 const fontHeadline = Poppins({
   subsets: ['latin'],
@@ -66,6 +67,7 @@ export default async function RootLayout({
         {headCode && <div dangerouslySetInnerHTML={{ __html: headCode }} />}
       </head>
       <body className={cn("font-body antialiased flex flex-col min-h-screen bg-background", fontHeadline.variable, fontBody.variable)}>
+        <NextTopLoader color="hsl(var(--primary))" showSpinner={false} />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

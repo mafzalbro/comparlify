@@ -64,6 +64,7 @@
     "next": "^15.5.2",
     "next-auth": "^5.0.0-beta.23",
     "next-themes": "^0.3.0",
+    "nextjs-toploader": "^1.6.12",
     "nodemailer": "^6.9.14",
     "novel": "^0.4.2",
     "patch-package": "^8.0.0",
