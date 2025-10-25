@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, CheckCircle, AlertTriangle, DatabaseZap, Trash2 } from 'lucide-react';
 import { seedDatabaseAction, cleanupDatabaseAction } from '@/app/actions/seed';
 import { AnimatePresence, motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 type ActionType = 'seed' | 'cleanup';
 type Status = 'idle' | 'confirm' | 'cleaning' | 'seeding' | 'success' | 'error';
@@ -30,6 +31,7 @@ export function DataManagement() {
             if (cleanupResult.error) {
                 setActionState({ status: 'error', message: cleanupResult.error });
                 toast({ title: 'Cleanup Failed', description: cleanupResult.error, variant: 'destructive' });
+                setTimeout(() => setActionState({ status: 'idle', message: null }), 3000);
                 return;
             }
 

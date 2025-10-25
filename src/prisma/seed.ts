@@ -1,7 +1,7 @@
 
 "use server";
 import prisma from "@/lib/prisma";
-import { Prisma, Role } from "@prisma/client";
+import { Prisma, Role, PostStatus, NewsArticleStatus, ComparisonStatus } from "@prisma/client";
 
 export async function cleanupDatabase() {
     console.log("🧹 Starting database cleanup...");
@@ -201,10 +201,10 @@ async function main(skipCleanup = false) {
   // --- 7. Seed Blog Posts ---
   console.log("📝 Seeding Blog Posts...");
   const postsData: (Omit<Prisma.PostCreateInput, "author" | "category"> & {categoryName: string})[] = [
-      { slug: "choosing-the-right-platform", title: "10 Things to Consider When Choosing a Course Platform", description: "From pricing and features to scalability and support, here are the key factors to weigh before committing to a platform.", content: "Full content about choosing platforms...", image: "https://picsum.photos/400/250?random=1", dataAiHint: "decision making choices", published: true, authorId: adminUser.id, categoryName: "Platform Guides" },
-      { slug: "engaging-course-content", title: "5 Secrets to Creating Wildly Engaging Course Content", description: "Move beyond static videos. Discover interactive techniques that captivate students and boost completion rates.", content: "Full content about engaging content...", image: "https://picsum.photos/400/250?random=2", dataAiHint: "creative content creation", published: true, authorId: adminUser.id, categoryName: "Course Creation" },
-      { slug: "marketing-your-online-course", title: "The Ultimate Guide to Marketing Your Online Course in 2024", description: "Explore the latest strategies for social media, email marketing, and SEO to attract your ideal students.", content: "Full content about marketing courses...", image: "https://picsum.photos/400/250?random=3", dataAiHint: "digital marketing strategy", published: true, authorId: adminUser.id, categoryName: "Marketing" },
-      { slug: "ai-in-education", title: "How AI is Revolutionizing the E-Learning Industry", description: "Learn how artificial intelligence is personalizing learning paths, automating grading, and creating smarter content.", content: "Full content about AI in education...", image: "https://picsum.photos/400/250?random=4", dataAiHint: "artificial intelligence education", published: false, authorId: adminUser.id, categoryName: "Tech Trends" },
+      { slug: "choosing-the-right-platform", title: "10 Things to Consider When Choosing a Course Platform", description: "From pricing and features to scalability and support, here are the key factors to weigh before committing to a platform.", content: "Full content about choosing platforms...", image: "https://picsum.photos/400/250?random=1", dataAiHint: "decision making choices", status: 'PUBLISHED', authorId: adminUser.id, categoryName: "Platform Guides" },
+      { slug: "engaging-course-content", title: "5 Secrets to Creating Wildly Engaging Course Content", description: "Move beyond static videos. Discover interactive techniques that captivate students and boost completion rates.", content: "Full content about engaging content...", image: "https://picsum.photos/400/250?random=2", dataAiHint: "creative content creation", status: 'PUBLISHED', authorId: adminUser.id, categoryName: "Course Creation" },
+      { slug: "marketing-your-online-course", title: "The Ultimate Guide to Marketing Your Online Course in 2024", description: "Explore the latest strategies for social media, email marketing, and SEO to attract your ideal students.", content: "Full content about marketing courses...", image: "https://picsum.photos/400/250?random=3", dataAiHint: "digital marketing strategy", status: 'PUBLISHED', authorId: adminUser.id, categoryName: "Marketing" },
+      { slug: "ai-in-education", title: "How AI is Revolutionizing the E-Learning Industry", description: "Learn how artificial intelligence is personalizing learning paths, automating grading, and creating smarter content.", content: "Full content about AI in education...", image: "https://picsum.photos/400/250?random=4", dataAiHint: "artificial intelligence education", status: 'DRAFT', authorId: adminUser.id, categoryName: "Tech Trends" },
   ];
   
   let previousPostId: string | null = null;
@@ -274,7 +274,7 @@ async function main(skipCleanup = false) {
     categoryId: compCategoryMap.get("Flagship Showdowns"),
     introduction: "### Introduction\nChoosing between Teachable and Thinkific is a common dilemma for course creators. Both are industry leaders, but they cater to slightly different needs. This comparison will break down the key differences.",
     conclusion: "### Conclusion\nFor beginners who prioritize simplicity, Teachable is a fantastic starting point. For those needing more customization and advanced features, Thinkific offers a more robust platform to grow into.",
-    published: true,
+    status: 'PUBLISHED' as ComparisonStatus,
     facts: {
         create: [
             { title: "Best For", platformAValue: "Beginners", platformBValue: "Entrepreneurs" },
@@ -491,7 +491,7 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
       content: "We're excited to announce a major update to our platform. Our new suite of AI-powered tools is designed to help course creators streamline their workflow and produce higher-quality content faster than ever before. From generating course outlines to scripting video lessons, these tools are your new creative co-pilot.",
       image: "https://picsum.photos/400/250?random=10",
       dataAiHint: "technology launch announcement",
-      published: true,
+      status: 'PUBLISHED' as NewsArticleStatus,
       authorId: adminUser.id,
   };
   await prisma.newsArticle.create({ data: newsData });
