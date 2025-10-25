@@ -4,40 +4,44 @@ import prisma from "@/lib/prisma";
 import { Prisma, Role } from "@prisma/client";
 import bcrypt from 'bcryptjs';
 
+export async function cleanupDatabase() {
+    console.log("Cleaning up existing data...");
+
+    // First, break the navigation links
+    await prisma.$executeRaw`UPDATE Post SET previousId = NULL, nextId = NULL`;
+    await prisma.image.deleteMany();
+    await prisma.forumPost.deleteMany();
+    await prisma.forumTopic.deleteMany();
+    await prisma.forumCategory.deleteMany();
+    await prisma.newsArticle.deleteMany();
+    await prisma.emailRecipient.deleteMany();
+    await prisma.emailCampaign.deleteMany();
+    await prisma.contactMessage.deleteMany();
+    await prisma.subscription.deleteMany();
+    await prisma.notification.deleteMany();
+    await prisma.siteContent.deleteMany();
+    await prisma.comment.deleteMany();
+    await prisma.bookmark.deleteMany();
+    await prisma.post.deleteMany();
+    await prisma.comparison.deleteMany();
+    await prisma.platformFeature.deleteMany();
+    await prisma.fact.deleteMany();
+    await prisma.faq.deleteMany();
+    await prisma.feature.deleteMany();
+    await prisma.featureCategory.deleteMany();
+    await prisma.platform.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.postCategory.deleteMany();
+    await prisma.comparisonCategory.deleteMany();
+    
+    console.log("Cleaned up existing data.");
+}
+
 async function main() {
   console.log("Start seeding...");
 
   // --- 1. Clean up existing data ---
-  console.log("Cleaning up existing data...");
-
-  // First, break the navigation links
-  await prisma.$executeRaw`UPDATE Post SET previousId = NULL, nextId = NULL`;
-  await prisma.image.deleteMany();
-  await prisma.forumPost.deleteMany();
-  await prisma.forumTopic.deleteMany();
-  await prisma.forumCategory.deleteMany();
-  await prisma.newsArticle.deleteMany();
-  await prisma.emailRecipient.deleteMany();
-  await prisma.emailCampaign.deleteMany();
-  await prisma.contactMessage.deleteMany();
-  await prisma.subscription.deleteMany();
-  await prisma.notification.deleteMany();
-  await prisma.siteContent.deleteMany();
-  await prisma.comment.deleteMany();
-  await prisma.bookmark.deleteMany();
-  await prisma.post.deleteMany();
-  await prisma.comparison.deleteMany();
-  await prisma.platformFeature.deleteMany();
-  await prisma.fact.deleteMany();
-  await prisma.faq.deleteMany();
-  await prisma.feature.deleteMany();
-  await prisma.featureCategory.deleteMany();
-  await prisma.platform.deleteMany();
-  await prisma.user.deleteMany();
-  await prisma.postCategory.deleteMany();
-  await prisma.comparisonCategory.deleteMany();
-  
-  console.log("Cleaned up existing data.");
+  await cleanupDatabase();
 
 
   // --- 2. Seed Users ---

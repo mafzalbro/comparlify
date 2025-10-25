@@ -10,7 +10,7 @@ import {
     SidebarGroup,
     SidebarGroupLabel,
 } from "@/components/ui/sidebar";
-import { Home, Settings, Table, PenSquare, BookText, GitCompareArrows, Users, Globe, Send, MessageCircle, Mail, Newspaper, MessageSquare, Gavel, ImageIcon } from "lucide-react";
+import { Home, Settings, Table, PenSquare, BookText, GitCompareArrows, Users, Globe, Send, MessageCircle, Mail, Newspaper, MessageSquare, Gavel, ImageIcon, Database } from "lucide-react";
 
 
 export function AdminNav() {

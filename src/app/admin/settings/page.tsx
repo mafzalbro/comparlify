@@ -1,13 +1,13 @@
 
-"use client"
+'use client';
 
 import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { revalidateCacheAction } from '@/app/actions/admin';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Trash2, Globe, BookOpen, GitCompareArrows, Code } from 'lucide-react';
+import { Loader2, Trash2, Globe, BookOpen, GitCompareArrows, Code, Database } from 'lucide-react';
 import {
     Tabs,
     TabsContent,
@@ -17,6 +17,7 @@ import {
 import { ContentForm } from '../content/_components/content-form';
 import { AdminSettings, getSettingsContent } from '@/app/actions/content';
 import { Skeleton } from '@/components/ui/skeleton';
+import { DataManagement } from './_components/data-management';
 
 
 export default function AdminSettingsPage() {
@@ -70,6 +71,7 @@ export default function AdminSettingsPage() {
                     <TabsTrigger value="email">Email</TabsTrigger>
                     <TabsTrigger value="codeInjection">Code Injection</TabsTrigger>
                     <TabsTrigger value="cache">Cache</TabsTrigger>
+                    <TabsTrigger value="data">Data</TabsTrigger>
                 </TabsList>
                 <TabsContent value="general">
                     <Card>
@@ -154,6 +156,9 @@ export default function AdminSettingsPage() {
                         </CardFooter>
                     </Card>
                 </TabsContent>
+                 <TabsContent value="data">
+                    <DataManagement />
+                 </TabsContent>
             </Tabs>
         </div>
     )
