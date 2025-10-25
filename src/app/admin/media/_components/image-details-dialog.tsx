@@ -15,20 +15,38 @@ import { ImageGalleryContext } from "./image-gallery-context";
 import { updateImageDetailsAction, deleteImageAction } from "@/app/actions/media";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
+
+function slugify(text: string) {
+    return text
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')           // Replace spaces with -
+      .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+      .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+}
 
 export function ImageDetailsDialog() {
   const context = useContext(ImageGalleryContext);
   const { toast } = useToast();
   
   const [altText, setAltText] = useState('');
-  const [filename, setFilename] = useState('');
+  const [baseFilename, setBaseFilename] = useState('');
+  const [extension, setExtension] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (context?.selectedImage) {
-      setAltText(context.selectedImage.altText || '');
-      setFilename(context.selectedImage.filename);
+      const { altText, filename } = context.selectedImage;
+      const parts = filename.split('.');
+      const ext = parts.pop() || '';
+      const base = parts.join('.');
+      
+      setAltText(altText || '');
+      setBaseFilename(base);
+      setExtension(ext);
     }
   }, [context?.selectedImage]);
 
@@ -48,7 +66,10 @@ export function ImageDetailsDialog() {
   const handleSaveChanges = async () => {
     if (!image) return;
     setIsUpdating(true);
-    const result = await updateImageDetailsAction({ id: image.id, altText, filename });
+    
+    const finalFilename = `${baseFilename}.${extension}`;
+    
+    const result = await updateImageDetailsAction({ id: image.id, altText, filename: finalFilename });
     setIsUpdating(false);
 
     if (result.error) {
@@ -75,7 +96,12 @@ export function ImageDetailsDialog() {
     }
   };
 
-  const isChanged = image ? (altText !== (image.altText || '')) || (filename !== image.filename) : false;
+  const handleFilenameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBaseFilename(slugify(e.target.value));
+  };
+
+  const newFilename = `${baseFilename}.${extension}`;
+  const isChanged = image ? (altText !== (image.altText || '')) || (newFilename !== image.filename) : false;
   
   if (!image) return null;
 
@@ -104,8 +130,11 @@ export function ImageDetailsDialog() {
                 </div>
                  <div className="space-y-2">
                     <Label htmlFor="filename">Filename</Label>
-                    <Input id="filename" value={filename} onChange={e => setFilename(e.target.value)} />
-                    {filename !== image.filename && (
+                    <div className="flex items-center">
+                        <Input id="filename" value={baseFilename} onChange={handleFilenameChange} className="rounded-r-none focus:z-10" />
+                        <span className="inline-flex items-center px-3 text-sm text-muted-foreground bg-muted border border-l-0 rounded-r-md h-10">.{extension}</span>
+                    </div>
+                    {newFilename !== image.filename && (
                         <Alert variant="destructive" className="text-xs p-3">
                              <TriangleAlert className="h-4 w-4" />
                             <AlertTitle>Warning</AlertTitle>
