@@ -79,7 +79,8 @@ export async function getSettingsContent(): Promise<AdminSettings> {
         { group: "Email Settings" }, 
         { group: "Globals" }, 
         { group: "Code Injection" },
-        { group: "SEO Settings" }
+        { group: "SEO Settings" },
+        { group: "Theme" }
       ],
     },
     orderBy: { key: "asc" },

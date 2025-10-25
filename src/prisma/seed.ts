@@ -323,6 +323,18 @@ async function main(skipCleanup = false) {
     { key: 'seo.default.url', group: 'SEO Settings', value: 'https://comparlify.com' },
     { key: 'seo.default.image', group: 'SEO Settings', value: 'https://comparlify.com/og-image.png' },
 
+    // Theme Settings
+    { key: 'theme.light.primary', group: 'Theme', value: '45 93% 58%' },
+    { key: 'theme.light.secondary', group: 'Theme', value: '48 95% 91%' },
+    { key: 'theme.light.accent', group: 'Theme', value: '45 93% 85%' },
+    { key: 'theme.light.background', group: 'Theme', value: '48 100% 98%' },
+    { key: 'theme.light.foreground', group: 'Theme', value: '35 33% 20%' },
+    { key: 'theme.dark.primary', group: 'Theme', value: '45 93% 58%' },
+    { key: 'theme.dark.secondary', group: 'Theme', value: '30 10% 18%' },
+    { key: 'theme.dark.accent', group: 'Theme', value: '30 10% 22%' },
+    { key: 'theme.dark.background', group: 'Theme', value: '30 10% 10%' },
+    { key: 'theme.dark.foreground', group: 'Theme', value: '45 60% 95%' },
+
     // Module Visibility
     { key: 'module.blog.enabled', group: 'Module Visibility', value: 'true' },
     { key: 'module.compare.enabled', group: 'Module Visibility', value: 'true' },

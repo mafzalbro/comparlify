@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { revalidateCacheAction } from '@/app/actions/admin';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Trash2, Globe, BookOpen, GitCompareArrows, Code, Database, Search } from 'lucide-react';
+import { Loader2, Trash2, Globe, BookOpen, GitCompareArrows, Code, Database, Search, Palette } from 'lucide-react';
 import {
     Tabs,
     TabsContent,
@@ -18,6 +18,7 @@ import { ContentForm } from '../content/_components/content-form';
 import { AdminSettings, getSettingsContent } from '@/app/actions/content';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DataManagement } from './_components/data-management';
+import { ThemeEditor } from './_components/theme-editor';
 
 
 export default function AdminSettingsPage() {
@@ -62,12 +63,20 @@ export default function AdminSettingsPage() {
         return <ContentForm items={settingsContent?.[groupName] || []} onFormSuccess={handleFormSuccess} />;
     }
 
+    const renderThemeFormOrSkeleton = () => {
+        if (!settingsContent) {
+            return <Skeleton className="h-48 w-full" />;
+        }
+        return <ThemeEditor themeContent={settingsContent?.['Theme'] || []} onFormSuccess={handleFormSuccess} />;
+    }
+
     return (
         <div>
             <h1 className="text-3xl font-bold mb-6">Settings</h1>
             <Tabs defaultValue="general" className="w-full">
                 <TabsList className="mb-6 h-auto flex-wrap justify-start">
                     <TabsTrigger value="general">General</TabsTrigger>
+                    <TabsTrigger value="theme">Theme</TabsTrigger>
                     <TabsTrigger value="seo">SEO</TabsTrigger>
                     <TabsTrigger value="email">Email</TabsTrigger>
                     <TabsTrigger value="codeInjection">Code Injection</TabsTrigger>
@@ -84,6 +93,19 @@ export default function AdminSettingsPage() {
                         </CardHeader>
                         <CardContent>
                            {renderFormOrSkeleton('Globals')}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+                <TabsContent value="theme">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2"><Palette /> Theme Customizer</CardTitle>
+                            <CardDescription>
+                                Change the color scheme of your site. HSL (Hue, Saturation, Lightness) values are used.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                           {renderThemeFormOrSkeleton()}
                         </CardContent>
                     </Card>
                 </TabsContent>
