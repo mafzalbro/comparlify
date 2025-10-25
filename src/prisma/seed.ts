@@ -50,12 +50,14 @@ export async function cleanupDatabase() {
     console.log("✅ Database cleanup complete.");
 }
 
-async function main() {
+async function main(skipCleanup = false) {
   console.log("🌱 Starting database seeding...");
 
-  // --- 1. Clean up existing data ---
-  await cleanupDatabase();
-
+  if (!skipCleanup) {
+    await cleanupDatabase();
+  } else {
+    console.log("Skipping cleanup as requested.");
+  }
 
   // --- 2. Seed Users ---
   console.log("\n👤 Seeding Users...");
@@ -535,9 +537,9 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
 }
 
 
-export const seed = async () => {
+export const seed = async (skipCleanup = false) => {
   try {
-    await main();
+    await main(skipCleanup);
   } catch (e) {
     console.error("\n❌ An error occurred during seeding:");
     console.error(e);
@@ -551,4 +553,3 @@ export const seed = async () => {
 if (require.main === module) {
   seed();
 }
-

@@ -4,147 +4,136 @@
 import { useState, useTransition } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Trash2, DatabaseZap } from 'lucide-react';
+import { Loader2, CheckCircle, AlertTriangle, DatabaseZap, Trash2 } from 'lucide-react';
 import { seedDatabaseAction, cleanupDatabaseAction } from '@/app/actions/seed';
+import { AnimatePresence, motion } from 'framer-motion';
+
+type ActionType = 'seed' | 'cleanup';
+type Status = 'idle' | 'confirm' | 'cleaning' | 'seeding' | 'success' | 'error';
+
+interface ActionState {
+    status: Status;
+    message: string | null;
+}
 
 export function DataManagement() {
     const { toast } = useToast();
-
-    const handleSeed = async () => {
-        const result = await seedDatabaseAction();
-        if (result.success) {
-            toast({
-                title: 'Database Seeded',
-                description: result.success,
-            });
-        } else {
-            toast({
-                title: 'Error Seeding Database',
-                description: result.error,
-                variant: 'destructive',
-            });
-        }
-    };
-    
-    const handleCleanup = async () => {
-        const result = await cleanupDatabaseAction();
-         if (result.success) {
-            toast({
-                title: 'Database Cleaned',
-                description: result.success,
-            });
-        } else {
-            toast({
-                title: 'Error Cleaning Database',
-                description: result.error,
-                variant: 'destructive',
-            });
-        }
-    };
-
-    return (
-        <div className="grid gap-6 md:grid-cols-2">
-            <ConfirmationCard
-                title="Clean & Seed Database"
-                description="This will completely wipe all data from your database and replace it with the initial seed data. All user accounts, posts, and settings will be reset."
-                actionText="Clean & Seed Database"
-                confirmationText="seed"
-                onConfirm={handleSeed}
-                Icon={DatabaseZap}
-                variant="destructive"
-            />
-             <ConfirmationCard
-                title="Cleanup Database"
-                description="This will completely wipe all data from your database, leaving it empty. All user accounts, posts, and settings will be permanently deleted."
-                actionText="Cleanup Database"
-                confirmationText="cleanup"
-                onConfirm={handleCleanup}
-                Icon={Trash2}
-                variant="destructive"
-            />
-        </div>
-    );
-}
-
-
-interface ConfirmationCardProps {
-    title: string;
-    description: string;
-    actionText: string;
-    confirmationText: string;
-    onConfirm: () => Promise<void>;
-    Icon: React.ElementType;
-    variant?: "default" | "destructive";
-}
-
-function ConfirmationCard({ title, description, actionText, confirmationText, onConfirm, Icon, variant }: ConfirmationCardProps) {
-    const [isOpen, setIsOpen] = useState(false);
-    const [inputValue, setInputValue] = useState('');
+    const [actionState, setActionState] = useState<ActionState>({ status: 'idle', message: null });
     const [isPending, startTransition] = useTransition();
 
-    const handleAction = () => {
+    const handleAction = (type: ActionType) => {
         startTransition(async () => {
-            await onConfirm();
-            setIsOpen(false);
-            setInputValue('');
+            setActionState({ status: 'cleaning', message: 'Cleaning up database...' });
+            const cleanupResult = await cleanupDatabaseAction();
+
+            if (cleanupResult.error) {
+                setActionState({ status: 'error', message: cleanupResult.error });
+                toast({ title: 'Cleanup Failed', description: cleanupResult.error, variant: 'destructive' });
+                return;
+            }
+
+            if (type === 'cleanup') {
+                setActionState({ status: 'success', message: 'Database cleaned successfully.' });
+                toast({ title: 'Success!', description: 'Database has been cleaned.' });
+            } else if (type === 'seed') {
+                setActionState({ status: 'seeding', message: 'Seeding database...' });
+                const seedResult = await seedDatabaseAction();
+                if (seedResult.error) {
+                    setActionState({ status: 'error', message: seedResult.error });
+                    toast({ title: 'Seeding Failed', description: seedResult.error, variant: 'destructive' });
+                } else {
+                    setActionState({ status: 'success', message: seedResult.success });
+                    toast({ title: 'Success!', description: 'Database has been seeded.' });
+                }
+            }
+
+            setTimeout(() => {
+                setActionState({ status: 'idle', message: null });
+            }, 3000);
         });
     };
 
+    const renderProgress = () => {
+        const { status, message } = actionState;
+        
+        const iconMap = {
+            cleaning: <Loader2 className="h-4 w-4 animate-spin" />,
+            seeding: <Loader2 className="h-4 w-4 animate-spin" />,
+            success: <CheckCircle className="h-4 w-4 text-green-500" />,
+            error: <AlertTriangle className="h-4 w-4 text-destructive" />
+        };
+
+        return (
+            <AnimatePresence>
+                {status !== 'idle' && status !== 'confirm' && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="mt-4 p-3 border rounded-lg bg-muted/50 flex items-center gap-3 text-sm"
+                    >
+                        {iconMap[status]}
+                        <span className={cn(status === 'error' ? 'text-destructive' : 'text-muted-foreground')}>{message}</span>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        );
+    };
+
     return (
-        <Card className={variant === 'destructive' ? 'border-destructive' : ''}>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <Icon className={variant === 'destructive' ? 'text-destructive' : ''} />
-                    {title}
-                </CardTitle>
-                <CardDescription>{description}</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-                    <AlertDialogTrigger asChild>
-                        <Button variant={variant} className="w-full">
-                            {actionText}
-                        </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                This action is irreversible. To confirm, please type{" "}
-                                <strong className="font-mono text-foreground">{confirmationText}</strong> below.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <Input
-                            value={inputValue}
-                            onChange={(e) => setInputValue(e.target.value)}
-                            autoFocus
-                        />
-                        <AlertDialogFooter>
-                            <AlertDialogCancel onClick={() => setInputValue('')}>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                                onClick={handleAction}
-                                disabled={inputValue !== confirmationText || isPending}
-                            >
-                                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Confirm
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-            </CardContent>
-        </Card>
-    )
+        <div className="space-y-6">
+            <Card className="border-destructive/50">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <DatabaseZap className="text-destructive" />
+                        Clean & Seed Database
+                    </CardTitle>
+                    <CardDescription>
+                        This will wipe all data and replace it with the initial seed data. All user accounts, posts, and settings will be reset.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Button 
+                        variant="destructive" 
+                        className="w-full" 
+                        onClick={() => handleAction('seed')}
+                        disabled={isPending}
+                    >
+                        {isPending && actionState.status !== 'idle' ? (
+                            'Processing...'
+                        ) : (
+                            'Clean & Seed Database'
+                        )}
+                    </Button>
+                    {renderProgress()}
+                </CardContent>
+            </Card>
+             <Card className="border-destructive/50">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Trash2 className="text-destructive" />
+                        Cleanup Database
+                    </CardTitle>
+                    <CardDescription>
+                        This will wipe all data, leaving the database empty. All user accounts, posts, and settings will be permanently deleted.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Button 
+                        variant="destructive" 
+                        className="w-full" 
+                        onClick={() => handleAction('cleanup')}
+                        disabled={isPending}
+                    >
+                        {isPending && actionState.status !== 'idle' ? (
+                            'Processing...'
+                        ) : (
+                            'Cleanup Database'
+                        )}
+                    </Button>
+                </CardContent>
+            </Card>
+        </div>
+    );
 }
