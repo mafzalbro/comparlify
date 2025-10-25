@@ -6,24 +6,16 @@ import { ThemeProvider } from '@/components/theme-provider';
 import type { Metadata } from 'next';
 import { generateSeoMetadata } from '@/lib/seo';
 import { CookieConsentBanner } from '@/components/cookie-consent-banner';
-import { Poppins, Lato } from 'next/font/google';
+import { Outfit } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { getContent } from '@/lib/content';
 import { Suspense } from 'react';
 import NextTopLoader from 'nextjs-toploader';
 
-const fontHeadline = Poppins({
+const font = Outfit({
   subsets: ['latin'],
-  weight: ['600', '700', '800', '900'],
-  variable: '--font-headline',
-});
-
-const fontBody = Lato({
-  subsets: ['latin'],
-  weight: ['400', '700'],
   variable: '--font-body',
 });
-
 
 export const metadata: Metadata = await generateSeoMetadata({
   path: '/',
@@ -66,7 +58,7 @@ export default async function RootLayout({
         />
         {headCode && <div dangerouslySetInnerHTML={{ __html: headCode }} />}
       </head>
-      <body className={cn("font-body antialiased flex flex-col min-h-screen bg-background", fontHeadline.variable, fontBody.variable)}>
+      <body className={cn("font-body antialiased flex flex-col min-h-screen bg-background", font.variable)}>
         <NextTopLoader color="hsl(var(--primary))" showSpinner={false} />
         <ThemeProvider
           attribute="class"

@@ -29,13 +29,13 @@ export const CampaignTemplate: React.FC<Readonly<CampaignTemplateProps>> = ({
     <Head>
         <style>
             {`
-                @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Poppins:wght@600;700&display=swap');
+                @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap');
                 
                 body {
-                    font-family: 'Lato', sans-serif;
+                    font-family: 'Outfit', sans-serif;
                 }
                 h1, h2, h3, h4, h5, h6 {
-                    font-family: 'Poppins', sans-serif;
+                    font-family: 'Outfit', sans-serif;
                     font-weight: 700;
                 }
                 img {
@@ -86,7 +86,7 @@ export default CampaignTemplate;
 // Styles for the email template
 const main = {
   backgroundColor: '#f1f5f9', // A slightly cooler light gray
-  fontFamily: "'Lato', sans-serif",
+  fontFamily: "'Outfit', sans-serif",
   padding: '20px 0',
 };
 
@@ -111,7 +111,7 @@ const header = {
 const heading = {
   fontSize: '28px',
   fontWeight: '700',
-  fontFamily: "'Poppins', sans-serif",
+  fontFamily: "'Outfit', sans-serif",
   margin: '0',
 };
 
