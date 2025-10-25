@@ -1,3 +1,4 @@
+
 'use client';
 
 import { usePathname } from "next/navigation";
@@ -9,7 +10,7 @@ import {
     SidebarGroup,
     SidebarGroupLabel,
 } from "@/components/ui/sidebar";
-import { Home, Settings, Table, PenSquare, BookText, GitCompareArrows, Users, Globe, Send, MessageCircle, Mail, Newspaper, MessageSquare, Gavel, ImageIcon } from "lucide-react";
+import { Home, Settings, Table, PenSquare, BookText, GitCompareArrows, Users, Globe, Send, MessageCircle, Mail, Newspaper, MessageSquare, Gavel, ImageIcon, ClipboardCheck } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { Role } from "@prisma/client";
 
@@ -29,26 +30,26 @@ const navConfig: NavGroup[] = [
     {
         group: "Overview",
         items: [
-            { href: "/admin", label: "Dashboard", Icon: Home, roles: ['ADMIN'] },
+            { href: "/admin", label: "Dashboard", Icon: Home, roles: ['ADMIN', 'EDITOR'] },
         ]
     },
     {
         group: "Content Management",
         items: [
-            { href: "/admin/content", label: "Site Content", Icon: Globe, roles: ['ADMIN'] },
-            { href: "/admin/blog", label: "Blog", Icon: BookText, roles: ['ADMIN', 'AUTHOR'] },
-            { href: "/admin/comparisons", label: "Comparisons", Icon: GitCompareArrows, roles: ['ADMIN', 'AUTHOR'] },
-            { href: "/admin/news", label: "News", Icon: Newspaper, roles: ['ADMIN', 'AUTHOR'] },
-            { href: "/admin/community", label: "Community", Icon: MessageSquare, roles: ['ADMIN', 'MODERATOR'] },
-            { href: "/admin/media", label: "Media", Icon: ImageIcon, roles: ['ADMIN'] },
+            { href: "/admin/content", label: "Site Content", Icon: Globe, roles: ['ADMIN', 'EDITOR'] },
+            { href: "/admin/blog", label: "Blog", Icon: BookText, roles: ['ADMIN', 'EDITOR', 'AUTHOR'] },
+            { href: "/admin/comparisons", label: "Comparisons", Icon: GitCompareArrows, roles: ['ADMIN', 'EDITOR', 'AUTHOR'] },
+            { href: "/admin/news", label: "News", Icon: Newspaper, roles: ['ADMIN', 'EDITOR', 'AUTHOR'] },
+            { href: "/admin/community", label: "Community", Icon: MessageSquare, roles: ['ADMIN', 'EDITOR', 'MODERATOR'] },
+            { href: "/admin/media", label: "Media", Icon: ImageIcon, roles: ['ADMIN', 'EDITOR', 'AUTHOR'] },
             { href: "/admin/legal", label: "Legal", Icon: Gavel, roles: ['ADMIN'] },
         ]
     },
     {
         group: "Data Management",
         items: [
-            { href: "/admin/platforms", label: "Platforms", Icon: Table, roles: ['ADMIN'] },
-            { href: "/admin/features", label: "Features", Icon: PenSquare, roles: ['ADMIN'] },
+            { href: "/admin/platforms", label: "Platforms", Icon: Table, roles: ['ADMIN', 'EDITOR'] },
+            { href: "/admin/features", label: "Features", Icon: PenSquare, roles: ['ADMIN', 'EDITOR'] },
         ]
     },
     {
@@ -56,7 +57,7 @@ const navConfig: NavGroup[] = [
         items: [
             { href: "/admin/emails", label: "Emails", Icon: Send, roles: ['ADMIN'] },
             { href: "/admin/comments", label: "Comments", Icon: MessageCircle, roles: ['ADMIN', 'MODERATOR'] },
-            { href: "/admin/contacts", label: "Contacts", Icon: Mail, roles: ['ADMIN'] },
+            { href: "/admin/contacts", label: "Contacts", Icon: Mail, roles: ['ADMIN', 'SUPPORT'] },
         ]
     },
     {

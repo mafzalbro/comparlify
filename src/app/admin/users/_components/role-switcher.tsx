@@ -67,7 +67,9 @@ export function RoleSwitcher({ user, currentUserId }: RoleSwitcherProps) {
                 <SelectContent>
                     <SelectItem value="USER">User</SelectItem>
                     <SelectItem value="AUTHOR">Author</SelectItem>
+                    <SelectItem value="EDITOR">Editor</SelectItem>
                     <SelectItem value="MODERATOR">Moderator</SelectItem>
+                    <SelectItem value="SUPPORT">Support</SelectItem>
                     <SelectItem value="ADMIN">Admin</SelectItem>
                 </SelectContent>
             </Select>

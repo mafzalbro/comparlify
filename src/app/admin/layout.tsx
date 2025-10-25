@@ -1,4 +1,5 @@
 
+
 import {
     Sidebar,
     SidebarContent,
@@ -36,7 +37,7 @@ export default async function AdminLayout({
     const { notifications, unreadCount } = await getNotifications();
     let siteName = await getSiteName()
 
-    if (!session || !['ADMIN', 'AUTHOR', 'MODERATOR'].includes(session.user.role)) {
+    if (!session || !['ADMIN', 'EDITOR', 'AUTHOR', 'MODERATOR', 'SUPPORT'].includes(session.user.role)) {
         redirect('/');
     }
 
