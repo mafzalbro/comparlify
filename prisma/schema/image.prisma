@@ -1,0 +1,10 @@
+model Image {
+  id        String   @id @default(cuid())
+  filename  String
+  url       String
+  altText   String?
+  size      Int
+  createdAt DateTime @default(now())
+  authorId  String
+  author    User     @relation("UploadedBy", fields: [authorId], references: [id], onDelete: Cascade)
+}

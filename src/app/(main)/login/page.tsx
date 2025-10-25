@@ -1,7 +1,4 @@
-'use client';
 
-import { signIn } from 'next-auth/react';
-import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -9,36 +6,27 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Github, KeyRound } from 'lucide-react';
-import { FcGoogle } from "react-icons/fc";
-import { TempDirectLogin } from './temp-direct-login';
-import { useSearchParams } from 'next/navigation';
-
+import { KeyRound } from 'lucide-react';
+import { TempDirectLogin } from './_components/temp-direct-login';
+import { Suspense } from 'react';
+import { LoginForm } from './_components/login-form';
 
 export default function LoginPage() {
-  const searchParams = useSearchParams();
-  const callbackUrl = decodeURIComponent(searchParams.get('callbackUrl') || '/');
-
-  const handleSignIn = (provider: 'google' | 'github') => {
-    signIn(provider, { callbackUrl: callbackUrl || '/' });
-  };
-
   return (
-    <div className="container py-16 md:py-24 px-4 md:px-6 flex items-center justify-center">
+    <div className="container flex items-center justify-center py-16 md:py-24">
       <Card className="mx-auto max-w-sm">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-headline flex items-center justify-center gap-2"><KeyRound /> Welcome Back</CardTitle>
-          <CardDescription>Choose a provider below to sign in to your account.</CardDescription>
+          <CardTitle className="flex items-center justify-center gap-2 font-headline text-2xl">
+            <KeyRound /> Welcome Back
+          </CardTitle>
+          <CardDescription>
+            Choose a provider below to sign in to your account.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Button className="w-full" variant="outline" onClick={() => handleSignIn('google')}>
-            <FcGoogle className="mr-2 h-5 w-5" />
-            Sign in with Google
-          </Button>
-          <Button className="w-full" variant="outline" onClick={() => handleSignIn('github')}>
-            <Github className="mr-2 h-5 w-5" />
-            Sign in with GitHub
-          </Button>
+          <Suspense fallback={<div>Loading...</div>}>
+            <LoginForm />
+          </Suspense>
           {process.env.NODE_ENV === 'development' && <TempDirectLogin />}
         </CardContent>
       </Card>
