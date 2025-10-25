@@ -23,6 +23,7 @@ model User {
   newsArticles  NewsArticle[]
   forumTopics   ForumTopic[] @relation("TopicAuthor")
   forumPosts    ForumPost[] @relation("PostAuthor")
+  uploadedImages  Image[]     @relation("UploadedBy")
 }
 
 model Account {
