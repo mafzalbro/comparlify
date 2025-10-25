@@ -1,6 +1,7 @@
 
 import prisma from '@/lib/prisma';
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { generateSeoMetadata } from '@/lib/seo';
 import { ManagedImage } from '@/components/managed-image';
 import { ArrowRight } from 'lucide-react';
@@ -9,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Breadcrumbs } from '@/components/breadcrumb';
 import { format } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { getContent } from '@/lib/content';
 
 
 export const metadata: Metadata = generateSeoMetadata({
@@ -26,7 +28,12 @@ async function getNewsArticles() {
 }
 
 export default async function NewsPage() {
-  const articles = await getNewsArticles();
+  const [articles, content] = await Promise.all([getNewsArticles(), getContent()]);
+  
+  if (content['module.news.enabled'] === 'false') {
+    notFound();
+  }
+
   const featuredArticle = articles[0];
   const otherArticles = articles.slice(1);
 
@@ -138,3 +145,5 @@ export default async function NewsPage() {
     </div>
   );
 }
+
+    

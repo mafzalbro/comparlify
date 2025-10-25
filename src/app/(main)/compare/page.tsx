@@ -1,6 +1,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { notFound } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import {
   Card,
@@ -107,6 +108,10 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
     getComparisonCategories(),
     getContent()
   ]);
+
+  if (content['module.compare.enabled'] === 'false') {
+    notFound();
+  }
 
   return (
     <div className="bg-background">
@@ -222,3 +227,5 @@ export default async function ComparePage(props: { searchParams: Promise<SearchP
     </div>
   );
 }
+
+    

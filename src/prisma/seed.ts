@@ -12,6 +12,7 @@ async function main() {
 
   // First, break the navigation links
   await prisma.$executeRaw`UPDATE Post SET previousId = NULL, nextId = NULL`;
+  await prisma.image.deleteMany();
   await prisma.forumPost.deleteMany();
   await prisma.forumTopic.deleteMany();
   await prisma.forumCategory.deleteMany();
@@ -272,6 +273,12 @@ async function main() {
     { key: 'global.banner.link.href', group: 'Globals', value: '/tools' },
     { key: 'global.banner.enabled', group: 'Globals', value: 'true' },
 
+    // Module Visibility
+    { key: 'module.blog.enabled', group: 'Module Visibility', value: 'true' },
+    { key: 'module.compare.enabled', group: 'Module Visibility', value: 'true' },
+    { key: 'module.news.enabled', group: 'Module Visibility', value: 'true' },
+    { key: 'module.community.enabled', group: 'Module Visibility', value: 'true' },
+    { key: 'module.tools.enabled', group: 'Module Visibility', value: 'true' },
     
     // Homepage
     { key: 'homepage.hero.supertitle', group: 'Homepage', value: 'The Ultimate Co-pilot for Course Creators' },
@@ -517,5 +524,8 @@ if (require.main === module) {
 }
 
     
+
+    
+
 
     

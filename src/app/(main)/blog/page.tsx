@@ -1,6 +1,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -107,6 +108,10 @@ export default async function BlogPage(props: { searchParams: Promise<SearchPara
       getContent(),
     ]);
 
+  if (content['module.blog.enabled'] === 'false') {
+    notFound();
+  }
+
   return (
     <div className="bg-background">
       <section className="bg-secondary/30 border-b">
@@ -190,3 +195,5 @@ export default async function BlogPage(props: { searchParams: Promise<SearchPara
     </div>
   );
 }
+
+    

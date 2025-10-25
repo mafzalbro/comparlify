@@ -1,11 +1,13 @@
 
 import prisma from '@/lib/prisma';
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { generateSeoMetadata } from '@/lib/seo';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
 import { Breadcrumbs } from '@/components/breadcrumb';
 import { MessageSquare, ChevronsRight } from 'lucide-react';
+import { getContent } from '@/lib/content';
 
 export const metadata: Metadata = generateSeoMetadata({
   title: 'Community Forums',
@@ -26,7 +28,11 @@ async function getForumCategories() {
 }
 
 export default async function CommunityPage() {
-  const categories = await getForumCategories();
+  const [categories, content] = await Promise.all([getForumCategories(), getContent()]);
+
+  if (content['module.community.enabled'] === 'false') {
+    notFound();
+  }
 
   return (
     <div className="bg-background">
@@ -89,3 +95,5 @@ export default async function CommunityPage() {
     </div>
   );
 }
+
+    
