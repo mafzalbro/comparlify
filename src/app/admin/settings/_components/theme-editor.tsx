@@ -86,7 +86,7 @@ export function ThemeEditor({ themeContent, onFormSuccess }: ThemeEditorProps) {
                 name={key}
                 value={formState[key]}
                 onChange={(e) => handleInputChange(key, e.target.value)}
-                placeholder="e.g. 222.2 47.4% 11.2%"
+                placeholder="e.g. 45 93% 58%"
               />
             </div>
           ))}
@@ -101,7 +101,7 @@ export function ThemeEditor({ themeContent, onFormSuccess }: ThemeEditorProps) {
                     name={key}
                     value={formState[key]}
                     onChange={(e) => handleInputChange(key, e.target.value)}
-                    placeholder="e.g. 210 40% 98%"
+                    placeholder="e.g. 30 10% 10%"
                 />
                 </div>
             ))}
