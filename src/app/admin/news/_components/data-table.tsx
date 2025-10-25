@@ -5,6 +5,7 @@ import { DataTable } from "@/components/data-table"
 import prisma from "@/lib/prisma"
 import { type NewsArticle, type User } from "@prisma/client"
 import { columns } from "./columns"
+import { auth } from "@/lib/auth";
 
 interface NewsArticlesDataTableProps {
   search: string
@@ -16,17 +17,23 @@ interface NewsArticlesDataTableProps {
 type ArticleWithAuthor = NewsArticle & { author: User };
 
 async function getArticles({ search, sort, page, per_page }: NewsArticlesDataTableProps) {
+  const session = await auth();
+  if (!session) {
+      return { data: [], pageCount: 0 };
+  }
+
   const pageNumber = parseInt(page) || 1;
   const perPageNumber = parseInt(per_page) || 10;
   const [column, order] = sort?.split(".") ?? ["createdAt", "desc"];
 
-  let where = {};
+  let where: any = {};
   if (search) {
-      where = {
-          title: {
-              contains: search,
-          }
-      }
+      where.title = { contains: search };
+  }
+  
+  // If user is an AUTHOR, only show their own articles.
+  if (session.user.role === 'AUTHOR') {
+    where.authorId = session.user.id;
   }
 
   const articles: ArticleWithAuthor[] = await prisma.newsArticle.findMany({

@@ -5,6 +5,7 @@ import { DataTable } from "@/components/data-table"
 import prisma from "@/lib/prisma"
 import { type Post, type User } from "@prisma/client"
 import { columns } from "./columns"
+import { auth } from "@/lib/auth"
 
 interface BlogPostsDataTableProps {
   search: string
@@ -16,18 +17,26 @@ interface BlogPostsDataTableProps {
 type PostWithAuthor = Post & { author: User };
 
 async function getPosts({ search, sort, page, per_page }: BlogPostsDataTableProps) {
+  const session = await auth();
+  if (!session) {
+      return { data: [], pageCount: 0 };
+  }
+
   const pageNumber = parseInt(page) || 1;
   const perPageNumber = parseInt(per_page) || 10;
   const [column, order] = sort?.split(".") ?? ["createdAt", "desc"];
 
-  let where = {};
+  let where: any = {};
   if (search) {
-      where = {
-          OR: [
-            { title: { contains: search } },
-            { author: { name: { contains: search } } },
-          ]
-      }
+      where.OR = [
+        { title: { contains: search } },
+        { author: { name: { contains: search } } },
+      ]
+  }
+
+  // If user is an AUTHOR, only show their own posts.
+  if (session.user.role === 'AUTHOR') {
+    where.authorId = session.user.id;
   }
 
   const posts: PostWithAuthor[] = await prisma.post.findMany({
