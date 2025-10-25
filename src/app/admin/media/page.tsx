@@ -13,6 +13,9 @@ import { ImageGallery } from "./_components/image-gallery";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Image } from "@prisma/client";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { GalleryHorizontal } from "lucide-react";
 
 async function getImages(): Promise<Image[]> {
   return prisma.image.findMany({
@@ -29,6 +32,12 @@ export default async function MediaLibraryPage() {
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Media Library</h1>
+        <Button asChild variant="outline">
+          <Link href="/gallery" target="_blank">
+            <GalleryHorizontal className="mr-2 h-4 w-4" />
+            View Public Gallery
+          </Link>
+        </Button>
       </div>
 
       <Card>
@@ -63,3 +72,4 @@ export default async function MediaLibraryPage() {
     </div>
   );
 }
+
