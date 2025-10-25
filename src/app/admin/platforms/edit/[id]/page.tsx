@@ -3,28 +3,29 @@ import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { EditPlatformPageClient } from './page-client';
 import type { Platform, Feature, PlatformFeature, FeatureCategory } from '@prisma/client';
+import { cache } from 'react';
 
 type PlatformWithFeatures = Platform & { features: PlatformFeature[] };
 
-async function getPlatform(id: string): Promise<PlatformWithFeatures | null> {
+const getPlatform = cache(async (id: string): Promise<PlatformWithFeatures | null> => {
     return prisma.platform.findUnique({
         where: { id },
         include: { features: true },
     });
-}
+});
 
-async function getFeatures() {
+const getFeatures = cache(async () => {
     return prisma.feature.findMany({
         include: { category: true },
         orderBy: { name: 'asc' },
     });
-}
+});
 
-async function getFeatureCategories() {
+const getFeatureCategories = cache(async () => {
     return prisma.featureCategory.findMany({
         orderBy: { name: 'asc' },
     });
-}
+});
 
 export default async function EditPlatformPage(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;

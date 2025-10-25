@@ -3,12 +3,13 @@ import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { ArticleForm } from '../../_components/article-form';
 import type { NewsArticle } from '@prisma/client';
+import { cache } from 'react';
 
-async function getArticle(id: string): Promise<NewsArticle | null> {
+const getArticle = cache(async (id: string): Promise<NewsArticle | null> => {
     return prisma.newsArticle.findUnique({
         where: { id },
     });
-}
+});
 
 export default async function EditArticlePage(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;

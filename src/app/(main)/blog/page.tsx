@@ -86,9 +86,9 @@ const getBlogPosts = cache(async ({
   return posts;
 });
 
-// const getAuthors = cache(async () => {
-//   return prisma.user.findMany({ where: { posts: { some: { published: true } } } });
-// });
+const getAuthors = cache(async () => {
+  return prisma.user.findMany({ where: { posts: { some: { published: true } } } });
+});
 
 const getPostCategories = cache(async () => {
   return prisma.postCategory.findMany({ orderBy: { name: 'asc' } });
@@ -99,10 +99,10 @@ export default async function BlogPage(props: { searchParams: Promise<SearchPara
   const searchParams = (await props.searchParams);
   const { search, sort, author, category } = searchParams;
   const [blogPosts,
-    // authors,
+    authors,
     categories, content] = await Promise.all([
       getBlogPosts({ search: String(search ?? ''), sort: String(sort ?? 'newest'), author: String(author ?? 'all'), category: String(category ?? 'all') }),
-      // getAuthors(),
+      getAuthors(),
       getPostCategories(),
       getContent(),
     ]);
@@ -130,7 +130,7 @@ export default async function BlogPage(props: { searchParams: Promise<SearchPara
       </section>
       <div className="container py-8 md:py-12 px-4 md:px-6">
         <FilterControls
-          // authors={authors}
+          authors={authors}
           categories={categories} searchParams={searchParams} />
 
         {blogPosts.length === 0 ? (

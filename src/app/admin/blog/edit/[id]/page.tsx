@@ -5,7 +5,7 @@ import { EditPostPageClient } from './page-client';
 import { cache } from 'react';
 import type { PostCategory } from '@prisma/client';
 
-export const revalidate = 3600; // 3600 seconds = 1 hour
+export const revalidate = 0;
 
 export const generateStaticParams = cache(async () => {
     const posts = await prisma.post.findMany({ where: { published: true } });
