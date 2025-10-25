@@ -1,6 +1,8 @@
 
 import { Breadcrumbs } from "@/components/breadcrumb";
 
+export const revalidate = 0;
+
 export default function ToolsLayout({
   children,
 }: {
@@ -12,7 +14,7 @@ export default function ToolsLayout({
             <Breadcrumbs
                 items={[
                     { name: 'Home', href: '/' },
-                    { name: 'Tools', href: '/tools' },
+                    { name: 'Tools' },
                 ]}
                 className="mb-12"
             />

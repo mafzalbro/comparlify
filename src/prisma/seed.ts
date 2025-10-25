@@ -1,7 +1,7 @@
 
 "use server";
 import prisma from "@/lib/prisma";
-import { Prisma, Role } from "@prisma/client";
+import { Prisma, Role, ToolCategory } from "@prisma/client";
 
 export async function cleanupDatabase() {
     console.log("🧹 Starting database cleanup...");
@@ -24,7 +24,7 @@ export async function cleanupDatabase() {
         'NewsArticle', 'EmailRecipient', 'EmailCampaign', 'ContactMessage', 
         'Subscription', 'ForumPost', 'ForumTopic', 
         'FeatureCategory', 'ComparisonCategory', 'PostCategory', 'ForumCategory',
-        'Image', 'SiteContent', 'User', 'Account', 'Session', 'VerificationToken'
+        'Image', 'SiteContent', 'Tool', 'User', 'Account', 'Session', 'VerificationToken'
     ];
     
     // Add any models not in the explicit order to the end
@@ -293,7 +293,19 @@ async function main(skipCleanup = false) {
   await prisma.comparison.create({ data: comparisonData });
   console.log(`   ✓ Seeded 1 comparison.`);
 
-  // --- 11. Seed Site Content ---
+  // --- 11. Seed AI Tools ---
+  console.log("\n🤖 Seeding AI Tools...");
+  const toolsData: Omit<Prisma.ToolCreateInput, 'id' | 'createdAt' | 'updatedAt'>[] = [
+    { slug: 'title-generator', title: 'AI Title Generator', description: 'Craft catchy, SEO-friendly titles for your course.', Icon: 'Lightbulb', category: ToolCategory.Marketing, enabled: true, inputTopicLabel: 'Course Description', inputContextLabel: '', prompt: 'You are an expert in creating engaging and effective course titles. Based on the provided course description, generate a title that will attract more students and increase enrollment.\n\nCourse Description: {{{topic}}}' },
+    { slug: 'course-outliner', title: 'AI Course Outliner', description: 'Generate a comprehensive, structured outline for your course.', Icon: 'FileText', category: ToolCategory.CurriculumDesign, enabled: true, inputTopicLabel: 'Course Description', inputContextLabel: 'Existing Outline (optional)', prompt: 'You are an expert curriculum designer. Based on the provided course description, create a comprehensive and well-structured course outline. Use headings for modules and nested lists for lessons within each module. Each lesson should have a brief, one-sentence description.\n\nCourse Description: {{{topic}}}\n{{#if context}}\n\nExisting Outline:\n{{{context}}}\n\nContinue From There:{{/if}}' },
+    { slug: 'video-scripter', title: 'AI Video Script Assistant', description: 'Create engaging scripts for your video lessons.', Icon: 'Video', category: ToolCategory.ContentCreation, enabled: true, inputTopicLabel: 'Lesson Topic', inputContextLabel: 'Existing Script (optional)', prompt: 'You are an expert scriptwriter for educational videos. Based on the lesson topic, write a complete, word-for-word video script. Include cues for the presenter\'s tone (e.g., "[enthusiastically]") and suggestions for on-screen visuals (e.g., "[Show B-roll of...]").\n\nLesson Topic: {{{topic}}}\n{{#if context}}\n\nExisting Script:\n{{{context}}}\n\nContinue writing from here:{{/if}}' },
+    { slug: 'lesson-summarizer', title: 'AI Lesson Summarizer', description: 'Automatically generate key takeaways for your lessons.', Icon: 'BookOpen', category: ToolCategory.Productivity, enabled: true, inputTopicLabel: 'Lesson Content', inputContextLabel: 'Existing Summary (optional)', prompt: 'You are an expert at distilling information. Based on the lesson content, create a concise summary. It should be a short paragraph followed by the 3-5 most important key takeaways as a bulleted list.\n\nLesson Content: {{{topic}}}\n{{#if context}}\n\nExisting Summary:\n{{{context}}}\n\nContinue From There:{{/if}}' },
+    { slug: 'blog-post-idea-generator', title: 'Blog Post Idea Generator', description: 'Generate a list of blog post ideas to attract your target audience.', Icon: 'FilePenLine', category: ToolCategory.SEO, enabled: true, inputTopicLabel: 'Course Topic', inputContextLabel: 'Target Audience (optional)', prompt: 'You are a content marketing strategist. Generate a list of 5-7 blog post ideas that are relevant to the given course topic and target audience. The ideas should be engaging and designed to attract potential students.\n\nCourse Topic: {{{topic}}}\n{{#if context}}Target Audience: {{{context}}}{{/if}}' },
+  ];
+  await prisma.tool.createMany({ data: toolsData });
+  console.log(`   ✓ Seeded ${toolsData.length} AI tools.`);
+
+  // --- 12. Seed Site Content ---
   console.log("\n🌐 Seeding Site Content...");
   const siteContent = [
     // Globals
@@ -491,7 +503,7 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
   await prisma.siteContent.createMany({ data: siteContent });
   console.log(`   ✓ Seeded ${siteContent.length} site content records.`);
 
-  // --- 12. Seed News ---
+  // --- 13. Seed News ---
   console.log("\n📰 Seeding News...");
   const newsData = {
       title: "Comparlify Launches New AI-Powered Tool Suite",
@@ -505,7 +517,7 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
   await prisma.newsArticle.create({ data: newsData });
   console.log(`   ✓ Seeded 1 news article.`);
 
-  // --- 13. Seed Community ---
+  // --- 14. Seed Community ---
   console.log("\n💬 Seeding Community Forums...");
   const generalCategory = await prisma.forumCategory.create({
     data: { name: "General Discussion", slug: "general-discussion", description: "Talk about anything related to course creation."}

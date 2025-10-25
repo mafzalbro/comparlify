@@ -7,7 +7,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const AIGenericContentGeneratorInputSchema = z.object({
-  fieldType: z.string().describe('The type of content to generate (e.g., "Blog Post Title", "Blog Post Content", "URL Slug").'),
+  prompt: z.string().describe('The prompt template to guide the AI.'),
   topic: z.string().describe('The main topic or title to base the content on.'),
   context: z.string().optional().describe('Any existing content or context to inform the generation.'),
 });
@@ -22,24 +22,6 @@ export async function generateGenericContent(input: AIGenericContentGeneratorInp
   return aiGenericContentGeneratorFlow(input);
 }
 
-const prompt = ai.definePrompt({
-  name: 'aiGenericContentGeneratorPrompt',
-  input: {schema: AIGenericContentGeneratorInputSchema},
-  output: {schema: AIGenericContentGeneratorOutputSchema},
-  prompt: `You are an expert content creator and copywriter. Your task is to generate content for a specific field based on a given topic and context.
-The generated content should be high-quality, engaging, and written in a natural, human-like voice. Avoid corporate jargon and overly robotic phrasing.
-If the field type is "Blog Post Description", ensure the generated content is concise and under 190 characters.
-
-Content to Generate: {{{fieldType}}}
-Topic/Title: {{{topic}}}
-{{#if context}}
-Existing Context:
-{{{context}}}
-{{/if}}
-
-Please generate the content now.`,
-});
-
 const aiGenericContentGeneratorFlow = ai.defineFlow(
   {
     name: 'aiGenericContentGeneratorFlow',
@@ -47,7 +29,15 @@ const aiGenericContentGeneratorFlow = ai.defineFlow(
     outputSchema: AIGenericContentGeneratorOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
+    // Dynamically create a prompt based on the tool's configuration
+    const dynamicPrompt = ai.definePrompt({
+      name: 'aiGenericContentGeneratorPrompt',
+      input: { schema: AIGenericContentGeneratorInputSchema },
+      output: { schema: AIGenericContentGeneratorOutputSchema },
+      prompt: input.prompt,
+    });
+
+    const {output} = await dynamicPrompt(input);
     return output!;
   }
 );

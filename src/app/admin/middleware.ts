@@ -10,23 +10,22 @@ type AdminArea = {
 };
 
 const adminAreas: AdminArea[] = [
-    { path: '/admin/content', roles: ['ADMIN'] },
-    { path: '/admin/blog', roles: ['ADMIN', 'AUTHOR'] },
-    { path: '/admin/comparisons', roles: ['ADMIN', 'AUTHOR'] },
-    { path: '/admin/news', roles: ['ADMIN', 'AUTHOR'] },
-    { path: '/admin/community', roles: ['ADMIN', 'MODERATOR'] },
-    { path: '/admin/media', roles: ['ADMIN'] },
+    { path: '/admin/content', roles: ['ADMIN', 'EDITOR'] },
+    { path: '/admin/blog', roles: ['ADMIN', 'EDITOR', 'AUTHOR'] },
+    { path: '/admin/comparisons', roles: ['ADMIN', 'EDITOR', 'AUTHOR'] },
+    { path: '/admin/news', roles: ['ADMIN', 'EDITOR', 'AUTHOR'] },
+    { path: '/admin/community', roles: ['ADMIN', 'EDITOR', 'MODERATOR'] },
+    { path: '/admin/media', roles: ['ADMIN', 'EDITOR', 'AUTHOR'] },
+    { path: '/admin/tools', roles: ['ADMIN'] },
     { path: '/admin/legal', roles: ['ADMIN'] },
-    { path: '/admin/platforms', roles: ['ADMIN'] },
-    { path: '/admin/features', roles: ['ADMIN'] },
+    { path: '/admin/platforms', roles: ['ADMIN', 'EDITOR'] },
+    { path: '/admin/features', roles: ['ADMIN', 'EDITOR'] },
     { path: '/admin/emails', roles: ['ADMIN'] },
     { path: '/admin/comments', roles: ['ADMIN', 'MODERATOR'] },
-    { path: '/admin/contacts', roles: ['ADMIN'] },
+    { path: '/admin/contacts', roles: ['ADMIN', 'SUPPORT'] },
     { path: '/admin/users', roles: ['ADMIN'] },
     { path: '/admin/settings', roles: ['ADMIN'] },
-    // The main admin dashboard is often admin-only for stats, 
-    // but can be opened up if needed.
-    { path: '/admin', roles: ['ADMIN', 'AUTHOR', 'MODERATOR'] } 
+    { path: '/admin', roles: ['ADMIN', 'EDITOR', 'AUTHOR', 'MODERATOR', 'SUPPORT'] } 
 ];
 
 export default async function middleware(req: NextRequest) {

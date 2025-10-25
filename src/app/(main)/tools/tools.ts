@@ -1,5 +1,6 @@
 
 import type { LucideIcon } from 'lucide-react';
+import type { ToolCategory } from '@prisma/client';
 import {
   Lightbulb,
   FileText,
@@ -29,236 +30,44 @@ import {
   BrainCog
 } from 'lucide-react';
 
-export type ToolCategory = 'All' | 'Content Creation' | 'Marketing' | 'Curriculum Design' | 'Productivity' | 'Engagement & Interaction' | 'SEO';
+export { type Tool, type ToolCategory } from '@prisma/client';
 
-export type Tool = {
-  slug: string;
-  title: string;
-  description: string;
-  Icon: LucideIcon;
-  category: ToolCategory;
-  href: string;
+export const iconMap: Record<string, LucideIcon> = {
+  Lightbulb,
+  FileText,
+  Video,
+  BookOpen,
+  HelpCircle,
+  Users,
+  MessageSquareQuote,
+  GraduationCap,
+  Sparkles,
+  Mail,
+  Share2,
+  ListChecks,
+  ClipboardList,
+  Recycle,
+  MessageSquarePlus,
+  Clapperboard,
+  Key,
+  FilePenLine,
+  Presentation,
+  Rocket,
+  MessageCircleQuestion,
+  LightbulbIcon,
+  VideoIcon,
+  Puzzle,
+  ThumbsUp,
+  BrainCog,
 };
 
-export const allTools: Tool[] = [
-  // Existing Tools
-  {
-    slug: 'title-generator',
-    title: 'AI Title Generator',
-    description: 'Craft catchy, SEO-friendly titles for your course to attract more students.',
-    Icon: Lightbulb,
-    category: 'Marketing',
-    href: '/tools/title-generator',
-  },
-  {
-    slug: 'course-outliner',
-    title: 'AI Course Outliner',
-    description: 'Generate a comprehensive, structured outline for your course in minutes.',
-    Icon: FileText,
-    category: 'Curriculum Design',
-    href: '/tools/course-outliner',
-  },
-  {
-    slug: 'video-scripter',
-    title: 'AI Video Script Assistant',
-    description: 'Create engaging scripts for your video lessons that keep students hooked.',
-    Icon: Video,
-    category: 'Content Creation',
-    href: '/tools/video-scripter',
-  },
-  {
-    slug: 'lesson-summarizer',
-    title: 'AI Lesson Summarizer',
-    description: 'Automatically generate key takeaways and summaries for each of your lessons.',
-    Icon: BookOpen,
-    category: 'Productivity',
-    href: '/tools/lesson-summarizer',
-  },
-  {
-    slug: 'quiz-generator',
-    title: 'AI Quiz Generator',
-    description: 'Create multiple-choice quizzes from your course content to test student knowledge.',
-    Icon: HelpCircle,
-    category: 'Content Creation',
-    href: '/tools/quiz-generator',
-  },
-  {
-    slug: 'audience-persona-generator',
-    title: 'AI Audience Persona Generator',
-    description: 'Develop detailed personas of your target audience to tailor your content.',
-    Icon: Users,
-    category: 'Marketing',
-    href: '/tools/audience-persona-generator',
-  },
-  {
-    slug: 'course-description-writer',
-    title: 'AI Course Description Writer',
-    description: 'Write compelling, persuasive descriptions for your course sales page.',
-    Icon: MessageSquareQuote,
-    category: 'Marketing',
-    href: '/tools/course-description-writer',
-  },
-  {
-    slug: 'learning-objectives-generator',
-    title: 'AI Learning Objectives Generator',
-    description: 'Clearly define what students will be able to do after completing your course.',
-    Icon: GraduationCap,
-    category: 'Curriculum Design',
-    href: '/tools/learning-objectives-generator',
-  },
-  {
-    slug: 'email-subject-line-generator',
-    title: 'AI Email Subject Line Generator',
-    description: 'Craft attention-grabbing email subject lines for your marketing campaigns.',
-    Icon: Mail,
-    category: 'Marketing',
-    href: '/tools/email-subject-line-generator',
-  },
-  {
-    slug: 'social-media-post-generator',
-    title: 'AI Social Media Post Generator',
-    description: 'Quickly generate posts for platforms like Twitter, LinkedIn, and Facebook to promote your course.',
-    Icon: Share2,
-    category: 'Marketing',
-    href: '/tools/social-media-post-generator',
-  },
-  {
-    slug: 'faq-generator',
-    title: 'AI FAQ Generator',
-    description: 'Generate a list of frequently asked questions and answers from your course content.',
-    Icon: ListChecks,
-    category: 'Productivity',
-    href: '/tools/faq-generator',
-  },
-  {
-    slug: 'analogy-generator',
-    title: 'AI Analogy Generator',
-    description: 'Explain complex topics with simple, easy-to-understand analogies.',
-    Icon: Sparkles,
-    category: 'Content Creation',
-    href: '/tools/analogy-generator',
-  },
-  // Implemented "Coming Soon"
-  {
-    slug: 'course-prerequisites-generator',
-    title: 'AI Prerequisite Generator',
-    description: 'Outline the required skills and tools students need before starting your course.',
-    Icon: ClipboardList,
-    category: 'Curriculum Design',
-    href: '/tools/course-prerequisites-generator',
-  },
-  {
-    slug: 'content-repurposer',
-    title: 'AI Content Repurposer',
-    description: 'Get ideas for turning your existing content (like a blog post) into multiple new formats.',
-    Icon: Recycle,
-    category: 'Productivity',
-    href: '/tools/content-repurposer',
-  },
-  {
-    slug: 'ice-breaker-generator',
-    title: 'AI Ice Breaker Generator',
-    description: 'Create engaging ice breaker questions for your community forum or live sessions.',
-    Icon: MessageSquarePlus,
-    category: 'Engagement & Interaction',
-    href: '/tools/ice-breaker-generator',
-  },
-  {
-    slug: 'promotional-video-ideas-generator',
-    title: 'AI Promo Video Ideas Generator',
-    description: 'Brainstorm creative concepts for short promotional videos (Reels, Shorts, etc.).',
-    Icon: Clapperboard,
-    category: 'Marketing',
-    href: '/tools/promotional-video-ideas-generator',
-  },
-  // New Tools
-  {
-    slug: 'seo-keyword-generator',
-    title: 'SEO Keyword Generator',
-    description: 'Discover relevant keywords to improve your course\'s search engine ranking.',
-    Icon: Key,
-    category: 'SEO',
-    href: '/tools/seo-keyword-generator',
-  },
-  {
-    slug: 'blog-post-idea-generator',
-    title: 'Blog Post Idea Generator',
-    description: 'Generate a list of blog post ideas to attract your target audience.',
-    Icon: FilePenLine,
-    category: 'SEO',
-    href: '/tools/blog-post-idea-generator',
-  },
-  {
-    slug: 'course-elevator-pitch-generator',
-    title: 'Course Elevator Pitch Generator',
-    description: 'Create a concise and compelling pitch to quickly explain the value of your course.',
-    Icon: Presentation,
-    category: 'Marketing',
-    href: '/tools/course-elevator-pitch-generator',
-  },
-  {
-    slug: 'course-landing-page-copywriter',
-    title: 'Course Landing Page Copywriter',
-    description: 'Generate persuasive copy for your course\'s landing page to increase conversions.',
-    Icon: Rocket,
-    category: 'Marketing',
-    href: '/tools/course-landing-page-copywriter',
-  },
-  {
-    slug: 'lesson-hook-generator',
-    title: 'Lesson Hook Generator',
-    description: 'Craft captivating introductions for your lessons to grab students\' attention immediately.',
-    Icon: LightbulbIcon,
-    category: 'Content Creation',
-    href: '/tools/lesson-hook-generator',
-  },
-  {
-    slug: 'interactive-scenario-generator',
-    title: 'Interactive Scenario Generator',
-    description: 'Create branching scenarios or case studies to make your lessons more interactive.',
-    Icon: MessageCircleQuestion,
-    category: 'Content Creation',
-    href: '/tools/interactive-scenario-generator',
-  },
-  {
-    slug: 'explainer-video-script-generator',
-    title: 'Explainer Video Script Generator',
-    description: 'Generate a script for a short animated explainer video about your course.',
-    Icon: VideoIcon,
-    category: 'Content Creation',
-    href: '/tools/explainer-video-script-generator',
-  },
-  {
-    slug: 'gamification-idea-generator',
-    title: 'Gamification Idea Generator',
-    description: 'Get ideas for adding points, badges, and leaderboards to your course.',
-    Icon: Puzzle,
-    category: 'Engagement & Interaction',
-    href: '/tools/gamification-idea-generator',
-  },
-  {
-    slug: 'student-feedback-analyzer',
-    title: 'Student Feedback Analyzer',
-    description: 'Analyze student feedback to identify common themes, sentiments, and areas for improvement.',
-    Icon: ThumbsUp,
-    category: 'Engagement & Interaction',
-    href: '/tools/student-feedback-analyzer',
-  },
-  {
-    slug: 'course-naming-brainstormer',
-    title: 'Course Naming Brainstormer',
-    description: 'Brainstorm creative and memorable names for your new online course.',
-    Icon: BrainCog,
-    category: 'Curriculum Design',
-    href: '/tools/course-naming-brainstormer',
-  },
-];
+export const availableIcons = Object.keys(iconMap);
 
 export const categories: ToolCategory[] = [
-  'Content Creation',
+  'ContentCreation',
   'Marketing',
-  'Curriculum Design',
+  'CurriculumDesign',
   'SEO',
   'Productivity',
-  'Engagement & Interaction',
+  'EngagementInteraction',
 ];

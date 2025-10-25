@@ -14,9 +14,9 @@ import { MarkdownContent } from './markdown-content';
 import { AIGenerationLoader } from './ai-generation-loader';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from './ui/input';
-import type { Tool } from '@/app/(main)/tools/tools';
+import type { Tool } from '@prisma/client';
 
-function SubmitButton({ title }: { title: string }) {
+function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="w-full">
@@ -26,12 +26,11 @@ function SubmitButton({ title }: { title: string }) {
 }
 
 export function AIGenericForm({ tool }: { tool: Tool }) {
-    const fieldType = tool.title;
     const initialState = { generatedContent: null, error: null };
     const [state, formAction, isSubmitting] = useActionState(async (prevState: any, formData: FormData) => {
         const topic = formData.get('topic') as string;
         const context = formData.get('context') as string | undefined;
-        return generateGenericContentAction({ fieldType, topic, context });
+        return generateGenericContentAction({ prompt: tool.prompt, topic, context });
     }, initialState);
 
     const [topic, setTopic] = useState('');
@@ -45,6 +44,8 @@ export function AIGenericForm({ tool }: { tool: Tool }) {
         }
     };
 
+    const hasContextField = tool.prompt.includes('{{{context}}}');
+
     return (
         <>
             <AIGenerationLoader show={isSubmitting} />
@@ -54,21 +55,23 @@ export function AIGenericForm({ tool }: { tool: Tool }) {
                         <CardHeader>
                             <CardTitle className="font-headline">Input</CardTitle>
                             <CardDescription>
-                                Provide a topic and optional context to generate content.
+                                Provide the required information to generate content.
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6 flex-1">
                             <div className="space-y-2">
-                                <Label htmlFor="topic">Topic / Title</Label>
+                                <Label htmlFor="topic">{tool.inputTopicLabel || 'Topic'}</Label>
                                 <Input id="topic" name="topic" value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g., 'React Hooks Best Practices'" required />
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="context">Context (Optional)</Label>
-                                <Textarea id="context" name="context" value={context} onChange={(e) => setContext(e.target.value)} placeholder="Provide any additional context or keywords..." rows={4} />
-                            </div>
+                            {hasContextField && (
+                                <div className="space-y-2">
+                                    <Label htmlFor="context">{tool.inputContextLabel || 'Context (Optional)'}</Label>
+                                    <Textarea id="context" name="context" value={context} onChange={(e) => setContext(e.target.value)} placeholder="Provide any additional context or keywords..." rows={4} />
+                                </div>
+                            )}
                         </CardContent>
                         <CardFooter>
-                            <SubmitButton title={tool.title} />
+                            <SubmitButton />
                         </CardFooter>
                     </form>
                 </Card>

@@ -1,0 +1,24 @@
+
+model Tool {
+  id                  String       @id @default(cuid())
+  slug                String       @unique
+  title               String
+  description         String       @db.Text
+  Icon                String
+  category            ToolCategory
+  enabled             Boolean      @default(true)
+  prompt              String       @db.LongText
+  inputTopicLabel     String?
+  inputContextLabel   String?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+}
+
+enum ToolCategory {
+  ContentCreation
+  Marketing
+  CurriculumDesign
+  SEO
+  Productivity
+  EngagementInteraction
+}
