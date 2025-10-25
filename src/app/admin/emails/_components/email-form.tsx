@@ -30,7 +30,9 @@ export function EmailForm({ campaign, users }: EmailFormProps) {
   const { data: session } = useSession();
   const { toast } = useToast();
   
-  const [excludedUsers, setExcludedUsers] = useState<string[]>(campaign?.excludedUserIds ?? []);
+  const [excludedUsers, setExcludedUsers] = useState<string[]>(
+    campaign?.excludedUserIds ? campaign.excludedUserIds.split(',') : []
+  );
 
   const handleSendTest = async () => {
     if (!session?.user?.email) {
