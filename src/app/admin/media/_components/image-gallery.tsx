@@ -2,11 +2,10 @@
 'use client';
 
 import * as React from 'react';
-import { useState } from 'react';
 import { type Image } from '@prisma/client';
 import { ManagedImage } from '@/components/managed-image';
 import { ImageDetailsDialog } from './image-details-dialog';
-import { ImageGalleryContextProvider } from './image-gallery-context';
+import { ImageGalleryContextProvider, ImageGalleryContext } from './image-gallery-context';
 
 interface ImageGalleryProps {
     initialImages: Image[];
