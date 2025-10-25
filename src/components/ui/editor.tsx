@@ -1,6 +1,8 @@
-"use client";
 
-import { useState, useEffect } from "react";
+'use client';
+
+import { useState, useEffect } from 'react';
+import NovelEditor from 'novel';
 
 interface EditorProps {
   initialContent?: string;
@@ -19,18 +21,18 @@ export function Editor({ initialContent = "", onChange }: EditorProps) {
     }
   }, [initialContent]);
 
+
   return (
-    <div className="relative w-full rounded-lg shadow-sm">
-      <textarea
-        value={content}
-        onChange={(e) => {
-          const newContent = e.target.value;
-          setContent(newContent);
-          onChange(newContent);
-        }}
-        className="w-full h-48 p-4 rounded-lg"
-        placeholder="Start typing..."
-      />
+    <div className="relative w-full rounded-lg border bg-background shadow-sm">
+       <NovelEditor
+          defaultValue={content}
+          onUpdate={(editor) => {
+            const markdown = editor?.storage.markdown.getMarkdown();
+            onChange(markdown || '');
+          }}
+          disableLocalStorage={true}
+          className="relative min-h-[300px] w-full max-w-screen-lg"
+       />
     </div>
   );
 }

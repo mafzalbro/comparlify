@@ -1,3 +1,4 @@
+
 "use server";
 import prisma from "@/lib/prisma";
 import { Prisma, Role } from "@prisma/client";
@@ -266,6 +267,11 @@ async function main() {
   const siteContent = [
     // Globals
     { key: 'global.siteName', group: 'Globals', value: 'Comparlify' },
+    { key: 'global.banner.text', group: 'Globals', value: '🎉 New AI Tools added! Supercharge your workflow now.' },
+    { key: 'global.banner.link.text', group: 'Globals', value: 'Explore Tools' },
+    { key: 'global.banner.link.href', group: 'Globals', value: '/tools' },
+    { key: 'global.banner.enabled', group: 'Globals', value: 'true' },
+
     
     // Homepage
     { key: 'homepage.hero.supertitle', group: 'Homepage', value: 'The Ultimate Co-pilot for Course Creators' },
