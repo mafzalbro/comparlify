@@ -1,5 +1,7 @@
 
 'use server';
+
+import prisma from "@/lib/prisma";
 import {
   Card,
   CardContent,
@@ -7,36 +9,47 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ImageUploader } from "./_components/image-uploader";
+import { ImageGallery } from "./_components/image-gallery";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { GalleryHorizontal } from "lucide-react";
+import { PlusCircle } from "lucide-react";
+import { Image } from "@prisma/client";
+
+async function getImages(): Promise<Image[]> {
+  return prisma.image.findMany({
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+}
 
 export default async function MediaLibraryPage() {
+  const images = await getImages();
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Media Library</h1>
-        <Button asChild variant="outline">
-          <Link href="/media/gallery" target="_blank">
-            <GalleryHorizontal className="mr-2 h-4 w-4" />
-            View Media Gallery
+        <h1 className="text-3xl font-bold">Media Gallery</h1>
+        <Button asChild>
+          <Link href="/admin/media/upload">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Upload Image
           </Link>
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Upload New Image</CardTitle>
+          <CardTitle>Your Images</CardTitle>
           <CardDescription>
-            Drag and drop an image file here or click to select a file. Uploaded images will be available in the media gallery.
+            Browse all uploaded images. Click an image to view details, edit, or delete it.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-             <ImageUploader />
+          <Suspense fallback={<Skeleton className="h-96 w-full" />}>
+            <ImageGallery initialImages={images} />
           </Suspense>
         </CardContent>
       </Card>
