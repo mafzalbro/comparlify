@@ -13,10 +13,6 @@ import { ImageGallery } from "./_components/image-gallery";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Image } from "@prisma/client";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { RefreshCcw } from "lucide-react";
-import { revalidatePath } from "next/cache";
 
 async function getImages(): Promise<Image[]> {
   return prisma.image.findMany({
@@ -24,11 +20,6 @@ async function getImages(): Promise<Image[]> {
       createdAt: 'desc',
     },
   });
-}
-
-async function refreshAction() {
-    'use server';
-    revalidatePath('/admin/media');
 }
 
 export default async function MediaLibraryPage() {
@@ -61,12 +52,6 @@ export default async function MediaLibraryPage() {
                     <CardTitle>Uploaded Images</CardTitle>
                     <CardDescription>Click an image to view details, edit, or delete it.</CardDescription>
                 </div>
-                <form action={refreshAction}>
-                    <Button variant="outline" size="sm">
-                        <RefreshCcw className="h-4 w-4 mr-2" />
-                        Refresh Gallery
-                    </Button>
-                </form>
             </div>
         </CardHeader>
         <CardContent>
