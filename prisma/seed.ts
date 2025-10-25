@@ -12,6 +12,7 @@ async function main() {
 
   // First, break the navigation links
   await prisma.$executeRaw`UPDATE Post SET previousId = NULL, nextId = NULL`;
+  await prisma.image.deleteMany();
   await prisma.forumPost.deleteMany();
   await prisma.forumTopic.deleteMany();
   await prisma.forumCategory.deleteMany();
@@ -267,6 +268,11 @@ async function main() {
   const siteContent = [
     // Globals
     { key: 'global.siteName', group: 'Globals', value: 'Comparlify' },
+    { key: 'global.banner.text', group: 'Globals', value: '🎉 New AI Tools added! Supercharge your workflow now.' },
+    { key: 'global.banner.link.text', group: 'Globals', value: 'Explore Tools' },
+    { key: 'global.banner.link.href', group: 'Globals', value: '/tools' },
+    { key: 'global.banner.enabled', group: 'Globals', value: 'true' },
+
     
     // Homepage
     { key: 'homepage.hero.supertitle', group: 'Homepage', value: 'The Ultimate Co-pilot for Course Creators' },
@@ -297,6 +303,9 @@ async function main() {
     { key: 'footer.tagline', group: 'Footer', value: 'Helping course creators thrive with better tools and insights.' },
     { key: 'footer.newsletter.title', group: 'Footer', value: 'Stay Updated' },
     { key: 'footer.newsletter.subtitle', group: 'Footer', value: 'Get the latest tips and tool updates straight to your inbox.' },
+    { key: 'footer.navLinks.navigate', group: 'Footer', type: 'TEXTAREA', value: JSON.stringify([{"label": "Comparisons", "href": "/compare"}, {"label": "Blog", "href": "/blog"}, {"label": "Tools", "href": "/tools"}], null, 2) },
+    { key: 'footer.navLinks.company', group: 'Footer', type: 'TEXTAREA', value: JSON.stringify([{"label": "About Us", "href": "/about"}, {"label": "Contact", "href": "/contact"}, {"label": "Privacy Policy", "href": "/privacy"}, {"label": "Terms of Service", "href": "/legal/terms-of-service"}, {"label": "Sponsor Policy", "href": "/legal/sponsor-policy"}], null, 2) },
+
 
     // About Page
     { key: 'about.hero.title', group: 'About Page', value: "We're Here to Help Creators Thrive" },
@@ -509,3 +518,6 @@ if (require.main === module) {
 }
 
     
+
+    
+
