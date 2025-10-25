@@ -1,38 +1,19 @@
-
 'use client';
 
-import { useState, useEffect } from 'react';
-import NovelEditor from 'novel';
+import { Textarea } from '@/components/ui/textarea';
 
 interface EditorProps {
   initialContent?: string;
   onChange: (content: string) => void;
 }
 
-export function Editor({ initialContent = "", onChange }: EditorProps) {
-  const [content, setContent] = useState<string>(initialContent);
-
-  // Sync when initialContent changes from parent
-  useEffect(() => {
-    if (initialContent !== null) {
-      setContent(initialContent);
-    } else {
-      setContent("");
-    }
-  }, [initialContent]);
-
-
+export function Editor({ initialContent = '', onChange }: EditorProps) {
   return (
-    <div className="relative w-full rounded-lg border bg-background shadow-sm">
-       <NovelEditor
-          defaultValue={content}
-          onUpdate={(editor) => {
-            const markdown = editor?.storage.markdown.getMarkdown();
-            onChange(markdown || '');
-          }}
-          disableLocalStorage={true}
-          className="relative min-h-[300px] w-full max-w-screen-lg"
-       />
-    </div>
+    <Textarea
+      value={initialContent}
+      onChange={(e) => onChange(e.target.value)}
+      className="min-h-[300px] w-full"
+      placeholder="Write your content here. Markdown is supported."
+    />
   );
 }
