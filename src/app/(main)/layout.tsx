@@ -34,7 +34,7 @@ export default async function MainLayout({
 
   return (
     <>
-      <PromoBanner content={content} />
+      <PromoBanner />
       <Header navLinks={navLinks} siteName={siteName} />
       <main className="flex-1">
         {children}
@@ -44,5 +44,3 @@ export default async function MainLayout({
     </>
   );
 }
-
-    

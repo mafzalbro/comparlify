@@ -32,6 +32,7 @@ export function AdminNav() {
                 { href: "/admin/news", label: "News", Icon: Newspaper },
                 { href: "/admin/community", label: "Community", Icon: MessageSquare },
                 { href: "/admin/media", label: "Media", Icon: ImageIcon },
+                { href: "/admin/legal", label: "Legal", Icon: Gavel },
             ]
         },
         {
@@ -64,7 +65,7 @@ export function AdminNav() {
                 <SidebarGroup key={group.group}>
                     <SidebarGroupLabel>{group.group}</SidebarGroupLabel>
                     {group.items.map(item => (
-                        <SidebarMenuItem key={item.href}>
+                        <SidebarMenuItem key={item.label}>
                             <Link href={item.href}>
                                 <SidebarMenuButton
                                     tooltip={item.label}

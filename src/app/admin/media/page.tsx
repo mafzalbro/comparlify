@@ -1,6 +1,5 @@
 
 'use server';
-import prisma from "@/lib/prisma";
 import {
   Card,
   CardContent,
@@ -9,33 +8,21 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ImageUploader } from "./_components/image-uploader";
-import { ImageGallery } from "./_components/image-gallery";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Image } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { GalleryHorizontal } from "lucide-react";
 
-async function getImages(): Promise<Image[]> {
-  return prisma.image.findMany({
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
-}
-
 export default async function MediaLibraryPage() {
-  const images = await getImages();
-
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Media Library</h1>
         <Button asChild variant="outline">
-          <Link href="/gallery" target="_blank">
+          <Link href="/media/gallery" target="_blank">
             <GalleryHorizontal className="mr-2 h-4 w-4" />
-            View Public Gallery
+            View Media Gallery
           </Link>
         </Button>
       </div>
@@ -44,7 +31,7 @@ export default async function MediaLibraryPage() {
         <CardHeader>
           <CardTitle>Upload New Image</CardTitle>
           <CardDescription>
-            Drag and drop an image file here or click to select a file.
+            Drag and drop an image file here or click to select a file. Uploaded images will be available in the media gallery.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -53,23 +40,6 @@ export default async function MediaLibraryPage() {
           </Suspense>
         </CardContent>
       </Card>
-      
-      <Card>
-        <CardHeader>
-            <div className="flex justify-between items-center">
-                <div>
-                    <CardTitle>Uploaded Images</CardTitle>
-                    <CardDescription>Click an image to view details, edit, or delete it.</CardDescription>
-                </div>
-            </div>
-        </CardHeader>
-        <CardContent>
-           <Suspense fallback={<Skeleton className="h-64 w-full" />}>
-              <ImageGallery initialImages={images} />
-           </Suspense>
-        </CardContent>
-      </Card>
     </div>
   );
 }
-

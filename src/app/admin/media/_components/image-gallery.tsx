@@ -12,7 +12,6 @@ interface ImageGalleryProps {
 }
 
 export function ImageGallery({ initialImages }: ImageGalleryProps) {
-
     return (
         <ImageGalleryContextProvider initialImages={initialImages}>
             <GalleryContent />
@@ -39,22 +38,21 @@ function GalleryContent() {
 
     return (
         <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+            <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-6 xl:columns-8 gap-4 space-y-4">
                 {images.map((image) => (
                     <button
                         key={image.id}
                         onClick={() => setSelectedImage(image)}
-                        className="relative aspect-square block w-full rounded-lg overflow-hidden border-2 border-transparent hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all"
+                        className="block w-full rounded-lg overflow-hidden border-2 border-transparent hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all group"
                         aria-label={`View details for ${image.altText || image.filename}`}
                     >
                         <ManagedImage
                             src={image.url}
                             alt={image.altText || image.filename}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 16vw, 12.5vw"
+                            width={500}
+                            height={500}
+                            className="w-full h-auto transition-transform duration-300 group-hover:scale-105"
                         />
-                         <div className="absolute inset-0 bg-black/20 opacity-0 hover:opacity-100 transition-opacity" />
                     </button>
                 ))}
             </div>
