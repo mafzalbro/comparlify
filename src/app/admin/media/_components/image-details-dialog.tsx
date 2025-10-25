@@ -18,7 +18,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Skeleton } from "@/components/ui/skeleton";
 
 function slugify(text: string) {
     return text
@@ -30,28 +29,8 @@ function slugify(text: string) {
       .replace(/\-\-+/g, '-')
 }
 
-function UsageSkeleton() {
-    return (
-        <div className="space-y-3 p-4 border rounded-lg">
-            <div className="flex items-center gap-2">
-                <Skeleton className="h-5 w-5 rounded-full" />
-                <Skeleton className="h-4 w-24" />
-            </div>
-            <Skeleton className="h-4 w-full" />
-            <div className="space-y-2 pt-2">
-                <Skeleton className="h-6 w-full rounded" />
-                <Skeleton className="h-6 w-full rounded" />
-            </div>
-        </div>
-    )
-}
-
 function UsageDisplay({ usages, isLoading }: { usages: ImageUsage[], isLoading: boolean }) {
-  if (isLoading) {
-    return <UsageSkeleton />;
-  }
-
-  if (usages.length === 0) {
+  if (isLoading || usages.length === 0) {
     return null;
   }
   
