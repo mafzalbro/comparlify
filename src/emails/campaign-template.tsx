@@ -26,7 +26,35 @@ export const CampaignTemplate: React.FC<Readonly<CampaignTemplateProps>> = ({
   unsubscribeUrl,
 }) => (
   <Html>
-    <Head />
+    <Head>
+        <style>
+            {`
+                @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Poppins:wght@600;700&display=swap');
+                
+                body {
+                    font-family: 'Lato', sans-serif;
+                }
+                h1, h2, h3, h4, h5, h6 {
+                    font-family: 'Poppins', sans-serif;
+                    font-weight: 700;
+                }
+                img {
+                    max-width: 100%;
+                    border-radius: 8px;
+                }
+                p {
+                    margin: 16px 0;
+                }
+                a {
+                    color: #FACC15; /* A color close to the primary theme color */
+                    text-decoration: none;
+                }
+                ul, ol {
+                    padding-left: 24px;
+                }
+            `}
+        </style>
+    </Head>
     <Preview>{subject}</Preview>
     <Body style={main}>
       <Container style={container}>
@@ -57,55 +85,61 @@ export default CampaignTemplate;
 
 // Styles for the email template
 const main = {
-  backgroundColor: '#f6f9fc',
-  fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif',
+  backgroundColor: '#f1f5f9', // A slightly cooler light gray
+  fontFamily: "'Lato', sans-serif",
+  padding: '20px 0',
 };
 
 const container = {
   backgroundColor: '#ffffff',
   margin: '0 auto',
-  padding: '20px 0 48px',
+  padding: '0',
   marginBottom: '64px',
-  borderRadius: '8px',
+  borderRadius: '12px',
   maxWidth: '600px',
-  boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+  boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05), 0 10px 10px -5px rgba(0,0,0,0.04)',
+  overflow: 'hidden',
 };
 
 const header = {
-  padding: '20px',
-  borderBottom: '1px solid #f0f0f0',
+  padding: '24px',
+  textAlign: 'center' as const,
+  backgroundColor: '#FDE68A', // A soft yellow from the theme
+  color: '#422006',
 };
 
 const heading = {
-  fontSize: '24px',
-  fontWeight: 'bold',
-  color: '#212529',
+  fontSize: '28px',
+  fontWeight: '700',
+  fontFamily: "'Poppins', sans-serif",
+  margin: '0',
 };
 
 const contentSection = {
-  padding: '20px 30px',
-  color: '#343a40',
-  lineHeight: '1.6',
+  padding: '20px 30px 30px 30px',
+  color: '#334155',
+  lineHeight: '1.7',
+  fontSize: '16px',
 };
 
 const hr = {
-  borderColor: '#f0f0f0',
-  margin: '20px 0',
+  borderColor: '#e2e8f0',
+  margin: '30px 0',
 };
 
 const footer = {
-  padding: '0 30px',
+  padding: '0 30px 30px 30px',
   textAlign: 'center' as const,
 };
 
 const footerText = {
-  color: '#868e96',
+  color: '#64748b',
   fontSize: '12px',
-  lineHeight: '16px',
+  lineHeight: '18px',
 };
 
 const footerLink = {
-  color: '#5c5f62',
+  color: '#475569',
   fontSize: '12px',
   textDecoration: 'underline',
 };
