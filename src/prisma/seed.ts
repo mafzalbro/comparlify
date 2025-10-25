@@ -2,49 +2,63 @@
 "use server";
 import prisma from "@/lib/prisma";
 import { Prisma, Role } from "@prisma/client";
-import bcrypt from 'bcryptjs';
 
 export async function cleanupDatabase() {
-    console.log("Cleaning up existing data...");
+    console.log("🧹 Starting database cleanup...");
 
-    // First, break the navigation links
-    await prisma.$executeRaw`UPDATE Post SET previousId = NULL, nextId = NULL`;
-    await prisma.image.deleteMany();
-    await prisma.forumPost.deleteMany();
-    await prisma.forumTopic.deleteMany();
-    await prisma.forumCategory.deleteMany();
-    await prisma.newsArticle.deleteMany();
-    await prisma.emailRecipient.deleteMany();
-    await prisma.emailCampaign.deleteMany();
-    await prisma.contactMessage.deleteMany();
-    await prisma.subscription.deleteMany();
-    await prisma.notification.deleteMany();
-    await prisma.siteContent.deleteMany();
-    await prisma.comment.deleteMany();
-    await prisma.bookmark.deleteMany();
-    await prisma.post.deleteMany();
-    await prisma.comparison.deleteMany();
-    await prisma.platformFeature.deleteMany();
-    await prisma.fact.deleteMany();
-    await prisma.faq.deleteMany();
-    await prisma.feature.deleteMany();
-    await prisma.featureCategory.deleteMany();
-    await prisma.platform.deleteMany();
-    await prisma.user.deleteMany();
-    await prisma.postCategory.deleteMany();
-    await prisma.comparisonCategory.deleteMany();
+    const models = Object.keys(prisma).filter(
+      (key) =>
+        !key.startsWith("_") &&
+        !key.endsWith("Delegate") &&
+        typeof (prisma as any)[key].deleteMany === "function"
+    );
+
+    // Break circular dependencies first
+    console.log("  - Breaking Post navigation links...");
+    await prisma.post.updateMany({ data: { nextId: null, previousId: null } });
+
+    // Deletion order matters due to foreign key constraints.
+    const deletionOrder = [
+        'Notification', 'Bookmark', 'Comment', 'Fact', 'Faq', 'PlatformFeature', 
+        'Post', 'Comparison', 'Feature', 
+        'NewsArticle', 'EmailRecipient', 'EmailCampaign', 'ContactMessage', 
+        'Subscription', 'ForumPost', 'ForumTopic', 
+        'FeatureCategory', 'ComparisonCategory', 'PostCategory', 'ForumCategory',
+        'Image', 'SiteContent', 'User', 'Account', 'Session', 'VerificationToken'
+    ];
     
-    console.log("Cleaned up existing data.");
+    // Add any models not in the explicit order to the end
+    const remainingModels = models.filter(m => !deletionOrder.includes(m));
+    const finalDeletionOrder = [...deletionOrder, ...remainingModels];
+
+    for (const model of finalDeletionOrder) {
+        try {
+            if ((prisma as any)[model]?.deleteMany) {
+                const { count } = await (prisma as any)[model].deleteMany({});
+                if (count > 0) {
+                    console.log(`  🔥 Deleted ${count} records from ${model}`);
+                }
+            }
+        } catch (e: any) {
+            // This might fail if the model doesn't exist in some versions, so we just log it.
+            if (e.code !== 'P2025') { // P2025 = Record to delete does not exist.
+                 console.warn(`  - Could not delete from ${model}: ${e.message}`);
+            }
+        }
+    }
+    
+    console.log("✅ Database cleanup complete.");
 }
 
 async function main() {
-  console.log("Start seeding...");
+  console.log("🌱 Starting database seeding...");
 
   // --- 1. Clean up existing data ---
   await cleanupDatabase();
 
 
   // --- 2. Seed Users ---
+  console.log("\n👤 Seeding Users...");
   const usersData = [
     {
       name: "Afzal Creator",
@@ -78,10 +92,11 @@ async function main() {
     throw new Error("Failed to seed users correctly.");
   }
   
-  console.log(`Seeded ${usersData.length} users.`);
+  console.log(`   ✓ Seeded ${usersData.length} users.`);
 
 
   // --- 3. Seed Features and Categories ---
+  console.log("\n✨ Seeding Features & Categories...");
   const categoriesData = [
     { name: "Core Course Features", features: ["Course Builder", "Video Hosting", "Quizzes & Surveys", "Assignments", "Certificates of Completion", "Content Dripping"] },
     { name: "Site & Marketing", features: ["Website Builder", "Custom Domain", "Blogging", "Affiliate Marketing", "Email Marketing", "Sales & Coupons"] },
@@ -89,6 +104,7 @@ async function main() {
     { name: "Business & Analytics", features: ["Payment Gateways", "Advanced Analytics", "API Access", "App Integrations"] },
   ];
 
+  let totalFeatures = 0;
   for (const cat of categoriesData) {
     const category = await prisma.featureCategory.create({
       data: { name: cat.name }
@@ -96,10 +112,12 @@ async function main() {
     await prisma.feature.createMany({
       data: cat.features.map(name => ({ name, categoryId: category.id }))
     });
+    totalFeatures += cat.features.length;
   }
-  console.log("Seeded feature categories and features.");
+  console.log(`   ✓ Seeded ${categoriesData.length} feature categories and ${totalFeatures} features.`);
 
   // --- 4. Seed Platforms ---
+  console.log("\n🚀 Seeding Platforms...");
   const allFeatures = await prisma.feature.findMany();
   const featureMap = new Map(allFeatures.map(f => [f.name, f.id]));
 
@@ -136,9 +154,10 @@ async function main() {
   
   await prisma.platform.createMany({ data: platformsData });
   const createdPlatforms = await prisma.platform.findMany();
-  console.log(`Seeded ${createdPlatforms.length} platforms.`);
+  console.log(`   ✓ Seeded ${createdPlatforms.length} platforms.`);
 
   // --- 5. Seed Platform Features ---
+  console.log("🔗 Seeding Platform Features...");
   const platformFeatureData = {
     "Teachable": { "Course Builder": true, "Video Hosting": true, "Quizzes & Surveys": true, "Assignments": false, "Certificates of Completion": true, "Content Dripping": true, "Website Builder": true, "Custom Domain": true, "Blogging": true, "Affiliate Marketing": true, "Email Marketing": true, "Sales & Coupons": true, "Community Forum": false, "Mobile App Access": {hasFeature: true, details: "iOS only"}, "Live Classes / Webinars": false, "Student Dashboard": true, "Payment Gateways": true, "Advanced Analytics": true, "API Access": {hasFeature: true, details: "On Pro plan+"}, "App Integrations": true },
     "Thinkific": { "Course Builder": true, "Video Hosting": true, "Quizzes & Surveys": true, "Assignments": true, "Certificates of Completion": true, "Content Dripping": true, "Website Builder": true, "Custom Domain": true, "Blogging": false, "Affiliate Marketing": true, "Email Marketing": false, "Sales & Coupons": true, "Community Forum": true, "Mobile App Access": true, "Live Classes / Webinars": true, "Student Dashboard": true, "Payment Gateways": true, "Advanced Analytics": true, "API Access": true, "App Integrations": true },
@@ -146,6 +165,7 @@ async function main() {
     "Podia": { "Course Builder": true, "Video Hosting": true, "Quizzes & Surveys": {hasFeature: true, details: "Simple quizzes"}, "Assignments": false, "Certificates of Completion": false, "Content Dripping": true, "Website Builder": true, "Custom Domain": true, "Blogging": false, "Affiliate Marketing": true, "Email Marketing": true, "Sales & Coupons": true, "Community Forum": true, "Mobile App Access": false, "Live Classes / Webinars": true, "Student Dashboard": true, "Payment Gateways": true, "Advanced Analytics": false, "API Access": false, "App Integrations": false }
   };
 
+  let platformFeatureCount = 0;
   for (const platform of createdPlatforms) {
     const features = platformFeatureData[platform.name as keyof typeof platformFeatureData];
     for (const [featureName, value] of Object.entries(features)) {
@@ -156,26 +176,28 @@ async function main() {
         await prisma.platformFeature.create({
           data: { platformId: platform.id, featureId, hasFeature, details }
         });
+        platformFeatureCount++;
       }
     }
   }
-  console.log("Seeded platform features.");
+  console.log(`   ✓ Seeded ${platformFeatureCount} platform features.`);
 
   // --- 6. Seed Blog Post Categories ---
-  await prisma.postCategory.createMany({
-    data: [
+  console.log("\n📚 Seeding Blog Post Categories...");
+  const postCategoryData = [
       { name: "Platform Guides", slug: "platform-guides" },
       { name: "Course Creation", slug: "course-creation" },
       { name: "Marketing", slug: "marketing" },
       { name: "Tech Trends", slug: "tech-trends" },
-    ]
-  });
+  ];
+  await prisma.postCategory.createMany({ data: postCategoryData });
   const postCategories = await prisma.postCategory.findMany();
-  console.log("Seeded post categories.");
+  console.log(`   ✓ Seeded ${postCategories.length} post categories.`);
   const postCategoryMap = new Map(postCategories.map(c => [c.name, c.id]));
 
 
   // --- 7. Seed Blog Posts ---
+  console.log("📝 Seeding Blog Posts...");
   const postsData: (Omit<Prisma.PostCreateInput, "author" | "category"> & {categoryName: string})[] = [
       { slug: "choosing-the-right-platform", title: "10 Things to Consider When Choosing a Course Platform", description: "From pricing and features to scalability and support, here are the key factors to weigh before committing to a platform.", content: "Full content about choosing platforms...", image: "https://picsum.photos/400/250?random=1", dataAiHint: "decision making choices", published: true, authorId: adminUser.id, categoryName: "Platform Guides" },
       { slug: "engaging-course-content", title: "5 Secrets to Creating Wildly Engaging Course Content", description: "Move beyond static videos. Discover interactive techniques that captivate students and boost completion rates.", content: "Full content about engaging content...", image: "https://picsum.photos/400/250?random=2", dataAiHint: "creative content creation", published: true, authorId: adminUser.id, categoryName: "Course Creation" },
@@ -206,69 +228,71 @@ async function main() {
     }
     previousPostId = post.id;
   }
-  console.log("Seeded blog posts with navigation links.");
+  console.log(`   ✓ Seeded ${postsData.length} blog posts with navigation links.`);
 
   const allPosts = await prisma.post.findMany();
   const post1 = allPosts.find(p => p.slug === 'choosing-the-right-platform')!;
   const post2 = allPosts.find(p => p.slug === 'engaging-course-content')!;
 
   // --- 8. Seed Comments ---
-  await prisma.comment.createMany({
-    data: [
+  console.log("💬 Seeding Comments...");
+  const commentData = [
         { content: "This was incredibly helpful! I was stuck between Teachable and Thinkific, and this breakdown made the choice clear.", postId: post1.id, authorId: charlieUser.id, status: 'APPROVED' },
         { content: "Great article. What are your thoughts on Kajabi's price point for new creators? Seems a bit steep.", postId: post1.id, authorId: bobUser.id, status: 'PENDING' },
         { content: "These are fantastic ideas for engagement. I'm definitely going to try adding more interactive quizzes.", postId: post2.id, authorId: charlieUser.id, status: 'APPROVED' },
         { content: "I don't agree with point #3.", postId: post2.id, authorId: bobUser.id, status: 'REJECTED' },
-    ]
-  });
-  console.log("Seeded comments.");
+  ];
+  await prisma.comment.createMany({ data: commentData });
+  console.log(`   ✓ Seeded ${commentData.length} comments.`);
 
 
   // --- 9. Seed Comparison Categories ---
-  await prisma.comparisonCategory.createMany({
-    data: [
+  console.log("\n⚖️ Seeding Comparison Categories...");
+  const compCategoryData = [
       { name: "Flagship Showdowns", slug: "flagship-showdowns" },
       { name: "All-in-One vs. Standalone", slug: "all-in-one-vs-standalone" },
-    ]
-  });
+  ];
+  await prisma.comparisonCategory.createMany({ data: compCategoryData });
   const compCategories = await prisma.comparisonCategory.findMany();
-  console.log("Seeded comparison categories.");
+  console.log(`   ✓ Seeded ${compCategories.length} comparison categories.`);
   const compCategoryMap = new Map(compCategories.map(c => [c.name, c.id]));
 
 
   // --- 10. Seed Comparisons ---
+  console.log("🆚 Seeding Comparisons...");
   const platformTeachable = createdPlatforms.find(p => p.name === "Teachable")!;
   const platformThinkific = createdPlatforms.find(p => p.name === "Thinkific")!;
 
-  await prisma.comparison.create({
-    data: {
-        title: "Teachable vs. Thinkific: The Ultimate 2024 Showdown",
-        slug: "teachable-vs-thinkific",
-        summary: "We dive deep into the features, pricing, and user experience of Teachable and Thinkific to help you decide which is the best fit for your course creation journey.",
-        platformAId: platformTeachable.id,
-        platformBId: platformThinkific.id,
-        categoryId: compCategoryMap.get("Flagship Showdowns"),
-        introduction: "### Introduction\nChoosing between Teachable and Thinkific is a common dilemma for course creators. Both are industry leaders, but they cater to slightly different needs. This comparison will break down the key differences.",
-        conclusion: "### Conclusion\nFor beginners who prioritize simplicity, Teachable is a fantastic starting point. For those needing more customization and advanced features, Thinkific offers a more robust platform to grow into.",
-        published: true,
-        facts: {
-            create: [
-                { title: "Best For", platformAValue: "Beginners", platformBValue: "Entrepreneurs" },
-                { title: "Free Plan", platformAValue: "Yes, limited", platformBValue: "Yes, limited" },
-                { title: "Transaction Fees (on free plan)", platformAValue: "10% + $1", platformBValue: "0%" }
-            ]
-        },
-        faqs: {
-            create: [
-                { question: "Which platform has better marketing tools?", answer: "Kajabi is generally considered to have the most comprehensive, all-in-one marketing suite." },
-                { question: "Can I use my own domain with both?", answer: "Yes, both Teachable and Thinkific support custom domains on their paid plans." }
-            ]
-        }
+  const comparisonData = {
+    title: "Teachable vs. Thinkific: The Ultimate 2024 Showdown",
+    slug: "teachable-vs-thinkific",
+    summary: "We dive deep into the features, pricing, and user experience of Teachable and Thinkific to help you decide which is the best fit for your course creation journey.",
+    platformAId: platformTeachable.id,
+    platformBId: platformThinkific.id,
+    categoryId: compCategoryMap.get("Flagship Showdowns"),
+    introduction: "### Introduction\nChoosing between Teachable and Thinkific is a common dilemma for course creators. Both are industry leaders, but they cater to slightly different needs. This comparison will break down the key differences.",
+    conclusion: "### Conclusion\nFor beginners who prioritize simplicity, Teachable is a fantastic starting point. For those needing more customization and advanced features, Thinkific offers a more robust platform to grow into.",
+    published: true,
+    facts: {
+        create: [
+            { title: "Best For", platformAValue: "Beginners", platformBValue: "Entrepreneurs" },
+            { title: "Free Plan", platformAValue: "Yes, limited", platformBValue: "Yes, limited" },
+            { title: "Transaction Fees (on free plan)", platformAValue: "10% + $1", platformBValue: "0%" }
+        ]
+    },
+    faqs: {
+        create: [
+            { question: "Which platform has better marketing tools?", answer: "Kajabi is generally considered to have the most comprehensive, all-in-one marketing suite." },
+            { question: "Can I use my own domain with both?", answer: "Yes, both Teachable and Thinkific support custom domains on their paid plans." }
+        ]
     }
-  });
-  console.log("Seeded comparisons.");
+  };
+
+  await prisma.comparison.create({ data: comparisonData });
+  console.log(`   ✓ Seeded 1 comparison.`);
 
   // --- 11. Seed Site Content ---
+  console.log("\n🌐 Seeding Site Content...");
   const siteContent = [
     // Globals
     { key: 'global.siteName', group: 'Globals', value: 'Comparlify' },
@@ -455,11 +479,11 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
 
   ];
   await prisma.siteContent.createMany({ data: siteContent });
-  console.log("Seeded site content.");
+  console.log(`   ✓ Seeded ${siteContent.length} site content records.`);
 
   // --- 12. Seed News ---
-  await prisma.newsArticle.create({
-    data: {
+  console.log("\n📰 Seeding News...");
+  const newsData = {
       title: "Comparlify Launches New AI-Powered Tool Suite",
       slug: "comparlify-launches-ai-tools",
       content: "We're excited to announce a major update to our platform. Our new suite of AI-powered tools is designed to help course creators streamline their workflow and produce higher-quality content faster than ever before. From generating course outlines to scripting video lessons, these tools are your new creative co-pilot.",
@@ -467,14 +491,16 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
       dataAiHint: "technology launch announcement",
       published: true,
       authorId: adminUser.id,
-    }
-  });
-  console.log("Seeded news articles.");
+  };
+  await prisma.newsArticle.create({ data: newsData });
+  console.log(`   ✓ Seeded 1 news article.`);
 
   // --- 13. Seed Community ---
+  console.log("\n💬 Seeding Community Forums...");
   const generalCategory = await prisma.forumCategory.create({
     data: { name: "General Discussion", slug: "general-discussion", description: "Talk about anything related to course creation."}
   });
+  console.log(`   ✓ Seeded 1 forum category.`);
 
   const introductionsTopic = await prisma.forumTopic.create({
     data: {
@@ -485,29 +511,27 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
       status: 'APPROVED',
     }
   });
+  console.log(`   ✓ Seeded 1 forum topic.`);
 
-  await prisma.forumPost.create({
-    data: {
-      content: "Hey everyone! I'm Bob, and I'm building a course on woodworking for beginners. Excited to learn from you all!",
-      authorId: bobUser.id,
-      topicId: introductionsTopic.id,
-      status: 'APPROVED',
-    }
+  await prisma.forumPost.createMany({
+    data: [
+        {
+            content: "Hey everyone! I'm Bob, and I'm building a course on woodworking for beginners. Excited to learn from you all!",
+            authorId: bobUser.id,
+            topicId: introductionsTopic.id,
+            status: 'APPROVED',
+        },
+        {
+            content: "Welcome, Bob! Glad to have you here.",
+            authorId: adminUser.id,
+            topicId: introductionsTopic.id,
+            status: 'APPROVED',
+        }
+    ]
   });
+  console.log(`   ✓ Seeded 2 forum posts.`);
 
-  await prisma.forumPost.create({
-    data: {
-      content: "Welcome, Bob! Glad to have you here.",
-      authorId: adminUser.id,
-      topicId: introductionsTopic.id,
-      status: 'APPROVED',
-    }
-  });
-
-  console.log("Seeded community forums.");
-
-
-  console.log("Seeding finished.");
+  console.log("\n🎉 Seeding finished successfully!");
 }
 
 
@@ -515,6 +539,7 @@ export const seed = async () => {
   try {
     await main();
   } catch (e) {
+    console.error("\n❌ An error occurred during seeding:");
     console.error(e);
     process.exit(1);
   } finally {
@@ -526,10 +551,3 @@ export const seed = async () => {
 if (require.main === module) {
   seed();
 }
-
-    
-
-    
-
-
-    
