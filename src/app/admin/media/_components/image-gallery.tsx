@@ -1,6 +1,7 @@
 
 'use client';
 
+import * as React from 'react';
 import { useState } from 'react';
 import { type Image } from '@prisma/client';
 import { ManagedImage } from '@/components/managed-image';
