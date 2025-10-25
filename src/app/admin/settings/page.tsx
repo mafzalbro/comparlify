@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { revalidateCacheAction } from '@/app/actions/admin';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Trash2, Globe, BookOpen, GitCompareArrows, Code, Database } from 'lucide-react';
+import { Loader2, Trash2, Globe, BookOpen, GitCompareArrows, Code, Database, Search } from 'lucide-react';
 import {
     Tabs,
     TabsContent,
@@ -68,6 +68,7 @@ export default function AdminSettingsPage() {
             <Tabs defaultValue="general" className="w-full">
                 <TabsList className="mb-6 h-auto flex-wrap justify-start">
                     <TabsTrigger value="general">General</TabsTrigger>
+                    <TabsTrigger value="seo">SEO</TabsTrigger>
                     <TabsTrigger value="email">Email</TabsTrigger>
                     <TabsTrigger value="codeInjection">Code Injection</TabsTrigger>
                     <TabsTrigger value="cache">Cache</TabsTrigger>
@@ -83,6 +84,19 @@ export default function AdminSettingsPage() {
                         </CardHeader>
                         <CardContent>
                            {renderFormOrSkeleton('Globals')}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+                <TabsContent value="seo">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2"><Search /> SEO Settings</CardTitle>
+                            <CardDescription>
+                                Configure default metadata for search engine optimization. These can be overridden on individual pages.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                           {renderFormOrSkeleton('SEO Settings')}
                         </CardContent>
                     </Card>
                 </TabsContent>

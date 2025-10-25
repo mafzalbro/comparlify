@@ -72,7 +72,7 @@ async function main(skipCleanup = false) {
     {
       name: "Bob Builder",
       email: "maf415415@gmail.com",
-      role: Role.USER,
+      role: Role.AUTHOR,
       onboarded: false,
       newsletter: true,
     },
@@ -302,6 +302,14 @@ async function main(skipCleanup = false) {
     { key: 'global.banner.link.text', group: 'Globals', value: 'Explore Tools' },
     { key: 'global.banner.link.href', group: 'Globals', value: '/tools' },
     { key: 'global.banner.enabled', group: 'Globals', value: 'true' },
+
+    // SEO Settings
+    { key: 'seo.default.title', group: 'SEO Settings', value: 'Comparlify' },
+    { key: 'seo.default.description', group: 'SEO Settings', type: 'TEXTAREA', value: 'Unbiased comparisons, AI-powered tools, and community insights to help course creators succeed.' },
+    { key: 'seo.default.keywords', group: 'SEO Settings', type: 'TEXTAREA', value: 'online course platform, course creation, e-learning, ai tools for creators, teachable vs thinkific, course marketing' },
+    { key: 'seo.default.twitter', group: 'SEO Settings', value: '@comparlify' },
+    { key: 'seo.default.url', group: 'SEO Settings', value: 'https://comparlify.com' },
+    { key: 'seo.default.image', group: 'SEO Settings', value: 'https://comparlify.com/og-image.png' },
 
     // Module Visibility
     { key: 'module.blog.enabled', group: 'Module Visibility', value: 'true' },

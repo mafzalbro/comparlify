@@ -1,13 +1,14 @@
+
 import type { Metadata } from 'next';
 import { getContent } from './content';
 
-const defaultConfig = {
+const fallbackConfig = {
     title: 'Comparlify',
     description: 'Unbiased comparisons, AI-powered tools, and community insights to help course creators succeed.',
-    keywords: ['online course platform', 'course creation', 'e-learning', 'ai tools for creators', 'teachable vs thinkific', 'course marketing'],
+    keywords: 'online course platform, course creation, e-learning, ai tools for creators, teachable vs thinkific, course marketing',
     twitter: '@comparlify',
-    url: 'https://comparlify.com', // Replace with your actual domain
-    image: 'https://comparlify.com/og-image.png' // Replace with your actual OG image URL
+    url: 'https://comparlify.com',
+    image: 'https://comparlify.com/og-image.png'
 };
 
 type GenerateMetadataProps = {
@@ -26,11 +27,25 @@ export async function generateSeoMetadata({
     path
 }: GenerateMetadataProps): Promise<Metadata> {
     const content = await getContent();
-    const siteName = content['global.siteName'] || defaultConfig.title;
     
-    const pageTitle = title ? `${title} | ${siteName}` : `${siteName} - Helping Course Creators Grow`;
+    const siteName = content['global.siteName'] || fallbackConfig.title;
+
+    const defaultConfig = {
+        title: content['seo.default.title'] || fallbackConfig.title,
+        description: content['seo.default.description'] || fallbackConfig.description,
+        keywords: content['seo.default.keywords'] || fallbackConfig.keywords,
+        twitter: content['seo.default.twitter'] || fallbackConfig.twitter,
+        url: content['seo.default.url'] || fallbackConfig.url,
+        image: content['seo.default.image'] || fallbackConfig.image,
+    };
+    
+    const pageTitle = title ? `${title} | ${siteName}` : `${defaultConfig.title} - Helping Course Creators Grow`;
     const pageDescription = description || defaultConfig.description;
-    const pageKeywords = Array.isArray(keywords) ? [...defaultConfig.keywords, ...keywords] : [defaultConfig.keywords, keywords].join(', ');
+    
+    const pageKeywords = Array.isArray(keywords) 
+        ? [...defaultConfig.keywords.split(',').map(k => k.trim()), ...keywords] 
+        : [defaultConfig.keywords, keywords].filter(Boolean).join(', ');
+
     const ogImage = image || defaultConfig.image;
     const canonicalUrl = `${defaultConfig.url}${path}`;
 
