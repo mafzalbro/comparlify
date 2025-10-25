@@ -46,17 +46,16 @@ const getPostData = cache(async (slug: string, isPreview = false) => {
         include: { author: true },
         orderBy: { createdAt: 'desc' }
       },
-      previous: {
-        select: { slug: true, title: true }
-      }
     },
   });
 
   if (!post) {
-    return { post: null, relatedPosts: [], nextPost: null };
+    return { post: null, relatedPosts: [], nextPost: null, prevPost: null };
   }
 
-  const [relatedPosts, nextPost] = await Promise.all([
+  // Fetch related, next, and previous posts in parallel.
+  // CRUCIAL FIX: Ensure next/prev posts are also published.
+  const [relatedPosts, nextPost, prevPost] = await Promise.all([
     prisma.post.findMany({
       where: {
         published: true,
@@ -67,12 +66,16 @@ const getPostData = cache(async (slug: string, isPreview = false) => {
       select: { slug: true, title: true, image: true, dataAiHint: true }
     }),
     post.nextId ? prisma.post.findFirst({
-      where: { id: post.nextId },
+      where: { id: post.nextId, published: true },
+      select: { slug: true, title: true }
+    }) : Promise.resolve(null),
+    post.previousId ? prisma.post.findFirst({
+      where: { id: post.previousId, published: true },
       select: { slug: true, title: true }
     }) : Promise.resolve(null)
   ]);
 
-  return { post, relatedPosts, nextPost };
+  return { post, relatedPosts, nextPost, prevPost };
 });
 
 export async function generateMetadata(
@@ -107,7 +110,7 @@ export default async function BlogPostPage(
     auth(),
     getContent()
   ]);
-  const { post, relatedPosts, nextPost } = await getPostData(slug, isPreview);
+  const { post, relatedPosts, nextPost, prevPost } = await getPostData(slug, isPreview);
 
   if (!post) {
     notFound();
@@ -233,9 +236,9 @@ export default async function BlogPostPage(
               </div>
               <nav className="flex justify-between items-center my-12 border-t border-b py-6">
                 <div>
-                  {post.previous && (
+                  {prevPost && (
                     <Button asChild variant="outline">
-                      <Link href={`/blog/${post.previous.slug}`}>
+                      <Link href={`/blog/${prevPost.slug}`}>
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Previous
                       </Link>
