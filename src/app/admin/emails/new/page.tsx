@@ -1,9 +1,13 @@
+
 import { EmailForm } from '../_components/email-form';
 import prisma from '@/lib/prisma';
 import type { User } from '@prisma/client';
 
 async function getUsers(): Promise<User[]> {
-  return prisma.user.findMany({ orderBy: { name: 'asc' }});
+  return prisma.user.findMany({ 
+      where: { email: { not: null }},
+      orderBy: { name: 'asc' }
+    });
 }
 
 export default async function NewEmailCampaignPage() {

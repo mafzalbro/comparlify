@@ -37,8 +37,9 @@ export async function createEmailCampaign(prevState: any, formData: FormData) {
 
   const { subject, content, excludedUserIds } = validatedFields.data;
 
+  let newCampaign;
   try {
-    await prisma.emailCampaign.create({
+    newCampaign = await prisma.emailCampaign.create({
       data: {
         subject,
         content,
@@ -50,7 +51,7 @@ export async function createEmailCampaign(prevState: any, formData: FormData) {
     console.error(error);
     return { error: "Failed to create email campaign." };
   }
-  redirect("/admin/emails");
+  redirect(`/admin/emails/edit/${newCampaign.id}`);
 }
 
 // Update Email Campaign
@@ -92,7 +93,7 @@ export async function updateEmailCampaign(id: string, prevState: any, formData: 
     return { error: "Failed to update email campaign." };
   }
 
-  redirect("/admin/emails");
+  redirect(`/admin/emails/edit/${id}`);
 }
 
 // Delete Email Campaign
@@ -414,3 +415,4 @@ export async function cloneCampaignAction(campaignId: string) {
     return { error: 'Failed to clone campaign.' };
   }
 }
+

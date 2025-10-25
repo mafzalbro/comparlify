@@ -11,7 +11,10 @@ async function getCampaign(id: string) {
 }
 
 async function getUsers(): Promise<User[]> {
-  return prisma.user.findMany({ orderBy: { name: 'asc' }});
+  return prisma.user.findMany({ 
+      where: { email: { not: null }},
+      orderBy: { name: 'asc' }
+    });
 }
 
 export default async function EditEmailCampaignPage(props: { params: Promise<{ id: string }> }) {
