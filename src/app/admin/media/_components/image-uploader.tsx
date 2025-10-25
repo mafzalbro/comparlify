@@ -8,8 +8,21 @@ import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { ImageGalleryContext } from './image-gallery-context';
 
+function formatBytes(bytes: number, decimals = 2) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+
 export function ImageUploader() {
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [loadedBytes, setLoadedBytes] = useState(0);
+  const [totalBytes, setTotalBytes] = useState(0);
+  const [uploadSpeed, setUploadSpeed] = useState(0); // bytes per second
   const [status, setStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
@@ -28,17 +41,33 @@ export function ImageUploader() {
     setStatus('uploading');
     setError(null);
     setUploadProgress(0);
+    setLoadedBytes(0);
+    setTotalBytes(file.size);
+    setUploadSpeed(0);
 
     const formData = new FormData();
     formData.append('file', file);
 
     const xhr = new XMLHttpRequest();
     xhr.open('POST', '/api/upload', true);
+    
+    let lastTime = Date.now();
+    let lastLoaded = 0;
 
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable) {
         const percentComplete = (event.loaded / event.total) * 100;
+        const now = Date.now();
+        const timeDiff = (now - lastTime) / 1000; // in seconds
+        const bytesDiff = event.loaded - lastLoaded;
+        const speed = timeDiff > 0 ? bytesDiff / timeDiff : 0;
+        
         setUploadProgress(percentComplete);
+        setLoadedBytes(event.loaded);
+        setUploadSpeed(speed);
+
+        lastTime = now;
+        lastLoaded = event.loaded;
       }
     };
 
@@ -87,7 +116,16 @@ export function ImageUploader() {
           <div className="flex flex-col items-center gap-2 w-full">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <p className="font-semibold">Uploading...</p>
-            {uploadProgress !== null && <Progress value={uploadProgress} className="w-full mt-2" />}
+            {uploadProgress !== null && (
+              <div className="w-full mt-2 text-center">
+                <Progress value={uploadProgress} className="w-full h-2" />
+                <div className="text-xs text-muted-foreground mt-2 flex justify-between font-mono">
+                    <span>{Math.round(uploadProgress)}%</span>
+                    <span>{formatBytes(uploadSpeed)}/s</span>
+                    <span>{formatBytes(loadedBytes)} / {formatBytes(totalBytes)}</span>
+                </div>
+              </div>
+            )}
           </div>
         );
       case 'success':
