@@ -13,6 +13,8 @@ import { SubmitButton } from '@/components/submit-button';
 import { Editor } from '@/components/ui/editor';
 import { PlusCircle, Trash2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { cn } from '@/lib/utils';
 
 interface ContentFormProps {
   items: SiteContent[];
@@ -85,6 +87,39 @@ const JsonArrayEditor = ({ item }: { item: SiteContent }) => {
     )
 }
 
+function BooleanSwitch({ item }: { item: SiteContent }) {
+    const [checked, setChecked] = useState(item.value === 'true');
+    const [stringValue, setStringValue] = useState(item.value);
+
+    const handleCheckedChange = (isChecked: boolean) => {
+        setChecked(isChecked);
+        setStringValue(isChecked ? 'true' : 'false');
+    };
+
+    return (
+        <>
+            <input type="hidden" name={item.key} value={stringValue} />
+            <div className="flex items-center space-x-2 rounded-md border p-4">
+                <Switch 
+                    id={item.key} 
+                    checked={checked}
+                    onCheckedChange={handleCheckedChange}
+                />
+                <Label htmlFor={item.key} className="flex-1 cursor-pointer">
+                    {item.key.endsWith('.enabled') ? 'Enable this module' : 'Set to true'}
+                </Label>
+                 <span className={cn(
+                    "text-sm font-semibold",
+                    checked ? "text-primary" : "text-muted-foreground"
+                 )}>
+                    {checked ? 'Enabled' : 'Disabled'}
+                </span>
+            </div>
+        </>
+    );
+}
+
+
 export function ContentForm({ items, onFormSuccess }: ContentFormProps) {
   const [state, formAction] = useActionState(updateContentAction, { error: null, success: false });
   const { toast } = useToast();
@@ -109,6 +144,10 @@ export function ContentForm({ items, onFormSuccess }: ContentFormProps) {
 
     if (jsonArray) {
         return <JsonArrayEditor item={item} />
+    }
+    
+    if (item.value === 'true' || item.value === 'false') {
+        return <BooleanSwitch item={item} />
     }
 
     // This hidden input ensures the value is always submitted, even for the Editor which manages its own state.
