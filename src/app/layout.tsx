@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { getContent } from '@/lib/content';
 import { Suspense } from 'react';
 import NextTopLoader from 'nextjs-toploader';
+import { themeConfig } from '@/lib/theme';
 
 const font = Outfit({
   subsets: ['latin'],
@@ -33,7 +34,6 @@ export default async function RootLayout({
   const headCode = content['settings.code.head'] || '';
   const bodyCode = content['settings.code.body'] || '';
 
-
   const websiteSchema = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
@@ -49,14 +49,46 @@ export default async function RootLayout({
     },
   };
 
+  const themeOverrides: { [key: string]: string | undefined } = {};
+  for (const key in themeConfig) {
+      themeOverrides[key] = content[key];
+  }
+
+  const generateThemeCss = () => {
+    let lightCss = '';
+    let darkCss = '';
+
+    for (const [key, variable] of Object.entries(themeConfig)) {
+      const dbValue = themeOverrides[key];
+      if (dbValue) {
+        if (key.startsWith('theme.light')) {
+          lightCss += `  ${variable}: ${dbValue};\n`;
+        } else if (key.startsWith('theme.dark')) {
+          darkCss += `  ${variable}: ${dbValue};\n`;
+        }
+      }
+    }
+
+    let css = '';
+    if (lightCss) {
+        css += `:root {\n${lightCss}}\n`;
+    }
+    if (darkCss) {
+        css += `.dark {\n${darkCss}}\n`;
+    }
+    return css;
+  };
+
+  const themeCss = generateThemeCss();
+
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <head>
-        <link rel="stylesheet" href="/theme.css" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
+        {themeCss && <style>{themeCss}</style>}
         {headCode && <div dangerouslySetInnerHTML={{ __html: headCode }} />}
       </head>
       <body className={cn("font-body antialiased flex flex-col min-h-screen bg-background", font.variable)}>

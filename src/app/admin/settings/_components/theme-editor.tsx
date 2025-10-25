@@ -16,16 +16,27 @@ interface ThemeEditorProps {
 }
 
 const themeStructure = [
-  { mode: 'light', name: 'Primary', key: 'theme.light.primary' },
-  { mode: 'light', name: 'Secondary', key: 'theme.light.secondary' },
-  { mode: 'light', name: 'Accent', key: 'theme.light.accent' },
-  { mode: 'light', name: 'Background', key: 'theme.light.background' },
-  { mode: 'light', name: 'Foreground', key: 'theme.light.foreground' },
-  { mode: 'dark', name: 'Primary', key: 'theme.dark.primary' },
-  { mode: 'dark', name: 'Secondary', key: 'theme.dark.secondary' },
-  { mode: 'dark', name: 'Accent', key: 'theme.dark.accent' },
-  { mode: 'dark', name: 'Background', key: 'theme.dark.background' },
-  { mode: 'dark', name: 'Foreground', key: 'theme.dark.foreground' },
+    { mode: 'light', name: 'Primary', key: 'theme.light.primary' },
+    { mode: 'light', name: 'Primary Foreground', key: 'theme.light.primary-foreground' },
+    { mode: 'light', name: 'Secondary', key: 'theme.light.secondary' },
+    { mode: 'light', name: 'Accent', key: 'theme.light.accent' },
+    { mode: 'light', name: 'Background', key: 'theme.light.background' },
+    { mode: 'light', name: 'Foreground', key: 'theme.light.foreground' },
+    { mode: 'light', name: 'Card', key: 'theme.light.card' },
+    { mode: 'light', name: 'Border', key: 'theme.light.border' },
+    { mode: 'light', name: 'Input', key: 'theme.light.input' },
+    { mode: 'light', name: 'Ring', key: 'theme.light.ring' },
+
+    { mode: 'dark', name: 'Primary', key: 'theme.dark.primary' },
+    { mode: 'dark', name: 'Primary Foreground', key: 'theme.dark.primary-foreground' },
+    { mode: 'dark', name: 'Secondary', key: 'theme.dark.secondary' },
+    { mode: 'dark', name: 'Accent', key: 'theme.dark.accent' },
+    { mode: 'dark', name: 'Background', key: 'theme.dark.background' },
+    { mode: 'dark', name: 'Foreground', key: 'theme.dark.foreground' },
+    { mode: 'dark', name: 'Card', key: 'theme.dark.card' },
+    { mode: 'dark', name: 'Border', key: 'theme.dark.border' },
+    { mode: 'dark', name: 'Input', key: 'theme.dark.input' },
+    { mode: 'dark', name: 'Ring', key: 'theme.dark.ring' },
 ];
 
 export function ThemeEditor({ themeContent, onFormSuccess }: ThemeEditorProps) {
@@ -48,7 +59,7 @@ export function ThemeEditor({ themeContent, onFormSuccess }: ThemeEditorProps) {
   
   useEffect(() => {
     if (state.success && !successShownRef.current) {
-      toast({ title: 'Success!', description: 'Theme updated successfully.' });
+      toast({ title: 'Success!', description: 'Theme updated successfully. Refresh the page to see changes.' });
       onFormSuccess?.();
       successShownRef.current = true;
     } else if (state.error) {
@@ -75,7 +86,7 @@ export function ThemeEditor({ themeContent, onFormSuccess }: ThemeEditorProps) {
                 name={key}
                 value={formState[key]}
                 onChange={(e) => handleInputChange(key, e.target.value)}
-                placeholder="e.g. 45 93% 58%"
+                placeholder="e.g. 222.2 47.4% 11.2%"
               />
             </div>
           ))}
@@ -90,7 +101,7 @@ export function ThemeEditor({ themeContent, onFormSuccess }: ThemeEditorProps) {
                     name={key}
                     value={formState[key]}
                     onChange={(e) => handleInputChange(key, e.target.value)}
-                    placeholder="e.g. 45 93% 58%"
+                    placeholder="e.g. 210 40% 98%"
                 />
                 </div>
             ))}

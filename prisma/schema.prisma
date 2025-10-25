@@ -1,14 +1,12 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-generator client {
-  provider = "prisma-client-js"
-}
 
 datasource db {
   provider     = "mysql"
   url          = env("DATABASE_URL")
   relationMode = "prisma"
+}
+
+generator client {
+  provider = "prisma-client-js"
 }
 
 
@@ -30,83 +28,103 @@ enum NotificationType {
   COMMENT_APPROVED
   NEW_COMMENT_AWAITING_APPROVAL
 }
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  role          Role      @default(USER)
-  onboarded     Boolean   @default(false)
-  newsletter    Boolean   @default(true)
-  suspended     Boolean   @default(false)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  accounts      Account[]
-  sessions      Session[]
-  posts         Post[]
-  comments      Comment[]
-  bookmarks     Bookmark[]
-  notifications Notification[]
-  emailRecipients EmailRecipient[]
-
-  // Community
-  newsArticles  NewsArticle[]
-  forumTopics   ForumTopic[] @relation("TopicAuthor")
-  forumPosts    ForumPost[] @relation("PostAuthor")
-  uploadedImages  Image[]     @relation("UploadedBy")
-}
-
 model Account {
+  id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?
-  access_token      String?
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?
+  id_token          String? @db.Text
   session_state     String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@id([provider, providerAccountId])
+  @@unique([provider, providerAccountId])
 }
 
 model Session {
-    id            String    @id @default(cuid())
+  id           String   @id @default(cuid())
   sessionToken String   @unique
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
+
+model User {
+  id              String          @id @default(cuid())
+  name            String?
+  email           String?         @unique
+  emailVerified   DateTime?
+  image           String?
+  role            Role            @default(USER)
+  onboarded       Boolean         @default(false)
+  newsletter      Boolean         @default(false)
+  suspended       Boolean         @default(false)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  accounts        Account[]
+  sessions        Session[]
+  posts           Post[]
+  comments        Comment[]
+  bookmarks       Bookmark[]
+  newsArticles    NewsArticle[]   @relation("AuthoredNews")  // ✅ must match
+  notifications   Notification[]
+  forumTopics     ForumTopic[]    @relation("TopicAuthor")
+  forumPosts      ForumPost[]     @relation("PostAuthor")
+  emailRecipients EmailRecipient[]
+  authoredImages  Image[]         @relation("UploadedBy")
+}
+
 
 model VerificationToken {
+  id         String   @id @default(cuid())
   identifier String
-  token      String
+  token      String   @unique
   expires    DateTime
 
-  @@id([identifier, token])
+  @@unique([identifier, token])
 }
+
 
 enum Role {
   USER
+  AUTHOR
+  EDITOR
+  MODERATOR
+  SUPPORT
   ADMIN
 }
 
-model Subscription {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  createdAt DateTime @default(now())
+
+model EmailCampaign {
+  id              String          @id @default(cuid())
+  subject         String
+  content         String          @db.LongText
+  status          CampaignStatus  @default(PENDING)
+  createdAt       DateTime        @default(now())
+  sentAt          DateTime?
+  recipients      EmailRecipient[]
+  excludedUserIds String?         @db.Text
+}
+
+model EmailRecipient {
+  id          String         @id @default(cuid())
+  campaignId  String
+  userId      String
+  status      RecipientStatus @default(PENDING)
+  sentAt      DateTime?
+  errorMessage String?
+  campaign    EmailCampaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, userId])
+  @@index([campaignId])
+  @@index([userId])
 }
 
 model ContactMessage {
@@ -116,34 +134,14 @@ model ContactMessage {
   message   String   @db.Text
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
-model EmailCampaign {
-  id              String           @id @default(cuid())
-  subject         String
-  content         String           @db.Text
-  status          CampaignStatus   @default(PENDING)
-  sentAt          DateTime?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  excludedUserIds String? // Comma-separated list of User IDs
-  recipients      EmailRecipient[]
+model Subscription {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
 }
 
-model EmailRecipient {
-  id           String         @id @default(cuid())
-  campaignId   String
-  campaign     EmailCampaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  userId       String
-  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  status       SendStatus     @default(PENDING)
-  sentAt       DateTime?
-  errorMessage String?
-  createdAt    DateTime       @default(now())
-
-  @@unique([campaignId, userId])
-}
 
 enum CampaignStatus {
   PENDING
@@ -151,7 +149,7 @@ enum CampaignStatus {
   SENT
 }
 
-enum SendStatus {
+enum RecipientStatus {
   PENDING
   SUCCESS
   FAILED
@@ -370,7 +368,8 @@ model NewsArticle {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   authorId  String
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author    User     @relation("AuthoredNews", fields: [authorId], references: [id], onDelete: Cascade)
+
 }
 
 
@@ -437,4 +436,29 @@ model Image {
   createdAt DateTime @default(now())
   authorId  String
   author    User     @relation("UploadedBy", fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+
+model Tool {
+  id                  String       @id @default(cuid())
+  slug                String       @unique
+  title               String
+  description         String       @db.Text
+  Icon                String
+  category            ToolCategory
+  enabled             Boolean      @default(true)
+  prompt              String       @db.LongText
+  inputTopicLabel     String?
+  inputContextLabel   String?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+}
+
+enum ToolCategory {
+  ContentCreation
+  Marketing
+  CurriculumDesign
+  SEO
+  Productivity
+  EngagementInteraction
 }

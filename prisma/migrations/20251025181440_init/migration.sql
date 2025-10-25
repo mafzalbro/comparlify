@@ -13,15 +13,45 @@ CREATE TABLE `Notification` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
+CREATE TABLE `Account` (
+    `id` VARCHAR(191) NOT NULL,
+    `userId` VARCHAR(191) NOT NULL,
+    `type` VARCHAR(191) NOT NULL,
+    `provider` VARCHAR(191) NOT NULL,
+    `providerAccountId` VARCHAR(191) NOT NULL,
+    `refresh_token` TEXT NULL,
+    `access_token` TEXT NULL,
+    `expires_at` INTEGER NULL,
+    `token_type` VARCHAR(191) NULL,
+    `scope` VARCHAR(191) NULL,
+    `id_token` TEXT NULL,
+    `session_state` VARCHAR(191) NULL,
+
+    UNIQUE INDEX `Account_provider_providerAccountId_key`(`provider`, `providerAccountId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Session` (
+    `id` VARCHAR(191) NOT NULL,
+    `sessionToken` VARCHAR(191) NOT NULL,
+    `userId` VARCHAR(191) NOT NULL,
+    `expires` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `Session_sessionToken_key`(`sessionToken`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `User` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NULL,
     `email` VARCHAR(191) NULL,
     `emailVerified` DATETIME(3) NULL,
     `image` VARCHAR(191) NULL,
-    `role` ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
+    `role` ENUM('USER', 'AUTHOR', 'EDITOR', 'MODERATOR', 'SUPPORT', 'ADMIN') NOT NULL DEFAULT 'USER',
     `onboarded` BOOLEAN NOT NULL DEFAULT false,
-    `newsletter` BOOLEAN NOT NULL DEFAULT true,
+    `newsletter` BOOLEAN NOT NULL DEFAULT false,
     `suspended` BOOLEAN NOT NULL DEFAULT false,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
@@ -31,66 +61,14 @@ CREATE TABLE `User` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Account` (
-    `userId` VARCHAR(191) NOT NULL,
-    `type` VARCHAR(191) NOT NULL,
-    `provider` VARCHAR(191) NOT NULL,
-    `providerAccountId` VARCHAR(191) NOT NULL,
-    `refresh_token` VARCHAR(191) NULL,
-    `access_token` VARCHAR(191) NULL,
-    `expires_at` INTEGER NULL,
-    `token_type` VARCHAR(191) NULL,
-    `scope` VARCHAR(191) NULL,
-    `id_token` VARCHAR(191) NULL,
-    `session_state` VARCHAR(191) NULL,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
-
-    PRIMARY KEY (`provider`, `providerAccountId`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `Session` (
-    `id` VARCHAR(191) NOT NULL,
-    `sessionToken` VARCHAR(191) NOT NULL,
-    `userId` VARCHAR(191) NOT NULL,
-    `expires` DATETIME(3) NOT NULL,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
-
-    UNIQUE INDEX `Session_sessionToken_key`(`sessionToken`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
 CREATE TABLE `VerificationToken` (
+    `id` VARCHAR(191) NOT NULL,
     `identifier` VARCHAR(191) NOT NULL,
     `token` VARCHAR(191) NOT NULL,
     `expires` DATETIME(3) NOT NULL,
 
-    PRIMARY KEY (`identifier`, `token`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `Subscription` (
-    `id` VARCHAR(191) NOT NULL,
-    `email` VARCHAR(191) NOT NULL,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-
-    UNIQUE INDEX `Subscription_email_key`(`email`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `ContactMessage` (
-    `id` VARCHAR(191) NOT NULL,
-    `name` VARCHAR(191) NOT NULL,
-    `email` VARCHAR(191) NOT NULL,
-    `message` TEXT NOT NULL,
-    `read` BOOLEAN NOT NULL DEFAULT false,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
-
+    UNIQUE INDEX `VerificationToken_token_key`(`token`),
+    UNIQUE INDEX `VerificationToken_identifier_token_key`(`identifier`, `token`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -98,12 +76,11 @@ CREATE TABLE `ContactMessage` (
 CREATE TABLE `EmailCampaign` (
     `id` VARCHAR(191) NOT NULL,
     `subject` VARCHAR(191) NOT NULL,
-    `content` TEXT NOT NULL,
+    `content` LONGTEXT NOT NULL,
     `status` ENUM('PENDING', 'SENDING', 'SENT') NOT NULL DEFAULT 'PENDING',
-    `sentAt` DATETIME(3) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
-    `excludedUserIds` VARCHAR(191) NULL,
+    `sentAt` DATETIME(3) NULL,
+    `excludedUserIds` TEXT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -116,9 +93,32 @@ CREATE TABLE `EmailRecipient` (
     `status` ENUM('PENDING', 'SUCCESS', 'FAILED') NOT NULL DEFAULT 'PENDING',
     `sentAt` DATETIME(3) NULL,
     `errorMessage` VARCHAR(191) NULL,
+
+    INDEX `EmailRecipient_campaignId_idx`(`campaignId`),
+    INDEX `EmailRecipient_userId_idx`(`userId`),
+    UNIQUE INDEX `EmailRecipient_campaignId_userId_key`(`campaignId`, `userId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `ContactMessage` (
+    `id` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `email` VARCHAR(191) NOT NULL,
+    `message` TEXT NOT NULL,
+    `read` BOOLEAN NOT NULL DEFAULT false,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
-    UNIQUE INDEX `EmailRecipient_campaignId_userId_key`(`campaignId`, `userId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Subscription` (
+    `id` VARCHAR(191) NOT NULL,
+    `email` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    UNIQUE INDEX `Subscription_email_key`(`email`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -368,5 +368,37 @@ CREATE TABLE `ForumPost` (
 
     INDEX `ForumPost_authorId_idx`(`authorId`),
     INDEX `ForumPost_topicId_idx`(`topicId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Image` (
+    `id` VARCHAR(191) NOT NULL,
+    `filename` VARCHAR(191) NOT NULL,
+    `url` VARCHAR(191) NOT NULL,
+    `altText` VARCHAR(191) NULL,
+    `size` INTEGER NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `authorId` VARCHAR(191) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Tool` (
+    `id` VARCHAR(191) NOT NULL,
+    `slug` VARCHAR(191) NOT NULL,
+    `title` VARCHAR(191) NOT NULL,
+    `description` TEXT NOT NULL,
+    `Icon` VARCHAR(191) NOT NULL,
+    `category` ENUM('ContentCreation', 'Marketing', 'CurriculumDesign', 'SEO', 'Productivity', 'EngagementInteraction') NOT NULL,
+    `enabled` BOOLEAN NOT NULL DEFAULT true,
+    `prompt` LONGTEXT NOT NULL,
+    `inputTopicLabel` VARCHAR(191) NULL,
+    `inputContextLabel` VARCHAR(191) NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `Tool_slug_key`(`slug`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
