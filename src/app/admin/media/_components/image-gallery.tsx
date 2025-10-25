@@ -21,10 +21,13 @@ export function ImageGallery({ initialImages }: ImageGalleryProps) {
 }
 
 function GalleryContent() {
-    // This component will be wrapped in context, so it's safe to use here.
-    // We are not using the context directly here but this pattern allows child components
-    // like ImageDetailsDialog and ImageUploader to access and modify the gallery state.
-    const { images, setSelectedImage } = React.useContext(ImageGalleryContext)!;
+    const context = React.useContext(ImageGalleryContext);
+    
+    if (!context) {
+        return null;
+    }
+    
+    const { images, setSelectedImage } = context;
     
     if (images.length === 0) {
         return (

@@ -30,9 +30,22 @@ function slugify(text: string) {
       .replace(/\-\-+/g, '-')
 }
 
+function UsageSkeleton() {
+    return (
+        <div className="space-y-3">
+            <Skeleton className="h-5 w-1/3" />
+            <Skeleton className="h-4 w-full" />
+            <div className="space-y-2 pt-2">
+                <Skeleton className="h-6 w-full" />
+                <Skeleton className="h-6 w-full" />
+            </div>
+        </div>
+    )
+}
+
 function UsageDisplay({ usages, isLoading }: { usages: ImageUsage[], isLoading: boolean }) {
   if (isLoading) {
-    return <Skeleton className="h-24 w-full" />;
+    return <UsageSkeleton />;
   }
 
   if (usages.length === 0) {
