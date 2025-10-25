@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import { writeFile } from 'fs/promises';
+import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import prisma from '@/lib/prisma';
 import { format } from 'date-fns';
@@ -32,11 +32,12 @@ export async function POST(request: Request) {
   const randomString = Math.random().toString(36).substring(2, 8);
   const filename = `${timestamp}_${randomString}.${extension}`;
   
-  // Define path and save file
+  // Define path and ensure the directory exists
   const uploadsDir = join(process.cwd(), 'public', 'uploads');
   const path = join(uploadsDir, filename);
 
   try {
+    await mkdir(uploadsDir, { recursive: true });
     await writeFile(path, buffer);
   } catch (error) {
     console.error('Failed to write file', error);
