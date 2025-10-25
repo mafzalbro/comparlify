@@ -48,6 +48,7 @@ export async function POST(request: Request) {
 
   // Save metadata to database
   try {
+    if(!session.user.id) return NextResponse.json({ error: 'Unauthorized Access' }, { status: 401 });
     const image = await prisma.image.create({
       data: {
         filename: filename,
@@ -55,6 +56,7 @@ export async function POST(request: Request) {
         altText: file.name, // Use original filename as default alt text
         size: file.size,
         authorId: session.user.id,
+
       },
     });
     return NextResponse.json({ success: true, image });

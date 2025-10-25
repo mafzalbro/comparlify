@@ -1,19 +1,19 @@
 
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useContext } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { UploadCloud, Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
-import { useRouter } from 'next/navigation';
+import { ImageGalleryContext } from './image-gallery-context';
 
 export function ImageUploader() {
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [status, setStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
-  const router = useRouter();
+  const context = useContext(ImageGalleryContext);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -27,6 +27,7 @@ export function ImageUploader() {
 
     setStatus('uploading');
     setError(null);
+    setUploadProgress(0);
 
     const formData = new FormData();
     formData.append('file', file);
@@ -43,14 +44,15 @@ export function ImageUploader() {
 
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 300) {
+        const response = JSON.parse(xhr.responseText);
         setStatus('success');
         setUploadProgress(100);
+        context?.addImage(response.image);
         toast({
           title: 'Upload Successful!',
           description: 'Your image has been added to the library.',
         });
-        // Refresh the server component to show the new image
-        router.refresh(); 
+        
         setTimeout(() => {
             setStatus('idle');
             setUploadProgress(null);
@@ -70,7 +72,7 @@ export function ImageUploader() {
     };
 
     xhr.send(formData);
-  }, [toast, router]);
+  }, [toast, context]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -82,7 +84,7 @@ export function ImageUploader() {
     switch (status) {
       case 'uploading':
         return (
-          <div className="flex flex-col items-center gap-2">
+          <div className="flex flex-col items-center gap-2 w-full">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <p className="font-semibold">Uploading...</p>
             {uploadProgress !== null && <Progress value={uploadProgress} className="w-full mt-2" />}

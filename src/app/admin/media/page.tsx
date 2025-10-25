@@ -1,4 +1,5 @@
 
+'use server';
 import prisma from "@/lib/prisma";
 import {
   Card,
@@ -11,8 +12,9 @@ import { ImageUploader } from "./_components/image-uploader";
 import { ImageGallery } from "./_components/image-gallery";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Image } from "@prisma/client";
 
-async function getImages() {
+async function getImages(): Promise<Image[]> {
   return prisma.image.findMany({
     orderBy: {
       createdAt: 'desc',

@@ -5,15 +5,27 @@ import { useState } from 'react';
 import { type Image } from '@prisma/client';
 import { ManagedImage } from '@/components/managed-image';
 import { ImageDetailsDialog } from './image-details-dialog';
+import { ImageGalleryContextProvider } from './image-gallery-context';
 
 interface ImageGalleryProps {
     initialImages: Image[];
 }
 
 export function ImageGallery({ initialImages }: ImageGalleryProps) {
-    const [images] = useState(initialImages);
-    const [selectedImage, setSelectedImage] = useState<Image | null>(null);
 
+    return (
+        <ImageGalleryContextProvider initialImages={initialImages}>
+            <GalleryContent />
+        </ImageGalleryContextProvider>
+    );
+}
+
+function GalleryContent() {
+    // This component will be wrapped in context, so it's safe to use here.
+    // We are not using the context directly here but this pattern allows child components
+    // like ImageDetailsDialog and ImageUploader to access and modify the gallery state.
+    const { images, setSelectedImage } = React.useContext(ImageGalleryContext)!;
+    
     if (images.length === 0) {
         return (
             <div className="text-center text-muted-foreground py-16 border-2 border-dashed rounded-lg">
@@ -44,11 +56,7 @@ export function ImageGallery({ initialImages }: ImageGalleryProps) {
                 ))}
             </div>
             
-            <ImageDetailsDialog
-                image={selectedImage}
-                isOpen={!!selectedImage}
-                onClose={() => setSelectedImage(null)}
-            />
+            <ImageDetailsDialog />
         </>
-    );
+    )
 }
