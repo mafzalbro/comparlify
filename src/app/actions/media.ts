@@ -111,3 +111,44 @@ export async function deleteImageAction(input: z.infer<typeof deleteImageSchema>
     return { error: "Failed to delete image." };
   }
 }
+
+export type ImageUsage = {
+  type: 'Blog Post' | 'News Article' | 'Platform Logo';
+  title: string;
+  url: string;
+}
+
+export async function getImageUsage(imageUrl: string): Promise<ImageUsage[]> {
+  const session = await auth();
+  if (session?.user?.role !== 'ADMIN') {
+    return [];
+  }
+
+  const usages: ImageUsage[] = [];
+
+  const posts = await prisma.post.findMany({
+    where: { image: imageUrl },
+    select: { id: true, title: true }
+  });
+  for (const post of posts) {
+    usages.push({ type: 'Blog Post', title: post.title, url: `/admin/blog/edit/${post.id}` });
+  }
+
+  const newsArticles = await prisma.newsArticle.findMany({
+    where: { image: imageUrl },
+    select: { id: true, title: true }
+  });
+  for (const article of newsArticles) {
+    usages.push({ type: 'News Article', title: article.title, url: `/admin/news/edit/${article.id}` });
+  }
+
+  const platforms = await prisma.platform.findMany({
+    where: { logoUrl: imageUrl },
+    select: { id: true, name: true }
+  });
+  for (const platform of platforms) {
+    usages.push({ type: 'Platform Logo', title: platform.name, url: `/admin/platforms/edit/${platform.id}` });
+  }
+
+  return usages;
+}
