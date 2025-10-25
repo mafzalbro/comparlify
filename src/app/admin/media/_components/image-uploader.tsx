@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useCallback, useContext } from 'react';
+import { useRouter } from 'next/navigation';
 import { useDropzone } from 'react-dropzone';
 import { UploadCloud, Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -26,6 +27,7 @@ export function ImageUploader() {
   const [status, setStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const router = useRouter();
   const context = useContext(ImageGalleryContext);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
@@ -73,10 +75,12 @@ export function ImageUploader() {
 
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 300) {
-        const response = JSON.parse(xhr.responseText);
         setStatus('success');
         setUploadProgress(100);
-        context?.addImage(response.image);
+        
+        // Refresh the page to show the new image list from the server
+        router.refresh();
+        
         toast({
           title: 'Upload Successful!',
           description: 'Your image has been added to the library.',
@@ -101,7 +105,7 @@ export function ImageUploader() {
     };
 
     xhr.send(formData);
-  }, [toast, context]);
+  }, [toast, context, router]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
