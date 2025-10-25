@@ -1,4 +1,3 @@
-
 // lib/auth.ts
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
@@ -24,20 +23,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       allowDangerousEmailAccountLinking: true,
     }),
     Credentials({
-        name: "Direct Login",
-        credentials: {
-          userId: { label: "User ID", type: "text" },
-        },
         async authorize(credentials) {
-            if (process.env.NODE_ENV === 'development' && credentials.userId === 'direct-login') {
-                const adminUser = await prisma.user.findUnique({
-                    where: { email: 'mafzalbro@gmail.com' }
+            if (process.env.NODE_ENV !== 'development') return null;
+
+            if (credentials.userId) {
+                const user = await prisma.user.findUnique({
+                    where: { id: credentials.userId as string },
                 });
-                if (adminUser) {
-                  if (adminUser.suspended) {
-                      throw new Error("This account is currently suspended.");
-                  }
-                  return adminUser;
+                if (user) {
+                    if (user.suspended) {
+                        throw new Error("This account is currently suspended.");
+                    }
+                    return user;
                 }
             }
             return null;
