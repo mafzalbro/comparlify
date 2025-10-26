@@ -21,16 +21,17 @@ export function LegalDocumentForm({ document }: LegalDocumentFormProps) {
     const router = useRouter();
     const isEditing = !!document;
     
-    // Extract the slug from the key for editing
     const initialSlug = isEditing ? document.key.replace('legal.', '') : '';
-    const initialTitle = initialSlug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     
-    const [title, setTitle] = useState(initialTitle);
-    const [slug, setSlug] = useState(initialSlug);
     const [content, setContent] = useState(document?.value ?? '');
+    const [slug, setSlug] = useState(initialSlug);
 
     const formAction = isEditing ? updateLegalDocumentAction.bind(null, document.id) : createLegalDocumentAction;
     const [state, action] = useActionState(formAction, { error: null });
+    
+    const [title, setTitle] = useState(
+      initialSlug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+    );
 
     return (
         <form action={action}>

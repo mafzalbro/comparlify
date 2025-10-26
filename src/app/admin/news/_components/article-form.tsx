@@ -23,11 +23,11 @@ interface ArticleFormProps {
 
 export function ArticleForm({ article, images }: ArticleFormProps) {
     const router = useRouter();
-    const [title, setTitle] = useState(article?.title ?? '');
-    const [slug, setSlug] = useState(article?.slug ?? '');
     const [content, setContent] = useState(article?.content ?? '');
     const [image, setImage] = useState(article?.image ?? '');
     const [dataAiHint, setDataAiHint] = useState(article?.dataAiHint ?? '');
+    const [title, setTitle] = useState(article?.title ?? '');
+    const [slug, setSlug] = useState(article?.slug ?? '');
 
     const isEditing = !!article;
     const formAction = isEditing ? updateNewsArticle.bind(null, article.id) : createNewsArticle;

@@ -155,18 +155,18 @@ export function ComparisonForm({ comparison, platforms, categories }: Comparison
             <CardContent className="space-y-4">
               {facts.map((fact, index) => (
                 <div key={index} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 items-end p-3 border rounded-md">
-                  <input type="hidden" name={`facts[${index}][id]`} value={fact.id ?? ''} />
+                  <input type="hidden" name={`facts[${index}][id]`} defaultValue={fact.id ?? ''} />
                   <div className="space-y-1">
                     <Label htmlFor={`fact-title-${index}`} className="text-xs">Title</Label>
-                    <Input id={`fact-title-${index}`} name={`facts[${index}][title]`} value={fact.title ?? ''} onChange={(e) => handleFactChange(index, 'title', e.target.value)} placeholder="e.g., Best For" />
+                    <Input id={`fact-title-${index}`} name={`facts[${index}][title]`} defaultValue={fact.title ?? ''} placeholder="e.g., Best For" />
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor={`fact-valA-${index}`} className="text-xs">Platform A Value</Label>
-                    <Input id={`fact-valA-${index}`} name={`facts[${index}][platformAValue]`} value={fact.platformAValue ?? ''} onChange={(e) => handleFactChange(index, 'platformAValue', e.target.value)} placeholder="e.g., Beginners" />
+                    <Input id={`fact-valA-${index}`} name={`facts[${index}][platformAValue]`} defaultValue={fact.platformAValue ?? ''} placeholder="e.g., Beginners" />
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor={`fact-valB-${index}`} className="text-xs">Platform B Value</Label>
-                    <Input id={`fact-valB-${index}`} name={`facts[${index}][platformBValue]`} value={fact.platformBValue ?? ''} onChange={(e) => handleFactChange(index, 'platformBValue', e.target.value)} placeholder="e.g., Experts" />
+                    <Input id={`fact-valB-${index}`} name={`facts[${index}][platformBValue]`} defaultValue={fact.platformBValue ?? ''} placeholder="e.g., Experts" />
                   </div>
                   <Button type="button" variant="ghost" size="icon" className="text-destructive" onClick={() => removeFact(index)}>
                     <Trash2 className="h-4 w-4" />
@@ -187,17 +187,17 @@ export function ComparisonForm({ comparison, platforms, categories }: Comparison
             <CardContent className="space-y-4">
               {faqs.map((faq, index) => (
                 <div key={index} className="space-y-2 p-3 border rounded-md relative">
-                  <input type="hidden" name={`faqs[${index}][id]`} value={faq.id ?? ''} />
+                  <input type="hidden" name={`faqs[${index}][id]`} defaultValue={faq.id ?? ''} />
                   <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 text-destructive h-7 w-7" onClick={() => removeFaq(index)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                   <div className="space-y-1">
                     <Label htmlFor={`faq-q-${index}`}>Question</Label>
-                    <Input id={`faq-q-${index}`} name={`faqs[${index}][question]`} value={faq.question ?? ''} onChange={(e) => handleFaqChange(index, 'question', e.target.value)} />
+                    <Input id={`faq-q-${index}`} name={`faqs[${index}][question]`} defaultValue={faq.question ?? ''} />
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor={`faq-a-${index}`}>Answer</Label>
-                    <Textarea id={`faq-a-${index}`} name={`faqs[${index}][answer]`} value={faq.answer ?? ''} onChange={(e) => handleFaqChange(index, 'answer', e.target.value)} rows={3} />
+                    <Textarea id={`faq-a-${index}`} name={`faqs[${index}][answer]`} defaultValue={faq.answer ?? ''} rows={3} />
                   </div>
                 </div>
               ))}

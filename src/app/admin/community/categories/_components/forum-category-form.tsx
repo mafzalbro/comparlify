@@ -25,8 +25,6 @@ export function ForumCategoryForm({ category }: ForumCategoryFormProps) {
 
   const [name, setName] = useState(category?.name ?? '');
   const [slug, setSlug] = useState(category?.slug ?? '');
-  const [description, setDescription] = useState(category?.description ?? '');
-
 
   return (
     <form action={action}>
@@ -54,7 +52,7 @@ export function ForumCategoryForm({ category }: ForumCategoryFormProps) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
-            <Textarea id="description" name="description" value={description} onChange={e => setDescription(e.target.value)} required />
+            <Textarea id="description" name="description" defaultValue={category?.description ?? ''} required />
              {typeof state.error !== 'string' && state?.error?.description && <p className="text-destructive text-sm">{state.error.description[0]}</p>}
           </div>
         </CardContent>

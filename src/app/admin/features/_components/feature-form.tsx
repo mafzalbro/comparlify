@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState } from 'react';
 import { createFeature, updateFeature } from '@/app/actions/features';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,7 +22,6 @@ export function FeatureForm({ feature, categories }: FeatureFormProps) {
   const isEditing = !!feature;
   const formAction = isEditing ? updateFeature.bind(null, feature.id) : createFeature;
   const [state, action] = useActionState(formAction, { error: null });
-  const [name, setName] = useState(feature?.name ?? '');
 
   return (
     <form action={action}>
@@ -33,7 +32,7 @@ export function FeatureForm({ feature, categories }: FeatureFormProps) {
         <CardContent className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="name">Feature Name</Label>
-            <Input id="name" name="name" value={name} onChange={e => setName(e.target.value)} required />
+            <Input id="name" name="name" defaultValue={feature?.name ?? ''} required />
             {typeof state.error !== 'string' && state?.error?.name && <p className="text-destructive text-sm">{state.error.name[0]}</p>}
           </div>
           <div className="space-y-2">

@@ -37,13 +37,7 @@ export function PlatformForm({ platform, features, featureCategories, images }: 
   const [state, action] = useActionState(formAction, { error: null });
 
   const [name, setName] = useState(platform?.name ?? '');
-  const [website, setWebsite] = useState(platform?.website ?? '');
   const [logoUrl, setLogoUrl] = useState(platform?.logoUrl ?? '');
-  const [description, setDescription] = useState(platform?.description ?? '');
-  const [rating, setRating] = useState(platform?.rating?.toString() ?? '');
-  const [easeOfUse, setEaseOfUse] = useState(platform?.easeOfUse?.toString() ?? '');
-  const [featuresRating, setFeaturesRating] = useState(platform?.featuresRating?.toString() ?? '');
-  const [support, setSupport] = useState(platform?.support?.toString() ?? '');
   
   const platformFeatureMap = new Map(platform?.features.map(pf => [pf.featureId, pf]));
   
@@ -83,12 +77,12 @@ export function PlatformForm({ platform, features, featureCategories, images }: 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <Label htmlFor="name">Name</Label>
-                            <Input id="name" name="name" value={name} onChange={e => setName(e.target.value)} required />
+                            <Input id="name" name="name" defaultValue={platform?.name} onChange={e => setName(e.target.value)} required />
                             {typeof state.error !== 'string' && state?.error?.name && <p className="text-destructive text-sm">{state.error.name[0]}</p>}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="website">Website URL</Label>
-                            <Input id="website" name="website" value={website} onChange={e => setWebsite(e.target.value)} required />
+                            <Input id="website" name="website" defaultValue={platform?.website} required />
                             {typeof state.error !== 'string' && state?.error?.website && <p className="text-destructive text-sm">{state.error.website[0]}</p>}
                         </div>
                     </div>
@@ -111,10 +105,13 @@ export function PlatformForm({ platform, features, featureCategories, images }: 
                             <AiFillButton
                                 fieldType="Platform Description"
                                 topic={name}
-                                onContentReceived={setDescription}
+                                onContentReceived={(desc) => {
+                                    const textarea = document.getElementById('description') as HTMLTextAreaElement;
+                                    if(textarea) textarea.value = desc;
+                                }}
                             />
                         </div>
-                        <Textarea id="description" name="description" value={description} onChange={e => setDescription(e.target.value)} rows={5} required />
+                        <Textarea id="description" name="description" defaultValue={platform?.description} rows={5} required />
                         {typeof state.error !== 'string' && state?.error?.description && <p className="text-destructive text-sm">{state.error.description[0]}</p>}
                     </div>
                 </CardContent>
@@ -128,19 +125,19 @@ export function PlatformForm({ platform, features, featureCategories, images }: 
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="rating">Overall Rating (0-5)</Label>
-                        <Input id="rating" name="rating" type="number" step="0.1" min="0" max="5" value={rating} onChange={e => setRating(e.target.value)} placeholder="e.g. 4.5" />
+                        <Input id="rating" name="rating" type="number" step="0.1" min="0" max="5" defaultValue={platform?.rating?.toString()} placeholder="e.g. 4.5" />
                     </div>
                      <div className="space-y-2">
                         <Label htmlFor="easeOfUse">Ease of Use (0-5)</Label>
-                        <Input id="easeOfUse" name="easeOfUse" type="number" step="0.1" min="0" max="5" value={easeOfUse} onChange={e => setEaseOfUse(e.target.value)} placeholder="e.g. 4.8" />
+                        <Input id="easeOfUse" name="easeOfUse" type="number" step="0.1" min="0" max="5" defaultValue={platform?.easeOfUse?.toString()} placeholder="e.g. 4.8" />
                     </div>
                      <div className="space-y-2">
                         <Label htmlFor="featuresRating">Features Rating (0-5)</Label>
-                        <Input id="featuresRating" name="featuresRating" type="number" step="0.1" min="0" max="5" value={featuresRating} onChange={e => setFeaturesRating(e.target.value)} placeholder="e.g. 4.2" />
+                        <Input id="featuresRating" name="featuresRating" type="number" step="0.1" min="0" max="5" defaultValue={platform?.featuresRating?.toString()} placeholder="e.g. 4.2" />
                     </div>
                      <div className="space-y-2">
                         <Label htmlFor="support">Support Rating (0-5)</Label>
-                        <Input id="support" name="support" type="number" step="0.1" min="0" max="5" value={support} onChange={e => setSupport(e.target.value)} placeholder="e.g. 5.0" />
+                        <Input id="support" name="support" type="number" step="0.1" min="0" max="5" defaultValue={platform?.support?.toString()} placeholder="e.g. 5.0" />
                     </div>
                 </CardContent>
             </Card>
@@ -184,7 +181,7 @@ export function PlatformForm({ platform, features, featureCategories, images }: 
                                                 <Input 
                                                     id={`feature-details-${feature.id}`}
                                                     name={`features[${feature.id}].details`}
-                                                    value={featureDetails[feature.id] || ''}
+                                                    defaultValue={featureDetails[feature.id] || ''}
                                                     onChange={(e) => setFeatureDetails({...featureDetails, [feature.id]: e.target.value})}
                                                     placeholder="e.g., Basic quiz functionality"
                                                 />

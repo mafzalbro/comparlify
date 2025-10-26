@@ -29,12 +29,13 @@ interface PostFormProps {
 export function PostForm({ post, categories, images }: PostFormProps) {
     const router = useRouter();
     const formRef = useRef<HTMLFormElement>(null);
-    const [title, setTitle] = useState(post?.title ?? '');
-    const [slug, setSlug] = useState(post?.slug ?? '');
-    const [description, setDescription] = useState(post?.description ?? '');
     const [content, setContent] = useState(post?.content ?? '');
     const [image, setImage] = useState(post?.image ?? '');
     const [dataAiHint, setDataAiHint] = useState(post?.dataAiHint ?? '');
+    const [title, setTitle] = useState(post?.title ?? '');
+    const [slug, setSlug] = useState(post?.slug ?? '');
+    const [description, setDescription] = useState(post?.description ?? '');
+
 
     const isEditing = !!post;
     const formAction = isEditing ? updatePost.bind(null, post.id) : createPost;
@@ -55,9 +56,7 @@ export function PostForm({ post, categories, images }: PostFormProps) {
                                 <AiFillButton
                                     fieldType="Blog Post Title"
                                     topic={description || title}
-                                    onContentReceived={(content) => {
-                                        setTitle(content);
-                                    }}
+                                    onContentReceived={setTitle}
                                 />
                             </div>
                             <Input id="title" name="title" maxLength={MAX_TITLE_LENGTH} value={title} onChange={(e) => setTitle(e.target.value)} required />
@@ -69,13 +68,11 @@ export function PostForm({ post, categories, images }: PostFormProps) {
                                 <AiFillButton
                                     fieldType="URL Slug"
                                     topic={title}
-                                    onContentReceived={(content) => {
-                                        setSlug(content);
-                                    }}
+                                    onContentReceived={setSlug}
                                     disabled={isEditing}
                                 />
                             </div>
-                            <Input id="slug" name="slug" value={slug} defaultValue={slug} onChange={(e) => setSlug(e.target.value)} required disabled={isEditing} />
+                            <Input id="slug" name="slug" value={slug} onChange={(e) => setSlug(e.target.value)} required disabled={isEditing} />
 
                             {isEditing && <Input id="slug" name="slug" value={slug} required type="hidden" />}
                             {isEditing && <p className="text-xs text-muted-foreground">The slug cannot be changed for existing posts to preserve URL integrity.</p>}
@@ -88,9 +85,7 @@ export function PostForm({ post, categories, images }: PostFormProps) {
                                     fieldType="Blog Post Description"
                                     topic={title}
                                     context={description}
-                                    onContentReceived={(content) => {
-                                        setDescription(content);
-                                    }}
+                                    onContentReceived={setDescription}
                                 />
                             </div>
                             <Textarea id="description" name="description" value={description} onChange={e => setDescription(e.target.value)} rows={4} required maxLength={MAX_DESC_LENGTH} />
