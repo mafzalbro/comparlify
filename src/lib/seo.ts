@@ -8,7 +8,11 @@ const fallbackConfig = {
     keywords: 'online course platform, course creation, e-learning, ai tools for creators, teachable vs thinkific, course marketing',
     twitter: '@comparlify',
     url: 'https://comparlify.com',
-    image: 'https://comparlify.com/og-image.png'
+    image: 'https://comparlify.com/og-image.png',
+    ogImage: 'https://comparlify.com/og-image.png',
+    twitterImage: 'https://comparlify.com/twitter-image.png',
+    orgName: 'Comparlify',
+    orgLogo: 'https://comparlify.com/logo.png',
 };
 
 type GenerateMetadataProps = {
@@ -36,7 +40,10 @@ export async function generateSeoMetadata({
         keywords: content['seo.default.keywords'] || fallbackConfig.keywords,
         twitter: content['seo.default.twitter'] || fallbackConfig.twitter,
         url: content['seo.default.url'] || fallbackConfig.url,
-        image: content['seo.default.image'] || fallbackConfig.image,
+        ogImage: content['seo.og.image'] || fallbackConfig.ogImage,
+        twitterImage: content['seo.twitter.image'] || fallbackConfig.twitterImage,
+        orgName: content['seo.org.name'] || fallbackConfig.orgName,
+        orgLogo: content['seo.org.logo'] || fallbackConfig.orgLogo,
     };
     
     const pageTitle = title ? `${title} | ${siteName}` : `${defaultConfig.title} - Helping Course Creators Grow`;
@@ -46,8 +53,17 @@ export async function generateSeoMetadata({
         ? [...defaultConfig.keywords.split(',').map(k => k.trim()), ...keywords] 
         : [defaultConfig.keywords, keywords].filter(Boolean).join(', ');
 
-    const ogImage = image || defaultConfig.image;
+    const ogImage = image || defaultConfig.ogImage;
+    const twitterImage = image || defaultConfig.twitterImage;
     const canonicalUrl = `${defaultConfig.url}${path}`;
+
+    const organizationSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: defaultConfig.orgName,
+        url: defaultConfig.url,
+        logo: defaultConfig.orgLogo,
+    };
 
     return {
         title: pageTitle,
@@ -56,7 +72,6 @@ export async function generateSeoMetadata({
         authors: [{ name: `${siteName} Team`, url: defaultConfig.url }],
         creator: siteName,
         publisher: siteName,
-
         openGraph: {
             title: pageTitle,
             description: pageDescription,
@@ -79,7 +94,7 @@ export async function generateSeoMetadata({
             description: pageDescription,
             site: defaultConfig.twitter,
             creator: defaultConfig.twitter,
-            images: [ogImage],
+            images: [twitterImage],
         },
         metadataBase: new URL(defaultConfig.url),
         alternates: {
@@ -96,5 +111,8 @@ export async function generateSeoMetadata({
                 'max-snippet': -1,
             },
         },
+        other: {
+            'script:ld+json': JSON.stringify(organizationSchema)
+        }
     };
 }

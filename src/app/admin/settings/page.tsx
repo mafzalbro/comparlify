@@ -3,11 +3,11 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { revalidateCacheAction } from '@/app/actions/admin';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Trash2, Globe, BookOpen, GitCompareArrows, Code, Database, Search, Palette } from 'lucide-react';
+import { Loader2, Trash2, Globe, BookOpen, GitCompareArrows, Code, Database, Search, Palette, Building } from 'lucide-react';
 import {
     Tabs,
     TabsContent,
@@ -109,16 +109,27 @@ export default function AdminSettingsPage() {
                         </CardContent>
                     </Card>
                 </TabsContent>
-                <TabsContent value="seo">
+                <TabsContent value="seo" className="space-y-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2"><Search /> SEO Settings</CardTitle>
+                            <CardTitle className="flex items-center gap-2"><Search /> Default Metadata</CardTitle>
                             <CardDescription>
                                 Configure default metadata for search engine optimization. These can be overridden on individual pages.
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
                            {renderFormOrSkeleton('SEO Settings')}
+                        </CardContent>
+                    </Card>
+                     <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2"><Building /> Organization Schema</CardTitle>
+                            <CardDescription>
+                                Configure structured data for your organization to improve how search engines understand your brand.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                           {renderFormOrSkeleton('Organization Settings')}
                         </CardContent>
                     </Card>
                 </TabsContent>

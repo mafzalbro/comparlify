@@ -20,7 +20,6 @@ const font = Outfit({
 
 export const metadata: Metadata = await generateSeoMetadata({
   path: '/',
-  description: 'Compare course creation platforms and find the best fit for your business.',
 });
 
 export default async function RootLayout({

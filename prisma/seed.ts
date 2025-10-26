@@ -321,7 +321,12 @@ async function main(skipCleanup = false) {
     { key: 'seo.default.keywords', group: 'SEO Settings', type: 'TEXTAREA', value: 'online course platform, course creation, e-learning, ai tools for creators, teachable vs thinkific, course marketing' },
     { key: 'seo.default.twitter', group: 'SEO Settings', value: '@comparlify' },
     { key: 'seo.default.url', group: 'SEO Settings', value: 'https://comparlify.com' },
-    { key: 'seo.default.image', group: 'SEO Settings', value: 'https://comparlify.com/og-image.png' },
+    { key: 'seo.og.image', group: 'SEO Settings', value: 'https://comparlify.com/og-image.png' },
+    { key: 'seo.twitter.image', group: 'SEO Settings', value: 'https://comparlify.com/twitter-image.png' },
+
+    // Organization Settings
+    { key: 'seo.org.name', group: 'Organization Settings', value: 'Comparlify' },
+    { key: 'seo.org.logo', group: 'Organization Settings', value: 'https://comparlify.com/logo.png' },
 
     // Theme Settings: Light Mode
     { key: 'theme.light.background', group: 'Theme', value: '48 100% 98%' },
