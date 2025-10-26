@@ -3,9 +3,8 @@
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
-import prisma from "@/lib/prisma";
 // --- Cache Management Action ---
-export async function revalidateCacheAction(path: "all" | "blog" | "compare") {
+export async function revalidateCacheAction(path: "all" | "blog" | "compare" | "news" | "community" | "tools") {
   const session = await auth();
   if (session?.user?.role !== "ADMIN") {
     return { error: "Not authorized" };
