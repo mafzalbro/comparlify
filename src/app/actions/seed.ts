@@ -1,7 +1,7 @@
 
 "use server";
 
-import { seed as performSeed, cleanupDatabase as performCleanup } from "@/prisma/seed";
+import { seed as performSeed, cleanupDatabase as performCleanup } from "@/../prisma/seed";
 import { auth } from "@/lib/auth";
 
 export async function seedDatabaseAction(): Promise<{ success?: string; error?: string }> {
