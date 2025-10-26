@@ -1,7 +1,11 @@
 
+
 "use server";
 import prisma from "@/lib/prisma";
 import { Prisma, Role, ToolCategory } from "@prisma/client";
+import { promises as fs } from 'fs';
+import path from 'path';
+
 
 export async function cleanupDatabase() {
     console.log("🧹 Starting database cleanup...");
@@ -10,7 +14,7 @@ export async function cleanupDatabase() {
       (key) =>
         !key.startsWith("_") &&
         !key.endsWith("Delegate") &&
-        typeof (prisma as any)[key].deleteMany === "function"
+        typeof (prisma as any)[key].deleteMany === 'function'
     );
 
     // Break circular dependencies first
@@ -599,6 +603,44 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
     ]
   });
   console.log(`   ✓ Seeded 2 forum posts.`);
+
+  // --- 15. Seed Images from /public/uploads ---
+  console.log("\n🖼️ Seeding existing images from public/uploads...");
+  const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+  try {
+    const files = await fs.readdir(uploadsDir);
+    const imageFiles = files.filter(file => /\.(jpe?g|png|gif|webp|svg)$/i.test(file));
+    let newImagesCount = 0;
+
+    for (const filename of imageFiles) {
+        const existingImage = await prisma.image.findFirst({
+            where: { filename }
+        });
+
+        if (!existingImage) {
+            const filePath = path.join(uploadsDir, filename);
+            const stats = await fs.stat(filePath);
+
+            await prisma.image.create({
+                data: {
+                    filename,
+                    url: `/uploads/${filename}`,
+                    altText: filename.split('.').slice(0, -1).join('.').replace(/[-_]/g, ' '),
+                    size: stats.size,
+                    authorId: adminUser.id
+                }
+            });
+            newImagesCount++;
+        }
+    }
+    console.log(`   ✓ Found ${imageFiles.length} images, added ${newImagesCount} new records to the database.`);
+  } catch (error: any) {
+      if (error.code === 'ENOENT') {
+          console.log("   - public/uploads directory not found, skipping image seeding.");
+      } else {
+          console.error("   - Error seeding images from public/uploads:", error);
+      }
+  }
 
   console.log("\n🎉 Seeding finished successfully!");
 }
