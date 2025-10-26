@@ -5,8 +5,7 @@ import { generateSeoMetadata } from '@/lib/seo';
 import { ToolsClientPage } from './_components/tools-client-page';
 import { getContent } from '@/lib/content';
 import prisma from '@/lib/prisma';
-import type { Tool } from './tools';
-import { iconMap } from './tools';
+import { type Tool } from '@prisma/client';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -22,11 +21,9 @@ async function getTools(): Promise<Tool[]> {
     orderBy: [{ category: 'asc' }, { title: 'asc' }]
   });
 
-  return dbTools.map(tool => ({
-    ...tool,
-    href: `/tools/${tool.slug}`,
-    Icon: iconMap[tool.Icon] || iconMap.Wand2, // Fallback icon
-  }));
+  // We only pass serializable data to the client component.
+  // The icon component will be looked up on the client side.
+  return dbTools;
 }
 
 export default async function ToolsPage() {

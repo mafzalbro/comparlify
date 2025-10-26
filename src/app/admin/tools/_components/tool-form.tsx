@@ -39,7 +39,7 @@ export function ToolForm({ tool }: ToolFormProps) {
         <CardContent className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="title">Tool Title</Label>
-            <Input id="title" name="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
+            <Input id="title" name="title" defaultValue={tool?.title ?? ''} onChange={(e) => setTitle(e.target.value)} required />
             {typeof state.error !== 'string' && state?.error?.title && <p className="text-destructive text-sm">{state.error.title[0]}</p>}
           </div>
           <div className="space-y-2">

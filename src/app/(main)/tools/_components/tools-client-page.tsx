@@ -9,6 +9,7 @@ import { Search as SearchIcon, Wand2 } from 'lucide-react';
 import { type Tool, categories, type ToolCategory } from '../tools';
 import { AIGenericForm } from '@/components/ai-generic-form';
 import { Card } from '@/components/ui/card';
+import { iconMap } from '../tools';
 
 export function ToolsClientPage({ allTools }: { allTools: Tool[] }) {
     const router = useRouter();
@@ -105,7 +106,7 @@ export function ToolsClientPage({ allTools }: { allTools: Tool[] }) {
                                         <>
                                             <div className="flex items-start gap-4 mb-8">
                                                 <div className="p-3 bg-primary/20 rounded-lg">
-                                                    <activeTool.Icon className="h-8 w-8 text-primary" />
+                                                    {React.createElement(iconMap[activeTool.Icon] || Wand2, { className: "h-8 w-8 text-primary" })}
                                                 </div>
                                                 <div>
                                                     <h2 className="font-headline text-3xl md:text-4xl font-bold text-foreground">{activeTool.title}</h2>
