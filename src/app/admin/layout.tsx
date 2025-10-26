@@ -13,7 +13,6 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { AdminNav } from "./_components/admin-nav";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 import { NotificationBell } from "@/components/layout/notification-bell";
 import { getNotifications } from "../actions/notifications";
 import { Logo } from "@/components/logo";
@@ -33,8 +32,6 @@ export default async function AdminLayout({
         redirect('/');
     }
 
-    const pathname = headers().get('x-next-pathname') || '/admin';
-
     return (
         <SidebarProvider>
             <Sidebar>
@@ -42,7 +39,7 @@ export default async function AdminLayout({
                         <Logo siteName={siteName} className="justify-start pl-2"/>
                 </SidebarHeader>
                 <SidebarContent>
-                    <AdminNav userRole={session.user.role} pathname={pathname} />
+                    <AdminNav userRole={session.user.role} />
                 </SidebarContent>
                 <SidebarFooter>
                     {session?.user && (

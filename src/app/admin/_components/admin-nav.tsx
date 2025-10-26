@@ -1,4 +1,6 @@
 
+'use client';
+
 import Link from "next/link";
 import {
     SidebarMenu,
@@ -9,14 +11,16 @@ import {
 } from "@/components/ui/sidebar";
 import { type Role } from "@prisma/client";
 import { navConfig } from "@/lib/admin-nav";
+import { usePathname } from "next/navigation";
 
 
 interface AdminNavProps {
     userRole: Role;
-    pathname: string;
 }
 
-export function AdminNav({ userRole, pathname }: AdminNavProps) {
+export function AdminNav({ userRole }: AdminNavProps) {
+    const pathname = usePathname();
+
     if (!userRole) {
         return null;
     }
