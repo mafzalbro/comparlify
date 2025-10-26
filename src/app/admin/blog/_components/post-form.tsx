@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { type Post, type PostCategory } from '@prisma/client';
+import { type Post, type PostCategory, type Image as PrismaImage } from '@prisma/client';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { useRouter } from 'next/navigation';
@@ -18,13 +18,15 @@ import { Eye } from 'lucide-react';
 import { AiImageButton } from './ai-image-button';
 import { Editor } from '@/components/ui/editor';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ImagePickerInput } from '../../_components/image-picker-input';
 
 interface PostFormProps {
     post?: Post | null;
     categories: PostCategory[];
+    images: PrismaImage[];
 }
 
-export function PostForm({ post, categories }: PostFormProps) {
+export function PostForm({ post, categories, images }: PostFormProps) {
     const router = useRouter();
     const formRef = useRef<HTMLFormElement>(null);
     const [title, setTitle] = useState(post?.title ?? '');
@@ -126,11 +128,12 @@ export function PostForm({ post, categories }: PostFormProps) {
                             </Select>
                             {typeof state.error !== 'string' && state?.error?.categoryId && <p className="text-destructive text-sm">{state.error.categoryId[0]}</p>}
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="image">Image URL</Label>
-                            <Input id="image" name="image" value={image} onChange={e => setImage(e.target.value)} required />
-                            {typeof state.error !== 'string' && state.error?.image && <p className="text-destructive text-sm">{state.error.image[0]}</p>}
-                        </div>
+                         <ImagePickerInput 
+                            label="Image URL"
+                            value={image}
+                            onValueChange={setImage}
+                            images={images}
+                        />
                         <div className="space-y-2">
                             <Label htmlFor="dataAiHint">AI Prompt for Image</Label>
                             <Input id="dataAiHint" name="dataAiHint" value={dataAiHint} onChange={e => setDataAiHint(e.target.value)} placeholder="e.g. 'creative workspace'" />
@@ -141,14 +144,6 @@ export function PostForm({ post, categories }: PostFormProps) {
                                 }}
                             />
                         </div>
-                        {image && (
-                            <div className="space-y-2">
-                                <Label>Image Preview</Label>
-                                <div className="aspect-video relative rounded-md overflow-hidden border">
-                                    <img src={image} alt="Preview" className="object-cover w-full h-full" />
-                                </div>
-                            </div>
-                        )}
                         <div className="flex items-center space-x-2">
                             <Switch id="published" name="published" defaultChecked={post?.published ?? false} />
                             <Label htmlFor="published">Published</Label>

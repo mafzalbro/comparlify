@@ -6,7 +6,7 @@ import { createNewsArticle, updateNewsArticle } from '@/app/actions/news';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { type NewsArticle } from '@prisma/client';
+import { type NewsArticle, type Image as PrismaImage } from '@prisma/client';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { useRouter } from 'next/navigation';
@@ -14,12 +14,14 @@ import { SubmitButton } from '@/components/submit-button';
 import { AiFillButton } from '../../blog/_components/ai-fill-button';
 import { AiImageButton } from '../../blog/_components/ai-image-button';
 import { Editor } from '@/components/ui/editor';
+import { ImagePickerInput } from '../../_components/image-picker-input';
 
 interface ArticleFormProps {
     article?: NewsArticle | null;
+    images: PrismaImage[];
 }
 
-export function ArticleForm({ article }: ArticleFormProps) {
+export function ArticleForm({ article, images }: ArticleFormProps) {
     const router = useRouter();
     const [title, setTitle] = useState(article?.title ?? '');
     const [slug, setSlug] = useState(article?.slug ?? '');
@@ -34,6 +36,7 @@ export function ArticleForm({ article }: ArticleFormProps) {
     return (
         <form action={action}>
             <input type="hidden" name="content" value={content} />
+            <input type="hidden" name="image" value={image} />
             <Card>
                 <CardContent className="p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div className="md:col-span-2 space-y-6">
@@ -81,11 +84,12 @@ export function ArticleForm({ article }: ArticleFormProps) {
                         </div>
                     </div>
                     <div className="space-y-6">
-                        <div className="space-y-2">
-                            <Label htmlFor="image">Image URL</Label>
-                            <Input id="image" name="image" value={image} onChange={e => setImage(e.target.value)} required />
-                            {typeof state.error !== 'string' && state.error?.image && <p className="text-destructive text-sm">{state.error.image[0]}</p>}
-                        </div>
+                        <ImagePickerInput 
+                            label="Image URL"
+                            value={image}
+                            onValueChange={setImage}
+                            images={images}
+                        />
                         <div className="space-y-2">
                             <Label htmlFor="dataAiHint">AI Prompt for Image</Label>
                             <Input id="dataAiHint" name="dataAiHint" value={dataAiHint} onChange={e => setDataAiHint(e.target.value)} placeholder="e.g., 'technology announcement'" />
@@ -94,14 +98,6 @@ export function ArticleForm({ article }: ArticleFormProps) {
                                 onImageReceived={setImage}
                             />
                         </div>
-                        {image && (
-                            <div className="space-y-2">
-                                <Label>Image Preview</Label>
-                                <div className="aspect-video relative rounded-md overflow-hidden border">
-                                    <img src={image} alt="Preview" className="object-cover w-full h-full" />
-                                </div>
-                            </div>
-                        )}
                         <div className="flex items-center space-x-2">
                             <Switch id="published" name="published" defaultChecked={article?.published ?? false} />
                             <Label htmlFor="published">Published</Label>

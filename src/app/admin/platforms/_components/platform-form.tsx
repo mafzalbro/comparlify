@@ -8,13 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { type Platform, type Feature, type PlatformFeature, type FeatureCategory } from '@prisma/client';
+import { type Platform, type Feature, type PlatformFeature, type FeatureCategory, type Image } from '@prisma/client';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SubmitButton } from '@/components/submit-button';
 import { AiLogoButton } from './ai-logo-button';
 import { AiFillButton } from '../../blog/_components/ai-fill-button';
+import { ImagePickerInput } from '../../_components/image-picker-input';
 
 
 type PlatformWithFeatures = Platform & { features: PlatformFeature[] };
@@ -23,9 +24,10 @@ interface PlatformFormProps {
   platform?: PlatformWithFeatures | null;
   features: (Feature & { category: FeatureCategory })[];
   featureCategories: FeatureCategory[];
+  images: Image[];
 }
 
-export function PlatformForm({ platform, features, featureCategories }: PlatformFormProps) {
+export function PlatformForm({ platform, features, featureCategories, images }: PlatformFormProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -70,6 +72,7 @@ export function PlatformForm({ platform, features, featureCategories }: Platform
 
   return (
     <form action={action}>
+      <input type="hidden" name="logoUrl" value={logoUrl} />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
             <Card>
@@ -90,20 +93,17 @@ export function PlatformForm({ platform, features, featureCategories }: Platform
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="logoUrl">Logo URL</Label>
-                        <div className="flex items-start gap-2">
-                            <Input id="logoUrl" name="logoUrl" value={logoUrl} onChange={e => setLogoUrl(e.target.value)} required className="flex-1" />
-                             <AiLogoButton 
-                                platformName={name}
-                                onLogoReceived={(url) => setLogoUrl(url)}
-                            />
-                        </div>
-                        {typeof state.error !== 'string' && state?.error?.logoUrl && <p className="text-destructive text-sm">{state.error.logoUrl[0]}</p>}
-                        {logoUrl && (
-                            <div className="mt-4 p-4 border rounded-md flex justify-center items-center bg-muted/50 h-32">
-                                <img src={logoUrl} alt="Logo Preview" className="max-h-full max-w-full object-contain" />
-                            </div>
-                        )}
+                        <ImagePickerInput
+                            label="Logo URL"
+                            value={logoUrl}
+                            onValueChange={setLogoUrl}
+                            images={images}
+                        />
+                         {typeof state.error !== 'string' && state?.error?.logoUrl && <p className="text-destructive text-sm">{state.error.logoUrl[0]}</p>}
+                         <AiLogoButton 
+                            platformName={name}
+                            onLogoReceived={(url) => setLogoUrl(url)}
+                        />
                     </div>
                     <div className="space-y-2">
                          <div className="flex items-center justify-between">

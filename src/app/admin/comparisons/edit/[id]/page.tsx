@@ -17,7 +17,7 @@ export const generateStaticParams = cache(async () => {
     }));
 });
 
-async function getComparison(id: string): Promise<ComparisonWithRelations | null> {
+const getComparison = cache(async (id: string): Promise<ComparisonWithRelations | null> => {
     return prisma.comparison.findUnique({
         where: { id },
         include: {
@@ -25,15 +25,15 @@ async function getComparison(id: string): Promise<ComparisonWithRelations | null
             faqs: true,
         },
     });
-}
+});
 
-async function getPlatforms(): Promise<Platform[]> {
+const getPlatforms = cache(async (): Promise<Platform[]> => {
     return prisma.platform.findMany({ orderBy: { name: 'asc' }});
-}
+});
 
-async function getCategories(): Promise<ComparisonCategory[]> {
+const getCategories = cache(async (): Promise<ComparisonCategory[]> => {
     return prisma.comparisonCategory.findMany({ orderBy: { name: 'asc' }});
-}
+});
 
 export default async function EditComparisonPage(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;

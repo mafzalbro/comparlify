@@ -3,8 +3,16 @@ import { ArticleForm } from '../_components/article-form';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import prisma from '@/lib/prisma';
+import type { Image } from '@prisma/client';
+import { cache } from 'react';
 
-export default function NewArticlePage() {
+const getImages = cache(async (): Promise<Image[]> => {
+    return prisma.image.findMany({ orderBy: { createdAt: 'desc' }});
+})
+
+export default async function NewArticlePage() {
+  const images = await getImages();
   return (
     <div>
         <div className="flex justify-between items-center mb-6">
@@ -13,7 +21,7 @@ export default function NewArticlePage() {
               <Link href="/admin/news"><ArrowLeft className="mr-2 h-4 w-4" />Back to Articles</Link>
           </Button>
       </div>
-      <ArticleForm />
+      <ArticleForm images={images} />
     </div>
   );
 }
