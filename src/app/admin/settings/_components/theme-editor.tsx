@@ -8,6 +8,8 @@ import { useToast } from '@/hooks/use-toast';
 import { SubmitButton } from '@/components/submit-button';
 import { ColorInput } from './color-input';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { RotateCcw } from 'lucide-react';
 
 interface ThemeEditorProps {
   themeContent: SiteContent[];
@@ -37,6 +39,47 @@ const themeStructure = [
     { mode: 'dark', name: 'Destructive', key: 'theme.dark.destructive' },
 ];
 
+const defaultThemeValues: Record<string, string> = {
+    'theme.light.background': '48 100% 98%',
+    'theme.light.foreground': '35 33% 20%',
+    'theme.light.card': '48 100% 98%',
+    'theme.light.card-foreground': '35 33% 20%',
+    'theme.light.popover': '48 100% 98%',
+    'theme.light.popover-foreground': '35 33% 20%',
+    'theme.light.primary': '45 93% 58%',
+    'theme.light.primary-foreground': '35 33% 15%',
+    'theme.light.secondary': '48 95% 91%',
+    'theme.light.secondary-foreground': '35 33% 20%',
+    'theme.light.muted': '48 95% 94%',
+    'theme.light.muted-foreground': '35 33% 45%',
+    'theme.light.accent': '45 93% 85%',
+    'theme.light.accent-foreground': '35 33% 15%',
+    'theme.light.destructive': '0 84.2% 60.2%',
+    'theme.light.destructive-foreground': '0 0% 98%',
+    'theme.light.border': '45 80% 92%',
+    'theme.light.input': '45 80% 92%',
+    'theme.light.ring': '45 93% 58%',
+    'theme.dark.background': '30 10% 10%',
+    'theme.dark.foreground': '45 60% 95%',
+    'theme.dark.card': '30 10% 12%',
+    'theme.dark.card-foreground': '45 60% 95%',
+    'theme.dark.popover': '30 10% 10%',
+    'theme.dark.popover-foreground': '45 60% 95%',
+    'theme.dark.primary': '45 93% 58%',
+    'theme.dark.primary-foreground': '35 33% 15%',
+    'theme.dark.secondary': '30 10% 18%',
+    'theme.dark.secondary-foreground': '45 60% 95%',
+    'theme.dark.muted': '30 10% 18%',
+    'theme.dark.muted-foreground': '45 60% 75%',
+    'theme.dark.accent': '30 10% 22%',
+    'theme.dark.accent-foreground': '45 60% 95%',
+    'theme.dark.destructive': '0 62.8% 30.6%',
+    'theme.dark.destructive-foreground': '0 0% 98%',
+    'theme.dark.border': '30 10% 25%',
+    'theme.dark.input': '30 10% 25%',
+    'theme.dark.ring': '45 93% 58%',
+};
+
 
 export function ThemeEditor({ themeContent, onFormSuccess }: ThemeEditorProps) {
   const [state, formAction] = useActionState(updateContentAction, { error: null, success: false });
@@ -65,6 +108,14 @@ export function ThemeEditor({ themeContent, onFormSuccess }: ThemeEditorProps) {
 
   const handleColorChange = (key: string, value: string) => {
     setThemeValues(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleReset = () => {
+    setThemeValues(defaultThemeValues);
+    toast({
+        title: 'Theme Reset',
+        description: 'Colors have been reset to default. Click "Save Theme" to apply.'
+    })
   };
 
   const lightThemeItems = themeStructure.filter(item => item.mode === 'light');
@@ -106,7 +157,11 @@ export function ThemeEditor({ themeContent, onFormSuccess }: ThemeEditorProps) {
             </div>
         </div>
       </div>
-      <div className="mt-8 flex justify-end">
+      <div className="mt-8 flex justify-end gap-2">
+        <Button type="button" variant="outline" onClick={handleReset}>
+            <RotateCcw className="mr-2 h-4 w-4" />
+            Reset Theme
+        </Button>
         <SubmitButton isEditing={true} editingText="Save Theme" />
       </div>
     </form>
