@@ -68,13 +68,10 @@ function parseHsl(hsl: string): { h: number; s: number; l: number } | null {
 }
 
 export function ColorInput({ value, onChange, name, ...props }: ColorInputProps) {
-  const [colorValue, setColorValue] = useState(value);
   const colorPickerRef = useRef<HTMLInputElement>(null);
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
-    setColorValue(value);
-
     // Live update CSS variable for instant preview
     const cssVarName = themeConfig[name];
     if (cssVarName) {
@@ -84,15 +81,14 @@ export function ColorInput({ value, onChange, name, ...props }: ColorInputProps)
         const isDarkThemeVar = name.startsWith('theme.dark');
         const isLightThemeVar = name.startsWith('theme.light');
 
-        if ((theme === 'dark' && isDarkThemeVar) || (theme === 'light' && isLightThemeVar)) {
+        if ((resolvedTheme === 'dark' && isDarkThemeVar) || (resolvedTheme === 'light' && isLightThemeVar)) {
             root.style.setProperty(cssVarName, value);
         }
     }
-  }, [value, name, theme]);
+  }, [value, name, resolvedTheme]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
-    setColorValue(newValue);
     onChange(newValue);
   };
 
@@ -100,15 +96,14 @@ export function ColorInput({ value, onChange, name, ...props }: ColorInputProps)
     const hex = e.target.value;
     const hsl = hexToHsl(hex);
     if (hsl) {
-        setColorValue(hsl);
         onChange(hsl);
     }
   };
 
   const hexColor = useMemo(() => {
-    const hsl = parseHsl(colorValue);
+    const hsl = parseHsl(value);
     return hsl ? hslToHex(hsl.h, hsl.s, hsl.l) : '#000000';
-  }, [colorValue]);
+  }, [value]);
 
   return (
     <div className="flex items-center gap-2">
@@ -123,14 +118,14 @@ export function ColorInput({ value, onChange, name, ...props }: ColorInputProps)
         />
         <div
           className="h-10 w-10 cursor-pointer rounded-md border"
-          style={{ backgroundColor: `hsl(${colorValue})` }}
+          style={{ backgroundColor: `hsl(${value})` }}
           onClick={() => colorPickerRef.current?.click()}
         />
       </div>
       <Input
         {...props}
         name={name}
-        value={colorValue}
+        value={value}
         onChange={handleTextChange}
         className="font-mono text-sm"
       />
