@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { EditPostPageClient } from './page-client';
 import { cache } from 'react';
-import type { PostCategory, Post, Image } from '@prisma/client';
+import type { PostCategory, Post } from '@prisma/client';
 
 export const revalidate = 0;
 
@@ -24,22 +24,17 @@ const getCategories = cache(async (): Promise<PostCategory[]> => {
     return prisma.postCategory.findMany({ orderBy: { name: 'asc' } });
 });
 
-const getImages = cache(async (): Promise<Image[]> => {
-    return prisma.image.findMany({ orderBy: { createdAt: 'desc' }});
-})
-
 export default async function EditPostPage(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
     const { id } = params;
-    const [post, categories, images] = await Promise.all([
+    const [post, categories] = await Promise.all([
         getPost(id),
         getCategories(),
-        getImages()
     ]);
 
     if (!post) {
         notFound();
     }
 
-    return <EditPostPageClient post={post} categories={categories} images={images} />;
+    return <EditPostPageClient post={post} categories={categories} />;
 }

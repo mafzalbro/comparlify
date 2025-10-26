@@ -2,7 +2,6 @@
 import prisma from '@/lib/prisma';
 import { NewPlatformPageClient } from './page-client';
 import { cache } from 'react';
-import type { Image } from '@prisma/client';
 
 const getFeatures = cache(async () => {
     return prisma.feature.findMany({
@@ -17,22 +16,16 @@ const getFeatureCategories = cache(async () => {
     });
 });
 
-const getImages = cache(async (): Promise<Image[]> => {
-    return prisma.image.findMany({ orderBy: { createdAt: 'desc' }});
-})
-
 export default async function NewPlatformPage() {
-    const [features, featureCategories, images] = await Promise.all([
+    const [features, featureCategories] = await Promise.all([
         getFeatures(),
         getFeatureCategories(),
-        getImages(),
     ]);
 
     return (
         <NewPlatformPageClient
             features={features}
             featureCategories={featureCategories}
-            images={images}
         />
     );
 }

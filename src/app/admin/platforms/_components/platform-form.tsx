@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { type Platform, type Feature, type PlatformFeature, type FeatureCategory, type Image } from '@prisma/client';
+import { type Platform, type Feature, type PlatformFeature, type FeatureCategory } from '@prisma/client';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -24,10 +24,9 @@ interface PlatformFormProps {
   platform?: PlatformWithFeatures | null;
   features: (Feature & { category: FeatureCategory })[];
   featureCategories: FeatureCategory[];
-  images: Image[];
 }
 
-export function PlatformForm({ platform, features, featureCategories, images }: PlatformFormProps) {
+export function PlatformForm({ platform, features, featureCategories }: PlatformFormProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -37,7 +36,6 @@ export function PlatformForm({ platform, features, featureCategories, images }: 
   const [state, action] = useActionState(formAction, { error: null });
 
   const [name, setName] = useState(platform?.name ?? '');
-  const [logoUrl, setLogoUrl] = useState(platform?.logoUrl ?? '');
   
   const platformFeatureMap = new Map(platform?.features.map(pf => [pf.featureId, pf]));
   
@@ -66,7 +64,6 @@ export function PlatformForm({ platform, features, featureCategories, images }: 
 
   return (
     <form action={action}>
-      <input type="hidden" name="logoUrl" value={logoUrl} />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
             <Card>
@@ -77,7 +74,7 @@ export function PlatformForm({ platform, features, featureCategories, images }: 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <Label htmlFor="name">Name</Label>
-                            <Input id="name" name="name" defaultValue={platform?.name} onChange={e => setName(e.target.value)} required />
+                            <Input id="name" name="name" value={name} onChange={e => setName(e.target.value)} required />
                             {typeof state.error !== 'string' && state?.error?.name && <p className="text-destructive text-sm">{state.error.name[0]}</p>}
                         </div>
                         <div className="space-y-2">
@@ -89,14 +86,19 @@ export function PlatformForm({ platform, features, featureCategories, images }: 
                     <div className="space-y-2">
                         <ImagePickerInput
                             label="Logo URL"
-                            value={logoUrl}
-                            onValueChange={setLogoUrl}
-                            images={images}
+                            name="logoUrl"
+                            defaultValue={platform?.logoUrl}
                         />
                          {typeof state.error !== 'string' && state?.error?.logoUrl && <p className="text-destructive text-sm">{state.error.logoUrl[0]}</p>}
                          <AiLogoButton 
                             platformName={name}
-                            onLogoReceived={(url) => setLogoUrl(url)}
+                            onLogoReceived={(url) => {
+                                const logoInput = document.querySelector('input[name="logoUrl"]') as HTMLInputElement;
+                                if (logoInput) {
+                                    logoInput.value = url;
+                                    logoInput.dispatchEvent(new Event('input', { bubbles: true }));
+                                }
+                            }}
                         />
                     </div>
                     <div className="space-y-2">
@@ -169,10 +171,7 @@ export function PlatformForm({ platform, features, featureCategories, images }: 
                                                 <Checkbox 
                                                     id={`feature-check-${feature.id}`}
                                                     name={`features[${feature.id}].hasFeature`}
-                                                    checked={checkedState[feature.id] ?? initialChecked}
-                                                    onCheckedChange={(checked) => {
-                                                        setCheckedState(prev => ({ ...prev, [feature.id]: !!checked }));
-                                                    }}
+                                                    defaultChecked={initialChecked}
                                                 />
                                                 <Label htmlFor={`feature-check-${feature.id}`} className="font-semibold">{feature.name}</Label>
                                             </div>
@@ -181,8 +180,7 @@ export function PlatformForm({ platform, features, featureCategories, images }: 
                                                 <Input 
                                                     id={`feature-details-${feature.id}`}
                                                     name={`features[${feature.id}].details`}
-                                                    defaultValue={featureDetails[feature.id] || ''}
-                                                    onChange={(e) => setFeatureDetails({...featureDetails, [feature.id]: e.target.value})}
+                                                    defaultValue={platformFeatureMap.get(feature.id)?.details ?? ''}
                                                     placeholder="e.g., Basic quiz functionality"
                                                 />
                                              </div>

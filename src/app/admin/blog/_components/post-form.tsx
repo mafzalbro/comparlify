@@ -1,13 +1,13 @@
 
 'use client';
 
-import { useActionState, useRef, useState, useTransition } from 'react';
+import { useActionState, useRef, useState } from 'react';
 import { createPost, updatePost } from '@/app/actions/blog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { type Post, type PostCategory, type Image as PrismaImage } from '@prisma/client';
+import { type Post, type PostCategory } from '@prisma/client';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { useRouter } from 'next/navigation';
@@ -23,29 +23,25 @@ import { ImagePickerInput } from '../../_components/image-picker-input';
 interface PostFormProps {
     post?: Post | null;
     categories: PostCategory[];
-    images: PrismaImage[];
 }
 
-export function PostForm({ post, categories, images }: PostFormProps) {
+export function PostForm({ post, categories }: PostFormProps) {
     const router = useRouter();
-    const formRef = useRef<HTMLFormElement>(null);
-    const [content, setContent] = useState(post?.content ?? '');
-    const [image, setImage] = useState(post?.image ?? '');
-    const [dataAiHint, setDataAiHint] = useState(post?.dataAiHint ?? '');
-    const [title, setTitle] = useState(post?.title ?? '');
-    const [slug, setSlug] = useState(post?.slug ?? '');
-    const [description, setDescription] = useState(post?.description ?? '');
-
-
     const isEditing = !!post;
     const formAction = isEditing ? updatePost.bind(null, post.id) : createPost;
     const [state, action] = useActionState(formAction, { error: null });
+
+    // Use state for values that can be updated by AI, to re-render the components
+    const [description, setDescription] = useState(post?.description ?? '');
+    const [title, setTitle] = useState(post?.title ?? '');
+    const [slug, setSlug] = useState(post?.slug ?? '');
+    const [content, setContent] = useState(post?.content ?? '');
 
     const MAX_DESC_LENGTH = 191;
     const MAX_TITLE_LENGTH = 80;
 
     return (
-        <form action={action} ref={formRef}>
+        <form action={action}>
             <input type="hidden" name="content" value={content} />
             <Card>
                 <CardContent className="p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -73,7 +69,6 @@ export function PostForm({ post, categories, images }: PostFormProps) {
                                 />
                             </div>
                             <Input id="slug" name="slug" value={slug} onChange={(e) => setSlug(e.target.value)} required disabled={isEditing} />
-
                             {isEditing && <Input id="slug" name="slug" value={slug} required type="hidden" />}
                             {isEditing && <p className="text-xs text-muted-foreground">The slug cannot be changed for existing posts to preserve URL integrity.</p>}
                             {typeof state.error !== 'string' && state.error?.slug && <p className="text-destructive text-sm">{state.error.slug[0]}</p>}
@@ -99,10 +94,9 @@ export function PostForm({ post, categories, images }: PostFormProps) {
                                     fieldType="Blog Post Content"
                                     topic={title}
                                     context={description}
-                                    onContentReceived={(content) => {
-                                        // We need a key change to force re-render of editor
+                                    onContentReceived={(newContent) => {
                                         setContent('');
-                                        setTimeout(() => setContent(content), 0);
+                                        setTimeout(() => setContent(newContent), 0);
                                     }}
                                 />
                             </div>
@@ -125,17 +119,22 @@ export function PostForm({ post, categories, images }: PostFormProps) {
                         </div>
                          <ImagePickerInput 
                             label="Image URL"
-                            value={image}
-                            onValueChange={setImage}
-                            images={images}
+                            name="image"
+                            defaultValue={post?.image}
                         />
                         <div className="space-y-2">
                             <Label htmlFor="dataAiHint">AI Prompt for Image</Label>
-                            <Input id="dataAiHint" name="dataAiHint" value={dataAiHint} onChange={e => setDataAiHint(e.target.value)} placeholder="e.g. 'creative workspace'" />
+                            <Input id="dataAiHint" name="dataAiHint" defaultValue={post?.dataAiHint ?? ''} placeholder="e.g. 'creative workspace'" />
                             <AiImageButton
-                                prompt={dataAiHint || title}
+                                prompt={post?.dataAiHint || post?.title || ''}
                                 onImageReceived={(imageUrl) => {
-                                    setImage(imageUrl);
+                                    // This is a bit of a hack to update the controlled component
+                                    const imageInput = document.querySelector('input[name="image"]') as HTMLInputElement;
+                                    if(imageInput) {
+                                      imageInput.value = imageUrl;
+                                      // Dispatch an event to notify React of the change
+                                      imageInput.dispatchEvent(new Event('input', { bubbles: true }));
+                                    }
                                 }}
                             />
                         </div>

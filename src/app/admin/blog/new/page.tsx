@@ -1,7 +1,7 @@
 
 import { PostForm } from '../_components/post-form';
 import prisma from '@/lib/prisma';
-import type { PostCategory, Image } from '@prisma/client';
+import type { PostCategory } from '@prisma/client';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
@@ -11,15 +11,8 @@ const getCategories = cache(async (): Promise<PostCategory[]> => {
     return prisma.postCategory.findMany({ orderBy: { name: 'asc' }});
 });
 
-const getImages = cache(async (): Promise<Image[]> => {
-    return prisma.image.findMany({ orderBy: { createdAt: 'desc' }});
-})
-
 export default async function NewPostPage() {
-  const [categories, images] = await Promise.all([
-    getCategories(),
-    getImages()
-  ]);
+  const categories = await getCategories();
   
   return (
     <div>
@@ -29,7 +22,7 @@ export default async function NewPostPage() {
             <Link href="/admin/blog"><ArrowLeft className="mr-2 h-4 w-4" />Back to Posts</Link>
           </Button>
       </div>
-      <PostForm categories={categories} images={images} />
+      <PostForm categories={categories} />
     </div>
   );
 }

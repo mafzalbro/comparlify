@@ -6,7 +6,7 @@ import { createNewsArticle, updateNewsArticle } from '@/app/actions/news';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { type NewsArticle, type Image as PrismaImage } from '@prisma/client';
+import { type NewsArticle } from '@prisma/client';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { useRouter } from 'next/navigation';
@@ -18,25 +18,21 @@ import { ImagePickerInput } from '../../_components/image-picker-input';
 
 interface ArticleFormProps {
     article?: NewsArticle | null;
-    images: PrismaImage[];
 }
 
-export function ArticleForm({ article, images }: ArticleFormProps) {
+export function ArticleForm({ article }: ArticleFormProps) {
     const router = useRouter();
-    const [content, setContent] = useState(article?.content ?? '');
-    const [image, setImage] = useState(article?.image ?? '');
-    const [dataAiHint, setDataAiHint] = useState(article?.dataAiHint ?? '');
-    const [title, setTitle] = useState(article?.title ?? '');
-    const [slug, setSlug] = useState(article?.slug ?? '');
-
     const isEditing = !!article;
     const formAction = isEditing ? updateNewsArticle.bind(null, article.id) : createNewsArticle;
     const [state, action] = useActionState(formAction, { error: null });
 
+    const [content, setContent] = useState(article?.content ?? '');
+    const [title, setTitle] = useState(article?.title ?? '');
+    const [slug, setSlug] = useState(article?.slug ?? '');
+
     return (
         <form action={action}>
             <input type="hidden" name="content" value={content} />
-            <input type="hidden" name="image" value={image} />
             <Card>
                 <CardContent className="p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div className="md:col-span-2 space-y-6">
@@ -73,9 +69,9 @@ export function ArticleForm({ article, images }: ArticleFormProps) {
                                 <AiFillButton
                                     fieldType="News Article Content"
                                     topic={title}
-                                    onContentReceived={(content) => {
+                                    onContentReceived={(newContent) => {
                                         setContent('');
-                                        setTimeout(() => setContent(content), 0);
+                                        setTimeout(() => setContent(newContent), 0);
                                     }}
                                 />
                             </div>
@@ -86,16 +82,21 @@ export function ArticleForm({ article, images }: ArticleFormProps) {
                     <div className="space-y-6">
                         <ImagePickerInput 
                             label="Image URL"
-                            value={image}
-                            onValueChange={setImage}
-                            images={images}
+                            name="image"
+                            defaultValue={article?.image}
                         />
                         <div className="space-y-2">
                             <Label htmlFor="dataAiHint">AI Prompt for Image</Label>
-                            <Input id="dataAiHint" name="dataAiHint" value={dataAiHint} onChange={e => setDataAiHint(e.target.value)} placeholder="e.g., 'technology announcement'" />
+                            <Input id="dataAiHint" name="dataAiHint" defaultValue={article?.dataAiHint ?? ''} placeholder="e.g., 'technology announcement'" />
                             <AiImageButton
-                                prompt={dataAiHint || title}
-                                onImageReceived={setImage}
+                                prompt={article?.dataAiHint || article?.title || ''}
+                                onImageReceived={(imageUrl) => {
+                                    const imageInput = document.querySelector('input[name="image"]') as HTMLInputElement;
+                                    if(imageInput) {
+                                      imageInput.value = imageUrl;
+                                      imageInput.dispatchEvent(new Event('input', { bubbles: true }));
+                                    }
+                                }}
                             />
                         </div>
                         <div className="flex items-center space-x-2">

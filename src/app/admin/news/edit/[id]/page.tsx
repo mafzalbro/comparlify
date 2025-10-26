@@ -2,7 +2,7 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { ArticleForm } from '../../_components/article-form';
-import type { NewsArticle, Image } from '@prisma/client';
+import type { NewsArticle } from '@prisma/client';
 import { cache } from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -14,17 +14,10 @@ const getArticle = cache(async (id: string): Promise<NewsArticle | null> => {
     });
 });
 
-const getImages = cache(async (): Promise<Image[]> => {
-    return prisma.image.findMany({ orderBy: { createdAt: 'desc' }});
-})
-
 export default async function EditArticlePage(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
     const { id } = params;
-    const [article, images] = await Promise.all([
-        getArticle(id),
-        getImages()
-    ]);
+    const article = await getArticle(id);
 
     if (!article) {
         notFound();
@@ -38,7 +31,7 @@ export default async function EditArticlePage(props: { params: Promise<{ id: str
                     <Link href="/admin/news"><ArrowLeft className="mr-2 h-4 w-4" />Back to Articles</Link>
                 </Button>
             </div>
-            <ArticleForm article={article} images={images} />
+            <ArticleForm article={article} />
         </div>
     );
 }

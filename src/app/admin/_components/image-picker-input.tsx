@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,15 +10,29 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { ManagedImage } from '@/components/managed-image';
 import type { Image } from '@prisma/client';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getImagesAction } from '@/app/actions/media';
 
 interface ImagePickerInputProps {
   label: string;
-  value: string;
-  onValueChange: (value: string) => void;
-  images: Image[];
+  name: string;
+  defaultValue?: string;
 }
 
-function ImageGrid({ images, onImageSelect }: { images: Image[], onImageSelect: (url: string) => void }) {
+function ImageGrid({ onImageSelect }: { onImageSelect: (url: string) => void }) {
+    const [images, setImages] = useState<Image[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        getImagesAction().then((fetchedImages) => {
+            setImages(fetchedImages);
+            setIsLoading(false);
+        });
+    }, []);
+
+    if (isLoading) {
+        return <ImageGridSkeleton />;
+    }
+
     return (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4">
         {images.map(image => (
@@ -51,11 +65,12 @@ function ImageGridSkeleton() {
     )
 }
 
-export function ImagePickerInput({ label, value, onValueChange, images }: ImagePickerInputProps) {
+export function ImagePickerInput({ label, name, defaultValue = '' }: ImagePickerInputProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [currentValue, setCurrentValue] = useState(defaultValue);
 
   const handleImageSelect = (imageUrl: string) => {
-    onValueChange(imageUrl);
+    setCurrentValue(imageUrl);
     setIsOpen(false);
   };
 
@@ -63,7 +78,7 @@ export function ImagePickerInput({ label, value, onValueChange, images }: ImageP
     <div className="space-y-2">
       <Label>{label}</Label>
       <div className="flex items-start gap-2">
-        <Input name="image" value={value} onChange={e => onValueChange(e.target.value)} required />
+        <Input name={name} value={currentValue} onChange={e => setCurrentValue(e.target.value)} required />
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button type="button" variant="outline">Browse</Button>
@@ -74,15 +89,15 @@ export function ImagePickerInput({ label, value, onValueChange, images }: ImageP
             </DialogHeader>
             <ScrollArea className="h-full">
                 <Suspense fallback={<ImageGridSkeleton />}>
-                    <ImageGrid images={images} onImageSelect={handleImageSelect} />
+                    <ImageGrid onImageSelect={handleImageSelect} />
                 </Suspense>
             </ScrollArea>
           </DialogContent>
         </Dialog>
       </div>
-       {value && (
+       {currentValue && (
           <div className="mt-4 p-4 border rounded-md flex justify-center items-center bg-muted/50 h-32">
-              <img src={value} alt="Preview" className="max-h-full max-w-full object-contain" />
+              <img src={currentValue} alt="Preview" className="max-h-full max-w-full object-contain" />
           </div>
       )}
     </div>

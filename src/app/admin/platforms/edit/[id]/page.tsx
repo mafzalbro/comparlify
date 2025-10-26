@@ -2,7 +2,7 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { EditPlatformPageClient } from './page-client';
-import type { Platform, Feature, PlatformFeature, FeatureCategory, Image } from '@prisma/client';
+import type { Platform, Feature, PlatformFeature, FeatureCategory } from '@prisma/client';
 import { cache } from 'react';
 
 type PlatformWithFeatures = Platform & { features: PlatformFeature[] };
@@ -27,18 +27,13 @@ const getFeatureCategories = cache(async () => {
     });
 });
 
-const getImages = cache(async (): Promise<Image[]> => {
-    return prisma.image.findMany({ orderBy: { createdAt: 'desc' }});
-})
-
 export default async function EditPlatformPage(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
     const { id } = params;
-    const [platform, features, featureCategories, images] = await Promise.all([
+    const [platform, features, featureCategories] = await Promise.all([
         getPlatform(id),
         getFeatures(),
         getFeatureCategories(),
-        getImages()
     ]);
 
     if (!platform) {
@@ -50,7 +45,6 @@ export default async function EditPlatformPage(props: { params: Promise<{ id: st
             platform={platform}
             features={features}
             featureCategories={featureCategories}
-            images={images}
         />
     );
 }

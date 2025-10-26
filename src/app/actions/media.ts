@@ -7,6 +7,19 @@ import { auth } from "@/lib/auth";
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { revalidatePath } from "next/cache";
+import { cache } from "react";
+import type { Image } from "@prisma/client";
+
+
+// --- Get Images Action ---
+export const getImagesAction = cache(async (): Promise<Image[]> => {
+    const session = await auth();
+    if (session?.user?.role !== 'ADMIN' && session?.user?.role !== 'EDITOR' && session?.user?.role !== 'AUTHOR') {
+      return [];
+    }
+    return prisma.image.findMany({ orderBy: { createdAt: 'desc' } });
+});
+
 
 // --- Update Image Details Action ---
 const updateImageSchema = z.object({
