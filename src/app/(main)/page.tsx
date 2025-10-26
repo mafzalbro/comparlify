@@ -122,8 +122,8 @@ export default async function Home() {
         <>
             <HomePageClient session={session} />
 
-            <section className="relative w-full min-h-[70vh] py-10 flex items-center justify-center overflow-hidden">
-                <div className="absolute inset-0 bg-grid-slate-900/[0.04] dark:bg-grid-slate-400/[0.05] [mask-image:linear-gradient(0deg,transparent,black)]"></div>
+            <section className="relative w-full min-h-[70vh] py-10 flex items-center justify-center">
+                <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark [mask-image:linear-gradient(0deg,transparent,black)]"></div>
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
                 <div className="container relative z-10 flex flex-col items-center justify-center text-center px-4 md:px-6 text-foreground">
                     <div className="inline-block rounded-full bg-primary/20 px-4 py-1.5 text-sm font-medium text-primary mb-4 backdrop-blur-sm animate-fade-in-up">

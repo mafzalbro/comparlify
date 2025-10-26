@@ -113,7 +113,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
     if (!isMobile) {
         return (
             <section ref={targetRef} className="relative py-20 md:py-32 bg-gradient-to-br from-secondary/20 via-background to-secondary/30 min-h-[300vh] overflow-hidden">
-                <div className="absolute inset-0 bg-grid-slate-900/[0.04] dark:bg-grid-slate-400/[0.05] [mask-image:linear-gradient(0deg,transparent,black)]"></div>
+                <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark [mask-image:linear-gradient(0deg,transparent,black)]"></div>
 
                 {/* Header Section - Not Sticky */}
                 <div className="container px-6 md:px-8 py-16">
@@ -304,7 +304,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
     // RENDER FOR MOBILE
     return (
         <section className="py-16 md:py-24 bg-secondary/30 overflow-hidden">
-            <div className="absolute inset-0 bg-grid-slate-900/[0.04] dark:bg-grid-slate-400/[0.05] [mask-image:linear-gradient(0deg,transparent,black)]"></div>
+            <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark [mask-image:linear-gradient(0deg,transparent,black)]"></div>
             <div className="container px-4 md:px-6 py-12 relative">
                 <div className="mx-auto max-w-3xl text-center mb-12">
                     <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">

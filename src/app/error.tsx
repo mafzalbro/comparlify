@@ -20,7 +20,7 @@ export default function Error({
 
   return (
     <div className="relative flex flex-1 flex-col items-center justify-center text-center px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-grid-slate-900/[0.04] dark:bg-grid-slate-400/[0.05] [mask-image:linear-gradient(0deg,transparent,black)]"></div>
+        <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark [mask-image:linear-gradient(0deg,transparent,black)]"></div>
         <div className="relative flex flex-col items-center justify-center">
             <div className="bg-destructive/10 p-4 rounded-full mb-6 border border-destructive/20">
                 <AlertTriangle className="h-16 w-16 text-destructive" />
