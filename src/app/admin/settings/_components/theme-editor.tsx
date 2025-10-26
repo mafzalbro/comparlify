@@ -4,11 +4,10 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { updateContentAction } from '@/app/actions/content';
 import { type SiteContent } from '@prisma/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { SubmitButton } from '@/components/submit-button';
+import { ColorInput } from './color-input';
+import { Label } from '@/components/ui/label';
 
 interface ThemeEditorProps {
   themeContent: SiteContent[];
@@ -25,91 +24,4 @@ const themeStructure = [
     { mode: 'light', name: 'Card', key: 'theme.light.card' },
     { mode: 'light', name: 'Border', key: 'theme.light.border' },
     { mode: 'light', name: 'Input', key: 'theme.light.input' },
-    { mode: 'light', name: 'Ring', key: 'theme.light.ring' },
-
-    { mode: 'dark', name: 'Primary', key: 'theme.dark.primary' },
-    { mode: 'dark', name: 'Primary Foreground', key: 'theme.dark.primary-foreground' },
-    { mode: 'dark', name: 'Secondary', key: 'theme.dark.secondary' },
-    { mode: 'dark', name: 'Accent', key: 'theme.dark.accent' },
-    { mode: 'dark', name: 'Background', key: 'theme.dark.background' },
-    { mode: 'dark', name: 'Foreground', key: 'theme.dark.foreground' },
-    { mode: 'dark', name: 'Card', key: 'theme.dark.card' },
-    { mode: 'dark', name: 'Border', key: 'theme.dark.border' },
-    { mode: 'dark', name: 'Input', key: 'theme.dark.input' },
-    { mode: 'dark', name: 'Ring', key: 'theme.dark.ring' },
-];
-
-export function ThemeEditor({ themeContent, onFormSuccess }: ThemeEditorProps) {
-  const [state, formAction] = useActionState(updateContentAction, { error: null, success: false });
-  const { toast } = useToast();
-  const successShownRef = useRef(false);
-
-  const contentMap = new Map(themeContent.map(item => [item.key, item.value]));
-
-  const [formState, setFormState] = useState(() => 
-    themeStructure.reduce((acc, { key }) => {
-      acc[key] = contentMap.get(key) || '';
-      return acc;
-    }, {} as Record<string, string>)
-  );
-
-  const handleInputChange = (key: string, value: string) => {
-    setFormState(prev => ({ ...prev, [key]: value }));
-  };
-  
-  useEffect(() => {
-    if (state.success && !successShownRef.current) {
-      toast({ title: 'Success!', description: 'Theme updated successfully. Refresh the page to see changes.' });
-      onFormSuccess?.();
-      successShownRef.current = true;
-    } else if (state.error) {
-      toast({ title: 'Error', description: state.error, variant: 'destructive' });
-      successShownRef.current = false;
-    } else if (!state.success && !state.error) {
-        successShownRef.current = false;
-    }
-  }, [state, toast, onFormSuccess]);
-
-  const lightFields = themeStructure.filter(f => f.mode === 'light');
-  const darkFields = themeStructure.filter(f => f.mode === 'dark');
-
-  return (
-    <form action={formAction}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="space-y-6">
-          <h3 className="text-lg font-semibold text-foreground">Light Mode</h3>
-          {lightFields.map(({ key, name }) => (
-            <div key={key} className="space-y-2">
-              <Label htmlFor={key}>{name}</Label>
-              <Input
-                id={key}
-                name={key}
-                value={formState[key]}
-                onChange={(e) => handleInputChange(key, e.target.value)}
-                placeholder="e.g. 45 93% 58%"
-              />
-            </div>
-          ))}
-        </div>
-        <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-foreground">Dark Mode</h3>
-            {darkFields.map(({ key, name }) => (
-                <div key={key} className="space-y-2">
-                <Label htmlFor={key}>{name}</Label>
-                <Input
-                    id={key}
-                    name={key}
-                    value={formState[key]}
-                    onChange={(e) => handleInputChange(key, e.target.value)}
-                    placeholder="e.g. 30 10% 10%"
-                />
-                </div>
-            ))}
-        </div>
-      </div>
-      <div className="mt-8 flex justify-end">
-        <SubmitButton isEditing={true} />
-      </div>
-    </form>
-  );
-}
+    { mode
