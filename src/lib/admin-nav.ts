@@ -1,18 +1,6 @@
 
-'use client';
-
-import { usePathname } from "next/navigation";
-import Link from "next/link";
-import {
-    SidebarMenu,
-    SidebarMenuItem,
-    SidebarMenuButton,
-    SidebarGroup,
-    SidebarGroupLabel,
-} from "@/components/ui/sidebar";
 import { Home, Settings, Table, PenSquare, BookText, GitCompareArrows, Users, Globe, Send, MessageCircle, Mail, Newspaper, MessageSquare, Gavel, ImageIcon, Wand2 } from "lucide-react";
-import { useSession } from "next-auth/react";
-import { Role } from "@prisma/client";
+import { type Role } from "@prisma/client";
 
 type NavItem = {
     href: string;
@@ -26,11 +14,11 @@ type NavGroup = {
     items: NavItem[];
 };
 
-const navConfig: NavGroup[] = [
+export const navConfig: NavGroup[] = [
     {
         group: "Overview",
         items: [
-            { href: "/admin", label: "Dashboard", Icon: Home, roles: ['ADMIN', 'EDITOR'] },
+            { href: "/admin", label: "Dashboard", Icon: Home, roles: ['ADMIN', 'EDITOR', 'AUTHOR', 'MODERATOR', 'SUPPORT'] },
         ]
     },
     {
@@ -69,41 +57,3 @@ const navConfig: NavGroup[] = [
         ]
     }
 ];
-
-export function AdminNav() {
-    const pathname = usePathname();
-    const { data: session } = useSession();
-    const userRole = session?.user?.role;
-
-    if (!userRole) {
-        return null; // Or a loading spinner
-    }
-
-    return (
-        <SidebarMenu>
-            {navConfig.map(group => {
-                const accessibleItems = group.items.filter(item => item.roles.includes(userRole));
-                if (accessibleItems.length === 0) return null;
-
-                return (
-                    <SidebarGroup key={group.group}>
-                        <SidebarGroupLabel>{group.group}</SidebarGroupLabel>
-                        {accessibleItems.map(item => (
-                            <SidebarMenuItem key={item.label}>
-                                <Link href={item.href}>
-                                    <SidebarMenuButton
-                                        tooltip={item.label}
-                                        isActive={pathname.startsWith(item.href) && (item.href !== '/admin' || pathname === '/admin')}
-                                    >
-                                        <item.Icon />
-                                        {item.label}
-                                    </SidebarMenuButton>
-                                </Link>
-                            </SidebarMenuItem>
-                        ))}
-                    </SidebarGroup>
-                );
-            })}
-        </SidebarMenu>
-    );
-}
