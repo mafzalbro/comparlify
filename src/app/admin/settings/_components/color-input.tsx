@@ -1,6 +1,8 @@
+
 'use client';
 
 import { useEffect, useState, useRef, useMemo } from 'react';
+import { useTheme } from 'next-themes';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { themeConfig } from '@/lib/theme';
@@ -68,6 +70,7 @@ function parseHsl(hsl: string): { h: number; s: number; l: number } | null {
 export function ColorInput({ value, onChange, name, ...props }: ColorInputProps) {
   const [colorValue, setColorValue] = useState(value);
   const colorPickerRef = useRef<HTMLInputElement>(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     setColorValue(value);
@@ -76,15 +79,16 @@ export function ColorInput({ value, onChange, name, ...props }: ColorInputProps)
     const cssVarName = themeConfig[name];
     if (cssVarName) {
         const root = document.documentElement;
-        if (name.startsWith('theme.dark')) {
-            // For dark theme, we update the variable inside the .dark selector context
-            // which is usually on the html element itself.
-            root.style.setProperty(cssVarName, value);
-        } else {
+        
+        // Check if the current theme matches the color being edited
+        const isDarkThemeVar = name.startsWith('theme.dark');
+        const isLightThemeVar = name.startsWith('theme.light');
+
+        if ((theme === 'dark' && isDarkThemeVar) || (theme === 'light' && isLightThemeVar)) {
             root.style.setProperty(cssVarName, value);
         }
     }
-  }, [value, name]);
+  }, [value, name, theme]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
