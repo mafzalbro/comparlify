@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState } from 'react';
 import { createTool, updateTool } from '@/app/actions/tools';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,9 +26,6 @@ export function ToolForm({ tool }: ToolFormProps) {
   const formAction = isEditing ? updateTool.bind(null, tool.id) : createTool;
   const [state, action] = useActionState(formAction, { error: null });
 
-  const [title, setTitle] = useState(tool?.title ?? '');
-  const [slug, setSlug] = useState(tool?.slug ?? '');
-
   return (
     <form action={action}>
       <Card>
@@ -39,15 +36,18 @@ export function ToolForm({ tool }: ToolFormProps) {
         <CardContent className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="title">Tool Title</Label>
-            <Input id="title" name="title" defaultValue={tool?.title ?? ''} onChange={(e) => setTitle(e.target.value)} required />
+            <Input id="title" name="title" defaultValue={tool?.title ?? ''} required />
             {typeof state.error !== 'string' && state?.error?.title && <p className="text-destructive text-sm">{state.error.title[0]}</p>}
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="slug">URL Slug</Label>
-              <AiFillButton fieldType="URL Slug" topic={title} onContentReceived={setSlug} />
+              <AiFillButton fieldType="URL Slug" topic={tool?.title} onContentReceived={(slug) => {
+                  const slugInput = document.getElementById('slug') as HTMLInputElement;
+                  if (slugInput) slugInput.value = slug;
+              }} />
             </div>
-            <Input id="slug" name="slug" value={slug} onChange={(e) => setSlug(e.target.value)} required />
+            <Input id="slug" name="slug" defaultValue={tool?.slug ?? ''} required />
             {typeof state.error !== 'string' && state?.error?.slug && <p className="text-destructive text-sm">{state.error.slug[0]}</p>}
           </div>
           <div className="space-y-2">
@@ -92,7 +92,7 @@ export function ToolForm({ tool }: ToolFormProps) {
           <div className="space-y-2">
             <Label htmlFor="prompt">AI Prompt Template</Label>
             <Textarea id="prompt" name="prompt" defaultValue={tool?.prompt ?? ''} rows={8} required placeholder="You are an expert... Use {{{topic}}} and {{{context}}} for inputs." />
-             <p className="text-xs text-muted-foreground">Use Handlebars syntax. Use `{{{topic}}}` for the main input and `{{{context}}}` for the optional context field.</p>
+             <p className="text-xs text-muted-foreground">Use Handlebars syntax. Use {'`{{{topic}}}`'} for the main input and {'`{{{context}}}`'} for the optional context field.</p>
             {typeof state.error !== 'string' && state?.error?.prompt && <p className="text-destructive text-sm">{state.error.prompt[0]}</p>}
           </div>
            <div className="flex items-center space-x-2">
