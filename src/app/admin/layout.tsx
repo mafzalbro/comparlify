@@ -1,32 +1,23 @@
 
-
 import {
     Sidebar,
     SidebarContent,
     SidebarHeader,
-    SidebarMenu,
-    SidebarMenuItem,
-    SidebarMenuButton,
     SidebarProvider,
     SidebarTrigger,
     SidebarInset,
-    SidebarGroup,
-    SidebarGroupLabel,
     SidebarFooter
 } from "@/components/ui/sidebar";
-import { Settings, LogOut, LayoutDashboard, ShieldCheck } from "lucide-react";
-import { Logo } from "@/components/logo";
-import { LogoutButton } from "@/components/auth/logout-button";
-import Link from "next/link";
-import { auth } from "@/lib/auth";
 import { UserNav } from "@/components/user-nav";
-import { NotificationBell } from "@/components/layout/notification-bell";
-import { getNotifications } from "@/app/actions/notifications";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { getSiteName, } from "@/lib/content";
 import { AdminNav } from "./_components/admin-nav";
+import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import { NotificationBell } from "@/components/layout/notification-bell";
+import { getNotifications } from "../actions/notifications";
+import { Logo } from "@/components/logo";
+import { getSiteName } from "@/lib/content";
 
 
 export default async function AdminLayout({
@@ -54,29 +45,11 @@ export default async function AdminLayout({
                     <AdminNav userRole={session.user.role} pathname={pathname} />
                 </SidebarContent>
                 <SidebarFooter>
-                    <SidebarMenu>
-                         <SidebarMenuItem>
-                            <Link href="/">
-                                <SidebarMenuButton tooltip="View Site">
-                                    <LayoutDashboard />
-                                    View Site
-                                </SidebarMenuButton>
-                            </Link>
-                        </SidebarMenuItem>
-                        <SidebarMenuItem>
-                            <LogoutButton>
-                                <SidebarMenuButton tooltip="Logout">
-                                    <LogOut />
-                                    Logout
-                                </SidebarMenuButton>
-                            </LogoutButton>
-                        </SidebarMenuItem>
-                        {session?.user && (
-                             <div className="p-2 flex items-center justify-center">
-                                <UserNav user={session.user} />
-                            </div>
-                        )}
-                    </SidebarMenu>
+                    {session?.user && (
+                            <div className="p-2 flex items-center justify-center">
+                            <UserNav user={session.user} />
+                        </div>
+                    )}
                 </SidebarFooter>
             </Sidebar>
             <SidebarInset>
