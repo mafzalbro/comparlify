@@ -9,6 +9,8 @@ import { getContent } from '@/lib/content';
 import prisma from '@/lib/prisma';
 import type { Tool } from './tools';
 import { iconMap } from './tools';
+import { Suspense } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export const metadata: Metadata = generateSeoMetadata({
   title: 'AI Creator Tools',
@@ -38,8 +40,8 @@ export default async function ToolsPage() {
   const tools = await getTools();
 
   return (
-    <>
+    <Suspense fallback={<Skeleton className="h-screen w-full" />}>
       <ToolsClientPage allTools={tools} />
-    </>
+    </Suspense>
   );
 }

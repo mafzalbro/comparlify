@@ -1,5 +1,4 @@
 
-
 import { auth } from "@/lib/auth";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
@@ -9,6 +8,7 @@ import type { Post, Comparison, Platform, Bookmark } from '@prisma/client';
 import { ArrowRight, BookText, GitCompareArrows } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ManagedImage } from "@/components/managed-image";
+import type { SearchParams } from "@/types/next";
 
 type PopulatedPostBookmark = Bookmark & { post: Post };
 type PopulatedComparisonBookmark = Bookmark & { comparison: Comparison & { platformA: Platform, platformB: Platform } };
@@ -105,12 +105,14 @@ function ComparisonBookmarkCard({ comparison }: { comparison: Comparison & { pla
     )
 }
 
-export default async function UserPanelDashboard() {
+export default async function UserPanelDashboard({ searchParams }: { searchParams: SearchParams }) {
     const session = await auth();
     if (!session?.user) return null;
 
     const { posts, comparisons } = await getBookmarks(session?.user?.id || "");
     const hasBookmarks = posts.length > 0 || comparisons.length > 0;
+    
+    const activeTab = searchParams.view || 'posts';
 
     return (
         <div>
@@ -126,13 +128,13 @@ export default async function UserPanelDashboard() {
                 </CardHeader>
                 <CardContent>
                     {hasBookmarks ? (
-                        <Tabs defaultValue="posts" className="w-full">
+                        <Tabs defaultValue={activeTab}>
                             <TabsList>
-                                <TabsTrigger value="posts" disabled={posts.length === 0}>
-                                    <BookText className="mr-2 h-4 w-4" /> Posts ({posts.length})
+                                <TabsTrigger value="posts" disabled={posts.length === 0} asChild>
+                                    <Link href="?view=posts" scroll={false}><BookText className="mr-2 h-4 w-4" /> Posts ({posts.length})</Link>
                                 </TabsTrigger>
-                                <TabsTrigger value="comparisons" disabled={comparisons.length === 0}>
-                                    <GitCompareArrows className="mr-2 h-4 w-4" /> Comparisons ({comparisons.length})
+                                <TabsTrigger value="comparisons" disabled={comparisons.length === 0} asChild>
+                                    <Link href="?view=comparisons" scroll={false}><GitCompareArrows className="mr-2 h-4 w-4" /> Comparisons ({comparisons.length})</Link>
                                 </TabsTrigger>
                             </TabsList>
                             <TabsContent value="posts">

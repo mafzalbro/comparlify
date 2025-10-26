@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { revalidateCacheAction } from '@/app/actions/admin';
@@ -22,16 +22,26 @@ import { ThemeEditor } from './_components/theme-editor';
 
 
 export default function AdminSettingsPage() {
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
     const [settingsContent, setSettingsContent] = useState<AdminSettings>()
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
-    const router = useRouter();
-
+    
     useEffect(() => {
         getSettingsContent().then(content => {
             setSettingsContent(content);
         })
     }, []);
+
+    const groups = settingsContent ? Object.keys(settingsContent).sort() : [];
+    const activeTab = searchParams.get('group') || 'general';
+
+    const handleTabChange = (value: string) => {
+        router.push(`${pathname}?group=${value}`, { scroll: false });
+    };
 
     const handleRevalidation = (path: 'all' | 'blog' | 'compare') => {
         startTransition(async () => {
@@ -73,7 +83,7 @@ export default function AdminSettingsPage() {
     return (
         <div>
             <h1 className="text-3xl font-bold mb-6">Settings</h1>
-            <Tabs defaultValue="general" className="w-full">
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
                 <TabsList className="mb-6 h-auto flex-wrap justify-start">
                     <TabsTrigger value="general">General</TabsTrigger>
                     <TabsTrigger value="theme">Theme</TabsTrigger>

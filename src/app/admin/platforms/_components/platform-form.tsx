@@ -2,6 +2,7 @@
 'use client';
 
 import { useActionState, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { createPlatform, updatePlatform } from '@/app/actions/platforms';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,7 +10,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { type Platform, type Feature, type PlatformFeature, type FeatureCategory } from '@prisma/client';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { useRouter } from 'next/navigation';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SubmitButton } from '@/components/submit-button';
@@ -27,6 +27,9 @@ interface PlatformFormProps {
 
 export function PlatformForm({ platform, features, featureCategories }: PlatformFormProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const isEditing = !!platform;
   const formAction = isEditing ? updatePlatform.bind(null, platform.id) : createPlatform;
   const [state, action] = useActionState(formAction, { error: null });
@@ -57,6 +60,13 @@ export function PlatformForm({ platform, features, featureCategories }: Platform
         return acc;
     }, {} as Record<string, string>)
   });
+
+  const activeTab = searchParams.get('features') || (featureCategories.length > 0 ? featureCategories[0].id : '');
+
+  const handleTabChange = (value: string) => {
+    router.push(`${pathname}?features=${value}`, { scroll: false });
+  };
+
 
   return (
     <form action={action}>
@@ -143,7 +153,7 @@ export function PlatformForm({ platform, features, featureCategories }: Platform
                 <CardDescription>Select the features this platform has and add any relevant details.</CardDescription>
             </CardHeader>
             <CardContent>
-                 <Tabs defaultValue={featureCategories[0]?.id ?? ''} className="w-full">
+                 <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
                     <TabsList>
                         {featureCategories.map(cat => (
                              <TabsTrigger key={cat.id} value={cat.id}>{cat.name}</TabsTrigger>

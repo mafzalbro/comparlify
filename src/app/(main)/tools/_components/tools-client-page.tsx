@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search as SearchIcon, Wand2 } from 'lucide-react';
@@ -10,9 +11,14 @@ import { AIGenericForm } from '@/components/ai-generic-form';
 import { Card } from '@/components/ui/card';
 
 export function ToolsClientPage({ allTools }: { allTools: Tool[] }) {
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const [searchTerm, setSearchTerm] = useState('');
 
     const allCategories: (ToolCategory | 'All')[] = ["All", ...categories];
+
+    // Get active category from URL or default to 'All'
+    const activeCategory = searchParams.get('category') || 'All';
 
     // Find the first tool in the filtered list or the first tool overall
     const getInitialTool = (category: ToolCategory | 'All') => {
@@ -23,11 +29,12 @@ export function ToolsClientPage({ allTools }: { allTools: Tool[] }) {
         return filtered.length > 0 ? filtered[0] : null;
     }
     
-    const [activeTool, setActiveTool] = useState<Tool | null>(getInitialTool('All'));
+    const [activeTool, setActiveTool] = useState<Tool | null>(getInitialTool(activeCategory as ToolCategory | 'All'));
 
     const handleTabChange = (category: string) => {
         const firstToolInNewCategory = getInitialTool(category as ToolCategory | 'All');
         setActiveTool(firstToolInNewCategory);
+        router.push(`/tools?category=${category}`, { scroll: false });
     };
 
     return (
@@ -41,7 +48,7 @@ export function ToolsClientPage({ allTools }: { allTools: Tool[] }) {
                 </p>
             </div>
 
-            <Tabs defaultValue="All" className="w-full" onValueChange={handleTabChange}>
+            <Tabs value={activeCategory} onValueChange={handleTabChange} className="w-full">
                 <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-7 h-auto">
                     {allCategories.map(category => (
                         <TabsTrigger key={category} value={category}>{category.replace(/([A-Z])/g, ' $1').trim()}</TabsTrigger>
