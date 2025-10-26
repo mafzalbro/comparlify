@@ -63,10 +63,6 @@
   body {
     @apply bg-background text-foreground;
   }
-  .animate-fade-in-up {
-    animation: fade-in-up 0.6s ease-out forwards;
-    opacity: 0; /* Start hidden */
-  }
 }
 
 @layer utilities {
@@ -84,5 +80,9 @@
   }
   .dark .bg-grid-slate-400\/\[0\.05\] {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke-width='2' stroke='hsl(var(--foreground)_/_0.05)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e");
+  }
+  .animate-fade-in-up {
+    animation: fade-in-up 0.6s ease-out forwards;
+    opacity: 0;
   }
 }
