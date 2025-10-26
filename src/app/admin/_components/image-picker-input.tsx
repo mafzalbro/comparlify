@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,12 +9,46 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ManagedImage } from '@/components/managed-image';
 import type { Image } from '@prisma/client';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface ImagePickerInputProps {
   label: string;
   value: string;
   onValueChange: (value: string) => void;
   images: Image[];
+}
+
+function ImageGrid({ images, onImageSelect }: { images: Image[], onImageSelect: (url: string) => void }) {
+    return (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4">
+        {images.map(image => (
+          <button
+            key={image.id}
+            type="button"
+            onClick={() => onImageSelect(image.url)}
+            className="block w-full aspect-square rounded-lg overflow-hidden border-2 border-transparent hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all group"
+          >
+            <ManagedImage
+              src={image.url}
+              alt={image.altText || image.filename}
+              width={200}
+              height={200}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+          </button>
+        ))}
+      </div>
+    )
+}
+
+function ImageGridSkeleton() {
+    return (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4">
+            {Array.from({ length: 15 }).map((_, i) => (
+                <Skeleton key={i} className="w-full aspect-square rounded-lg" />
+            ))}
+        </div>
+    )
 }
 
 export function ImagePickerInput({ label, value, onValueChange, images }: ImagePickerInputProps) {
@@ -29,7 +63,7 @@ export function ImagePickerInput({ label, value, onValueChange, images }: ImageP
     <div className="space-y-2">
       <Label>{label}</Label>
       <div className="flex items-start gap-2">
-        <Input value={value} onChange={e => onValueChange(e.target.value)} required />
+        <Input name="image" value={value} onChange={e => onValueChange(e.target.value)} required />
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button type="button" variant="outline">Browse</Button>
@@ -39,24 +73,9 @@ export function ImagePickerInput({ label, value, onValueChange, images }: ImageP
               <DialogTitle>Select an Image</DialogTitle>
             </DialogHeader>
             <ScrollArea className="h-full">
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4">
-                {images.map(image => (
-                  <button
-                    key={image.id}
-                    type="button"
-                    onClick={() => handleImageSelect(image.url)}
-                    className="block w-full aspect-square rounded-lg overflow-hidden border-2 border-transparent hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all group"
-                  >
-                    <ManagedImage
-                      src={image.url}
-                      alt={image.altText || image.filename}
-                      width={200}
-                      height={200}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                  </button>
-                ))}
-              </div>
+                <Suspense fallback={<ImageGridSkeleton />}>
+                    <ImageGrid images={images} onImageSelect={handleImageSelect} />
+                </Suspense>
             </ScrollArea>
           </DialogContent>
         </Dialog>
