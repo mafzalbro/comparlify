@@ -6,6 +6,7 @@ import { type Image } from '@prisma/client';
 import { ManagedImage } from '@/components/managed-image';
 import { ImageDetailsDialog } from './image-details-dialog';
 import { ImageGalleryContextProvider, ImageGalleryContext } from './image-gallery-context';
+import { ImageIcon } from 'lucide-react';
 
 interface ImageGalleryProps {
     initialImages: Image[];
@@ -30,8 +31,10 @@ function GalleryContent() {
     
     if (images.length === 0) {
         return (
-            <div className="text-center text-muted-foreground py-16 border-2 border-dashed rounded-lg">
-                <p>No images have been uploaded yet.</p>
+            <div className="flex flex-col items-center justify-center text-center text-muted-foreground py-16 border-2 border-dashed rounded-lg">
+                <ImageIcon className="h-12 w-12 mb-4" />
+                <h3 className="font-semibold text-lg">No Images Uploaded</h3>
+                <p className="text-sm">Your media gallery is empty. Upload an image to get started.</p>
             </div>
         )
     }

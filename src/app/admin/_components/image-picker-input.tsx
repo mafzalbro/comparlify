@@ -11,6 +11,7 @@ import { ManagedImage } from '@/components/managed-image';
 import type { Image } from '@prisma/client';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getImagesAction } from '@/app/actions/media';
+import { ImageIcon } from 'lucide-react';
 
 interface ImagePickerInputProps {
   label: string;
@@ -31,6 +32,16 @@ function ImageGrid({ onImageSelect }: { onImageSelect: (url: string) => void }) 
 
     if (isLoading) {
         return <ImageGridSkeleton />;
+    }
+
+    if (images.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground p-12">
+                <ImageIcon className="h-12 w-12 mb-4" />
+                <h3 className="font-semibold">No Images in Gallery</h3>
+                <p className="text-sm">Upload an image to get started.</p>
+            </div>
+        )
     }
 
     return (
@@ -73,6 +84,11 @@ export function ImagePickerInput({ label, name, defaultValue = '' }: ImagePicker
     setCurrentValue(imageUrl);
     setIsOpen(false);
   };
+  
+  // Update internal state if the defaultValue prop changes from the outside
+  useEffect(() => {
+    setCurrentValue(defaultValue);
+  }, [defaultValue])
 
   return (
     <div className="space-y-2">
