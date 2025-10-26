@@ -1,7 +1,5 @@
 
-'use client';
 
-import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
     SidebarMenu,
@@ -10,9 +8,8 @@ import {
     SidebarGroup,
     SidebarGroupLabel,
 } from "@/components/ui/sidebar";
-import { Home, Settings, Table, PenSquare, BookText, GitCompareArrows, Users, Globe, Send, MessageCircle, Mail, Newspaper, MessageSquare, Gavel, ImageIcon, ClipboardCheck } from "lucide-react";
-import { useSession } from "next-auth/react";
-import { Role } from "@prisma/client";
+import { Home, Settings, Table, PenSquare, BookText, GitCompareArrows, Users, Globe, Send, MessageCircle, Mail, Newspaper, MessageSquare, Gavel, ImageIcon, ClipboardCheck, Wand2 } from "lucide-react";
+import { type Role } from "@prisma/client";
 
 type NavItem = {
     href: string;
@@ -42,6 +39,7 @@ const navConfig: NavGroup[] = [
             { href: "/admin/news", label: "News", Icon: Newspaper, roles: ['ADMIN', 'EDITOR', 'AUTHOR'] },
             { href: "/admin/community", label: "Community", Icon: MessageSquare, roles: ['ADMIN', 'EDITOR', 'MODERATOR'] },
             { href: "/admin/media", label: "Media", Icon: ImageIcon, roles: ['ADMIN', 'EDITOR', 'AUTHOR'] },
+            { href: "/admin/tools", label: "Tools", Icon: Wand2, roles: ['ADMIN'] },
             { href: "/admin/legal", label: "Legal", Icon: Gavel, roles: ['ADMIN'] },
         ]
     },
@@ -69,13 +67,14 @@ const navConfig: NavGroup[] = [
     }
 ];
 
-export function AdminNav() {
-    const pathname = usePathname();
-    const { data: session } = useSession();
-    const userRole = session?.user?.role;
+interface AdminNavProps {
+    userRole: Role;
+    pathname: string;
+}
 
+export function AdminNav({ userRole, pathname }: AdminNavProps) {
     if (!userRole) {
-        return null; // Or a loading spinner
+        return null;
     }
 
     return (

@@ -26,6 +26,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { getSiteName, } from "@/lib/content";
 import { AdminNav } from "./_components/admin-nav";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 
 
 export default async function AdminLayout({
@@ -41,6 +42,8 @@ export default async function AdminLayout({
         redirect('/');
     }
 
+    const pathname = headers().get('x-next-pathname') || '/admin';
+
     return (
         <SidebarProvider>
             <Sidebar>
@@ -48,7 +51,7 @@ export default async function AdminLayout({
                         <Logo siteName={siteName} className="justify-start pl-2"/>
                 </SidebarHeader>
                 <SidebarContent>
-                    <AdminNav />
+                    <AdminNav userRole={session.user.role} pathname={pathname} />
                 </SidebarContent>
                 <SidebarFooter>
                     <SidebarMenu>
