@@ -105,13 +105,14 @@ function ComparisonBookmarkCard({ comparison }: { comparison: Comparison & { pla
     )
 }
 
-export default async function UserPanelDashboard({ searchParams }: { searchParams: SearchParams }) {
+export default async function UserPanelDashboard(props: { searchParams: Promise<SearchParams> }) {
+    const searchParams = await props.searchParams;
     const session = await auth();
     if (!session?.user) return null;
 
     const { posts, comparisons } = await getBookmarks(session?.user?.id || "");
     const hasBookmarks = posts.length > 0 || comparisons.length > 0;
-    
+
     const activeTab = searchParams.view || 'posts';
 
     return (

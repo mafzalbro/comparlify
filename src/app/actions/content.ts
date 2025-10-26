@@ -80,7 +80,8 @@ export async function getSettingsContent(): Promise<AdminSettings> {
         { group: "Globals" }, 
         { group: "Code Injection" },
         { group: "SEO Settings" },
-        { group: "Theme" }
+        { group: "Theme" },
+        { group: "Organization Settings" },
       ],
     },
     orderBy: { key: "asc" },

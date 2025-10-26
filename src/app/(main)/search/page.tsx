@@ -53,11 +53,12 @@ async function performSearch(query: string) {
   return { posts, comparisons };
 }
 
-export default async function SearchPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+export default async function SearchPage(
+  props: {
+    searchParams: Promise<SearchParams>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const query = typeof searchParams.q === 'string' ? searchParams.q : '';
   const { posts, comparisons } = await performSearch(query);
 

@@ -12,7 +12,8 @@ async function getTool(id: string) {
   });
 }
 
-export default async function EditToolPage({ params }: { params: { id: string } }) {
+export default async function EditToolPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const tool = await getTool(params.id);
 
   if (!tool) {

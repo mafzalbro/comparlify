@@ -26,27 +26,29 @@ const getDocument = cache(async (slug: string): Promise<SiteContent | null> => {
     return doc;
 });
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const doc = await getDocument(params.slug);
-  if (!doc) return {};
-  
-  // Create a more generic title from the key
-  const title = params.slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+    const params = await props.params;
+    const doc = await getDocument(params.slug);
+    if (!doc) return {};
 
-  return generateSeoMetadata({
-    title: title,
-    description: doc.value.substring(0, 160),
-    path: `/legal/${params.slug}`
-  });
+    // Create a more generic title from the key
+    const title = params.slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+    return generateSeoMetadata({
+      title: title,
+      description: doc.value.substring(0, 160),
+      path: `/legal/${params.slug}`
+    });
 }
 
-export default async function LegalDocumentPage({ params }: { params: { slug: string } }) {
+export default async function LegalDocumentPage(props: { params: Promise<{ slug: string }> }) {
+    const params = await props.params;
     const doc = await getDocument(params.slug);
-    
+
     if (!doc) {
         notFound();
     }
-    
+
     const title = params.slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
     return (

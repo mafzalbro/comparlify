@@ -34,10 +34,10 @@ async function getSiteContent() {
   return groupedContent;
 }
 
-export default async function AdminContentPage(props: { searchParams: SearchParams }) {
+export default async function AdminContentPage(props: { searchParams: Promise<SearchParams> }) {
   const groupedContent = await getSiteContent();
   const groups = Object.keys(groupedContent).sort();
-  const defaultTab = props.searchParams?.group as string || groups[0];
+  const defaultTab = (await props.searchParams)?.group as string || groups[0];
 
   return (
     <div>
