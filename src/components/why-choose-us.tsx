@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
@@ -20,11 +21,14 @@ interface WhyChooseUsProps {
     "homepage.whyus.aitools.description": string;
     "homepage.whyus.strategies.title": string;
     "homepage.whyus.strategies.description": string;
+    "module.compare.enabled": string;
+    "module.tools.enabled": string;
+    "module.blog.enabled": string;
   };
 }
 
 export function WhyChooseUs({ content }: WhyChooseUsProps) {
-  const features = [
+  const allFeatures = [
     {
       id: "comparisons",
       title: content["homepage.whyus.comparisons.title"] || "",
@@ -34,6 +38,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
         "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop",
       dataAiHint: "data chart graph analytics",
       href: "/compare",
+      enabled: content["module.compare.enabled"] !== "false",
     },
     {
       id: "ai-tools",
@@ -44,6 +49,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
         "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=600&fit=crop",
       dataAiHint: "abstract technology AI brain circuit",
       href: "/tools",
+      enabled: content["module.tools.enabled"] !== "false",
     },
     {
       id: "strategies",
@@ -54,8 +60,11 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
         "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop",
       dataAiHint: "business growth chart upward trend",
       href: "/blog",
+      enabled: content["module.blog.enabled"] !== "false",
     },
-  ].filter((f) => f.title && f.description); // Filter out empty features before content loads
+  ];
+
+  const features = allFeatures.filter((f) => f.enabled && f.title && f.description);
 
   const [activeFeature, setActiveFeature] = useState(
     features.length > 0 ? features[0].id : ""
@@ -113,12 +122,16 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
 
   const activeFeatureData = features.find((f) => f.id === activeFeature);
 
+  if (features.length === 0) {
+    return null;
+  }
+  
   // RENDER FOR DESKTOP
   if (!isMobile) {
     return (
       <section
         ref={targetRef}
-        className="relative py-20 md:py-32 bg-gradient-to-br from-secondary/20 via-background to-secondary/30 min-h-[300vh]"
+        className="relative py-20 md:py-32 bg-gradient-to-br from-secondary/20 via-background to-secondary/30 min-h-[300vh] overflow-hidden"
       >
         <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark [mask-image:linear-gradient(0deg,transparent,black)]"></div>
 
@@ -411,3 +424,5 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
     </section>
   );
 }
+
+    

@@ -1,3 +1,4 @@
+
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -110,7 +111,14 @@ export default async function Home() {
       content["homepage.whyus.strategies.title"],
     "homepage.whyus.strategies.description":
       content["homepage.whyus.strategies.description"],
+    "module.compare.enabled": content["module.compare.enabled"],
+    "module.tools.enabled": content["module.tools.enabled"],
+    "module.blog.enabled": content["module.blog.enabled"],
   };
+
+  const isToolsEnabled = content["module.tools.enabled"] !== "false";
+  const isCompareEnabled = content["module.compare.enabled"] !== "false";
+  const isBlogEnabled = content["module.blog.enabled"] !== "false";
 
   const toolsHref = session ? "/tools" : "/register";
 
@@ -118,7 +126,7 @@ export default async function Home() {
     <>
       <HomePageClient session={session} />
 
-      <section className="relative w-full min-h-[70vh] py-10 flex items-center justify-center">
+      <section className="relative w-full min-h-[70vh] py-10 flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark [mask-image:linear-gradient(0deg,transparent,black)]"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
         <div className="container relative z-10 flex flex-col items-center justify-center text-center px-4 md:px-6 text-foreground">
@@ -132,15 +140,19 @@ export default async function Home() {
             {content["homepage.hero.subtitle"]}
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4 animate-fade-in-up animation-delay-600">
-            <Button asChild size="lg" className="group">
-              <Link href={toolsHref}>
-                {content["homepage.cta.primary"]}
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link href="/compare">{content["homepage.cta.secondary"]}</Link>
-            </Button>
+            {isToolsEnabled && (
+              <Button asChild size="lg" className="group">
+                <Link href={toolsHref}>
+                  {content["homepage.cta.primary"]}
+                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </Button>
+            )}
+            {isCompareEnabled && (
+              <Button asChild size="lg" variant="outline">
+                <Link href="/compare">{content["homepage.cta.secondary"]}</Link>
+              </Button>
+            )}
           </div>
         </div>
       </section>
@@ -148,48 +160,50 @@ export default async function Home() {
       <WhyChooseUs content={whyChooseUsContent} />
 
       {/* Featured Tools Section */}
-      <section className="py-16 md:py-24 bg-background">
-        <div className="container px-4 md:px-6">
-          <div className="mx-auto max-w-3xl text-center mb-12 animate-fade-in-up">
-            <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
-              {content["homepage.tools.title"]}
-            </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
-              {content["homepage.tools.subtitle"]}
-            </p>
-          </div>
+      {isToolsEnabled && (
+        <section className="py-16 md:py-24 bg-background">
+          <div className="container px-4 md:px-6">
+            <div className="mx-auto max-w-3xl text-center mb-12 animate-fade-in-up">
+              <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
+                {content["homepage.tools.title"]}
+              </h2>
+              <p className="mt-4 text-lg text-muted-foreground">
+                {content["homepage.tools.subtitle"]}
+              </p>
+            </div>
 
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
-            {featuredTools.map((tool, index) => (
-              <div
-                key={index}
-                className="animate-fade-in-up"
-                style={{ animationDelay: `${index * 150}ms` }}
-              >
-                <Card className="bg-card/60 backdrop-blur-lg border border-border/20 flex h-full transform flex-col items-center p-6 text-center transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl">
-                  <div className="mb-4 rounded-full bg-primary/20 p-4">
-                    <tool.Icon className="h-8 w-8 text-primary" />
-                  </div>
-                  <CardTitle className="font-headline mb-2 text-xl">
-                    {tool.title}
-                  </CardTitle>
-                  <CardContent className="flex-1 text-sm text-muted-foreground">
-                    <p>{tool.description}</p>
-                  </CardContent>
-                  <Button asChild variant="link" className="mt-4">
-                    <Link href={toolsHref}>
-                      Use Tool <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
-                </Card>
-              </div>
-            ))}
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+              {featuredTools.map((tool, index) => (
+                <div
+                  key={index}
+                  className="animate-fade-in-up"
+                  style={{ animationDelay: `${index * 150}ms` }}
+                >
+                  <Card className="bg-card/60 backdrop-blur-lg border border-border/20 flex h-full transform flex-col items-center p-6 text-center transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl">
+                    <div className="mb-4 rounded-full bg-primary/20 p-4">
+                      <tool.Icon className="h-8 w-8 text-primary" />
+                    </div>
+                    <CardTitle className="font-headline mb-2 text-xl">
+                      {tool.title}
+                    </CardTitle>
+                    <CardContent className="flex-1 text-sm text-muted-foreground">
+                      <p>{tool.description}</p>
+                    </CardContent>
+                    <Button asChild variant="link" className="mt-4">
+                      <Link href={toolsHref}>
+                        Use Tool <ArrowRight className="ml-2 h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </Card>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* From the Blog Section */}
-      {recentPosts.length > 0 && (
+      {isBlogEnabled && recentPosts.length > 0 && (
         <section className="py-16 md:py-24 bg-secondary/30">
           <div className="container px-4 md:px-6">
             <div className="mx-auto max-w-3xl text-center mb-12 animate-fade-in-up">
@@ -350,3 +364,5 @@ export default async function Home() {
     </>
   );
 }
+
+    
