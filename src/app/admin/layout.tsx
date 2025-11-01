@@ -17,6 +17,8 @@ import { NotificationBell } from "@/components/layout/notification-bell";
 import { getNotifications } from "../actions/notifications";
 import { Logo } from "@/components/logo";
 import { getSiteName } from "@/lib/content";
+import { headers } from "next/headers";
+import { checkAuthorization } from "@/lib/authorization";
 
 
 export default async function AdminLayout({
@@ -25,12 +27,16 @@ export default async function AdminLayout({
     children: React.ReactNode;
 }) {
     const session = await auth();
+    const pathname = headers().get('x-pathname') || '/admin';
+    
+    // Perform authorization check for all admin routes
+    await checkAuthorization(session, pathname);
+    
+    // We can safely assume session and user exist after the check
+    const user = session!.user;
+    
     const { notifications, unreadCount } = await getNotifications();
     let siteName = await getSiteName()
-
-    if (!session || !['ADMIN', 'EDITOR', 'AUTHOR', 'MODERATOR', 'SUPPORT'].includes(session.user.role)) {
-        redirect('/');
-    }
 
     return (
         <SidebarProvider>
@@ -39,12 +45,12 @@ export default async function AdminLayout({
                         <Logo siteName={siteName} className="justify-start pl-2"/>
                 </SidebarHeader>
                 <SidebarContent>
-                    <AdminNav userRole={session.user.role} />
+                    <AdminNav userRole={user.role} />
                 </SidebarContent>
                 <SidebarFooter>
-                    {session?.user && (
+                    {user && (
                             <div className="p-2 flex items-center justify-center">
-                            <UserNav user={session.user} />
+                            <UserNav user={user} />
                         </div>
                     )}
                 </SidebarFooter>
@@ -58,7 +64,7 @@ export default async function AdminLayout({
                     <div className="flex items-center gap-2">
                         <ThemeToggle />
                         <NotificationBell notifications={notifications} unreadCount={unreadCount} />
-                        {session?.user && <UserNav user={session.user} />}
+                        {user && <UserNav user={user} />}
                     </div>
                 </header>
                 <main className="p-8">

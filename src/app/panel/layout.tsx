@@ -24,6 +24,8 @@ import { NotificationBell } from "@/components/layout/notification-bell";
 import { getNotifications } from "@/app/actions/notifications";
 import { getSiteName } from "@/lib/content";
 import { PanelNav } from "./_components/panel-nav";
+import { headers } from "next/headers";
+import { checkAuthorization } from "@/lib/authorization";
 
 
 export default async function PanelLayout({
@@ -32,13 +34,16 @@ export default async function PanelLayout({
     children: React.ReactNode;
 }) {
     const session = await auth();
+    const pathname = headers().get('x-pathname') || '/panel';
+
+    // Perform authorization check for all panel routes
+    await checkAuthorization(session, pathname);
+
+    // We can safely assume session and user exist after the check
+    const user = session!.user;
+
     const { notifications, unreadCount } = await getNotifications();
     const siteName = await getSiteName()
-
-    if (!session) {
-        // This should be handled by middleware, but as a fallback
-        return null;
-    }
 
     return (
         <SidebarProvider>
@@ -47,11 +52,11 @@ export default async function PanelLayout({
                     <Logo siteName={siteName} />
                 </SidebarHeader>
                 <SidebarContent>
-                    <PanelNav user={session.user} />
+                    <PanelNav user={user} />
                 </SidebarContent>
                 <SidebarFooter>
                     <SidebarMenu>
-                        {session?.user.role === 'ADMIN' && (
+                        {user.role === 'ADMIN' && (
                             <SidebarMenuItem>
                                 <Link href="/admin">
                                     <SidebarMenuButton tooltip="Admin Panel">
@@ -69,9 +74,9 @@ export default async function PanelLayout({
                                 </SidebarMenuButton>
                             </LogoutButton>
                         </SidebarMenuItem>
-                        {session?.user && (
+                        {user && (
                             <div className="p-2 flex items-center justify-center">
-                                <UserNav user={session.user} />
+                                <UserNav user={user} />
                             </div>
                         )}
                     </SidebarMenu>
@@ -85,7 +90,7 @@ export default async function PanelLayout({
                     </div>
                     <div className="flex items-center gap-2">
                         <NotificationBell notifications={notifications} unreadCount={unreadCount} />
-                         {session?.user && <UserNav user={session.user} />}
+                         {user && <UserNav user={user} />}
                     </div>
                 </header>
                 <main className="p-8">
