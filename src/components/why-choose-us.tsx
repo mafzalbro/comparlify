@@ -131,7 +131,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
     return (
       <section
         ref={targetRef}
-        className="relative py-20 md:py-32 bg-gradient-to-br from-secondary/20 via-background to-secondary/30 min-h-[300vh] overflow-hidden"
+        className="relative py-20 md:py-32 bg-gradient-to-br from-secondary/20 via-background to-secondary/30 min-h-[300vh] overflow-x-hidden"
       >
         <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark [mask-image:linear-gradient(0deg,transparent,black)]"></div>
 
