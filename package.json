@@ -2,6 +2,7 @@
   "name": "comparlify",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --port 9002",
     "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
@@ -12,7 +13,8 @@
     "typecheck": "tsc --noEmit",
     "postinstall": "npm run prisma:cat && prisma generate",
     "prisma:seed": "npm run prisma:cat && tsx prisma/seed.ts",
-    "prisma:cat": "concat-cli -f prisma/schema/_base.prisma -f prisma/schema/notification.prisma -f prisma/schema/user.prisma -f prisma/schema/email.prisma -f prisma/schema/content.prisma -f prisma/schema/platform.prisma -f prisma/schema/comparison.prisma -f prisma/schema/news.prisma -f prisma/schema/community.prisma -f prisma/schema/image.prisma -f prisma/schema/tool.prisma -o prisma/schema.prisma", "prisma:migrate:dev": "npm run prisma:cat && npx prisma migrate dev --name init"
+    "prisma:cat": "concat-cli -f prisma/schema/_base.prisma -f prisma/schema/notification.prisma -f prisma/schema/user.prisma -f prisma/schema/email.prisma -f prisma/schema/content.prisma -f prisma/schema/platform.prisma -f prisma/schema/comparison.prisma -f prisma/schema/news.prisma -f prisma/schema/community.prisma -f prisma/schema/image.prisma -f prisma/schema/tool.prisma -o prisma/schema.prisma",
+    "prisma:migrate:dev": "npm run prisma:cat && npx prisma migrate dev --name init"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.4.1",
@@ -52,7 +54,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
     "date-fns": "^3.6.0",
-    "dotenv": "^16.5.0",
+    "dotenv": "^16.6.1",
     "embla-carousel-react": "^8.6.0",
     "fast-xml-parser": "^4.4.0",
     "firebase": "^11.9.1",
