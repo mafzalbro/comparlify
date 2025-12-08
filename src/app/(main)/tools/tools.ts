@@ -1,6 +1,5 @@
-
-import type { LucideIcon } from 'lucide-react';
-import type { ToolCategory } from '@prisma/client';
+import type { LucideIcon } from "lucide-react";
+import type { ToolCategory } from "@prisma/client";
 import {
   Lightbulb,
   FileText,
@@ -27,10 +26,10 @@ import {
   VideoIcon,
   Puzzle,
   ThumbsUp,
-  BrainCog
-} from 'lucide-react';
+  BrainCog,
+} from "lucide-react";
 
-export { type Tool, type ToolCategory } from '@prisma/client';
+export { type Tool, type ToolCategory } from "@prisma/client";
 
 export const iconMap: Record<string, LucideIcon> = {
   Lightbulb,
@@ -64,10 +63,16 @@ export const iconMap: Record<string, LucideIcon> = {
 export const availableIcons = Object.keys(iconMap);
 
 export const categories: ToolCategory[] = [
-  'ContentCreation',
-  'Marketing',
-  'CurriculumDesign',
-  'SEO',
-  'Productivity',
-  'EngagementInteraction',
+  "ContentCreation",
+  "Marketing",
+  "CurriculumDesign",
+  "SEO",
+  "Productivity",
+  "EngagementInteraction",
+];
+
+export const allTools: { href: string }[] = [
+  {
+    href: "/tools",
+  },
 ];
