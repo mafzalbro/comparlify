@@ -131,7 +131,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
     return (
       <section
         ref={targetRef}
-        className="relative py-20 md:py-32 bg-gradient-to-br from-secondary/20 via-background to-secondary/30 min-h-[300vh] overflow-x-hidden"
+        className="relative py-20 md:py-32 bg-gradient-to-br from-secondary/20 via-background to-secondary/30 min-h-[300vh]"
       >
         <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark [mask-image:linear-gradient(0deg,transparent,black)]"></div>
 
@@ -163,7 +163,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
         </div>
 
         {/* Sticky Cards Section */}
-        <div className="sticky top-8 bg-yellow-50 dark:bg-gray-800 min-h-screen flex flex-col justify-center">
+        <div className="sticky top-8 bg-secondary min-h-screen flex flex-col justify-center">
           <div className="container px-6 md:px-8">
             <div
               ref={cardsRef}
