@@ -16,38 +16,64 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       allowDangerousEmailAccountLinking: true,
+      profile(profile) {
+        return {
+          id: profile.id,
+          email: profile.email,
+          name: profile.name,
+          image: profile.picture,
+          role: "USER",
+          onboarded: false,
+          newsletter: false,
+          suspended: false,
+        };
+      },
     }),
     GitHub({
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
       allowDangerousEmailAccountLinking: true,
+      profile(profile) {
+        return {
+          id: `${profile.id}`,
+          email: profile.email,
+          name: profile.name,
+          image: profile.avatar_url,
+          role: "USER",
+          onboarded: false,
+          newsletter: false,
+          suspended: false,
+        };
+      },
     }),
     Credentials({
-        async authorize(credentials) {
-            if (process.env.NODE_ENV !== 'development') return null;
+      async authorize(credentials) {
+        if (process.env.NODE_ENV !== "development") return null;
 
-            if (credentials.userId) {
-                const user = await prisma.user.findUnique({
-                    where: { id: credentials.userId as string },
-                });
-                if (user) {
-                    if (user.suspended) {
-                        throw new Error("This account is currently suspended.");
-                    }
-                    return user;
-                }
+        if (credentials.userId) {
+          const user = await prisma.user.findUnique({
+            where: { id: credentials.userId as string },
+          });
+          if (user) {
+            if (user.suspended) {
+              throw new Error("This account is currently suspended.");
             }
-            return null;
+            return user;
+          }
         }
-    })
+        return null;
+      },
+    }),
   ],
   callbacks: {
     async signIn({ user }) {
-        const dbUser = await prisma.user.findUnique({ where: { email: user.email! } });
-        if (dbUser?.suspended) {
-            return false; // Reject sign-in if user is suspended
-        }
-        return true;
+      const dbUser = await prisma.user.findUnique({
+        where: { email: user.email! },
+      });
+      if (dbUser?.suspended) {
+        return false; // Reject sign-in if user is suspended
+      }
+      return true;
     },
     async jwt({ token }) {
       const user = token.email
@@ -57,10 +83,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // On initial sign-in, add the user ID and other details to the token
       if (user) {
         if (user.suspended) {
-           throw new Error("User is suspended");
+          throw new Error("User is suspended");
         }
         token.id = user.id;
         token.role = user.role ?? "USER";
+        token.image = user.image ?? "";
         token.onboarded = user.onboarded ?? false;
         token.newsletter = user.newsletter ?? false;
         token.suspended = user.suspended ?? false;
@@ -72,6 +99,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (session.user && token.id) {
         session.user.id = token.id as string;
         session.user.role = token.role as Role;
+        session.user.image = token.image as string;
         session.user.onboarded = token.onboarded as boolean;
         session.user.newsletter = token.newsletter as boolean;
         session.user.suspended = token.suspended as boolean;
@@ -81,10 +109,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   events: {
     async createUser({ user }) {
-      if (user.email === "mafzalbro@gmail.com") {
+      if (user.email) {
         await prisma.user.update({
           where: { id: user.id },
-          data: { role: "ADMIN" },
+          data: {
+            role: user.email === "comparlify@gmail.com" ? "ADMIN" : "USER",
+            image: user.image,
+          },
         });
       }
       // Notify all admins about the new user
