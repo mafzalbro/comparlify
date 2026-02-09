@@ -1,4 +1,3 @@
-
 model Notification {
   id        String           @id @default(cuid())
   userId    String
@@ -16,4 +15,5 @@ enum NotificationType {
   NEW_USER_REGISTERED
   COMMENT_APPROVED
   NEW_COMMENT_AWAITING_APPROVAL
+  NEW_FORUM_CONTENT
 }

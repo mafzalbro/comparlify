@@ -1,4 +1,3 @@
-
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -26,6 +25,7 @@ import { ManagedImage } from "@/components/managed-image";
 import { cache } from "react";
 import { WhyChooseUs } from "@/components/why-choose-us";
 import { getContent } from "@/lib/content";
+import { AdPlacement } from "@/components/ad-placement";
 
 const testimonials = [
   {
@@ -156,7 +156,7 @@ export default async function Home() {
           </div>
         </div>
       </section>
-
+      <AdPlacement placement="POST_TOP" className="container mx-auto" />
       <WhyChooseUs content={whyChooseUsContent} />
 
       {/* Featured Tools Section */}
@@ -201,7 +201,10 @@ export default async function Home() {
           </div>
         </section>
       )}
-
+      <AdPlacement
+        placement="COMPARISON_BETWEEN"
+        className="container mx-auto"
+      />
       {/* From the Blog Section */}
       {isBlogEnabled && recentPosts.length > 0 && (
         <section className="py-16 md:py-24 bg-secondary/30">
@@ -217,7 +220,7 @@ export default async function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {recentPosts.map((post, index) => {
                 const readTime = Math.ceil(
-                  post.content.split(/\s+/).length / 200
+                  post.content.split(/\s+/).length / 200,
                 );
                 return (
                   <div
@@ -364,5 +367,3 @@ export default async function Home() {
     </>
   );
 }
-
-    

@@ -1,4 +1,3 @@
-
 "use server";
 
 import { z } from "zod";
@@ -6,6 +5,7 @@ import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
+import { ActionState } from "@/types/actions";
 import { Post } from "@prisma/client";
 import { cache } from "react";
 
@@ -18,7 +18,7 @@ export const getPostPreview = cache(
     return prisma.post.findUnique({
       where: { slug },
     });
-  }
+  },
 );
 
 const postSchema = z.object({
@@ -35,14 +35,17 @@ const postSchema = z.object({
   published: z.preprocess((val) => val === "on", z.boolean()),
 });
 
-export async function createPost(prevState: any, formData: FormData) {
+export async function createPost(
+  prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
   const session = await auth();
   if (session?.user?.role !== "ADMIN") {
     return { error: "Not authorized" };
   }
 
   const validatedFields = postSchema.safeParse(
-    Object.fromEntries(formData.entries())
+    Object.fromEntries(formData.entries()),
   );
 
   if (!validatedFields.success) {
@@ -62,14 +65,17 @@ export async function createPost(prevState: any, formData: FormData) {
 
     revalidatePath("/admin/blog");
     revalidatePath("/blog");
-  } catch (error: any) {
+  } catch (error) {
     console.error(error);
 
-    if (error?.code === "P2000") {
-      const field = (error?.meta?.target as string[])?.pop();
-      return {
-        error: `The provided value for the '${field}' field is too long.`,
-      };
+    if (error && typeof error === "object" && "code" in error) {
+      if (error.code === "P2000") {
+        const target = (error as any).meta?.target as string[];
+        const field = target?.pop();
+        return {
+          error: `The provided value for the '${field}' field is too long.`,
+        };
+      }
     }
     return { error: "Failed to create post." };
   }
@@ -78,16 +84,16 @@ export async function createPost(prevState: any, formData: FormData) {
 
 export async function updatePost(
   id: string,
-  prevState: any,
-  formData: FormData
-) {
+  prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
   const session = await auth();
   if (session?.user?.role !== "ADMIN") {
     return { error: "Not authorized" };
   }
 
   const validatedFields = postSchema.safeParse(
-    Object.fromEntries(formData.entries())
+    Object.fromEntries(formData.entries()),
   );
 
   if (!validatedFields.success) {
@@ -102,11 +108,12 @@ export async function updatePost(
     });
     revalidatePath("/admin/blog");
     revalidatePath(`/blog/${validatedFields.data.slug}`);
-  } catch (error: any) {
+  } catch (error) {
     console.error(error);
-    if (error) {
-      if (error?.code === "P2000") {
-        const field = (error?.meta?.target as string[])?.pop();
+    if (error && typeof error === "object" && "code" in error) {
+      if (error.code === "P2000") {
+        const target = (error as any).meta?.target as string[];
+        const field = target?.pop();
         return {
           error: `The provided value for the '${field}' field is too long.`,
         };
@@ -119,9 +126,9 @@ export async function updatePost(
 }
 
 export async function deletePost(
-  prevState: { error: string | null },
-  formData: FormData
-) {
+  prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
   const session = await auth();
   if (session?.user?.role !== "ADMIN") {
     return { error: "Not authorized" };

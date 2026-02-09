@@ -1,4 +1,3 @@
-
 "use server";
 
 import { z } from "zod";
@@ -6,36 +5,39 @@ import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
+import { ActionState } from "@/types/actions";
+import { Prisma } from "@prisma/client";
 
 const platformSchema = z.object({
-    name: z.string().min(2),
-    website: z.string().url(),
-    logoUrl: z.string().url(),
-    description: z.string().min(10),
-    rating: z.string().transform(val => val === '' ? null : Number(val)).pipe(z.number().min(0).max(5).nullable()),
-    easeOfUse: z.string().transform(val => val === '' ? null : Number(val)).pipe(z.number().min(0).max(5).nullable()),
-    featuresRating: z.string().transform(val => val === '' ? null : Number(val)).pipe(z.number().min(0).max(5).nullable()),
-    support: z.string().transform(val => val === '' ? null : Number(val)).pipe(z.number().min(0).max(5).nullable()),
+  name: z.string().min(2),
+  website: z.string().url(),
+  logoUrl: z.string().url(),
+  description: z.string().min(10),
+  rating: z
+    .string()
+    .transform((val) => (val === "" ? null : Number(val)))
+    .pipe(z.number().min(0).max(5).nullable()),
+  easeOfUse: z
+    .string()
+    .transform((val) => (val === "" ? null : Number(val)))
+    .pipe(z.number().min(0).max(5).nullable()),
+  featuresRating: z
+    .string()
+    .transform((val) => (val === "" ? null : Number(val)))
+    .pipe(z.number().min(0).max(5).nullable()),
+  support: z
+    .string()
+    .transform((val) => (val === "" ? null : Number(val)))
+    .pipe(z.number().min(0).max(5).nullable()),
 });
 
-type PlatformActionState = {
-    error: {
-        name?: string[];
-        website?: string[];
-        logoUrl?: string[];
-        description?: string[];
-        rating?: string[];
-        easeOfUse?: string[];
-        featuresRating?: string[];
-        support?: string[];
-    } | string | null;
-}
-
-
-export async function createPlatform(prevState: any, formData: FormData) {
+export async function createPlatform(
+  prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
   const session = await auth();
-  if (session?.user?.role !== 'ADMIN') {
-    return { error: 'Not authorized' };
+  if (session?.user?.role !== "ADMIN") {
+    return { error: "Not authorized" };
   }
 
   const formDataObj = Object.fromEntries(formData.entries());
@@ -46,79 +48,89 @@ export async function createPlatform(prevState: any, formData: FormData) {
   }
 
   const featuresUpdateData = Object.entries(formDataObj)
-    .filter(([key]) => key.startsWith('features['))
-    .reduce((acc, [key, value]) => {
-      const match = key.match(/features\[(.*?)\]\.(.*)/);
-      if (match) {
-        const [, featureId, field] = match;
-        if (!acc[featureId]) {
-          acc[featureId] = {};
+    .filter(([key]) => key.startsWith("features["))
+    .reduce(
+      (acc, [key, value]) => {
+        const match = key.match(/features\[(.*?)\]\.(.*)/);
+        if (match) {
+          const [, featureId, field] = match;
+          if (!acc[featureId]) {
+            acc[featureId] = {};
+          }
+          acc[featureId][field] = value;
         }
-        acc[featureId][field] = value;
-      }
-      return acc;
-    }, {} as Record<string, any>);
-  
+        return acc;
+      },
+      {} as Record<string, any>,
+    );
+
   try {
     await prisma.$transaction(async (tx) => {
-        const newPlatform = await tx.platform.create({
-          data: validatedFields.data,
+      const newPlatform = await tx.platform.create({
+        data: validatedFields.data,
+      });
+
+      const platformFeatures = Object.entries(featuresUpdateData).map(
+        ([featureId, data]) => ({
+          platformId: newPlatform.id,
+          featureId,
+          hasFeature: data.hasFeature === "on",
+          details: data.details || null,
+        }),
+      );
+
+      if (platformFeatures.length > 0) {
+        await tx.platformFeature.createMany({
+          data: platformFeatures,
         });
-
-        const platformFeatures = Object.entries(featuresUpdateData).map(([featureId, data]) => ({
-            platformId: newPlatform.id,
-            featureId,
-            hasFeature: data.hasFeature === 'on',
-            details: data.details || null,
-        }));
-
-        if (platformFeatures.length > 0) {
-            await tx.platformFeature.createMany({
-                data: platformFeatures
-            });
-        }
+      }
     });
 
-    revalidatePath('/admin/platforms');
+    revalidatePath("/admin/platforms");
   } catch (error) {
     console.error(error);
-    return { error: 'Failed to create platform.' };
+    return { error: "Failed to create platform." };
   }
-  
-  redirect('/admin/platforms');
+
+  redirect("/admin/platforms");
 }
 
-
-export async function updatePlatform(id: string, prevState: any, formData: FormData) {
+export async function updatePlatform(
+  id: string,
+  prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
   const session = await auth();
-  if (session?.user?.role !== 'ADMIN') {
-    return { error: 'Not authorized' };
+  if (session?.user?.role !== "ADMIN") {
+    return { error: "Not authorized" };
   }
 
   const formDataObj = Object.fromEntries(formData.entries());
-  
+
   const validatedFields = platformSchema.safeParse(formDataObj);
   if (!validatedFields.success) {
     return { error: validatedFields.error.flatten().fieldErrors };
   }
 
   const featuresUpdateData = Object.entries(formDataObj)
-    .filter(([key]) => key.startsWith('features['))
-    .reduce((acc, [key, value]) => {
-      const match = key.match(/features\[(.*?)\]\.(.*)/);
-      if (match) {
-        const [, featureId, field] = match;
-        if (!acc[featureId]) {
-          acc[featureId] = {};
+    .filter(([key]) => key.startsWith("features["))
+    .reduce(
+      (acc, [key, value]) => {
+        const match = key.match(/features\[(.*?)\]\.(.*)/);
+        if (match) {
+          const [, featureId, field] = match;
+          if (!acc[featureId]) {
+            acc[featureId] = {};
+          }
+          acc[featureId][field] = value;
         }
-        acc[featureId][field] = value;
-      }
-      return acc;
-    }, {} as Record<string, any>);
-
+        return acc;
+      },
+      {} as Record<string, any>,
+    );
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       await tx.platform.update({
         where: { id },
         data: validatedFields.data,
@@ -131,47 +143,48 @@ export async function updatePlatform(id: string, prevState: any, formData: FormD
           create: {
             platformId: id,
             featureId,
-            hasFeature: featureData.hasFeature === 'on',
+            hasFeature: featureData.hasFeature === "on",
             details: featureData.details || null,
           },
           update: {
-            hasFeature: featureData.hasFeature === 'on',
+            hasFeature: featureData.hasFeature === "on",
             details: featureData.details || null,
           },
         });
       }
     });
 
-    revalidatePath('/admin/platforms');
+    revalidatePath("/admin/platforms");
     revalidatePath(`/admin/platforms/edit/${id}`);
-    revalidatePath('/compare', 'layout');
+    revalidatePath("/compare", "layout");
   } catch (error) {
     console.error(error);
-    return { error: 'Failed to update platform.' };
+    return { error: "Failed to update platform." };
   }
 
-  redirect('/admin/platforms');
+  redirect("/admin/platforms");
 }
 
-
-export async function deletePlatform(prevState: { error: string | null }, formData: FormData) {
+export async function deletePlatform(
+  prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
   const session = await auth();
-  if (session?.user?.role !== 'ADMIN') {
-    return { error: 'Not authorized' };
+  if (session?.user?.role !== "ADMIN") {
+    return { error: "Not authorized" };
   }
-  
-  const id = formData.get('id') as string;
+
+  const id = formData.get("id") as string;
   if (!id) {
     return { error: "Platform ID is missing." };
   }
   try {
     await prisma.platform.delete({ where: { id } });
-    revalidatePath('/admin/platforms');
-    revalidatePath('/compare');
+    revalidatePath("/admin/platforms");
+    revalidatePath("/compare");
     return { error: null };
-  } catch (error)
-  {
+  } catch (error) {
     console.error(error);
-    return { error: 'Failed to delete platform.' };
+    return { error: "Failed to delete platform." };
   }
 }

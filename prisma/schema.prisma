@@ -1,3 +1,12 @@
+// datasource db {
+//   provider     = "mysql"
+//   url          = env("DATABASE_URL")
+//   relationMode = "prisma"
+// }
+
+generator client {
+  provider = "prisma-client-js"
+}
 
 datasource db {
   provider     = "mysql"
@@ -5,10 +14,9 @@ datasource db {
   relationMode = "prisma"
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
+// generator client {
+//   provider = "prisma-client-js"
+// }
 
 model Notification {
   id        String           @id @default(cuid())
@@ -27,7 +35,9 @@ enum NotificationType {
   NEW_USER_REGISTERED
   COMMENT_APPROVED
   NEW_COMMENT_AWAITING_APPROVAL
+  NEW_FORUM_CONTENT
 }
+
 model Account {
   id                String  @id @default(cuid())
   userId            String

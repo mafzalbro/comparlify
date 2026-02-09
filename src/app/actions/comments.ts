@@ -5,6 +5,7 @@ import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
+import { ActionState } from "@/types/actions";
 import { CommentStatus } from "@prisma/client";
 import { cache } from "react";
 import { createNotification } from "@/lib/notifications";
@@ -15,7 +16,10 @@ const addCommentSchema = z.object({
     postId: z.string(),
 });
 
-export async function addCommentAction(prevState: any, formData: FormData) {
+export async function addCommentAction(
+  prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
     const session = await auth();
     if (!session?.user?.id) {
         return { error: "You must be logged in to comment.", success: false };
@@ -70,7 +74,10 @@ const updateCommentSchema = z.object({
     commentId: z.string(),
 });
 
-export async function updateCommentAction(prevState: any, formData: FormData) {
+export async function updateCommentAction(
+  prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
     const session = await auth();
     if (!session?.user?.id) {
         return { error: "You must be logged in to edit comments.", success: false };
@@ -158,7 +165,10 @@ export async function rejectCommentAction(commentId: string) {
     }
 }
 
-export async function bulkUpdateCommentStatusAction(prevState: any, formData: FormData) {
+export async function bulkUpdateCommentStatusAction(
+  prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
     const session = await auth();
     if (session?.user?.role !== 'ADMIN') {
         return { error: "Not authorized" };

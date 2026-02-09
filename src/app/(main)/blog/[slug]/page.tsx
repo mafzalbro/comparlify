@@ -1,26 +1,26 @@
-
-import Image from 'next/image';
-import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, Eye, Bookmark } from 'lucide-react';
-import prisma from '@/lib/prisma';
-import { MarkdownContent } from '@/components/markdown-content';
-import type { Metadata } from 'next';
-import { generateSeoMetadata } from '@/lib/seo';
-import { auth } from '@/lib/auth';
-import { CommentsSection } from '@/components/comments-section';
-import { TableOfContents } from '@/components/table-of-contents';
-import { ManagedImage } from '@/components/managed-image';
-import { cache } from 'react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { BookmarkButton } from '@/components/bookmark-button';
-import type { SearchParams } from '@/types/next';
-import { format } from 'date-fns';
-import { Breadcrumbs } from '@/components/breadcrumb';
-import { getContent } from '@/lib/content';
+import Image from "next/image";
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, ArrowRight, Eye, Bookmark } from "lucide-react";
+import prisma from "@/lib/prisma";
+import { MarkdownContent } from "@/components/markdown-content";
+import type { Metadata } from "next";
+import { generateSeoMetadata } from "@/lib/seo";
+import { auth } from "@/lib/auth";
+import { CommentsSection } from "@/components/comments-section";
+import { TableOfContents } from "@/components/table-of-contents";
+import { ManagedImage } from "@/components/managed-image";
+import { cache } from "react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { BookmarkButton } from "@/components/bookmark-button";
+import type { SearchParams } from "@/types/next";
+import { format } from "date-fns";
+import { Breadcrumbs } from "@/components/breadcrumb";
+import { getContent } from "@/lib/content";
+import { AdPlacement } from "@/components/ad-placement";
 
 export const generateStaticParams = cache(async () => {
   const posts = await prisma.post.findMany({ where: { published: true } });
@@ -31,7 +31,7 @@ export const generateStaticParams = cache(async () => {
 
 const getPostData = cache(async (slug: string, isPreview = false) => {
   const session = await auth();
-  const canViewDraft = isPreview && session?.user?.role === 'ADMIN';
+  const canViewDraft = isPreview && session?.user?.role === "ADMIN";
 
   // Only allow viewing published posts, unless it's a valid admin preview
   const whereClause = canViewDraft ? { slug } : { slug, published: true };
@@ -42,9 +42,9 @@ const getPostData = cache(async (slug: string, isPreview = false) => {
       author: true,
       category: true,
       comments: {
-        where: { status: 'APPROVED' },
+        where: { status: "APPROVED" },
         include: { author: true },
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt: "desc" },
       },
     },
   });
@@ -63,24 +63,29 @@ const getPostData = cache(async (slug: string, isPreview = false) => {
         authorId: post.authorId,
       },
       take: 3,
-      select: { slug: true, title: true, image: true, dataAiHint: true }
+      select: { slug: true, title: true, image: true, dataAiHint: true },
     }),
-    post.nextId ? prisma.post.findFirst({
-      where: { id: post.nextId, published: true },
-      select: { slug: true, title: true }
-    }) : Promise.resolve(null),
-    post.previousId ? prisma.post.findFirst({
-      where: { id: post.previousId, published: true },
-      select: { slug: true, title: true }
-    }) : Promise.resolve(null)
+    post.nextId
+      ? prisma.post.findFirst({
+          where: { id: post.nextId, published: true },
+          select: { slug: true, title: true },
+        })
+      : Promise.resolve(null),
+    post.previousId
+      ? prisma.post.findFirst({
+          where: { id: post.previousId, published: true },
+          select: { slug: true, title: true },
+        })
+      : Promise.resolve(null),
   ]);
 
   return { post, relatedPosts, nextPost, prevPost };
 });
 
-export async function generateMetadata(
-  props: { params: Promise<{ slug: string }>, searchParams: Promise<SearchParams> }
-): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<SearchParams>;
+}): Promise<Metadata> {
   const params = await props.params;
   const { slug } = params;
   const { post } = await getPostData(slug);
@@ -92,56 +97,56 @@ export async function generateMetadata(
   return generateSeoMetadata({
     title: post.title,
     description: post.description,
-    image: post.image.replace('400/250', '800/400'),
+    image: post.image.replace("400/250", "800/400"),
     path: `/blog/${post.slug}`,
   });
 }
 
-
-export default async function BlogPostPage(
-  props: { params: Promise<{ slug: string }>, searchParams: Promise<SearchParams> }
-) {
+export default async function BlogPostPage(props: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<SearchParams>;
+}) {
   const searchParams = await props.searchParams;
   const params = await props.params;
   const { slug } = params;
-  const isPreview = searchParams?.preview === 'true';
+  const isPreview = searchParams?.preview === "true";
 
-  const [session, content] = await Promise.all([
-    auth(),
-    getContent()
-  ]);
-  const { post, relatedPosts, nextPost, prevPost } = await getPostData(slug, isPreview);
+  const [session, content] = await Promise.all([auth(), getContent()]);
+  const { post, relatedPosts, nextPost, prevPost } = await getPostData(
+    slug,
+    isPreview,
+  );
 
   if (!post) {
     notFound();
   }
 
   // If it's a draft, redirect non-admins
-  if (!post.published && session?.user?.role !== 'ADMIN') {
-    redirect('/blog');
+  if (!post.published && session?.user?.role !== "ADMIN") {
+    redirect("/blog");
   }
 
   const readTime = Math.ceil(post.content.split(/\s+/).length / 200);
-  const siteName = content['global.siteName'] || 'Comparlify';
+  const siteName = content["global.siteName"] || "Comparlify";
 
   const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
     headline: post.title,
     description: post.description,
-    image: post.image.replace('400/250', '1200/675'),
+    image: post.image.replace("400/250", "1200/675"),
     datePublished: post.createdAt.toISOString(),
     dateModified: post.updatedAt.toISOString(),
     author: {
-      '@type': 'Person',
+      "@type": "Person",
       name: post.author.name,
     },
     publisher: {
-      '@type': 'Organization',
+      "@type": "Organization",
       name: siteName,
       logo: {
-        '@type': 'ImageObject',
-        url: 'https://www.comparlify.com/logo.png', // Replace with actual logo URL
+        "@type": "ImageObject",
+        url: "https://www.comparlify.com/logo.png", // Replace with actual logo URL
       },
     },
   };
@@ -154,31 +159,42 @@ export default async function BlogPostPage(
       />
 
       {!post.published && (
-        <Alert variant="default" className="sticky top-0 z-50 rounded-none border-b-2 border-l-0 border-r-0 border-t-0 border-yellow-500 bg-yellow-50 text-yellow-900">
+        <Alert
+          variant="default"
+          className="sticky top-0 z-50 rounded-none border-b-2 border-l-0 border-r-0 border-t-0 border-yellow-500 bg-yellow-50 text-yellow-900"
+        >
           <div className="container flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Eye className="h-5 w-5" />
               <div>
-                <AlertTitle className="font-bold">{content['blog.post.preview.title']}</AlertTitle>
+                <AlertTitle className="font-bold">
+                  {content["blog.post.preview.title"]}
+                </AlertTitle>
                 <AlertDescription className="text-xs">
-                  {content['blog.post.preview.subtitle']}
+                  {content["blog.post.preview.subtitle"]}
                 </AlertDescription>
               </div>
             </div>
-            <Button asChild size="sm" variant="outline" className="border-yellow-300 hover:bg-yellow-100">
-              <Link href="/admin/blog">{content['blog.post.preview.exitButton']}</Link>
+            <Button
+              asChild
+              size="sm"
+              variant="outline"
+              className="border-yellow-300 hover:bg-yellow-100"
+            >
+              <Link href="/admin/blog">
+                {content["blog.post.preview.exitButton"]}
+              </Link>
             </Button>
           </div>
         </Alert>
       )}
-
 
       <article>
         {/* Hero Section */}
         <section className="relative w-full py-16 md:py-24 lg:py-32 flex items-center justify-center text-center text-white overflow-hidden h-[80vh]">
           <div className="absolute inset-0">
             <ManagedImage
-              src={post.image.replace('400/250', '1920/1080')}
+              src={post.image.replace("400/250", "1920/1080")}
               alt={post.title}
               data-ai-hint={post.dataAiHint}
               fill
@@ -190,8 +206,8 @@ export default async function BlogPostPage(
           <div className="relative container max-w-4xl z-10 drop-shadow-lg">
             <Breadcrumbs
               items={[
-                { name: 'Home', href: '/' },
-                { name: 'Blog', href: '/blog' },
+                { name: "Home", href: "/" },
+                { name: "Blog", href: "/blog" },
                 { name: post.title },
               ]}
               className="justify-center text-white/80 mb-6"
@@ -200,15 +216,27 @@ export default async function BlogPostPage(
             <h1 className="font-headline text-4xl md:text-6xl font-bold leading-tight mt-4">
               {post.title}
             </h1>
-            <p className="mt-4 text-lg md:text-xl text-white/80 max-w-2xl mx-auto">{post.description}</p>
+            <p className="mt-4 text-lg md:text-xl text-white/80 max-w-2xl mx-auto">
+              {post.description}
+            </p>
             <div className="mt-8 flex items-center justify-center gap-4">
               <Avatar className="h-12 w-12 border-2 border-white/50">
-                <AvatarImage src={post.author.image ?? `https://picsum.photos/100/100?random=${post.slug}`} alt={post.author.name ?? 'Author'} data-ai-hint="person photo" />
+                <AvatarImage
+                  src={
+                    post.author.image ??
+                    `https://picsum.photos/100/100?random=${post.slug}`
+                  }
+                  alt={post.author.name ?? "Author"}
+                  data-ai-hint="person photo"
+                />
                 <AvatarFallback>{post.author.name?.charAt(0)}</AvatarFallback>
               </Avatar>
               <div>
                 <p className="font-semibold">{post.author.name}</p>
-                <p className="text-sm text-white/70">{format(new Date(post.createdAt), 'MMMM d, yyyy')} &middot; {readTime} min read</p>
+                <p className="text-sm text-white/70">
+                  {format(new Date(post.createdAt), "MMMM d, yyyy")} &middot;{" "}
+                  {readTime} min read
+                </p>
               </div>
             </div>
           </div>
@@ -220,20 +248,18 @@ export default async function BlogPostPage(
             <Button asChild variant="ghost">
               <Link href="/blog">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                {content['blog.post.backLink']}
+                {content["blog.post.backLink"]}
               </Link>
             </Button>
-            {session?.user && (
-              <BookmarkButton
-                postId={post.id}
-              />
-            )}
+            {session?.user && <BookmarkButton postId={post.id} />}
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-4 lg:gap-12">
             <div className="lg:col-span-3">
+              <AdPlacement placement="POST_TOP" />
               <div className="prose dark:prose-invert max-w-none">
                 <MarkdownContent content={post.content} />
               </div>
+              <AdPlacement placement="POST_BOTTOM" />
               <nav className="flex justify-between items-center my-12 border-t border-b py-6">
                 <div>
                   {prevPost && (
@@ -265,22 +291,31 @@ export default async function BlogPostPage(
             <aside className="hidden lg:block lg:col-span-1">
               <div className="sticky top-24 space-y-8">
                 <TableOfContents content={post.content} />
+                <AdPlacement placement="SIDEBAR" />
                 {relatedPosts.length > 0 && (
                   <div>
-                    <h3 className="font-headline text-xl font-semibold mb-4">{content['blog.post.relatedTitle']}</h3>
+                    <h3 className="font-headline text-xl font-semibold mb-4">
+                      {content["blog.post.relatedTitle"]}
+                    </h3>
                     <div className="space-y-4">
-                      {relatedPosts.map(related => (
-                        <Link key={related.slug} href={`/blog/${related.slug}`} className="flex items-center gap-4 group">
+                      {relatedPosts.map((related) => (
+                        <Link
+                          key={related.slug}
+                          href={`/blog/${related.slug}`}
+                          className="flex items-center gap-4 group"
+                        >
                           <div className="relative w-20 h-16 rounded-md overflow-hidden shrink-0">
                             <ManagedImage
-                              src={related.image.replace('400/250', '200/150')}
+                              src={related.image.replace("400/250", "200/150")}
                               alt={related.title}
-                              data-ai-hint={related.dataAiHint ?? ''}
+                              data-ai-hint={related.dataAiHint ?? ""}
                               fill
                               className="object-cover transition-transform duration-300 group-hover:scale-105"
                             />
                           </div>
-                          <h4 className="text-sm font-medium group-hover:text-primary transition-colors">{related.title}</h4>
+                          <h4 className="text-sm font-medium group-hover:text-primary transition-colors">
+                            {related.title}
+                          </h4>
                         </Link>
                       ))}
                     </div>

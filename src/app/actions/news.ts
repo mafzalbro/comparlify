@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
+import { ActionState } from "@/types/actions";
 
 const articleSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters long"),
@@ -15,14 +16,17 @@ const articleSchema = z.object({
   published: z.preprocess((val) => val === "on", z.boolean()),
 });
 
-export async function createNewsArticle(prevState: any, formData: FormData) {
+export async function createNewsArticle(
+  prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
   const session = await auth();
   if (session?.user?.role !== "ADMIN") {
     return { error: "Not authorized" };
   }
 
   const validatedFields = articleSchema.safeParse(
-    Object.fromEntries(formData.entries())
+    Object.fromEntries(formData.entries()),
   );
 
   if (!validatedFields.success) {
@@ -41,9 +45,18 @@ export async function createNewsArticle(prevState: any, formData: FormData) {
 
     revalidatePath("/admin/news");
     revalidatePath("/news");
-  } catch (error: any) {
-    if (error.code === 'P2002' && error.meta?.target.includes('slug')) {
-        return { error: { slug: ["This slug is already in use. Please choose a unique one."]}};
+  } catch (error) {
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      (error as any).code === "P2002"
+    ) {
+      return {
+        error: {
+          slug: ["This slug is already in use. Please choose a unique one."],
+        },
+      };
     }
     return { error: "Failed to create article." };
   }
@@ -52,16 +65,16 @@ export async function createNewsArticle(prevState: any, formData: FormData) {
 
 export async function updateNewsArticle(
   id: string,
-  prevState: any,
-  formData: FormData
-) {
+  prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
   const session = await auth();
   if (session?.user?.role !== "ADMIN") {
     return { error: "Not authorized" };
   }
 
   const validatedFields = articleSchema.safeParse(
-    Object.fromEntries(formData.entries())
+    Object.fromEntries(formData.entries()),
   );
 
   if (!validatedFields.success) {
@@ -83,9 +96,9 @@ export async function updateNewsArticle(
 }
 
 export async function deleteNewsArticle(
-  prevState: { error: string | null },
-  formData: FormData
-) {
+  prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
   const session = await auth();
   if (session?.user?.role !== "ADMIN") {
     return { error: "Not authorized" };

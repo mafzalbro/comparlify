@@ -1,4 +1,3 @@
-
 "use server";
 
 import { z } from "zod";
@@ -6,6 +5,7 @@ import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
+import { ActionState } from "@/types/actions";
 import { ToolCategory } from "@prisma/client";
 
 const toolSchema = z.object({
@@ -20,10 +20,13 @@ const toolSchema = z.object({
   enabled: z.preprocess((val) => val === "on", z.boolean()),
 });
 
-export async function createTool(prevState: any, formData: FormData) {
+export async function createTool(
+  prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
   const session = await auth();
-  if (session?.user?.role !== 'ADMIN') {
-    return { error: 'Not authorized' };
+  if (session?.user?.role !== "ADMIN") {
+    return { error: "Not authorized" };
   }
 
   const data = Object.fromEntries(formData.entries());
@@ -35,28 +38,38 @@ export async function createTool(prevState: any, formData: FormData) {
   }
 
   try {
-    await prisma.tool.create({ 
-        data: validatedFields.data
+    await prisma.tool.create({
+      data: validatedFields.data,
     });
-    revalidatePath('/admin/tools');
-    revalidatePath('/tools');
-  } catch (error: any) {
-    if (error.code === 'P2002') {
-        return { error: { slug: ["This slug is already in use. Please choose a unique one."]}};
-    }
+    revalidatePath("/admin/tools");
+    revalidatePath("/tools");
+  } catch (error) {
     console.error(error);
-    return { error: 'Failed to create tool.' };
+    if (error && typeof error === "object" && "code" in error) {
+      if ((error as any).code === "P2002") {
+        return {
+          error: {
+            slug: ["This slug is already in use. Please choose a unique one."],
+          },
+        };
+      }
+    }
+    return { error: "Failed to create tool." };
   }
 
-  redirect('/admin/tools');
+  redirect("/admin/tools");
 }
 
-export async function updateTool(id: string, prevState: any, formData: FormData) {
+export async function updateTool(
+  id: string,
+  prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
   const session = await auth();
-  if (session?.user?.role !== 'ADMIN') {
-    return { error: 'Not authorized' };
+  if (session?.user?.role !== "ADMIN") {
+    return { error: "Not authorized" };
   }
-  
+
   const data = Object.fromEntries(formData.entries());
   const validatedFields = toolSchema.safeParse(data);
 
@@ -67,59 +80,67 @@ export async function updateTool(id: string, prevState: any, formData: FormData)
 
   try {
     await prisma.tool.update({
-        where: { id },
-        data: validatedFields.data,
+      where: { id },
+      data: validatedFields.data,
     });
-    revalidatePath('/admin/tools');
+    revalidatePath("/admin/tools");
     revalidatePath(`/tools`);
-  } catch (error: any) {
-    if (error.code === 'P2002') {
-        return { error: { slug: ["This slug is already in use. Please choose a unique one."]}};
-    }
+  } catch (error) {
     console.error(error);
-    return { error: 'Failed to update tool.' };
+    if (error && typeof error === "object" && "code" in error) {
+      if ((error as any).code === "P2002") {
+        return {
+          error: {
+            slug: ["This slug is already in use. Please choose a unique one."],
+          },
+        };
+      }
+    }
+    return { error: "Failed to update tool." };
   }
 
-  redirect('/admin/tools');
+  redirect("/admin/tools");
 }
 
-export async function deleteTool(prevState: { error: string | null }, formData: FormData) {
+export async function deleteTool(
+  prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
   const session = await auth();
-  if (session?.user?.role !== 'ADMIN') {
-    return { error: 'Not authorized' };
+  if (session?.user?.role !== "ADMIN") {
+    return { error: "Not authorized" };
   }
 
-  const id = formData.get('id') as string;
+  const id = formData.get("id") as string;
   if (!id) {
     return { error: "Tool ID is missing." };
   }
   try {
     await prisma.tool.delete({ where: { id } });
-    revalidatePath('/admin/tools');
-    revalidatePath('/tools');
+    revalidatePath("/admin/tools");
+    revalidatePath("/tools");
     return { error: null };
-  } catch (error)
-  {
+  } catch (error) {
     console.error(error);
-    return { error: 'Failed to delete tool.' };
+    return { error: "Failed to delete tool." };
   }
 }
 
 export async function updateToolStatus(toolId: string, enabled: boolean) {
   const session = await auth();
-  if (session?.user?.role !== 'ADMIN') {
-    return { error: 'Not authorized' };
+  if (session?.user?.role !== "ADMIN") {
+    return { error: "Not authorized" };
   }
   try {
     await prisma.tool.update({
-        where: { id: toolId },
-        data: { enabled }
+      where: { id: toolId },
+      data: { enabled },
     });
-    revalidatePath('/admin/tools');
-    revalidatePath('/tools');
+    revalidatePath("/admin/tools");
+    revalidatePath("/tools");
     return { success: true };
   } catch (e) {
     console.error(e);
-    return { error: 'Failed to update tool status.' };
+    return { error: "Failed to update tool status." };
   }
 }
