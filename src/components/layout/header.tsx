@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
@@ -30,6 +31,18 @@ export default function Header({ navLinks = [], siteName }: HeaderProps) {
   const pathname = usePathname();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+
+  const { scrollY } = useScroll();
+  const [hidden, setHidden] = useState(false);
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    const previous = scrollY.getPrevious() ?? 0;
+    if (latest > previous && latest > 50) {
+      setHidden(true);
+    } else {
+      setHidden(false);
+    }
+  });
 
   useEffect(() => {
     setIsClient(true);
@@ -59,10 +72,20 @@ export default function Header({ navLinks = [], siteName }: HeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <motion.header
+      variants={{
+        visible: { y: 0 },
+        hidden: { y: "-100%" },
+      }}
+      animate={hidden ? "hidden" : "visible"}
+      transition={{ duration: 0.3, ease: "easeInOut" }}
+      className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+    >
       <div className="px-3 sm:container flex h-16 items-center justify-between">
         <div className="flex items-center gap-6">
-          <Logo siteName={siteName} />
+          <Link href="/" className="mr-6 flex items-center space-x-2">
+            <Logo siteName={siteName} />
+          </Link>
           <nav className="hidden lg:flex items-center gap-6">
             {navLinks.map((link) => (
               <NavLink key={link.href} {...link} />
@@ -98,6 +121,6 @@ export default function Header({ navLinks = [], siteName }: HeaderProps) {
           )}
         </div>
       </div>
-    </header>
+    </motion.header>
   );
 }

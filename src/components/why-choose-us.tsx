@@ -164,11 +164,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
         </div>
 
         {/* Sticky Cards Section */}
-<<<<<<< HEAD
-        <div className="sticky top-8 min-h-screen flex flex-col justify-center">
-=======
         <div className="sticky top-8 bg-secondary min-h-screen flex flex-col justify-center">
->>>>>>> 8646a0809ee22773d809627bf028d5985ca7d721
           <div className="container px-6 md:px-8">
             <div
               ref={cardsRef}
