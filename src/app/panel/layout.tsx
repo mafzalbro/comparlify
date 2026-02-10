@@ -34,7 +34,7 @@ export default async function PanelLayout({
     children: React.ReactNode;
 }) {
     const session = await auth();
-    const pathname = headers().get('x-pathname') || '/panel';
+    const pathname = (await headers()).get('x-pathname') || '/panel';
 
     // Perform authorization check for all panel routes
     await checkAuthorization(session, pathname);

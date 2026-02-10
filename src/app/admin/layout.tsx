@@ -27,7 +27,7 @@ export default async function AdminLayout({
     children: React.ReactNode;
 }) {
     const session = await auth();
-    const pathname = headers().get('x-pathname') || '/admin';
+    const pathname = (await headers()).get('x-pathname') || '/admin';
     
     // Perform authorization check for all admin routes
     await checkAuthorization(session, pathname);

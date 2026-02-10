@@ -21,10 +21,8 @@ const VALID_MODELS = [
   "advertisement",
 ];
 
-export async function GET(
-  request: Request,
-  { params }: { params: { model: string } },
-) {
+export async function GET(request: Request, props: { params: Promise<{ model: string }> }) {
+  const params = await props.params;
   const model = params.model;
 
   if (!VALID_MODELS.includes(model)) {
@@ -78,10 +76,8 @@ export async function GET(
   }
 }
 
-export async function POST(
-  request: Request,
-  { params }: { params: { model: string } },
-) {
+export async function POST(request: Request, props: { params: Promise<{ model: string }> }) {
+  const params = await props.params;
   const session = await auth();
   if (session?.user?.role !== "ADMIN") {
     return NextResponse.json({ error: "Not authorized" }, { status: 403 });

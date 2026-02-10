@@ -23,8 +23,9 @@ const VALID_MODELS = [
 
 export async function GET(
   request: Request,
-  { params }: { params: { model: string; id: string } },
+  props: { params: Promise<{ model: string; id: string }> }
 ) {
+  const params = await props.params;
   const { model, id } = params;
 
   if (!VALID_MODELS.includes(model)) {
@@ -61,8 +62,9 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { model: string; id: string } },
+  props: { params: Promise<{ model: string; id: string }> }
 ) {
+  const params = await props.params;
   const session = await auth();
   if (session?.user?.role !== "ADMIN") {
     return NextResponse.json({ error: "Not authorized" }, { status: 403 });
@@ -95,8 +97,9 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { model: string; id: string } },
+  props: { params: Promise<{ model: string; id: string }> }
 ) {
+  const params = await props.params;
   const session = await auth();
   if (session?.user?.role !== "ADMIN") {
     return NextResponse.json({ error: "Not authorized" }, { status: 403 });
