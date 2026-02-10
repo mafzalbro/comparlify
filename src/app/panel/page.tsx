@@ -42,6 +42,8 @@ async function getBookmarks(userId: string) {
   };
 }
 
+export const dynamic = "force-dynamic";
+
 function PostBookmarkCard({ post }: { post: Post }) {
   const readTime = Math.ceil(post.content.split(/\s+/).length / 200);
   return (

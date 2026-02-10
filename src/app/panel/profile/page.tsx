@@ -1,4 +1,3 @@
-
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import {
@@ -12,6 +11,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Breadcrumbs } from "@/components/breadcrumb";
 
+export const dynamic = "force-dynamic";
+
 export default async function ProfilePage() {
   const session = await auth();
 
@@ -24,10 +25,7 @@ export default async function ProfilePage() {
   return (
     <div className="container py-16 md:py-24">
       <Breadcrumbs
-        items={[
-          { name: 'Home', href: '/' },
-          { name: 'Profile' },
-        ]}
+        items={[{ name: "Home", href: "/" }, { name: "Profile" }]}
         className="mb-8"
       />
       <Card className="mx-auto max-w-2xl">
@@ -40,7 +38,9 @@ export default async function ProfilePage() {
               </AvatarFallback>
             </Avatar>
             <div className="space-y-1">
-              <CardTitle className="text-3xl font-headline">{user.name}</CardTitle>
+              <CardTitle className="text-3xl font-headline">
+                {user.name}
+              </CardTitle>
               <CardDescription>{user.email}</CardDescription>
             </div>
           </div>
@@ -48,8 +48,17 @@ export default async function ProfilePage() {
         <CardContent className="space-y-4">
           <h3 className="font-semibold">User Information</h3>
           <div className="text-sm text-muted-foreground space-y-2">
-            <p><strong>ID:</strong> {user.id}</p>
-            <p className="flex items-center gap-2"><strong>Role:</strong> <Badge variant={user.role === 'ADMIN' ? 'destructive' : 'secondary'}>{user.role}</Badge></p>
+            <p>
+              <strong>ID:</strong> {user.id}
+            </p>
+            <p className="flex items-center gap-2">
+              <strong>Role:</strong>{" "}
+              <Badge
+                variant={user.role === "ADMIN" ? "destructive" : "secondary"}
+              >
+                {user.role}
+              </Badge>
+            </p>
           </div>
         </CardContent>
       </Card>

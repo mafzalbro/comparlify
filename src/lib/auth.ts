@@ -7,9 +7,10 @@ import Credentials from "next-auth/providers/credentials";
 import prisma from "./prisma";
 import { Role } from "@prisma/client";
 import { createNotification } from "./notifications";
+import { Adapter } from "next-auth/adapters";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(prisma) as Adapter,
   session: { strategy: "jwt" }, // ✅ edge-safe
   providers: [
     Google({
@@ -47,10 +48,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
     Credentials({
+      credentials: {
+        userId: { label: "User ID", type: "text" },
+      },
       async authorize(credentials) {
         if (process.env.NODE_ENV !== "development") return null;
 
-        if (credentials.userId) {
+        if (credentials?.userId) {
           const user = await prisma.user.findUnique({
             where: { id: credentials.userId as string },
           });
