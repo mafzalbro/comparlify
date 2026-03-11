@@ -4,7 +4,18 @@ import { notFound, redirect } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Eye, Bookmark } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Eye,
+  Bookmark,
+  Clock,
+  BookOpen,
+  Zap,
+  ListFilter,
+  Scale,
+} from "lucide-react";
+import { ShareButton } from "@/components/share-button";
 import prisma from "@/lib/prisma";
 import { MarkdownContent } from "@/components/markdown-content";
 import type { Metadata } from "next";
@@ -21,6 +32,7 @@ import { format } from "date-fns";
 import { Breadcrumbs } from "@/components/breadcrumb";
 import { getContent } from "@/lib/content";
 import { AdPlacement } from "@/components/ad-placement";
+import { MotionDiv } from "@/components/motion-wrapper";
 
 export const generateStaticParams = cache(async () => {
   const posts = await prisma.post.findMany({ where: { published: true } });
@@ -33,7 +45,6 @@ const getPostData = cache(async (slug: string, isPreview = false) => {
   const session = await auth();
   const canViewDraft = isPreview && session?.user?.role === "ADMIN";
 
-  // Only allow viewing published posts, unless it's a valid admin preview
   const whereClause = canViewDraft ? { slug } : { slug, published: true };
 
   const post = await prisma.post.findUnique({
@@ -53,33 +64,44 @@ const getPostData = cache(async (slug: string, isPreview = false) => {
     return { post: null, relatedPosts: [], nextPost: null, prevPost: null };
   }
 
-  // Fetch related, next, and previous posts in parallel.
-  // CRUCIAL FIX: Ensure next/prev posts are also published.
-  const [relatedPosts, nextPost, prevPost] = await Promise.all([
-    prisma.post.findMany({
-      where: {
-        published: true,
-        id: { not: post.id },
-        authorId: post.authorId,
-      },
-      take: 3,
-      select: { slug: true, title: true, image: true, dataAiHint: true },
-    }),
-    post.nextId
-      ? prisma.post.findFirst({
-          where: { id: post.nextId, published: true },
-          select: { slug: true, title: true },
-        })
-      : Promise.resolve(null),
-    post.previousId
-      ? prisma.post.findFirst({
-          where: { id: post.previousId, published: true },
-          select: { slug: true, title: true },
-        })
-      : Promise.resolve(null),
-  ]);
+  const [relatedPosts, nextPost, prevPost, trendingComparisons] =
+    await Promise.all([
+      prisma.post.findMany({
+        where: {
+          published: true,
+          id: { not: post.id },
+          authorId: post.authorId,
+        },
+        take: 3,
+        select: {
+          slug: true,
+          title: true,
+          image: true,
+          dataAiHint: true,
+          description: true,
+        },
+      }),
+      post.nextId
+        ? prisma.post.findFirst({
+            where: { id: post.nextId, published: true },
+            select: { slug: true, title: true },
+          })
+        : Promise.resolve(null),
+      post.previousId
+        ? prisma.post.findFirst({
+            where: { id: post.previousId, published: true },
+            select: { slug: true, title: true },
+          })
+        : Promise.resolve(null),
+      prisma.comparison.findMany({
+        where: { published: true },
+        take: 2,
+        orderBy: { createdAt: "desc" },
+        include: { platformA: true, platformB: true },
+      }),
+    ]);
 
-  return { post, relatedPosts, nextPost, prevPost };
+  return { post, relatedPosts, nextPost, prevPost, trendingComparisons };
 });
 
 export async function generateMetadata(props: {
@@ -102,6 +124,8 @@ export async function generateMetadata(props: {
   });
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function BlogPostPage(props: {
   params: Promise<{ slug: string }>;
   searchParams: Promise<SearchParams>;
@@ -112,16 +136,13 @@ export default async function BlogPostPage(props: {
   const isPreview = searchParams?.preview === "true";
 
   const [session, content] = await Promise.all([auth(), getContent()]);
-  const { post, relatedPosts, nextPost, prevPost } = await getPostData(
-    slug,
-    isPreview,
-  );
+  const { post, relatedPosts, nextPost, prevPost, trendingComparisons } =
+    await getPostData(slug, isPreview);
 
   if (!post) {
     notFound();
   }
 
-  // If it's a draft, redirect non-admins
   if (!post.published && session?.user?.role !== "ADMIN") {
     redirect("/blog");
   }
@@ -146,13 +167,13 @@ export default async function BlogPostPage(props: {
       name: siteName,
       logo: {
         "@type": "ImageObject",
-        url: "https://www.comparlify.com/logo.png", // Replace with actual logo URL
+        url: "https://www.comparlify.com/logo.png",
       },
     },
   };
 
   return (
-    <>
+    <div className="bg-background min-h-screen">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -163,11 +184,11 @@ export default async function BlogPostPage(props: {
           variant="default"
           className="sticky top-0 z-50 rounded-none border-b-2 border-l-0 border-r-0 border-t-0 border-yellow-500 bg-yellow-50 text-yellow-900"
         >
-          <div className="container flex items-center justify-between">
+          <div className="container flex items-center justify-between py-2">
             <div className="flex items-center gap-2">
               <Eye className="h-5 w-5" />
               <div>
-                <AlertTitle className="font-bold">
+                <AlertTitle className="font-bold text-sm">
                   {content["blog.post.preview.title"]}
                 </AlertTitle>
                 <AlertDescription className="text-xs">
@@ -179,7 +200,7 @@ export default async function BlogPostPage(props: {
               asChild
               size="sm"
               variant="outline"
-              className="border-yellow-300 hover:bg-yellow-100"
+              className="border-yellow-300 hover:bg-yellow-100 h-8"
             >
               <Link href="/admin/blog">
                 {content["blog.post.preview.exitButton"]}
@@ -189,143 +210,349 @@ export default async function BlogPostPage(props: {
         </Alert>
       )}
 
-      <article>
-        {/* Hero Section */}
-        <section className="relative w-full py-16 md:py-24 lg:py-32 flex items-center justify-center text-center text-white overflow-hidden h-[80vh]">
-          <div className="absolute inset-0">
-            <ManagedImage
-              src={post.image.replace("400/250", "1920/1080")}
-              alt={post.title}
-              data-ai-hint={post.dataAiHint}
-              fill
-              className="object-cover"
-              priority
-            />
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <article className="pb-32">
+        {/* Premium Header - Majestic Scale */}
+        <header className="relative pt-32 pb-24 overflow-hidden border-b border-border/10">
+          <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-30"></div>
+          <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
+            <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-primary/15 rounded-full blur-[150px] animate-pulse"></div>
+            <div className="absolute bottom-[20%] -right-[10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px] animate-pulse delay-1000"></div>
           </div>
-          <div className="relative container max-w-4xl z-10 drop-shadow-lg">
-            <Breadcrumbs
-              items={[
-                { name: "Home", href: "/" },
-                { name: "Blog", href: "/blog" },
-                { name: post.title },
-              ]}
-              className="justify-center text-white/80 mb-6"
-            />
-            <Badge>{post.category?.name}</Badge>
-            <h1 className="font-headline text-4xl md:text-6xl font-bold leading-tight mt-4">
-              {post.title}
-            </h1>
-            <p className="mt-4 text-lg md:text-xl text-white/80 max-w-2xl mx-auto">
-              {post.description}
-            </p>
-            <div className="mt-8 flex items-center justify-center gap-4">
-              <Avatar className="h-12 w-12 border-2 border-white/50">
-                <AvatarImage
-                  src={
-                    post.author.image ??
-                    `https://picsum.photos/100/100?random=${post.slug}`
-                  }
-                  alt={post.author.name ?? "Author"}
-                  data-ai-hint="person photo"
+
+          <div className="container relative z-10 px-4 md:px-6">
+            <MotionDiv
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <div className="flex flex-col items-center text-center max-w-5xl mx-auto">
+                <Breadcrumbs
+                  items={[
+                    { name: "Home", href: "/" },
+                    { name: "Insights", href: "/blog" },
+                    { name: post.title },
+                  ]}
+                  className="mb-10 justify-center"
                 />
-                <AvatarFallback>{post.author.name?.charAt(0)}</AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="font-semibold">{post.author.name}</p>
-                <p className="text-sm text-white/70">
-                  {format(new Date(post.createdAt), "MMMM d, yyyy")} &middot;{" "}
-                  {readTime} min read
+
+                <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.3em] mb-10 shadow-sm">
+                  <BookOpen className="h-4 w-4" />
+                  {post.category?.name || "Uncategorized Intelligence"}
+                </div>
+
+                <h1 className="text-4xl md:text-6xl font-black tracking-tight text-foreground mb-10 leading-[1.1] uppercase max-w-4xl">
+                  {post.title}
+                </h1>
+
+                <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed mb-12 max-w-3xl font-medium">
+                  {post.description}
                 </p>
+
+                <div className="flex flex-wrap items-center justify-center gap-8 p-6 rounded-[2rem] bg-card/60 backdrop-blur-3xl border border-border/10 shadow-2xl relative overflow-hidden group">
+                  <div className="absolute inset-x-0 bottom-0 h-1.5 bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
+                  <div className="flex items-center gap-5">
+                    <Avatar className="h-14 w-14 ring-4 ring-primary/10 border-2 border-background shadow-2xl transition-transform group-hover:scale-110 duration-500">
+                      <AvatarImage
+                        src={
+                          post.author.image ??
+                          `https://picsum.photos/200/200?random=${post.slug}`
+                        }
+                        alt={post.author.name ?? "Author"}
+                      />
+                      <AvatarFallback className="bg-primary text-primary-foreground font-black text-xl">
+                        {post.author.name?.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="text-left">
+                      <p className="font-black text-foreground text-xl tracking-tight">
+                        {post.author.name}
+                      </p>
+                      <p className="text-[10px] text-primary font-black uppercase tracking-[0.3em] mt-1">
+                        Intelligence Specialist
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="h-12 w-px bg-border/20 hidden sm:block"></div>
+
+                  <div className="flex items-center gap-10 text-[11px] font-black text-muted-foreground uppercase tracking-[0.3em]">
+                    <div className="flex items-center gap-3">
+                      <Clock className="h-4 w-4 text-primary" />
+                      <span>{readTime}M EXTRACT</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Zap className="h-4 w-4 text-primary" />
+                      <span>
+                        {format(new Date(post.createdAt), "MMM d, yyyy")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            </MotionDiv>
           </div>
+        </header>
+
+        {/* Featured Image - Immersive Scale */}
+        <section className="container px-4 md:px-6 -mt-12 mb-24">
+          <MotionDiv
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.2, delay: 0.4 }}
+          >
+            <div className="relative aspect-[21/9] rounded-[2.5rem] overflow-hidden shadow-[0_40px_80px_-20px_rgba(0,0,0,0.4)] group border-[8px] border-background ring-1 ring-border/10">
+              <ManagedImage
+                src={post.image.replace("400/250", "1920/1080")}
+                alt={post.title}
+                data-ai-hint={post.dataAiHint}
+                fill
+                className="object-cover transition-transform duration-2000 group-hover:scale-110"
+                priority
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+            </div>
+          </MotionDiv>
         </section>
 
-        {/* Main Content */}
-        <div className="container max-w-6xl py-12 md:py-16">
-          <div className="flex justify-between items-center mb-6">
-            <Button asChild variant="ghost">
-              <Link href="/blog">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                {content["blog.post.backLink"]}
-              </Link>
-            </Button>
-            {session?.user && <BookmarkButton postId={post.id} />}
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-4 lg:gap-12">
-            <div className="lg:col-span-3">
-              <AdPlacement placement="POST_TOP" />
-              <div className="prose dark:prose-invert max-w-none">
-                <MarkdownContent content={post.content} />
-              </div>
-              <AdPlacement placement="POST_BOTTOM" />
-              <nav className="flex justify-between items-center my-12 border-t border-b py-6">
-                <div>
-                  {prevPost && (
-                    <Button asChild variant="outline">
-                      <Link href={`/blog/${prevPost.slug}`}>
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Previous
-                      </Link>
-                    </Button>
-                  )}
-                </div>
-                <div>
-                  {nextPost && (
-                    <Button asChild variant="outline">
-                      <Link href={`/blog/${nextPost.slug}`}>
-                        Next
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Link>
-                    </Button>
-                  )}
-                </div>
-              </nav>
-              <CommentsSection
-                postId={post.id}
-                comments={post.comments}
-                session={session}
-              />
-            </div>
+        {/* Main Content Layout */}
+        <section className="container px-4 md:px-6 max-w-7xl">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
+            {/* Left Sidebar Actions - Desktop Only */}
             <aside className="hidden lg:block lg:col-span-1">
-              <div className="sticky top-24 space-y-8">
-                <TableOfContents content={post.content} />
-                <AdPlacement placement="SIDEBAR" />
-                {relatedPosts.length > 0 && (
-                  <div>
-                    <h3 className="font-headline text-xl font-semibold mb-4">
-                      {content["blog.post.relatedTitle"]}
+              <div className="sticky top-40 flex flex-col items-center space-y-12">
+                {session?.user && (
+                  <div className="flex flex-col items-center gap-4 group">
+                    <BookmarkButton
+                      postId={post.id}
+                      className="h-16 w-16 rounded-[2rem] shadow-xl hover:shadow-primary/20 transition-all hover:-translate-y-2"
+                      size="icon"
+                      showText={false}
+                    />
+                    <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.4em] group-hover:text-primary transition-colors">
+                      Extract
+                    </span>
+                  </div>
+                )}
+                <div className="flex flex-col items-center gap-4 group">
+                  <ShareButton className="h-16 w-16 rounded-[2rem] shadow-xl hover:shadow-primary/20 transition-all hover:-translate-y-2" />
+                  <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.4em] group-hover:text-primary transition-colors">
+                    Signal
+                  </span>
+                </div>
+              </div>
+            </aside>
+
+            {/* Main Article Content */}
+            <main className="lg:col-span-7">
+              <AdPlacement placement="POST_TOP" className="mb-16" />
+
+              <MotionDiv
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+                className="prose prose-xl dark:prose-invert max-w-none prose-headings:font-black prose-headings:tracking-tighter prose-a:text-primary prose-img:rounded-[2rem] prose-blockquote:border-primary prose-blockquote:bg-primary/5 prose-blockquote:py-6 prose-blockquote:px-8 prose-blockquote:rounded-[2rem] prose-blockquote:not-italic prose-blockquote:font-black prose-p:leading-relaxed prose-p:text-muted-foreground/90 font-medium"
+              >
+                <MarkdownContent content={post.content} />
+              </MotionDiv>
+
+              <AdPlacement placement="POST_BOTTOM" className="mt-24" />
+
+              {/* Mobile Action Bar - Positioned at bottom of content for visibility */}
+              <div className="lg:hidden mt-16 p-8 rounded-[3rem] bg-card/60 backdrop-blur-3xl border border-border/10 shadow-2xl flex items-center justify-around">
+                <div className="flex flex-col items-center gap-3">
+                  <ShareButton className="h-14 w-14 rounded-2xl" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                    Share Signal
+                  </span>
+                </div>
+                {session?.user && (
+                  <div className="flex flex-col items-center gap-3">
+                    <BookmarkButton
+                      postId={post.id}
+                      size="icon"
+                      className="h-14 w-14 rounded-2xl"
+                      showText={false}
+                    />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                      Save Dispatch
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Post Navigation */}
+              <nav className="grid grid-cols-1 sm:grid-cols-2 w-full gap-8 mt-24 p-6 bg-card/20 backdrop-blur-md rounded-[2.5rem] border border-border/10">
+                {prevPost ? (
+                  <Link
+                    href={`/blog/${prevPost.slug}`}
+                    className="group p-8 rounded-[2rem] hover:bg-primary/10 transition-all text-left border border-transparent hover:border-primary/20 bg-background/40 backdrop-blur-xl shadow-lg"
+                  >
+                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4 flex items-center gap-3">
+                      <ArrowLeft className="h-4 w-4" /> Previous Dispatch
+                    </p>
+                    <h4 className="text-xl font-black text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                      {prevPost.title}
+                    </h4>
+                  </Link>
+                ) : (
+                  <div />
+                )}
+
+                {nextPost ? (
+                  <Link
+                    href={`/blog/${nextPost.slug}`}
+                    className="group p-8 rounded-[2rem] hover:bg-primary/10 transition-all text-right border border-transparent hover:border-primary/20 bg-background/40 backdrop-blur-xl shadow-lg"
+                  >
+                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4 flex items-center justify-end gap-3">
+                      Next Dispatch <ArrowRight className="h-4 w-4" />
+                    </p>
+                    <h4 className="text-xl font-black text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                      {nextPost.title}
+                    </h4>
+                  </Link>
+                ) : (
+                  <div />
+                )}
+              </nav>
+
+              <div className="mt-32">
+                <div className="mb-12 flex items-center gap-4">
+                  <div className="h-px bg-border/20 flex-1"></div>
+                  <h3 className="text-xs font-black uppercase tracking-[0.5em] text-muted-foreground">
+                    Intelligence Exchange
+                  </h3>
+                  <div className="h-px bg-border/20 flex-1"></div>
+                </div>
+                <CommentsSection
+                  postId={post.id}
+                  comments={post.comments}
+                  session={session}
+                />
+              </div>
+            </main>
+
+            {/* Right Sidebar - TOC & Related */}
+            <aside className="lg:col-span-4 space-y-16">
+              <div className="sticky top-40 space-y-16">
+                <section className="bg-card/40 backdrop-blur-3xl border border-border/10 p-8 rounded-[2rem] shadow-xl relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 p-8 text-primary/5 select-none pointer-events-none -rotate-12 translate-x-8 -translate-y-8">
+                    <ListFilter className="h-32 w-32" />
+                  </div>
+                  <TableOfContents content={post.content} />
+                </section>
+
+                {trendingComparisons.length > 0 && (
+                  <section className="bg-primary/5 border border-primary/20 p-8 rounded-[2rem] shadow-xl relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-8 text-primary/10 select-none pointer-events-none -rotate-12 translate-x-4 -translate-y-4">
+                      <Scale className="h-24 w-24" />
+                    </div>
+                    <Badge className="bg-primary/20 text-primary border-primary/30 px-4 py-1.5 uppercase tracking-widest text-[8px] font-black rounded-full mb-8 relative z-10 transition-all group-hover:bg-primary group-hover:text-primary-foreground">
+                      Intelligence Trending
+                    </Badge>
+                    <h3 className="text-2xl font-black text-foreground mb-10 relative z-10">
+                      Latest <br />
+                      <span className="text-primary italic font-black">
+                        Head-to-Head
+                      </span>
                     </h3>
-                    <div className="space-y-4">
+                    <div className="space-y-6 relative z-10">
+                      {trendingComparisons.map((comp) => (
+                        <Link
+                          key={comp.id}
+                          href={`/compare/${comp.slug}`}
+                          className="flex items-center gap-4 p-4 rounded-2xl bg-background/60 hover:bg-background transition-all group/item border border-border/5"
+                        >
+                          <div className="flex -space-x-2">
+                            <div className="w-8 h-8 rounded-full border-2 border-background overflow-hidden relative shadow-lg">
+                              <ManagedImage
+                                fill
+                                src={comp.platformA.logoUrl}
+                                alt={comp.platformA.name}
+                                className="object-cover"
+                              />
+                            </div>
+                            <div className="w-8 h-8 rounded-full border-2 border-background overflow-hidden relative shadow-lg">
+                              <ManagedImage
+                                fill
+                                src={comp.platformB.logoUrl}
+                                alt={comp.platformB.name}
+                                className="object-cover"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-xs font-black text-foreground uppercase tracking-tight truncate group-hover/item:text-primary transition-colors">
+                              {comp.title}
+                            </h4>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                <AdPlacement placement="SIDEBAR" />
+
+                {relatedPosts.length > 0 && (
+                  <section className="bg-card/60 backdrop-blur-3xl border border-border/10 p-8 rounded-[2rem] shadow-xl relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-10 text-primary/5 select-none pointer-events-none">
+                      <Zap className="h-48 w-48" />
+                    </div>
+                    <h3 className="text-3xl font-black text-foreground mb-12 relative z-10 leading-none">
+                      Neural <br />
+                      <span className="text-primary italic">Connections</span>
+                    </h3>
+                    <div className="space-y-12 relative z-10">
                       {relatedPosts.map((related) => (
                         <Link
                           key={related.slug}
                           href={`/blog/${related.slug}`}
-                          className="flex items-center gap-4 group"
+                          className="flex flex-col gap-6 group/item"
                         >
-                          <div className="relative w-20 h-16 rounded-md overflow-hidden shrink-0">
+                          <div className="relative aspect-[16/10] rounded-[2rem] overflow-hidden shadow-2xl border border-white/5">
                             <ManagedImage
-                              src={related.image.replace("400/250", "200/150")}
+                              src={related.image.replace("400/250", "600/400")}
                               alt={related.title}
                               data-ai-hint={related.dataAiHint ?? ""}
                               fill
-                              className="object-cover transition-transform duration-300 group-hover:scale-105"
+                              className="object-cover transition-transform duration-1000 group-hover/item:scale-110"
                             />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/item:opacity-100 transition-all duration-700 flex items-center justify-center">
+                              <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white scale-50 group-hover/item:scale-100 transition-transform">
+                                <ArrowRight className="h-6 w-6" />
+                              </div>
+                            </div>
                           </div>
-                          <h4 className="text-sm font-medium group-hover:text-primary transition-colors">
-                            {related.title}
-                          </h4>
+                          <div className="space-y-4">
+                            <h4 className="font-black text-foreground group-hover/item:text-primary transition-colors leading-[1.2] text-xl tracking-tight">
+                              {related.title}
+                            </h4>
+                            <p className="text-sm text-muted-foreground/80 line-clamp-2 leading-relaxed font-medium">
+                              {related.description}
+                            </p>
+                          </div>
                         </Link>
                       ))}
                     </div>
-                  </div>
+                    <Button
+                      asChild
+                      variant="ghost"
+                      className="w-full mt-16 rounded-[2rem] font-black uppercase tracking-[0.3em] text-[10px] py-8 hover:bg-primary/10 group/all transition-all border border-primary/10"
+                    >
+                      <Link href="/blog">
+                        Total Archive{" "}
+                        <ArrowRight className="ml-4 h-5 w-5 transition-transform group-hover/all:translate-x-3" />
+                      </Link>
+                    </Button>
+                  </section>
                 )}
               </div>
             </aside>
           </div>
-        </div>
+        </section>
       </article>
-    </>
+
+      {/* Search Overlay/Floating FAB could go here if needed */}
+    </div>
   );
 }

@@ -1,18 +1,24 @@
+"use client";
 
-'use client';
-
-import { Bell } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { NotificationList } from './notification-list';
-import type { Notification } from '@prisma/client';
+import { Bell } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { NotificationList } from "./notification-list";
+import type { Notification } from "@prisma/client";
 
 interface NotificationBellProps {
   notifications: Notification[];
   unreadCount: number;
 }
 
-export function NotificationBell({ notifications, unreadCount }: NotificationBellProps) {
+export function NotificationBell({
+  notifications,
+  unreadCount,
+}: NotificationBellProps) {
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -27,8 +33,15 @@ export function NotificationBell({ notifications, unreadCount }: NotificationBel
           <span className="sr-only">Open notifications</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0" align="end">
-        <NotificationList initialNotifications={notifications} initialUnreadCount={unreadCount} />
+      <PopoverContent
+        className="w-80 p-0 rounded-[2rem] border-primary/20 bg-card/60 backdrop-blur-3xl shadow-2xl overflow-hidden"
+        align="end"
+        sideOffset={8}
+      >
+        <NotificationList
+          initialNotifications={notifications}
+          initialUnreadCount={unreadCount}
+        />
       </PopoverContent>
     </Popover>
   );

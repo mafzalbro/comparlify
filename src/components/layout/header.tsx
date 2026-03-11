@@ -63,7 +63,7 @@ export default function Header({ navLinks = [], siteName }: HeaderProps) {
         href={href}
         className={cn(
           "text-sm font-medium transition-colors hover:text-primary",
-          isActive ? "font-semibold text-primary" : "text-muted-foreground"
+          isActive ? "font-semibold text-primary" : "text-muted-foreground",
         )}
       >
         {label}
@@ -75,11 +75,11 @@ export default function Header({ navLinks = [], siteName }: HeaderProps) {
     <motion.header
       variants={{
         visible: { y: 0 },
-        hidden: { y: "-100%" },
+        hidden: { y: "-150%" },
       }}
       animate={hidden ? "hidden" : "visible"}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+      className="sticky top-4 mt-2 z-50 w-[95%] max-w-5xl mx-auto rounded-full border border-border/20 bg-background/60 backdrop-blur-xl shadow-lg"
     >
       <div className="px-3 sm:container flex h-16 items-center justify-between">
         <div className="flex items-center gap-6">

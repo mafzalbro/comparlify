@@ -2,66 +2,69 @@ import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { generateSeoMetadata } from "@/lib/seo";
-import { Star, CheckCircle, XCircle, ArrowLeft } from "lucide-react";
+import { SchemaScript } from "@/components/schema-script";
 import { MarkdownContent } from "@/components/markdown-content";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { ComparisonChart } from "@/components/comparison-chart";
-import { ManagedImage } from "@/components/managed-image";
+import { AdPlacement } from "@/components/ad-placement";
+import { PremiumNewsletterForm } from "@/components/premium-newsletter-form";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Sparkles,
+  Zap,
+  BookOpen,
+  MessageSquare,
+  Newspaper,
+} from "lucide-react";
+import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { cache } from "react";
 import { auth } from "@/lib/auth";
-import { BookmarkButton } from "@/components/bookmark-button";
-import { Breadcrumbs } from "@/components/breadcrumb";
-import { getContent } from "@/lib/content";
-import { AdPlacement } from "@/components/ad-placement";
+import dynamic from "next/dynamic";
+
+import { calculatePlatformScore } from "@/lib/scoring";
+import { ComparisonHero } from "@/components/comparison/comparison-hero";
+import { ComparisonStats } from "@/components/comparison/comparison-stats";
+import { ComparisonFeatureMatrix } from "@/components/comparison/comparison-feature-matrix";
+import { IntelligenceVerdict } from "@/components/comparison/intelligence-verdict";
+import { ComparisonFaqs } from "@/components/comparison/comparison-faqs";
+import { PlatformVisitCards } from "@/components/comparison/platform-visit-cards";
+
+const ComparisonChart = dynamic(
+  () =>
+    import("@/components/comparison-chart").then((mod) => mod.ComparisonChart),
+  { ssr: true },
+);
 
 const getComparisonBySlug = cache(async (slug: string) => {
-  const comparison = await prisma.comparison.findUnique({
+  return prisma.comparison.findUnique({
     where: { slug, published: true },
     include: {
       platformA: {
         include: {
           features: { include: { feature: { include: { category: true } } } },
+          newsArticles: { take: 2, where: { published: true } },
+          forumTopics: { take: 2, where: { status: "APPROVED" } },
         },
       },
       platformB: {
         include: {
           features: { include: { feature: { include: { category: true } } } },
+          newsArticles: { take: 2, where: { published: true } },
+          forumTopics: { take: 2, where: { status: "APPROVED" } },
         },
       },
       facts: true,
       faqs: true,
     },
   });
-  return comparison;
 });
 
 export async function generateMetadata(props: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const params = await props.params;
-  const { slug } = params;
+  const { slug } = await props.params;
   const comparison = await getComparisonBySlug(slug);
-
-  if (!comparison) {
-    return {};
-  }
-
+  if (!comparison) return {};
   return generateSeoMetadata({
     title: comparison.title,
     description: comparison.summary,
@@ -73,39 +76,52 @@ export const generateStaticParams = cache(async () => {
   const comparisons = await prisma.comparison.findMany({
     where: { published: true },
   });
-  return comparisons.map((comp) => ({
-    slug: comp.slug,
-  }));
+  return comparisons.map((comp) => ({ slug: comp.slug }));
 });
 
 export default async function ComparisonDetailPage(props: {
   params: Promise<{ slug: string }>;
 }) {
-  const params = await props.params;
-  const { slug } = params;
-  const [session, comparison, content] = await Promise.all([
+  const { slug } = await props.params;
+  const [session, comparison] = await Promise.all([
     auth(),
     getComparisonBySlug(slug),
-    getContent(),
   ]);
 
-  if (!comparison) {
-    notFound();
-  }
+  if (!comparison) notFound();
 
   const { platformA, platformB } = comparison;
 
-  const allFeatures = await prisma.feature.findMany({
-    include: { category: true },
-  });
-  const allCategories = await prisma.featureCategory.findMany({
-    orderBy: { name: "asc" },
-  });
+  // ── Scoring ─────────────────────────────────────────────
+  const scoreA = calculatePlatformScore(platformA);
+  const scoreB = calculatePlatformScore(platformB);
+  const isPlatformAWinner = parseFloat(scoreA) > parseFloat(scoreB);
+  const isPlatformBWinner = parseFloat(scoreB) > parseFloat(scoreA);
+  const isCloseCall = Math.abs(parseFloat(scoreA) - parseFloat(scoreB)) < 0.5;
 
-  const getFeature = (platform: typeof platformA, featureId: string) => {
-    return platform.features.find((f) => f.featureId === featureId);
-  };
+  // ── Stats Cards ─────────────────────────────────────────
+  const stats = [
+    {
+      id: "score",
+      name: "Expert Score",
+      value1: scoreA,
+      value2: scoreB,
+    },
+    {
+      id: "ease",
+      name: "Ease of Use",
+      value1: (platformA.easeOfUse ?? 0).toString(),
+      value2: (platformB.easeOfUse ?? 0).toString(),
+    },
+    {
+      id: "support",
+      name: "Support Quality",
+      value1: (platformA.support ?? 0).toString(),
+      value2: (platformB.support ?? 0).toString(),
+    },
+  ];
 
+  // ── Radar Chart ─────────────────────────────────────────
   const chartData = [
     {
       name: "Overall Rating",
@@ -133,256 +149,279 @@ export default async function ComparisonDetailPage(props: {
   );
 
   const chartConfig = {
-    [platformA.name]: {
-      label: platformA.name,
-      color: "hsl(var(--chart-1))",
-    },
+    [platformA.name]: { label: platformA.name, color: "hsl(var(--primary))" },
     [platformB.name]: {
       label: platformB.name,
-      color: "hsl(var(--chart-2))",
+      color: "hsl(var(--secondary-foreground))",
+    },
+  };
+
+  // ── Feature Matrix ──────────────────────────────────────
+  const allFeatures = await prisma.feature.findMany({
+    include: { category: true },
+  });
+
+  const getFeature = (platform: typeof platformA, featureId: string) =>
+    platform.features.find((f) => f.featureId === featureId);
+
+  const featureRows = allFeatures.slice(0, 10).map((feature) => {
+    const pfA = getFeature(platformA, feature.id);
+    const pfB = getFeature(platformB, feature.id);
+    return {
+      id: feature.id,
+      name: feature.name,
+      value1: pfA?.hasFeature ? pfA.details || "Supported" : "Not Included",
+      value2: pfB?.hasFeature ? pfB.details || "Supported" : "Not Included",
+    };
+  });
+
+  // ── Related Content ─────────────────────────────────────
+  const [relatedPosts, relatedNews] = await Promise.all([
+    prisma.post.findMany({
+      where: { published: true },
+      take: 2,
+      orderBy: { createdAt: "desc" },
+      include: { author: true },
+    }),
+    prisma.newsArticle.findMany({
+      where: { published: true },
+      take: 2,
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
+
+  // ── Schema.org (Rich Snippets) ───────────────────────────
+  const comparisonJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: comparison.title,
+    description: comparison.summary,
+    brand: { "@type": "Brand", name: "Comparlify" },
+    review: {
+      "@type": "Review",
+      reviewRating: {
+        "@type": "Rating",
+        ratingValue: scoreA,
+        bestRating: "10",
+      },
+      author: { "@type": "Organization", name: "Comparlify Intelligence" },
     },
   };
 
   return (
-    <div className="bg-background">
-      <section className="bg-secondary/30 border-b py-16 md:py-24">
-        <div className="container">
-          <Breadcrumbs
-            items={[
-              { name: "Home", href: "/" },
-              { name: "Compare", href: "/compare" },
-              { name: comparison.title },
-            ]}
-            className="mb-8"
-          />
-          <div className="flex justify-between items-center mb-6">
-            <Button asChild variant="ghost">
-              <Link href="/compare">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                {content["compare.detail.backLink"]}
-              </Link>
-            </Button>
-            {session?.user && <BookmarkButton comparisonId={comparison.id} />}
-          </div>
-          <div className="text-center">
-            <div className="flex justify-center items-center gap-4 md:gap-8 mb-6">
-              <ManagedImage
-                src={platformA.logoUrl}
-                alt={`${platformA.name} logo`}
-                width={240}
-                height={80}
-                className="object-contain h-12 md:h-16 w-auto"
-              />
-              <span className="text-3xl md:text-5xl font-light text-muted-foreground">
-                vs
-              </span>
-              <ManagedImage
-                src={platformB.logoUrl}
-                alt={`${platformB.name} logo`}
-                width={240}
-                height={80}
-                className="object-contain h-12 md:h-16 w-auto"
-              />
-            </div>
-            <h1 className="font-headline text-4xl md:text-5xl font-bold text-foreground">
-              {comparison.title}
-            </h1>
-            <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
-              {comparison.summary}
-            </p>
-          </div>
-        </div>
-      </section>
+    <div className="bg-background min-h-screen">
+      <SchemaScript schema={comparisonJsonLd} />
 
-      <div className="container max-w-5xl py-16 md:py-24">
-        <div className="prose prose-lg dark:prose-invert max-w-none mx-auto">
-          <MarkdownContent content={comparison.introduction} />
-        </div>
-        <AdPlacement placement="POST_TOP" />
+      <article className="pb-40">
+        {/* ── HERO ─────────────────────────── */}
+        <ComparisonHero
+          title={comparison.title}
+          summary={comparison.summary}
+          comparisonId={comparison.id}
+          platformA={platformA}
+          platformB={platformB}
+          scoreA={scoreA}
+          scoreB={scoreB}
+          session={session}
+        />
 
-        <section className="my-12 md:my-20">
-          <h2 className="font-headline text-3xl font-bold text-center mb-8">
-            {content["compare.detail.glance.title"]}
-          </h2>
-          <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-1/3 font-semibold text-foreground">
-                      Feature
-                    </TableHead>
-                    <TableHead className="text-center font-semibold text-foreground">
-                      {platformA.name}
-                    </TableHead>
-                    <TableHead className="text-center font-semibold text-foreground">
-                      {platformB.name}
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell className="font-medium">
-                      Overall Rating
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <div className="flex justify-center items-center gap-1 font-semibold">
-                        <Star className="w-5 h-5 text-amber-400 fill-amber-400" />{" "}
-                        {platformA.rating ? platformA.rating.toFixed(1) : "N/A"}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <div className="flex justify-center items-center gap-1 font-semibold">
-                        <Star className="w-5 h-5 text-amber-400 fill-amber-400" />{" "}
-                        {platformB.rating ? platformB.rating.toFixed(1) : "N/A"}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                  {comparison.facts.map((fact) => (
-                    <TableRow key={fact.id}>
-                      <TableCell className="font-medium">
-                        {fact.title}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {fact.platformAValue}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {fact.platformBValue}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </section>
+        {/* ── STAT CARDS ───────────────────── */}
+        <ComparisonStats
+          stats={stats}
+          platformAName={platformA.name}
+          platformBName={platformB.name}
+        />
 
-        {chartData.length > 0 && (
-          <section className="my-12 md:my-20">
-            <h2 className="font-headline text-3xl font-bold text-center mb-8">
-              {content["compare.detail.ratings.title"]}
-            </h2>
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  {content["compare.detail.ratings.chartTitle"]}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ComparisonChart
-                  chartConfig={chartConfig}
-                  chartData={chartData}
-                  platformAName={platformA.name}
-                  platformBName={platformB.name}
-                />
-              </CardContent>
-            </Card>
-          </section>
-        )}
+        {/* ── MAIN CONTENT GRID ────────────── */}
+        <section className="container px-4 md:px-6 max-w-7xl">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
+            {/* ── SIDEBAR ──────────────────── */}
+            <aside className="hidden lg:block lg:col-span-4">
+              <div className="sticky top-40 space-y-16">
+                {/* Radar Chart */}
+                <section className="bg-card/40 backdrop-blur-3xl border border-border/10 p-8 rounded-[2rem] shadow-2xl relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 p-8 text-primary/5 select-none pointer-events-none -rotate-12 translate-x-8 -translate-y-8">
+                    <Sparkles className="h-32 w-32" />
+                  </div>
+                  <h3 className="text-2xl font-black text-foreground mb-10 flex items-center gap-3">
+                    <Zap className="h-6 w-6 text-primary" /> Expert Overview
+                  </h3>
+                  <div className="h-[300px]">
+                    <ComparisonChart
+                      chartConfig={chartConfig}
+                      chartData={chartData}
+                      platformAName={platformA.name}
+                      platformBName={platformB.name}
+                    />
+                  </div>
+                </section>
 
-        <AdPlacement placement="COMPARISON_BETWEEN" />
+                <AdPlacement placement="SIDEBAR" />
 
-        <section className="my-12 md:my-20">
-          <h2 className="font-headline text-3xl font-bold text-center mb-8">
-            {content["compare.detail.features.title"]}
-          </h2>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-1/3 font-semibold text-foreground">
-                  Feature
-                </TableHead>
-                <TableHead className="text-center font-semibold text-foreground">
-                  {platformA.name}
-                </TableHead>
-                <TableHead className="text-center font-semibold text-foreground">
-                  {platformB.name}
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            {allCategories.map((category) => {
-              const featuresInCategory = allFeatures.filter(
-                (f) => f.categoryId === category.id,
-              );
-              if (featuresInCategory.length === 0) return null;
+                {/* Newsletter */}
+                <section className="bg-card/60 backdrop-blur-3xl border border-border/10 p-8 rounded-[2rem] shadow-2xl text-center relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
+                  <Badge className="bg-primary/20 text-primary border-primary/30 px-6 py-2 uppercase tracking-[0.4em] text-[10px] font-black rounded-full mb-8 shadow-sm relative z-10">
+                    Stay Updated
+                  </Badge>
+                  <h3 className="text-3xl font-black text-foreground mb-6 leading-[1.1] relative z-10">
+                    Get the <br />
+                    <span className="text-primary italic">Expert Scoop.</span>
+                  </h3>
+                  <div className="relative z-10 space-y-8">
+                    <PremiumNewsletterForm
+                      buttonText="Subscribe Free"
+                      containerClassName="bg-background/50 border-white/5 p-4 rounded-3xl"
+                    />
+                  </div>
+                </section>
 
-              return (
-                <TableBody key={category.id}>
-                  <TableRow>
-                    <TableCell colSpan={3} className="bg-secondary/50">
-                      <h3 className="font-headline text-lg font-bold">
-                        {category.name}
-                      </h3>
-                    </TableCell>
-                  </TableRow>
-                  {featuresInCategory.map((feature) => {
-                    const platformAFeature = getFeature(platformA, feature.id);
-                    const platformBFeature = getFeature(platformB, feature.id);
+                {/* ── COLLECTIVE PULSE ─────────────── */}
+                <section className="bg-primary/5 border border-primary/20 p-8 rounded-[3rem] space-y-8">
+                  <Badge className="bg-primary/20 text-primary border-primary/30 uppercase tracking-widest text-[9px] font-black">
+                    Community Pulse
+                  </Badge>
+                  <h4 className="text-2xl font-black leading-none uppercase">
+                    Expert{" "}
+                    <span className="text-primary italic">Highlights</span>
+                  </h4>
 
-                    const renderCheck = (pf: typeof platformAFeature) => (
-                      <div className="flex flex-col items-center justify-center gap-1">
-                        {pf?.hasFeature ? (
-                          <CheckCircle className="h-6 w-6 text-green-500" />
-                        ) : (
-                          <XCircle className="h-6 w-6 text-red-500" />
-                        )}
-                        {pf?.details && (
-                          <p className="text-xs text-muted-foreground text-center">
-                            {pf.details}
+                  <div className="space-y-6">
+                    {[...platformA.forumTopics, ...platformB.forumTopics]
+                      .slice(0, 3)
+                      .map((topic) => (
+                        <Link
+                          key={topic.id}
+                          href={`/community/topic/${topic.id}`}
+                          className="flex items-start gap-4 p-4 rounded-2xl bg-background hover:bg-primary/5 transition-all group"
+                        >
+                          <MessageSquare className="h-5 w-5 text-muted-foreground mt-1 group-hover:text-primary" />
+                          <p className="text-xs font-bold leading-snug group-hover:text-primary transition-colors">
+                            {topic.title}
                           </p>
-                        )}
-                      </div>
-                    );
+                        </Link>
+                      ))}
+                    {[...platformA.newsArticles, ...platformB.newsArticles]
+                      .slice(0, 2)
+                      .map((news) => (
+                        <Link
+                          key={news.id}
+                          href={`/news/${news.slug}`}
+                          className="flex items-start gap-4 p-4 rounded-2xl bg-background hover:bg-blue-500/5 transition-all group border border-blue-500/10"
+                        >
+                          <Newspaper className="h-5 w-5 text-blue-500 mt-1" />
+                          <p className="text-xs font-bold leading-snug group-hover:text-blue-500 transition-colors">
+                            {news.title}
+                          </p>
+                        </Link>
+                      ))}
+                  </div>
 
-                    return (
-                      <TableRow key={feature.id}>
-                        <TableCell className="font-medium">
-                          {feature.name}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          {renderCheck(platformAFeature)}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          {renderCheck(platformBFeature)}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              );
-            })}
-          </Table>
+                  <Button
+                    asChild
+                    variant="ghost"
+                    className="w-full rounded-2xl h-12 font-black uppercase tracking-widest text-[10px] hover:bg-primary/10"
+                  >
+                    <Link href="/community">Visit Community</Link>
+                  </Button>
+                </section>
+              </div>
+            </aside>
+
+            {/* ── MAIN CONTENT ─────────────── */}
+            <main className="lg:col-span-8 space-y-24">
+              <AdPlacement placement="POST_TOP" className="mb-16" />
+
+              {/* Introduction */}
+              <section className="space-y-16">
+                <div className="inline-flex items-center gap-3 text-primary font-black uppercase tracking-[0.4em] text-[11px]">
+                  <div className="w-12 h-px bg-primary/30" />
+                  Analysis Overview
+                </div>
+                <div className="prose prose-xl dark:prose-invert max-w-none prose-headings:font-black prose-headings:tracking-tighter prose-a:text-primary prose-blockquote:bg-primary/5 prose-blockquote:py-6 prose-blockquote:px-8 prose-blockquote:rounded-[2rem] prose-blockquote:border-primary prose-p:leading-relaxed prose-p:text-muted-foreground/90 font-medium">
+                  <MarkdownContent content={comparison.introduction} />
+                </div>
+              </section>
+
+              <AdPlacement placement="COMPARISON_BETWEEN" className="my-24" />
+
+              {/* Feature Matrix */}
+              <ComparisonFeatureMatrix
+                features={featureRows}
+                platformAName={platformA.name}
+                platformBName={platformB.name}
+              />
+
+              {/* Final Verdict */}
+              <IntelligenceVerdict
+                conclusion={comparison.conclusion}
+                platformAName={platformA.name}
+                platformBName={platformB.name}
+                isPlatformAWinner={isPlatformAWinner}
+                isCloseCall={isCloseCall}
+              />
+
+              {/* Mobile Share Row */}
+              <div className="lg:hidden" />
+
+              {/* FAQs */}
+              <ComparisonFaqs faqs={comparison.faqs} />
+
+              <AdPlacement placement="POST_BOTTOM" className="mt-24" />
+
+              {/* Platform CTAs */}
+              <PlatformVisitCards platformA={platformA} platformB={platformB} />
+
+              {/* Related Content */}
+              {(relatedPosts.length > 0 || relatedNews.length > 0) && (
+                <section className="pt-32 border-t border-border/10">
+                  <div className="flex items-center gap-3 text-primary font-black uppercase tracking-[0.4em] text-[11px] mb-12">
+                    <div className="w-12 h-px bg-primary/30" />
+                    Related Intelligence
+                  </div>
+                  <h2 className="text-4xl font-black uppercase tracking-tighter mb-16">
+                    Keep <span className="text-primary italic">Reading</span>
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    {relatedPosts.map((post) => (
+                      <Link
+                        key={post.id}
+                        href={`/blog/${post.slug}`}
+                        className="group"
+                      >
+                        <Card className="bg-card/40 border-border/10 p-6 rounded-[2rem] hover:bg-primary/5 transition-all h-full">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-primary mb-4 flex items-center gap-2">
+                            <BookOpen className="h-3 w-3" /> Blog Article
+                          </span>
+                          <h4 className="text-xl font-bold group-hover:text-primary transition-colors">
+                            {post.title}
+                          </h4>
+                        </Card>
+                      </Link>
+                    ))}
+                    {relatedNews.map((news) => (
+                      <Link
+                        key={news.id}
+                        href={`/news/${news.slug}`}
+                        className="group"
+                      >
+                        <Card className="bg-card/40 border-border/10 p-6 rounded-[2rem] hover:bg-blue-500/5 transition-all h-full">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-4 block">
+                            Market News
+                          </span>
+                          <h4 className="text-xl font-bold group-hover:text-blue-500 transition-colors">
+                            {news.title}
+                          </h4>
+                        </Card>
+                      </Link>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </main>
+          </div>
         </section>
-
-        <div className="prose prose-lg dark:prose-invert max-w-none mx-auto my-12 md:my-20">
-          <MarkdownContent content={comparison.conclusion} />
-        </div>
-        <AdPlacement placement="POST_BOTTOM" />
-
-        {comparison.faqs.length > 0 && (
-          <section className="my-12 md:my-20">
-            <h2 className="font-headline text-3xl font-bold text-center mb-8">
-              {content["compare.detail.faq.title"]}
-            </h2>
-            <Accordion
-              type="single"
-              collapsible
-              className="w-full max-w-3xl mx-auto"
-            >
-              {comparison.faqs.map((faq, index) => (
-                <AccordionItem value={`item-${index}`} key={faq.id}>
-                  <AccordionTrigger className="text-lg text-left">
-                    {faq.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="prose dark:prose-invert pt-2">
-                    <p>{faq.answer}</p>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </section>
-        )}
-      </div>
+      </article>
     </div>
   );
 }

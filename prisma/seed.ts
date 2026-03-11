@@ -11,7 +11,7 @@ export async function cleanupDatabase() {
     (key) =>
       !key.startsWith("_") &&
       !key.endsWith("Delegate") &&
-      typeof (prisma as any)[key].deleteMany === "function"
+      typeof (prisma as any)[key].deleteMany === "function",
   );
 
   // Break circular dependencies first
@@ -181,7 +181,7 @@ async function main(skipCleanup = false) {
     totalFeatures += cat.features.length;
   }
   console.log(
-    `   ✓ Seeded ${categoriesData.length} feature categories and ${totalFeatures} features.`
+    `   ✓ Seeded ${categoriesData.length} feature categories and ${totalFeatures} features.`,
   );
 
   // --- 4. Seed Platforms ---
@@ -426,19 +426,22 @@ async function main(skipCleanup = false) {
 
   let previousPostId: string | null = null;
   for (let i = 0; i < postsData.length; i++) {
-    const { categoryName, ...rest } = postsData[i];
+    const { categoryName, authorId, ...rest } = postsData[i];
     const categoryId = postCategoryMap.get(categoryName);
     if (!categoryId) {
       console.warn(
-        `Category '${categoryName}' not found for post '${postsData[i].title}'. Skipping post.`
+        `Category '${categoryName}' not found for post '${postsData[i].title}'. Skipping post.`,
       );
       continue;
     }
     const post = await prisma.post.create({
       data: {
         ...rest,
-        categoryId,
-        previousId: previousPostId,
+        author: { connect: { id: authorId } },
+        category: { connect: { id: categoryId } },
+        previous: previousPostId
+          ? { connect: { id: previousPostId } }
+          : undefined,
       },
     });
     if (previousPostId) {
@@ -450,7 +453,7 @@ async function main(skipCleanup = false) {
     previousPostId = post.id;
   }
   console.log(
-    `   ✓ Seeded ${postsData.length} blog posts with navigation links.`
+    `   ✓ Seeded ${postsData.length} blog posts with navigation links.`,
   );
 
   const allPosts = await prisma.post.findMany();
@@ -505,10 +508,10 @@ async function main(skipCleanup = false) {
   // --- 10. Seed Comparisons ---
   console.log("🆚 Seeding Comparisons...");
   const platformTeachable = createdPlatforms.find(
-    (p) => p.name === "Teachable"
+    (p) => p.name === "Teachable",
   )!;
   const platformThinkific = createdPlatforms.find(
-    (p) => p.name === "Thinkific"
+    (p) => p.name === "Thinkific",
   )!;
 
   const comparisonData = {
@@ -926,22 +929,23 @@ async function main(skipCleanup = false) {
       value: JSON.stringify(
         [
           { href: "/", label: "Home" },
-          { href: "/compare", label: "Comparisons" },
+          { href: "/compare", label: "Head-to-Head" },
           { href: "/blog", label: "Blog" },
-          { href: "/news", label: "News" },
+          { href: "/news", label: "Live Updates" },
           { href: "/community", label: "Community" },
           { href: "/tools", label: "Tools" },
           { href: "/about", label: "About" },
           { href: "/contact", label: "Contact" },
         ],
         null,
-        2
+        2,
       ),
     },
     {
       key: "footer.tagline",
       group: "Footer",
-      value: "Helping course creators thrive with better tools and insights.",
+      value:
+        "Helping course creators thrive with better tools and expert insights.",
     },
     { key: "footer.newsletter.title", group: "Footer", value: "Stay Updated" },
     {
@@ -960,7 +964,7 @@ async function main(skipCleanup = false) {
           { label: "Tools", href: "/tools" },
         ],
         null,
-        2
+        2,
       ),
     },
     {
@@ -976,7 +980,7 @@ async function main(skipCleanup = false) {
           { label: "Sponsor Policy", href: "/legal/sponsor-policy" },
         ],
         null,
-        2
+        2,
       ),
     },
 
@@ -1057,20 +1061,26 @@ async function main(skipCleanup = false) {
       value: JSON.stringify(
         [
           {
-            name: "Alex Doe",
-            role: "Co-Founder & Lead Strategist",
-            avatar: "https://picsum.photos/seed/alex/100/100",
-            dataAiHint: "man professional portrait",
+            name: "Marcus Sterling",
+            role: "Chief Executive Architect",
+            avatar: "/ceo_avatar_1773077297883.png",
+            dataAiHint: "ceo high-end portrait professional suit",
           },
           {
-            name: "Jamie Smith",
-            role: "Co-Founder & Head of Product",
-            avatar: "https://picsum.photos/seed/jamie/100/100",
-            dataAiHint: "woman smiling portrait",
+            name: "Elena Vance",
+            role: "Head of Digital Strategy",
+            avatar: "/marketing_avatar_1773077331514.png",
+            dataAiHint: "marketing expert professional portrait",
+          },
+          {
+            name: "Dr. Aris Thorne",
+            role: "Chief Technology Officer",
+            avatar: "/cto_avatar_1773077313648.png",
+            dataAiHint: "cto tech expert professional portrait",
           },
         ],
         null,
-        2
+        2,
       ),
     },
     { key: "about.cta.title", group: "About Page", value: "Ready to Join Us?" },
@@ -1317,7 +1327,19 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
 `,
     },
   ];
-  await prisma.siteContent.createMany({ data: siteContent });
+  for (const content of siteContent) {
+    try {
+      await prisma.siteContent.upsert({
+        where: { key: content.key },
+        update: content,
+        create: content as any,
+      });
+    } catch (e: any) {
+      console.error(
+        `   ❌ Failed to seed site content key '${content.key}': ${e.message}`,
+      );
+    }
+  }
   console.log(`   ✓ Seeded ${siteContent.length} site content records.`);
 
   // --- 13. Seed News ---
@@ -1383,7 +1405,7 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
   try {
     const files = await fs.readdir(uploadsDir);
     const imageFiles = files.filter((file) =>
-      /\.(jpe?g|png|gif|webp|svg)$/i.test(file)
+      /\.(jpe?g|png|gif|webp|svg)$/i.test(file),
     );
     let newImagesCount = 0;
 
@@ -1413,12 +1435,12 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
       }
     }
     console.log(
-      `   ✓ Found ${imageFiles.length} images, added ${newImagesCount} new records to the database.`
+      `   ✓ Found ${imageFiles.length} images, added ${newImagesCount} new records to the database.`,
     );
   } catch (error: any) {
     if (error.code === "ENOENT") {
       console.log(
-        "   - public/uploads directory not found, skipping image seeding."
+        "   - public/uploads directory not found, skipping image seeding.",
       );
     } else {
       console.error("   - Error seeding images from public/uploads:", error);

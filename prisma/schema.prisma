@@ -66,30 +66,29 @@ model Session {
 }
 
 model User {
-  id              String          @id @default(cuid())
+  id              String           @id @default(cuid())
   name            String?
-  email           String?         @unique
+  email           String?          @unique
   emailVerified   DateTime?
   image           String?
-  role            Role            @default(USER)
-  onboarded       Boolean         @default(false)
-  newsletter      Boolean         @default(false)
-  suspended       Boolean         @default(false)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  role            Role             @default(USER)
+  onboarded       Boolean          @default(false)
+  newsletter      Boolean          @default(false)
+  suspended       Boolean          @default(false)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   accounts        Account[]
   sessions        Session[]
   posts           Post[]
   comments        Comment[]
   bookmarks       Bookmark[]
-  newsArticles    NewsArticle[]   @relation("AuthoredNews")  // ✅ must match
+  newsArticles    NewsArticle[]    @relation("AuthoredNews") // ✅ must match
   notifications   Notification[]
-  forumTopics     ForumTopic[]    @relation("TopicAuthor")
-  forumPosts      ForumPost[]     @relation("PostAuthor")
+  forumTopics     ForumTopic[]     @relation("TopicAuthor")
+  forumPosts      ForumPost[]      @relation("PostAuthor")
   emailRecipients EmailRecipient[]
-  authoredImages  Image[]         @relation("UploadedBy")
+  authoredImages  Image[]          @relation("UploadedBy")
 }
-
 
 model VerificationToken {
   id         String   @id @default(cuid())
@@ -100,7 +99,6 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-
 enum Role {
   USER
   AUTHOR
@@ -110,27 +108,26 @@ enum Role {
   ADMIN
 }
 
-
 model EmailCampaign {
-  id              String          @id @default(cuid())
+  id              String           @id @default(cuid())
   subject         String
-  content         String          @db.LongText
-  status          CampaignStatus  @default(PENDING)
-  createdAt       DateTime        @default(now())
+  content         String           @db.LongText
+  status          CampaignStatus   @default(PENDING)
+  createdAt       DateTime         @default(now())
   sentAt          DateTime?
   recipients      EmailRecipient[]
-  excludedUserIds String?         @db.Text
+  excludedUserIds String?          @db.Text
 }
 
 model EmailRecipient {
-  id          String         @id @default(cuid())
-  campaignId  String
-  userId      String
-  status      RecipientStatus @default(PENDING)
-  sentAt      DateTime?
+  id           String          @id @default(cuid())
+  campaignId   String
+  userId       String
+  status       RecipientStatus @default(PENDING)
+  sentAt       DateTime?
   errorMessage String?
-  campaign    EmailCampaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campaign     EmailCampaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([campaignId, userId])
   @@index([campaignId])
@@ -151,7 +148,6 @@ model Subscription {
   email     String   @unique
   createdAt DateTime @default(now())
 }
-
 
 enum CampaignStatus {
   PENDING
@@ -312,7 +308,6 @@ model PlatformFeature {
   @@index([featureId])
 }
 
-
 // comparison.prisma
 
 model Comparison {
@@ -368,20 +363,18 @@ model Faq {
 }
 
 model NewsArticle {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  title       String
-  content     String   @db.Text
-  image       String
-  dataAiHint  String?
-  published   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  authorId  String
-  author    User     @relation("AuthoredNews", fields: [authorId], references: [id], onDelete: Cascade)
-
+  id         String   @id @default(cuid())
+  slug       String   @unique
+  title      String
+  content    String   @db.Text
+  image      String
+  dataAiHint String?
+  published  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  authorId   String
+  author     User     @relation("AuthoredNews", fields: [authorId], references: [id], onDelete: Cascade)
 }
-
 
 enum ForumTopicStatus {
   PENDING
@@ -448,20 +441,19 @@ model Image {
   author    User     @relation("UploadedBy", fields: [authorId], references: [id], onDelete: Cascade)
 }
 
-
 model Tool {
-  id                  String       @id @default(cuid())
-  slug                String       @unique
-  title               String
-  description         String       @db.Text
-  Icon                String
-  category            ToolCategory
-  enabled             Boolean      @default(true)
-  prompt              String       @db.LongText
-  inputTopicLabel     String?
-  inputContextLabel   String?
-  createdAt           DateTime     @default(now())
-  updatedAt           DateTime     @updatedAt
+  id                String       @id @default(cuid())
+  slug              String       @unique
+  title             String
+  description       String       @db.Text
+  Icon              String
+  category          ToolCategory
+  enabled           Boolean      @default(true)
+  prompt            String       @db.LongText
+  inputTopicLabel   String?
+  inputContextLabel String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 }
 
 enum ToolCategory {
@@ -471,4 +463,33 @@ enum ToolCategory {
   SEO
   Productivity
   EngagementInteraction
+}
+
+model Advertisement {
+  id           String            @id @default(cuid())
+  type         AdvertisementType @default(IMAGE)
+  content      String            @db.Text
+  imageUrl     String?           @db.Text
+  linkUrl      String?           @db.Text
+  placement    AdPlacementType
+  active       Boolean           @default(true)
+  allowedPages String?           @db.Text // Comma-separated or "*"
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@index([placement])
+}
+
+enum AdvertisementType {
+  SCRIPT
+  IMAGE
+}
+
+enum AdPlacementType {
+  HEADER
+  SIDEBAR
+  POST_TOP
+  POST_BOTTOM
+  COMPARISON_BETWEEN
+  MOBILE_FIXED_BOTTOM
 }

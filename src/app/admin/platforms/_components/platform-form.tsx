@@ -27,7 +27,11 @@ import { SubmitButton } from "@/components/submit-button";
 import { AiLogoButton } from "./ai-logo-button";
 import { AiFillButton } from "../../blog/_components/ai-fill-button";
 import { ImagePickerInput } from "../../_components/image-picker-input";
-import { Editor } from "@/components/ui/editor";
+import dynamic from "next/dynamic";
+const Editor = dynamic(
+  () => import("@/components/ui/editor").then((mod) => mod.Editor),
+  { ssr: false },
+);
 
 type PlatformWithFeatures = Platform & { features: PlatformFeature[] };
 
@@ -170,7 +174,6 @@ export function PlatformForm({
                   />
                 </div>
                 <Editor
-                  key={`platform-desc-${description}`}
                   initialContent={description}
                   onChange={setDescription}
                 />

@@ -21,7 +21,11 @@ import { useRouter } from "next/navigation";
 import { SubmitButton } from "@/components/submit-button";
 import { AiFillButton } from "../../../blog/_components/ai-fill-button";
 import { Textarea } from "@/components/ui/textarea";
-import { Editor } from "@/components/ui/editor";
+import dynamic from "next/dynamic";
+const Editor = dynamic(
+  () => import("@/components/ui/editor").then((mod) => mod.Editor),
+  { ssr: false },
+);
 
 interface ForumCategoryFormProps {
   category?: ForumCategory | null;

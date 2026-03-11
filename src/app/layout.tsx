@@ -17,6 +17,8 @@ const font = Outfit({
   variable: "--font-body",
 });
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = await generateSeoMetadata({
   path: "/",
 });
@@ -91,7 +93,7 @@ export default async function RootLayout({
       <body
         className={cn(
           "font-body antialiased flex flex-col min-h-screen bg-background",
-          font.variable
+          font.variable,
         )}
       >
         <NextTopLoader color="hsl(var(--primary))" showSpinner={false} />

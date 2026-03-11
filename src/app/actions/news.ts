@@ -14,6 +14,7 @@ const articleSchema = z.object({
   image: z.string().url("Must be a valid URL"),
   dataAiHint: z.string().optional(),
   published: z.preprocess((val) => val === "on", z.boolean()),
+  platformIds: z.string().optional(), // Receive as stringified array or similar from hidden input
 });
 
 export async function createNewsArticle(
@@ -35,11 +36,16 @@ export async function createNewsArticle(
 
   try {
     const authorId = session.user.id;
+    const { platformIds, ...data } = validatedFields.data;
+    const platformIdArray = platformIds ? JSON.parse(platformIds) : [];
 
     await prisma.newsArticle.create({
       data: {
-        ...validatedFields.data,
+        ...data,
         authorId,
+        platforms: {
+          connect: platformIdArray.map((id: string) => ({ id })),
+        },
       },
     });
 
@@ -82,9 +88,17 @@ export async function updateNewsArticle(
   }
 
   try {
+    const { platformIds, ...data } = validatedFields.data;
+    const platformIdArray = platformIds ? JSON.parse(platformIds) : [];
+
     await prisma.newsArticle.update({
       where: { id },
-      data: validatedFields.data,
+      data: {
+        ...data,
+        platforms: {
+          set: platformIdArray.map((id: string) => ({ id })),
+        },
+      },
     });
     revalidatePath("/admin/news");
     revalidatePath(`/news/${validatedFields.data.slug}`);

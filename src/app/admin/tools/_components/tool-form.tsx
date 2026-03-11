@@ -27,7 +27,11 @@ import { SubmitButton } from "@/components/submit-button";
 import { AiFillButton } from "../../blog/_components/ai-fill-button";
 import { Switch } from "@/components/ui/switch";
 import { availableIcons } from "@/app/(main)/tools/tools";
-import { Editor } from "@/components/ui/editor";
+import dynamic from "next/dynamic";
+const Editor = dynamic(
+  () => import("@/components/ui/editor").then((mod) => mod.Editor),
+  { ssr: false },
+);
 import { useState } from "react";
 
 interface ToolFormProps {
@@ -69,7 +73,7 @@ export function ToolForm({ tool }: ToolFormProps) {
               <Label htmlFor="slug">URL Slug</Label>
               <AiFillButton
                 fieldType="URL Slug"
-                topic={tool?.title}
+                topic={tool?.title || ""}
                 onContentReceived={(slug) => {
                   const slugInput = document.getElementById(
                     "slug",

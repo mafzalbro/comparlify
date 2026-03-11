@@ -29,6 +29,7 @@ import {
   BrainCog,
 } from "lucide-react";
 
+// Re-export type from Prisma for easier use in tools relative context
 export { type Tool, type ToolCategory } from "@prisma/client";
 
 export const iconMap: Record<string, LucideIcon> = {
@@ -69,10 +70,4 @@ export const categories: ToolCategory[] = [
   "SEO",
   "Productivity",
   "EngagementInteraction",
-];
-
-export const allTools: { href: string }[] = [
-  {
-    href: "/tools",
-  },
 ];

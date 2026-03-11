@@ -1,36 +1,57 @@
+import prisma from "@/lib/prisma";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { generateSeoMetadata } from "@/lib/seo";
+import { ManagedImage } from "@/components/managed-image";
+import {
+  ArrowRight,
+  Newspaper,
+  TrendingUp,
+  Zap,
+  Globe,
+  Clock,
+  User as UserIcon,
+} from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Breadcrumbs } from "@/components/breadcrumb";
+import { format } from "date-fns";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
+import { getContent } from "@/lib/content";
+import { MotionDiv } from "@/components/motion-wrapper";
+import { Badge } from "@/components/ui/badge";
+import { PremiumNewsletterForm } from "@/components/premium-newsletter-form";
 
-import prisma from '@/lib/prisma';
-import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import { generateSeoMetadata } from '@/lib/seo';
-import { ManagedImage } from '@/components/managed-image';
-import { ArrowRight } from 'lucide-react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Breadcrumbs } from '@/components/breadcrumb';
-import { format } from 'date-fns';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { getContent } from '@/lib/content';
-
-
-export const metadata: Metadata = generateSeoMetadata({
-  title: 'Tech World News',
-  description: 'The latest news, trends, and updates from across the tech world relevant to creators.',
-  path: '/news',
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return generateSeoMetadata({
+    title: "Live Market Updates | Stay Ahead of the Curve",
+    description:
+      "The latest market updates, trends, and breakthroughs from the world of tech and online course creation. Real-time updates for modern creators.",
+    path: "/news",
+  });
+}
 
 async function getNewsArticles() {
   return prisma.newsArticle.findMany({
     where: { published: true },
-    orderBy: { createdAt: 'desc' },
-    include: { author: true }
+    orderBy: { createdAt: "desc" },
+    include: { author: true },
   });
 }
 
 export default async function NewsPage() {
-  const [articles, content] = await Promise.all([getNewsArticles(), getContent()]);
-  
-  if (content['module.news.enabled'] === 'false') {
+  const [articles, content] = await Promise.all([
+    getNewsArticles(),
+    getContent(),
+  ]);
+
+  if (content["module.news.enabled"] === "false") {
     notFound();
   }
 
@@ -38,112 +59,263 @@ export default async function NewsPage() {
   const otherArticles = articles.slice(1);
 
   return (
-    <div className="bg-background">
-      <section className="bg-secondary/30 border-b">
-        <div className="container py-12 md:py-16 px-4 md:px-6">
-          <Breadcrumbs
-            items={[
-              { name: 'Home', href: '/' },
-              { name: 'News' },
-            ]}
-            className="mb-8"
-          />
-          <div className="max-w-3xl">
-            <h1 className="font-headline text-5xl md:text-6xl font-bold text-foreground">
-              Tech World News
-            </h1>
-            <p className="mt-4 text-xl text-muted-foreground">
-              The latest trends, updates, and stories from the world of technology and online creation.
-            </p>
-          </div>
+    <div className="bg-background min-h-screen">
+      {/* --- PREMIUM NEWS HERO --- */}
+      <section className="relative pt-24 pb-16 overflow-hidden">
+        <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-30"></div>
+        <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
+          <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px] animate-pulse"></div>
+          <div className="absolute bottom-[20%] -right-[10%] w-[30%] h-[30%] bg-primary/5 rounded-full blur-[100px] animate-pulse delay-1000"></div>
+        </div>
+
+        <div className="container relative z-10 px-4 md:px-6">
+          <MotionDiv
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
+              <Breadcrumbs
+                items={[{ name: "Home", href: "/" }, { name: "Live Updates" }]}
+                className="mb-8 justify-center"
+              />
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 mb-8 shadow-sm">
+                <Globe className="h-4 w-4" />
+                <span className="text-[10px] font-black uppercase tracking-[0.3em]">
+                  Market Pulse
+                </span>
+              </div>
+              <h1 className="text-4xl md:text-6xl font-black text-foreground tracking-tight leading-[1] mb-6">
+                The <span className="text-indigo-500 italic">Live</span> Feed
+              </h1>
+              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+                Real-time breakthroughs, industry shifts, and critical updates
+                curated for creators and digital entrepreneurs.
+              </p>
+            </div>
+          </MotionDiv>
         </div>
       </section>
 
-      <div className="container py-8 md:py-12 px-4 md:px-6">
+      <div className="container py-12 px-4 md:px-6">
         {articles.length === 0 ? (
-          <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
-            <h3 className="text-2xl font-headline mb-2">No News Yet</h3>
-            <p>Check back soon for the latest updates.</p>
-          </div>
+          <MotionDiv
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center py-40 rounded-[4rem] border-2 border-dashed border-border/20 bg-secondary/5"
+          >
+            <Globe className="mx-auto h-20 w-20 text-muted-foreground/20 mb-8" />
+            <h3 className="text-4xl font-black mb-4">Silence in the Signal</h3>
+            <p className="text-xl text-muted-foreground max-w-lg mx-auto">
+              The airwaves are currently clear. Expecting next major dispatch in
+              T-minus 2 hours.
+            </p>
+          </MotionDiv>
         ) : (
-          <div className="grid grid-cols-1 gap-12">
-            {/* Featured Article */}
+          <div className="space-y-24">
+            {/* --- FEATURED HERO ARTICLE --- */}
             {featuredArticle && (
-                <Link href={`/news/${featuredArticle.slug}`} className="block group">
-                    <Card className="grid grid-cols-1 md:grid-cols-2 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-primary/20">
-                        <div className="relative aspect-video md:aspect-auto">
-                            <ManagedImage
-                                src={featuredArticle.image.replace('400/250', '800/600')}
-                                alt={featuredArticle.title}
-                                data-ai-hint={featuredArticle.dataAiHint ?? ''}
-                                fill
-                                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                priority
-                            />
-                        </div>
-                        <div className="p-8 flex flex-col justify-center">
-                            <p className="text-sm text-primary font-semibold mb-2">Featured Story</p>
-                            <h2 className="font-headline text-3xl font-bold text-foreground mb-4 leading-tight group-hover:text-primary transition-colors">
-                                {featuredArticle.title}
-                            </h2>
-                            <p className="text-muted-foreground mb-6 line-clamp-3">
-                                Published on {format(new Date(featuredArticle.createdAt), 'MMMM d, yyyy')} by {featuredArticle.author.name}
-                            </p>
-                            <div className="flex items-center text-primary font-semibold">
-                                Read Article
-                                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                            </div>
-                        </div>
-                    </Card>
+              <MotionDiv
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 1 }}
+              >
+                <Link
+                  href={`/news/${featuredArticle.slug}`}
+                  className="block group"
+                >
+                  <div className="relative grid grid-cols-1 lg:grid-cols-12 overflow-hidden rounded-[2.5rem] border border-border/10 glass dark:glass-dark shadow-[0_50px_100px_-30px_rgba(0,0,0,0.2)] hover:shadow-blue-500/5 transition-all duration-700 h-full lg:min-h-[500px]">
+                    <div className="lg:col-span-7 relative h-[350px] lg:h-auto overflow-hidden">
+                      <ManagedImage
+                        src={featuredArticle.image.replace(
+                          "400/250",
+                          "1200/800",
+                        )}
+                        alt={featuredArticle.title}
+                        data-ai-hint={featuredArticle.dataAiHint ?? ""}
+                        fill
+                        className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                        priority
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent"></div>
+                      <div className="absolute top-10 left-10">
+                        <Badge className="bg-primary px-5 py-2 text-primary-foreground text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-2xl ring-4 ring-primary/20">
+                          Breaking Update
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="lg:col-span-5 p-10 md:p-14 flex flex-col justify-center bg-card/20 backdrop-blur-sm">
+                      <div className="flex items-center gap-6 text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-8">
+                        <span className="flex items-center gap-2">
+                          <Clock className="h-4 w-4" />{" "}
+                          {format(
+                            new Date(featuredArticle.createdAt),
+                            "MMM d, HH:mm",
+                          )}
+                        </span>
+                        <span className="w-8 h-px bg-border/30"></span>
+                        <span className="text-primary flex items-center gap-2">
+                          <Zap className="h-4 w-4" /> Priority Signal
+                        </span>
+                      </div>
+                      <h2 className="text-3xl md:text-5xl font-black text-foreground mb-6 leading-[1.1] tracking-tight group-hover:text-primary transition-colors duration-500">
+                        {featuredArticle.title}
+                      </h2>
+                      <p className="text-lg md:text-xl text-muted-foreground mb-10 line-clamp-3 leading-relaxed">
+                        {featuredArticle.content.substring(0, 180)}...
+                      </p>
+                      <div className="flex items-center text-primary font-black uppercase tracking-[0.2em] text-sm group-hover:translate-x-4 transition-transform duration-500">
+                        View Full Dispatch{" "}
+                        <ArrowRight className="ml-4 h-6 w-6" />
+                      </div>
+                    </div>
+                  </div>
                 </Link>
+              </MotionDiv>
             )}
 
-            {/* Other Articles Grid */}
+            {/* --- DISPATCH SUB-HEADER --- */}
+            <div className="flex items-center justify-between py-12 border-t border-border/10">
+              <div className="flex items-center gap-6">
+                <TrendingUp className="h-10 w-10 text-primary" />
+                <h3 className="text-3xl font-black tracking-tight text-foreground">
+                  The <span className="italic text-primary">Wire</span>
+                </h3>
+              </div>
+              <div className="bg-primary/5 px-6 py-3 rounded-2xl hidden md:flex items-center gap-3 text-xs font-black text-primary border border-primary/10 shadow-sm uppercase tracking-widest">
+                <Zap className="h-4 w-4 animate-pulse" /> {otherArticles.length}{" "}
+                Live Signals
+              </div>
+            </div>
+
+            {/* --- DISPATCH GRID --- */}
             {otherArticles.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-8 border-t">
-                    {otherArticles.map((article, index) => (
-                    <div key={article.slug} className="animate-fade-in-up" style={{ animationDelay: `${index * 150}ms` }}>
-                        <Card className="flex flex-col h-full group overflow-hidden transition-all duration-300 border hover:border-primary/50 hover:shadow-lg rounded-xl">
-                        <div className="relative overflow-hidden aspect-[16/10]">
-                            <Link href={`/news/${article.slug}`} className="block">
-                            <ManagedImage
-                                src={article.image}
-                                alt={article.title}
-                                data-ai-hint={article.dataAiHint ?? ''}
-                                fill
-                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            />
-                            </Link>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+                {otherArticles.map((article, index) => (
+                  <MotionDiv
+                    key={article.slug}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-100px" }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                  >
+                    <Card className="flex flex-col h-full group overflow-hidden rounded-[2rem] border border-border/10 bg-card/20 backdrop-blur-xl shadow-xl transition-all duration-500 hover:shadow-2xl hover:-translate-y-3">
+                      <div className="relative overflow-hidden aspect-[16/10]">
+                        <Link
+                          href={`/news/${article.slug}`}
+                          className="block h-full"
+                        >
+                          <ManagedImage
+                            src={article.image}
+                            alt={article.title}
+                            data-ai-hint={article.dataAiHint ?? ""}
+                            fill
+                            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end p-8">
+                            <span className="text-white font-black uppercase tracking-widest text-[10px] flex items-center gap-2">
+                              Full Dispatch <ArrowRight className="h-4 w-4" />
+                            </span>
+                          </div>
+                        </Link>
+                        <div className="absolute top-6 left-6">
+                          <Badge className="bg-background/90 text-foreground backdrop-blur-xl border-none px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg">
+                            Live Update
+                          </Badge>
                         </div>
-                        <CardHeader>
-                            <CardTitle className="font-headline text-xl">
-                            <Link href={`/news/${article.slug}`} className="hover:text-primary transition-colors stretched-link">
-                                {article.title}
-                            </Link>
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="flex-1">
-                            <p className="text-muted-foreground text-sm">
-                            Published on {format(new Date(article.createdAt), 'MMMM d, yyyy')}
-                            </p>
-                        </CardContent>
-                        <CardFooter className="flex justify-end items-center bg-muted/50 py-3 px-6">
-                            <Button asChild variant="ghost" size="sm" className="group-hover:text-primary -mr-3">
-                            <Link href={`/news/${article.slug}`}>
-                                Read More <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                            </Link>
-                            </Button>
-                        </CardFooter>
-                        </Card>
-                    </div>
-                    ))}
-                </div>
+                      </div>
+                      <CardHeader className="p-8 pb-4">
+                        <div className="flex items-center gap-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-4">
+                          <span className="flex items-center gap-2">
+                            <Clock className="h-3 w-3" />{" "}
+                            {format(
+                              new Date(article.createdAt),
+                              "MMM d, HH:mm",
+                            )}
+                          </span>
+                          <span className="w-4 h-px bg-border/20"></span>
+                          <span className="text-primary uppercase tracking-[0.2em]">
+                            Newsroom
+                          </span>
+                        </div>
+                        <CardTitle className="text-2xl font-black leading-tight group-hover:text-primary transition-colors duration-500 mb-4 line-clamp-2">
+                          <Link
+                            href={`/news/${article.slug}`}
+                            className="after:absolute after:inset-0"
+                          >
+                            {article.title}
+                          </Link>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="px-8 flex-1">
+                        <p className="text-muted-foreground text-sm line-clamp-3 leading-relaxed mb-4">
+                          {article.content.substring(0, 150)}...
+                        </p>
+                      </CardContent>
+                      <CardFooter className="p-8 pt-0">
+                        <Button
+                          asChild
+                          variant="ghost"
+                          className="p-0 h-auto hover:bg-transparent text-primary font-black uppercase tracking-[0.2em] text-[10px] group/btn"
+                        >
+                          <Link
+                            href={`/news/${article.slug}`}
+                            className="flex items-center gap-3"
+                          >
+                            The Full Feed{" "}
+                            <ArrowRight className="h-3 w-3 transition-transform group-hover/btn:translate-x-2" />
+                          </Link>
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  </MotionDiv>
+                ))}
+              </div>
             )}
           </div>
         )}
       </div>
+
+      {/* --- PREMIUM NEWSLETTER BLOCK --- */}
+      <section className="relative overflow-hidden bg-background py-32 mt-24">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent"></div>
+        <MotionDiv
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="relative group h-full"
+        >
+          <div className="absolute inset-0 bg-indigo-500/[0.02] pointer-events-none"></div>
+          <div className="relative p-12 md:p-24 overflow-hidden text-center">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-12 text-indigo-500/[0.03] select-none pointer-events-none -rotate-12">
+              <Globe className="h-[500px] w-[500px]" />
+            </div>
+
+            <div className="relative z-10 max-w-4xl mx-auto">
+              <Badge className="bg-indigo-500/10 text-indigo-600 border-indigo-500/20 px-5 py-2 uppercase tracking-[0.3em] text-[10px] font-black rounded-full mb-8 shadow-sm">
+                Real-Time Intel
+              </Badge>
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-8 leading-[1.1]">
+                Stay Ahead of{" "}
+                <span className="text-indigo-500 italic">Industry PIVOTS</span>
+              </h2>
+              <p className="text-lg text-muted-foreground mb-12 leading-relaxed font-medium">
+                Critical tech dispatches and creator economy breakthroughs
+                delivered as they happen.
+              </p>
+
+              <PremiumNewsletterForm
+                accentColor="blue-500"
+                buttonText="Secure Access"
+                containerClassName="bg-card/40 border-white/10 p-4 rounded-[2.5rem] shadow-2xl max-w-2xl"
+              />
+              <p className="mt-8 text-[10px] text-muted-foreground/60 uppercase tracking-[0.3em] font-black text-center">
+                No latency. No fluff. Just the raw signal.
+              </p>
+            </div>
+          </div>
+        </MotionDiv>
+      </section>
     </div>
   );
 }
-
-    

@@ -20,7 +20,11 @@ import { AiFillButton } from "./ai-fill-button";
 import Link from "next/link";
 import { Eye } from "lucide-react";
 import { AiImageButton } from "./ai-image-button";
-import { Editor } from "@/components/ui/editor";
+import dynamic from "next/dynamic";
+const Editor = dynamic(
+  () => import("@/components/ui/editor").then((mod) => mod.Editor),
+  { ssr: false },
+);
 import {
   Select,
   SelectContent,
@@ -170,7 +174,10 @@ export function PostForm({ post, categories }: PostFormProps) {
           <div className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="categoryId">Category</Label>
-              <Select name="categoryId" defaultValue={post?.categoryId}>
+              <Select
+                name="categoryId"
+                defaultValue={post?.categoryId || undefined}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>

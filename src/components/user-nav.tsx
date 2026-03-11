@@ -36,48 +36,80 @@ export function UserNav({ user }: { user: Session["user"] }) {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
-        <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user.name}</p>
-            <p className="text-xs leading-none text-muted-foreground">
+      <DropdownMenuContent
+        className="w-64 rounded-[2.5rem] border-primary/20 bg-card/60 backdrop-blur-3xl shadow-2xl p-4"
+        align="end"
+        sideOffset={12}
+        forceMount
+      >
+        <DropdownMenuLabel className="font-normal px-4 pt-3 pb-5">
+          <div className="flex flex-col space-y-2">
+            <p className="text-base font-black leading-none tracking-tight">
+              {user.name}
+            </p>
+            <p className="text-xs leading-none text-muted-foreground font-medium">
               {user.email}
             </p>
           </div>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem asChild>
+        <DropdownMenuSeparator className="bg-primary/10 mb-2" />
+        <DropdownMenuGroup className="space-y-1">
+          <DropdownMenuItem
+            asChild
+            className="rounded-xl px-4 py-3 cursor-pointer"
+          >
             <Link href="/panel">
-              <LayoutDashboard className="mr-2 h-4 w-4" />
-              <span>Dashboard</span>
+              <LayoutDashboard className="mr-3 h-4 w-4 text-primary" />
+              <span className="font-black uppercase tracking-widest text-[10px]">
+                Dashboard
+              </span>
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem
+            asChild
+            className="rounded-xl px-4 py-3 cursor-pointer"
+          >
             <Link href="/panel/profile">
-              <UserCircle className="mr-2 h-4 w-4" />
-              <span>Profile</span>
+              <UserCircle className="mr-3 h-4 w-4 text-primary" />
+              <span className="font-black uppercase tracking-widest text-[10px]">
+                Profile
+              </span>
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem
+            asChild
+            className="rounded-xl px-4 py-3 cursor-pointer"
+          >
             <Link href="/panel/settings">
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Settings</span>
+              <Settings className="mr-3 h-4 w-4 text-primary" />
+              <span className="font-black uppercase tracking-widest text-[10px]">
+                Settings
+              </span>
             </Link>
           </DropdownMenuItem>
           {user.role === "ADMIN" && (
-            <DropdownMenuItem asChild>
+            <DropdownMenuItem
+              asChild
+              className="rounded-xl px-4 py-3 cursor-pointer group hover:bg-red-500/10"
+            >
               <Link href="/admin">
-                <ShieldCheck className="mr-2 h-4 w-4" />
-                <span>Admin</span>
+                <ShieldCheck className="mr-3 h-4 w-4 text-red-500" />
+                <span className="font-black uppercase tracking-widest text-[10px] text-red-500">
+                  Admin Arena
+                </span>
               </Link>
             </DropdownMenuItem>
           )}
         </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Log out</span>
+        <DropdownMenuSeparator className="bg-primary/10 my-2" />
+        <DropdownMenuItem
+          className="rounded-xl px-4 py-3 cursor-pointer hover:bg-foreground/5"
+          onClick={() => signOut({ callbackUrl: "/" })}
+        >
+          <LogOut className="mr-3 h-4 w-4 text-muted-foreground" />
+          <span className="font-black uppercase tracking-widest text-[10px]">
+            Log out
+          </span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

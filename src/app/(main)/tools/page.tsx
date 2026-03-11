@@ -1,24 +1,27 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { generateSeoMetadata } from "@/lib/seo";
+import { ToolsClientPage } from "./_components/tools-client-page";
+import { getContent } from "@/lib/content";
+import prisma from "@/lib/prisma";
+import { type Tool } from "@prisma/client";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { SchemaScript } from "@/components/schema-script";
 
-import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import { generateSeoMetadata } from '@/lib/seo';
-import { ToolsClientPage } from './_components/tools-client-page';
-import { getContent } from '@/lib/content';
-import prisma from '@/lib/prisma';
-import { type Tool } from '@prisma/client';
-import { Suspense } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
-
-export const metadata: Metadata = generateSeoMetadata({
-  title: 'AI Creator Tools',
-  description: 'A suite of intelligent tools designed to streamline your course creation workflow, from outlining content to marketing.',
-  path: '/tools'
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return generateSeoMetadata({
+    title: "AI Creator Tools",
+    description:
+      "A suite of intelligent tools designed to streamline your course creation workflow, from outlining content to marketing.",
+    path: "/tools",
+  });
+}
 
 async function getTools(): Promise<Tool[]> {
   const dbTools = await prisma.tool.findMany({
     where: { enabled: true },
-    orderBy: [{ category: 'asc' }, { title: 'asc' }]
+    orderBy: [{ category: "asc" }, { title: "asc" }],
   });
 
   // We only pass serializable data to the client component.
@@ -28,7 +31,7 @@ async function getTools(): Promise<Tool[]> {
 
 export default async function ToolsPage() {
   const content = await getContent();
-  if (content['module.tools.enabled'] === 'false') {
+  if (content["module.tools.enabled"] === "false") {
     notFound();
   }
 

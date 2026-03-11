@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { isAuthorized } from "@/lib/api-auth";
 
 const VALID_MODELS = [
   "post",
@@ -23,8 +24,11 @@ const VALID_MODELS = [
 
 export async function GET(
   request: Request,
-  props: { params: Promise<{ model: string; id: string }> }
+  props: { params: Promise<{ model: string; id: string }> },
 ) {
+  if (!isAuthorized(request)) {
+    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+  }
   const params = await props.params;
   const { model, id } = params;
 
@@ -62,8 +66,11 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  props: { params: Promise<{ model: string; id: string }> }
+  props: { params: Promise<{ model: string; id: string }> },
 ) {
+  if (!isAuthorized(request)) {
+    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+  }
   const params = await props.params;
   const session = await auth();
   if (session?.user?.role !== "ADMIN") {
@@ -97,8 +104,11 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  props: { params: Promise<{ model: string; id: string }> }
+  props: { params: Promise<{ model: string; id: string }> },
 ) {
+  if (!isAuthorized(request)) {
+    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+  }
   const params = await props.params;
   const session = await auth();
   if (session?.user?.role !== "ADMIN") {

@@ -7,6 +7,8 @@ import { auth } from "@/lib/auth";
 import { getContent } from "@/lib/content";
 import { AdPlacement } from "@/components/ad-placement";
 
+export const dynamic = "force-dynamic";
+
 export default async function MainLayout({
   children,
 }: {

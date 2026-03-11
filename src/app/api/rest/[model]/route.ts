@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { isAuthorized } from "@/lib/api-auth";
 
 const VALID_MODELS = [
   "post",
@@ -21,7 +22,13 @@ const VALID_MODELS = [
   "advertisement",
 ];
 
-export async function GET(request: Request, props: { params: Promise<{ model: string }> }) {
+export async function GET(
+  request: Request,
+  props: { params: Promise<{ model: string }> },
+) {
+  if (!isAuthorized(request)) {
+    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+  }
   const params = await props.params;
   const model = params.model;
 
@@ -46,7 +53,17 @@ export async function GET(request: Request, props: { params: Promise<{ model: st
       }
     });
 
-    const items = await (prisma as any)[model].findMany({
+    const modelClient = (prisma as any)[model];
+    if (!modelClient) {
+      return NextResponse.json(
+        {
+          error: `Model ${model} not found in database client. Please run migrations.`,
+        },
+        { status: 400 },
+      );
+    }
+
+    const items = await modelClient.findMany({
       where,
       take: limit,
       skip: skip,
@@ -59,7 +76,7 @@ export async function GET(request: Request, props: { params: Promise<{ model: st
             : undefined,
     });
 
-    const total = await (prisma as any)[model].count({ where });
+    const total = await modelClient.count({ where });
 
     return NextResponse.json({
       data: items,
@@ -76,7 +93,13 @@ export async function GET(request: Request, props: { params: Promise<{ model: st
   }
 }
 
-export async function POST(request: Request, props: { params: Promise<{ model: string }> }) {
+export async function POST(
+  request: Request,
+  props: { params: Promise<{ model: string }> },
+) {
+  if (!isAuthorized(request)) {
+    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+  }
   const params = await props.params;
   const session = await auth();
   if (session?.user?.role !== "ADMIN") {
@@ -101,7 +124,17 @@ export async function POST(request: Request, props: { params: Promise<{ model: s
       body.authorId = session.user.id;
     }
 
-    const item = await (prisma as any)[model].create({
+    const modelClient = (prisma as any)[model];
+    if (!modelClient) {
+      return NextResponse.json(
+        {
+          error: `Model ${model} not found in database client. Please run migrations.`,
+        },
+        { status: 400 },
+      );
+    }
+
+    const item = await modelClient.create({
       data: body,
     });
 

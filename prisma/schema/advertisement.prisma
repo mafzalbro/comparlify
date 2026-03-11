@@ -1,0 +1,28 @@
+model Advertisement {
+    id           String            @id @default(cuid())
+    type         AdvertisementType @default(IMAGE)
+    content      String            @db.Text
+    imageUrl     String?           @db.Text
+    linkUrl      String?           @db.Text
+    placement    AdPlacementType
+    active       Boolean           @default(true)
+    allowedPages String?           @db.Text // Comma-separated or "*"
+    createdAt    DateTime          @default(now())
+    updatedAt    DateTime          @updatedAt
+
+    @@index([placement])
+}
+
+enum AdvertisementType {
+    SCRIPT
+    IMAGE
+}
+
+enum AdPlacementType {
+    HEADER
+    SIDEBAR
+    POST_TOP
+    POST_BOTTOM
+    COMPARISON_BETWEEN
+    MOBILE_FIXED_BOTTOM
+}

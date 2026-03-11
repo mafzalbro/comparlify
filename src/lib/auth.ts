@@ -1,5 +1,5 @@
 // lib/auth.ts
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions, getServerSession } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
@@ -9,9 +9,9 @@ import { Role } from "@prisma/client";
 import { createNotification } from "./notifications";
 import { Adapter } from "next-auth/adapters";
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as Adapter,
-  session: { strategy: "jwt" }, // ✅ edge-safe
+  session: { strategy: "jwt" },
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -19,9 +19,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       allowDangerousEmailAccountLinking: true,
       profile(profile) {
         return {
-          id: profile.id,
-          email: profile.email,
+          id: profile.sub,
           name: profile.name,
+          email: profile.email,
           image: profile.picture,
           role: "USER",
           onboarded: false,
@@ -71,11 +71,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   callbacks: {
     async signIn({ user }) {
+      if (!user.email) return false;
       const dbUser = await prisma.user.findUnique({
-        where: { email: user.email! },
+        where: { email: user.email },
       });
       if (dbUser?.suspended) {
-        return false; // Reject sign-in if user is suspended
+        return false;
       }
       return true;
     },
@@ -84,7 +85,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         ? await prisma.user.findUnique({ where: { email: token.email } })
         : null;
 
-      // On initial sign-in, add the user ID and other details to the token
       if (user) {
         if (user.suspended) {
           throw new Error("User is suspended");
@@ -122,7 +122,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           },
         });
       }
-      // Notify all admins about the new user
       const admins = await prisma.user.findMany({ where: { role: "ADMIN" } });
       for (const admin of admins) {
         await createNotification({
@@ -136,9 +135,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   pages: {
     signIn: "/login",
-    signOut: "/auth/signout",
-    error: "/auth/error", // Error code passed in query string as ?error=
-    // verifyRequest: '/auth/verify-request', // (Optional) Used for E-mail providers
-    // newUser: '/auth/new-user' // New users will be directed here on first sign in (leave the property out if not of interest)
+    signOut: "/login",
+    error: "/auth/error",
   },
-});
+};
+
+export const handlers = NextAuth(authOptions);
+export async function auth() {
+  return getServerSession(authOptions);
+}
+export const signIn = () => {}; // Placeholder for v4, usually handled by client-side signIn()
+export const signOut = () => {}; // Placeholder for v4, usually handled by client-side signOut()

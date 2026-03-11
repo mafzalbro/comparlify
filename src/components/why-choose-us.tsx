@@ -1,9 +1,23 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { motion, useScroll, AnimatePresence, useInView } from "framer-motion";
+import {
+  motion,
+  useScroll,
+  AnimatePresence,
+  useInView,
+  useTransform,
+  useSpring,
+} from "framer-motion";
 import { cn } from "@/lib/utils";
-import { BarChart, BrainCircuit, Scaling } from "lucide-react";
+import {
+  BarChart,
+  BrainCircuit,
+  Scaling,
+  Zap,
+  Sparkles,
+  LayoutPanelLeft,
+} from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { ArrowRight } from "lucide-react";
@@ -30,395 +44,399 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
   const allFeatures = [
     {
       id: "comparisons",
-      title: content["homepage.whyus.comparisons.title"] || "",
+      title:
+        content["homepage.whyus.comparisons.title"] || "Battleground Analytics",
       Icon: BarChart,
-      description: content["homepage.whyus.comparisons.description"] || "",
+      description:
+        content["homepage.whyus.comparisons.description"] ||
+        "Deep-dive side-by-side comparisons of the world's leading platforms.",
       image:
-        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=800&fit=crop",
       dataAiHint: "data chart graph analytics",
       href: "/compare",
       enabled: content["module.compare.enabled"] !== "false",
+      accent: "from-blue-600/30 to-cyan-500/10",
     },
     {
       id: "ai-tools",
-      title: content["homepage.whyus.aitools.title"] || "",
+      title: content["homepage.whyus.aitools.title"] || "Neural Assets",
       Icon: BrainCircuit,
-      description: content["homepage.whyus.aitools.description"] || "",
+      description:
+        content["homepage.whyus.aitools.description"] ||
+        "Harness generative AI to build your content strategy in seconds.",
       image:
-        "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=800&fit=crop",
       dataAiHint: "abstract technology AI brain circuit",
       href: "/tools",
       enabled: content["module.tools.enabled"] !== "false",
+      accent: "from-purple-600/30 to-pink-500/10",
     },
     {
       id: "strategies",
-      title: content["homepage.whyus.strategies.title"] || "",
+      title:
+        content["homepage.whyus.strategies.title"] || "Scalability Protocols",
       Icon: Scaling,
-      description: content["homepage.whyus.strategies.description"] || "",
+      description:
+        content["homepage.whyus.strategies.description"] ||
+        "Proven growth frameworks for the modern digital entrepreneur.",
       image:
-        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=800&fit=crop",
       dataAiHint: "business growth chart upward trend",
       href: "/blog",
       enabled: content["module.blog.enabled"] !== "false",
+      accent: "from-orange-600/30 to-amber-500/10",
     },
   ];
 
   const features = allFeatures.filter(
-    (f) => f.enabled && f.title && f.description
+    (f) => f.enabled && f.title && f.description,
   );
-
   const [activeFeature, setActiveFeature] = useState(
-    features.length > 0 ? features[0].id : ""
+    features.length > 0 ? features[0].id : "",
   );
   const targetRef = useRef<HTMLDivElement | null>(null);
-  const headerRef = useRef<HTMLDivElement | null>(null);
-  const cardsRef = useRef<HTMLDivElement | null>(null);
   const isMobile = useIsMobile();
 
-  const headerInView = useInView(headerRef);
-  const cardsInView = useInView(cardsRef);
-
-  const { scrollYProgress, scrollY } = useScroll({
+  const { scrollYProgress } = useScroll({
     target: targetRef,
     offset: ["start start", "end end"],
   });
 
-  // Effect for DESKTOP scroll-based animation
+  const smoothScrollProgress = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001,
+  });
+
   useEffect(() => {
     if (isMobile || features.length === 0) return;
 
     const unsubscribe = scrollYProgress.on("change", (latest) => {
       const numFeatures = features.length;
+      const start = 0.15;
+      const end = 0.85;
+      const range = end - start;
+      const step = range / numFeatures;
 
-      const featureIndex = Math.min(
-        numFeatures - 1,
-        Math.floor((latest - 0.12) * numFeatures)
-      );
-      if (features[featureIndex]) {
-        setActiveFeature(features[featureIndex].id);
+      let index = Math.floor((latest - start) / step);
+      index = Math.max(0, Math.min(numFeatures - 1, index));
+
+      if (features[index]) {
+        setActiveFeature(features[index].id);
       }
     });
 
     return () => unsubscribe();
   }, [scrollYProgress, isMobile, features]);
 
-  // Effect for MOBILE auto-cycle animation
+  // Mobile Auto-cycle
   useEffect(() => {
     if (!isMobile || features.length === 0) return;
-
-    if (!activeFeature && features.length > 0) {
-      setActiveFeature(features[0].id);
-    }
-
     const interval = setInterval(() => {
       setActiveFeature((prevId) => {
         const currentIndex = features.findIndex((f) => f.id === prevId);
         const nextIndex = (currentIndex + 1) % features.length;
         return features[nextIndex].id;
       });
-    }, 5000); // Change feature every 5 seconds
-
-    return () => clearInterval(interval); // Cleanup on unmount
-  }, [isMobile, features, activeFeature]);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [isMobile, features]);
 
   const activeFeatureData = features.find((f) => f.id === activeFeature);
 
-  if (features.length === 0) {
-    return null;
-  }
+  if (features.length === 0) return null;
 
-  // RENDER FOR DESKTOP
-  if (!isMobile) {
-    return (
-      <section
-        ref={targetRef}
-        className="relative py-20 md:py-32 bg-gradient-to-br from-secondary/20 via-background to-secondary/30 min-h-[300vh]"
-      >
-        <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark [mask-image:linear-gradient(0deg,transparent,black)]"></div>
-
-        {/* Header Section - Not Sticky */}
-        <div className="container px-6 md:px-8 py-16">
-          <div ref={headerRef} className="mx-auto max-w-4xl text-center mb-16">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={
-                headerInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }
-              }
-              transition={{ duration: 0.8, ease: "easeOut" }}
-            >
-              <h2 className="font-headline text-5xl font-bold md:text-6xl bg-gradient-to-r from-primary via-foreground to-primary bg-clip-text text-transparent">
-                {content["homepage.whyus.title"]}
-              </h2>
-              <motion.p
-                className="mt-6 text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
-                initial={{ opacity: 0, y: 20 }}
-                animate={
-                  headerInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }
-                }
-                transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-              >
-                {content["homepage.whyus.subtitle"]}
-              </motion.p>
-            </motion.div>
-          </div>
-        </div>
-
-        {/* Sticky Cards Section */}
-        <div className="sticky top-8 bg-secondary min-h-screen flex flex-col justify-center">
-          <div className="container px-6 md:px-8">
-            <div
-              ref={cardsRef}
-              className="grid lg:grid-cols-2 gap-16 items-center max-w-7xl mx-auto"
-            >
-              <motion.div
-                className="flex flex-col gap-6"
-                initial={{ opacity: 0, x: -50 }}
-                animate={
-                  cardsInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }
-                }
-                transition={{ duration: 0.8, ease: "easeOut" }}
-              >
-                {features.map((feature, index) => (
-                  <motion.button
-                    key={feature.id}
-                    onClick={() => setActiveFeature(feature.id)}
-                    initial={{ opacity: 0, x: -30, scale: 0.95 }}
-                    animate={
-                      cardsInView
-                        ? {
-                            opacity: 1,
-                            x: 0,
-                            scale: 1,
-                          }
-                        : {
-                            opacity: 0,
-                            x: -30,
-                            scale: 0.95,
-                          }
-                    }
-                    transition={{
-                      duration: 0.6,
-                      delay: cardsInView ? index * 0.15 : 0,
-                      ease: "easeOut",
-                    }}
-                    className={cn(
-                      "text-left p-6 rounded-2xl transition-all duration-500 group hover:scale-[1.02] transform",
-                      activeFeature === feature.id
-                        ? "bg-card shadow-2xl border-2 border-primary/20 shadow-primary/10"
-                        : "hover:bg-card/60 hover:shadow-xl border border-transparent"
-                    )}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <div className="flex items-start gap-5">
-                      <motion.div
-                        className={cn(
-                          "p-4 rounded-2xl transition-all duration-300",
-                          activeFeature === feature.id
-                            ? "bg-gradient-to-br from-primary/20 to-primary/10 text-primary shadow-lg"
-                            : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
-                        )}
-                        whileHover={{ scale: 1.1, rotate: 5 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <feature.Icon className="h-7 w-7" />
-                      </motion.div>
-                      <div className="flex-1">
-                        <h3 className="font-headline text-2xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
-                          {feature.title}
-                        </h3>
-                        <p className="text-muted-foreground leading-relaxed text-base">
-                          {feature.description}
-                        </p>
-                      </div>
-                    </div>
-                  </motion.button>
-                ))}
-              </motion.div>
-              <motion.div
-                className="relative h-[28rem] lg:h-[36rem] rounded-3xl"
-                initial={{ opacity: 0, x: 50, scale: 0.9 }}
-                animate={
-                  cardsInView
-                    ? { opacity: 1, x: 0, scale: 1 }
-                    : { opacity: 0, x: 50, scale: 0.9 }
-                }
-                transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-              >
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={activeFeatureData?.id}
-                    initial={{ opacity: 0, scale: 0.95, y: 20, rotateY: -10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0, rotateY: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: -20, rotateY: 10 }}
-                    transition={{ duration: 0.5, ease: "easeInOut" }}
-                    className="absolute inset-0"
-                    style={{ transformPerspective: 1000 }}
-                  >
-                    {activeFeatureData && (
-                      <div className="w-full h-full rounded-3xl shadow-2xl flex flex-col bg-gradient-to-br from-primary/10 via-background to-secondary/20 border-2 border-primary/10 overflow-hidden backdrop-blur-sm">
-                        <div className="absolute -inset-20 opacity-20 dark:opacity-30">
-                          <motion.div
-                            className="absolute right-[-8rem] top-[6rem] h-80 w-80 bg-gradient-to-br from-primary/30 to-secondary/20 rounded-full blur-3xl"
-                            animate={{
-                              scale: [1, 1.2, 1],
-                              opacity: [0.2, 0.3, 0.2],
-                            }}
-                            transition={{
-                              duration: 4,
-                              repeat: Infinity,
-                              ease: "easeInOut",
-                            }}
-                          ></motion.div>
-                          <motion.div
-                            className="absolute left-[-6rem] bottom-[4rem] h-80 w-80 bg-gradient-to-br from-secondary/30 to-primary/20 rounded-full blur-3xl"
-                            animate={{
-                              scale: [1.2, 1, 1.2],
-                              opacity: [0.3, 0.2, 0.3],
-                            }}
-                            transition={{
-                              duration: 4,
-                              repeat: Infinity,
-                              ease: "easeInOut",
-                              delay: 2,
-                            }}
-                          ></motion.div>
-                        </div>
-                        <motion.div
-                          className="relative w-full aspect-video overflow-hidden shadow-2xl border-white/10 bg-gradient-to-br from-black/10 to-black/20 backdrop-blur-sm"
-                          whileHover={{ scale: 1.02 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          <ManagedImage
-                            src={activeFeatureData.image}
-                            alt={activeFeatureData.title}
-                            data-ai-hint={activeFeatureData.dataAiHint}
-                            fill
-                            className="object-cover transition-transform duration-700"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                        </motion.div>
-                        <div className="relative z-10 p-8">
-                          <motion.h3
-                            className="font-headline text-3xl font-bold text-foreground mb-3"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.1 }}
-                          >
-                            {activeFeatureData.title}
-                          </motion.h3>
-                          <motion.p
-                            className="text-muted-foreground mb-6 leading-relaxed text-lg"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                          >
-                            {activeFeatureData.description}
-                          </motion.p>
-                          <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3 }}
-                          >
-                            <Button
-                              asChild
-                              className="group mt-2 self-start bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl px-6 py-3"
-                            >
-                              <Link href={activeFeatureData.href}>
-                                Learn More{" "}
-                                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                              </Link>
-                            </Button>
-                          </motion.div>
-                        </div>
-                      </div>
-                    )}
-                  </motion.div>
-                </AnimatePresence>
-              </motion.div>
-            </div>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  // RENDER FOR MOBILE
   return (
-    <section className="py-16 md:py-24 bg-secondary/30 overflow-hidden">
-      <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark [mask-image:linear-gradient(0deg,transparent,black)]"></div>
-      <div className="container px-4 md:px-6 py-12 relative">
-        <div className="mx-auto max-w-3xl text-center mb-12">
-          <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
-            {content["homepage.whyus.title"]}
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            {content["homepage.whyus.subtitle"]}
-          </p>
-        </div>
+    <section
+      ref={targetRef}
+      className={cn(
+        "relative w-full flex flex-col justify-start",
+        !isMobile ? "min-h-[400vh]" : "py-24 bg-background",
+      )}
+    >
+      {/* Main Content Area */}
+      <div
+        className={cn(
+          "relative z-10",
+          !isMobile
+            ? "sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden"
+            : "",
+        )}
+      >
+        {/* Background Orbs & Effects */}
+        {!isMobile && (
+          <div className="absolute -z-10 top-0 h-screen w-full overflow-hidden pointer-events-none">
+            <div className="absolute inset-0 bg-transparent"></div>
+            <div className="absolute inset-0 bg-grid-white/[0.01] bg-[size:60px_60px]"></div>
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/0 to-transparent"></div>
 
-        <div className="grid grid-cols-1 gap-8 items-center">
-          {/* Progress bars that fill based on interval */}
-          <div className="flex gap-2 w-full">
-            {features.map((feature) => (
-              <div
-                key={`${feature.id}-progress`}
-                className="relative w-full h-1 bg-muted rounded-full overflow-hidden"
-              >
-                {activeFeature === feature.id && (
-                  <motion.div
-                    className="absolute top-0 left-0 h-full bg-primary"
-                    initial={{ width: "0%" }}
-                    animate={{ width: "100%" }}
-                    transition={{ duration: 5, ease: "linear" }}
-                  />
-                )}
-              </div>
-            ))}
+            <motion.div
+              className="absolute top-1/4 -left-20 w-[700px] h-[700px] bg-primary/20 rounded-full blur-[140px]"
+              animate={{
+                x: [0, 100, 0],
+                y: [0, 50, 0],
+                opacity: [0.2, 0.4, 0.2],
+              }}
+              transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div
+              className="absolute bottom-1/4 -right-20 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px]"
+              animate={{
+                x: [0, -80, 0],
+                y: [0, -60, 0],
+                opacity: [0.1, 0.3, 0.1],
+              }}
+              transition={{
+                duration: 25,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 2,
+              }}
+            />
+          </div>
+        )}
+        <div className="container px-4 md:px-8 max-w-7xl">
+          {/* Header Area */}
+          <div
+            className={cn(
+              "mb-12 space-y-4 text-center w-full relative z-30",
+              !isMobile ? "mt-0" : "",
+            )}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary mb-4"
+            >
+              <Zap className="h-4 w-4" />
+              <span className="text-[10px] font-black uppercase tracking-[0.4em]">
+                Elite Ecosystem
+              </span>
+            </motion.div>
+            <motion.h2
+              className="text-2xl md:text-4xl lg:text-5xl font-black tracking-tight leading-tight"
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+            >
+              The <span className="text-primary italic">Intelligence</span>{" "}
+              Stack
+            </motion.h2>
           </div>
 
-          {/* Animated Content */}
-          <div className="relative min-h-[32rem] rounded-xl">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeFeatureData?.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5, ease: "easeInOut" }}
-                className="absolute inset-0"
-              >
-                {activeFeatureData && (
-                  <div className="w-full h-full rounded-2xl shadow-2xl p-8 flex flex-col justify-end bg-gradient-to-br from-primary/10 via-background to-secondary/20 border overflow-hidden">
-                    <div className="absolute -inset-16 opacity-10 dark:opacity-20">
-                      <div className="absolute right-[-6rem] top-[8rem] h-64 w-64 bg-primary/20 rounded-full blur-3xl"></div>
-                      <div className="absolute left-[-4rem] bottom-[6rem] h-64 w-64 bg-secondary rounded-full blur-3xl"></div>
-                    </div>
-                    <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-6 shadow-lg border bg-black/20 backdrop-blur-sm">
-                      <ManagedImage
-                        src={activeFeatureData.image}
-                        alt={activeFeatureData.title}
-                        data-ai-hint={activeFeatureData.dataAiHint}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <h3 className="font-headline text-3xl font-bold text-foreground">
-                      {activeFeatureData.title}
-                    </h3>
-                    <p className="text-muted-foreground my-3">
-                      {activeFeatureData.description}
-                    </p>
-                    <Button asChild className="group mt-4 self-start">
-                      <Link href={activeFeatureData.href}>
-                        Learn More{" "}
-                        <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                      </Link>
-                    </Button>
+          <div
+            className={cn(
+              "grid gap-10 lg:gap-16 items-center",
+              !isMobile ? "grid-cols-2" : "grid-cols-1 mt-8",
+            )}
+          >
+            {/* LEFT SIDE: CONTROL PANEL */}
+            <div className="flex flex-col gap-8 relative items-center lg:items-start">
+              {/* Mobile Tabs Wrapper */}
+              {isMobile && (
+                <div className="flex gap-4 overflow-x-auto pb-6 w-full no-scrollbar px-2">
+                  {features.map((feature) => (
+                    <button
+                      key={feature.id}
+                      onClick={() => setActiveFeature(feature.id)}
+                      className={cn(
+                        "flex-shrink-0 px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all duration-300 border flex gap-3 items-center whitespace-nowrap",
+                        activeFeature === feature.id
+                          ? "bg-primary text-primary-foreground border-primary shadow-xl shadow-primary/20"
+                          : "bg-card border-border text-muted-foreground",
+                      )}
+                    >
+                      <feature.Icon className="h-4 w-4" />
+                      {feature.title.split(" ")[0]}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Desktop Feature Selectors */}
+              {!isMobile && (
+                <div className="flex flex-col gap-4 w-full relative">
+                  {features.map((feature, idx) => (
+                    <motion.div
+                      key={feature.id}
+                      initial={{ opacity: 0, x: -30 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: idx * 0.1 }}
+                      className="relative"
+                    >
+                      <button
+                        onClick={() => setActiveFeature(feature.id)}
+                        className={cn(
+                          "w-full text-left p-4 md:p-5 rounded-[1.5rem] transition-all duration-200 relative group overflow-hidden border",
+                          activeFeature === feature.id
+                            ? "bg-card/40 backdrop-blur-2xl shadow-xl border-primary/30 z-20"
+                            : "hover:bg-card/30 backdrop-blur-sm border-transparent opacity-40 hover:opacity-100 grayscale hover:grayscale-0",
+                        )}
+                      >
+                        {/* Interactive Background Gradient */}
+                        <div
+                          className={cn(
+                            "absolute inset-0 bg-gradient-to-r transition-opacity duration-200 -z-10",
+                            feature.accent,
+                            activeFeature === feature.id
+                              ? "opacity-10"
+                              : "opacity-0",
+                          )}
+                        ></div>
+
+                        <div className="flex items-start gap-4">
+                          <div
+                            className={cn(
+                              "p-3 rounded-lg transition-all duration-200 shadow-inner",
+                              activeFeature === feature.id
+                                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-110 rotate-3"
+                                : "bg-secondary text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
+                            )}
+                          >
+                            <feature.Icon className="h-5 w-5" />
+                          </div>
+                          <div className="space-y-1">
+                            <h3
+                              className={cn(
+                                "text-lg font-black tracking-tight transition-all duration-200",
+                                activeFeature === feature.id
+                                  ? "text-foreground translate-x-2"
+                                  : "text-muted-foreground",
+                              )}
+                            >
+                              {feature.title}
+                            </h3>
+                            <p
+                              className={cn(
+                                "text-xs leading-relaxed transition-all duration-200 max-w-sm",
+                                activeFeature === feature.id
+                                  ? "text-muted-foreground"
+                                  : "text-muted-foreground/60",
+                              )}
+                            >
+                              {feature.description}
+                            </p>
+                          </div>
+                        </div>
+                      </button>
+                    </motion.div>
+                  ))}
+
+                  <div className="absolute -right-12 top-0 bottom-0 w-[2px] bg-border/20">
+                    <motion.div
+                      className="w-full bg-primary shadow-[0_0_20px_rgba(234,179,8,0.6)]"
+                      style={{
+                        height: useTransform(
+                          smoothScrollProgress,
+                          [0.15, 0.85],
+                          ["0%", "100%"],
+                        ),
+                      }}
+                    />
                   </div>
-                )}
-              </motion.div>
-            </AnimatePresence>
+                </div>
+              )}
+            </div>
+
+            {/* RIGHT SIDE: THE VISUAL ENGINE */}
+            <div className="relative aspect-square lg:aspect-[4/5] w-full max-w-md mx-auto">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeFeature}
+                  initial={{ opacity: 0, scale: 0.9, rotateY: -20, x: 50 }}
+                  animate={{ opacity: 1, scale: 1, rotateY: 0, x: 0 }}
+                  exit={{ opacity: 0, scale: 1.1, rotateY: 20, x: -50 }}
+                  transition={{
+                    duration: 0.25,
+                    type: "spring",
+                    damping: 30,
+                    stiffness: 200,
+                  }}
+                  className="absolute inset-0 flex flex-col justify-center"
+                  style={{ perspective: 1500 }}
+                >
+                  <div
+                    className={cn(
+                      "relative w-full h-full rounded-[2rem] overflow-hidden border border-white/10 shadow-xl flex flex-col group p-1",
+                      "before:absolute before:inset-0 before:bg-gradient-to-br before:opacity-30 before:transition-opacity group-hover:before:opacity-50",
+                      activeFeatureData?.accent,
+                    )}
+                  >
+                    {/* Inner Content Case */}
+                    <div className="relative h-full w-full rounded-[1.5rem] overflow-hidden bg-background/95 backdrop-blur-3xl flex flex-col">
+                      {/* Visual Header */}
+                      <div className="h-2/3 w-full relative group-hover:h-[60%] transition-all duration-300 overflow-hidden">
+                        <ManagedImage
+                          src={activeFeatureData?.image || ""}
+                          alt={activeFeatureData?.title || ""}
+                          data-ai-hint={activeFeatureData?.dataAiHint}
+                          fill
+                          className="object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-1"
+                        />
+                        {/* Dynamic Scan line */}
+                        <motion.div
+                          className="absolute inset-x-0 h-[2px] bg-primary/60 blur-[4px] z-30"
+                          animate={{ top: ["0%", "100%", "0%"] }}
+                          transition={{
+                            duration: 6,
+                            repeat: Infinity,
+                            ease: "linear",
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+                      </div>
+
+                      {/* Info Panel */}
+                      <div className="flex-1 p-6 lg:p-8 flex flex-col justify-between">
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2.5">
+                            <div className="flex items-center gap-1.5 px-2 py-0.5 bg-primary/10 rounded-full border border-primary/20">
+                              <Sparkles className="h-2 w-2 text-primary animate-sparkle" />
+                              <span className="text-[7.5px] font-black uppercase tracking-[0.3em] text-primary">
+                                Live Neural Processing
+                              </span>
+                            </div>
+                            <div className="flex -space-x-1">
+                              {[1, 2, 3].map((i) => (
+                                <div
+                                  key={i}
+                                  className="w-3.5 h-3.5 rounded-full bg-border border-2 border-background animate-pulse"
+                                  style={{ animationDelay: `${i * 0.2}s` }}
+                                ></div>
+                              ))}
+                            </div>
+                          </div>
+
+                          <h4 className="text-xl lg:text-2xl font-black tracking-tight leading-none">
+                            {activeFeatureData?.title}
+                          </h4>
+                          <p className="text-muted-foreground leading-relaxed text-xs max-w-md">
+                            {activeFeatureData?.description} Unlock
+                            industrial-grade insights designed for rapid
+                            execution and tactical advantage.
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-3 pt-6 border-t border-border/10">
+                          <Button
+                            asChild
+                            size="default"
+                            className="rounded-full px-8 h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-widest text-[9px] shadow-lg active:scale-95 transition-all group/btn"
+                          >
+                            <Link href={activeFeatureData?.href || "#"}>
+                              Initialize Stack{" "}
+                              <ArrowRight className="ml-2.5 h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-2" />
+                            </Link>
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </div>

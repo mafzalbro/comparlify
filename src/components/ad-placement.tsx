@@ -1,16 +1,15 @@
-"use client";
-
-import { useEffect, useState } from "react";
+// src/components/ad-placement.tsx
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import prisma from "@/lib/prisma";
+import { headers } from "next/headers";
 
 interface Ad {
   id: string;
   type: "SCRIPT" | "IMAGE";
   content: string;
-  imageUrl?: string;
-  linkUrl?: string;
-  allowedPages?: string; // Comma-separated list
+  imageUrl?: string | null;
+  linkUrl?: string | null;
+  allowedPages?: string | null; // Comma-separated list
 }
 
 interface AdPlacementProps {
@@ -24,36 +23,44 @@ interface AdPlacementProps {
   className?: string;
 }
 
-export function AdPlacement({ placement, className = "" }: AdPlacementProps) {
-  const pathname = usePathname();
-  const [ad, setAd] = useState<Ad | null>(null);
-  const [loading, setLoading] = useState(true);
+/**
+ * SERVER-SIDE AD PLACEMENT
+ * This component fetches the ad directly from the database (Prisma) on the server.
+ * This ensures no internal API keys or endpoints are exposed to the user.
+ */
+export async function AdPlacement({
+  placement,
+  className = "",
+}: AdPlacementProps) {
+  // 1. Fetch pathname from headers (populated by our middleware)
+  const headersList = await headers();
+  const pathname = headersList.get("x-pathname") || "/";
 
-  useEffect(() => {
-    async function fetchAd() {
-      try {
-        // Fetch one active ad for this specific placement
-        const res = await fetch(
-          `/api/rest/advertisement?placement=${placement}&active=true&limit=1`,
-        );
-        if (!res.ok) throw new Error("Failed to fetch ad");
+  // 2. Fetch the ad directly on the server
+  let ad: Ad | null = null;
+  try {
+    const data = await prisma.advertisement.findFirst({
+      where: {
+        placement: placement,
+        active: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
-        const json = await res.json();
-        if (json.data && json.data.length > 0) {
-          setAd(json.data[0]);
-        }
-      } catch (error) {
-        console.error("Ad error:", error);
-      } finally {
-        setLoading(false);
-      }
+    // Type casting/conversion if necessary (Prisma generated types)
+    if (data) {
+      ad = data as any as Ad;
     }
-    fetchAd();
-  }, [placement]);
+  } catch (error) {
+    console.error("Server Ad Error:", error);
+    return null;
+  }
 
-  if (loading || !ad) return null;
+  if (!ad) return null;
 
-  // Page level filtering
+  // 3. Page level filtering
   if (ad.allowedPages) {
     const pages = ad.allowedPages.split(",").map((p) => p.trim());
     const isAllowed = pages.some((p) => {
@@ -67,6 +74,7 @@ export function AdPlacement({ placement, className = "" }: AdPlacementProps) {
     if (!isAllowed) return null;
   }
 
+  // 4. Render
   if (ad.type === "IMAGE" && ad.imageUrl) {
     const content = (
       <div
