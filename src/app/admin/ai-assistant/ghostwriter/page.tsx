@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useEffect } from "react";
 import { generateGenericContentAction } from "@/app/actions/ai";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,8 +37,13 @@ export default function GhostwriterPage() {
       const prompt = `You are a professional technology journalist and content expert. 
 Your task is to write a full, high-quality ${type} article draft.
 The tone should be ${tone}.
-Focus on being helpful, data-driven, and easy to read for course creators.
-Structure the article with a clear title, engaging introduction, detailed body with headers, and a helpful conclusion.
+
+STRICT FORMATTING RULES:
+1. PURE HUMAN STYLE: Write in a natural, conversational, yet professional human voice. Avoid robotic or corporate-only jargon.
+2. NO LONG PARAGRAPHS: Keep paragraphs short (max 2-3 sentences). Use whitespace effectively.
+3. SCANNABLE STRUCTURE: Use bold headings, bullet points, and lists. Ensure the article is easy to skim.
+4. NATURAL RHYTHM: Vary sentence length. Ask occasional rhetorical questions if appropriate for the tone.
+5. NO AI CLICHÉS: Avoid typical AI transition phrases like "In conclusion," "Moreover," or "Furthermore" unless they feel truly natural.
 
 Main Topic: {{{topic}}}
 Additional Instructions: {{{context}}}`;
@@ -58,6 +63,19 @@ Additional Instructions: {{{context}}}`;
       toast({ title: "Copied!", description: "Draft copied to clipboard." });
     }
   };
+
+  // Handle errors from the server action
+  // Since useActionState state is stable, we can also use a useEffect if we want it to re-fire on new errors.
+  // But usually errors are handled per action. Let's use a cleaner approach with useEffect.
+  useEffect(() => {
+    if (state.error) {
+      toast({
+        title: "AI Error",
+        description: state.error,
+        variant: "destructive",
+      });
+    }
+  }, [state.error, toast]);
 
   return (
     <div className="space-y-8 max-w-6xl mx-auto">

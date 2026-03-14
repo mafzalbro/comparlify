@@ -10,6 +10,15 @@ import { generateImage } from "@/ai/flows/ai-image-generator";
 import { generateLogo } from "@/ai/flows/ai-logo-generator";
 import { auth } from "@/lib/auth";
 
+const HUMAN_STYLE_PROMPT = `
+STRICT FORMATTING RULES:
+1. PURE HUMAN STYLE: Write in a natural, conversational, yet professional human voice. Avoid robotic or corporate-only jargon.
+2. NO LONG PARAGRAPHS: Keep paragraphs very short (max 2-3 sentences). Use whitespace effectively.
+3. SCANNABLE STRUCTURE: Use bold headings, bullet points, and lists. Ensure the content is easy to skim.
+4. NATURAL RHYTHM: Vary sentence length.
+5. NO AI CLICHÉS: Avoid typical AI transition phrases like "In conclusion," "Moreover," or "Furthermore."
+`;
+
 // --- Chatbot Action ---
 const chatSchema = z.object({
   query: z
@@ -55,8 +64,8 @@ export async function getChatbotResponse(input: AIQueryComparlifyChatbotInput) {
 
 // --- AI Generic Content Generator ---
 const genericContentSchema = z.object({
-  prompt: z.string(),
-  topic: z.string(),
+  prompt: z.string().min(1, "Prompt template is required."),
+  topic: z.string().min(1, "Topic is required."),
   context: z.string().optional(),
 });
 
@@ -75,11 +84,18 @@ export async function generateGenericContentAction(
 
   const validatedFields = genericContentSchema.safeParse(input);
   if (!validatedFields.success) {
-    return { generatedContent: null, error: "Invalid input." };
+    return { 
+      generatedContent: null, 
+      error: validatedFields.error.errors[0]?.message || "Invalid input." 
+    };
   }
 
   try {
-    const result = await generateGenericContent(validatedFields.data);
+    const enhancedPrompt = `${validatedFields.data.prompt}\n\n${HUMAN_STYLE_PROMPT}`;
+    const result = await generateGenericContent({
+      ...validatedFields.data,
+      prompt: enhancedPrompt,
+    });
     return { generatedContent: result.generatedContent, error: null };
   } catch (error) {
     console.error(error);

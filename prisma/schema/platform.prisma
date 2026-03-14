@@ -1,18 +1,53 @@
 model Platform {
-  id             String            @id @default(cuid())
-  name           String            @unique
-  website        String
-  logoUrl        String
-  description    String            @db.Text
-  rating         Float?
-  easeOfUse      Float?
-  featuresRating Float?
-  support        Float?
-  features       PlatformFeature[]
-  comparisonsA   Comparison[]      @relation("PlatformA")
-  comparisonsB   Comparison[]      @relation("PlatformB")
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
+  id                    String            @id @default(cuid())
+  name                  String            @unique
+  website               String
+  logoUrl               String
+  description           String            @db.Text
+  rating                Float?
+  easeOfUse             Float?
+  featuresRating        Float?
+  support               Float?
+  features              PlatformFeature[]
+  comparisonsA          Comparison[]      @relation("PlatformA")
+  comparisonsB          Comparison[]      @relation("PlatformB")
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  lastVerifiedAt        DateTime?
+  
+  // High-fidelity data fields
+  pros                  Json?             // Array of strings or objects
+  cons                  Json?             // Array of strings or objects
+  affiliateLink         String?
+  dealDescription       String?
+  videoHostingIncluded  Boolean?
+  
+  // Relations
+  tiers                 PricingTier[]
+  newsArticles          NewsArticle[]
+  posts                 Post[]
+  forumTopics           ForumTopic[]
+  affiliateClicks       AffiliateClick[]
+
+  // Deprecated fields (keeping for migration safety, will remove later)
+  transactionFeePercent Float?
+  flatMonthlyFee        Float?
+}
+
+model PricingTier {
+  id                            String   @id @default(cuid())
+  name                          String
+  monthlyPrice                  Float
+  annualPriceMonthlyEquivalent  Float?
+  transactionFeePercent         Float?
+  isPopular                     Boolean  @default(false)
+  features                      Json?    // Optional list of key features for this specific tier
+  platformId                    String
+  platform                      Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+  createdAt                     DateTime @default(now())
+  updatedAt                     DateTime @updatedAt
+
+  @@index([platformId])
 }
 
 model FeatureCategory {
@@ -46,4 +81,3 @@ model PlatformFeature {
   @@id([platformId, featureId])
   @@index([featureId])
 }
-

@@ -10,7 +10,13 @@ import {
   SidebarInset,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { LogOut, ShieldCheck } from "lucide-react";
+import {
+  Settings,
+  LogOut,
+  LayoutDashboard,
+  UserCircle,
+  ShieldCheck,
+} from "lucide-react";
 import { Logo } from "@/components/logo";
 import { LogoutButton } from "@/components/auth/logout-button";
 import Link from "next/link";
@@ -147,6 +153,57 @@ export default async function PanelLayout({
           </main>
         </SidebarInset>
       </div>
+      <Sidebar>
+        <SidebarHeader>
+          <Logo siteName={siteName} />
+        </SidebarHeader>
+        <SidebarContent>
+          <PanelNav user={user} />
+        </SidebarContent>
+        <SidebarFooter>
+          <SidebarMenu>
+            {user.role === "ADMIN" && (
+              <SidebarMenuItem>
+                <Link href="/admin">
+                  <SidebarMenuButton tooltip="Admin Panel">
+                    <ShieldCheck />
+                    Admin Panel
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+            )}
+            <SidebarMenuItem>
+              <LogoutButton>
+                <SidebarMenuButton tooltip="Logout">
+                  <LogOut />
+                  Logout
+                </SidebarMenuButton>
+              </LogoutButton>
+            </SidebarMenuItem>
+            {user && (
+              <div className="p-2 flex items-center justify-center">
+                <UserNav user={user} />
+              </div>
+            )}
+          </SidebarMenu>
+        </SidebarFooter>
+      </Sidebar>
+      <SidebarInset>
+        <header className="flex items-center justify-between p-4 border-b">
+          <div className="flex items-center gap-2">
+            <SidebarTrigger />
+            <h1 className="text-2xl font-headline">User Panel</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <NotificationBell
+              notifications={notifications}
+              unreadCount={unreadCount}
+            />
+            {user && <UserNav user={user} />}
+          </div>
+        </header>
+        <main className="p-8">{children}</main>
+      </SidebarInset>
     </SidebarProvider>
   );
 }

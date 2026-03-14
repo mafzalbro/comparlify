@@ -1,6 +1,10 @@
 "use server";
-import prisma from "@/lib/prisma";
-import { Prisma, Role, ToolCategory } from "@prisma/client";
+import "dotenv/config";
+import { PrismaClient, Prisma, Role, ToolCategory } from "../generated/client.js";
+import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+
+const adapter = new PrismaMariaDb(process.env.DATABASE_URL!);
+const prisma = new PrismaClient({ adapter });
 import { promises as fs } from "fs";
 import path from "path";
 
@@ -1462,7 +1466,7 @@ export const seed = async (skipCleanup = false) => {
   }
 };
 
-// If this file is run directly, execute the seed function.
-if (require?.main === module) {
+import { fileURLToPath } from "url";
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   seed();
 }

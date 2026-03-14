@@ -31,7 +31,17 @@ export function AiFillButton({ fieldType, topic, context, onContentReceived, cla
         }
 
         setIsLoading(true);
-        const result = await generateGenericContentAction({ fieldType, topic, context });
+        const prompt = `Generate a high-quality, professional ${fieldType} based on the provided topic. 
+        
+        STRICT RULES:
+        - HUMAN VOICE: Write like a real person, using active voice and a direct, helpful tone.
+        - SHORT CONTENT: Keep paragraphs extremely short (1-2 sentences). 
+        - FORMATTING: Use bold text for emphasis and bullet points where lists are appropriate.
+        - NO FLUFF: Avoid long-winded introductions or corporate filler text.
+        
+        Topic: {{{topic}}}
+        Context: {{{context}}}`;
+        const result = await generateGenericContentAction({ prompt, topic, context });
         setIsLoading(false);
 
         if (result.error) {

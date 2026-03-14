@@ -55,6 +55,8 @@ model Post {
   previous Post? @relation("PostNavigation")
   next     Post? @relation("PostNavigation", fields: [nextId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
+  platforms Platform[]
+
   @@index([authorId])
   @@index([categoryId])
 }

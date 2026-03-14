@@ -38,31 +38,32 @@ async function getDashboardStats() {
     postsLast7Days,
     totalAffiliateClicks,
   ] = await prisma.$transaction([
-    prisma.platform.count(),
-    prisma.feature.count(),
-    prisma.user.count(),
-    prisma.comment.count({ where: { status: "PENDING" } }),
-    prisma.comparison.count(),
-    prisma.post.findMany({
+    (await prisma.platform)?.count() ?? Promise.resolve(0),
+    (await prisma.feature)?.count() ?? Promise.resolve(0),
+    (await prisma.user)?.count() ?? Promise.resolve(0),
+    (await prisma.comment)?.count({ where: { status: "PENDING" } }) ??
+      Promise.resolve(0),
+    (await prisma.comparison)?.count() ?? Promise.resolve(0),
+    (await prisma.post)?.findMany({
       take: 5,
       orderBy: { createdAt: "desc" },
       include: { author: true },
-    }),
-    prisma.user.findMany({
+    }) ?? Promise.resolve([]),
+    prisma.user?.findMany({
       take: 5,
       orderBy: { createdAt: "desc" },
-    }),
-    prisma.comment.findMany({
+    }) ?? Promise.resolve([]),
+    prisma.comment?.findMany({
       where: { status: "PENDING" },
       take: 5,
       orderBy: { createdAt: "desc" },
       include: { author: true, post: true },
-    }),
-    prisma.post.findMany({
+    }) ?? Promise.resolve([]),
+    prisma.post?.findMany({
       where: { createdAt: { gte: subDays(new Date(), 6) } },
       select: { createdAt: true },
-    }),
-    prisma.affiliateClick.count(),
+    }) ?? Promise.resolve([]),
+    (prisma as any).affiliateClick?.count() ?? Promise.resolve(0),
   ]);
 
   // Combine and sort activities

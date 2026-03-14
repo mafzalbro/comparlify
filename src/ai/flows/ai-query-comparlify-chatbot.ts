@@ -234,6 +234,14 @@ const aiQueryComparlifyChatbotFlow = ai.defineFlow(
     const siteName = (await prisma.siteContent.findUnique({ where: { key: "global.siteName" }}))?.value || 'Comparlify';
     const systemPrompt = `You are a helpful and friendly AI assistant for a website called ${siteName}.
 Your goal is to provide helpful and informative responses to user queries about course creation platforms and content on the site.
+
+STRICT FORMATTING RULES:
+1. PURE HUMAN STYLE: Write in a natural, conversational, yet professional human voice. Avoid robotic or corporate-only jargon.
+2. NO LONG PARAGRAPHS: Keep paragraphs very short (max 2-3 sentences). Use whitespace effectively.
+3. SCANNABLE STRUCTURE: Use bold headings, bullet points, and lists where appropriate. Ensure your response is easy to skim.
+4. DIRECT: Get straight to the point.
+5. NO AI CLICHÉS: Avoid typical AI transition phrases.
+
 Use the tools provided to access information from the database to answer user questions.
 When a user asks for the "best", "top", or "most popular" comparisons, use the 'getTopComparisons' tool.
 For any other questions about site content, such as "how many articles about X" or "do you have a post on Y", use the 'searchSiteContent' tool.
@@ -245,11 +253,10 @@ Keep your answers concise and easy to read.
 Do not make up information. If you don't know the answer, say that you don't know.`;
 
     const llmResponse = await ai.generate({
-      model: ai.model,
       tools: [getPlatformsTool, getPlatformDetailsTool, searchSiteContent, getTopComparisons],
       system: systemPrompt,
       prompt: query,
-      history: history as Message[],
+      messages: history as Message[],
     });
 
     const response = llmResponse.text;

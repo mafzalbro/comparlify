@@ -18,17 +18,19 @@ export function AiImageButton({ prompt, onImageReceived, className }: AiImageBut
     const { toast } = useToast();
 
     const handleAiFill = async () => {
-        if (!prompt) {
+        const activePrompt = prompt?.trim();
+        
+        if (!activePrompt) {
             toast({
-                title: "Prompt Required",
-                description: "Please provide a title or AI hint to generate an image.",
+                title: "Input Required",
+                description: "I need a Title or an 'AI Prompt for Image' to know what to generate.",
                 variant: "destructive"
             });
             return;
         }
 
         setIsLoading(true);
-        const result = await generateImageAction({ prompt });
+        const result = await generateImageAction({ prompt: activePrompt });
         setIsLoading(false);
 
         if (result.error) {

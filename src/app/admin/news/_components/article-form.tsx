@@ -44,6 +44,8 @@ export function ArticleForm({ article, platforms }: ArticleFormProps) {
     article?.platforms?.map((p) => p.id) ?? [],
   );
 
+  const [dataAiHint, setDataAiHint] = useState(article?.dataAiHint ?? "");
+
   const togglePlatform = (id: string) => {
     setSelectedPlatformIds((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
@@ -66,7 +68,7 @@ export function ArticleForm({ article, platforms }: ArticleFormProps) {
                 <Label htmlFor="title">Title</Label>
                 <AiFillButton
                   fieldType="News Article Title"
-                  topic={content || title}
+                  topic={title + " " + content}
                   onContentReceived={setTitle}
                 />
               </div>
@@ -157,11 +159,12 @@ export function ArticleForm({ article, platforms }: ArticleFormProps) {
               <Input
                 id="dataAiHint"
                 name="dataAiHint"
-                defaultValue={article?.dataAiHint ?? ""}
+                value={dataAiHint}
+                onChange={(e) => setDataAiHint(e.target.value)}
                 placeholder="e.g., 'technology announcement'"
               />
               <AiImageButton
-                prompt={article?.dataAiHint || article?.title || ""}
+                prompt={dataAiHint || title || ""}
                 onImageReceived={(imageUrl) => {
                   const imageInput = document.querySelector(
                     'input[name="image"]',

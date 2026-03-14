@@ -33,6 +33,7 @@ model ForumTopic {
   category   ForumCategory    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   posts      ForumPost[]
   status     ForumTopicStatus @default(PENDING)
+  platforms  Platform[]
 
   @@index([authorId])
   @@index([categoryId])

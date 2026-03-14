@@ -1,20 +1,20 @@
 # 👑 Comparlify Strategy v2: The Advanced Tools Pivot
 
-> **Status:** Strategic Pivot (Moving away from AI Text Generation to Advanced Planning & Financial Tools).
-> **Goal:** Build the ultimate "Architectural Hub" for course creators. Make them trust our platform by managing their hardest problems: money, tech stacks, and platform transitions.
+> **Status:** Executed Strategy (Shifted from AI Text Generation to Advanced Planning & Financial Tools).
+> **Goal:** Maintain the ultimate "Architectural Hub" for course creators. Build trust by solving hard problems: money, tech stacks, and transitions.
 
 ## 1. The Realization: AI is a Feature, Not a Product
 
 We are dropping the focus on AI Text Generation (Ghostwriter, Outline Generators).
 
-- **Why?** Because Kajabi, Teachable, Canva, and ChatGPT already do this natively. It's a commodity.
+- **Why?** Because Kajabi, Teachable, Canva, and ChatGPT already do this natively. It's a commodity as a front-end feature.
 - **The Competitor Reality (Our 10-Point Analysis):** We analyzed the Top 10 review and affiliate sites in the space. They fall into distinct buckets that we must outmaneuver:
   - **The Content Encyclopedias** (SellCoursesOnline, Tooltester): They win on grueling, 5,000-word text reviews. We cannot out-write them, so we will out-engineer them with interactive widgets.
   - **The B2B Analysts** (EmailVendorSelection, Learning Revolution): They win on trust and technical accuracy. We will digitize their "stack advisory" into our Tech Stack Architect tool.
   - **The Aggregators** (ClassCentral, Zapier): They win on volume. We will counter this by being the ultimate B2B data aggregator for _creator tools_, not just courses.
   - **The Biased Practitioners** (Dreamgrow, CourseCreatorsHQ, ClickPress): They push specific platforms (usually Kartra or WordPress) because they teach those methods. We will win on pure, unbiased mathematical comparison.
   - **The Aggressive Affiliates** (AffiliateBooster): They win on high-converting UI. We will adopt their clean tables but back them with verified, live data.
-- **The Future Space for AI:** We are commenting out the generative text features. We will retain the Genkit infrastructure purely for backend data processing (scraping pricing, summarizing Reddit reviews, verifying feature parity).
+- **The Future Space for AI:** We will retain the generative text features by moving them to an internal hub (`/tools/ai/...`). They won't be our front-page value prop, but they remain available to creators who need them. We will also expand Genkit purely for backend data processing (scraping pricing, summarizing Reddit reviews, verifying feature parity).
 
 ## 2. The New Moat: Advanced Creator Engineering Tools
 
@@ -49,15 +49,14 @@ The biggest friction to earning an affiliate commission on a platform switch is 
 
 ## 3. Restructuring the Comparlify Platform
 
-- **The "Tools" Dashboard (`/tools`):** Remove the 18 AI generators. Replace them with:
-  - ROI Calculator
-  - Stack Architect
-  - Platform Feature Matrix (Interactive Data Table)
+- **The "Tools" Dashboard (`/tools`):** Evolve the `/tools` dashboard into a hub for **Advanced Interactive Tools** (e.g., ROI Calculator, Stack Architect, Platform Feature Matrix) for course creators.
+- **The "AI Hub" (`/tools/ai/...`):** Relocate the existing 18 AI generators to this dedicated directory. We retain them to provide value, but they are no longer the primary focus of the parent `/tools` landing page.
 - **The "Comparisons" (`/compare/[slug]`):** These are no longer just text articles. Every comparison page MUST embed the ROI calculator pre-populated for the two platforms being compared.
 - **The "Community" (`/community`):** Pivot this to a "Stack Share" board where creators post their verified Tech Stacks and Monthly Spend, reviewed by other users.
 
-## 4. Immediate Execution Steps
+## 4. Executed Milestones
 
-1.  **Clean up the UI:** Hide/Comment out the `ai-assistant` and 18 generator tools. Do not delete the codebase, just remove them from the user flow.
-2.  **Build the ROI Data Structure:** We need to ensure the `Platform` database schema tracks `transactionFeePercent`, `flatMonthlyFee`, and `videoHostingIncluded`.
-3.  **Build the Stack Architect Component:** Begin designing an interactive React flow for building a tech stack.
+1.  **Restructure the UI:** Relocated the `ai-assistant` and 18 generator tools to the `/tools/ai/` route. Created the new root `/tools` dashboard for the interactive business engineering tools.
+2.  **Build the ROI Data Structure:** Ensured the `Platform` database schema tracks `transactionFeePercent`, `flatMonthlyFee`, and accurate pricing tiers. Built the dynamic `InlineROICalculator`.
+3.  **Build the Stack Architect Component:** Designed and integrated the interactive React flow for building a tech stack.
+4.  **Monetization Injection:** Inserted "Switch & Save" calculators into comparison pages mapped directly to our `/api/out/` affiliate tracker.

@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { iconMap } from '@/app/(main)/tools/tools';
+import { iconMap } from '@/app/(main)/tools/ai/tools';
 import { DeleteToolButton } from './_components/delete-tool-button';
 import { EnableToolSwitch } from './_components/enable-tool-switch';
 

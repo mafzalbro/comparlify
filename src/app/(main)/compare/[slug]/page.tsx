@@ -28,6 +28,7 @@ import { ComparisonFeatureMatrix } from "@/components/comparison/comparison-feat
 import { IntelligenceVerdict } from "@/components/comparison/intelligence-verdict";
 import { ComparisonFaqs } from "@/components/comparison/comparison-faqs";
 import { PlatformVisitCards } from "@/components/comparison/platform-visit-cards";
+import { InlineROICalculator } from "@/components/comparison/inline-roi-calculator";
 
 const ComparisonChart = dynamic(
   () =>
@@ -41,6 +42,7 @@ const getComparisonBySlug = cache(async (slug: string) => {
     include: {
       platformA: {
         include: {
+          tiers: { orderBy: { monthlyPrice: "asc" } },
           features: { include: { feature: { include: { category: true } } } },
           newsArticles: { take: 2, where: { published: true } },
           forumTopics: { take: 2, where: { status: "APPROVED" } },
@@ -48,6 +50,7 @@ const getComparisonBySlug = cache(async (slug: string) => {
       },
       platformB: {
         include: {
+          tiers: { orderBy: { monthlyPrice: "asc" } },
           features: { include: { feature: { include: { category: true } } } },
           newsArticles: { take: 2, where: { published: true } },
           forumTopics: { take: 2, where: { status: "APPROVED" } },
@@ -344,6 +347,18 @@ export default async function ComparisonDetailPage(props: {
               </section>
 
               <AdPlacement placement="COMPARISON_BETWEEN" className="my-24" />
+
+              {/* ROI Calculator */}
+              <section className="space-y-8">
+                <div className="inline-flex items-center gap-3 text-primary font-black uppercase tracking-[0.4em] text-[11px]">
+                  <div className="w-12 h-px bg-primary/30" />
+                  Cost & ROI Analysis
+                </div>
+                <InlineROICalculator
+                  platformA={platformA}
+                  platformB={platformB}
+                />
+              </section>
 
               {/* Feature Matrix */}
               <ComparisonFeatureMatrix

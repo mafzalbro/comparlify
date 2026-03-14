@@ -1,4 +1,5 @@
 import { handlers } from "@/lib/auth";
 
-export const GET = handlers;
-export const POST = handlers;
+const check = handlers ?? {};
+export const GET = check?.GET;
+export const POST = check?.POST;

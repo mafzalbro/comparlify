@@ -4,7 +4,7 @@ import { BookmarkButton } from "@/components/bookmark-button";
 import { ShareButton } from "@/components/share-button";
 import { Badge } from "@/components/ui/badge";
 import { MotionDiv } from "@/components/motion-wrapper";
-import { Scale, Zap } from "lucide-react";
+import { Scale, Zap, ShieldCheck } from "lucide-react";
 import type { Platform } from "@prisma/client";
 import type { Session } from "next-auth";
 
@@ -58,9 +58,19 @@ export function ComparisonHero({
               className="mb-12 justify-center"
             />
 
-            <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.4em] mb-12 shadow-sm ring-1 ring-primary/20">
-              <Scale className="h-4 w-4" />
-              In-Depth Comparison Analysis
+            <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-12">
+              <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.4em] shadow-sm ring-1 ring-primary/20">
+                <Scale className="h-4 w-4" />
+                In-Depth Comparison Analysis
+              </div>
+
+              {(platformA as any).lastVerifiedAt ||
+              (platformB as any).lastVerifiedAt ? (
+                <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-black uppercase tracking-[0.4em] shadow-sm ring-1 ring-emerald-500/20">
+                  <ShieldCheck className="h-4 w-4" />
+                  Live Truth Verified
+                </div>
+              ) : null}
             </div>
 
             <h1 className="text-5xl md:text-7xl font-black tracking-tight text-foreground mb-12 leading-[1] uppercase">

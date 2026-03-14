@@ -1,22 +1,23 @@
 // comparison.prisma
 
 model Comparison {
-  id           String     @id @default(cuid())
-  title        String
-  slug         String     @unique
-  summary      String     @db.Text
-  introduction String     @db.Text
-  conclusion   String     @db.Text
-  published    Boolean    @default(false)
-  platformAId  String
-  platformBId  String
-  platformA    Platform   @relation("PlatformA", fields: [platformAId], references: [id], onDelete: Cascade)
-  platformB    Platform   @relation("PlatformB", fields: [platformBId], references: [id], onDelete: Cascade)
-  facts        Fact[]
-  faqs         Faq[]
-  bookmarks    Bookmark[]
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  id             String     @id @default(cuid())
+  title          String
+  slug           String     @unique
+  summary        String     @db.Text
+  introduction   String     @db.Text
+  conclusion     String     @db.Text
+  published      Boolean    @default(false)
+  platformAId    String
+  platformBId    String
+  platformA      Platform   @relation("PlatformA", fields: [platformAId], references: [id], onDelete: Cascade)
+  platformB      Platform   @relation("PlatformB", fields: [platformBId], references: [id], onDelete: Cascade)
+  facts          Fact[]
+  faqs           Faq[]
+  bookmarks      Bookmark[]
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  lastVerifiedAt DateTime?
 
   // New category relation
   categoryId String?
@@ -36,6 +37,7 @@ model Fact {
   comparison     Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
+  lastVerifiedAt DateTime?
 
   @@index([comparisonId])
 }

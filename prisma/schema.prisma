@@ -1,22 +1,12 @@
-// datasource db {
-//   provider     = "mysql"
-//   url          = env("DATABASE_URL")
-//   relationMode = "prisma"
-// }
-
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../generated"
 }
 
 datasource db {
   provider     = "mysql"
-  url          = env("DATABASE_URL")
   relationMode = "prisma"
 }
-
-// generator client {
-//   provider = "prisma-client-js"
-// }
 
 model Notification {
   id        String           @id @default(cuid())
@@ -66,29 +56,30 @@ model Session {
 }
 
 model User {
-  id              String           @id @default(cuid())
+  id              String          @id @default(cuid())
   name            String?
-  email           String?          @unique
+  email           String?         @unique
   emailVerified   DateTime?
   image           String?
-  role            Role             @default(USER)
-  onboarded       Boolean          @default(false)
-  newsletter      Boolean          @default(false)
-  suspended       Boolean          @default(false)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  role            Role            @default(USER)
+  onboarded       Boolean         @default(false)
+  newsletter      Boolean         @default(false)
+  suspended       Boolean         @default(false)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
   accounts        Account[]
   sessions        Session[]
   posts           Post[]
   comments        Comment[]
   bookmarks       Bookmark[]
-  newsArticles    NewsArticle[]    @relation("AuthoredNews") // ✅ must match
+  newsArticles    NewsArticle[]   @relation("AuthoredNews")  // ✅ must match
   notifications   Notification[]
-  forumTopics     ForumTopic[]     @relation("TopicAuthor")
-  forumPosts      ForumPost[]      @relation("PostAuthor")
+  forumTopics     ForumTopic[]    @relation("TopicAuthor")
+  forumPosts      ForumPost[]     @relation("PostAuthor")
   emailRecipients EmailRecipient[]
-  authoredImages  Image[]          @relation("UploadedBy")
+  authoredImages  Image[]         @relation("UploadedBy")
 }
+
 
 model VerificationToken {
   id         String   @id @default(cuid())
@@ -99,6 +90,7 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+
 enum Role {
   USER
   AUTHOR
@@ -108,26 +100,27 @@ enum Role {
   ADMIN
 }
 
+
 model EmailCampaign {
-  id              String           @id @default(cuid())
+  id              String          @id @default(cuid())
   subject         String
-  content         String           @db.LongText
-  status          CampaignStatus   @default(PENDING)
-  createdAt       DateTime         @default(now())
+  content         String          @db.LongText
+  status          CampaignStatus  @default(PENDING)
+  createdAt       DateTime        @default(now())
   sentAt          DateTime?
   recipients      EmailRecipient[]
-  excludedUserIds String?          @db.Text
+  excludedUserIds String?         @db.Text
 }
 
 model EmailRecipient {
-  id           String          @id @default(cuid())
-  campaignId   String
-  userId       String
-  status       RecipientStatus @default(PENDING)
-  sentAt       DateTime?
+  id          String         @id @default(cuid())
+  campaignId  String
+  userId      String
+  status      RecipientStatus @default(PENDING)
+  sentAt      DateTime?
   errorMessage String?
-  campaign     EmailCampaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campaign    EmailCampaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([campaignId, userId])
   @@index([campaignId])
@@ -148,6 +141,7 @@ model Subscription {
   email     String   @unique
   createdAt DateTime @default(now())
 }
+
 
 enum CampaignStatus {
   PENDING
@@ -218,6 +212,8 @@ model Post {
   previous Post? @relation("PostNavigation")
   next     Post? @relation("PostNavigation", fields: [nextId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
+  platforms Platform[]
+
   @@index([authorId])
   @@index([categoryId])
 }
@@ -260,20 +256,55 @@ model Bookmark {
 }
 
 model Platform {
-  id             String            @id @default(cuid())
-  name           String            @unique
-  website        String
-  logoUrl        String
-  description    String            @db.Text
-  rating         Float?
-  easeOfUse      Float?
-  featuresRating Float?
-  support        Float?
-  features       PlatformFeature[]
-  comparisonsA   Comparison[]      @relation("PlatformA")
-  comparisonsB   Comparison[]      @relation("PlatformB")
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
+  id                    String            @id @default(cuid())
+  name                  String            @unique
+  website               String
+  logoUrl               String
+  description           String            @db.Text
+  rating                Float?
+  easeOfUse             Float?
+  featuresRating        Float?
+  support               Float?
+  features              PlatformFeature[]
+  comparisonsA          Comparison[]      @relation("PlatformA")
+  comparisonsB          Comparison[]      @relation("PlatformB")
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  lastVerifiedAt        DateTime?
+  
+  // High-fidelity data fields
+  pros                  Json?             // Array of strings or objects
+  cons                  Json?             // Array of strings or objects
+  affiliateLink         String?
+  dealDescription       String?
+  videoHostingIncluded  Boolean?
+  
+  // Relations
+  tiers                 PricingTier[]
+  newsArticles          NewsArticle[]
+  posts                 Post[]
+  forumTopics           ForumTopic[]
+  affiliateClicks       AffiliateClick[]
+
+  // Deprecated fields (keeping for migration safety, will remove later)
+  transactionFeePercent Float?
+  flatMonthlyFee        Float?
+}
+
+model PricingTier {
+  id                            String   @id @default(cuid())
+  name                          String
+  monthlyPrice                  Float
+  annualPriceMonthlyEquivalent  Float?
+  transactionFeePercent         Float?
+  isPopular                     Boolean  @default(false)
+  features                      Json?    // Optional list of key features for this specific tier
+  platformId                    String
+  platform                      Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+  createdAt                     DateTime @default(now())
+  updatedAt                     DateTime @updatedAt
+
+  @@index([platformId])
 }
 
 model FeatureCategory {
@@ -311,22 +342,23 @@ model PlatformFeature {
 // comparison.prisma
 
 model Comparison {
-  id           String     @id @default(cuid())
-  title        String
-  slug         String     @unique
-  summary      String     @db.Text
-  introduction String     @db.Text
-  conclusion   String     @db.Text
-  published    Boolean    @default(false)
-  platformAId  String
-  platformBId  String
-  platformA    Platform   @relation("PlatformA", fields: [platformAId], references: [id], onDelete: Cascade)
-  platformB    Platform   @relation("PlatformB", fields: [platformBId], references: [id], onDelete: Cascade)
-  facts        Fact[]
-  faqs         Faq[]
-  bookmarks    Bookmark[]
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  id             String     @id @default(cuid())
+  title          String
+  slug           String     @unique
+  summary        String     @db.Text
+  introduction   String     @db.Text
+  conclusion     String     @db.Text
+  published      Boolean    @default(false)
+  platformAId    String
+  platformBId    String
+  platformA      Platform   @relation("PlatformA", fields: [platformAId], references: [id], onDelete: Cascade)
+  platformB      Platform   @relation("PlatformB", fields: [platformBId], references: [id], onDelete: Cascade)
+  facts          Fact[]
+  faqs           Faq[]
+  bookmarks      Bookmark[]
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  lastVerifiedAt DateTime?
 
   // New category relation
   categoryId String?
@@ -346,6 +378,7 @@ model Fact {
   comparison     Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
+  lastVerifiedAt DateTime?
 
   @@index([comparisonId])
 }
@@ -363,18 +396,20 @@ model Faq {
 }
 
 model NewsArticle {
-  id         String   @id @default(cuid())
-  slug       String   @unique
+  id         String     @id @default(cuid())
+  slug       String     @unique
   title      String
-  content    String   @db.Text
+  content    String     @db.Text
   image      String
   dataAiHint String?
-  published  Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  published  Boolean    @default(false)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
   authorId   String
-  author     User     @relation("AuthoredNews", fields: [authorId], references: [id], onDelete: Cascade)
+  author     User       @relation("AuthoredNews", fields: [authorId], references: [id], onDelete: Cascade)
+  platforms  Platform[]
 }
+
 
 enum ForumTopicStatus {
   PENDING
@@ -410,6 +445,7 @@ model ForumTopic {
   category   ForumCategory    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   posts      ForumPost[]
   status     ForumTopicStatus @default(PENDING)
+  platforms  Platform[]
 
   @@index([authorId])
   @@index([categoryId])
@@ -441,19 +477,20 @@ model Image {
   author    User     @relation("UploadedBy", fields: [authorId], references: [id], onDelete: Cascade)
 }
 
+
 model Tool {
-  id                String       @id @default(cuid())
-  slug              String       @unique
-  title             String
-  description       String       @db.Text
-  Icon              String
-  category          ToolCategory
-  enabled           Boolean      @default(true)
-  prompt            String       @db.LongText
-  inputTopicLabel   String?
-  inputContextLabel String?
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
+  id                  String       @id @default(cuid())
+  slug                String       @unique
+  title               String
+  description         String       @db.Text
+  Icon                String
+  category            ToolCategory
+  enabled             Boolean      @default(true)
+  prompt              String       @db.LongText
+  inputTopicLabel     String?
+  inputContextLabel   String?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
 }
 
 enum ToolCategory {
@@ -466,30 +503,42 @@ enum ToolCategory {
 }
 
 model Advertisement {
-  id           String            @id @default(cuid())
-  type         AdvertisementType @default(IMAGE)
-  content      String            @db.Text
-  imageUrl     String?           @db.Text
-  linkUrl      String?           @db.Text
-  placement    AdPlacementType
-  active       Boolean           @default(true)
-  allowedPages String?           @db.Text // Comma-separated or "*"
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
+    id           String            @id @default(cuid())
+    type         AdvertisementType @default(IMAGE)
+    content      String            @db.Text
+    imageUrl     String?           @db.Text
+    linkUrl      String?           @db.Text
+    placement    AdPlacementType
+    active       Boolean           @default(true)
+    allowedPages String?           @db.Text // Comma-separated or "*"
+    createdAt    DateTime          @default(now())
+    updatedAt    DateTime          @updatedAt
 
-  @@index([placement])
+    @@index([placement])
 }
 
 enum AdvertisementType {
-  SCRIPT
-  IMAGE
+    SCRIPT
+    IMAGE
 }
 
 enum AdPlacementType {
-  HEADER
-  SIDEBAR
-  POST_TOP
-  POST_BOTTOM
-  COMPARISON_BETWEEN
-  MOBILE_FIXED_BOTTOM
+    HEADER
+    SIDEBAR
+    POST_TOP
+    POST_BOTTOM
+    COMPARISON_BETWEEN
+    MOBILE_FIXED_BOTTOM
+}
+
+model AffiliateClick {
+    id         String   @id @default(cuid())
+    platformId String
+    platform   Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+    referrer   String   @db.Text
+    userAgent  String   @db.Text
+    ip         String
+    createdAt  DateTime @default(now())
+
+    @@index([platformId])
 }

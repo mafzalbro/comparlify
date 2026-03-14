@@ -51,6 +51,8 @@ export function PostForm({ post, categories }: PostFormProps) {
   const [slug, setSlug] = useState(post?.slug ?? "");
   const [content, setContent] = useState(post?.content ?? "");
 
+  const [dataAiHint, setDataAiHint] = useState(post?.dataAiHint ?? "");
+
   const MAX_DESC_LENGTH = 191;
   const MAX_TITLE_LENGTH = 80;
 
@@ -205,19 +207,18 @@ export function PostForm({ post, categories }: PostFormProps) {
               <Input
                 id="dataAiHint"
                 name="dataAiHint"
-                defaultValue={post?.dataAiHint ?? ""}
+                value={dataAiHint}
+                onChange={(e) => setDataAiHint(e.target.value)}
                 placeholder="e.g. 'creative workspace'"
               />
               <AiImageButton
-                prompt={post?.dataAiHint || post?.title || ""}
+                prompt={dataAiHint || title || ""}
                 onImageReceived={(imageUrl) => {
-                  // This is a bit of a hack to update the controlled component
                   const imageInput = document.querySelector(
                     'input[name="image"]',
                   ) as HTMLInputElement;
                   if (imageInput) {
                     imageInput.value = imageUrl;
-                    // Dispatch an event to notify React of the change
                     imageInput.dispatchEvent(
                       new Event("input", { bubbles: true }),
                     );
