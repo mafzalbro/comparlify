@@ -194,7 +194,7 @@ export function ImageDetailsDialog() {
                         <p>{format(image.createdAt, "PPP")}</p>
                     </div>
                 </div>
-                <div className="flex-grow"></div>
+                <div className="grow"></div>
                  <AlertDialog>
                     <AlertDialogTrigger asChild>
                         <Button variant="destructive" className="w-full mt-4" disabled={isDeleting}>

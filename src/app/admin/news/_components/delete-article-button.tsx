@@ -1,10 +1,9 @@
+"use client";
 
-'use client';
-
-import { useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
-import { deleteNewsArticle } from '@/app/actions/news';
-import { Button } from '@/components/ui/button';
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
+import { deleteNewsArticle } from "@/app/actions/news";
+import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,28 +14,32 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Loader2 } from 'lucide-react';
+} from "@/components/ui/alert-dialog";
+import { Loader2 } from "lucide-react";
 
 function SubmitButton() {
-    const { pending } = useFormStatus();
-    return (
-        <AlertDialogAction asChild>
-            <Button variant="destructive" type="submit" disabled={pending}>
-                {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                Delete
-            </Button>
-        </AlertDialogAction>
-    )
+  const { pending } = useFormStatus();
+  return (
+    <AlertDialogAction asChild>
+      <Button variant="destructive" type="submit" disabled={pending}>
+        {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+        Delete
+      </Button>
+    </AlertDialogAction>
+  );
 }
 
 export function DeleteNewsArticleButton({ id }: { id: string }) {
-  const [state, formAction] = useActionState(deleteNewsArticle, { error: null });
+  const [state, formAction] = useActionState(deleteNewsArticle, {
+    error: null,
+  });
 
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" size="sm">Delete</Button>
+        <Button variant="destructive" size="sm">
+          Delete
+        </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <form action={formAction}>
@@ -44,8 +47,13 @@ export function DeleteNewsArticleButton({ id }: { id: string }) {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the news article.
-              {state?.error && <p className="text-destructive mt-2">{state.error}</p>}
+              This action cannot be undone. This will permanently delete the
+              news article.
+              {state?.error && (
+                <p className="text-destructive mt-2">
+                  {state.error.toString()}
+                </p>
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

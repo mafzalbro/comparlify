@@ -29,6 +29,7 @@ import { IntelligenceVerdict } from "@/components/comparison/intelligence-verdic
 import { ComparisonFaqs } from "@/components/comparison/comparison-faqs";
 import { PlatformVisitCards } from "@/components/comparison/platform-visit-cards";
 import { InlineROICalculator } from "@/components/comparison/inline-roi-calculator";
+import { PlatformPicker } from "@/components/tool/PlatformPicker";
 
 const ComparisonChart = dynamic(
   () =>
@@ -235,6 +236,22 @@ export default async function ComparisonDetailPage(props: {
           platformBName={platformB.name}
         />
 
+        {/* ── PLATFORM PICKER (Decision Engine) ────────────────── */}
+        <section className="py-24 overflow-hidden">
+          <PlatformPicker 
+            platformA={{
+              id: platformA.id,
+              name: platformA.name,
+              affiliateUrl: platformA.affiliateLink
+            }} 
+            platformB={{
+              id: platformB.id,
+              name: platformB.name,
+              affiliateUrl: platformB.affiliateLink
+            }} 
+          />
+        </section>
+
         {/* ── MAIN CONTENT GRID ────────────── */}
         <section className="container px-4 md:px-6 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
@@ -242,7 +259,7 @@ export default async function ComparisonDetailPage(props: {
             <aside className="hidden lg:block lg:col-span-4">
               <div className="sticky top-40 space-y-16">
                 {/* Radar Chart */}
-                <section className="bg-card/40 backdrop-blur-3xl border border-border/10 p-8 rounded-[2rem] shadow-2xl relative overflow-hidden group">
+                <section className="bg-card/40 backdrop-blur-3xl border border-border/10 p-8 rounded-4xl shadow-2xl relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-8 text-primary/5 select-none pointer-events-none -rotate-12 translate-x-8 -translate-y-8">
                     <Sparkles className="h-32 w-32" />
                   </div>
@@ -262,8 +279,8 @@ export default async function ComparisonDetailPage(props: {
                 <AdPlacement placement="SIDEBAR" />
 
                 {/* Newsletter */}
-                <section className="bg-card/60 backdrop-blur-3xl border border-border/10 p-8 rounded-[2rem] shadow-2xl text-center relative overflow-hidden group">
-                  <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
+                <section className="bg-card/60 backdrop-blur-3xl border border-border/10 p-8 rounded-4xl shadow-2xl text-center relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-linear-to-b from-primary/5 to-transparent" />
                   <Badge className="bg-primary/20 text-primary border-primary/30 px-6 py-2 uppercase tracking-[0.4em] text-[10px] font-black rounded-full mb-8 shadow-sm relative z-10">
                     Stay Updated
                   </Badge>
@@ -404,7 +421,7 @@ export default async function ComparisonDetailPage(props: {
                         href={`/blog/${post.slug}`}
                         className="group"
                       >
-                        <Card className="bg-card/40 border-border/10 p-6 rounded-[2rem] hover:bg-primary/5 transition-all h-full">
+                        <Card className="bg-card/40 border-border/10 p-6 rounded-4xl hover:bg-primary/5 transition-all h-full">
                           <span className="text-[10px] font-black uppercase tracking-widest text-primary mb-4 flex items-center gap-2">
                             <BookOpen className="h-3 w-3" /> Blog Article
                           </span>
@@ -420,7 +437,7 @@ export default async function ComparisonDetailPage(props: {
                         href={`/news/${news.slug}`}
                         className="group"
                       >
-                        <Card className="bg-card/40 border-border/10 p-6 rounded-[2rem] hover:bg-blue-500/5 transition-all h-full">
+                        <Card className="bg-card/40 border-border/10 p-6 rounded-4xl hover:bg-blue-500/5 transition-all h-full">
                           <span className="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-4 block">
                             Market News
                           </span>

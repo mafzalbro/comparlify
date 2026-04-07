@@ -167,8 +167,8 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
         {!isMobile && (
           <div className="absolute -z-10 top-0 h-screen w-full overflow-hidden pointer-events-none">
             <div className="absolute inset-0 bg-transparent"></div>
-            <div className="absolute inset-0 bg-grid-white/[0.01] bg-[size:60px_60px]"></div>
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/0 to-transparent"></div>
+            <div className="absolute inset-0 bg-grid-white/[0.01] bg-size-[60px_60px]"></div>
+            <div className="absolute inset-0 bg-linear-to-b from-transparent via-background/0 to-transparent"></div>
 
             <motion.div
               className="absolute top-1/4 -left-20 w-[700px] h-[700px] bg-primary/20 rounded-full blur-[140px]"
@@ -241,7 +241,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
                       key={feature.id}
                       onClick={() => setActiveFeature(feature.id)}
                       className={cn(
-                        "flex-shrink-0 px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all duration-300 border flex gap-3 items-center whitespace-nowrap",
+                        "shrink-0 px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all duration-300 border flex gap-3 items-center whitespace-nowrap",
                         activeFeature === feature.id
                           ? "bg-primary text-primary-foreground border-primary shadow-xl shadow-primary/20"
                           : "bg-card border-border text-muted-foreground",
@@ -269,7 +269,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
                       <button
                         onClick={() => setActiveFeature(feature.id)}
                         className={cn(
-                          "w-full text-left p-4 md:p-5 rounded-[1.5rem] transition-all duration-200 relative group overflow-hidden border",
+                          "w-full text-left p-4 md:p-5 rounded-3xl transition-all duration-200 relative group overflow-hidden border",
                           activeFeature === feature.id
                             ? "bg-card/40 backdrop-blur-2xl shadow-xl border-primary/30 z-20"
                             : "hover:bg-card/30 backdrop-blur-sm border-transparent opacity-40 hover:opacity-100 grayscale hover:grayscale-0",
@@ -278,7 +278,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
                         {/* Interactive Background Gradient */}
                         <div
                           className={cn(
-                            "absolute inset-0 bg-gradient-to-r transition-opacity duration-200 -z-10",
+                            "absolute inset-0 bg-linear-to-r transition-opacity duration-200 -z-10",
                             feature.accent,
                             activeFeature === feature.id
                               ? "opacity-10"
@@ -341,7 +341,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
             </div>
 
             {/* RIGHT SIDE: THE VISUAL ENGINE */}
-            <div className="relative aspect-square lg:aspect-[4/5] w-full max-w-md mx-auto">
+            <div className="relative aspect-square lg:aspect-4/5 w-full max-w-md mx-auto">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeFeature}
@@ -359,13 +359,13 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
                 >
                   <div
                     className={cn(
-                      "relative w-full h-full rounded-[2rem] overflow-hidden border border-white/10 shadow-xl flex flex-col group p-1",
-                      "before:absolute before:inset-0 before:bg-gradient-to-br before:opacity-30 before:transition-opacity group-hover:before:opacity-50",
+                      "relative w-full h-full rounded-4xl overflow-hidden border border-white/10 shadow-xl flex flex-col group p-1",
+                      "before:absolute before:inset-0 before:bg-linear-to-br before:opacity-30 before:transition-opacity group-hover:before:opacity-50",
                       activeFeatureData?.accent,
                     )}
                   >
                     {/* Inner Content Case */}
-                    <div className="relative h-full w-full rounded-[1.5rem] overflow-hidden bg-background/95 backdrop-blur-3xl flex flex-col">
+                    <div className="relative h-full w-full rounded-3xl overflow-hidden bg-background/95 backdrop-blur-3xl flex flex-col">
                       {/* Visual Header */}
                       <div className="h-2/3 w-full relative group-hover:h-[60%] transition-all duration-300 overflow-hidden">
                         <ManagedImage
@@ -377,7 +377,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
                         />
                         {/* Dynamic Scan line */}
                         <motion.div
-                          className="absolute inset-x-0 h-[2px] bg-primary/60 blur-[4px] z-30"
+                          className="absolute inset-x-0 h-[2px] bg-primary/60 blur-xs z-30"
                           animate={{ top: ["0%", "100%", "0%"] }}
                           transition={{
                             duration: 6,
@@ -385,7 +385,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
                             ease: "linear",
                           }}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+                        <div className="absolute inset-0 bg-linear-to-t from-background via-transparent to-transparent"></div>
                       </div>
 
                       {/* Info Panel */}

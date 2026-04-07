@@ -41,7 +41,7 @@ export default async function AdminLayout({
   return (
     <SidebarProvider>
       <Sidebar>
-        <SidebarHeader className="!overflow-hidden">
+        <SidebarHeader className="overflow-hidden!">
           <Logo siteName={siteName} className="justify-start pl-2" />
         </SidebarHeader>
         <SidebarContent>

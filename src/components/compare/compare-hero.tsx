@@ -32,7 +32,7 @@ export function CompareHero({ subtitle }: CompareHeroProps) {
                 Tactical Assessment Hub
               </span>
             </div>
-            <h1 className="text-5xl md:text-7xl font-black text-foreground tracking-tight leading-[1] mb-8">
+            <h1 className="text-5xl md:text-7xl font-black text-foreground tracking-tight leading-none mb-8">
               Strategic{" "}
               <span className="text-primary italic">Intelligence</span> Reports
             </h1>

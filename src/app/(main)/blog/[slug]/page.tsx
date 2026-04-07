@@ -248,8 +248,8 @@ export default async function BlogPostPage(props: {
                   {post.description}
                 </p>
 
-                <div className="flex flex-wrap items-center justify-center gap-8 p-6 rounded-[2rem] bg-card/60 backdrop-blur-3xl border border-border/10 shadow-2xl relative overflow-hidden group">
-                  <div className="absolute inset-x-0 bottom-0 h-1.5 bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
+                <div className="flex flex-wrap items-center justify-center gap-8 p-6 rounded-4xl bg-card/60 backdrop-blur-3xl border border-border/10 shadow-2xl relative overflow-hidden group">
+                  <div className="absolute inset-x-0 bottom-0 h-1.5 bg-linear-to-r from-transparent via-primary/30 to-transparent"></div>
                   <div className="flex items-center gap-5">
                     <Avatar className="h-14 w-14 ring-4 ring-primary/10 border-2 border-background shadow-2xl transition-transform group-hover:scale-110 duration-500">
                       <AvatarImage
@@ -300,7 +300,7 @@ export default async function BlogPostPage(props: {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1.2, delay: 0.4 }}
           >
-            <div className="relative aspect-[21/9] rounded-[2.5rem] overflow-hidden shadow-[0_40px_80px_-20px_rgba(0,0,0,0.4)] group border-[8px] border-background ring-1 ring-border/10">
+            <div className="relative aspect-21/9 rounded-[2.5rem] overflow-hidden shadow-[0_40px_80px_-20px_rgba(0,0,0,0.4)] group border-8 border-background ring-1 ring-border/10">
               <ManagedImage
                 src={post.image.replace("400/250", "1920/1080")}
                 alt={post.title}
@@ -309,7 +309,7 @@ export default async function BlogPostPage(props: {
                 className="object-cover transition-transform duration-2000 group-hover:scale-110"
                 priority
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+              <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent"></div>
             </div>
           </MotionDiv>
         </section>
@@ -324,7 +324,7 @@ export default async function BlogPostPage(props: {
                   <div className="flex flex-col items-center gap-4 group">
                     <BookmarkButton
                       postId={post.id}
-                      className="h-16 w-16 rounded-[2rem] shadow-xl hover:shadow-primary/20 transition-all hover:-translate-y-2"
+                      className="h-16 w-16 rounded-4xl shadow-xl hover:shadow-primary/20 transition-all hover:-translate-y-2"
                       size="icon"
                       showText={false}
                     />
@@ -334,7 +334,7 @@ export default async function BlogPostPage(props: {
                   </div>
                 )}
                 <div className="flex flex-col items-center gap-4 group">
-                  <ShareButton className="h-16 w-16 rounded-[2rem] shadow-xl hover:shadow-primary/20 transition-all hover:-translate-y-2" />
+                  <ShareButton className="h-16 w-16 rounded-4xl shadow-xl hover:shadow-primary/20 transition-all hover:-translate-y-2" />
                   <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.4em] group-hover:text-primary transition-colors">
                     Signal
                   </span>
@@ -385,7 +385,7 @@ export default async function BlogPostPage(props: {
                 {prevPost ? (
                   <Link
                     href={`/blog/${prevPost.slug}`}
-                    className="group p-8 rounded-[2rem] hover:bg-primary/10 transition-all text-left border border-transparent hover:border-primary/20 bg-background/40 backdrop-blur-xl shadow-lg"
+                    className="group p-8 rounded-4xl hover:bg-primary/10 transition-all text-left border border-transparent hover:border-primary/20 bg-background/40 backdrop-blur-xl shadow-lg"
                   >
                     <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4 flex items-center gap-3">
                       <ArrowLeft className="h-4 w-4" /> Previous Dispatch
@@ -401,7 +401,7 @@ export default async function BlogPostPage(props: {
                 {nextPost ? (
                   <Link
                     href={`/blog/${nextPost.slug}`}
-                    className="group p-8 rounded-[2rem] hover:bg-primary/10 transition-all text-right border border-transparent hover:border-primary/20 bg-background/40 backdrop-blur-xl shadow-lg"
+                    className="group p-8 rounded-4xl hover:bg-primary/10 transition-all text-right border border-transparent hover:border-primary/20 bg-background/40 backdrop-blur-xl shadow-lg"
                   >
                     <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4 flex items-center justify-end gap-3">
                       Next Dispatch <ArrowRight className="h-4 w-4" />
@@ -434,7 +434,7 @@ export default async function BlogPostPage(props: {
             {/* Right Sidebar - TOC & Related */}
             <aside className="lg:col-span-4 space-y-16">
               <div className="sticky top-40 space-y-16">
-                <section className="bg-card/40 backdrop-blur-3xl border border-border/10 p-8 rounded-[2rem] shadow-xl relative overflow-hidden group">
+                <section className="bg-card/40 backdrop-blur-3xl border border-border/10 p-8 rounded-4xl shadow-xl relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-8 text-primary/5 select-none pointer-events-none -rotate-12 translate-x-8 -translate-y-8">
                     <ListFilter className="h-32 w-32" />
                   </div>
@@ -442,7 +442,7 @@ export default async function BlogPostPage(props: {
                 </section>
 
                 {trendingComparisons.length > 0 && (
-                  <section className="bg-primary/5 border border-primary/20 p-8 rounded-[2rem] shadow-xl relative overflow-hidden group">
+                  <section className="bg-primary/5 border border-primary/20 p-8 rounded-4xl shadow-xl relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-8 text-primary/10 select-none pointer-events-none -rotate-12 translate-x-4 -translate-y-4">
                       <Scale className="h-24 w-24" />
                     </div>
@@ -494,7 +494,7 @@ export default async function BlogPostPage(props: {
                 <AdPlacement placement="SIDEBAR" />
 
                 {relatedPosts.length > 0 && (
-                  <section className="bg-card/60 backdrop-blur-3xl border border-border/10 p-8 rounded-[2rem] shadow-xl relative overflow-hidden group">
+                  <section className="bg-card/60 backdrop-blur-3xl border border-border/10 p-8 rounded-4xl shadow-xl relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-10 text-primary/5 select-none pointer-events-none">
                       <Zap className="h-48 w-48" />
                     </div>
@@ -509,7 +509,7 @@ export default async function BlogPostPage(props: {
                           href={`/blog/${related.slug}`}
                           className="flex flex-col gap-6 group/item"
                         >
-                          <div className="relative aspect-[16/10] rounded-[2rem] overflow-hidden shadow-2xl border border-white/5">
+                          <div className="relative aspect-16/10 rounded-4xl overflow-hidden shadow-2xl border border-white/5">
                             <ManagedImage
                               src={related.image.replace("400/250", "600/400")}
                               alt={related.title}
@@ -537,7 +537,7 @@ export default async function BlogPostPage(props: {
                     <Button
                       asChild
                       variant="ghost"
-                      className="w-full mt-16 rounded-[2rem] font-black uppercase tracking-[0.3em] text-[10px] py-8 hover:bg-primary/10 group/all transition-all border border-primary/10"
+                      className="w-full mt-16 rounded-4xl font-black uppercase tracking-[0.3em] text-[10px] py-8 hover:bg-primary/10 group/all transition-all border border-primary/10"
                     >
                       <Link href="/blog">
                         Total Archive{" "}

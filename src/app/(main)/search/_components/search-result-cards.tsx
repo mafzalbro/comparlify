@@ -27,7 +27,7 @@ export function PostResultCard({ post }: { post: any }) {
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
     >
-      <Card className="group relative overflow-hidden bg-card/40 backdrop-blur-xl border-border/10 hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 rounded-[2rem]">
+      <Card className="group relative overflow-hidden bg-card/40 backdrop-blur-xl border-border/10 hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 rounded-4xl">
         <Link
           href={`/blog/${post.slug}`}
           className="grid grid-cols-1 md:grid-cols-4 gap-8 p-6"
@@ -40,7 +40,7 @@ export function PostResultCard({ post }: { post: any }) {
               fill
               className="object-cover transition-transform duration-700 group-hover:scale-110"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-4">
+            <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-4">
               <Badge className="bg-primary/90 text-primary-foreground font-black uppercase tracking-widest text-[8px] border-none">
                 Dispatch Entry
               </Badge>

@@ -44,7 +44,7 @@ export function SearchResultsTabs({
         <TabsList className="flex h-auto p-2 bg-muted/40 backdrop-blur-2xl rounded-[2.5rem] border border-border/10 shadow-2xl">
           <TabsTrigger
             value="all"
-            className="px-10 py-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all duration-500 data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-2xl data-[state=active]:scale-105"
+            className="px-10 py-4 rounded-4xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-2xl data-[state=active]:scale-105"
           >
             Omni{" "}
             <span className="ml-3 opacity-30 group-data-[state=active]:opacity-50">
@@ -53,7 +53,7 @@ export function SearchResultsTabs({
           </TabsTrigger>
           <TabsTrigger
             value="posts"
-            className="px-10 py-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all duration-500 data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-2xl data-[state=active]:scale-105"
+            className="px-10 py-4 rounded-4xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-2xl data-[state=active]:scale-105"
           >
             Insights{" "}
             <span className="ml-3 opacity-30 group-data-[state=active]:opacity-50">
@@ -62,7 +62,7 @@ export function SearchResultsTabs({
           </TabsTrigger>
           <TabsTrigger
             value="comparisons"
-            className="px-10 py-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all duration-500 data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-2xl data-[state=active]:scale-105"
+            className="px-10 py-4 rounded-4xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-2xl data-[state=active]:scale-105"
           >
             Simulations{" "}
             <span className="ml-3 opacity-30 group-data-[state=active]:opacity-50">

@@ -45,7 +45,7 @@ export function ComparisonFeatureMatrix({
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ delay: idx * 0.05 }}
-            className="p-8 rounded-[2rem] bg-card/40 backdrop-blur-3xl border border-border/10 shadow-lg relative overflow-hidden group"
+            className="p-8 rounded-4xl bg-card/40 backdrop-blur-3xl border border-border/10 shadow-lg relative overflow-hidden group"
           >
             <div className="flex flex-col md:flex-row gap-8 items-start relative z-10">
               <div className="w-full md:w-1/3 lg:w-1/4">
@@ -68,7 +68,7 @@ export function ComparisonFeatureMatrix({
                 ].map(({ name, value, hoverClass }) => (
                   <div
                     key={name}
-                    className={`p-6 rounded-[2rem] bg-background/40 border border-border/10 ${hoverClass} transition-all`}
+                    className={`p-6 rounded-4xl bg-background/40 border border-border/10 ${hoverClass} transition-all`}
                   >
                     <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
                       {isSupported(value) ? (

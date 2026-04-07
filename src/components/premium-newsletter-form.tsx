@@ -71,7 +71,7 @@ export function PremiumNewsletterForm({
     if (state.error) {
       toast({
         title: "Subscription Error",
-        description: state.error,
+        description: state.error.toString(),
         variant: "destructive",
       });
     }

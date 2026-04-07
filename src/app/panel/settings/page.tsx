@@ -55,14 +55,7 @@ export default function UserSettingsPage() {
     if (state.error) {
       hasUpdated.current = false;
     }
-  }, [state.success, state.error, toast, update]);
-
-  const handleFormAction: React.FormEventHandler<HTMLFormElement> = (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    hasUpdated.current = false;
-    formAction(formData);
-  };
+  }, [state.success, state.error?.toString(), toast, update]);
 
   if (!session?.user) {
     return (
@@ -175,7 +168,7 @@ export default function UserSettingsPage() {
                 <SubmitButton
                   isEditing={true}
                   editingText="Commit All Changes"
-                  className="h-14 px-10 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20"
+                  // className="h-14 px-10 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20"
                 />
               </CardFooter>
             </Card>
@@ -183,7 +176,7 @@ export default function UserSettingsPage() {
         </div>
 
         <div className="lg:col-span-1 space-y-8">
-          <Card className="border-destructive/20 bg-destructive/[0.02] backdrop-blur-3xl rounded-[2.5rem] overflow-hidden shadow-2xl group min-h-[200px]">
+          <Card className="border-destructive/20 bg-destructive/2 backdrop-blur-3xl rounded-[2.5rem] overflow-hidden shadow-2xl group min-h-[200px]">
             <CardHeader className="p-10 pb-4">
               <CardTitle className="text-2xl font-black uppercase tracking-tight text-destructive flex items-center gap-3">
                 <Loader2 className="h-6 w-6 group-hover:animate-spin transition-all" />

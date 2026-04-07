@@ -34,7 +34,7 @@ export function NotificationBell({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-80 p-0 rounded-[2rem] border-primary/20 bg-card/60 backdrop-blur-3xl shadow-2xl overflow-hidden"
+        className="w-80 p-0 rounded-4xl border-primary/20 bg-card/60 backdrop-blur-3xl shadow-2xl overflow-hidden"
         align="end"
         sideOffset={8}
       >

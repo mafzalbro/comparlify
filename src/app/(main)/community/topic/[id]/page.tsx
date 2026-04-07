@@ -93,9 +93,9 @@ export default async function TopicPage(props: {
             {topic.status !== "APPROVED" && (
               <Alert
                 variant="destructive"
-                className="mb-8 p-6 rounded-[2rem] bg-yellow-50/50 backdrop-blur-md border-yellow-200 text-yellow-900 border-2"
+                className="mb-8 p-6 rounded-4xl bg-yellow-50/50 backdrop-blur-md border-yellow-200 text-yellow-900 border-2"
               >
-                <ShieldAlert className="h-6 w-6 !text-yellow-600" />
+                <ShieldAlert className="h-6 w-6 text-yellow-600!" />
                 <div className="ml-4">
                   <AlertTitle className="text-xl font-black uppercase tracking-widest mb-1">
                     Under Expert Review
@@ -111,7 +111,7 @@ export default async function TopicPage(props: {
             <div className="flex flex-col md:flex-row justify-between md:items-end gap-8">
               <div className="max-w-4xl">
                 <div className="flex flex-wrap items-center gap-4 mb-6">
-                  <Badge className="px-4 py-1 bg-primary/10 text-primary border-primary/20 text-xs font-black uppercase tracking-[0.1em] rounded-lg">
+                  <Badge className="px-4 py-1 bg-primary/10 text-primary border-primary/20 text-xs font-black uppercase tracking-widest rounded-lg">
                     {topic.category.name}
                   </Badge>
                   <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-widest">
@@ -164,7 +164,7 @@ export default async function TopicPage(props: {
 
           {topic.posts.length > 0 && (
             <div className="relative pl-8 md:pl-0">
-              <div className="absolute left-0 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-primary/20 via-border/10 to-transparent md:-translate-x-1/2"></div>
+              <div className="absolute left-0 md:left-1/2 top-0 bottom-0 w-px bg-linear-to-b from-primary/20 via-border/10 to-transparent md:-translate-x-1/2"></div>
               {topic.posts.map((post, idx) => (
                 <MotionDiv
                   key={post.id}
@@ -215,7 +215,7 @@ export default async function TopicPage(props: {
 
       {/* Bottom Actions Hint */}
       <section className="container max-w-5xl py-24 px-4 md:px-6">
-        <div className="flex items-center justify-between p-6 rounded-[2rem] bg-secondary/50 border border-border/10 overflow-hidden relative">
+        <div className="flex items-center justify-between p-6 rounded-4xl bg-secondary/50 border border-border/10 overflow-hidden relative">
           <div className="flex items-center gap-6">
             <div className="flex items-center -space-x-4">
               <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">

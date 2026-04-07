@@ -60,7 +60,7 @@ export function MigrationEstimator() {
                 <BookOpen className="h-3 w-3 text-primary" /> Total Courses
               </label>
               <div className="flex items-center gap-4 mb-4">
-                <span className="text-4xl font-black tracking-tight text-foreground">
+                <span className="text-4xl font-black tracking-tight text-foreground tabular-nums">
                   {courses}
                 </span>
               </div>
@@ -78,7 +78,7 @@ export function MigrationEstimator() {
                 <Construction className="h-3 w-3 text-primary" /> Total Lessons
               </label>
               <div className="flex items-center gap-4 mb-4">
-                <span className="text-4xl font-black tracking-tight text-foreground">
+                <span className="text-4xl font-black tracking-tight text-foreground tabular-nums">
                   {lessons}
                 </span>
               </div>
@@ -96,7 +96,7 @@ export function MigrationEstimator() {
                 <FileVideo className="h-3 w-3 text-primary" /> Video Assets (GB)
               </label>
               <div className="flex items-center gap-4 mb-4">
-                <span className="text-4xl font-black tracking-tight text-foreground">
+                <span className="text-4xl font-black tracking-tight text-foreground tabular-nums">
                   {videos}
                 </span>
               </div>
@@ -138,7 +138,7 @@ export function MigrationEstimator() {
               <h4 className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-2">
                 Manual Labor Estimate
               </h4>
-              <div className="text-5xl font-black tracking-tighter text-foreground mb-2">
+              <div className="text-5xl font-black tracking-tighter text-foreground mb-2 tabular-nums">
                 {estimates.totalHours}{" "}
                 <span className="text-xl opacity-50">hrs</span>
               </div>
@@ -150,9 +150,9 @@ export function MigrationEstimator() {
             <div className="mt-8 pt-8 border-t border-primary/20">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-black uppercase tracking-widest opacity-60">
-                  Timeline
+                  Delivery Schedule
                 </span>
-                <span className="text-sm font-bold">
+                <span className="text-sm font-bold tabular-nums">
                   {Math.ceil(estimates.totalHours / 6)} Days
                 </span>
               </div>
@@ -165,7 +165,7 @@ export function MigrationEstimator() {
               <h4 className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-2">
                 Specialist Hiring Cost
               </h4>
-              <div className="text-3xl font-black tracking-tight text-foreground">
+              <div className="text-3xl font-black tracking-tight text-foreground tabular-nums">
                 ${estimates.hiredCost.toLocaleString()}
               </div>
               <p className="text-xs font-bold opacity-50 mt-2 italic">
@@ -206,7 +206,7 @@ export function MigrationEstimator() {
                 </span>
               </div>
               <h3 className="text-2xl font-black tracking-tight max-w-md">
-                Don't start your migration without a{" "}
+                Secure your migration with a{" "}
                 <span className="text-primary italic">Success Blueprint.</span>
               </h3>
               <p className="text-sm font-bold text-muted-foreground max-w-sm">
@@ -215,7 +215,7 @@ export function MigrationEstimator() {
               </p>
             </div>
             <button className="px-10 py-5 rounded-full bg-foreground text-background font-black uppercase text-xs tracking-widest hover:scale-105 transition-all shadow-xl flex items-center gap-2 group">
-              Claim Free Migration{" "}
+              Get Your Free Migration Plan{" "}
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>

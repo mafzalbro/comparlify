@@ -48,6 +48,8 @@ model User {
   forumPosts      ForumPost[]     @relation("PostAuthor")
   emailRecipients EmailRecipient[]
   authoredImages  Image[]         @relation("UploadedBy")
+  stacks          UserStack[]     @relation("UserToStacks")
+  projects        Project[]
 }
 
 

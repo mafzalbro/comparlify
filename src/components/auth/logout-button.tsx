@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { signOut } from "next-auth/react";
 // import { signOut } from "@/lib/auth";
@@ -6,18 +6,18 @@ import { signOut } from "next-auth/react";
 import { useTransition } from "react";
 
 export function LogoutButton({ children }: { children: React.ReactNode }) {
-    const [isPending, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
 
-    const handleClick = () => {
-        startTransition(async () => {
-            // await logout();
-            signOut({ redirectTo: "/" });
-        });
-    };
+  const handleClick = () => {
+    startTransition(async () => {
+      // await logout();
+      signOut({ callbackUrl: "/", redirect: true });
+    });
+  };
 
-    return (
-        <div onClick={handleClick} className="w-full cursor-pointer">
-            {children}
-        </div>
-    );
+  return (
+    <div onClick={handleClick} className="w-full cursor-pointer">
+      {children}
+    </div>
+  );
 }

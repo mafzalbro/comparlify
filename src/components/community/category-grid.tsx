@@ -71,7 +71,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
 
               <CardHeader className="p-10 md:p-12 pb-6 relative z-10">
                 <div className="flex items-center justify-between mb-10">
-                  <div className="w-16 h-16 bg-primary/10 text-primary rounded-[1.5rem] border border-primary/20 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-700 shadow-xl shadow-primary/5">
+                  <div className="w-16 h-16 bg-primary/10 text-primary rounded-3xl border border-primary/20 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-700 shadow-xl shadow-primary/5">
                     <MessageSquare className="h-8 w-8" />
                   </div>
                   <div className="flex -space-x-4">
@@ -102,7 +102,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
               </CardHeader>
 
               <CardFooter className="p-10 md:p-12 pt-0 mt-auto relative z-10">
-                <div className="w-full flex items-center justify-between p-6 bg-background/40 rounded-[2rem] border border-border/10 backdrop-blur-sm group-hover:border-primary/20 transition-all">
+                <div className="w-full flex items-center justify-between p-6 bg-background/40 rounded-4xl border border-border/10 backdrop-blur-sm group-hover:border-primary/20 transition-all">
                   <div className="flex gap-12">
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center gap-2">

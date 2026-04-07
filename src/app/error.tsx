@@ -19,10 +19,10 @@ export default function Error({
 
   return (
     <div className="relative flex flex-1 flex-col items-center justify-center text-center px-4 py-20 min-h-[80vh] overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-destructive/10 via-background to-background"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-destructive/10 via-background to-background"></div>
 
       <div className="relative z-10 flex flex-col items-center justify-center max-w-3xl mx-auto space-y-8">
-        <div className="inline-flex items-center justify-center p-6 rounded-[2rem] bg-destructive/10 border border-destructive/20 mb-4 animate-in zoom-in duration-700 shadow-2xl shadow-destructive/20">
+        <div className="inline-flex items-center justify-center p-6 rounded-4xl bg-destructive/10 border border-destructive/20 mb-4 animate-in zoom-in duration-700 shadow-2xl shadow-destructive/20">
           <AlertCircle className="h-12 w-12 text-destructive animate-pulse" />
         </div>
 

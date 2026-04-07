@@ -136,7 +136,7 @@ export default async function ComparePage(props: {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="mb-16 bg-card/20 backdrop-blur-3xl border border-border/10 p-8 rounded-[2rem] shadow-xl relative overflow-hidden"
+          className="mb-16 bg-card/20 backdrop-blur-3xl border border-border/10 p-8 rounded-4xl shadow-xl relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 p-8 text-primary/5 select-none pointer-events-none translate-x-12 -translate-y-12">
             <Zap className="h-48 w-48" />

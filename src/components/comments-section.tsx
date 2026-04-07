@@ -80,9 +80,9 @@ export function CommentsSection({
         <form
           ref={formRef}
           action={formAction}
-          className="p-6 rounded-[2rem] bg-card/40 backdrop-blur-3xl border border-border/10 shadow-xl relative overflow-hidden group"
+          className="p-6 rounded-4xl bg-card/40 backdrop-blur-3xl border border-border/10 shadow-xl relative overflow-hidden group"
         >
-          <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent"></div>
+          <div className="absolute inset-x-0 bottom-0 h-1 bg-linear-to-r from-transparent via-primary/20 to-transparent"></div>
           <input type="hidden" name="postId" value={postId} />
           <div className="flex items-start gap-6">
             <Avatar className="h-12 w-12 ring-2 ring-primary/10 shadow-xl shrink-0">
@@ -106,12 +106,12 @@ export function CommentsSection({
           </div>
           {typeof state.error === "string" && (
             <p className="text-[10px] font-bold text-destructive mt-4 text-right uppercase tracking-wider">
-              {state.error}
+              {state.error.toString()}
             </p>
           )}
           {state.success && (
             <Alert className="mt-6 bg-primary/5 border-primary/20 rounded-2xl p-4 shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-500">
-              <CheckCircle className="h-5 w-5 !text-primary" />
+              <CheckCircle className="h-5 w-5 text-primary!" />
               <AlertTitle className="text-sm font-black uppercase tracking-tight mb-1 text-foreground">
                 Comment Submitted
               </AlertTitle>
@@ -122,7 +122,7 @@ export function CommentsSection({
           )}
         </form>
       ) : (
-        <div className="p-10 text-center border-2 border-dashed border-border/10 rounded-[2rem] bg-secondary/5 relative overflow-hidden group">
+        <div className="p-10 text-center border-2 border-dashed border-border/10 rounded-4xl bg-secondary/5 relative overflow-hidden group">
           <div className="absolute inset-0 bg-grid-pattern-light opacity-5 group-hover:opacity-10 transition-opacity"></div>
           <p className="text-muted-foreground text-lg font-medium mb-6 relative z-10">
             Log in to join the discussion.
@@ -147,7 +147,7 @@ export function CommentsSection({
           ) : (
             <div
               key={comment.id}
-              className="group relative flex items-start gap-6 p-6 rounded-[2rem] bg-card/20 backdrop-blur-xl border border-border/10 hover:border-primary/20 hover:bg-card/40 transition-all duration-500 hover:shadow-xl"
+              className="group relative flex items-start gap-6 p-6 rounded-4xl bg-card/20 backdrop-blur-xl border border-border/10 hover:border-primary/20 hover:bg-card/40 transition-all duration-500 hover:shadow-xl"
             >
               <Avatar className="h-12 w-12 ring-2 ring-background shadow-lg shrink-0 group-hover:ring-primary/10 transition-all">
                 <AvatarImage src={comment.author.image ?? undefined} />
@@ -235,7 +235,7 @@ function EditCommentForm({
             defaultValue={comment.content}
             rows={3}
             required
-            className="bg-background/40 border-border/10 rounded-[2rem] p-6 text-lg focus:ring-primary/20 transition-all resize-none shadow-inner"
+            className="bg-background/40 border-border/10 rounded-4xl p-6 text-lg focus:ring-primary/20 transition-all resize-none shadow-inner"
           />
           <div className="flex justify-end gap-4">
             <Button

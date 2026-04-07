@@ -77,7 +77,7 @@ export default function Footer({ content, siteName }: FooterProps) {
     if (state.error) {
       toast({
         title: "Subscription Error",
-        description: state.error,
+        description: state.error.toString(),
         variant: "destructive",
       });
     }
@@ -108,7 +108,7 @@ export default function Footer({ content, siteName }: FooterProps) {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mb-24 p-6 md:p-10 rounded-[2rem] bg-card/40 backdrop-blur-3xl border border-primary/20 shadow-xl relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-8"
+          className="mb-24 p-6 md:p-10 rounded-4xl bg-card/40 backdrop-blur-3xl border border-primary/20 shadow-xl relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-8"
         >
           <div className="absolute top-0 right-0 p-12 text-primary/5 -rotate-12 translate-x-12 -translate-y-12 select-none pointer-events-none">
             <Sparkles className="h-64 w-64" />
@@ -216,7 +216,7 @@ export default function Footer({ content, siteName }: FooterProps) {
             <h3 className="text-xs font-black text-foreground uppercase tracking-[0.3em] flex items-center gap-3">
               <span className="w-8 h-px bg-primary/30"></span> Transparency
             </h3>
-            <div className="p-6 rounded-[2rem] bg-secondary/30 border border-border/10 space-y-4">
+            <div className="p-6 rounded-4xl bg-secondary/30 border border-border/10 space-y-4">
               <div className="flex items-center gap-3 text-primary">
                 <ShieldCheck className="h-5 w-5" />
                 <span className="text-[10px] font-black uppercase tracking-widest">

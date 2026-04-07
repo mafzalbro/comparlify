@@ -178,7 +178,7 @@ export default async function DynamicBattlePage(props: {
         <section className="container px-4 md:px-6 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
             <aside className="lg:col-span-4 space-y-16">
-              <div className="bg-card/40 backdrop-blur-3xl border border-border/10 p-8 rounded-[2rem] shadow-2xl relative overflow-hidden">
+              <div className="bg-card/40 backdrop-blur-3xl border border-border/10 p-8 rounded-4xl shadow-2xl relative overflow-hidden">
                 <h3 className="text-xl font-black mb-10 flex items-center gap-2">
                   <Zap className="h-5 w-5 text-primary" /> Feature Radar
                 </h3>

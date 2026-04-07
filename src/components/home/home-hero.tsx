@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Link } from "next-view-transitions"; // Wait, checking if they use standard Link or this
+// import { Link } from "next-view-transitions"; // Wait, checking if they use standard Link or this
 import NextLink from "next/link";
 import { ArrowRight, CheckCircle2, Zap } from "lucide-react";
 import { MotionDiv, MotionH2, MotionP } from "@/components/motion-wrapper";
@@ -52,7 +52,7 @@ export function HomeHero({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.05] mb-6 bg-gradient-to-b from-foreground to-foreground/70 bg-clip-text text-transparent"
+            className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.05] mb-6 bg-linear-to-b from-foreground to-foreground/70 bg-clip-text text-transparent"
           >
             {title}
           </MotionH2>

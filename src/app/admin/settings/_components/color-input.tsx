@@ -1,15 +1,13 @@
+"use client";
 
-'use client';
+import { useEffect, useRef, useMemo } from "react";
+import { useTheme } from "next-themes";
+import { Input } from "@/components/ui/input";
+import { themeConfig } from "@/lib/theme";
 
-import { useEffect, useState, useRef, useMemo } from 'react';
-import { useTheme } from 'next-themes';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
-import { themeConfig } from '@/lib/theme';
-
-interface ColorInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface ColorInputProps extends React.ComponentProps<"input"> {
   value: string;
-  onChange: (value: string) => void;
+  onChange: (value: string | any) => void;
   name: string;
 }
 
@@ -21,41 +19,48 @@ function hslToHex(h: number, s: number, l: number): string {
     const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
     return Math.round(255 * color)
       .toString(16)
-      .padStart(2, '0');
+      .padStart(2, "0");
   };
   return `#${f(0)}${f(8)}${f(4)}`;
 }
 
 function hexToHsl(hex: string): string | null {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    if (!result) return null;
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!result) return null;
 
-    let r = parseInt(result[1], 16);
-    let g = parseInt(result[2], 16);
-    let b = parseInt(result[3], 16);
-    r /= 255;
-    g /= 255;
-    b /= 255;
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-    let h = 0, s = 0, l = (max + min) / 2;
+  let r = parseInt(result[1], 16);
+  let g = parseInt(result[2], 16);
+  let b = parseInt(result[3], 16);
+  r /= 255;
+  g /= 255;
+  b /= 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  let h = 0,
+    s = 0,
+    l = (max + min) / 2;
 
-    if (max === min) {
-        h = s = 0; // achromatic
-    } else {
-        const d = max - min;
-        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-        switch (max) {
-            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-            case g: h = (b - r) / d + 2; break;
-            case b: h = (r - g) / d + 4; break;
-        }
-        h /= 6;
+  if (max === min) {
+    h = s = 0; // achromatic
+  } else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r:
+        h = (g - b) / d + (g < b ? 6 : 0);
+        break;
+      case g:
+        h = (b - r) / d + 2;
+        break;
+      case b:
+        h = (r - g) / d + 4;
+        break;
     }
-    
-    return `${(h * 360).toFixed(0)} ${(s * 100).toFixed(0)}% ${(l * 100).toFixed(0)}%`;
-}
+    h /= 6;
+  }
 
+  return `${(h * 360).toFixed(0)} ${(s * 100).toFixed(0)}% ${(l * 100).toFixed(0)}%`;
+}
 
 function parseHsl(hsl: string): { h: number; s: number; l: number } | null {
   const match = hsl.match(/(\d+(\.\d+)?)\s(\d+(\.\d+)?)%\s(\d+(\.\d+)?)%/);
@@ -67,7 +72,12 @@ function parseHsl(hsl: string): { h: number; s: number; l: number } | null {
   };
 }
 
-export function ColorInput({ value, onChange, name, ...props }: ColorInputProps) {
+export function ColorInput({
+  value,
+  onChange,
+  name,
+  ...props
+}: ColorInputProps) {
   const colorPickerRef = useRef<HTMLInputElement>(null);
   const { resolvedTheme } = useTheme();
 
@@ -75,15 +85,18 @@ export function ColorInput({ value, onChange, name, ...props }: ColorInputProps)
     // Live update CSS variable for instant preview
     const cssVarName = themeConfig[name];
     if (cssVarName) {
-        const root = document.documentElement;
-        
-        // Check if the current theme matches the color being edited
-        const isDarkThemeVar = name.startsWith('theme.dark');
-        const isLightThemeVar = name.startsWith('theme.light');
+      const root = document.documentElement;
 
-        if ((resolvedTheme === 'dark' && isDarkThemeVar) || (resolvedTheme === 'light' && isLightThemeVar)) {
-            root.style.setProperty(cssVarName, value);
-        }
+      // Check if the current theme matches the color being edited
+      const isDarkThemeVar = name.startsWith("theme.dark");
+      const isLightThemeVar = name.startsWith("theme.light");
+
+      if (
+        (resolvedTheme === "dark" && isDarkThemeVar) ||
+        (resolvedTheme === "light" && isLightThemeVar)
+      ) {
+        root.style.setProperty(cssVarName, value);
+      }
     }
   }, [value, name, resolvedTheme]);
 
@@ -96,13 +109,13 @@ export function ColorInput({ value, onChange, name, ...props }: ColorInputProps)
     const hex = e.target.value;
     const hsl = hexToHsl(hex);
     if (hsl) {
-        onChange(hsl);
+      onChange(hsl);
     }
   };
 
   const hexColor = useMemo(() => {
     const hsl = parseHsl(value);
-    return hsl ? hslToHex(hsl.h, hsl.s, hsl.l) : '#000000';
+    return hsl ? hslToHex(hsl.h, hsl.s, hsl.l) : "#000000";
   }, [value]);
 
   return (

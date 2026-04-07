@@ -4,18 +4,40 @@ import { AIGenericForm } from "@/components/ai-generic-form";
 import { Breadcrumbs } from "@/components/breadcrumb";
 import { MotionDiv } from "@/components/motion-wrapper";
 import { Wand2, Sparkles, BrainCircuit } from "lucide-react";
-import React from "react";
+import React, { cache } from "react";
 import { iconMap } from "../tools";
 import type { Metadata } from "next";
 import { generateSeoMetadata } from "@/lib/seo";
+
+const getToolBySlug = cache(async (slug: string) => {
+  return await prisma.tool.findUnique({
+    where: { slug, enabled: true },
+  });
+});
+
+const STATIC_FEATURES = [
+  {
+    title: "Advanced Logic",
+    icon: BrainCircuit,
+    text: "Powered by the latest LLM models for high-fidelity output.",
+  },
+  {
+    title: "Real-time Magic",
+    icon: Sparkles,
+    text: "Stream results directly with our specialized latency engine.",
+  },
+  {
+    title: "Creative Edge",
+    icon: Wand2,
+    text: "Tailored for the modern creator, optimized for conversions.",
+  },
+];
 
 export async function generateMetadata(props: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await props.params;
-  const tool = await prisma.tool.findUnique({
-    where: { slug, enabled: true },
-  });
+  const tool = await getToolBySlug(slug);
 
   if (!tool) return {};
 
@@ -37,9 +59,7 @@ export default async function DynamicToolPage(props: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await props.params;
-  const tool = await prisma.tool.findUnique({
-    where: { slug, enabled: true },
-  });
+  const tool = await getToolBySlug(slug);
 
   if (!tool) notFound();
 
@@ -63,9 +83,9 @@ export default async function DynamicToolPage(props: {
                   { name: "AI Hub", href: "/tools/ai" },
                   { name: tool.title },
                 ]}
-                className="mb-8 justify-center"
+                className="mb-8 pl-4 md:pl-0 self-start md:self-center"
               />
-              <div className="p-6 bg-primary/10 rounded-[2rem] border border-primary/20 text-primary mb-8 shadow-inner group transition-all duration-700 hover:scale-110">
+              <div className="p-6 bg-primary/10 rounded-4xl border border-primary/20 text-primary mb-8 shadow-inner group transition-all duration-700 hover:scale-110">
                 <ToolIcon className="h-10 w-10 drop-shadow-[0_0_15px_rgba(var(--primary-rgb),0.5)]" />
               </div>
               <h1 className="text-4xl md:text-6xl font-black text-foreground mb-6 leading-tight tracking-tight">
@@ -84,30 +104,14 @@ export default async function DynamicToolPage(props: {
 
         <section className="mt-32 pt-24 border-t border-border/5">
           <div className="grid md:grid-cols-3 gap-12">
-            {[
-              {
-                title: "Advanced Logic",
-                icon: BrainCircuit,
-                text: "Powered by the latest LLM models for high-fidelity output.",
-              },
-              {
-                title: "Real-time Magic",
-                icon: Sparkles,
-                text: "Stream results directly with our specialized latency engine.",
-              },
-              {
-                title: "Creative Edge",
-                icon: Wand2,
-                text: "Tailored for the modern creator, optimized for conversions.",
-              },
-            ].map((feature, i) => (
+            {STATIC_FEATURES.map((feature, i) => (
               <MotionDiv
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="p-8 rounded-[2rem] bg-card/40 backdrop-blur-3xl border border-border/10 hover:bg-primary/5 transition-all text-center md:text-left"
+                className="p-8 rounded-4xl bg-card/40 backdrop-blur-3xl border border-border/10 hover:bg-primary/5 transition-all text-center md:text-left"
               >
                 <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center text-primary mb-6 mx-auto md:mx-0">
                   <feature.icon className="h-6 w-6" />

@@ -48,7 +48,7 @@ export default async function ProfilePage() {
           <CardHeader className="p-12 pb-8 border-b border-border/10 relative z-10">
             <div className="flex flex-col md:flex-row items-center md:items-end gap-8">
               <div className="relative group">
-                <div className="absolute -inset-2 bg-gradient-to-tr from-primary/40 to-secondary/40 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                <div className="absolute -inset-2 bg-linear-to-tr from-primary/40 to-secondary/40 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                 <Avatar className="h-32 w-32 border-4 border-card ring-4 ring-primary/20 shadow-2xl relative z-10">
                   <AvatarImage src={user.image ?? ""} alt={user.name ?? ""} />
                   <AvatarFallback className="text-4xl font-black bg-secondary text-secondary-foreground">
@@ -78,7 +78,7 @@ export default async function ProfilePage() {
           </CardHeader>
           <CardContent className="p-12 space-y-10 relative z-10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-4 p-8 rounded-[2rem] bg-secondary/5 border border-border/10">
+              <div className="space-y-4 p-8 rounded-4xl bg-secondary/5 border border-border/10">
                 <div className="flex items-center gap-3 text-primary">
                   <Mail className="h-5 w-5" />
                   <span className="text-[10px] font-black uppercase tracking-[0.2em]">
@@ -95,7 +95,7 @@ export default async function ProfilePage() {
                 </div>
               </div>
 
-              <div className="space-y-4 p-8 rounded-[2rem] bg-secondary/5 border border-border/10">
+              <div className="space-y-4 p-8 rounded-4xl bg-secondary/5 border border-border/10">
                 <div className="flex items-center gap-3 text-primary">
                   <Fingerprint className="h-5 w-5" />
                   <span className="text-[10px] font-black uppercase tracking-[0.2em]">

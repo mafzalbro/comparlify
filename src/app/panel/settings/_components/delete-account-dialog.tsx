@@ -39,7 +39,7 @@ function SubmitButton() {
 
 export function DeleteAccountDialog() {
   const [state, formAction] = useActionState(deleteSelfAction, {
-    error: null,
+    error: undefined,
     success: false,
   });
   const { toast } = useToast();
@@ -55,7 +55,7 @@ export function DeleteAccountDialog() {
     if (state.error) {
       toast({
         title: "Error",
-        description: state.error,
+        description: state.error.toString(),
         variant: "destructive",
       });
     }
@@ -86,7 +86,7 @@ export function DeleteAccountDialog() {
               neural network.
               {state?.error && (
                 <p className="text-destructive mt-4 font-bold uppercase tracking-widest text-xs">
-                  {state.error}
+                  {state.error.toString()}
                 </p>
               )}
             </AlertDialogDescription>

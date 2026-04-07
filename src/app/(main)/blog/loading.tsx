@@ -30,7 +30,7 @@ export default function Loading() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
           {Array.from({ length: 10 }).map((_, i) => (
             <Card key={i} className="flex flex-col h-full overflow-hidden">
-              <Skeleton className="aspect-[16/10] w-full" />
+              <Skeleton className="aspect-16/10 w-full" />
               <CardHeader>
                 <Skeleton className="h-6 w-3/4" />
               </CardHeader>

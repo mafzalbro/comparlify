@@ -81,7 +81,7 @@ export default async function RootLayout({
   const themeCss = generateThemeCss();
 
   return (
-    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
+    <html lang="en" className="scroll-smooth scheme-light dark:scheme-dark" suppressHydrationWarning>
       <head>
         <script
           type="application/ld+json"

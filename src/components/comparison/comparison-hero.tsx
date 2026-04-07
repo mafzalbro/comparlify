@@ -73,7 +73,7 @@ export function ComparisonHero({
               ) : null}
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-black tracking-tight text-foreground mb-12 leading-[1] uppercase">
+            <h1 className="text-5xl md:text-7xl font-black tracking-tight text-foreground mb-12 leading-none uppercase">
               {platformA.name} <br />
               <span className="text-primary italic drop-shadow-sm font-black">
                 vs
@@ -87,7 +87,7 @@ export function ComparisonHero({
             </p>
 
             {/* Platform Showdown Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl mt-12 bg-card/60 backdrop-blur-3xl p-8 rounded-[2rem] border border-border/10 shadow-2xl relative">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl mt-12 bg-card/60 backdrop-blur-3xl p-8 rounded-4xl border border-border/10 shadow-2xl relative">
               <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-background border border-border p-5 rounded-full shadow-2xl hidden md:block">
                 <Zap className="h-10 w-10 text-primary animate-pulse" />
               </div>

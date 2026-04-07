@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { generateSeoMetadata } from "@/lib/seo";
 import prisma from "@/lib/prisma";
 import { StackArchitect } from "./_components/stack-architect";
+import { getUserProjects } from "@/app/actions/projects";
 import { MotionDiv } from "@/components/motion-wrapper";
 import { LayoutGrid, Info, ShieldCheck } from "lucide-react";
+import { Breadcrumbs } from "@/components/breadcrumb";
 
 export async function generateMetadata(): Promise<Metadata> {
   return generateSeoMetadata({
@@ -30,9 +32,18 @@ async function getLmsPlatforms() {
 
 export default async function StackArchitectPage() {
   const lmsPlatforms = await getLmsPlatforms();
+  const projects = await getUserProjects();
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <Breadcrumbs 
+        items={[
+          { name: "Home", href: "/" },
+          { name: "Tools", href: "/tools" },
+          { name: "Stack Architect" }
+        ]}
+        className="mb-8 pl-4 md:pl-0"
+      />
       <MotionDiv
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -55,7 +66,7 @@ export default async function StackArchitectPage() {
         </p>
       </MotionDiv>
 
-      <StackArchitect lmsPlatforms={lmsPlatforms as any} />
+      <StackArchitect lmsPlatforms={lmsPlatforms as any} projects={projects as any} />
 
       <MotionDiv
         initial={{ opacity: 0 }}

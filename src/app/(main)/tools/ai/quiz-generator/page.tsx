@@ -1,21 +1,40 @@
-import { HelpCircle } from 'lucide-react';
-import { QuizGeneratorForm } from '@/components/quiz-generator-form';
+"use client";
+
+import { useState } from "react";
+import { HelpCircle } from "lucide-react";
+import { AIToolForm } from "@/components/ai-tool-form";
+import { generateQuizAction } from "@/app/actions/ai";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function QuizGeneratorPage() {
+  const [topic, setTopic] = useState("");
+
   return (
-    <div>
-      <div className="flex items-start gap-4 mb-12">
-        <div className="p-3 bg-primary/20 rounded-lg">
-          <HelpCircle className="h-6 w-6 text-primary" />
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <AIToolForm
+        title="AI Quiz Generator"
+        description="Create comprehensive quizzes with multiple-choice questions, correct answers, and explanations for any topic."
+        action={generateQuizAction}
+        submitLabel="Generate Quiz"
+      >
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="topic" className="text-sm font-bold uppercase tracking-wider opacity-70">
+              Quiz Topic
+            </Label>
+            <Textarea
+              id="topic"
+              name="topic"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder="What should the quiz be about? (e.g., 'React fundamentals' or 'History of Ancient Rome')..."
+              className="min-h-[120px] rounded-2xl bg-white/5 border-white/10 focus:border-primary/50 transition-all resize-none p-4"
+              required
+            />
+          </div>
         </div>
-        <div>
-          <h1 className="font-headline text-3xl md:text-4xl font-bold text-foreground">AI Quiz Generator</h1>
-          <p className="mt-2 text-lg text-muted-foreground">
-            Create multiple-choice quizzes from your lesson content automatically.
-          </p>
-        </div>
-      </div>
-      <QuizGeneratorForm />
+      </AIToolForm>
     </div>
   );
 }

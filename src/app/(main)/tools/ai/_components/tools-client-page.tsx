@@ -52,7 +52,7 @@ export function ToolsClientPage({ allTools }: { allTools: Tool[] }) {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative overflow-hidden">
+    <div className="mx-auto w-full px-4 sm:px-6 lg:px-8 py-20 relative overflow-hidden">
       {/* Background Decor */}
       <div className="absolute top-0 right-0 p-32 text-primary/5 -rotate-12 translate-x-24 -translate-y-24 select-none pointer-events-none">
         <Sparkles className="h-96 w-96" />
@@ -70,7 +70,7 @@ export function ToolsClientPage({ allTools }: { allTools: Tool[] }) {
             Elite AI Dispatch
           </span>
         </div>
-        <h1 className="text-4xl md:text-6xl font-black text-foreground mb-6 tracking-tight leading-[1]">
+        <h1 className="text-4xl md:text-6xl font-black text-foreground mb-6 tracking-tight leading-none">
           The Intelligence <span className="text-primary italic">Suite</span>
         </h1>
         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-medium">
@@ -85,12 +85,12 @@ export function ToolsClientPage({ allTools }: { allTools: Tool[] }) {
         className="w-full relative z-10"
       >
         <div className="flex justify-center mb-16">
-          <TabsList className="flex flex-wrap h-auto p-1.5 bg-card/60 backdrop-blur-3xl rounded-[1.5rem] border border-border/10 shadow-2xl">
+          <TabsList className="flex flex-wrap h-auto p-1.5 bg-card/60 backdrop-blur-3xl rounded-3xl border border-border/10 shadow-2xl">
             {allCategories.map((category) => (
               <TabsTrigger
                 key={category}
                 value={category}
-                className="px-8 py-3.5 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-500"
+                className="px-8 py-3.5 rounded-3xl text-[10px] font-black uppercase tracking-[0.2em] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-500"
               >
                 {category.replace(/([A-Z])/g, " $1").trim()}
               </TabsTrigger>
@@ -115,7 +115,7 @@ export function ToolsClientPage({ allTools }: { allTools: Tool[] }) {
                 <MotionDiv
                   initial={{ opacity: 0, x: -30 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="lg:col-span-1 lg:sticky lg:h-[calc(100vh-240px)] lg:top-36 self-start bg-card/40 backdrop-blur-3xl border border-border/10 rounded-[2rem] p-6 shadow-2xl flex flex-col"
+                  className="lg:col-span-1 lg:sticky lg:h-[calc(100vh-240px)] lg:top-36 self-start bg-card/40 backdrop-blur-3xl border border-border/10 rounded-4xl p-6 shadow-2xl flex flex-col"
                 >
                   <div className="relative mb-8">
                     <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/30" />
@@ -143,7 +143,7 @@ export function ToolsClientPage({ allTools }: { allTools: Tool[] }) {
                           key={tool.slug}
                           onClick={() => setActiveTool(tool)}
                           className={cn(
-                            "w-full text-left p-6 rounded-[2rem] transition-all duration-500 group relative overflow-hidden flex flex-col gap-2",
+                            "w-full text-left p-6 rounded-4xl transition-all duration-500 group relative overflow-hidden flex flex-col gap-2",
                             activeTool?.slug === tool.slug
                               ? "bg-primary text-primary-foreground shadow-2xl shadow-primary/20 scale-[1.02]"
                               : "hover:bg-primary/5 text-muted-foreground hover:text-foreground border border-transparent",
@@ -183,12 +183,12 @@ export function ToolsClientPage({ allTools }: { allTools: Tool[] }) {
                       transition={{ duration: 0.6 }}
                       className="space-y-12"
                     >
-                      <div className="p-8 rounded-[2rem] bg-card/30 backdrop-blur-3xl border border-primary/20 shadow-2xl relative overflow-hidden group">
+                      <div className="p-8 rounded-4xl bg-card/30 backdrop-blur-3xl border border-primary/20 shadow-2xl relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-8 text-primary/5 select-none pointer-events-none -rotate-12 translate-x-8 -translate-y-8">
                           <BrainCircuit className="h-32 w-32" />
                         </div>
                         <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
-                          <div className="p-6 bg-primary/10 rounded-[1.5rem] shadow-inner text-primary border border-primary/20 group-hover:scale-105 transition-transform duration-700">
+                          <div className="p-6 bg-primary/10 rounded-3xl shadow-inner text-primary border border-primary/20 group-hover:scale-105 transition-transform duration-700">
                             {React.createElement(
                               iconMap[activeTool.Icon] || Wand2,
                               {
@@ -223,7 +223,7 @@ export function ToolsClientPage({ allTools }: { allTools: Tool[] }) {
                     <Card className="flex items-center justify-center p-20 min-h-[500px] border-2 border-dashed border-border/10 rounded-[3rem] bg-secondary/5 relative overflow-hidden">
                       <div className="absolute inset-0 bg-grid-pattern-light opacity-5 pointer-events-none"></div>
                       <div className="text-center text-muted-foreground max-w-sm relative z-10 space-y-8">
-                        <div className="p-8 bg-muted rounded-[2rem] w-fit mx-auto border border-border/10 shadow-inner">
+                        <div className="p-8 bg-muted rounded-4xl w-fit mx-auto border border-border/10 shadow-inner">
                           <Wand2 className="h-12 w-12 opacity-10" />
                         </div>
                         <div className="space-y-4">

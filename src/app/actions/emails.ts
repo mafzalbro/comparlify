@@ -11,6 +11,7 @@ import { marked } from "marked";
 import CampaignTemplate from "@/emails/campaign-template";
 import { getContent } from "@/lib/content";
 import { ActionState } from "@/types/actions";
+import { ReactNode } from "react";
 
 const emailCampaignSchema = z.object({
   subject: z.string().min(5, "Subject must be at least 5 characters long."),
@@ -153,7 +154,7 @@ export async function sendTestEmailAction(
     const siteName = content["global.siteName"] || "Comparlify";
     const htmlContent = await marked.parse(validatedFields.data.content);
     const emailHtml = await render(
-      CampaignTemplate({
+      await CampaignTemplate({
         siteName,
         subject: `[Test] ${validatedFields.data.subject}`,
         content: htmlContent,
@@ -287,8 +288,8 @@ async function processEmailCampaign(campaignId: string) {
         );
         const unsubscribeUrl = `${process.env.NEXTAUTH_URL}/unsubscribe?token=${unsubscribeToken}`;
 
-        const emailHtml = render(
-          CampaignTemplate({
+        const emailHtml = await render(
+          await CampaignTemplate({
             siteName,
             subject: campaign.subject,
             content: htmlContent,
@@ -368,8 +369,8 @@ export async function retryFailedEmailsAction(
         );
         const unsubscribeUrl = `${process.env.NEXTAUTH_URL}/unsubscribe?token=${unsubscribeToken}`;
 
-        const emailHtml = render(
-          CampaignTemplate({
+        const emailHtml = await render(
+          await CampaignTemplate({
             siteName,
             subject: campaign.subject,
             content: htmlContent,

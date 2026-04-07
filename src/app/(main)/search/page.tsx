@@ -85,7 +85,7 @@ export default async function SearchPage(props: {
                   Intelligence Discovery
                 </span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-black tracking-tight text-foreground leading-[1] mb-6">
+              <h1 className="text-4xl md:text-6xl font-black tracking-tight text-foreground leading-none mb-6">
                 Search <span className="text-primary italic">Results</span>
               </h1>
               <div className="w-full max-w-2xl mx-auto">
@@ -125,7 +125,7 @@ export default async function SearchPage(props: {
               animate={{ opacity: 1, scale: 1 }}
               className="max-w-3xl mx-auto"
             >
-              <Card className="text-center p-16 border-dashed rounded-[2rem] bg-secondary/5 border-border/20">
+              <Card className="text-center p-16 border-dashed rounded-4xl bg-secondary/5 border-border/20">
                 <div className="p-6 bg-muted rounded-full w-fit mx-auto mb-6 opacity-20">
                   <SearchIcon className="h-12 w-12" />
                 </div>
@@ -152,7 +152,7 @@ export default async function SearchPage(props: {
             animate={{ opacity: 1, y: 0 }}
             className="max-w-3xl mx-auto"
           >
-            <Card className="text-center p-16 border-dashed rounded-[2rem] bg-secondary/5 border-border/20">
+            <Card className="text-center p-16 border-dashed rounded-4xl bg-secondary/5 border-border/20">
               <div className="p-6 bg-primary/10 rounded-full w-fit mx-auto mb-6 text-primary/40">
                 <SearchIcon className="h-12 w-12 animate-pulse" />
               </div>

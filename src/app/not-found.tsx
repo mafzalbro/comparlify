@@ -5,14 +5,14 @@ import Link from "next/link";
 export default function NotFound() {
   return (
     <div className="relative flex flex-1 flex-col items-center justify-center text-center px-4 py-20 min-h-[80vh] overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-primary/10 via-background to-background"></div>
 
       <div className="relative z-10 flex flex-col items-center justify-center max-w-3xl mx-auto space-y-8">
         <div className="inline-flex items-center justify-center p-4 rounded-full bg-primary/10 border border-primary/20 mb-4 animate-in zoom-in duration-700">
           <Compass className="h-8 w-8 text-primary animate-pulse" />
         </div>
 
-        <h1 className="text-[6rem] md:text-[10rem] font-black leading-none tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-foreground to-foreground/20 animate-in slide-in-from-bottom-8 duration-700 delay-100">
+        <h1 className="text-[6rem] md:text-[10rem] font-black leading-none tracking-tighter text-transparent bg-clip-text bg-linear-to-b from-foreground to-foreground/20 animate-in slide-in-from-bottom-8 duration-700 delay-100">
           404
         </h1>
 

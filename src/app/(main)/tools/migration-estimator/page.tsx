@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { generateSeoMetadata } from "@/lib/seo";
 import { MigrationEstimator } from "./_components/migration-estimator";
 import { MotionDiv } from "@/components/motion-wrapper";
+import { Breadcrumbs } from "@/components/breadcrumb";
 import { ArrowRightLeft, ShieldAlert, Sparkles } from "lucide-react";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -15,7 +16,15 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function MigrationEstimatorPage() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <Breadcrumbs 
+        items={[
+          { name: "Home", href: "/" },
+          { name: "Tools", href: "/tools" },
+          { name: "Migration Estimator" }
+        ]}
+        className="mb-8 pl-4 md:pl-0"
+      />
       <MotionDiv
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

@@ -53,7 +53,7 @@ export function ComparisonList({
         >
           <Card className="flex flex-col h-full group overflow-hidden rounded-[2.5rem] border border-border/10 bg-card/20 backdrop-blur-xl shadow-xl transition-all duration-700 hover:shadow-2xl hover:shadow-primary/5">
             <NextLink href={`/compare/${comp.slug}`} className="block relative">
-              <div className="h-56 bg-gradient-to-br from-primary/10 via-background to-secondary/10 flex items-center justify-center relative px-10 overflow-hidden">
+              <div className="h-56 bg-linear-to-br from-primary/10 via-background to-secondary/10 flex items-center justify-center relative px-10 overflow-hidden">
                 <div className="absolute inset-0 bg-grid-pattern-light opacity-10"></div>
                 {(() => {
                   const ratingA = comp.platformA.rating || 0;
@@ -81,7 +81,7 @@ export function ComparisonList({
                       className="object-contain p-2"
                     />
                   </div>
-                  <div className="bg-primary backdrop-blur-xl rounded-full p-3 border border-primary/50 z-20 shadow-xl group-hover:scale-125 group-hover:rotate-[360deg] transition-all duration-1000">
+                  <div className="bg-primary backdrop-blur-xl rounded-full p-3 border border-primary/50 z-20 shadow-xl group-hover:scale-125 group-hover:rotate-360 transition-all duration-1000">
                     <span className="font-black text-[10px] text-primary-foreground italic uppercase tracking-tighter">
                       VS
                     </span>
@@ -109,7 +109,7 @@ export function ComparisonList({
               <p className="text-muted-foreground mb-8 line-clamp-2 text-sm leading-relaxed px-4 font-medium">
                 {comp.summary}
               </p>
-              <div className="grid grid-cols-2 bg-background/40 backdrop-blur-xl rounded-[1.5rem] border border-border/10 p-4 shadow-inner relative overflow-hidden group/rating">
+              <div className="grid grid-cols-2 bg-background/40 backdrop-blur-xl rounded-3xl border border-border/10 p-4 shadow-inner relative overflow-hidden group/rating">
                 <div className="absolute inset-y-0 left-1/2 w-px bg-border/20"></div>
                 <div className="flex flex-col items-center">
                   <div className="flex items-center gap-2 text-2xl font-black text-amber-500 mb-2 italic">
@@ -136,7 +136,7 @@ export function ComparisonList({
                 asChild
                 size="xl"
                 variant="ghost"
-                className="w-[85%] h-14 rounded-[1.5rem] group/btn hover:bg-primary/10 text-primary font-black uppercase tracking-[0.2em] text-[10px] transition-all"
+                className="w-[85%] h-14 rounded-3xl group/btn hover:bg-primary/10 text-primary font-black uppercase tracking-[0.2em] text-[10px] transition-all"
               >
                 <NextLink
                   href={`/compare/${comp.slug}`}

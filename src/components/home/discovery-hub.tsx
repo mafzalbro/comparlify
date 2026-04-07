@@ -68,7 +68,7 @@ export function DiscoveryHub() {
               whileHover={{ y: -8 }}
             >
               <NextLink href={cat.href} className="group block h-full">
-                <div className="h-full p-7 rounded-[2rem] bg-card/40 backdrop-blur-xl border border-border/10 shadow-lg transition-all duration-500 group-hover:shadow-xl group-hover:shadow-primary/5 flex flex-col justify-between border-b-4 border-b-transparent group-hover:border-b-primary">
+                <div className="h-full p-7 rounded-4xl bg-card/40 backdrop-blur-xl border border-border/10 shadow-lg transition-all duration-500 group-hover:shadow-xl group-hover:shadow-primary/5 flex flex-col justify-between border-b-4 border-b-transparent group-hover:border-b-primary">
                   <div className="space-y-6">
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-500 shadow-md shadow-primary/5">
                       <cat.icon className="h-6 w-6" />

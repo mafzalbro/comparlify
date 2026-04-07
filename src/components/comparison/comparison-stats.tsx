@@ -35,7 +35,7 @@ export function ComparisonStats({
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: index * 0.1 }}
           >
-            <Card className="h-full rounded-[2rem] bg-card/60 backdrop-blur-3xl border border-border/10 shadow-xl relative overflow-hidden group hover:shadow-primary/5 hover:border-primary/20 transition-all duration-700 flex flex-col">
+            <Card className="h-full rounded-4xl bg-card/60 backdrop-blur-3xl border border-border/10 shadow-xl relative overflow-hidden group hover:shadow-primary/5 hover:border-primary/20 transition-all duration-700 flex flex-col">
               <CardHeader className="p-8 pb-4 flex flex-row items-center justify-between space-y-0">
                 <CardTitle className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground group-hover:text-primary transition-colors">
                   {stat.name}

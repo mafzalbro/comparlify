@@ -10,7 +10,7 @@ export function StatusProgramCTA() {
         initial={{ opacity: 0, scale: 0.95 }}
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true }}
-        className="relative group p-1.5 rounded-[3rem] bg-gradient-to-br from-primary/20 via-transparent to-primary/20 border border-primary/10"
+        className="relative group p-1.5 rounded-[3rem] bg-linear-to-br from-primary/20 via-transparent to-primary/20 border border-primary/10"
       >
         <div className="p-12 md:p-20 rounded-[2.8rem] bg-card/60 backdrop-blur-3xl border border-primary/10 shadow-3xl overflow-hidden flex flex-col items-center text-center">
           <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-10"></div>
@@ -21,7 +21,7 @@ export function StatusProgramCTA() {
                 Signal Merit Program
               </span>
             </div>
-            <h3 className="text-4xl md:text-6xl font-black tracking-tight mb-8 leading-[1]">
+            <h3 className="text-4xl md:text-6xl font-black tracking-tight mb-8 leading-none">
               Earn <span className="text-primary italic">Status</span> Through
               Intel
             </h3>

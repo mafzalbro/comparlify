@@ -60,7 +60,7 @@ function PostBookmarkCard({ post }: { post: Post }) {
   const readTime = Math.ceil(post.content.split(/\s+/).length / 200);
   return (
     <Card className="group relative overflow-hidden bg-card/40 backdrop-blur-3xl border border-border/10 hover:border-primary/30 transition-all duration-500 rounded-[2.5rem] flex flex-col h-full shadow-lg hover:shadow-[0_20px_50px_-15px_rgba(var(--primary-rgb),0.15)]">
-      <div className="relative overflow-hidden aspect-[16/9]">
+      <div className="relative overflow-hidden aspect-video">
         <Link href={`/blog/${post.slug}`} className="block h-full">
           <ManagedImage
             src={post.image}
@@ -69,7 +69,7 @@ function PostBookmarkCard({ post }: { post: Post }) {
             fill
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-8">
+          <div className="absolute inset-0 bg-linear-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-8">
             <Badge className="bg-primary text-primary-foreground font-black uppercase tracking-widest text-[8px] h-6 px-3 border-none shadow-xl">
               Verified Signal
             </Badge>
@@ -128,7 +128,7 @@ function ComparisonBookmarkCard({
             Battle Briefing
           </span>
         </div>
-        <div className="relative bg-muted/30 rounded-[2rem] p-8 overflow-hidden min-h-[140px] mb-8 border border-border/10">
+        <div className="relative bg-muted/30 rounded-4xl p-8 overflow-hidden min-h-[140px] mb-8 border border-border/10">
           <div className="absolute inset-0 bg-grid-pattern opacity-[0.03]"></div>
           <div className="flex justify-around items-center w-full relative z-10 gap-2">
             <div className="w-2/5 flex justify-center">
@@ -223,7 +223,7 @@ export default async function UserPanelDashboard(props: {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="p-6 rounded-[2rem] bg-background/50 backdrop-blur-sm border border-border/10 text-center min-w-[120px]">
+            <div className="p-6 rounded-4xl bg-background/50 backdrop-blur-sm border border-border/10 text-center min-w-[120px]">
               <p className="text-2xl font-black text-foreground">
                 {posts.length + comparisons.length}
               </p>
@@ -231,7 +231,7 @@ export default async function UserPanelDashboard(props: {
                 Packets
               </p>
             </div>
-            <div className="p-6 rounded-[2rem] bg-primary/10 backdrop-blur-sm border border-primary/20 text-center min-w-[120px] text-primary">
+            <div className="p-6 rounded-4xl bg-primary/10 backdrop-blur-sm border border-primary/20 text-center min-w-[120px] text-primary">
               <p className="text-2xl font-black">{posts.length}</p>
               <p className="text-[10px] font-bold uppercase tracking-widest text-primary/60">
                 Reports

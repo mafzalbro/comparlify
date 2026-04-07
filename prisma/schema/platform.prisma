@@ -28,6 +28,7 @@ model Platform {
   posts                 Post[]
   forumTopics           ForumTopic[]
   affiliateClicks       AffiliateClick[]
+  stackPlatforms        StackPlatform[]
 
   // Deprecated fields (keeping for migration safety, will remove later)
   transactionFeePercent Float?

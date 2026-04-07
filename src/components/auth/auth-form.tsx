@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useFormStatus } from 'react-dom';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { useFormStatus } from "react-dom";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -10,11 +10,11 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, KeyRound, TriangleAlert } from 'lucide-react';
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Loader2, KeyRound, TriangleAlert } from "lucide-react";
 
 interface AuthFormProps {
   title: string;
@@ -70,28 +70,35 @@ export function AuthForm({
               id="email"
               name="email"
               type="email"
-              placeholder="name@example.com"
+              placeholder="name@example.com…"
+              autoComplete="email"
+              spellCheck={false}
               required
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input id="password" name="password" type="password" required />
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+            />
           </div>
 
           {state.error && (
             <Alert variant="destructive">
               <TriangleAlert className="h-4 w-4" />
               <AlertTitle>Authentication Error</AlertTitle>
-              <AlertDescription>{state.error}</AlertDescription>
+              <AlertDescription>{state.error.toString()}</AlertDescription>
             </Alert>
           )}
-
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
           <SubmitButton label={buttonLabel} />
           <div className="text-sm text-center text-muted-foreground">
-            {footerText}{' '}
+            {footerText}{" "}
             <Link href={footerLink} className="text-primary hover:underline">
               {footerLinkText}
             </Link>

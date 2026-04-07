@@ -62,14 +62,14 @@ export function NotificationList({
                 key={notif.id}
                 className={cn(
                   "block p-5 hover:bg-primary/5 transition-all duration-300 relative group",
-                  !notif.read && "bg-primary/[0.02]",
+                  !notif.read && "bg-primary/2",
                 )}
               >
                 {!notif.read && (
                   <span className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-r-full shadow-[0_0_8px_rgba(234,179,8,0.5)]" />
                 )}
                 <div className="flex items-start gap-4">
-                  <div className="mt-1 flex-shrink-0">
+                  <div className="mt-1 shrink-0">
                     <NotificationIcon type={notif.type} />
                   </div>
                   <div className="flex-1 space-y-1">

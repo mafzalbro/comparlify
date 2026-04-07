@@ -46,7 +46,7 @@ export function PanelNav({ user }: { user: Session["user"] }) {
                       tooltip={item.label}
                       isActive={isActive}
                       className={`
-                                                w-full h-12 px-4 rounded-2xl flex items-center gap-4 transition-all duration-300
+                                                w-full h-12 px-4 rounded-2xl flex items-center gap-4 transition-all duration-200
                                                 group-data-[state=collapsed]:px-0 group-data-[state=collapsed]:justify-center
                                                 ${
                                                   isActive
@@ -56,7 +56,7 @@ export function PanelNav({ user }: { user: Session["user"] }) {
                                             `}
                     >
                       <item.Icon
-                        className={`h-5 w-5 shrink-0 transition-transform duration-300 ${isActive ? "scale-110" : "group-hover/item:scale-110"}`}
+                        className={`h-5 w-5 shrink-0 transition-transform duration-200 ${isActive ? "scale-110" : "group-hover/item:scale-110"}`}
                       />
                       <span className="text-[11px] font-black uppercase tracking-widest truncate group-data-[state=collapsed]:hidden">
                         {item.label}

@@ -59,7 +59,7 @@ export function CreatorOutput() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
             >
-              <Card className="h-full bg-card/60 backdrop-blur-3xl border border-border/10 p-8 rounded-[2rem] shadow-xl relative overflow-hidden border-t-4 border-t-primary/20">
+              <Card className="h-full bg-card/60 backdrop-blur-3xl border border-border/10 p-8 rounded-4xl shadow-xl relative overflow-hidden border-t-4 border-t-primary/20">
                 <div className="absolute top-0 right-0 p-8 text-primary/5 select-none pointer-events-none translate-x-8 -translate-y-8">
                   <Sparkles className="h-32 w-32" />
                 </div>

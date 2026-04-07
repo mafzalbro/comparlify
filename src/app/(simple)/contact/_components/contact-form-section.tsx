@@ -120,7 +120,7 @@ export function ContactFormSection() {
 
       {state.success && (
         <Alert className="bg-primary/5 border-primary/20 rounded-2xl p-6 shadow-xl animate-in fade-in slide-in-from-bottom-2 duration-500">
-          <CheckCircle className="h-6 w-6 !text-primary" />
+          <CheckCircle className="h-6 w-6 text-primary!" />
           <AlertTitle className="text-base font-black uppercase tracking-tight mb-1">
             Message Sent
           </AlertTitle>
@@ -140,7 +140,7 @@ export function ContactFormSection() {
             Error Occurred
           </AlertTitle>
           <AlertDescription className="text-sm font-medium">
-            {state.error}
+            {state.error.toString()}
           </AlertDescription>
         </Alert>
       )}

@@ -85,7 +85,7 @@ export default async function NewsPage() {
                   Market Pulse
                 </span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-black text-foreground tracking-tight leading-[1] mb-6">
+              <h1 className="text-4xl md:text-6xl font-black text-foreground tracking-tight leading-none mb-6">
                 The <span className="text-indigo-500 italic">Live</span> Feed
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
@@ -137,7 +137,7 @@ export default async function NewsPage() {
                         className="object-cover transition-transform duration-1000 group-hover:scale-110"
                         priority
                       />
-                      <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent"></div>
+                      <div className="absolute inset-0 bg-linear-to-r from-black/40 via-transparent to-transparent"></div>
                       <div className="absolute top-10 left-10">
                         <Badge className="bg-primary px-5 py-2 text-primary-foreground text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-2xl ring-4 ring-primary/20">
                           Breaking Update
@@ -199,8 +199,8 @@ export default async function NewsPage() {
                     viewport={{ once: true, margin: "-100px" }}
                     transition={{ duration: 0.6, delay: index * 0.1 }}
                   >
-                    <Card className="flex flex-col h-full group overflow-hidden rounded-[2rem] border border-border/10 bg-card/20 backdrop-blur-xl shadow-xl transition-all duration-500 hover:shadow-2xl hover:-translate-y-3">
-                      <div className="relative overflow-hidden aspect-[16/10]">
+                    <Card className="flex flex-col h-full group overflow-hidden rounded-4xl border border-border/10 bg-card/20 backdrop-blur-xl shadow-xl transition-all duration-500 hover:shadow-2xl hover:-translate-y-3">
+                      <div className="relative overflow-hidden aspect-16/10">
                         <Link
                           href={`/news/${article.slug}`}
                           className="block h-full"
@@ -212,7 +212,7 @@ export default async function NewsPage() {
                             fill
                             className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end p-8">
+                          <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end p-8">
                             <span className="text-white font-black uppercase tracking-widest text-[10px] flex items-center gap-2">
                               Full Dispatch <ArrowRight className="h-4 w-4" />
                             </span>
@@ -278,16 +278,16 @@ export default async function NewsPage() {
 
       {/* --- PREMIUM NEWSLETTER BLOCK --- */}
       <section className="relative overflow-hidden bg-background py-32 mt-24">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent"></div>
+        <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-indigo-500/30 to-transparent"></div>
         <MotionDiv
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="relative group h-full"
         >
-          <div className="absolute inset-0 bg-indigo-500/[0.02] pointer-events-none"></div>
+          <div className="absolute inset-0 bg-indigo-500/2 pointer-events-none"></div>
           <div className="relative p-12 md:p-24 overflow-hidden text-center">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-12 text-indigo-500/[0.03] select-none pointer-events-none -rotate-12">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-12 text-indigo-500/3 select-none pointer-events-none -rotate-12">
               <Globe className="h-[500px] w-[500px]" />
             </div>
 

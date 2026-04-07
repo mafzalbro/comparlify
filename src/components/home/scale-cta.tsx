@@ -11,10 +11,10 @@ interface ScaleCTAProps {
 export function ScaleCTA({ subtitle, buttonText }: ScaleCTAProps) {
   return (
     <section className="relative overflow-hidden bg-transparent py-32 md:py-48 mt-24">
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
+      <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-primary/30 to-transparent"></div>
       <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-[0.01]"></div>
       <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-primary/[0.03] rounded-full blur-[120px]"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-primary/3 rounded-full blur-[120px]"></div>
       </div>
 
       <div className="container relative z-10 px-4 md:px-6 text-center">
@@ -23,7 +23,7 @@ export function ScaleCTA({ subtitle, buttonText }: ScaleCTAProps) {
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="w-20 h-20 bg-primary/10 rounded-[2rem] flex items-center justify-center text-primary shadow-2xl shadow-primary/10 animate-bounce"
+            className="w-20 h-20 bg-primary/10 rounded-4xl flex items-center justify-center text-primary shadow-2xl shadow-primary/10 animate-bounce"
           >
             <Zap className="h-10 w-10 drop-shadow-lg" />
           </MotionDiv>

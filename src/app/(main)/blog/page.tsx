@@ -152,7 +152,7 @@ export default async function BlogPage(props: {
                   The Editorial Feed
                 </span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-black text-foreground tracking-tight leading-[1] mb-8 uppercase">
+              <h1 className="text-4xl md:text-6xl font-black text-foreground tracking-tight leading-none mb-8 uppercase">
                 Creator{" "}
                 <span className="text-amber-500 italic drop-shadow-sm font-black italic">
                   Insights
@@ -166,7 +166,6 @@ export default async function BlogPage(props: {
           </MotionDiv>
         </div>
       </section>
-
       <div className="container py-24 px-4 md:px-6">
         {/* --- DYNAMIC FILTER SECTION --- */}
         <MotionDiv
@@ -175,8 +174,8 @@ export default async function BlogPage(props: {
           transition={{ delay: 0.2 }}
           className="mb-24"
         >
-          <div className="max-w-6xl mx-auto bg-card/60 backdrop-blur-3xl border border-border/10 p-8 rounded-[2rem] shadow-xl relative overflow-hidden group">
-            <div className="absolute inset-x-0 bottom-0 h-1.5 bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
+          <div className="max-w-6xl mx-auto bg-card/60 backdrop-blur-3xl border border-border/10 p-8 rounded-4xl shadow-xl relative overflow-hidden group">
+            <div className="absolute inset-x-0 bottom-0 h-1.5 bg-linear-to-r from-transparent via-primary/30 to-transparent"></div>
             <FilterControls
               authors={authors}
               categories={categories}
@@ -223,9 +222,9 @@ export default async function BlogPage(props: {
                         className="object-cover transition-transform duration-1000 group-hover:scale-105"
                         priority
                       />
-                      <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent"></div>
+                      <div className="absolute inset-0 bg-linear-to-r from-black/60 via-black/20 to-transparent"></div>
                       <div className="absolute top-8 left-8">
-                        <Badge className="bg-primary px-6 py-2 text-primary-foreground text-[10px] font-black uppercase tracking-[0.3em] rounded-[2rem] shadow-xl ring-4 ring-primary/20">
+                        <Badge className="bg-primary px-6 py-2 text-primary-foreground text-[10px] font-black uppercase tracking-[0.3em] rounded-4xl shadow-xl ring-4 ring-primary/20">
                           Featured Insight
                         </Badge>
                       </div>
@@ -276,7 +275,7 @@ export default async function BlogPage(props: {
                   transition={{ duration: 0.8, delay: index * 0.1 }}
                 >
                   <Card className="flex flex-col h-full group overflow-hidden rounded-[2.5rem] border border-border/10 bg-card/40 backdrop-blur-2xl shadow-xl transition-all duration-700 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-3">
-                    <div className="relative overflow-hidden aspect-[16/11]">
+                    <div className="relative overflow-hidden aspect-16/11">
                       <Link
                         href={`/blog/${post.slug}`}
                         className="block h-full"
@@ -344,19 +343,18 @@ export default async function BlogPage(props: {
           </div>
         )}
       </div>
-
       {/* --- PREMIUM NEWSLETTER BLOCK --- */}
       <section className="relative overflow-hidden bg-background py-32 mt-24">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent"></div>
+        <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-amber-500/30 to-transparent"></div>
         <MotionDiv
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="relative group h-full"
         >
-          <div className="absolute inset-0 bg-amber-500/[0.02] pointer-events-none"></div>
+          <div className="absolute inset-0 bg-amber-500/2 pointer-events-none"></div>
           <div className="relative p-12 md:p-24 overflow-hidden text-center">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-12 text-amber-500/[0.03] select-none pointer-events-none -rotate-12">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-12 text-amber-500/3 select-none pointer-events-none -rotate-12">
               <BookOpen className="h-[500px] w-[500px]" />
             </div>
 

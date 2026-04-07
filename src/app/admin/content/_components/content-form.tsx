@@ -169,7 +169,7 @@ export function ContentForm({ items, onFormSuccess }: ContentFormProps) {
     } else if (state.error) {
       toast({
         title: "Error",
-        description: state.error,
+        description: state.error.toString(),
         variant: "destructive",
       });
       successShownRef.current = false; // Reset on error

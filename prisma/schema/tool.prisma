@@ -10,6 +10,7 @@ model Tool {
   prompt              String       @db.LongText
   inputTopicLabel     String?
   inputContextLabel   String?
+  seoContent          String?      @db.LongText
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
 }

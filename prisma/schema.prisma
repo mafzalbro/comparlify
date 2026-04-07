@@ -1,6 +1,5 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -78,6 +77,8 @@ model User {
   forumPosts      ForumPost[]     @relation("PostAuthor")
   emailRecipients EmailRecipient[]
   authoredImages  Image[]         @relation("UploadedBy")
+  stacks          UserStack[]     @relation("UserToStacks")
+  projects        Project[]
 }
 
 
@@ -255,6 +256,17 @@ model Bookmark {
   @@unique([userId, postId, comparisonId])
 }
 
+
+model LegalDocument {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  content   String   @db.LongText
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Platform {
   id                    String            @id @default(cuid())
   name                  String            @unique
@@ -285,6 +297,7 @@ model Platform {
   posts                 Post[]
   forumTopics           ForumTopic[]
   affiliateClicks       AffiliateClick[]
+  stackPlatforms        StackPlatform[]
 
   // Deprecated fields (keeping for migration safety, will remove later)
   transactionFeePercent Float?
@@ -489,6 +502,7 @@ model Tool {
   prompt              String       @db.LongText
   inputTopicLabel     String?
   inputContextLabel   String?
+  seoContent          String?      @db.LongText
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
 }
@@ -541,4 +555,75 @@ model AffiliateClick {
     createdAt  DateTime @default(now())
 
     @@index([platformId])
+}
+
+model UserStack {
+  id              String          @id @default(cuid())
+  title           String
+  description     String          @db.Text
+  isVerified      Boolean         @default(false)
+  verificationUrl String?         @db.Text
+  userId          String
+  user            User            @relation("UserToStacks", fields: [userId], references: [id], onDelete: Cascade)
+  platforms       StackPlatform[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  projectId       String?
+  project         Project?        @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([projectId])
+}
+
+model StackPlatform {
+  id          String    @id @default(cuid())
+  stackId     String
+  stack       UserStack @relation(fields: [stackId], references: [id], onDelete: Cascade)
+  platformId  String
+  platform    Platform  @relation(fields: [platformId], references: [id], onDelete: Cascade)
+  role        String    // e.g., "LMS", "EMAIL", "CRM", "COMMUNITY"
+  
+  @@index([stackId])
+  @@index([platformId])
+}
+
+enum ProjectStatus {
+  ACTIVE
+  ARCHIVED
+  COMPLETED
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  status      ProjectStatus @default(ACTIVE)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  matchProfile MatchProfile?
+  savedStacks  UserStack[]
+  
+  // Storage for snapshots of calculations
+  roiSnapshots   Json?
+  churnSnapshots Json?
+  adSnapshots    Json?
+}
+
+model MatchProfile {
+  id               String   @id @default(cuid())
+  revenue          Float
+  studentCount     Int
+  technicalSkill   Int
+  requiredFeatures Json     // Array of feature IDs
+  monthlyBudget    Float
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  projectId String  @unique
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }

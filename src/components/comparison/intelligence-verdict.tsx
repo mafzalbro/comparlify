@@ -51,9 +51,10 @@ export function IntelligenceVerdict({
             The Authoritative <br />
             <span className="text-primary italic">Verdict.</span>
           </h2>
-          <div className="prose prose-xl dark:prose-invert max-w-none prose-headings:font-black prose-p:leading-relaxed prose-p:text-muted-foreground font-medium">
-            <MarkdownContent content={conclusion} />
-          </div>
+          <MarkdownContent 
+            content={conclusion} 
+            className="prose-xl prose-headings:font-black prose-p:leading-relaxed prose-p:text-muted-foreground font-medium"
+          />
         </div>
       </div>
     </section>

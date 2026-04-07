@@ -91,7 +91,7 @@ export default async function ContactPage() {
                     key={idx}
                     className="flex items-start gap-6 p-8 rounded-[2.5rem] bg-card/40 backdrop-blur-xl border border-border/10 shadow-xl transition-all duration-500 hover:shadow-2xl hover:border-primary/20 group"
                   >
-                    <div className="w-16 h-16 rounded-[1.5rem] bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500">
+                    <div className="w-16 h-16 rounded-3xl bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500">
                       <method.Icon className="h-7 w-7" />
                     </div>
                     <div className="space-y-2">

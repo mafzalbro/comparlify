@@ -1,14 +1,13 @@
+"use client";
 
-'use client';
-
-import * as React from "react"
-import Link from 'next/link';
+import * as React from "react";
+import Link from "next/link";
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
-} from "@tanstack/react-table"
+} from "@tanstack/react-table";
 import {
   Table,
   TableBody,
@@ -16,54 +15,62 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { CommentStatusBadge } from '../../comments/_components/comment-status-badge';
-import type { ModerationItem } from '../page';
-import { formatDistanceToNow } from 'date-fns';
-import { Badge } from '@/components/ui/badge';
-import { ModerationActions } from './moderation-actions';
+} from "@/components/ui/table";
+import { CommentStatusBadge } from "../../comments/_components/comment-status-badge";
+import type { ModerationItem } from "../page";
+import { formatDistanceToNow } from "date-fns";
+import { Badge } from "@/components/ui/badge";
+import { ModerationActions } from "./moderation-actions";
 
 interface CommunityModerationDataTableProps {
   data: ModerationItem[];
 }
 
-export function CommunityModerationDataTable({ data }: CommunityModerationDataTableProps) {
-  
+export function CommunityModerationDataTable({
+  data,
+}: CommunityModerationDataTableProps) {
   const columns: ColumnDef<ModerationItem>[] = [
     {
-      accessorKey: 'type',
-      header: 'Type',
+      accessorKey: "type",
+      header: "Type",
       cell: ({ row }) => (
-        <Badge variant={row.original.type === 'TOPIC' ? 'default' : 'secondary'}>
+        <Badge
+          variant={row.original.type === "TOPIC" ? "default" : "secondary"}
+        >
           {row.original.type}
         </Badge>
-      )
+      ),
     },
     {
-      accessorKey: 'content',
-      header: 'Content',
+      accessorKey: "content",
+      header: "Content",
       cell: ({ row }) => {
         const item = row.original;
         return (
           <div>
-            <p className="font-semibold line-clamp-1">{item.title || item.content}</p>
-            {item.type === 'POST' && (
-              <p className="text-xs text-muted-foreground">in topic: "{item.topic.title}"</p>
+            <p className="font-semibold line-clamp-1">
+              {item.type === "TOPIC" ? item.title : item.content}
+            </p>
+            {item.type === "POST" && (
+              <p className="text-xs text-muted-foreground">
+                in topic: "{item.topic.title}"
+              </p>
             )}
             <p className="text-xs text-muted-foreground mt-1">
-              by {item.author.name} &bull; {formatDistanceToNow(item.createdAt, { addSuffix: true })}
+              by {item.author.name} &bull;{" "}
+              {formatDistanceToNow(item.createdAt, { addSuffix: true })}
             </p>
           </div>
-        )
-      }
+        );
+      },
     },
     {
-      accessorKey: 'status',
-      header: 'Status',
+      accessorKey: "status",
+      header: "Status",
       cell: ({ row }) => <CommentStatusBadge status={row.original.status} />,
     },
     {
-      id: 'actions',
+      id: "actions",
       cell: ({ row }) => <ModerationActions item={row.original} />,
     },
   ];
@@ -87,10 +94,10 @@ export function CommunityModerationDataTable({ data }: CommunityModerationDataTa
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                   </TableHead>
-                )
+                );
               })}
             </TableRow>
           ))}
@@ -116,5 +123,5 @@ export function CommunityModerationDataTable({ data }: CommunityModerationDataTa
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }

@@ -1,9 +1,12 @@
-import type { Metadata } from "next";
+import React, { Suspense } from "react";
 import { generateSeoMetadata } from "@/lib/seo";
 import prisma from "@/lib/prisma";
 import { ROICalculator } from "./_components/roi-calculator";
+import { getUserProjects } from "@/app/actions/projects";
 import { MotionDiv } from "@/components/motion-wrapper";
-import { ShieldCheck, Calculator, Sparkles } from "lucide-react";
+import { Breadcrumbs } from "@/components/breadcrumb";
+import { ShieldCheck, Calculator, Sparkles, Loader2 } from "lucide-react";
+import { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
   return generateSeoMetadata({
@@ -31,9 +34,18 @@ async function getPlatforms() {
 
 export default async function ROICalculatorPage() {
   const platforms = await getPlatforms();
+  const projects = await getUserProjects();
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <Breadcrumbs
+        items={[
+          { name: "Home", href: "/" },
+          { name: "Tools", href: "/tools" },
+          { name: "ROI Engine" },
+        ]}
+        className="mb-8 pl-4 md:pl-0"
+      />
       <MotionDiv
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -55,7 +67,18 @@ export default async function ROICalculatorPage() {
         </p>
       </MotionDiv>
 
-      <ROICalculator platforms={platforms as any} />
+      <React.Suspense
+        fallback={
+          <div className="h-96 flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        }
+      >
+        <ROICalculator
+          platforms={platforms as any}
+          projects={projects as any}
+        />
+      </React.Suspense>
 
       <MotionDiv
         initial={{ opacity: 0 }}

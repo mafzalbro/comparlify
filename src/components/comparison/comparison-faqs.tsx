@@ -28,7 +28,7 @@ export function ComparisonFaqs({ faqs }: ComparisonFaqsProps) {
           <AccordionItem
             key={faq.id}
             value={`item-${idx}`}
-            className="border border-border/10 rounded-[2rem] bg-card/20 backdrop-blur-md px-8 py-4 group hover:border-primary/20"
+            className="border border-border/10 rounded-4xl bg-card/20 backdrop-blur-md px-8 py-4 group hover:border-primary/20"
           >
             <AccordionTrigger className="text-xl font-black tracking-tight text-left hover:text-primary transition-colors hover:no-underline">
               {faq.question}

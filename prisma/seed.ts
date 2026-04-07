@@ -1,10 +1,18 @@
-"use server";
 import "dotenv/config";
-import { PrismaClient, Prisma, Role, ToolCategory } from "../generated/client.js";
+import {
+  PrismaClient,
+  Prisma,
+  Role,
+  ToolCategory,
+  CommentStatus,
+  ContentType,
+  Post,
+} from "@prisma/client";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 
 const adapter = new PrismaMariaDb(process.env.DATABASE_URL!);
 const prisma = new PrismaClient({ adapter });
+
 import { promises as fs } from "fs";
 import path from "path";
 
@@ -20,7 +28,13 @@ export async function cleanupDatabase() {
 
   // Break circular dependencies first
   console.log("  - Breaking Post navigation links...");
-  await prisma.post.updateMany({ data: { nextId: null, previousId: null } });
+  try {
+    await prisma.$executeRawUnsafe(
+      `UPDATE Post SET nextId = NULL, previousId = NULL`,
+    );
+  } catch (e: any) {
+    console.warn(`  - Could not break Post links: ${e.message}`);
+  }
 
   // Deletion order matters due to foreign key constraints.
   const deletionOrder = [
@@ -247,6 +261,120 @@ async function main(skipCleanup = false) {
   const createdPlatforms = await prisma.platform.findMany();
   console.log(`   ✓ Seeded ${createdPlatforms.length} platforms.`);
 
+  // --- 4.1 Seed Pricing Tiers ---
+  console.log("💳 Seeding Pricing Tiers...");
+  const tiersData = {
+    Teachable: [
+      {
+        name: "Free",
+        monthlyPrice: 0,
+        transactionFeePercent: 10,
+        isPopular: false,
+      },
+      {
+        name: "Basic",
+        monthlyPrice: 39,
+        transactionFeePercent: 5,
+        isPopular: true,
+        annualPriceMonthlyEquivalent: 33,
+      },
+      {
+        name: "Pro",
+        monthlyPrice: 119,
+        transactionFeePercent: 0,
+        isPopular: false,
+        annualPriceMonthlyEquivalent: 99,
+      },
+    ],
+    Thinkific: [
+      {
+        name: "Free",
+        monthlyPrice: 0,
+        transactionFeePercent: 0,
+        isPopular: false,
+      },
+      {
+        name: "Basic",
+        monthlyPrice: 39,
+        transactionFeePercent: 0,
+        isPopular: false,
+        annualPriceMonthlyEquivalent: 33,
+      },
+      {
+        name: "Start",
+        monthlyPrice: 74,
+        transactionFeePercent: 0,
+        isPopular: true,
+        annualPriceMonthlyEquivalent: 62,
+      },
+      {
+        name: "Grow",
+        monthlyPrice: 149,
+        transactionFeePercent: 0,
+        isPopular: false,
+        annualPriceMonthlyEquivalent: 124,
+      },
+    ],
+    Kajabi: [
+      {
+        name: "Basic",
+        monthlyPrice: 149,
+        transactionFeePercent: 0,
+        isPopular: true,
+        annualPriceMonthlyEquivalent: 119,
+      },
+      {
+        name: "Growth",
+        monthlyPrice: 199,
+        transactionFeePercent: 0,
+        isPopular: false,
+        annualPriceMonthlyEquivalent: 159,
+      },
+      {
+        name: "Pro",
+        monthlyPrice: 399,
+        transactionFeePercent: 0,
+        isPopular: false,
+        annualPriceMonthlyEquivalent: 319,
+      },
+    ],
+    Podia: [
+      {
+        name: "Mover",
+        monthlyPrice: 33,
+        transactionFeePercent: 0,
+        isPopular: true,
+        annualPriceMonthlyEquivalent: 27,
+      },
+      {
+        name: "Shaker",
+        monthlyPrice: 75,
+        transactionFeePercent: 0,
+        isPopular: false,
+        annualPriceMonthlyEquivalent: 62,
+      },
+      {
+        name: "Earthquaker",
+        monthlyPrice: 166,
+        transactionFeePercent: 0,
+        isPopular: false,
+        annualPriceMonthlyEquivalent: 138,
+      },
+    ],
+  };
+
+  let tierCount = 0;
+  for (const platform of createdPlatforms) {
+    const platformTiers = tiersData[platform.name as keyof typeof tiersData];
+    if (platformTiers) {
+      await prisma.pricingTier.createMany({
+        data: platformTiers.map((t) => ({ ...t, platformId: platform.id })),
+      });
+      tierCount += platformTiers.length;
+    }
+  }
+  console.log(`   ✓ Seeded ${tierCount} pricing tiers.`);
+
   // --- 5. Seed Platform Features ---
   console.log("🔗 Seeding Platform Features...");
   const platformFeatureData = {
@@ -377,6 +505,7 @@ async function main(skipCleanup = false) {
   console.log("📝 Seeding Blog Posts...");
   const postsData: (Omit<Prisma.PostCreateInput, "author" | "category"> & {
     categoryName: string;
+    authorId: string;
   })[] = [
     {
       slug: "choosing-the-right-platform",
@@ -438,7 +567,7 @@ async function main(skipCleanup = false) {
       );
       continue;
     }
-    const post = await prisma.post.create({
+    const createdPost: Post = await prisma.post.create({
       data: {
         ...rest,
         author: { connect: { id: authorId } },
@@ -451,10 +580,10 @@ async function main(skipCleanup = false) {
     if (previousPostId) {
       await prisma.post.update({
         where: { id: previousPostId },
-        data: { nextId: post.id },
+        data: { nextId: createdPost.id },
       });
     }
-    previousPostId = post.id;
+    previousPostId = createdPost.id;
   }
   console.log(
     `   ✓ Seeded ${postsData.length} blog posts with navigation links.`,
@@ -472,27 +601,27 @@ async function main(skipCleanup = false) {
         "This was incredibly helpful! I was stuck between Teachable and Thinkific, and this breakdown made the choice clear.",
       postId: post1.id,
       authorId: charlieUser.id,
-      status: "APPROVED",
+      status: CommentStatus.APPROVED,
     },
     {
       content:
         "Great article. What are your thoughts on Kajabi's price point for new creators? Seems a bit steep.",
       postId: post1.id,
       authorId: bobUser.id,
-      status: "PENDING",
+      status: CommentStatus.PENDING,
     },
     {
       content:
         "These are fantastic ideas for engagement. I'm definitely going to try adding more interactive quizzes.",
       postId: post2.id,
       authorId: charlieUser.id,
-      status: "APPROVED",
+      status: CommentStatus.APPROVED,
     },
     {
       content: "I don't agree with point #3.",
       postId: post2.id,
       authorId: bobUser.id,
-      status: "REJECTED",
+      status: CommentStatus.REJECTED,
     },
   ];
   await prisma.comment.createMany({ data: commentData });
@@ -664,14 +793,14 @@ async function main(skipCleanup = false) {
     {
       key: "seo.default.description",
       group: "SEO Settings",
-      type: "TEXTAREA",
+      type: ContentType.TEXTAREA,
       value:
         "Unbiased comparisons, AI-powered tools, and community insights to help course creators succeed.",
     },
     {
       key: "seo.default.keywords",
       group: "SEO Settings",
-      type: "TEXTAREA",
+      type: ContentType.TEXTAREA,
       value:
         "online course platform, course creation, e-learning, ai tools for creators, teachable vs thinkific, course marketing",
     },
@@ -1335,7 +1464,7 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
     try {
       await prisma.siteContent.upsert({
         where: { key: content.key },
-        update: content,
+        update: content as any,
         create: content as any,
       });
     } catch (e: any) {

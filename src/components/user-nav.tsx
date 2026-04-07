@@ -27,8 +27,11 @@ export function UserNav({ user }: { user: Session["user"] }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-          <Avatar key={user?.image}>
+        <Button
+          variant="ghost"
+          className="relative h-10 w-10 rounded-full p-0 shrink-0 select-none overflow-hidden"
+        >
+          <Avatar key={user?.image} className="h-full w-full">
             <AvatarImage src={user?.image || ""} alt={user.name ?? ""} />
             <AvatarFallback>
               {(user.name ? user.name : "User")?.charAt(0).toUpperCase()}
@@ -42,12 +45,12 @@ export function UserNav({ user }: { user: Session["user"] }) {
         sideOffset={12}
         forceMount
       >
-        <DropdownMenuLabel className="font-normal px-4 pt-3 pb-5">
-          <div className="flex flex-col space-y-2">
-            <p className="text-base font-black leading-none tracking-tight">
+        <DropdownMenuLabel className="font-normal px-5 pt-4 pb-5">
+          <div className="flex flex-col space-y-1.5">
+            <p className="text-base font-black leading-none tracking-tight truncate">
               {user.name}
             </p>
-            <p className="text-xs leading-none text-muted-foreground font-medium">
+            <p className="text-xs leading-none text-muted-foreground font-medium truncate opacity-70">
               {user.email}
             </p>
           </div>

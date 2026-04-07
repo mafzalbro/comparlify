@@ -71,7 +71,7 @@ Additional Instructions: {{{context}}}`;
     if (state.error) {
       toast({
         title: "AI Error",
-        description: state.error,
+        description: state.error.toString(),
         variant: "destructive",
       });
     }
@@ -96,7 +96,7 @@ Additional Instructions: {{{context}}}`;
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        <Card className="lg:col-span-4 rounded-[2rem] border-border/10 bg-card/40 backdrop-blur-xl shadow-2xl">
+        <Card className="lg:col-span-4 rounded-4xl border-border/10 bg-card/40 backdrop-blur-xl shadow-2xl">
           <CardHeader>
             <CardTitle className="text-xl font-bold flex items-center gap-2">
               <PenSquare className="h-5 w-5 text-primary" /> Configuration

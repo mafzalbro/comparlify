@@ -113,7 +113,7 @@ export default async function AboutPage() {
           >
             <div className="relative group">
               <div className="absolute -inset-4 bg-primary/5 rounded-[3rem] blur-2xl group-hover:bg-primary/10 transition-all"></div>
-              <div className="relative aspect-square md:aspect-[4/3] rounded-[3.5rem] overflow-hidden shadow-2xl border-8 border-background ring-1 ring-border/10">
+              <div className="relative aspect-square md:aspect-4/3 rounded-[3.5rem] overflow-hidden shadow-2xl border-8 border-background ring-1 ring-border/10">
                 <ManagedImage
                   src="https://picsum.photos/seed/story/1000/800"
                   alt="The Comparlify Journey"
@@ -121,7 +121,7 @@ export default async function AboutPage() {
                   fill
                   className="object-cover transition-transform duration-1000 group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent"></div>
               </div>
             </div>
           </MotionDiv>

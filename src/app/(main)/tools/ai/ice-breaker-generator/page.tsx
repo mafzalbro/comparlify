@@ -1,23 +1,40 @@
+"use client";
 
-import { MessageSquarePlus } from 'lucide-react';
-import { IceBreakerForm } from '@/components/ice-breaker-form';
-
+import { useState } from "react";
+import { Coffee } from "lucide-react";
+import { AIToolForm } from "@/components/ai-tool-form";
+import { generateIceBreakersAction } from "@/app/actions/ai";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function IceBreakerGeneratorPage() {
+  const [context, setContext] = useState("");
+
   return (
-    <div className="space-y-8">
-      <div className="flex items-start gap-4">
-        <div className="p-3 bg-primary/20 rounded-lg">
-          <MessageSquarePlus className="h-6 w-6 text-primary" />
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <AIToolForm
+        title="AI Ice Breaker Generator"
+        description="Generate creative and engaging ice breaker activities or questions for workshops, classes, or meetings."
+        action={generateIceBreakersAction}
+        submitLabel="Generate Ice Breakers"
+      >
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="context" className="text-sm font-bold uppercase tracking-wider opacity-70">
+              Event Context
+            </Label>
+            <Textarea
+              id="context"
+              name="context"
+              value={context}
+              onChange={(e) => setContext(e.target.value)}
+              placeholder="What is the context? (e.g., 'A first day of a web design class' or 'A remote team building meeting')..."
+              className="min-h-[120px] rounded-2xl bg-white/5 border-white/10 focus:border-primary/50 transition-all resize-none p-4"
+              required
+            />
+          </div>
         </div>
-        <div>
-          <h1 className="font-headline text-3xl md:text-4xl font-bold text-foreground">AI Ice Breaker Generator</h1>
-          <p className="mt-2 text-lg text-muted-foreground">
-            Create engaging ice breaker questions for your community or live sessions.
-          </p>
-        </div>
-      </div>
-      <IceBreakerForm />
+      </AIToolForm>
     </div>
   );
 }

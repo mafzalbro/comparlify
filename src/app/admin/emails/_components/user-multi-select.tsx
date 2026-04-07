@@ -91,7 +91,7 @@ export function UserMultiSelect({
           </Button>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] p-2">
+        <DropdownMenuContent className="w-(--radix-dropdown-menu-trigger-width) p-2">
           {/* Search Input */}
           <Input
             placeholder="Search users..."

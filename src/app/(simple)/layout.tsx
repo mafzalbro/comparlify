@@ -1,5 +1,3 @@
-
-
 import Footer from "@/components/layout/footer";
 import Header from "@/components/layout/header";
 import { Chatbot } from "@/components/chatbot";
@@ -12,30 +10,29 @@ export default async function SimplePagesLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [session, content] = await Promise.all([
-    auth(),
-    getContent()
-  ]);
+  const [session, content] = await Promise.all([auth(), getContent()]);
 
   const footerContent = {
-    'footer.tagline': content['footer.tagline'],
-    'footer.newsletter.title': content['footer.newsletter.title'],
-    'footer.newsletter.subtitle': content['footer.newsletter.subtitle'],
-    'footer.navLinks.navigate': content['footer.navLinks.navigate'],
-    'footer.navLinks.company': content['footer.navLinks.company'],
+    "footer.tagline": content["footer.tagline"],
+    "footer.newsletter.title": content["footer.newsletter.title"],
+    "footer.newsletter.subtitle": content["footer.newsletter.subtitle"],
+    "footer.navLinks.navigate": content["footer.navLinks.navigate"],
+    "footer.navLinks.company": content["footer.navLinks.company"],
   };
 
-  const siteName = content['global.siteName'] || 'Comparlify';
+  const siteName = content["global.siteName"] || "Comparlify";
   let navLinks = [];
   try {
-    navLinks = JSON.parse(content['header.navLinks'] || '[]');
+    navLinks = JSON.parse(content["header.navLinks"] || "[]");
   } catch (e) {
     console.error("Failed to parse header.navLinks", e);
   }
 
   return (
     <>
-      <PromoBanner content={content} />
+      <PromoBanner
+      //  content={content}
+      />
       <Header navLinks={navLinks} siteName={siteName} />
       <main>{children}</main>
       {session?.user && <Chatbot />}
@@ -43,5 +40,3 @@ export default async function SimplePagesLayout({
     </>
   );
 }
-
-    

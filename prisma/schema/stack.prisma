@@ -1,0 +1,30 @@
+model UserStack {
+  id              String          @id @default(cuid())
+  title           String
+  description     String          @db.Text
+  isVerified      Boolean         @default(false)
+  verificationUrl String?         @db.Text
+  userId          String
+  user            User            @relation("UserToStacks", fields: [userId], references: [id], onDelete: Cascade)
+  platforms       StackPlatform[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  projectId       String?
+  project         Project?        @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([projectId])
+}
+
+model StackPlatform {
+  id          String    @id @default(cuid())
+  stackId     String
+  stack       UserStack @relation(fields: [stackId], references: [id], onDelete: Cascade)
+  platformId  String
+  platform    Platform  @relation(fields: [platformId], references: [id], onDelete: Cascade)
+  role        String    // e.g., "LMS", "EMAIL", "CRM", "COMMUNITY"
+  
+  @@index([stackId])
+  @@index([platformId])
+}

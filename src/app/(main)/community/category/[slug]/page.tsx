@@ -127,7 +127,7 @@ export default async function CategoryPage(props: {
 
       <main className="container py-12 px-4 md:px-6">
         {/* Category Filters/Sort Bar */}
-        <div className="flex items-center justify-between mb-12 p-6 bg-card/40 backdrop-blur-xl border border-border/10 rounded-[2rem] shadow-xl">
+        <div className="flex items-center justify-between mb-12 p-6 bg-card/40 backdrop-blur-xl border border-border/10 rounded-4xl shadow-xl">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2 text-primary">
               <LayoutGrid className="h-5 w-5" />

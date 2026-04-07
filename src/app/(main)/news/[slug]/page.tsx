@@ -138,7 +138,7 @@ export default async function NewsArticlePage(props: {
                 </div>
               )}
 
-              <div className="flex flex-wrap items-center justify-center gap-6 p-4 rounded-[1.5rem] bg-card/40 backdrop-blur-xl border border-border/10 shadow-xl">
+              <div className="flex flex-wrap items-center justify-center gap-6 p-4 rounded-3xl bg-card/40 backdrop-blur-xl border border-border/10 shadow-xl">
                 <div className="flex items-center gap-3">
                   <Avatar className="h-10 w-10 ring-2 ring-primary/20">
                     <AvatarImage
@@ -185,7 +185,7 @@ export default async function NewsArticlePage(props: {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 0.2 }}
         >
-          <div className="relative aspect-[21/9] rounded-[2rem] overflow-hidden shadow-2xl group border-8 border-background ring-1 ring-border/10">
+          <div className="relative aspect-21/9 rounded-4xl overflow-hidden shadow-2xl group border-8 border-background ring-1 ring-border/10">
             <ManagedImage
               src={article.image.replace("400/250", "1920/1080")}
               alt={article.title}
@@ -194,7 +194,7 @@ export default async function NewsArticlePage(props: {
               className="object-cover transition-transform duration-1000 group-hover:scale-105"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 lg:to-transparent to-black/40"></div>
+            <div className="absolute inset-0 bg-linear-to-t from-black/20 lg:to-transparent to-black/40"></div>
           </div>
         </MotionDiv>
       </section>
@@ -254,7 +254,7 @@ export default async function NewsArticlePage(props: {
           {/* Right Sidebar - Newsletter Hub */}
           <aside className="lg:col-span-3">
             <div className="sticky top-32 space-y-8">
-              <div className="p-6 rounded-[2rem] bg-card/60 backdrop-blur-xl border border-primary/20 shadow-xl overflow-hidden relative">
+              <div className="p-6 rounded-4xl bg-card/60 backdrop-blur-xl border border-primary/20 shadow-xl overflow-hidden relative">
                 <div className="absolute top-0 right-0 p-4 text-primary/5 -rotate-12 translate-x-4 -translate-y-4">
                   <BookOpen className="h-32 w-32" />
                 </div>
@@ -269,7 +269,7 @@ export default async function NewsArticlePage(props: {
               </div>
 
               {trendingComparisons.length > 0 && (
-                <div className="p-8 rounded-[2rem] bg-primary/5 border border-primary/20 shadow-xl overflow-hidden relative group">
+                <div className="p-8 rounded-4xl bg-primary/5 border border-primary/20 shadow-xl overflow-hidden relative group">
                   <div className="absolute top-0 right-0 p-8 text-primary/10 select-none pointer-events-none -rotate-12 translate-x-4 -translate-y-4">
                     <Scale className="h-24 w-24" />
                   </div>
@@ -316,7 +316,7 @@ export default async function NewsArticlePage(props: {
                 </div>
               )}
 
-              <div className="p-6 rounded-[2rem] bg-secondary border border-border/10">
+              <div className="p-6 rounded-4xl bg-secondary border border-border/10">
                 <h4 className="text-sm font-black uppercase tracking-widest mb-6 opacity-40">
                   Related Dispatches
                 </h4>

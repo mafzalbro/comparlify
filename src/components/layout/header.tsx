@@ -84,7 +84,7 @@ export default function Header({ navLinks = [], siteName }: HeaderProps) {
       <div className="px-3 sm:container flex h-16 items-center justify-between">
         <div className="flex items-center gap-6">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <Logo siteName={siteName} />
+            <Logo siteName={siteName} noLink={true} />
           </Link>
           <nav className="hidden lg:flex items-center gap-6">
             {navLinks.map((link) => (

@@ -10,7 +10,7 @@ import { createNotification } from "./notifications";
 import { Adapter } from "next-auth/adapters";
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma) as Adapter,
+  adapter: PrismaAdapter(prisma as any) as Adapter,
   session: { strategy: "jwt" },
   providers: [
     Google({
@@ -140,9 +140,6 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-export const handlers = NextAuth(authOptions);
 export async function auth() {
   return getServerSession(authOptions);
 }
-export const signIn = () => {}; // Placeholder for v4, usually handled by client-side signIn()
-export const signOut = () => {}; // Placeholder for v4, usually handled by client-side signOut()

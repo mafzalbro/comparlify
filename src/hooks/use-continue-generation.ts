@@ -8,7 +8,7 @@ import { useTransition, useMemo, type RefObject } from "react";
 const isLikelyIncompleteRegex = /(?:[^!\.\]\)]\s*$|^\s*$|\*\*\s*$)/;
 
 interface UseContinueGenerationProps {
-  formRef: RefObject<HTMLFormElement>;
+  formRef: RefObject<HTMLFormElement | null>;
   content: string | null | undefined;
 }
 

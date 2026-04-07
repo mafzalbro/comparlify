@@ -56,10 +56,10 @@ export default async function PanelLayout({
         <div className="fixed inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-[0.03] pointer-events-none"></div>
 
         <Sidebar className="border-r border-border/5 bg-card/30 backdrop-blur-3xl">
-          <SidebarHeader className="p-8 group-data-[state=collapsed]:px-0 group-data-[state=collapsed]:flex group-data-[state=collapsed]:justify-center">
+          <SidebarHeader className="p-8 group-data-[state=collapsed]:px-0 group-data-[state=collapsed]:flex group-data-[state=collapsed]:justify-center transition-all duration-200">
             <Logo siteName={siteName} sidebar />
           </SidebarHeader>
-          <SidebarContent className="px-4 group-data-[state=collapsed]:px-2">
+          <SidebarContent className="px-4 group-data-[state=collapsed]:px-2 transition-all duration-200">
             <PanelNav user={user} />
           </SidebarContent>
           <SidebarFooter className="p-6 border-t border-border/5 group-data-[state=collapsed]:px-0">
@@ -80,7 +80,7 @@ export default async function PanelLayout({
                 </SidebarMenuItem>
               )}
               <SidebarMenuItem>
-                <div className="p-2 flex items-center gap-4 bg-muted/30 rounded-[2rem] border border-border/10 group-data-[state=collapsed]:p-1 group-data-[state=collapsed]:justify-center transition-all duration-300">
+                <div className="p-2 flex items-center gap-4 bg-muted/30 rounded-4xl border border-border/10 group-data-[state=collapsed]:p-1 group-data-[state=collapsed]:justify-center transition-all duration-200">
                   <UserNav user={user} />
                   <div className="flex flex-col min-w-0 group-data-[state=collapsed]:hidden">
                     <span className="text-xs font-black truncate">
@@ -153,57 +153,6 @@ export default async function PanelLayout({
           </main>
         </SidebarInset>
       </div>
-      <Sidebar>
-        <SidebarHeader>
-          <Logo siteName={siteName} />
-        </SidebarHeader>
-        <SidebarContent>
-          <PanelNav user={user} />
-        </SidebarContent>
-        <SidebarFooter>
-          <SidebarMenu>
-            {user.role === "ADMIN" && (
-              <SidebarMenuItem>
-                <Link href="/admin">
-                  <SidebarMenuButton tooltip="Admin Panel">
-                    <ShieldCheck />
-                    Admin Panel
-                  </SidebarMenuButton>
-                </Link>
-              </SidebarMenuItem>
-            )}
-            <SidebarMenuItem>
-              <LogoutButton>
-                <SidebarMenuButton tooltip="Logout">
-                  <LogOut />
-                  Logout
-                </SidebarMenuButton>
-              </LogoutButton>
-            </SidebarMenuItem>
-            {user && (
-              <div className="p-2 flex items-center justify-center">
-                <UserNav user={user} />
-              </div>
-            )}
-          </SidebarMenu>
-        </SidebarFooter>
-      </Sidebar>
-      <SidebarInset>
-        <header className="flex items-center justify-between p-4 border-b">
-          <div className="flex items-center gap-2">
-            <SidebarTrigger />
-            <h1 className="text-2xl font-headline">User Panel</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <NotificationBell
-              notifications={notifications}
-              unreadCount={unreadCount}
-            />
-            {user && <UserNav user={user} />}
-          </div>
-        </header>
-        <main className="p-8">{children}</main>
-      </SidebarInset>
     </SidebarProvider>
   );
 }

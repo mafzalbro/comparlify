@@ -16,7 +16,20 @@ import {
   Layers,
   Sparkles,
   Info,
+  Workflow,
+  Save,
+  Loader2,
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { createStackFromBlueprint } from "@/app/actions/projects";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ToolOption {
   id: string;
@@ -81,13 +94,17 @@ interface Platform {
 
 interface StackArchitectProps {
   lmsPlatforms: Platform[];
+  projects: any[];
 }
 
-export function StackArchitect({ lmsPlatforms }: StackArchitectProps) {
+export function StackArchitect({ lmsPlatforms, projects }: StackArchitectProps) {
+  const { toast } = useToast();
   const [selectedLMS, setSelectedLMS] = useState<string>("");
   const [selectedEmail, setSelectedEmail] = useState<string>("");
   const [selectedCommunity, setSelectedCommunity] = useState<string>("");
   const [selectedPayments, setSelectedPayments] = useState<string>("stripe");
+  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
+  const [isSaving, setIsSaving] = useState(false);
 
   const lmsData = lmsPlatforms.find((p) => p.id === selectedLMS);
   const emailData = EXTERNAL_TOOLS.find((t) => t.id === selectedEmail);
@@ -110,6 +127,49 @@ export function StackArchitect({ lmsPlatforms }: StackArchitectProps) {
     (lmsData?.flatMonthlyFee || 0) +
     (emailData?.monthlyPrice || 0) +
     (communityData?.monthlyPrice || 0);
+
+  const handleSaveStack = async () => {
+    if (!selectedProjectId) {
+      toast({
+        title: "Project Required",
+        description: "Please select a project to link this stack to.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const platforms = [];
+      if (selectedLMS) platforms.push({ platformId: selectedLMS, role: "LMS" });
+      if (selectedEmail) platforms.push({ platformId: selectedEmail, role: "EMAIL" });
+      if (selectedCommunity) platforms.push({ platformId: selectedCommunity, role: "COMMUNITY" });
+      if (selectedPayments) platforms.push({ platformId: selectedPayments, role: "PAYMENTS" });
+
+      const result = await createStackFromBlueprint(selectedProjectId, platforms);
+
+      if (result.success) {
+        toast({
+          title: "Blueprint Recorded",
+          description: result.message,
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: result.error,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save stack.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const warnings = useMemo(() => {
     const list = [];
@@ -231,6 +291,42 @@ export function StackArchitect({ lmsPlatforms }: StackArchitectProps) {
             </div>
           </div>
 
+          {projects.length > 0 && (
+            <div className="mb-8 p-6 rounded-3xl bg-primary/5 border border-primary/10 flex flex-col md:flex-row items-center gap-6">
+              <div className="flex items-center gap-4 flex-1">
+                <div className="p-3 bg-primary/10 rounded-2xl text-primary">
+                  <Workflow className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-1">Architectural Sync</p>
+                  <p className="text-[9px] font-medium text-muted-foreground uppercase opacity-60">Record this blueprint in a Workspace</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 w-full md:w-auto">
+                <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+                  <SelectTrigger className="w-full md:w-[200px] bg-background/50 border-border/10 rounded-xl h-12 text-[10px] font-black uppercase tracking-tight">
+                    <SelectValue placeholder="Select Project" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border-border/10">
+                    {projects.map((p) => (
+                      <SelectItem key={p.id} value={p.id} className="text-[10px] font-black uppercase tracking-tight">
+                        {p.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button 
+                  onClick={handleSaveStack}
+                  disabled={isSaving || !selectedProjectId}
+                  className="rounded-xl px-8 h-12 bg-primary text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20"
+                >
+                  {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+                  Record
+                </Button>
+              </div>
+            </div>
+          )}
+
           <div className="space-y-4 relative z-10">
             {stack.map((item, i) => (
               <MotionDiv
@@ -286,7 +382,7 @@ export function StackArchitect({ lmsPlatforms }: StackArchitectProps) {
             </div>
           )}
 
-          <div className="mt-12 p-8 rounded-[2rem] bg-muted/30 border border-border/10 flex items-center justify-between">
+          <div className="mt-12 p-8 rounded-4xl bg-muted/30 border border-border/10 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-green-500/20 rounded-xl text-green-500">
                 <CheckCircle2 className="h-6 w-6" />

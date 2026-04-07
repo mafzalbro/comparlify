@@ -148,7 +148,7 @@ export function NewTopicForm({
               placeholder="Provide deep-dive data, strategies, or questions. Markdown is supported for surgical clarity."
               rows={10}
               required
-              className="rounded-[2rem] border-border/10 p-6 min-h-[300px]"
+              className="rounded-4xl border-border/10 p-6 min-h-[300px]"
             />
             {typeof state.error !== "string" && state.error?.content && (
               <p className="text-destructive text-xs font-bold uppercase tracking-widest pl-2">
@@ -158,7 +158,7 @@ export function NewTopicForm({
           </div>
           {typeof state.error === "string" && (
             <p className="text-destructive text-sm font-bold text-center p-4 bg-destructive/5 rounded-2xl">
-              {state.error}
+              {state.error.toString()}
             </p>
           )}
         </CardContent>

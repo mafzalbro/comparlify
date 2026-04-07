@@ -75,8 +75,8 @@ export function ExpertIntelligence({
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
             >
-              <Card className="flex flex-col h-full group overflow-hidden rounded-[2rem] border border-border/10 bg-card/20 backdrop-blur-xl shadow-lg transition-all duration-500 hover:shadow-xl hover:-translate-y-2">
-                <div className="relative overflow-hidden aspect-[16/10]">
+              <Card className="flex flex-col h-full group overflow-hidden rounded-4xl border border-border/10 bg-card/20 backdrop-blur-xl shadow-lg transition-all duration-500 hover:shadow-xl hover:-translate-y-2">
+                <div className="relative overflow-hidden aspect-16/10">
                   <NextLink
                     href={`/blog/${post.slug}`}
                     className="block h-full"
@@ -87,7 +87,7 @@ export function ExpertIntelligence({
                       fill
                       className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end p-8">
+                    <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end p-8">
                       <span className="text-white font-black uppercase tracking-widest text-[10px] flex items-center gap-2">
                         The Full Breakdown <ArrowRight className="h-4 w-4" />
                       </span>
