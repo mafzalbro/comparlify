@@ -18,7 +18,7 @@ export function RegisterForm() {
     <>
       <div className="flex flex-col gap-4">
         <Button
-          className="w-full h-12 rounded-xl bg-white border border-border/10 text-foreground hover:bg-neutral-50 shadow-md shadow-black/5 font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] dark:bg-white dark:text-black"
+          className="w-full h-12 rounded-xl bg-card border border-border text-foreground hover:bg-accent shadow-md shadow-black/5 font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
           variant="outline"
           onClick={() => handleSignIn("google")}
         >

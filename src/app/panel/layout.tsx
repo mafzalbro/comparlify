@@ -10,13 +10,7 @@ import {
   SidebarInset,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import {
-  Settings,
-  LogOut,
-  LayoutDashboard,
-  UserCircle,
-  ShieldCheck,
-} from "lucide-react";
+import { LogOut, ShieldCheck } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { LogoutButton } from "@/components/auth/logout-button";
 import Link from "next/link";

@@ -164,7 +164,7 @@ function ToolContent() {
             <div 
               key={res.platform.id} 
               className={`p-6 md:p-8 rounded-[2rem] border transition-all hover:shadow-xl ${
-                i === 0 ? "border-black bg-black text-white" : "border-black/5 bg-white text-black"
+                i === 0 ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-card-foreground"
               }`}
             >
               <div className="flex justify-between items-start mb-6">
@@ -180,7 +180,7 @@ function ToolContent() {
               </div>
               
               <p className={`text-sm mb-8 leading-relaxed font-medium ${i === 0 ? "opacity-90" : "text-muted-foreground"}`}>
-                <span className="font-bold underline decoration-current underline-offset-4 mr-2">Best for you because:</span>
+                <span className="font-bold underline decoration-current underline-offset-4 mr-2 italic">Best for you because:</span>
                 {res.reason}
               </p>
 
@@ -190,7 +190,7 @@ function ToolContent() {
                   target="_blank" 
                   rel="noopener noreferrer"
                   className={`flex-1 flex items-center justify-center gap-2 h-14 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all active:scale-95 ${
-                    i === 0 ? "bg-white text-black hover:bg-white/90" : "bg-black text-white hover:bg-black/90"
+                    i === 0 ? "bg-background text-foreground hover:bg-background/90" : "bg-primary text-primary-foreground hover:bg-primary/90"
                   }`}
                 >
                   Visit Platform <ExternalLink className="h-4 w-4" />
@@ -203,7 +203,7 @@ function ToolContent() {
         <div className="flex justify-center pt-8">
           <button 
             onClick={handleShare}
-            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-black/50 hover:text-black transition-colors"
+            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
           >
             {copied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
             {copied ? "Link Copied" : "Share these results"}
@@ -217,7 +217,7 @@ function ToolContent() {
               setStep(0);
               router.push(window.location.pathname);
             }} 
-            className="text-[10px] font-black uppercase tracking-widest bg-black/5 px-6 py-3 rounded-xl hover:bg-black/10"
+            className="text-[10px] font-black uppercase tracking-widest bg-muted hover:bg-muted/80 px-6 py-3 rounded-xl"
           >
             Start Over
           </button>
@@ -233,13 +233,13 @@ function ToolContent() {
     <div className="max-w-[800px] mx-auto min-h-[600px] flex flex-col">
       {/* Progress */}
       <div className="mb-12 space-y-4">
-        <div className="flex justify-between items-end text-[10px] font-black uppercase tracking-widest text-black/40">
+        <div className="flex justify-between items-end text-[10px] font-black uppercase tracking-widest text-muted-foreground">
           <span>Match in progress</span>
           <span>{Math.round(progress)}%</span>
         </div>
-        <div className="h-1.5 w-full bg-black/5 rounded-full overflow-hidden">
+        <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
           <div 
-            className="h-full bg-black transition-all duration-500 ease-out" 
+            className="h-full bg-primary transition-all duration-500 ease-out" 
             style={{ width: `${progress}%` }} 
           />
         </div>
@@ -272,8 +272,8 @@ function ToolContent() {
                   onClick={() => updateAnswers(currentStep.id as keyof Answers, opt.value)}
                   className={`flex items-center justify-between p-6 rounded-3xl border-2 text-left transition-all duration-300 group ${
                     isSelected 
-                      ? "border-black bg-black text-white shadow-xl shadow-black/10" 
-                      : "border-black/5 hover:border-black/20 hover:bg-black/5"
+                      ? "border-primary bg-primary text-primary-foreground shadow-xl shadow-primary/20" 
+                      : "border-border hover:border-primary/20 hover:bg-muted"
                   }`}
                 >
                   <div className="space-y-1">
@@ -287,26 +287,26 @@ function ToolContent() {
                   {isSelected ? (
                     <CheckCircle2 className="h-6 w-6" />
                   ) : (
-                    <Circle className="h-6 w-6 text-black/10 group-hover:text-black/20" />
+                    <Circle className="h-6 w-6 text-muted-foreground/30 group-hover:text-primary transition-colors" />
                   )}
                 </button>
               );
             })}
           </div>
 
-          <div className="mt-auto pt-10 border-t border-black/5 flex justify-between items-center">
+          <div className="mt-auto pt-10 border-t border-border flex justify-between items-center">
             <button
               onClick={() => step > 0 && setStep(step - 1)}
               disabled={step === 0}
               className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-opacity ${
-                step === 0 ? "opacity-0 pointer-events-none" : "hover:text-black/60"
+                step === 0 ? "opacity-0 pointer-events-none" : "hover:text-primary"
               }`}
             >
               <ChevronLeft className="h-4 w-4" /> Back
             </button>
             <button
               onClick={handleNext}
-              className="bg-black text-white px-10 h-14 rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-xl shadow-black/20 hover:bg-black/90 active:scale-95 transition-all flex items-center gap-2"
+              className="bg-primary text-primary-foreground px-10 h-14 rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-xl shadow-primary/20 hover:bg-primary/90 active:scale-95 transition-all flex items-center gap-2"
             >
               {step === STEPS.length - 1 ? "Get Results" : "Continue"}
               <ChevronRight className="h-4 w-4" />
@@ -320,7 +320,7 @@ function ToolContent() {
 
 export function PlatformRecommendationTool() {
   return (
-    <div className="py-24 px-4 bg-white min-h-screen text-black font-sans selection:bg-black selection:text-white">
+    <div className="py-24 px-4 bg-background min-h-screen text-foreground font-sans selection:bg-primary/20 selection:text-foreground">
       <Suspense fallback={<div className="flex items-center justify-center p-24"><Loader2 className="animate-spin" /></div>}>
         <ToolContent />
       </Suspense>

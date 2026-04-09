@@ -109,7 +109,7 @@ export function ComparisonHero({
                         Top Pick
                       </MotionDiv>
                     )}
-                    <div className="relative h-32 w-full max-w-[300px] p-6 bg-white/5 rounded-3xl border border-white/10 flex items-center justify-center group-hover:bg-primary/5 transition-all">
+                    <div className="relative h-32 w-full max-w-[300px] p-6 bg-muted/50 rounded-3xl border border-border flex items-center justify-center group-hover:bg-primary/5 transition-all">
                       <ManagedImage
                         src={platform.logoUrl}
                         alt={platform.name}

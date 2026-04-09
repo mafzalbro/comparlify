@@ -346,7 +346,7 @@ export function AIToolFormResult() {
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="flex-1 p-0 overflow-y-auto custom-scrollbar bg-zinc-100 dark:bg-zinc-900/50">
+      <CardContent className="flex-1 p-0 overflow-y-auto custom-scrollbar bg-muted/30 dark:bg-muted/20">
         <div className="py-12 px-4 md:px-12 flex justify-center">
           <div 
             ref={exportRef} 
