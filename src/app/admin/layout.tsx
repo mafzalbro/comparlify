@@ -40,37 +40,48 @@ export default async function AdminLayout({
 
   return (
     <SidebarProvider>
-      <Sidebar>
-        <SidebarHeader className="overflow-hidden!">
-          <Logo siteName={siteName} className="justify-start pl-2" />
+      <Sidebar className="border-r border-border/50 bg-secondary/30 dark:bg-background/50 backdrop-blur-xl">
+        <SidebarHeader className="h-16 flex items-center px-4 border-b border-border/50">
+          <Logo
+            siteName={siteName}
+            sidebar
+            className="justify-start scale-90 origin-left"
+          />
         </SidebarHeader>
-        <SidebarContent>
+        <SidebarContent className="px-2 py-4">
           <AdminNav userRole={user.role} />
         </SidebarContent>
-        <SidebarFooter>
+        <SidebarFooter className="p-4 border-t border-border/50">
           {user && (
-            <div className="p-2 flex items-center justify-center">
+            <div className="flex items-center justify-center">
               <UserNav user={user} />
             </div>
           )}
         </SidebarFooter>
       </Sidebar>
-      <SidebarInset>
-        <header className="flex items-center justify-between p-4 border-b">
-          <div className="flex items-center gap-2">
-            <SidebarTrigger />
-            <h1 className="text-2xl font-headline">Admin Dashboard</h1>
+      <SidebarInset className="bg-background">
+        <header className="sticky top-0 z-40 flex h-16 items-center justify-between px-6 bg-background/80 backdrop-blur-md border-b border-border/50">
+          <div className="flex items-center gap-4">
+            <SidebarTrigger className="hover:bg-primary/10 transition-colors" />
+            <div className="h-4 w-px bg-border/50 mx-1 hidden md:block" />
+            <h1 className="text-xl font-headline tracking-tight font-black opacity-90">
+              Dashboard
+            </h1>
           </div>
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <NotificationBell
-              notifications={notifications}
-              unreadCount={unreadCount}
-            />
+          <div className="flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-2 mr-2">
+              <ThemeToggle />
+              <NotificationBell
+                notifications={notifications}
+                unreadCount={unreadCount}
+              />
+            </div>
             {user && <UserNav user={user} />}
           </div>
         </header>
-        <main className="p-8">{children}</main>
+        <main className="admin-panel p-6 md:p-8 animate-fade-in-up">
+          {children}
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );

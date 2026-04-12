@@ -4,7 +4,7 @@
 import { PlatformForm } from '../../_components/platform-form';
 import type { Platform, Feature, PlatformFeature, FeatureCategory } from '@prisma/client';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import Link from "next/link";
 import { ArrowLeft } from 'lucide-react';
 
 type PlatformWithFeatures = Platform & { features: PlatformFeature[] };

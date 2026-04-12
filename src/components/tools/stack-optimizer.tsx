@@ -14,6 +14,7 @@ import {
   Sparkles
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface ToolCategory {
   id: string;
@@ -105,7 +106,8 @@ export function StackOptimizer() {
     return {
         redundancies: uniqueRedundancies,
         monthlyWaste,
-        totalCost: selectedTools.reduce((acc, t) => acc + t.cost, 0)
+        totalCost: selectedTools.reduce((acc, t) => acc + t.cost, 0),
+        techDebt: selectedTools.length > 4 ? "High" : selectedTools.length > 2 ? "Moderate" : "Low"
     };
   }, [selectedTools]);
 
@@ -175,7 +177,17 @@ export function StackOptimizer() {
                 ) : (
                     <div className="space-y-8">
                         <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Current Monthly Cost</p>
+                            <div className="flex items-center justify-between mb-1">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Current Monthly Cost</p>
+                                <Badge variant="outline" className={cn(
+                                    "text-[8px] font-black uppercase tracking-tighter border-none px-2",
+                                    analysis.techDebt === "High" ? "bg-red-500/10 text-red-500" : 
+                                    analysis.techDebt === "Moderate" ? "bg-amber-500/10 text-amber-500" : 
+                                    "bg-emerald-500/10 text-emerald-500"
+                                )}>
+                                    {analysis.techDebt} Complexity
+                                </Badge>
+                            </div>
                             <h4 className="text-5xl font-black tracking-tighter italic">${analysis.totalCost}</h4>
                         </div>
 
@@ -227,10 +239,15 @@ export function StackOptimizer() {
                             </div>
                         )}
 
-                        <div className="pt-6 border-t border-border/10 flex items-center gap-3">
-                            <Zap className="h-4 w-4 text-primary opacity-50" />
+                        <div className={cn(
+                            "pt-6 border-t border-border/10 flex items-center gap-3",
+                            analysis.techDebt === "High" && "bg-red-500/5 -mx-8 px-8 py-4 mt-2"
+                        )}>
+                            <Zap className={cn("h-4 w-4", analysis.techDebt === "High" ? "text-red-500" : "text-primary opacity-50")} />
                             <p className="text-[9px] font-bold text-muted-foreground leading-tight italic">
-                                Strategy: Consider consolidating your community and LMS into one ecosystem to reduce technical debt.
+                                {analysis.techDebt === "High" 
+                                    ? "Critical: Your tech stack is over-engineered. Overlapping subscriptions are costing you more than just money—they're creating technical debt."
+                                    : "Strategy: Consider consolidating your community and LMS into one ecosystem to reduce technical debt."}
                             </p>
                         </div>
                     </div>

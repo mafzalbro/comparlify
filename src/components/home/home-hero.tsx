@@ -26,7 +26,7 @@ export function HomeHero({
   toolsHref,
 }: HomeHeroProps) {
   return (
-    <section className="relative w-full min-h-[85vh] flex items-center justify-center pt-24 pb-16 overflow-hidden">
+    <section className="relative w-full min-h-[85vh] flex items-center justify-center pt-30 pb-16 overflow-hidden">
       {/* Visual Background Elements */}
       <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-40"></div>
       <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
@@ -34,7 +34,7 @@ export function HomeHero({
         <div className="absolute bottom-[20%] -right-[10%] w-[30%] h-[30%] bg-blue-500/10 rounded-full blur-[100px] animate-pulse delay-1000"></div>
       </div>
 
-      <div className="container relative z-10 px-4 md:px-6">
+      <div className="container mx-auto relative z-10 px-4 md:px-6">
         <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
           <MotionDiv
             initial={{ opacity: 0, y: 20 }}

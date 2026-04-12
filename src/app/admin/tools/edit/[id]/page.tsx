@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { ToolForm } from '../../_components/tool-form';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import Link from "next/link";
 import { ArrowLeft } from 'lucide-react';
 
 async function getTool(id: string) {

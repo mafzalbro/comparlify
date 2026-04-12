@@ -40,7 +40,7 @@ const coreCategories: CoreCategory[] = [
 export function DiscoveryHub() {
   return (
     <section className="py-24 relative overflow-hidden">
-      <div className="container px-4 md:px-6 relative z-10">
+      <div className="container mx-auto px-4 md:px-6 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-20 space-y-6">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary mb-2 shadow-sm">
             <Search className="h-4 w-4" />

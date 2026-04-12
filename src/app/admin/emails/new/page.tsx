@@ -3,7 +3,7 @@ import { EmailForm } from '../_components/email-form';
 import prisma from '@/lib/prisma';
 import type { User } from '@prisma/client';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import Link from "next/link";
 import { ArrowLeft } from 'lucide-react';
 
 async function getUsers(): Promise<User[]> {

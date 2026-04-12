@@ -175,7 +175,7 @@ export default async function DynamicBattlePage(props: {
           platformBName={platformB.name}
         />
 
-        <section className="container px-4 md:px-6 max-w-7xl">
+        <section className="container mx-auto px-4 md:px-6 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
             <aside className="lg:col-span-4 space-y-16">
               <div className="bg-card/40 backdrop-blur-3xl border border-border/10 p-8 rounded-4xl shadow-2xl relative overflow-hidden">

@@ -253,7 +253,7 @@ export default async function ComparisonDetailPage(props: {
         </section>
 
         {/* ── MAIN CONTENT GRID ────────────── */}
-        <section className="container px-4 md:px-6 max-w-7xl">
+        <section className="container mx-auto px-4 md:px-6 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
             {/* ── SIDEBAR ──────────────────── */}
             <aside className="hidden lg:block lg:col-span-4">

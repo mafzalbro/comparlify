@@ -4,7 +4,7 @@
 import { type Platform, type ComparisonCategory } from '@prisma/client';
 import { ComparisonForm } from '../_components/comparison-form';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import Link from "next/link";
 import { ArrowLeft } from 'lucide-react';
 
 export function NewComparisonPageClient({ platforms, categories }: { platforms: Platform[], categories: ComparisonCategory[] }) {

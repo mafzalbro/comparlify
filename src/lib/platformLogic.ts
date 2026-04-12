@@ -127,6 +127,19 @@ export const platformRegistry: Platform[] = [
   },
 ];
 
+export interface ScoredResult {
+  platform: Platform;
+  score: number;
+  matchPercentage: number;
+  reason: string;
+  categoryScores: {
+    budget: number;
+    skill: number;
+    goal: number;
+    features: number;
+  };
+}
+
 export interface RecommendationResult {
   winnerId: string;
   winnerName: string;
@@ -137,55 +150,71 @@ export interface RecommendationResult {
   matchPercentage: number;
 }
 
-export function calculatePlatformRecommendation(answers: Answers): RecommendationResult {
+export function calculateTopRecommendations(answers: Answers): ScoredResult[] {
   const scores = platformRegistry.map(platform => {
     let score = 0;
     const reasons: string[] = [];
 
-    // Budget weighting (30% impact)
-    if (platform.budget === answers.budget) {
+    // All these fields are expected to be strings in our current wizard
+    const budget = Array.isArray(answers.budget) ? answers.budget[0] : answers.budget;
+    const skill = Array.isArray(answers.skill) ? answers.skill[0] : answers.skill;
+    const goal = Array.isArray(answers.goal) ? answers.goal[0] : answers.goal;
+    const features = Array.isArray(answers.features) ? answers.features : [];
+
+    const catScores = { budget: 0, skill: 0, goal: 0, features: 0 };
+
+    if (platform.budget === budget) {
+      catScores.budget = 30;
       score += 30;
-      reasons.push(`Budget alignment: Optimized for your ${answers.budget} range.`);
-    } else if (answers.budget === "medium" || (answers.budget === "high" && platform.budget === "medium")) {
-      score += 15;
+      reasons.push("Perfect budget alignment");
     }
-
-    // Skill weighting (25% impact)
-    if (platform.skill === answers.skill) {
+    
+    if (platform.skill === skill) {
+      catScores.skill = 25;
       score += 25;
-      reasons.push(`Technical fit: Matches your '${answers.skill}' workflow preference.`);
+      reasons.push(`${platform.name} matches your tech skill level`);
     }
 
-    // Goal weighting (35% impact)
-    if (platform.goal === answers.goal) {
+    if (platform.goal === goal) {
+      catScores.goal = 35;
       score += 35;
-      reasons.push(`Objective sync: Engineered primarily for ${answers.goal} business models.`);
+      reasons.push(`Primary goal match: ${goal}`);
     }
 
-    // Volume Adjustment
-    if (answers.volume === "enterprise" && platform.budget === "high") {
-      score += 10;
-      reasons.push("Scale support: Capable of handling high-volume enterprise traffic.");
+    // Features matching
+    const platformFeatures = platform.features.map(f => f.toLowerCase());
+    const matchedFeatures = features.filter(f => platformFeatures.includes(f.toLowerCase()));
+    if (matchedFeatures.length > 0) {
+      catScores.features = Math.min(matchedFeatures.length * 5, 10);
+      score += catScores.features;
+      reasons.push(`Matches features: ${matchedFeatures.join(", ")}`);
     }
 
-    return { 
-      ...platform, 
-      finalScore: score, 
-      matchReasons: reasons.slice(0, 3) 
+    return {
+      platform,
+      score,
+      matchPercentage: Math.min(score, 100),
+      reason: reasons[0] || "General recommendation based on your profile.",
+      categoryScores: catScores
     };
   });
 
-  const sorted = [...scores].sort((a, b) => b.finalScore - a.finalScore);
-  const winner = sorted[0];
-  const runnerUp = sorted[1];
+  return [...scores].sort((a, b) => b.score - a.score).slice(0, 3);
+}
+
+// Keep the old one for backward compatibility if used elsewhere
+export function calculatePlatformRecommendation(answers: Answers): RecommendationResult {
+  const results = calculateTopRecommendations(answers);
+  const winner = results[0];
+  const runnerUp = results[1] || results[0];
 
   return {
-    winnerId: winner.id,
-    winnerName: winner.name,
-    alternativeId: runnerUp.id,
-    alternativeName: runnerUp.name,
-    score: winner.finalScore,
-    reasons: winner.matchReasons,
-    matchPercentage: Math.min(winner.finalScore, 100)
+    winnerId: winner.platform.id,
+    winnerName: winner.platform.name,
+    alternativeId: runnerUp.platform.id,
+    alternativeName: runnerUp.platform.name,
+    score: winner.score,
+    reasons: [winner.reason],
+    matchPercentage: winner.matchPercentage
   };
 }

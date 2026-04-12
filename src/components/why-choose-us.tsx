@@ -151,7 +151,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
       ref={targetRef}
       className={cn(
         "relative w-full flex flex-col justify-start",
-        !isMobile ? "min-h-[400vh]" : "py-24 bg-background",
+        !isMobile ? "min-h-[400vh]" : "bg-background py-24",
       )}
     >
       {/* Main Content Area */}
@@ -159,13 +159,13 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
         className={cn(
           "relative z-10",
           !isMobile
-            ? "sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden"
+            ? "sticky -top-12 min-h-screen flex flex-col items-center justify-center overflow-visible"
             : "",
         )}
       >
         {/* Background Orbs & Effects */}
         {!isMobile && (
-          <div className="absolute -z-10 top-0 h-screen w-full overflow-hidden pointer-events-none">
+          <div className="absolute -z-10 top-20 h-screen w-full overflow-hidden pointer-events-none">
             <div className="absolute inset-0 bg-transparent"></div>
             <div className="absolute inset-0 bg-grid-white/[0.01] bg-size-[60px_60px]"></div>
             <div className="absolute inset-0 bg-linear-to-b from-transparent via-background/0 to-transparent"></div>
@@ -199,7 +199,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
           {/* Header Area */}
           <div
             className={cn(
-              "mb-12 space-y-4 text-center w-full relative z-30",
+              "mb-8 lg:mb-12 space-y-2 text-center w-full relative z-30",
               !isMobile ? "mt-0" : "",
             )}
           >
@@ -232,7 +232,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
             )}
           >
             {/* LEFT SIDE: CONTROL PANEL */}
-            <div className="flex flex-col gap-8 relative items-center lg:items-start">
+            <div className="flex flex-col gap-3 md:gap-4 relative items-center lg:items-start">
               {/* Mobile Tabs Wrapper */}
               {isMobile && (
                 <div className="flex gap-4 overflow-x-auto pb-6 w-full no-scrollbar px-2">
@@ -256,7 +256,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
 
               {/* Desktop Feature Selectors */}
               {!isMobile && (
-                <div className="flex flex-col gap-4 w-full relative">
+                <div className="flex flex-col gap-3 w-full relative">
                   {features.map((feature, idx) => (
                     <motion.div
                       key={feature.id}
@@ -389,7 +389,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
                       </div>
 
                       {/* Info Panel */}
-                      <div className="flex-1 p-6 lg:p-8 flex flex-col justify-between">
+                      <div className="flex-1 p-5 lg:p-6 flex flex-col justify-between">
                         <div className="space-y-3">
                           <div className="flex items-center gap-2.5">
                             <div className="flex items-center gap-1.5 px-2 py-0.5 bg-primary/10 rounded-full border border-primary/20">

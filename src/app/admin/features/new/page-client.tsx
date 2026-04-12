@@ -4,7 +4,7 @@
 import { FeatureForm } from '../_components/feature-form';
 import type { FeatureCategory } from '@prisma/client';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import Link from "next/link";
 import { ArrowLeft } from 'lucide-react';
 
 export function NewFeaturePageClient({ categories }: { categories: FeatureCategory[] }) {

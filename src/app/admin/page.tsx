@@ -18,12 +18,13 @@ import { subDays, format, eachDayOfInterval } from "date-fns";
 import { PostsChart } from "./_components/posts-chart";
 import { RecentActivity } from "./_components/recent-activity";
 import Link from "next/link";
-import type { Post, User, Comment } from "@prisma/client";
+import type { Post, User, Comment, Platform, AffiliateClick } from "@prisma/client";
 
 export type Activity =
   | ({ type: "POST" } & Post & { author: User })
   | ({ type: "USER" } & User)
-  | ({ type: "COMMENT" } & Comment & { author: User; post: Post });
+  | ({ type: "COMMENT" } & Comment & { author: User; post: Post })
+  | ({ type: "AFFILIATE_CLICK" } & AffiliateClick & { platform: Platform });
 
 async function getDashboardStats() {
   const [
@@ -37,6 +38,7 @@ async function getDashboardStats() {
     pendingComments,
     postsLast7Days,
     totalAffiliateClicks,
+    recentClicks,
   ] = await prisma.$transaction([
     (await prisma.platform)?.count() ?? Promise.resolve(0),
     (await prisma.feature)?.count() ?? Promise.resolve(0),
@@ -64,6 +66,11 @@ async function getDashboardStats() {
       select: { createdAt: true },
     }) ?? Promise.resolve([]),
     (prisma as any).affiliateClick?.count() ?? Promise.resolve(0),
+    (prisma as any).affiliateClick?.findMany({
+      take: 5,
+      orderBy: { createdAt: "desc" },
+      include: { platform: true },
+    }) ?? Promise.resolve([]),
   ]);
 
   // Combine and sort activities
@@ -71,6 +78,7 @@ async function getDashboardStats() {
     ...recentPosts.map((p) => ({ ...p, type: "POST" as const })),
     ...recentUsers.map((u) => ({ ...u, type: "USER" as const })),
     ...pendingComments.map((c) => ({ ...c, type: "COMMENT" as const })),
+    ...recentClicks.map((c: any) => ({ ...c, type: "AFFILIATE_CLICK" as const })),
   ];
 
   const recentActivity = combinedActivities
@@ -167,18 +175,20 @@ export default async function AdminDashboardPage() {
         {statsCards.map((card) => (
           <Card
             key={card.title}
-            className="hover:bg-muted/50 transition-colors"
+            className="group relative overflow-hidden rounded-3xl border border-border/10 bg-card/40 backdrop-blur-xl shadow-sm transition-all duration-500 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1"
           >
             <Link href={card.href}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+                <CardTitle className="text-xs font-black uppercase tracking-widest text-muted-foreground group-hover:text-primary transition-colors">
                   {card.title}
                 </CardTitle>
-                <card.Icon className="h-4 w-4 text-muted-foreground" />
+                <div className="p-2 rounded-lg bg-primary/5 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500">
+                  <card.Icon className="h-4 w-4" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{card.count}</div>
-                <p className="text-xs text-muted-foreground">
+                <div className="text-3xl font-black tracking-tighter mb-1">{card.count}</div>
+                <p className="text-[10px] font-medium text-muted-foreground leading-relaxed">
                   {card.description}
                 </p>
               </CardContent>

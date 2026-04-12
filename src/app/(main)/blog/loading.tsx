@@ -7,7 +7,7 @@ export default function Loading() {
   return (
     <div className="bg-background">
       <section className="bg-secondary/30 border-b">
-        <div className="container py-12 md:py-16 px-4 md:px-6">
+        <div className="container mx-auto py-12 md:py-16 px-4 md:px-6">
           <Breadcrumbs
             items={[
               { name: 'Home', href: '/' },
@@ -22,7 +22,7 @@ export default function Loading() {
           </div>
         </div>
       </section>
-      <div className="container py-8 md:py-12 px-4 md:px-6">
+      <div className="container mx-auto py-8 md:py-12 px-4 md:px-6">
         <div className="mb-12 flex flex-wrap items-center gap-4">
             <Skeleton className="h-10 w-full md:w-[300px]" />
             <Skeleton className="h-10 w-24" />

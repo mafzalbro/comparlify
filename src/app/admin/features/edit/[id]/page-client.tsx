@@ -4,7 +4,7 @@
 import { type Feature, type FeatureCategory } from '@prisma/client';
 import { FeatureForm } from '../../_components/feature-form';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import Link from "next/link";
 import { ArrowLeft } from 'lucide-react';
 
 interface EditFeaturePageClientProps {

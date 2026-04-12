@@ -135,7 +135,7 @@ export default async function BlogPage(props: {
           <div className="absolute bottom-[20%] -right-[10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px] animate-pulse delay-1000"></div>
         </div>
 
-        <div className="container relative z-10 px-4 md:px-6">
+        <div className="container mx-auto relative z-10 px-4 md:px-6">
           <MotionDiv
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -166,7 +166,7 @@ export default async function BlogPage(props: {
           </MotionDiv>
         </div>
       </section>
-      <div className="container py-24 px-4 md:px-6">
+      <div className="container mx-auto py-24 px-4 md:px-6">
         {/* --- DYNAMIC FILTER SECTION --- */}
         <MotionDiv
           initial={{ opacity: 0, scale: 0.98 }}

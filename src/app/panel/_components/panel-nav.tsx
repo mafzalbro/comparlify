@@ -41,28 +41,29 @@ export function PanelNav({ user }: { user: Session["user"] }) {
               const isActive = pathname === item.href;
               return (
                 <SidebarMenuItem key={item.href}>
-                  <Link href={item.href} className="block group/item">
-                    <SidebarMenuButton
-                      tooltip={item.label}
-                      isActive={isActive}
-                      className={`
-                                                w-full h-12 px-4 rounded-2xl flex items-center gap-4 transition-all duration-200
-                                                group-data-[state=collapsed]:px-0 group-data-[state=collapsed]:justify-center
-                                                ${
-                                                  isActive
-                                                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-[1.02]"
-                                                    : "hover:bg-primary/10 text-muted-foreground hover:text-primary"
-                                                }
-                                            `}
-                    >
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={item.label}
+                    isActive={isActive}
+                    className={`
+                      w-full h-12 px-4 rounded-3xl flex items-center gap-4 transition-all duration-200
+                      group-data-[collapsible=icon]:!px-0 group-data-[collapsible=icon]:!justify-center group-data-[collapsible=icon]:!mx-auto
+                      ${
+                        isActive
+                          ? "bg-primary text-primary-foreground scale-[1.02]"
+                          : "hover:bg-primary/10 text-muted-foreground hover:text-primary"
+                      }
+                    `}
+                  >
+                    <Link href={item.href} className="group/item">
                       <item.Icon
-                        className={`h-5 w-5 shrink-0 transition-transform duration-200 ${isActive ? "scale-110" : "group-hover/item:scale-110"}`}
+                        className={`shrink-0 h-5 w-5 transition-transform duration-200 ${isActive ? "scale-110" : "group-hover/item:scale-110"}`}
                       />
-                      <span className="text-[11px] font-black uppercase tracking-widest truncate group-data-[state=collapsed]:hidden">
+                      <span className="text-[11px] font-black uppercase tracking-widest truncate group-data-[collapsible=icon]:hidden">
                         {item.label}
                       </span>
-                    </SidebarMenuButton>
-                  </Link>
+                    </Link>
+                  </SidebarMenuButton>
                 </SidebarMenuItem>
               );
             })}

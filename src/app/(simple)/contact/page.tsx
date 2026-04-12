@@ -46,9 +46,9 @@ export default async function ContactPage() {
   return (
     <div className="bg-background min-h-screen">
       {/* Premium Contact Hero */}
-      <section className="relative pt-24 pb-16 overflow-hidden">
+      <section className="relative pt-12 pb-16 overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-30"></div>
-        <div className="container relative z-10 px-4 md:px-6">
+        <div className="container mx-auto relative z-10 px-4 md:px-6">
           <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -76,7 +76,7 @@ export default async function ContactPage() {
         </div>
       </section>
 
-      <div className="container py-24 px-4 md:px-6 max-w-7xl">
+      <div className="container mx-auto py-24 px-4 md:px-6 max-w-7xl">
         <div className="grid lg:grid-cols-12 gap-16 items-start">
           {/* Left Column: Contact Methods & Trust Points */}
           <div className="lg:col-span-5 space-y-12">
@@ -180,7 +180,7 @@ export default async function ContactPage() {
       </div>
 
       {/* Dynamic Map/Footer Area Hint Could Go Here */}
-      <section className="container max-w-5xl py-24 px-4 md:px-6">
+      <section className="container mx-auto max-w-5xl py-24 px-4 md:px-6">
         <MotionDiv
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}

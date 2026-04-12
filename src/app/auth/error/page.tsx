@@ -3,7 +3,7 @@
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle } from 'lucide-react';
-import Link from 'next/link';
+import Link from "next/link";
 import { Button } from '@/components/ui/button';
 
 export default function AuthErrorPage() {

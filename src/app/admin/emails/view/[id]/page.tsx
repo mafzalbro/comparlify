@@ -6,7 +6,7 @@ import { MarkdownContent } from '@/components/markdown-content';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import Link from "next/link";
 import { ArrowLeft, Copy } from 'lucide-react';
 import { RetryFailedButton } from '../../_components/retry-failed-button';
 import { CloneCampaignButton } from '../../_components/clone-campaign-button';

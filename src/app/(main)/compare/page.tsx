@@ -16,7 +16,7 @@ import { ComparisonList } from "@/components/compare/comparison-list";
 import { BattleSelector } from "./_components/battle-selector";
 
 export const metadata: Metadata = await generateSeoMetadata({
-  title: "Side-by-Side | Head-to-Head Comparisons",
+  title: "Side-by-Side | Platform Comparisons",
   description:
     "Detailed, data-driven comparisons of the top course creation platforms. Find the perfect fit for your business with expert guidance.",
   path: "/compare",
@@ -131,7 +131,7 @@ export default async function ComparePage(props: {
       {/* ── HERO ─────────────────────────── */}
       <CompareHero subtitle={content["compare.hero.subtitle"]} />
 
-      <div className="container py-12 px-4 md:px-6">
+      <div className="container mx-auto py-12 px-4 md:px-6">
         <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

@@ -32,7 +32,7 @@ export function ExpertIntelligence({
         <div className="absolute bottom-[10%] -left-[5%] w-[30%] h-[30%] bg-blue-500/5 rounded-full blur-[120px] animate-pulse delay-700"></div>
       </div>
 
-      <div className="container px-4 md:px-6 relative z-10">
+      <div className="container mx-auto px-4 md:px-6 relative z-10">
         <div className="flex flex-col md:flex-row items-end justify-between mb-20 gap-8">
           <MotionDiv
             initial={{ opacity: 0, x: -20 }}

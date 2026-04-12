@@ -17,7 +17,7 @@ export function ScaleCTA({ subtitle, buttonText }: ScaleCTAProps) {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-primary/3 rounded-full blur-[120px]"></div>
       </div>
 
-      <div className="container relative z-10 px-4 md:px-6 text-center">
+      <div className="container mx-auto relative z-10 px-4 md:px-6 text-center">
         <div className="max-w-4xl mx-auto flex flex-col items-center space-y-10">
           <MotionDiv
             initial={{ opacity: 0, scale: 0.9 }}

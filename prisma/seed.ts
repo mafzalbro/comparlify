@@ -1062,9 +1062,9 @@ async function main(skipCleanup = false) {
       value: JSON.stringify(
         [
           { href: "/", label: "Home" },
-          { href: "/compare", label: "Head-to-Head" },
+          { href: "/compare", label: "Comparisons" },
           { href: "/blog", label: "Blog" },
-          { href: "/news", label: "Live Updates" },
+          { href: "/news", label: "News" },
           { href: "/community", label: "Community" },
           { href: "/tools", label: "Tools" },
           { href: "/about", label: "About" },

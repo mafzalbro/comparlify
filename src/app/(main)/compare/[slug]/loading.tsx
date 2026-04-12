@@ -6,7 +6,7 @@ export default function Loading() {
     return (
         <div className="bg-background">
             <section className="bg-secondary/30 border-b py-16 md:py-24">
-                <div className="container">
+                <div className="container mx-auto px-4">
                     <Skeleton className="h-5 w-48 mb-8" />
                     <div className="flex justify-between items-center mb-6">
                         <Skeleton className="h-10 w-48" />
@@ -23,7 +23,7 @@ export default function Loading() {
                     </div>
                 </div>
             </section>
-            <div className="container max-w-5xl py-16 md:py-24">
+            <div className="container mx-auto max-w-5xl py-16 md:py-24 px-4">
                 <div className="space-y-4">
                     <Skeleton className="h-6 w-full" />
                     <Skeleton className="h-6 w-5/6" />

@@ -15,33 +15,52 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, MousePointer2, ExternalLink } from "lucide-react";
+import {
+  TrendingUp,
+  MousePointer2,
+  ExternalLink,
+  Globe,
+  Monitor,
+  Smartphone,
+  Clock,
+  Compass,
+  MapPin,
+} from "lucide-react";
 import { ManagedImage } from "@/components/managed-image";
+import { formatDistanceToNow } from "date-fns";
+import { Zap } from "lucide-react";
 
 async function getAnalytics() {
-  const platforms = await prisma.platform.findMany({
-    include: {
-      _count: {
-        select: { affiliateClicks: true },
+  const [platforms, recentClicks] = await Promise.all([
+    prisma.platform.findMany({
+      include: {
+        _count: {
+          select: { affiliateClicks: true },
+        },
       },
-    },
-    orderBy: {
-      affiliateClicks: {
-        _count: "desc",
+      orderBy: {
+        affiliateClicks: {
+          _count: "desc",
+        },
       },
-    },
-  });
+    }),
+    prisma.affiliateClick.findMany({
+      take: 50,
+      orderBy: { createdAt: "desc" },
+      include: { platform: true },
+    }),
+  ]);
 
   const totalClicks = platforms.reduce(
     (acc, p) => acc + p._count.affiliateClicks,
     0,
   );
 
-  return { platforms, totalClicks };
+  return { platforms, totalClicks, recentClicks };
 }
 
 export default async function AnalyticsPage() {
-  const { platforms, totalClicks } = await getAnalytics();
+  const { platforms, totalClicks, recentClicks } = await getAnalytics();
 
   return (
     <div className="space-y-8">
@@ -82,7 +101,6 @@ export default async function AnalyticsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {/* Note: In a real app, you would aggregate this from the DB */}
             <div className="h-[120px] w-full bg-primary/5 rounded-xl border border-primary/10 flex items-end gap-2 p-4">
               {[45, 67, 89, 120, 95, 140, 180].map((h, i) => (
                 <div
@@ -97,50 +115,52 @@ export default async function AnalyticsPage() {
         </Card>
       </div>
 
-      <Card className="border-border/10 bg-card/20 overflow-hidden">
-        <CardHeader className="bg-muted/50 border-b border-border/10 px-6 py-8">
-          <CardTitle className="text-xl font-black">
-            Affiliate Performance Breakdown
-          </CardTitle>
-          <CardDescription>Detailed click counts per platform</CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader className="bg-muted/30">
-              <TableRow className="hover:bg-transparent border-border/10 font-black uppercase tracking-widest text-[10px]">
-                <TableHead className="w-[300px] border-r border-border/10">
-                  Platform
-                </TableHead>
-                <TableHead className="text-center border-r border-border/10">
-                  Clicks
-                </TableHead>
-                <TableHead className="text-center border-r border-border/10">
-                  Market Share
-                </TableHead>
-                <TableHead className="text-right">Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {platforms.map((platform) => {
-                const share =
-                  totalClicks > 0
-                    ? (
-                        (platform._count.affiliateClicks / totalClicks) *
-                        100
-                      ).toFixed(1)
-                    : "0";
-
-                return (
+      <div className="grid grid-cols-1 gap-8">
+        <Card className="border-border/10 bg-card/20 overflow-hidden">
+          <CardHeader className="bg-muted/50 border-b border-border/10 px-6 py-8 flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-xl font-black">
+                Unified Traffic Audit Log
+              </CardTitle>
+              <CardDescription>
+                Comprehensive real-time click intelligence
+              </CardDescription>
+            </div>
+            <Badge className="bg-primary/20 text-primary border-transparent h-8 shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)]">
+              <Zap className="h-3 w-3 mr-2" /> Live Stream
+            </Badge>
+          </CardHeader>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader className="bg-muted/30">
+                <TableRow className="hover:bg-transparent border-border/10 font-black uppercase tracking-widest text-[10px]">
+                  <TableHead className="w-[250px] border-r border-border/10 px-6">
+                    Platform Entity
+                  </TableHead>
+                  <TableHead className="border-r border-border/10">
+                    Environment
+                  </TableHead>
+                  <TableHead className="border-r border-border/10">
+                    Location Node
+                  </TableHead>
+                  <TableHead className="border-r border-border/10">
+                    Network
+                  </TableHead>
+                  <TableHead className="text-right px-6">Timestamp</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {recentClicks.map((click) => (
                   <TableRow
-                    key={platform.id}
+                    key={click.id}
                     className="group hover:bg-primary/5 border-border/10 transition-colors"
                   >
-                    <TableCell className="font-medium p-4 border-r border-border/10">
+                    <TableCell className="font-medium p-4 px-6 border-r border-border/10">
                       <div className="flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-lg bg-white p-1 border border-border/10 flex items-center justify-center overflow-hidden">
+                        <div className="h-10 w-10 rounded-lg bg-white p-1 border border-border/10 flex items-center justify-center overflow-hidden shrink-0">
                           <ManagedImage
-                            src={platform.logoUrl}
-                            alt={platform.name}
+                            src={click.platform.logoUrl}
+                            alt={click.platform.name}
                             width={40}
                             height={40}
                             className="object-contain grayscale group-hover:grayscale-0 transition-all"
@@ -148,57 +168,82 @@ export default async function AnalyticsPage() {
                         </div>
                         <div>
                           <p className="font-black uppercase tracking-tight">
-                            {platform.name}
+                            {click.platform.name}
                           </p>
-                          <p className="text-[10px] text-muted-foreground truncate max-w-[200px]">
-                            {platform.website}
-                          </p>
+                          <a
+                            href={click.platform.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[10px] flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors max-w-[150px] truncate"
+                          >
+                            Visit Source <ExternalLink className="h-3 w-3" />
+                          </a>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-center font-black text-xl border-r border-border/10">
-                      {platform._count.affiliateClicks}
+                    <TableCell className="border-r border-border/10 p-4">
+                      <div className="flex flex-col gap-1.5">
+                        <div className="flex items-center gap-1.5 text-xs font-bold">
+                          {click.device === "Mobile" ? (
+                            <Smartphone className="h-3.5 w-3.5 text-primary/60" />
+                          ) : (
+                            <Monitor className="h-3.5 w-3.5 text-primary/60" />
+                          )}
+                          {click.device || "Unknown"}
+                        </div>
+                        <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">
+                          {click.browser} / {click.os}
+                        </div>
+                      </div>
                     </TableCell>
-                    <TableCell className="text-center border-r border-border/10">
-                      <div className="flex flex-col items-center gap-2">
-                        <span className="text-sm font-bold text-primary">
-                          {share}%
+                    <TableCell className="border-r border-border/10 p-4">
+                      <div className="flex flex-col gap-1.5">
+                        <div className="flex items-center gap-1.5 text-xs font-bold">
+                          <Globe className="h-3.5 w-3.5 text-primary/60" />
+                          {click.country || "Unknown"}
+                        </div>
+                        <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-black flex items-center gap-1">
+                          <MapPin className="h-3 w-3" /> {click.city || "Unknown"}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="border-r border-border/10 p-4">
+                      <div className="flex flex-col gap-1.5">
+                        <div className="text-xs font-mono font-medium truncate max-w-[180px]" title={click.ip}>
+                          IP: {click.ip}
+                        </div>
+                        <div className="text-[10px] text-muted-foreground flex items-center gap-1.5 truncate max-w-[180px]" title={click.referrer}>
+                          <Compass className="h-3 w-3" /> {click.referrer}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right px-6 p-4">
+                      <div className="flex flex-col items-end gap-1">
+                        <span className="text-sm font-black text-foreground">
+                          {formatDistanceToNow(click.createdAt, { addSuffix: true })}
                         </span>
-                        <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden">
-                          <div
-                            className="bg-primary h-full transition-all duration-1000"
-                            style={{ width: `${share}%` }}
-                          />
+                        <div className="flex items-center gap-1 text-[9px] text-muted-foreground uppercase tracking-widest font-bold">
+                          <Clock className="h-3 w-3" /> Logged
                         </div>
                       </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <a
-                        href={platform.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
-                      >
-                        Source <ExternalLink className="h-3 w-3" />
-                      </a>
                     </TableCell>
                   </TableRow>
-                );
-              })}
-              {platforms.length === 0 && (
-                <TableRow>
-                  <TableCell
-                    colSpan={4}
-                    className="h-32 text-center text-muted-foreground italic"
-                  >
-                    No clicks recorded yet.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                ))}
+                {recentClicks.length === 0 && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={5}
+                      className="h-32 text-center text-muted-foreground italic"
+                    >
+                      No outbound traffic logged yet.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

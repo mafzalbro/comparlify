@@ -30,11 +30,11 @@ export default async function SimplePagesLayout({
 
   return (
     <>
-      <PromoBanner
-      //  content={content}
-      />
+      <PromoBanner />
       <Header navLinks={navLinks} siteName={siteName} />
-      <main>{children}</main>
+      <main className="container mx-auto px-4 py-10 max-w-5xl min-h-[60vh]">
+        {children}
+      </main>
       {session?.user && <Chatbot />}
       <Footer content={footerContent} siteName={siteName} />
     </>

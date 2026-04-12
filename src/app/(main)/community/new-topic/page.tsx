@@ -18,7 +18,7 @@ export default async function NewTopicPage() {
       {/* Background Visuals */}
       <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-30"></div>
 
-      <div className="container relative z-10 px-4 md:px-6">
+      <div className="container mx-auto relative z-10 px-4 md:px-6">
         <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

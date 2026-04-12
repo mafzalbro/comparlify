@@ -95,9 +95,9 @@ export default async function NewsArticlePage(props: {
           author: { "@type": "Person", name: article.author.name },
         }}
       />
-      <header className="relative pt-24 pb-16 overflow-hidden">
+      <header className="relative pt-12 pb-16 overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-20"></div>
-        <div className="container relative z-10 px-4 md:px-6">
+        <div className="container mx-auto relative z-10 px-4 md:px-6">
           <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -116,7 +116,7 @@ export default async function NewsArticlePage(props: {
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary mb-12">
                 <Globe className="h-4 w-4" />
                 <span className="text-xs font-black uppercase tracking-widest">
-                  Global Dispatch
+                  News
                 </span>
               </div>
 
@@ -157,7 +157,7 @@ export default async function NewsArticlePage(props: {
                       {article.author.name}
                     </p>
                     <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
-                      Global Correspondent
+                      Author
                     </p>
                   </div>
                 </div>
@@ -179,7 +179,7 @@ export default async function NewsArticlePage(props: {
       </header>
 
       {/* Featured Image */}
-      <section className="container px-4 md:px-6 -mt-8 mb-20">
+      <section className="container mx-auto px-4 md:px-6 -mt-8 mb-20">
         <MotionDiv
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -200,7 +200,7 @@ export default async function NewsArticlePage(props: {
       </section>
 
       {/* Article Content Layout */}
-      <main className="container max-w-6xl pb-32">
+      <main className="container mx-auto max-w-6xl pb-32">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
           {/* Left Sidebar Actions */}
           <aside className="hidden lg:block lg:col-span-1">
@@ -232,10 +232,10 @@ export default async function NewsArticlePage(props: {
                 </div>
                 <div>
                   <p className="font-bold text-lg leading-tight uppercase tracking-wider text-muted-foreground">
-                    The Dispatch Ends Here
+                    End of Article
                   </p>
                   <p className="text-sm text-foreground/60">
-                    Verified with our editorial compliance engine.
+                    Verified by our editorial team.
                   </p>
                 </div>
               </div>
@@ -245,7 +245,7 @@ export default async function NewsArticlePage(props: {
                 className="rounded-2xl px-10 h-14 font-black gap-2 transition-all hover:scale-102"
               >
                 <Link href="/news">
-                  <ArrowLeft className="h-5 w-5" /> All Dispatches
+                  <ArrowLeft className="h-5 w-5" /> All News
                 </Link>
               </Button>
             </div>
@@ -274,11 +274,11 @@ export default async function NewsArticlePage(props: {
                     <Scale className="h-24 w-24" />
                   </div>
                   <Badge className="bg-primary/20 text-primary border-primary/30 px-4 py-1.5 uppercase tracking-widest text-[8px] font-black rounded-full mb-8 relative z-10">
-                    Intelligence Trending
+                    Trending
                   </Badge>
                   <h3 className="text-2xl font-black text-foreground mb-10 relative z-10 leading-none">
-                    Head-to-Head <br />
-                    <span className="text-primary italic">Intelligence</span>
+                    Platform <br />
+                    <span className="text-primary italic">Comparisons</span>
                   </h3>
                   <div className="space-y-6 relative z-10">
                     {trendingComparisons.map((comp) => (
@@ -318,13 +318,13 @@ export default async function NewsArticlePage(props: {
 
               <div className="p-6 rounded-4xl bg-secondary border border-border/10">
                 <h4 className="text-sm font-black uppercase tracking-widest mb-6 opacity-40">
-                  Related Dispatches
+                  Related News
                 </h4>
                 <div className="space-y-6">
                   {/* Placeholder for real related news if available, otherwise generic links */}
                   <div className="group cursor-pointer">
                     <p className="text-[10px] font-bold text-primary mb-1 uppercase tracking-widest">
-                      Trending 01
+                      Creator Economy
                     </p>
                     <Link
                       href="/blog"
@@ -335,7 +335,7 @@ export default async function NewsArticlePage(props: {
                   </div>
                   <div className="group cursor-pointer">
                     <p className="text-[10px] font-bold text-primary mb-1 uppercase tracking-widest">
-                      Global 02
+                      E-Learning Updates
                     </p>
                     <Link
                       href="/news"

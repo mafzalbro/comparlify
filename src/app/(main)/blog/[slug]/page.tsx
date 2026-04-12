@@ -219,7 +219,7 @@ export default async function BlogPostPage(props: {
             <div className="absolute bottom-[20%] -right-[10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px] animate-pulse delay-1000"></div>
           </div>
 
-          <div className="container relative z-10 px-4 md:px-6">
+          <div className="container mx-auto relative z-10 px-4 md:px-6">
             <MotionDiv
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -294,7 +294,7 @@ export default async function BlogPostPage(props: {
         </header>
 
         {/* Featured Image - Immersive Scale */}
-        <section className="container px-4 md:px-6 -mt-12 mb-24">
+        <section className="container mx-auto px-4 md:px-6 -mt-12 mb-24">
           <MotionDiv
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -315,7 +315,7 @@ export default async function BlogPostPage(props: {
         </section>
 
         {/* Main Content Layout */}
-        <section className="container px-4 md:px-6 max-w-7xl">
+        <section className="container mx-auto px-4 md:px-6 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
             {/* Left Sidebar Actions - Desktop Only */}
             <aside className="hidden lg:block lg:col-span-1">
@@ -447,12 +447,12 @@ export default async function BlogPostPage(props: {
                       <Scale className="h-24 w-24" />
                     </div>
                     <Badge className="bg-primary/20 text-primary border-primary/30 px-4 py-1.5 uppercase tracking-widest text-[8px] font-black rounded-full mb-8 relative z-10 transition-all group-hover:bg-primary group-hover:text-primary-foreground">
-                      Intelligence Trending
+                      Trending
                     </Badge>
                     <h3 className="text-2xl font-black text-foreground mb-10 relative z-10">
-                      Latest <br />
+                      Platform <br />
                       <span className="text-primary italic font-black">
-                        Head-to-Head
+                        Comparisons
                       </span>
                     </h3>
                     <div className="space-y-6 relative z-10">

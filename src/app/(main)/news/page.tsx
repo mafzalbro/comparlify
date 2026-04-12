@@ -30,9 +30,9 @@ import { PremiumNewsletterForm } from "@/components/premium-newsletter-form";
 
 export async function generateMetadata(): Promise<Metadata> {
   return generateSeoMetadata({
-    title: "Live Market Updates | Stay Ahead of the Curve",
+    title: "News & Announcements",
     description:
-      "The latest market updates, trends, and breakthroughs from the world of tech and online course creation. Real-time updates for modern creators.",
+      "The latest product news, announcements, and articles from the Comparlify team.",
     path: "/news",
   });
 }
@@ -61,14 +61,14 @@ export default async function NewsPage() {
   return (
     <div className="bg-background min-h-screen">
       {/* --- PREMIUM NEWS HERO --- */}
-      <section className="relative pt-24 pb-16 overflow-hidden">
+      <section className="relative pt-12 pb-16 overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-30"></div>
         <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
-          <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px] animate-pulse"></div>
+          <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse"></div>
           <div className="absolute bottom-[20%] -right-[10%] w-[30%] h-[30%] bg-primary/5 rounded-full blur-[100px] animate-pulse delay-1000"></div>
         </div>
 
-        <div className="container relative z-10 px-4 md:px-6">
+        <div className="container mx-auto relative z-10 px-4 md:px-6">
           <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -76,39 +76,37 @@ export default async function NewsPage() {
           >
             <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
               <Breadcrumbs
-                items={[{ name: "Home", href: "/" }, { name: "Live Updates" }]}
+                items={[{ name: "Home", href: "/" }, { name: "News" }]}
                 className="mb-8 justify-center"
               />
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 mb-8 shadow-sm">
-                <Globe className="h-4 w-4" />
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary mb-8 shadow-sm">
+                <Newspaper className="h-4 w-4" />
                 <span className="text-[10px] font-black uppercase tracking-[0.3em]">
-                  Market Pulse
+                  Newsroom
                 </span>
               </div>
               <h1 className="text-4xl md:text-6xl font-black text-foreground tracking-tight leading-none mb-6">
-                The <span className="text-indigo-500 italic">Live</span> Feed
+                Latest <span className="text-primary italic">News</span>
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-                Real-time breakthroughs, industry shifts, and critical updates
-                curated for creators and digital entrepreneurs.
+                Product updates, announcements, and news from our team.
               </p>
             </div>
           </MotionDiv>
         </div>
       </section>
 
-      <div className="container py-12 px-4 md:px-6">
+      <div className="container mx-auto py-12 px-4 md:px-6">
         {articles.length === 0 ? (
           <MotionDiv
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className="text-center py-40 rounded-[4rem] border-2 border-dashed border-border/20 bg-secondary/5"
           >
-            <Globe className="mx-auto h-20 w-20 text-muted-foreground/20 mb-8" />
-            <h3 className="text-4xl font-black mb-4">Silence in the Signal</h3>
+            <Newspaper className="mx-auto h-20 w-20 text-muted-foreground/20 mb-8" />
+            <h3 className="text-4xl font-black mb-4">No news articles found</h3>
             <p className="text-xl text-muted-foreground max-w-lg mx-auto">
-              The airwaves are currently clear. Expecting next major dispatch in
-              T-minus 2 hours.
+              Check back later for new updates and announcements.
             </p>
           </MotionDiv>
         ) : (
@@ -140,7 +138,7 @@ export default async function NewsPage() {
                       <div className="absolute inset-0 bg-linear-to-r from-black/40 via-transparent to-transparent"></div>
                       <div className="absolute top-10 left-10">
                         <Badge className="bg-primary px-5 py-2 text-primary-foreground text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-2xl ring-4 ring-primary/20">
-                          Breaking Update
+                          Featured Story
                         </Badge>
                       </div>
                     </div>
@@ -155,7 +153,7 @@ export default async function NewsPage() {
                         </span>
                         <span className="w-8 h-px bg-border/30"></span>
                         <span className="text-primary flex items-center gap-2">
-                          <Zap className="h-4 w-4" /> Priority Signal
+                          <Newspaper className="h-4 w-4" /> Featured
                         </span>
                       </div>
                       <h2 className="text-3xl md:text-5xl font-black text-foreground mb-6 leading-[1.1] tracking-tight group-hover:text-primary transition-colors duration-500">
@@ -165,8 +163,7 @@ export default async function NewsPage() {
                         {featuredArticle.content.substring(0, 180)}...
                       </p>
                       <div className="flex items-center text-primary font-black uppercase tracking-[0.2em] text-sm group-hover:translate-x-4 transition-transform duration-500">
-                        View Full Dispatch{" "}
-                        <ArrowRight className="ml-4 h-6 w-6" />
+                        Read Full Story <ArrowRight className="ml-4 h-6 w-6" />
                       </div>
                     </div>
                   </div>
@@ -177,14 +174,12 @@ export default async function NewsPage() {
             {/* --- DISPATCH SUB-HEADER --- */}
             <div className="flex items-center justify-between py-12 border-t border-border/10">
               <div className="flex items-center gap-6">
-                <TrendingUp className="h-10 w-10 text-primary" />
                 <h3 className="text-3xl font-black tracking-tight text-foreground">
-                  The <span className="italic text-primary">Wire</span>
+                  All <span className="italic text-primary">News</span>
                 </h3>
               </div>
               <div className="bg-primary/5 px-6 py-3 rounded-2xl hidden md:flex items-center gap-3 text-xs font-black text-primary border border-primary/10 shadow-sm uppercase tracking-widest">
-                <Zap className="h-4 w-4 animate-pulse" /> {otherArticles.length}{" "}
-                Live Signals
+                <Newspaper className="h-4 w-4" /> {otherArticles.length} Stories
               </div>
             </div>
 
@@ -214,13 +209,13 @@ export default async function NewsPage() {
                           />
                           <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end p-8">
                             <span className="text-white font-black uppercase tracking-widest text-[10px] flex items-center gap-2">
-                              Full Dispatch <ArrowRight className="h-4 w-4" />
+                              Read Full Story <ArrowRight className="h-4 w-4" />
                             </span>
                           </div>
                         </Link>
                         <div className="absolute top-6 left-6">
                           <Badge className="bg-background/90 text-foreground backdrop-blur-xl border-none px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg">
-                            Live Update
+                            News
                           </Badge>
                         </div>
                       </div>
@@ -262,7 +257,7 @@ export default async function NewsPage() {
                             href={`/news/${article.slug}`}
                             className="flex items-center gap-3"
                           >
-                            The Full Feed{" "}
+                            Read Full Story{" "}
                             <ArrowRight className="h-3 w-3 transition-transform group-hover/btn:translate-x-2" />
                           </Link>
                         </Button>
@@ -278,39 +273,37 @@ export default async function NewsPage() {
 
       {/* --- PREMIUM NEWSLETTER BLOCK --- */}
       <section className="relative overflow-hidden bg-background py-32 mt-24">
-        <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-indigo-500/30 to-transparent"></div>
+        <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-primary/30 to-transparent"></div>
         <MotionDiv
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="relative group h-full"
         >
-          <div className="absolute inset-0 bg-indigo-500/2 pointer-events-none"></div>
+          <div className="absolute inset-0 bg-primary/2 pointer-events-none"></div>
           <div className="relative p-12 md:p-24 overflow-hidden text-center">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-12 text-indigo-500/3 select-none pointer-events-none -rotate-12">
-              <Globe className="h-[500px] w-[500px]" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-12 text-primary/5 select-none pointer-events-none -rotate-12">
+              <Newspaper className="h-[500px] w-[500px]" />
             </div>
 
             <div className="relative z-10 max-w-4xl mx-auto">
-              <Badge className="bg-indigo-500/10 text-indigo-600 border-indigo-500/20 px-5 py-2 uppercase tracking-[0.3em] text-[10px] font-black rounded-full mb-8 shadow-sm">
-                Real-Time Intel
+              <Badge className="bg-primary/10 text-primary border-primary/20 px-5 py-2 uppercase tracking-[0.3em] text-[10px] font-black rounded-full mb-8 shadow-sm">
+                Newsletter
               </Badge>
               <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-8 leading-[1.1]">
                 Stay Ahead of{" "}
-                <span className="text-indigo-500 italic">Industry PIVOTS</span>
+                <span className="text-primary italic">The Curve</span>
               </h2>
               <p className="text-lg text-muted-foreground mb-12 leading-relaxed font-medium">
-                Critical tech dispatches and creator economy breakthroughs
-                delivered as they happen.
+                Get the latest news and updates delivered to your inbox.
               </p>
 
               <PremiumNewsletterForm
-                accentColor="blue-500"
-                buttonText="Secure Access"
+                buttonText="Subscribe"
                 containerClassName="bg-card/40 border-white/10 p-4 rounded-[2.5rem] shadow-2xl max-w-2xl"
               />
               <p className="mt-8 text-[10px] text-muted-foreground/60 uppercase tracking-[0.3em] font-black text-center">
-                No latency. No fluff. Just the raw signal.
+                We respect your privacy. Unsubscribe at any time.
               </p>
             </div>
           </div>

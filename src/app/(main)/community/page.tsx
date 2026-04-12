@@ -54,7 +54,7 @@ export default async function CommunityPage() {
       {/* ── HERO ─────────────────────────── */}
       <CommunityHero />
 
-      <div id="categories" className="container py-24 px-4 md:px-6">
+      <div id="categories" className="container mx-auto py-24 px-4 md:px-6">
         {/* ── STATS BAR ───────────────────── */}
         <CommunityStatsBar stats={stats} />
 

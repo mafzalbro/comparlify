@@ -102,7 +102,7 @@ export default function Footer({ content, siteName }: FooterProps) {
       {/* Background Visuals */}
       <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-10"></div>
 
-      <div className="container relative z-10 px-4 md:px-6">
+      <div className="container mx-auto relative z-10 px-4 md:px-6">
         {/* Newsletter Callout - High Impact */}
         <MotionDiv
           initial={{ opacity: 0, y: 30 }}

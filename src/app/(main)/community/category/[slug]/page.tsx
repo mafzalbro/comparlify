@@ -69,9 +69,9 @@ export default async function CategoryPage(props: {
 
   return (
     <div className="bg-background min-h-screen">
-      <header className="relative pt-24 pb-16 overflow-hidden">
+      <header className="relative pt-12 pb-16 overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-30"></div>
-        <div className="container relative z-10 px-4 md:px-6">
+        <div className="container mx-auto relative z-10 px-4 md:px-6">
           <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -125,7 +125,7 @@ export default async function CategoryPage(props: {
         </div>
       </header>
 
-      <main className="container py-12 px-4 md:px-6">
+      <main className="container mx-auto py-12 px-4 md:px-6">
         {/* Category Filters/Sort Bar */}
         <div className="flex items-center justify-between mb-12 p-6 bg-card/40 backdrop-blur-xl border border-border/10 rounded-4xl shadow-xl">
           <div className="flex items-center gap-6">
@@ -163,7 +163,7 @@ export default async function CategoryPage(props: {
       </main>
 
       {/* Social Proof Section at Bottom */}
-      <section className="container max-w-5xl py-24 px-4 md:px-6 text-center">
+      <section className="container mx-auto max-w-5xl py-24 px-4 md:px-6 text-center">
         <MotionDiv
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
