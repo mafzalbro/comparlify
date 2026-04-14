@@ -29,7 +29,7 @@ export function Logo({
             alt={siteName}
             width={32}
             height={32}
-            className="rounded-lg object-contain"
+            className="rounded-lg object-contain drop-shadow-[0_0_0_rgba(0,0,0,1)]"
           />
         </span>
       )}

@@ -45,7 +45,7 @@ export default async function PanelLayout({
   return (
     <SidebarProvider>
       <Sidebar className="border-r border-border/50 bg-secondary/30 dark:bg-background/50 backdrop-blur-xl">
-        <SidebarHeader className="h-16 flex items-center px-4 border-b border-border/50">
+        <SidebarHeader className="h-16 flex items-center border-b border-border/50">
           <Logo
             siteName={siteName}
             sidebar
@@ -55,7 +55,7 @@ export default async function PanelLayout({
         <SidebarContent className="px-2 py-4">
           <PanelNav user={user} />
         </SidebarContent>
-        <SidebarFooter className="p-4 border-t border-border/50">
+        <SidebarFooter className="border-t border-border/50">
           <SidebarMenu>
             {user.role === "ADMIN" && (
               <SidebarMenuItem>

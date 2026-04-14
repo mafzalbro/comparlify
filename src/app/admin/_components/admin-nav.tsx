@@ -33,7 +33,7 @@ export function AdminNav({ userRole }: AdminNavProps) {
         if (accessibleItems.length === 0) return null;
 
         return (
-          <SidebarGroup key={group.group}>
+          <SidebarGroup className="p-0!" key={group.group}>
             <SidebarGroupLabel>{group.group}</SidebarGroupLabel>
             {accessibleItems.map((item) => {
               const isActive =
@@ -47,7 +47,7 @@ export function AdminNav({ userRole }: AdminNavProps) {
                     isActive={isActive}
                     className={cn(
                       "w-full h-9 rounded-lg transition-all duration-200 px-3 flex items-center gap-2",
-                      "group-data-[collapsible=icon]:justify-center! group-data-[collapsible=icon]:px-0! group-data-[collapsible=icon]:mx-auto!",
+                      "group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0",
                       isActive
                         ? "bg-primary/10 text-primary font-bold shadow-xs"
                         : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",

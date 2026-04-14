@@ -47,7 +47,7 @@ export function PanelNav({ user }: { user: Session["user"] }) {
                     isActive={isActive}
                     className={`
                       w-full h-12 px-4 rounded-3xl flex items-center gap-4 transition-all duration-200
-                      group-data-[collapsible=icon]:!px-0 group-data-[collapsible=icon]:!justify-center group-data-[collapsible=icon]:!mx-auto
+                      group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center
                       ${
                         isActive
                           ? "bg-primary text-primary-foreground scale-[1.02]"

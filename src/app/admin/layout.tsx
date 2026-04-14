@@ -41,7 +41,7 @@ export default async function AdminLayout({
   return (
     <SidebarProvider>
       <Sidebar className="border-r border-border/50 bg-secondary/30 dark:bg-background/50 backdrop-blur-xl">
-        <SidebarHeader className="h-16 flex items-center px-4 border-b border-border/50">
+        <SidebarHeader className="h-16 flex items-center border-b border-border/50">
           <Logo
             siteName={siteName}
             sidebar
