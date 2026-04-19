@@ -404,7 +404,7 @@ export function ROICalculator({ platforms, projects }: ROICalculatorProps) {
           <Card className="p-6 bg-card/40 backdrop-blur-md border border-border/10 rounded-3xl">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500"><Repeat className="h-4 w-4" /></div>
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Break-Even Velocity</h4>
+              <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Break-Even Point</h4>
             </div>
             <div className="text-3xl font-black">{currentStats?.breakEvenSales} <span className="text-xs font-medium text-muted-foreground ml-1">Sales / mo</span></div>
             <p className="text-[9px] font-bold mt-2 text-muted-foreground">Required sales at avg price to cover infrastructure costs.</p>
@@ -423,7 +423,7 @@ export function ROICalculator({ platforms, projects }: ROICalculatorProps) {
         <Card className="p-8 bg-card/40 backdrop-blur-3xl border border-border/10 rounded-[2.5rem] shadow-xl overflow-hidden relative">
           <div className="flex items-center justify-between mb-8">
             <h3 className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
-              <PieChart className="h-5 w-5 text-primary" /> Cost <span className="text-primary italic">Intelligence</span>
+              <PieChart className="h-5 w-5 text-primary" /> Cost <span className="text-primary italic">Breakdown</span>
             </h3>
             <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-full border border-border/10">
               <Button 
@@ -523,7 +523,7 @@ export function ROICalculator({ platforms, projects }: ROICalculatorProps) {
                       <span className="text-[9px] font-bold text-muted-foreground uppercase opacity-60">{d.tierName}</span>
                     </div>
                     {d.tierId === bestOption.tierId && (
-                      <span className="text-[8px] font-black uppercase bg-primary text-primary-foreground px-2 py-0.5 rounded italic">Efficiency King</span>
+                      <span className="text-[8px] font-black uppercase bg-primary text-primary-foreground px-2 py-0.5 rounded italic">Best Value</span>
                     )}
                   </div>
                   <div className="text-right">

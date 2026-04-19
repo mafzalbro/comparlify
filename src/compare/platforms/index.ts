@@ -1,0 +1,47 @@
+import { beehiiv } from "./beehiiv";
+import { substack } from "./substack";
+import { lemonsqueezy } from "./lemonsqueezy";
+import { stripe } from "./stripe";
+import { gumroad } from "./gumroad";
+import { cursor } from "./cursor";
+import { vscode } from "./vscode";
+import { skool } from "./skool";
+import { kajabi } from "./kajabi";
+import { circle } from "./circle";
+import { tally } from "./tally";
+import { typeform } from "./typeform";
+import { framer } from "./framer";
+import { webflow } from "./webflow";
+import { linear } from "./linear";
+import { jira } from "./jira";
+import { plausible } from "./plausible";
+import { ga4 } from "./ga4";
+import { heygen } from "./heygen";
+import { synthesia } from "./synthesia";
+import { medusa } from "./medusa";
+import { shopify } from "./shopify";
+
+export const allPlatforms = [
+  beehiiv,
+  substack,
+  lemonsqueezy,
+  stripe,
+  gumroad,
+  cursor,
+  vscode,
+  skool,
+  kajabi,
+  circle,
+  tally,
+  typeform,
+  framer,
+  webflow,
+  linear,
+  jira,
+  plausible,
+  ga4,
+  heygen,
+  synthesia,
+  medusa,
+  shopify,
+];

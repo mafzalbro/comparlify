@@ -26,7 +26,7 @@ export function HomeHero({
   toolsHref,
 }: HomeHeroProps) {
   return (
-    <section className="relative w-full min-h-[85vh] flex items-center justify-center pt-30 pb-16 overflow-hidden">
+    <section className="relative w-full min-h-[70vh] flex items-center justify-center pt-24 pb-12 overflow-hidden">
       {/* Visual Background Elements */}
       <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-40"></div>
       <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
@@ -52,7 +52,7 @@ export function HomeHero({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.05] mb-6 bg-linear-to-b from-foreground to-foreground/70 bg-clip-text text-transparent"
+            className="text-3xl md:text-5xl lg:text-5xl font-black tracking-tight leading-[1.05] mb-5 bg-linear-to-b from-foreground to-foreground/70 bg-clip-text text-transparent"
           >
             {title}
           </MotionH2>
@@ -61,7 +61,7 @@ export function HomeHero({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-12 leading-relaxed"
+            className="text-base md:text-lg text-muted-foreground max-w-2xl mb-10 leading-relaxed"
           >
             {subtitle}
           </MotionP>
@@ -75,21 +75,21 @@ export function HomeHero({
             {isToolsEnabled && (
               <Button
                 asChild
-                size="xl"
-                className="rounded-full px-10 h-14 text-lg font-bold shadow-xl shadow-primary/20 group hover:scale-105 active:scale-95 transition-all"
+                size="lg"
+                className="rounded-full px-8 h-12 text-base font-bold shadow-xl shadow-primary/20 group hover:scale-105 active:scale-95 transition-all"
               >
                 <NextLink href={toolsHref}>
                   {primaryCta}
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </NextLink>
               </Button>
             )}
             {isCompareEnabled && (
               <Button
                 asChild
-                size="xl"
+                size="lg"
                 variant="outline"
-                className="rounded-full px-10 h-14 text-lg font-bold border-border/50 hover:bg-secondary/50 backdrop-blur-sm transition-all hover:scale-105 active:scale-95"
+                className="rounded-full px-8 h-12 text-base font-bold border-border/50 hover:bg-secondary/50 backdrop-blur-sm transition-all hover:scale-105 active:scale-95"
               >
                 <NextLink href="/compare">{secondaryCta}</NextLink>
               </Button>
@@ -101,7 +101,7 @@ export function HomeHero({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.6 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-20 pt-10 border-t border-border/10 w-full"
+            className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12 pt-8 border-t border-border/10 w-full"
           >
             {[
               { label: "AI Powered", icon: CheckCircle2 },

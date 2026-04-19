@@ -216,7 +216,7 @@ async function main(skipCleanup = false) {
       website: "https://teachable.com",
       logoUrl: "/logos/teachable.svg",
       description:
-        "A popular platform that focuses on ease of use for creators just starting out. Great for simple course structures.",
+        "Focuses on ease of use for starting creators. Great for simple course structures with solid marketing tools.",
       rating: 4.2,
       easeOfUse: 4.8,
       featuresRating: 4.0,
@@ -227,7 +227,7 @@ async function main(skipCleanup = false) {
       website: "https://www.thinkific.com",
       logoUrl: "/logos/thinkific.svg",
       description:
-        "A powerful and flexible platform that offers more customization options and advanced features for growing businesses.",
+        "Powerful and flexible platform with 0% transaction fees. Offers deep customization and an extensive app store.",
       rating: 4.6,
       easeOfUse: 4.5,
       featuresRating: 4.7,
@@ -238,7 +238,7 @@ async function main(skipCleanup = false) {
       website: "https://kajabi.com",
       logoUrl: "/logos/kajabi.svg",
       description:
-        "An all-in-one platform that includes email marketing, website building, and sales funnels in addition to course hosting.",
+        "The premier all-in-one platform. Includes email marketing, funnels, and CRM in a premium closed ecosystem.",
       rating: 4.8,
       easeOfUse: 4.3,
       featuresRating: 4.9,
@@ -249,11 +249,66 @@ async function main(skipCleanup = false) {
       website: "https://www.podia.com",
       logoUrl: "/logos/podia.svg",
       description:
-        "A creator-friendly platform for courses, digital downloads, and memberships with a focus on simplicity and affordability.",
+        "Creator-friendly platform for courses and downloads. Focused on simplicity, affordability, and clean design.",
       rating: 4.5,
       easeOfUse: 4.9,
       featuresRating: 4.2,
       support: 4.5,
+    },
+    {
+      name: "Skool",
+      website: "https://www.skool.com",
+      logoUrl: "/logos/skool.svg",
+      description:
+        "Community-first platform focused on gamification and engagement. Minimalist design with maximum social impact.",
+      rating: 4.7,
+      easeOfUse: 5.0,
+      featuresRating: 3.8,
+      support: 4.4,
+    },
+    {
+      name: "Circle",
+      website: "https://circle.so",
+      logoUrl: "/logos/circle.svg",
+      description:
+        "The modern community platform for creators. Seamlessly combines discussions, events, and courses.",
+      rating: 4.6,
+      easeOfUse: 4.4,
+      featuresRating: 4.5,
+      support: 4.3,
+    },
+    {
+      name: "LearnWorlds",
+      website: "https://www.learnworlds.com",
+      logoUrl: "/logos/learnworlds.svg",
+      description:
+        "Advanced course authoring with interactive video and SCORM support. Ideal for professional training sites.",
+      rating: 4.4,
+      easeOfUse: 3.5,
+      featuresRating: 5.0,
+      support: 4.2,
+    },
+    {
+      name: "Gumroad",
+      website: "https://gumroad.com",
+      logoUrl: "/logos/gumroad.svg",
+      description:
+        "The simplest way to sell digital products and courses. Lightweight with a focus on quick setup and commerce.",
+      rating: 4.1,
+      easeOfUse: 4.9,
+      featuresRating: 3.5,
+      support: 3.8,
+    },
+    {
+      name: "Mighty Networks",
+      website: "https://www.mightynetworks.com",
+      logoUrl: "/logos/mightynetworks.svg",
+      description:
+        "Build communities and courses on your own branded mobile apps. Strong focus on network effects.",
+      rating: 4.3,
+      easeOfUse: 3.8,
+      featuresRating: 4.6,
+      support: 4.1,
     },
   ];
 
@@ -340,25 +395,94 @@ async function main(skipCleanup = false) {
     ],
     Podia: [
       {
+        name: "Free",
+        monthlyPrice: 0,
+        transactionFeePercent: 8,
+        isPopular: false,
+      },
+      {
         name: "Mover",
-        monthlyPrice: 33,
+        monthlyPrice: 39,
         transactionFeePercent: 0,
         isPopular: true,
-        annualPriceMonthlyEquivalent: 27,
+        annualPriceMonthlyEquivalent: 33,
       },
       {
         name: "Shaker",
-        monthlyPrice: 75,
+        monthlyPrice: 89,
         transactionFeePercent: 0,
         isPopular: false,
-        annualPriceMonthlyEquivalent: 62,
+        annualPriceMonthlyEquivalent: 75,
+      },
+    ],
+    Skool: [
+      {
+        name: "All-in-One",
+        monthlyPrice: 99,
+        transactionFeePercent: 0,
+        isPopular: true,
+      },
+    ],
+    Circle: [
+      {
+        name: "Basic",
+        monthlyPrice: 49,
+        transactionFeePercent: 4,
+        isPopular: false,
       },
       {
-        name: "Earthquaker",
-        monthlyPrice: 166,
+        name: "Professional",
+        monthlyPrice: 99,
+        transactionFeePercent: 0,
+        isPopular: true,
+      },
+      {
+        name: "Business",
+        monthlyPrice: 219,
         transactionFeePercent: 0,
         isPopular: false,
-        annualPriceMonthlyEquivalent: 138,
+      },
+    ],
+    LearnWorlds: [
+      {
+        name: "Starter",
+        monthlyPrice: 29,
+        transactionFeePercent: 5,
+        isPopular: false,
+      },
+      {
+        name: "Pro Trainer",
+        monthlyPrice: 99,
+        transactionFeePercent: 0,
+        isPopular: true,
+      },
+      {
+        name: "Learning Center",
+        monthlyPrice: 299,
+        transactionFeePercent: 0,
+        isPopular: false,
+      },
+    ],
+    Gumroad: [
+      {
+        name: "Simple",
+        monthlyPrice: 0,
+        transactionFeePercent: 10,
+        isPopular: true,
+      },
+    ],
+    "Mighty Networks": [
+      {
+        name: "Community",
+        monthlyPrice: 39,
+        transactionFeePercent: 3,
+        isPopular: false,
+      },
+      {
+        name: "Business",
+        monthlyPrice: 119,
+        transactionFeePercent: 2,
+        isPopular: true,
       },
     ],
   };
@@ -465,6 +589,116 @@ async function main(skipCleanup = false) {
       "Advanced Analytics": false,
       "API Access": false,
       "App Integrations": false,
+    },
+    Skool: {
+      "Course Builder": true,
+      "Video Hosting": false,
+      "Quizzes & Surveys": false,
+      Assignments: false,
+      "Certificates of Completion": false,
+      "Content Dripping": true,
+      "Website Builder": false,
+      "Custom Domain": true,
+      Blogging: false,
+      "Affiliate Marketing": false,
+      "Email Marketing": false,
+      "Sales & Coupons": false,
+      "Community Forum": true,
+      "Mobile App Access": true,
+      "Live Classes / Webinars": false,
+      "Student Dashboard": true,
+      "Payment Gateways": true,
+      "Advanced Analytics": true,
+      "API Access": true,
+      "App Integrations": true,
+    },
+    Circle: {
+      "Course Builder": true,
+      "Video Hosting": true,
+      "Quizzes & Surveys": true,
+      Assignments: true,
+      "Certificates of Completion": true,
+      "Content Dripping": true,
+      "Website Builder": true,
+      "Custom Domain": true,
+      Blogging: false,
+      "Affiliate Marketing": false,
+      "Email Marketing": true,
+      "Sales & Coupons": true,
+      "Community Forum": true,
+      "Mobile App Access": true,
+      "Live Classes / Webinars": true,
+      "Student Dashboard": true,
+      "Payment Gateways": true,
+      "Advanced Analytics": true,
+      "API Access": true,
+      "App Integrations": true,
+    },
+    LearnWorlds: {
+      "Course Builder": true,
+      "Video Hosting": true,
+      "Quizzes & Surveys": true,
+      Assignments: true,
+      "Certificates of Completion": true,
+      "Content Dripping": true,
+      "Website Builder": true,
+      "Custom Domain": true,
+      Blogging: true,
+      "Affiliate Marketing": true,
+      "Email Marketing": true,
+      "Sales & Coupons": true,
+      "Community Forum": true,
+      "Mobile App Access": true,
+      "Live Classes / Webinars": true,
+      "Student Dashboard": true,
+      "Payment Gateways": true,
+      "Advanced Analytics": true,
+      "API Access": true,
+      "App Integrations": true,
+    },
+    Gumroad: {
+      "Course Builder": true,
+      "Video Hosting": true,
+      "Quizzes & Surveys": false,
+      Assignments: false,
+      "Certificates of Completion": false,
+      "Content Dripping": false,
+      "Website Builder": false,
+      "Custom Domain": true,
+      Blogging: false,
+      "Affiliate Marketing": true,
+      "Email Marketing": true,
+      "Sales & Coupons": true,
+      "Community Forum": false,
+      "Mobile App Access": false,
+      "Live Classes / Webinars": false,
+      "Student Dashboard": true,
+      "Payment Gateways": true,
+      "Advanced Analytics": true,
+      "API Access": true,
+      "App Integrations": true,
+    },
+    "Mighty Networks": {
+      "Course Builder": true,
+      "Video Hosting": true,
+      "Quizzes & Surveys": true,
+      Assignments: true,
+      "Certificates of Completion": true,
+      "Content Dripping": true,
+      "Website Builder": true,
+      "Custom Domain": true,
+      Blogging: false,
+      "Affiliate Marketing": false,
+      "Email Marketing": true,
+      "Sales & Coupons": true,
+      "Community Forum": true,
+      "Mobile App Access": true,
+      "Live Classes / Webinars": true,
+      "Student Dashboard": true,
+      "Payment Gateways": true,
+      "Advanced Analytics": true,
+      "API Access": true,
+      "App Integrations": true,
     },
   };
 
@@ -647,56 +881,132 @@ async function main(skipCleanup = false) {
     (p) => p.name === "Thinkific",
   )!;
 
-  const comparisonData = {
-    title: "Teachable vs. Thinkific: The Ultimate 2024 Showdown",
-    slug: "teachable-vs-thinkific",
-    summary:
-      "We dive deep into the features, pricing, and user experience of Teachable and Thinkific to help you decide which is the best fit for your course creation journey.",
-    platformAId: platformTeachable.id,
-    platformBId: platformThinkific.id,
-    categoryId: compCategoryMap.get("Flagship Showdowns"),
-    introduction:
-      "### Introduction\nChoosing between Teachable and Thinkific is a common dilemma for course creators. Both are industry leaders, but they cater to slightly different needs. This comparison will break down the key differences.",
-    conclusion:
-      "### Conclusion\nFor beginners who prioritize simplicity, Teachable is a fantastic starting point. For those needing more customization and advanced features, Thinkific offers a more robust platform to grow into.",
-    published: true,
-    facts: {
-      create: [
-        {
-          title: "Best For",
-          platformAValue: "Beginners",
-          platformBValue: "Entrepreneurs",
-        },
-        {
-          title: "Free Plan",
-          platformAValue: "Yes, limited",
-          platformBValue: "Yes, limited",
-        },
-        {
-          title: "Transaction Fees (on free plan)",
-          platformAValue: "10% + $1",
-          platformBValue: "0%",
-        },
-      ],
+  const explicitComparisons = [
+    {
+      title: "Teachable vs. Thinkific: The Ultimate 2024 Showdown",
+      slug: "teachable-vs-thinkific",
+      summary: "Battle of the industry giants: ease of use vs. 0% transaction fees.",
+      platformA: "Teachable",
+      platformB: "Thinkific",
+      category: "Flagship Showdowns",
+      introduction: "Choosing between Teachable and Thinkific is a common dilemma...",
+      conclusion: "For beginners, Teachable is great. For scaling, Thinkific wins on fees.",
+      facts: [
+        { title: "Best For", a: "Beginners", b: "Scaling Schools" },
+        { title: "Transaction Fees", a: "1% - 10%", b: "0%" },
+        { title: "Custom Domain", a: "Paid Plans", b: "All Plans" },
+      ]
     },
-    faqs: {
-      create: [
-        {
-          question: "Which platform has better marketing tools?",
-          answer:
-            "Kajabi is generally considered to have the most comprehensive, all-in-one marketing suite.",
-        },
-        {
-          question: "Can I use my own domain with both?",
-          answer:
-            "Yes, both Teachable and Thinkific support custom domains on their paid plans.",
-        },
-      ],
+    {
+      title: "Skool vs. Circle: The Community Battle",
+      slug: "skool-vs-circle",
+      summary: "Gamification and simplicity vs. Enterprise-grade community features.",
+      platformA: "Skool",
+      platformB: "Circle",
+      category: "Flagship Showdowns",
+      introduction: "Community-led growth is the current meta. But should you choose Skool or Circle?",
+      conclusion: "Choose Skool for high engagement, Circle for professional branding.",
+      facts: [
+        { title: "Gamification", a: "Native leaderboards", b: "Moderate" },
+        { title: "App Experience", a: "Highly Rated", b: "IOS/Android" },
+        { title: "Course Engine", a: "Sleek/Basic", b: "Advanced/Modular" },
+      ]
     },
-  };
+    {
+      title: "Kajabi vs. Podia: The All-in-One Choice",
+      slug: "kajabi-vs-podia",
+      summary: "High-end marketing automation vs. the creator-friendly affordable alternative.",
+      platformA: "Kajabi",
+      platformB: "Podia",
+      category: "All-in-One vs. Standalone",
+      introduction: "Do you need a Ferrari or a reliable Tesla? We compare the two most popular all-in-one platforms.",
+      conclusion: "Kajabi for those with a high budget, Podia for everyone else.",
+      facts: [
+        { title: "Email Marketing", a: "Full Automation", b: "Standard" },
+        { title: "Pricing", a: "$149+/mo", b: "$39+/mo" },
+        { title: "Complexity", a: "High", b: "Very Low" },
+      ]
+    },
+    {
+      title: "Gumroad vs. Teachable: Digital Sales Faceoff",
+      slug: "gumroad-vs-teachable",
+      summary: "Lightweight sales vs. structured course hosting.",
+      platformA: "Gumroad",
+      platformB: "Teachable",
+      category: "All-in-One vs. Standalone",
+      introduction: "Selling your first digital product? Gumroad is the easy choice, but Teachable offers more growth.",
+      conclusion: "Start on Gumroad, migrate to Teachable once you have a curriculum.",
+      facts: [
+        { title: "Platform Fee", a: "10% Flat", b: "Tiered" },
+        { title: "Quizzes/Exams", a: "No", b: "Yes" },
+        { title: "Setup Speed", a: "Instant", b: "Fast" },
+      ]
+    }
+  ];
 
-  await prisma.comparison.create({ data: comparisonData });
-  console.log(`   ✓ Seeded 1 comparison.`);
+  const comparisonsToCreate = [...explicitComparisons];
+
+  for (let i = 0; i < createdPlatforms.length; i++) {
+    for (let j = i + 1; j < createdPlatforms.length; j++) {
+      const pA = createdPlatforms[i];
+      const pB = createdPlatforms[j];
+
+      const exists = comparisonsToCreate.find(
+        (c) =>
+          (c.platformA === pA.name && c.platformB === pB.name) ||
+          (c.platformA === pB.name && c.platformB === pA.name)
+      );
+
+      if (!exists) {
+        comparisonsToCreate.push({
+          title: `${pA.name} vs. ${pB.name}: Which is Better?`,
+          slug: `${pA.name.toLowerCase().replace(/\s+/g, "-")}-vs-${pB.name.toLowerCase().replace(/\s+/g, "-")}`,
+          summary: `A comprehensive comparison between ${pA.name} and ${pB.name} for modern course creators and community builders.`,
+          platformA: pA.name,
+          platformB: pB.name,
+          category: "All-in-One vs. Standalone",
+          introduction: `Deciding whether to use ${pA.name} or ${pB.name} depends heavily on your specific needs, budget, and future growth plans.`,
+          conclusion: `Both ${pA.name} and ${pB.name} offer excellent features, but the right choice depends on your prioritization of ease of use and pricing.`,
+          facts: [
+            { title: "Users Rating", a: `${pA.rating}/5`, b: `${pB.rating}/5` },
+            { title: "Ease of Use", a: `${pA.easeOfUse}/5`, b: `${pB.easeOfUse}/5` },
+            { title: "Features Rating", a: `${pA.featuresRating}/5`, b: `${pB.featuresRating}/5` },
+          ],
+        });
+      }
+    }
+  }
+
+  for (const cData of comparisonsToCreate) {
+    const pA = createdPlatforms.find(p => p.name === cData.platformA);
+    const pB = createdPlatforms.find(p => p.name === cData.platformB);
+    const catId = compCategoryMap.get(cData.category);
+
+    if (pA && pB && catId) {
+      await prisma.comparison.create({
+        data: {
+          title: cData.title,
+          slug: cData.slug,
+          summary: cData.summary,
+          platformAId: pA.id,
+          platformBId: pB.id,
+          categoryId: catId,
+          introduction: cData.introduction,
+          conclusion: cData.conclusion,
+          published: true,
+          facts: {
+            create: cData.facts.map(f => ({
+              title: f.title,
+              platformAValue: f.a,
+              platformBValue: f.b
+            }))
+          }
+        }
+      });
+    }
+  }
+
+  console.log(`   ✓ Seeded ${comparisonsToCreate.length} comparisons.`);
 
   // --- 11. Seed AI Tools ---
   console.log("\n🤖 Seeding AI Tools...");

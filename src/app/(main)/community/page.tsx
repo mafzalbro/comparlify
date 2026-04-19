@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return generateSeoMetadata({
     title: "Community Forums | Connect with Creators",
     description:
-      "Join the conversation! Ask questions, share your knowledge, and connect with thousands of course creators in our high-signal community.",
+      "Join the conversation! Ask questions, share your knowledge, and connect with thousands of course creators in our active community.",
     path: "/community",
   });
 }

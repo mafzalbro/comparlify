@@ -26,14 +26,14 @@ export function ExpertIntelligence({
   if (posts.length === 0) return null;
 
   return (
-    <section className="py-32 md:py-48 relative overflow-hidden bg-transparent">
+    <section className="py-16 md:py-24 relative overflow-hidden bg-transparent">
       <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-[20%] -right-[5%] w-[35%] h-[35%] bg-primary/5 rounded-full blur-[100px] animate-pulse"></div>
         <div className="absolute bottom-[10%] -left-[5%] w-[30%] h-[30%] bg-blue-500/5 rounded-full blur-[120px] animate-pulse delay-700"></div>
       </div>
 
       <div className="container mx-auto px-4 md:px-6 relative z-10">
-        <div className="flex flex-col md:flex-row items-end justify-between mb-20 gap-8">
+        <div className="flex flex-col md:flex-row items-end justify-between mb-12 gap-6">
           <MotionDiv
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -46,7 +46,7 @@ export function ExpertIntelligence({
                 Latest Articles
               </span>
             </div>
-            <h2 className="text-4xl md:text-6xl font-black tracking-tight mb-6">
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-4">
               Expert <span className="text-primary italic">Insights</span>
             </h2>
             <p className="text-lg text-muted-foreground font-medium leading-relaxed max-w-xl">
@@ -57,7 +57,7 @@ export function ExpertIntelligence({
           <Button
             asChild
             variant="ghost"
-            className="group h-14 px-8 rounded-2xl hover:bg-primary/10 text-primary font-black uppercase tracking-widest text-xs transition-all"
+            className="group h-12 px-6 rounded-xl hover:bg-primary/10 text-primary font-black uppercase tracking-widest text-[10px] transition-all"
           >
             <NextLink href="/blog">
               View Blog{" "}
@@ -66,7 +66,7 @@ export function ExpertIntelligence({
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {posts.map((post, index) => (
             <MotionDiv
               key={post.slug}
@@ -94,7 +94,7 @@ export function ExpertIntelligence({
                     </div>
                   </NextLink>
                 </div>
-                <CardHeader className="p-8 pb-4">
+                <CardHeader className="p-6 pb-3">
                   <div className="flex items-center gap-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-4">
                     <span className="text-primary">{post.author.name}</span>
                     <span className="w-4 h-px bg-border/20"></span>
@@ -111,12 +111,12 @@ export function ExpertIntelligence({
                     </NextLink>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="px-8 flex-1">
+                <CardContent className="px-6 flex-1">
                   <p className="text-muted-foreground text-sm line-clamp-2 leading-relaxed font-medium mb-4">
                     {post.description}
                   </p>
                 </CardContent>
-                <CardFooter className="p-8 pt-0">
+                <CardFooter className="p-6 pt-0">
                   <div className="flex items-center gap-3 text-primary font-black uppercase tracking-[0.2em] text-[10px] group/btn group-hover:translate-x-2 transition-transform duration-500">
                     Read Article <ArrowRight className="h-3 w-3" />
                   </div>

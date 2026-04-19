@@ -95,7 +95,7 @@ export default async function NewsArticlePage(props: {
           author: { "@type": "Person", name: article.author.name },
         }}
       />
-      <header className="relative pt-12 pb-16 overflow-hidden">
+      <header className="relative pt-8 pb-10 overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-20"></div>
         <div className="container mx-auto relative z-10 px-4 md:px-6">
           <MotionDiv
@@ -120,7 +120,7 @@ export default async function NewsArticlePage(props: {
                 </span>
               </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-6 leading-[1.1]">
+              <h1 className="text-3xl md:text-5xl lg:text-5xl font-bold tracking-tight text-foreground mb-6 leading-[1.1]">
                 {article.title}
               </h1>
 
@@ -179,13 +179,13 @@ export default async function NewsArticlePage(props: {
       </header>
 
       {/* Featured Image */}
-      <section className="container mx-auto px-4 md:px-6 -mt-8 mb-20">
+      <section className="container mx-auto px-4 md:px-6 -mt-8 mb-12">
         <MotionDiv
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 0.2 }}
         >
-          <div className="relative aspect-21/9 rounded-4xl overflow-hidden shadow-2xl group border-8 border-background ring-1 ring-border/10">
+          <div className="relative aspect-[3/1] rounded-4xl overflow-hidden shadow-2xl group border-8 border-background ring-1 ring-border/10">
             <ManagedImage
               src={article.image.replace("400/250", "1920/1080")}
               alt={article.title}
@@ -200,7 +200,7 @@ export default async function NewsArticlePage(props: {
       </section>
 
       {/* Article Content Layout */}
-      <main className="container mx-auto max-w-6xl pb-32">
+      <main className="container mx-auto max-w-6xl pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
           {/* Left Sidebar Actions */}
           <aside className="hidden lg:block lg:col-span-1">
@@ -221,9 +221,7 @@ export default async function NewsArticlePage(props: {
 
           {/* Main Text Content */}
           <article className="lg:col-span-8">
-            <div className="prose prose-xl dark:prose-invert max-w-none prose-headings:font-black prose-p:leading-relaxed prose-img:rounded-[2rem] prose-blockquote:border-none prose-blockquote:p-0">
-              <MarkdownContent content={article.content} />
-            </div>
+            <MarkdownContent content={article.content} />
 
             <div className="mt-24 pt-12 border-t border-border/10 flex flex-col md:flex-row items-center justify-between gap-8">
               <div className="flex items-center gap-4">

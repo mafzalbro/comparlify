@@ -11,7 +11,7 @@ const articleSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters long"),
   slug: z.string().min(3, "Slug must be at least 3 characters long"),
   content: z.string().min(20, "Content must be at least 20 characters long"),
-  image: z.string().url("Must be a valid URL"),
+  image: z.string().min(1, "Must be a valid URL or path"),
   dataAiHint: z.string().optional(),
   published: z.preprocess((val) => val === "on", z.boolean()),
   platformIds: z.string().optional(), // Receive as stringified array or similar from hidden input

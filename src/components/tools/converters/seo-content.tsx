@@ -60,7 +60,7 @@ export function SeoContent({ fromFormat, toFormat }: SeoContentProps) {
   const combinationKey = `${fromFormat.id}-${toFormat.id}`;
   const data = SEO_DATA[combinationKey] || {
     title: `Convert ${fromFormat.name} to ${toFormat.name} Instantly`,
-    description: `Easily convert your ${fromFormat.name} files into ${toFormat.name} format. This premium conversion handles your files with high fidelity. Use our neural conversion engine to get the job done in seconds.`,
+    description: `Easily convert your ${fromFormat.name} files into ${toFormat.name} format. Fast, private, and free — everything is processed locally in your browser.`,
     tips: [
       `Files are processed quickly to ${toFormat.extension.toUpperCase()}.`,
       "Supports batch processing for multiple files.",

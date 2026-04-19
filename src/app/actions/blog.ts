@@ -29,7 +29,7 @@ const postSchema = z.object({
     .min(10, "Description must be at least 10 characters long")
     .max(191, "Description must be 191 characters or less."),
   content: z.string().min(20, "Content must be at least 20 characters long"),
-  image: z.string().url("Must be a valid URL"),
+  image: z.string().min(1, "Image is required"),
   dataAiHint: z.string().optional(),
   categoryId: z.string().min(1, "A category must be selected"),
   published: z.preprocess((val) => val === "on", z.boolean()),

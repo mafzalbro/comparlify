@@ -1,9 +1,13 @@
 import type { NextConfig } from "next";
 
+// cp -r .next/static .next/standalone/.next/
+// cp -r public .next/standalone/
+
 const nextConfig: NextConfig = {
   /* config options here */
   outputFileTracingRoot: process.cwd(),
-  // output: "standalone",
+  output: "standalone",
+  serverExternalPackages: ["@prisma/client", "prisma"],
   typescript: {
     ignoreBuildErrors: true,
   },

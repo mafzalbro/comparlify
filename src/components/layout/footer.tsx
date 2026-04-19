@@ -134,12 +134,12 @@ export default function Footer({ content, siteName }: FooterProps) {
           <div className="w-full max-w-md">
             <form ref={formRef} action={formAction} className="relative group">
               <div className="absolute -inset-1 bg-primary/20 rounded-2xl blur-lg opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
-              <div className="relative flex p-1.5 bg-background border border-border/10 rounded-2xl shadow-xl">
+              <div className="relative flex p-1.5 bg-background border border-border/10 rounded-2xl shadow-xl justify-center items-center gap-2">
                 <Input
                   name="email"
                   type="email"
                   placeholder="Enter your email address..."
-                  className="bg-transparent border-none h-12 focus-visible:ring-0 text-sm font-medium px-4"
+                  className="bg-transparent border-none h-12 focus-visible:ring-0! text-sm font-medium px-4 mt-0!"
                   required
                 />
                 <SubmitButton />

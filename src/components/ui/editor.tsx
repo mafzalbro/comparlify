@@ -296,7 +296,7 @@ export function Editor({ initialContent = "", onChange }: EditorProps) {
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm dark:prose-invert max-w-none focus:outline-none min-h-[300px] p-4",
+          "premium-prose focus:outline-none min-h-[300px] p-4",
       },
     },
   });

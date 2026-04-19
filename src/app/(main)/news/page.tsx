@@ -61,7 +61,7 @@ export default async function NewsPage() {
   return (
     <div className="bg-background min-h-screen">
       {/* --- PREMIUM NEWS HERO --- */}
-      <section className="relative pt-12 pb-16 overflow-hidden">
+      <section className="relative pt-8 pb-10 overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-30"></div>
         <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
           <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse"></div>
@@ -74,7 +74,7 @@ export default async function NewsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
+            <div className="flex flex-col items-center text-center max-w-6xl mx-auto">
               <Breadcrumbs
                 items={[{ name: "Home", href: "/" }, { name: "News" }]}
                 className="mb-8 justify-center"
@@ -85,7 +85,7 @@ export default async function NewsPage() {
                   Newsroom
                 </span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-black text-foreground tracking-tight leading-none mb-6">
+              <h1 className="text-3xl md:text-5xl font-black text-foreground tracking-tight leading-none mb-6">
                 Latest <span className="text-primary italic">News</span>
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
@@ -96,7 +96,7 @@ export default async function NewsPage() {
         </div>
       </section>
 
-      <div className="container mx-auto py-12 px-4 md:px-6">
+      <div className="container mx-auto py-8 px-4 md:px-6">
         {articles.length === 0 ? (
           <MotionDiv
             initial={{ opacity: 0, scale: 0.95 }}
@@ -110,7 +110,7 @@ export default async function NewsPage() {
             </p>
           </MotionDiv>
         ) : (
-          <div className="space-y-24">
+          <div className="space-y-16">
             {/* --- FEATURED HERO ARTICLE --- */}
             {featuredArticle && (
               <MotionDiv
@@ -122,8 +122,8 @@ export default async function NewsPage() {
                   href={`/news/${featuredArticle.slug}`}
                   className="block group"
                 >
-                  <div className="relative grid grid-cols-1 lg:grid-cols-12 overflow-hidden rounded-[2.5rem] border border-border/10 glass dark:glass-dark shadow-[0_50px_100px_-30px_rgba(0,0,0,0.2)] hover:shadow-blue-500/5 transition-all duration-700 h-full lg:min-h-[500px]">
-                    <div className="lg:col-span-7 relative h-[350px] lg:h-auto overflow-hidden">
+                  <div className="relative grid grid-cols-1 lg:grid-cols-12 overflow-hidden rounded-[2.5rem] border border-border/10 glass dark:glass-dark shadow-[0_50px_100px_-30px_rgba(0,0,0,0.2)] hover:shadow-blue-500/5 transition-all duration-700 h-full lg:min-h-[400px]">
+                    <div className="lg:col-span-7 relative h-[250px] lg:h-auto overflow-hidden">
                       <ManagedImage
                         src={featuredArticle.image.replace(
                           "400/250",
@@ -286,7 +286,7 @@ export default async function NewsPage() {
               <Newspaper className="h-[500px] w-[500px]" />
             </div>
 
-            <div className="relative z-10 max-w-4xl mx-auto">
+            <div className="relative z-10 max-w-5xl mx-auto">
               <Badge className="bg-primary/10 text-primary border-primary/20 px-5 py-2 uppercase tracking-[0.3em] text-[10px] font-black rounded-full mb-8 shadow-sm">
                 Newsletter
               </Badge>

@@ -45,7 +45,9 @@ firebase-debug.log
 firestore-debug.log
 
 # ai agents
-.agents/
-.agent/
-_agents/
-_agent/
+# .agents/
+# .agent/
+# _agents/
+# _agent/
+
+.vscode

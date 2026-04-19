@@ -53,7 +53,7 @@ export default async function PrivacyPage() {
         </div>
       </header>
 
-      <main className="container mx-auto max-w-4xl py-12 px-4 md:px-6">
+      <main className="container mx-auto max-w-screen-xl py-12 px-1.5 md:px-8">
         <MotionDiv
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

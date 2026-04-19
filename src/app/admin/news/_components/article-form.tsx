@@ -1,17 +1,13 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { createNewsArticle, updateNewsArticle } from "@/app/actions/news";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { type NewsArticle, type Platform } from "@prisma/client";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { useRouter } from "next/navigation";
 import { SubmitButton } from "@/components/submit-button";
@@ -31,11 +27,30 @@ interface ArticleFormProps {
 
 export function ArticleForm({ article, platforms }: ArticleFormProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const isEditing = !!article;
   const formAction = isEditing
     ? updateNewsArticle.bind(null, article.id)
     : createNewsArticle;
   const [state, action] = useActionState(formAction, { error: null });
+
+  useEffect(() => {
+    if (state?.error) {
+      if (typeof state.error === "string") {
+        toast({
+          title: "Error",
+          description: state.error,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Validation Error",
+          description: "Please check the form for mistakes.",
+          variant: "destructive",
+        });
+      }
+    }
+  }, [state?.error, toast]);
 
   const [content, setContent] = useState(article?.content ?? "");
   const [title, setTitle] = useState(article?.title ?? "");
@@ -149,11 +164,18 @@ export function ArticleForm({ article, platforms }: ArticleFormProps) {
             </div>
           </div>
           <div className="space-y-6">
-            <ImagePickerInput
-              label="Image URL"
-              name="image"
-              defaultValue={article?.image}
-            />
+            <div className="space-y-2">
+              <ImagePickerInput
+                label="Image URL"
+                name="image"
+                defaultValue={article?.image}
+              />
+              {typeof state.error !== "string" && state.error?.image && (
+                <p className="text-destructive text-sm">
+                  {state.error.image[0]}
+                </p>
+              )}
+            </div>
             <div className="space-y-2">
               <Label htmlFor="dataAiHint">AI Prompt for Image</Label>
               <Input

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence, HTMLMotionProps } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 export const MotionDiv = motion.div;
 export const MotionSection = motion.section;

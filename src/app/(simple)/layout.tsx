@@ -32,7 +32,7 @@ export default async function SimplePagesLayout({
     <>
       <PromoBanner />
       <Header navLinks={navLinks} siteName={siteName} />
-      <main className="container mx-auto px-4 py-10 max-w-5xl min-h-[60vh]">
+      <main className="flex-1 flex flex-col min-h-[60vh]">
         {children}
       </main>
       {session?.user && <Chatbot />}

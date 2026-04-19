@@ -25,6 +25,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import type { SearchParams } from "@/types/next";
 import { createQueryString } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
+import { MotionDiv, AnimatePresence } from "@/components/motion-wrapper";
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -114,28 +115,29 @@ export function FilterControls({
 
   const hasActiveFilters =
     !!searchParams.search ||
-    searchParams.sort !== "newest" ||
-    selectedPlatforms.length > 0 ||
-    categoryValue !== "all";
+    (searchParams.sort && searchParams.sort !== "newest") ||
+    (searchParams.platforms && selectedPlatforms.length > 0) ||
+    (searchParams.category && searchParams.category !== "all");
 
   return (
-    <div className="flex flex-wrap items-center justify-center gap-3 w-full">
-      <div className="relative flex-1 min-w-[240px]">
+    <MotionDiv layout className="flex flex-wrap items-center justify-center gap-3 w-full">
+      <MotionDiv layout className="relative flex-1 min-w-[240px]">
         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-primary opacity-60" />
         <Input
           id="search"
           name="search"
-          placeholder="Search campaigns..."
+          placeholder="Search comparisons..."
           className="pl-10! h-10 bg-accent-surface! dark:bg-white/5 border-accent-border! rounded-full focus:ring-accent-surface! transition-all font-medium text-xs placeholder:opacity-50 mt-0!"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
         />
-      </div>
+      </MotionDiv>
 
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            type="button"
+      <MotionDiv layout>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              type="button"
             variant="outline"
             className="h-10 px-6 rounded-full border-accent-border! bg-accent-surface! dark:bg-white/5 backdrop-blur-2xl! hover:bg-accent-surface/80! dark:hover:bg-white/5! transition-all relative font-black uppercase tracking-widest text-[9px]"
             disabled={isPending}
@@ -173,9 +175,24 @@ export function FilterControls({
                   <SelectValue placeholder="Sort By..." />
                 </SelectTrigger>
                 <SelectContent className="rounded-2xl border-border/10 bg-background/95 backdrop-blur-xl">
-                  <SelectItem value="newest" className="text-[10px] font-bold uppercase tracking-widest">Newest First</SelectItem>
-                  <SelectItem value="oldest" className="text-[10px] font-bold uppercase tracking-widest">Oldest First</SelectItem>
-                  <SelectItem value="rating" className="text-[10px] font-bold uppercase tracking-widest">Top Rated</SelectItem>
+                  <SelectItem
+                    value="newest"
+                    className="text-[10px] font-bold uppercase tracking-widest"
+                  >
+                    Newest First
+                  </SelectItem>
+                  <SelectItem
+                    value="oldest"
+                    className="text-[10px] font-bold uppercase tracking-widest"
+                  >
+                    Oldest First
+                  </SelectItem>
+                  <SelectItem
+                    value="rating"
+                    className="text-[10px] font-bold uppercase tracking-widest"
+                  >
+                    Top Rated
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -199,9 +216,18 @@ export function FilterControls({
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent className="rounded-2xl border-border/10 bg-background/95 backdrop-blur-xl max-h-[300px]">
-                  <SelectItem value="all" className="text-[10px] font-bold uppercase tracking-widest">All Industries</SelectItem>
+                  <SelectItem
+                    value="all"
+                    className="text-[10px] font-bold uppercase tracking-widest"
+                  >
+                    All Industries
+                  </SelectItem>
                   {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id} className="text-[10px] font-bold uppercase tracking-widest">
+                    <SelectItem
+                      key={category.id}
+                      value={category.id}
+                      className="text-[10px] font-bold uppercase tracking-widest"
+                    >
                       {category.name}
                     </SelectItem>
                   ))}
@@ -242,19 +268,31 @@ export function FilterControls({
           </div>
         </PopoverContent>
       </Popover>
+      </MotionDiv>
 
-      {hasActiveFilters && (
-        <Button
-          asChild
-          variant="ghost"
-          className="h-10 px-4 rounded-full text-[9px] font-black uppercase tracking-widest text-red-500 hover:text-red-600 hover:bg-red-500/5 transition-all ml-auto"
-        >
-          <Link href="/compare" scroll={false}>
-            <X className="mr-2 h-3.5 w-3.5" />
-            Reset
-          </Link>
-        </Button>
-      )}
-    </div>
+      <AnimatePresence>
+        {hasActiveFilters && (
+          <MotionDiv
+            layout
+            initial={{ opacity: 0, scale: 0.8, filter: "blur(4px)" }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+            exit={{ opacity: 0, scale: 0.8, filter: "blur(4px)" }}
+            transition={{ duration: 0.2 }}
+            className="ml-auto"
+          >
+            <Button
+              asChild
+              variant="ghost"
+              className="h-10 px-4 rounded-full text-[9px] font-black uppercase tracking-widest text-red-500 hover:text-red-600 hover:bg-red-500/5 transition-all"
+            >
+              <Link href="/compare" scroll={false}>
+                <X className="mr-2 h-3.5 w-3.5" />
+                Reset
+              </Link>
+            </Button>
+          </MotionDiv>
+        )}
+      </AnimatePresence>
+    </MotionDiv>
   );
 }

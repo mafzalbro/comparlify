@@ -67,15 +67,14 @@ export function ToolsClientPage({ allTools }: { allTools: Tool[] }) {
         <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary mb-8 shadow-sm">
           <Wand2 className="h-4 w-4" />
           <span className="text-[10px] font-black uppercase tracking-[0.3em]">
-            Elite AI Dispatch
+            AI-Powered Tools
           </span>
         </div>
         <h1 className="text-4xl md:text-6xl font-black text-foreground mb-6 tracking-tight leading-none">
-          The Intelligence <span className="text-primary italic">Suite</span>
+          The AI <span className="text-primary italic">Toolkit</span>
         </h1>
         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-medium">
-          A collection of high-signal AI models calibrated for surgical
-          precision in content and strategy.
+          A collection of practical AI tools built for content creation, platform research, and business strategy.
         </p>
       </MotionDiv>
 
@@ -120,7 +119,7 @@ export function ToolsClientPage({ allTools }: { allTools: Tool[] }) {
                   <div className="relative mb-8">
                     <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/30" />
                     <Input
-                      placeholder="Scan models..."
+                      placeholder="Search tools..."
                       className="pl-12 h-14 bg-background/50 border-border/10 rounded-2xl focus-visible:ring-primary/20 text-xs font-bold uppercase tracking-widest placeholder:text-muted-foreground/40"
                       value={searchTerm}
                       onChange={(e) => {
@@ -169,7 +168,7 @@ export function ToolsClientPage({ allTools }: { allTools: Tool[] }) {
                       ))
                     ) : (
                       <div className="p-12 text-center text-[10px] text-muted-foreground/40 italic font-black uppercase tracking-widest">
-                        Zero Match Signal.
+                        No tools found.
                       </div>
                     )}
                   </div>
@@ -199,7 +198,7 @@ export function ToolsClientPage({ allTools }: { allTools: Tool[] }) {
                           </div>
                           <div className="space-y-4 text-center md:text-left">
                             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary bg-primary/10 px-4 py-1.5 rounded-full border border-primary/20">
-                              Active Intelligence Model
+                              AI Tool
                             </span>
                             <h2 className="text-3xl md:text-5xl font-black text-foreground leading-tight tracking-tight">
                               {activeTool.title}
@@ -228,11 +227,10 @@ export function ToolsClientPage({ allTools }: { allTools: Tool[] }) {
                         </div>
                         <div className="space-y-4">
                           <h3 className="text-3xl font-black text-foreground tracking-tight uppercase">
-                            Initializing Hub
+                            Select a Tool
                           </h3>
                           <p className="text-lg font-medium leading-relaxed">
-                            Select an active intelligence model from the sidebar
-                            to begin content generation protocols.
+                            Choose a tool from the sidebar to get started.
                           </p>
                         </div>
                         <div className="flex justify-center pt-8">

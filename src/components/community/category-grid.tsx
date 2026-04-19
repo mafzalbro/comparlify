@@ -37,11 +37,10 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
       >
         <MessageCircle className="mx-auto h-24 w-24 text-muted-foreground/10 mb-8" />
         <h3 className="text-4xl font-black mb-6 uppercase tracking-tight">
-          Transmission Silence
+          No Categories Yet
         </h3>
         <p className="text-xl text-muted-foreground max-w-md mx-auto font-medium">
-          The network core is being re-calibrated. New dispatches will be
-          initialized shortly.
+          Categories are being set up. Check back shortly.
         </p>
       </MotionDiv>
     );
@@ -97,7 +96,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
                 </CardTitle>
                 <CardDescription className="text-lg text-muted-foreground leading-relaxed font-medium max-w-md">
                   {category.description ||
-                    "High-signal exchange for surgical content strategies and platform growth."}
+                    "Join the discussion and share insights with other platform users."}
                 </CardDescription>
               </CardHeader>
 
@@ -112,7 +111,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
                         </span>
                       </div>
                       <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] leading-none">
-                        Signals
+                        Topics
                       </span>
                     </div>
                     <div className="flex flex-col gap-2">
@@ -120,7 +119,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
                         {postCount}
                       </span>
                       <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] leading-none">
-                        Dispatches
+                        Posts
                       </span>
                     </div>
                   </div>

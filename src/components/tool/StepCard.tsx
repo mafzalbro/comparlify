@@ -15,8 +15,8 @@ interface StepCardProps {
 
 export function StepCard({ question, selectedValue, onChange }: StepCardProps) {
   return (
-    <div className="space-y-10">
-      <div className="space-y-3">
+    <div className="space-y-6">
+      <div className="space-y-2">
         <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight leading-none text-foreground/80">
           {question.text}
         </h3>
@@ -30,7 +30,7 @@ export function StepCard({ question, selectedValue, onChange }: StepCardProps) {
       <RadioGroup
         value={selectedValue}
         onValueChange={onChange}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
       >
         {question.options.map((option, idx) => {
           const isSelected = selectedValue === option.value;
@@ -42,7 +42,7 @@ export function StepCard({ question, selectedValue, onChange }: StepCardProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1, duration: 0.5 }}
               className={cn(
-                "relative group flex flex-col items-start p-7 border-2 rounded-4xl cursor-pointer transition-all duration-500 overflow-hidden",
+                "relative group flex flex-col items-start p-5 border-2 rounded-3xl cursor-pointer transition-all duration-500 overflow-hidden",
                 isSelected
                   ? "border-primary bg-primary/5 shadow-2xl shadow-primary/10 ring-4 ring-primary/5"
                   : "border-border bg-muted/30 hover:border-foreground/10 hover:bg-muted/50",
@@ -58,7 +58,7 @@ export function StepCard({ question, selectedValue, onChange }: StepCardProps) {
                 </div>
               )}
 
-              <div className="flex flex-col gap-4 w-full relative z-10">
+              <div className="flex flex-col gap-3 w-full relative z-10">
                 <div className="space-y-1">
                   <div className="flex items-center gap-3">
                     <span

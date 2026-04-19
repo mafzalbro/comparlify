@@ -177,12 +177,12 @@ export default async function DynamicBattlePage(props: {
 
         <section className="container mx-auto px-4 md:px-6 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
-            <aside className="lg:col-span-4 space-y-16">
-              <div className="bg-card/40 backdrop-blur-3xl border border-border/10 p-8 rounded-4xl shadow-2xl relative overflow-hidden">
-                <h3 className="text-xl font-black mb-10 flex items-center gap-2">
-                  <Zap className="h-5 w-5 text-primary" /> Feature Radar
+            <aside className="lg:col-span-4 space-y-6 lg:sticky lg:top-24 h-fit z-30">
+              <div className="bg-card/40 backdrop-blur-3xl border border-border/10 p-5 rounded-3xl shadow-2xl relative overflow-hidden">
+                <h3 className="text-lg font-black mb-6 flex items-center gap-2">
+                  <Zap className="h-4 w-4 text-primary" /> Feature Radar
                 </h3>
-                <div className="h-[300px]">
+                <div className="h-[250px]">
                   <ComparisonChart
                     chartConfig={chartConfig}
                     chartData={chartData}
@@ -193,25 +193,25 @@ export default async function DynamicBattlePage(props: {
               </div>
 
               {/* Connected Intelligence Widget */}
-              <div className="bg-primary/5 border border-primary/20 p-8 rounded-[3rem] space-y-8">
-                <Badge className="bg-primary/20 text-primary border-primary/30 uppercase tracking-widest text-[9px] font-black">
+              <div className="bg-primary/5 border border-primary/20 p-6 rounded-[2rem] space-y-5">
+                <Badge className="bg-primary/20 text-primary border-primary/30 uppercase tracking-widest text-[8px] font-black">
                   Community Pulse
                 </Badge>
-                <h4 className="text-2xl font-black leading-none">
+                <h4 className="text-xl font-black leading-none">
                   Expert <span className="text-primary italic">Highlights</span>
                 </h4>
 
-                <div className="space-y-6">
+                <div className="space-y-3">
                   {[...platformA.forumTopics, ...platformB.forumTopics]
                     .slice(0, 3)
                     .map((topic) => (
                       <Link
                         key={topic.id}
                         href={`/community/topic/${topic.id}`}
-                        className="flex items-start gap-4 p-4 rounded-2xl bg-background hover:bg-primary/5 transition-all group"
+                        className="flex items-start gap-3 p-3 rounded-xl bg-background hover:bg-primary/5 transition-all group"
                       >
-                        <MessageSquare className="h-5 w-5 text-muted-foreground mt-1 group-hover:text-primary" />
-                        <p className="text-xs font-bold leading-snug group-hover:text-primary transition-colors">
+                        <MessageSquare className="h-4 w-4 text-muted-foreground mt-1 group-hover:text-primary shrink-0" />
+                        <p className="text-xs font-bold leading-snug group-hover:text-primary transition-colors line-clamp-2">
                           {topic.title}
                         </p>
                       </Link>
@@ -222,10 +222,10 @@ export default async function DynamicBattlePage(props: {
                       <Link
                         key={news.id}
                         href={`/news/${news.slug}`}
-                        className="flex items-start gap-4 p-4 rounded-2xl bg-background hover:bg-blue-500/5 transition-all group border border-blue-500/10"
+                        className="flex items-start gap-3 p-3 rounded-xl bg-background hover:bg-blue-500/5 transition-all group border border-blue-500/10"
                       >
-                        <Newspaper className="h-5 w-5 text-blue-500 mt-1" />
-                        <p className="text-xs font-bold leading-snug group-hover:text-blue-500 transition-colors">
+                        <Newspaper className="h-4 w-4 text-blue-500 mt-1 shrink-0" />
+                        <p className="text-xs font-bold leading-snug group-hover:text-blue-500 transition-colors line-clamp-2">
                           {news.title}
                         </p>
                       </Link>
@@ -235,14 +235,14 @@ export default async function DynamicBattlePage(props: {
                 <Button
                   asChild
                   variant="outline"
-                  className="w-full rounded-2xl h-12 font-black uppercase tracking-widest text-[10px]"
+                  className="w-full rounded-xl h-10 font-black uppercase tracking-widest text-[9px]"
                 >
-                  <Link href="/community">Join the Discussion</Link>
+                  <Link href="/community">Join Discussion</Link>
                 </Button>
               </div>
             </aside>
 
-            <main className="lg:col-span-8 space-y-24">
+            <main className="lg:col-span-8 space-y-16">
               <div className="p-10 rounded-[3rem] bg-secondary/30 border border-border/10">
                 <h3 className="text-xl font-black mb-6 uppercase tracking-tight flex items-center gap-3">
                   <Sparkles className="h-5 w-5 text-primary" /> Expert Insights

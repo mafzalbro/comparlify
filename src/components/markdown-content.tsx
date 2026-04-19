@@ -33,7 +33,7 @@ export const MarkdownContent = React.memo(function MarkdownContent({
   }, [content]);
 
   return (
-    <div className={cn("prose dark:prose-invert max-w-none underline-offset-4", className)}>
+    <div className={cn("premium-prose underline-offset-4", className)}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw]}

@@ -128,7 +128,7 @@ export default async function BlogPage(props: {
   return (
     <div className="bg-background min-h-screen">
       {/* --- PREMIUM HERO SECTION --- */}
-      <section className="relative pt-32 pb-24 overflow-hidden border-b border-border/10">
+      <section className="relative pt-16 pb-12 overflow-hidden border-b border-border/10">
         <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-40"></div>
         <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
           <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-primary/15 rounded-full blur-[150px] animate-pulse"></div>
@@ -152,7 +152,7 @@ export default async function BlogPage(props: {
                   The Editorial Feed
                 </span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-black text-foreground tracking-tight leading-none mb-8 uppercase">
+              <h1 className="text-3xl md:text-5xl font-black text-foreground tracking-tight leading-none mb-6 uppercase">
                 Creator{" "}
                 <span className="text-amber-500 italic drop-shadow-sm font-black italic">
                   Insights
@@ -166,13 +166,13 @@ export default async function BlogPage(props: {
           </MotionDiv>
         </div>
       </section>
-      <div className="container mx-auto py-24 px-4 md:px-6">
+      <div className="container mx-auto py-12 px-4 md:px-6">
         {/* --- DYNAMIC FILTER SECTION --- */}
         <MotionDiv
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
-          className="mb-24"
+          className="mb-12"
         >
           <div className="max-w-6xl mx-auto bg-card/60 backdrop-blur-3xl border border-border/10 p-8 rounded-4xl shadow-xl relative overflow-hidden group">
             <div className="absolute inset-x-0 bottom-0 h-1.5 bg-linear-to-r from-transparent via-primary/30 to-transparent"></div>
@@ -200,7 +200,7 @@ export default async function BlogPage(props: {
             </p>
           </MotionDiv>
         ) : (
-          <div className="space-y-32">
+          <div className="space-y-16">
             {/* --- FEATURED ARTICLE HERO --- */}
             {featuredPost && !search && !category && !author && (
               <MotionDiv
@@ -212,8 +212,8 @@ export default async function BlogPage(props: {
                   href={`/blog/${featuredPost.slug}`}
                   className="group block"
                 >
-                  <div className="relative grid grid-cols-1 lg:grid-cols-12 overflow-hidden rounded-[2.5rem] border border-border/10 glass shadow-[0_40px_80px_-20px_rgba(0,0,0,0.3)] hover:shadow-primary/10 transition-all duration-1000 h-full lg:min-h-[500px]">
-                    <div className="lg:col-span-7 relative h-[400px] lg:h-auto overflow-hidden">
+                  <div className="relative grid grid-cols-1 lg:grid-cols-12 overflow-hidden rounded-[2.5rem] border border-border/10 glass shadow-[0_40px_80px_-20px_rgba(0,0,0,0.3)] hover:shadow-primary/10 transition-all duration-1000 h-full lg:min-h-[400px]">
+                    <div className="lg:col-span-7 relative h-[300px] lg:h-auto overflow-hidden">
                       <ManagedImage
                         src={featuredPost.image}
                         alt={featuredPost.title}

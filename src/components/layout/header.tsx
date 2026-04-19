@@ -97,13 +97,13 @@ export default function Header({ navLinks = [], siteName }: HeaderProps) {
         animate={hidden ? "hidden" : "visible"}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className={cn(
-          "sticky top-0 z-50 mx-auto flex items-center border transition-colors duration-500",
+          "sticky top-0 z-50 mx-auto flex items-center border transition-all duration-500 left-0 right-0 self-center",
           scrolled
-            ? "w-[95%] max-w-5xl rounded-full border-border/20 bg-background/80 backdrop-blur-2xl shadow-xl shadow-background/5"
+            ? "w-[95%] max-w-7xl rounded-full border-border/20 bg-background/80 backdrop-blur-2xl shadow-xl shadow-background/5"
             : "mt-0 w-full max-w-full rounded-none border-transparent border-b-border/5 bg-background/20 backdrop-blur-md shadow-none flex justify-center items-center",
         )}
       >
-        <div className="px-3 sm:container flex h-16 items-center justify-between">
+        <div className="w-full px-4 sm:container flex h-16 items-center justify-between">
           <div className="flex items-center gap-6">
             <Link href="/" className="mr-6 flex items-center space-x-2">
               <Logo siteName={siteName} noLink={true} />

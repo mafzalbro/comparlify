@@ -39,25 +39,25 @@ const coreCategories: CoreCategory[] = [
 
 export function DiscoveryHub() {
   return (
-    <section className="py-24 relative overflow-hidden">
+    <section className="py-12 relative overflow-hidden">
       <div className="container mx-auto px-4 md:px-6 relative z-10">
-        <div className="text-center max-w-3xl mx-auto mb-20 space-y-6">
+        <div className="text-center max-w-3xl mx-auto mb-12 space-y-4">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary mb-2 shadow-sm">
             <Search className="h-4 w-4" />
             <span className="text-[10px] uppercase tracking-widest text-primary font-black">
               Discovery Hub
             </span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-black tracking-tight leading-tight">
+          <h2 className="text-2xl md:text-4xl font-black tracking-tight leading-tight">
             Surgical <span className="text-primary italic">Intelligence</span>{" "}
             for Creators
           </h2>
-          <p className="text-lg text-muted-foreground font-medium leading-relaxed">
+          <p className="text-base text-muted-foreground font-medium leading-relaxed">
             Every tool, every platform, every strategy—vetted and verified for
             your absolute growth.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {coreCategories.map((cat, i) => (
             <MotionDiv
               key={i}
@@ -68,7 +68,7 @@ export function DiscoveryHub() {
               whileHover={{ y: -8 }}
             >
               <NextLink href={cat.href} className="group block h-full">
-                <div className="h-full p-7 rounded-4xl bg-card/40 backdrop-blur-xl border border-border/10 shadow-lg transition-all duration-500 group-hover:shadow-xl group-hover:shadow-primary/5 flex flex-col justify-between border-b-4 border-b-transparent group-hover:border-b-primary">
+                <div className="h-full p-6 rounded-3xl bg-card/40 backdrop-blur-xl border border-border/10 shadow-lg transition-all duration-500 group-hover:shadow-xl group-hover:shadow-primary/5 flex flex-col justify-between border-b-4 border-b-transparent group-hover:border-b-primary">
                   <div className="space-y-6">
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-500 shadow-md shadow-primary/5">
                       <cat.icon className="h-6 w-6" />

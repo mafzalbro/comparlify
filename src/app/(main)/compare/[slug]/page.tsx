@@ -358,9 +358,7 @@ export default async function ComparisonDetailPage(props: {
                   <div className="w-12 h-px bg-primary/30" />
                   Analysis Overview
                 </div>
-                <div className="prose prose-xl dark:prose-invert max-w-none prose-headings:font-black prose-headings:tracking-tighter prose-a:text-primary prose-blockquote:bg-primary/5 prose-blockquote:py-6 prose-blockquote:px-8 prose-blockquote:rounded-[2rem] prose-blockquote:border-primary prose-p:leading-relaxed prose-p:text-muted-foreground/90 font-medium">
-                  <MarkdownContent content={comparison.introduction} />
-                </div>
+                <MarkdownContent content={comparison.introduction} />
               </section>
 
               <AdPlacement placement="COMPARISON_BETWEEN" className="my-24" />

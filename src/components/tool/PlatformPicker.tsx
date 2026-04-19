@@ -137,10 +137,10 @@ export function PlatformPicker({ platformA, platformB }: PlatformPickerProps) {
     <div ref={pickerRef} className="container max-w-6xl mx-auto px-4">
       <Card className="relative p-1 md:p-1 overflow-hidden bg-black/5 dark:bg-white/5 border-none rounded-[3.5rem] shadow-2xl">
         {/* Animated Inner Container */}
-        <div className="bg-card m-0.5 rounded-[3.4rem] p-8 md:p-16 relative overflow-hidden ring-1 ring-black/5 dark:ring-white/5 shadow-inner">
+        <div className="bg-card m-0.5 rounded-[3.4rem] p-6 md:p-10 relative overflow-hidden ring-1 ring-black/5 dark:ring-white/5 shadow-inner">
           {/* Background Decorative Element */}
-          <div className="absolute top-0 right-0 p-12 text-black/5 dark:text-white/5 select-none pointer-events-none -rotate-12 translate-x-12 -translate-y-12">
-            <BrainCircuit className="h-64 w-64" />
+          <div className="absolute top-0 right-0 p-8 text-black/5 dark:text-white/5 select-none pointer-events-none -rotate-12 translate-x-8 -translate-y-8">
+            <BrainCircuit className="h-40 w-40" />
           </div>
 
           <AnimatePresence mode="wait" custom={direction}>
@@ -153,25 +153,25 @@ export function PlatformPicker({ platformA, platformB }: PlatformPickerProps) {
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-                className="space-y-12 relative z-10"
+                className="space-y-8 relative z-10"
               >
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <Badge className="bg-primary/5 text-primary border-primary/20 hover:bg-primary/10 transition-colors uppercase tracking-[0.4em] text-[10px] font-black px-6 py-2 rounded-full">
+                    <Badge className="bg-primary/5 text-primary border-primary/20 hover:bg-primary/10 transition-colors uppercase tracking-[0.4em] text-[9px] font-black px-4 py-1.5 rounded-full">
                       <Target className="h-3 w-3 mr-2" /> Match Engine v2.0
                     </Badge>
                   </div>
-                  <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-[0.9] max-w-2xl">
+                  <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter leading-[1] max-w-2xl">
                     Discover your <br />
-                    <span className="text-primary italic underline decoration-primary/20 underline-offset-8">
+                    <span className="text-primary italic underline decoration-primary/20 underline-offset-4">
                       high-velocity
                     </span>{" "}
                     stack
                   </h2>
                 </div>
 
-                <div className="space-y-6">
-                  <div className="flex justify-between items-end text-[10px] font-black uppercase tracking-[0.3em] text-foreground/40">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-end text-[9px] font-black uppercase tracking-[0.3em] text-foreground/40">
                     <span className="flex items-center gap-2">
                       <Sparkles className="h-3 w-3 text-primary" />
                       {showEmailCapture
@@ -188,38 +188,37 @@ export function PlatformPicker({ platformA, platformB }: PlatformPickerProps) {
                   />
                 </div>
 
-                <div className="min-h-[320px]">
+                <div className="min-h-[220px]">
                   {showEmailCapture ? (
-                    <div className="space-y-8 max-w-xl">
-                      <div className="space-y-4 text-left">
+                    <div className="space-y-6 max-w-xl">
+                      <div className="space-y-3 text-left">
                         <Badge
                           variant="outline"
-                          className="text-[10px] font-black px-3 py-1 bg-background/5 border-none uppercase tracking-widest text-foreground/60"
+                          className="text-[9px] font-black px-2 py-1 bg-background/5 border-none uppercase tracking-widest text-foreground/60"
                         >
-                          Optional Protocol
+                          Optional
                         </Badge>
-                        <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight italic">
-                          Secure your{" "}
-                          <span className="text-primary">Decision Matrix.</span>
+                        <h3 className="text-xl md:text-2xl font-black uppercase tracking-tight italic">
+                          Get your{" "}
+                          <span className="text-primary">Results by Email</span>
                         </h3>
-                        <p className="text-muted-foreground font-medium text-lg leading-relaxed">
-                          We'll transmit your customized strategy and our
-                          "Scaling Infrastructure" guide to your professional
-                          vector.
+                        <p className="text-muted-foreground font-medium text-base leading-relaxed">
+                          We'll send your personalized platform recommendation and our
+                          "Platform Selection" guide straight to your inbox.
                         </p>
                       </div>
                       <div className="relative group">
-                        <Mail className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-foreground/30 group-focus-within:text-primary group-focus-within:scale-110 transition-all" />
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/30 group-focus-within:text-primary group-focus-within:scale-110 transition-all" />
                         <Input
                           type="email"
                           placeholder="professional@creator.io"
-                          className="h-16 pl-14 text-lg rounded-3xl border-input focus:border-primary/50 focus:ring-8 focus:ring-primary/5 transition-all outline-none bg-background/50"
+                          className="h-12 pl-12 text-base rounded-2xl border-input focus:border-primary/50 focus:ring-8 focus:ring-primary/5 transition-all outline-none bg-background/50"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                         />
                       </div>
                       <p className="text-[9px] text-muted-foreground font-black uppercase tracking-[0.2em] opacity-40">
-                        Zero redundancy. Periodic high-signal updates only.
+                        No spam. Only relevant updates.
                       </p>
                     </div>
                   ) : (
@@ -231,25 +230,25 @@ export function PlatformPicker({ platformA, platformB }: PlatformPickerProps) {
                   )}
                 </div>
 
-                <div className="flex justify-between items-center pt-10 border-t border-black/5">
+                <div className="flex justify-between items-center pt-6 border-t border-black/5">
                   <Button
                     variant="ghost"
                     onClick={handleBack}
                     disabled={step === 0 && !showEmailCapture}
-                    className="rounded-2xl font-black uppercase tracking-widest text-[10px] h-14 px-8 hover:bg-black/5 transition-all active:scale-95 disabled:opacity-20"
+                    className="rounded-xl font-black uppercase tracking-widest text-[9px] h-12 px-6 hover:bg-black/5 transition-all active:scale-95 disabled:opacity-20"
                   >
-                    <ChevronLeft className="h-4 w-4 mr-2" /> Back-step
+                    <ChevronLeft className="h-4 w-4 mr-1" /> Back-step
                   </Button>
                   <Button
                     onClick={showEmailCapture ? handleShowResult : handleNext}
                     disabled={
                       !showEmailCapture && !answers[currentQuestion?.id]
                     }
-                    className="rounded-2xl font-black uppercase tracking-widest text-[11px] h-14 bg-foreground text-background hover:bg-foreground/90 px-12 transition-all active:scale-95 shadow-xl shadow-black/10 group overflow-hidden relative"
+                    className="rounded-xl font-black uppercase tracking-widest text-[10px] h-12 bg-foreground text-background hover:bg-foreground/90 px-8 transition-all active:scale-95 shadow-xl shadow-black/10 group overflow-hidden relative"
                   >
                     <span className="relative z-10 flex items-center gap-2">
                       {showEmailCapture
-                        ? "Execute Matching"
+                        ? "Execute"
                         : step === totalSteps - 1
                           ? "Initialize Result"
                           : "Proceed"}

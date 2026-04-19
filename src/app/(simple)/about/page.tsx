@@ -84,16 +84,16 @@ export default async function AboutPage() {
       </PageHero>
 
       {/* Narrative Section */}
-      <Section id="story">
-        <div className="grid lg:grid-cols-2 gap-20 items-center">
+      <Section id="story" className="py-12">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
           <MotionDiv
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
             <div className="relative group">
-              <div className="absolute -inset-4 bg-primary/5 rounded-[3rem] blur-2xl group-hover:bg-primary/10 transition-all"></div>
-              <div className="relative aspect-square md:aspect-4/3 rounded-[3.5rem] overflow-hidden shadow-2xl border-8 border-background ring-1 ring-border/10">
+              <div className="absolute -inset-4 bg-primary/5 rounded-[2rem] blur-2xl group-hover:bg-primary/10 transition-all"></div>
+              <div className="relative aspect-video lg:aspect-square rounded-[2rem] overflow-hidden shadow-2xl border-4 border-background ring-1 ring-border/10">
                 <ManagedImage
                   src="https://picsum.photos/seed/story/1000/800"
                   alt="The Comparlify Journey"
@@ -113,14 +113,12 @@ export default async function AboutPage() {
             <div className="inline-flex items-center gap-2 text-primary font-bold uppercase tracking-widest mb-6 text-sm">
               <span className="w-8 h-px bg-primary/30"></span> Our Story
             </div>
-            <div className="prose prose-xl dark:prose-invert max-w-none prose-p:leading-relaxed prose-headings:font-black">
-              <MarkdownContent
-                content={(content["about.story.content"] || "").replace(
-                  "Comparlify",
-                  siteName,
-                )}
-              />
-            </div>
+            <MarkdownContent
+              content={(content["about.story.content"] || "").replace(
+                "Comparlify",
+                siteName,
+              )}
+            />
           </MotionDiv>
         </div>
       </Section>
@@ -132,7 +130,7 @@ export default async function AboutPage() {
           subtitle={content["about.values.subtitle"]}
           centered
         />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {values.map((value, idx) => (
             <MotionDiv
               key={value.title}
@@ -141,7 +139,7 @@ export default async function AboutPage() {
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1 }}
             >
-              <Card className="h-full rounded-[3rem] p-10 bg-card/40 backdrop-blur-xl border border-border/10 hover:shadow-2xl transition-all duration-500 group">
+              <Card className="h-full rounded-[2rem] p-8 bg-card/40 backdrop-blur-xl border border-border/10 hover:shadow-2xl transition-all duration-500 group">
                 <div
                   className={`w-16 h-16 rounded-3xl ${value.bg} flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500`}
                 >
@@ -206,15 +204,15 @@ export default async function AboutPage() {
       </Section>
 
       {/* CTA Section */}
-      <Section id="cta" className="mb-24">
+      <Section id="cta" className="mb-12">
         <MotionDiv
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="relative p-16 md:p-24 rounded-[4rem] bg-card/60 backdrop-blur-xl border border-primary/20 shadow-2xl overflow-hidden text-center"
+          className="relative p-12 md:p-16 rounded-[3rem] bg-card/60 backdrop-blur-xl border border-primary/20 shadow-2xl overflow-hidden text-center"
         >
           <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-[0.03]"></div>
-          <div className="relative z-10 max-w-3xl mx-auto">
+          <div className="relative z-10 max-w-5xl mx-auto">
             <h2 className="text-4xl md:text-6xl font-black tracking-tight text-foreground leading-[1.1] mb-8 uppercase">
               {content["about.cta.title"]}
             </h2>

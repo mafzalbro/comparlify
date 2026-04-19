@@ -9,12 +9,17 @@ interface CompareHeroProps {
 export function CompareHero({ subtitle }: CompareHeroProps) {
   return (
     <PageHero
+      className="sm:mt-12"
       title={
         <>
-          Strategic <span className="text-primary italic">Intelligence</span> Reports
+          Strategic <span className="text-primary italic">Intelligence</span>{" "}
+          Reports
         </>
       }
-      subtitle={subtitle || "Zero fluff. Raw data. Side-by-side breakdowns to help you choose the winner for your business."}
+      subtitle={
+        subtitle ||
+        "Zero fluff. Raw data. Side-by-side breakdowns to help you choose the winner for your business."
+      }
     >
       <div className="flex flex-col items-center">
         <Breadcrumbs
@@ -24,7 +29,7 @@ export function CompareHero({ subtitle }: CompareHeroProps) {
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary shadow-sm hover:scale-105 transition-transform duration-300">
           <Layers className="h-4 w-4" />
           <span className="text-[10px] font-black uppercase tracking-[0.3em]">
-            Tactical Assessment Hub
+            Platform Comparison Hub
           </span>
         </div>
       </div>

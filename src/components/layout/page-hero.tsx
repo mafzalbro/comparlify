@@ -19,7 +19,7 @@ export function PageHero({
   return (
     <section
       className={cn(
-        "relative w-full overflow-hidden pt-32 pb-20 flex flex-col items-center text-center px-4",
+        "relative w-full overflow-hidden pt-16 pb-12 flex flex-col items-center text-center px-4",
         className,
       )}
     >
@@ -38,7 +38,7 @@ export function PageHero({
           </p>
         )}
 
-        <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight text-foreground leading-[1.05]">
+        <h1 className="text-3xl md:text-5xl lg:text-5xl font-black tracking-tight text-foreground leading-[1.05]">
           {title}
         </h1>
 

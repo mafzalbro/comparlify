@@ -74,7 +74,7 @@ export function ComparisonHero({
         </div>
 
         {/* Platform Showdown Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl bg-card/40 backdrop-blur-3xl p-8 rounded-4xl border border-border/10 shadow-2xl relative">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl bg-card/40 backdrop-blur-3xl p-8 rounded-4xl border border-border/10 shadow-2xl relative mb-24">
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-background border border-border p-5 rounded-full shadow-2xl hidden md:block">
             <Zap className="h-10 w-10 text-primary animate-pulse" />
           </div>
@@ -119,24 +119,18 @@ export function ComparisonHero({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap items-center justify-center gap-10 mt-20">
+        <div className="fixed bottom-6 right-6 lg:top-32 lg:bottom-auto z-[100] flex flex-col items-center gap-4 hidden sm:flex">
           {session?.user && (
-            <div className="group flex flex-col items-center gap-4">
+            <div className="group flex flex-col items-center">
               <BookmarkButton
                 comparisonId={comparisonId}
-                className="h-20 w-20 rounded-[2.5rem] shadow-2xl bg-card border-border hover:-translate-y-2 transition-all p-0 flex items-center justify-center"
+                className="h-14 w-14 rounded-full shadow-2xl bg-card border border-border/50 hover:scale-110 transition-all duration-300 p-0 flex items-center justify-center text-muted-foreground hover:text-primary"
                 showText={false}
               />
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground group-hover:text-primary transition-colors">
-                Save
-              </span>
             </div>
           )}
-          <div className="group flex flex-col items-center gap-4">
-            <ShareButton className="h-20 w-20 rounded-[2.5rem] shadow-2xl bg-card border-border hover:-translate-y-2 transition-all" />
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground group-hover:text-primary transition-colors">
-              Share
-            </span>
+          <div className="group flex flex-col items-center">
+            <ShareButton className="h-14 w-14 rounded-full shadow-2xl bg-card border border-border/50 hover:scale-110 transition-all duration-300 flex items-center justify-center text-muted-foreground hover:text-primary" />
           </div>
         </div>
       </div>

@@ -17,14 +17,14 @@ export function PanelNav({ user }: { user: Session["user"] }) {
 
   const navItems = [
     {
-      group: "Core Systems",
+      group: "Main",
       items: [{ href: "/panel", label: "Dashboard", Icon: LayoutDashboard }],
     },
     {
-      group: "User Node",
+      group: "Account",
       items: [
-        { href: "/panel/profile", label: "Identity", Icon: UserCircle },
-        { href: "/panel/settings", label: "Protocols", Icon: Settings },
+        { href: "/panel/profile", label: "Profile", Icon: UserCircle },
+        { href: "/panel/settings", label: "Settings", Icon: Settings },
       ],
     },
   ];
