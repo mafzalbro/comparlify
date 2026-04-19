@@ -49,3 +49,5 @@ firestore-debug.log
 .agent/
 _agents/
 _agent/
+
+package-lock.json
