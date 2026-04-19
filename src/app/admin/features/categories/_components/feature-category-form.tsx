@@ -10,7 +10,7 @@ import { type FeatureCategory } from '@prisma/client';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import { SubmitButton } from '@/components/submit-button';
-import Link from 'next/link';
+import Link from "next/link";
 
 interface FeatureCategoryFormProps {
   category?: FeatureCategory | null;

@@ -42,7 +42,7 @@ export function PostResultCard({ post }: { post: any }) {
             />
             <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-4">
               <Badge className="bg-primary/90 text-primary-foreground font-black uppercase tracking-widest text-[8px] border-none">
-                Dispatch Entry
+                Blog Post
               </Badge>
             </div>
           </div>
@@ -52,7 +52,7 @@ export function PostResultCard({ post }: { post: any }) {
                 <BookText className="h-4 w-4" />
               </div>
               <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">
-                Research Report
+                Article
               </span>
               <span className="w-4 h-px bg-border/20"></span>
               {post.category && (
@@ -73,7 +73,7 @@ export function PostResultCard({ post }: { post: any }) {
                 {format(new Date(post.createdAt), "MMM d, yyyy")}
               </div>
               <div className="flex items-center gap-2 text-primary font-black uppercase tracking-widest text-[10px] opacity-0 group-hover:opacity-100 transition-opacity translate-x-[-10px] group-hover:translate-x-0 transition-transform">
-                Full Brief <ArrowRight className="h-3 w-3" />
+                Read Article <ArrowRight className="h-3 w-3" />
               </div>
             </div>
           </div>
@@ -136,11 +136,11 @@ export function ComparisonResultCard({
                 <GitCompareArrows className="h-4 w-4" />
               </div>
               <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">
-                War Room Briefing
+                Platform Comparison
               </span>
               <span className="w-4 h-px bg-border/20"></span>
               <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                Battle Analysis
+                Side-by-Side
               </span>
             </div>
             <h3 className="text-2xl font-black font-headline mb-3 group-hover:text-primary transition-colors leading-tight">
@@ -155,7 +155,7 @@ export function ComparisonResultCard({
                 {format(new Date(comparison.createdAt), "MMM yyyy 'Edition'")}
               </div>
               <div className="flex items-center gap-2 text-primary font-black uppercase tracking-widest text-[10px] opacity-0 group-hover:opacity-100 transition-opacity translate-x-[-10px] group-hover:translate-x-0 transition-transform">
-                Tactical Breakdown <ArrowRight className="h-3 w-3" />
+                Read Comparison <ArrowRight className="h-3 w-3" />
               </div>
             </div>
           </div>
@@ -175,9 +175,9 @@ export function NoResultsForTab({ type }: { type: "posts" | "comparisons" }) {
       <div className="p-6 bg-muted rounded-full w-fit mx-auto mb-6 opacity-40">
         <SearchIcon className="h-10 w-10" />
       </div>
-      <h3 className="text-2xl font-bold mb-2">Null Sector</h3>
+      <h3 className="text-2xl font-bold mb-2">No Results Found</h3>
       <p className="text-muted-foreground max-w-xs mx-auto">
-        No {type} found for this specific query calibration.
+        No {type} matched your search. Try different keywords.
       </p>
     </MotionDiv>
   );

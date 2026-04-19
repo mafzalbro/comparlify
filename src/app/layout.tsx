@@ -37,12 +37,12 @@ export default async function RootLayout({
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: siteName,
-    url: "https://www.comparlify.com", // Replace with your actual domain
+    url: "https://www.comparlify.com",
     potentialAction: {
       "@type": "SearchAction",
       target: {
         "@type": "EntryPoint",
-        urlTemplate: "https://www.comparlify.com/search?q={search_term_string}", // Replace with your actual domain
+        urlTemplate: "https://www.comparlify.com/search?q={search_term_string}",
       },
       "query-input": "required name=search_term_string",
     },
@@ -81,7 +81,11 @@ export default async function RootLayout({
   const themeCss = generateThemeCss();
 
   return (
-    <html lang="en" className="scroll-smooth scheme-light dark:scheme-dark" suppressHydrationWarning>
+    <html
+      lang="en"
+      className="scroll-smooth scheme-light dark:scheme-dark"
+      suppressHydrationWarning
+    >
       <head>
         <script
           type="application/ld+json"

@@ -68,7 +68,7 @@ export function AIGenericForm({ tool }: { tool: Tool }) {
           )}
         </div>
 
-        <AIToolForm.Submit label="Forge Content" />
+        <AIToolForm.Submit label="Generate Content" />
       </AIToolForm.Config>
 
       <AIToolForm.Output>

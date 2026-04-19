@@ -18,17 +18,16 @@ export function StatusProgramCTA() {
             <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary mb-8 shadow-xl ring-8 ring-primary/5">
               <Star className="h-5 w-5 fill-current" />
               <span className="text-[10px] font-black uppercase tracking-[0.4em]">
-                Signal Merit Program
+                Contributor Program
               </span>
             </div>
             <h3 className="text-4xl md:text-6xl font-black tracking-tight mb-8 leading-none">
-              Earn <span className="text-primary italic">Status</span> Through
-              Intel
+              Earn <span className="text-primary italic">Recognition</span> Through
+              Contributions
             </h3>
             <p className="text-xl text-muted-foreground mb-12 leading-relaxed font-medium">
-              Validate your expertise. High-signal contributors unlock surgical
-              AI tools, secret comparisons, and elite verified creator
-              credentials.
+              Share your expertise. Active contributors get early access to new tools,
+              exclusive comparisons, and a verified creator badge.
             </p>
             <Button
               asChild

@@ -4,7 +4,7 @@
 import { type Post, type PostCategory } from '@prisma/client';
 import { PostForm } from '../../_components/post-form';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import Link from "next/link";
 import { ArrowLeft } from 'lucide-react';
 
 export function EditPostPageClient({ post, categories }: { post: Post, categories: PostCategory[] }) {

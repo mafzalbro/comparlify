@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Search, X } from 'lucide-react';
-import Link from 'next/link';
+import Link from "next/link";
 import { createQueryString } from '@/lib/utils';
 import type { Role } from '@prisma/client';
 

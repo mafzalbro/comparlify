@@ -46,26 +46,26 @@ export default async function ContactPage() {
   return (
     <div className="bg-background min-h-screen">
       {/* Premium Contact Hero */}
-      <section className="relative pt-24 pb-16 overflow-hidden">
+      <section className="relative pt-8 pb-10 overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-30"></div>
-        <div className="container relative z-10 px-4 md:px-6">
+        <div className="container mx-auto relative z-10 px-4 md:px-6">
           <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <div className="flex flex-col items-center text-center max-w-5xl mx-auto">
+            <div className="flex flex-col items-center text-center max-w-6xl mx-auto">
               <Breadcrumbs
                 items={[{ name: "Home", href: "/" }, { name: "Contact" }]}
-                className="mb-8 justify-center"
+                className="mb-4 justify-center"
               />
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary mb-8">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary mb-4">
                 <MessageSquare className="h-4 w-4" />
-                <span className="text-sm font-bold uppercase tracking-widest leading-none">
+                <span className="text-xs font-bold uppercase tracking-widest leading-none">
                   Support Desk
                 </span>
               </div>
-              <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-foreground leading-[1.1] mb-8">
+              <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground leading-[1.1] mb-6">
                 {content["contact.hero.title"]}
               </h1>
               <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mb-12">
@@ -76,8 +76,8 @@ export default async function ContactPage() {
         </div>
       </section>
 
-      <div className="container py-24 px-4 md:px-6 max-w-7xl">
-        <div className="grid lg:grid-cols-12 gap-16 items-start">
+      <div className="container mx-auto py-6 px-4 md:px-8 max-w-screen-2xl">
+        <div className="grid lg:grid-cols-12 gap-10 items-start">
           {/* Left Column: Contact Methods & Trust Points */}
           <div className="lg:col-span-5 space-y-12">
             <MotionDiv
@@ -89,7 +89,7 @@ export default async function ContactPage() {
                 {contactMethods.map((method, idx) => (
                   <div
                     key={idx}
-                    className="flex items-start gap-6 p-8 rounded-[2.5rem] bg-card/40 backdrop-blur-xl border border-border/10 shadow-xl transition-all duration-500 hover:shadow-2xl hover:border-primary/20 group"
+                    className="flex items-start gap-4 p-6 rounded-[2rem] bg-card/40 backdrop-blur-xl border border-border/10 shadow-xl transition-all duration-500 hover:shadow-2xl hover:border-primary/20 group"
                   >
                     <div className="w-16 h-16 rounded-3xl bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500">
                       <method.Icon className="h-7 w-7" />
@@ -136,8 +136,8 @@ export default async function ContactPage() {
                     </div>
                     <h4 className="text-lg font-bold">Responds In 4H</h4>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      Our elite success engineers operate across 4 time zones to
-                      serve you worldwide.
+                      Our team is available across multiple time zones to
+                      help you worldwide.
                     </p>
                   </div>
                 </div>
@@ -152,23 +152,22 @@ export default async function ContactPage() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <Card className="rounded-[4rem] p-10 md:p-16 bg-card/60 backdrop-blur-3xl border border-primary/20 shadow-[0_45px_100px_-20px_rgba(var(--primary-rgb),0.2)] relative overflow-hidden">
+              <Card className="rounded-[4rem] p-8 md:p-10 bg-card/60 backdrop-blur-3xl border border-primary/20 shadow-[0_45px_100px_-20px_rgba(var(--primary-rgb),0.2)] relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-8 text-primary/10 select-none pointer-events-none -rotate-12 translate-x-8 -translate-y-8">
                   <Sparkles className="h-48 w-48" />
                 </div>
                 <div className="relative z-10">
-                  <div className="mb-12">
-                    <Badge className="bg-primary/20 text-primary border-primary/30 px-3 py-1 text-[10px] font-black uppercase tracking-widest mb-4">
-                      Elite Entry Protocol
+                  <div className="mb-8">
+                    <Badge className="bg-primary/20 text-primary border-primary/30 px-3 py-1 text-[8px] font-black uppercase tracking-widest mb-4">
+                      Get In Touch
                     </Badge>
-                    <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-4">
+                    <h2 className="text-2xl md:text-4xl font-black tracking-tight mb-2">
                       Send us a{" "}
                       <span className="text-primary italic">Priority</span>{" "}
                       Message
                     </h2>
-                    <p className="text-lg text-muted-foreground">
-                      Every message is routed via our high-signal prioritization
-                      engine.
+                    <p className="text-sm text-muted-foreground">
+                      We'll get back to you as soon as possible.
                     </p>
                   </div>
                   <ContactFormSection />
@@ -180,7 +179,7 @@ export default async function ContactPage() {
       </div>
 
       {/* Dynamic Map/Footer Area Hint Could Go Here */}
-      <section className="container max-w-5xl py-24 px-4 md:px-6">
+      <section className="container mx-auto max-w-screen-xl py-10 px-1.5 md:px-8">
         <MotionDiv
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}

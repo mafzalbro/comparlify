@@ -1,5 +1,5 @@
 // lib/auth.ts
-import NextAuth, { NextAuthOptions, getServerSession } from "next-auth";
+import NextAuth, { getServerSession, type NextAuthOptions } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
@@ -10,8 +10,8 @@ import { createNotification } from "./notifications";
 import { Adapter } from "next-auth/adapters";
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma as any) as Adapter,
-  session: { strategy: "jwt" },
+  adapter: PrismaAdapter(prisma) as Adapter,
+  session: { strategy: "jwt" }, 
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -19,11 +19,11 @@ export const authOptions: NextAuthOptions = {
       allowDangerousEmailAccountLinking: true,
       profile(profile) {
         return {
-          id: profile.sub,
-          name: profile.name,
+          id: profile.sub || profile.id,
           email: profile.email,
+          name: profile.name,
           image: profile.picture,
-          role: "USER",
+          role: "USER" as Role,
           onboarded: false,
           newsletter: false,
           suspended: false,
@@ -40,7 +40,7 @@ export const authOptions: NextAuthOptions = {
           email: profile.email,
           name: profile.name,
           image: profile.avatar_url,
-          role: "USER",
+          role: "USER" as Role,
           onboarded: false,
           newsletter: false,
           suspended: false,
@@ -48,6 +48,7 @@ export const authOptions: NextAuthOptions = {
       },
     }),
     Credentials({
+      name: "Credentials",
       credentials: {
         userId: { label: "User ID", type: "text" },
       },
@@ -62,7 +63,7 @@ export const authOptions: NextAuthOptions = {
             if (user.suspended) {
               throw new Error("This account is currently suspended.");
             }
-            return user;
+            return user as any;
           }
         }
         return null;
@@ -76,37 +77,29 @@ export const authOptions: NextAuthOptions = {
         where: { email: user.email },
       });
       if (dbUser?.suspended) {
-        return false;
+        return false; 
       }
       return true;
     },
-    async jwt({ token }) {
-      const user = token.email
-        ? await prisma.user.findUnique({ where: { email: token.email } })
-        : null;
-
+    async jwt({ token, user }) {
       if (user) {
-        if (user.suspended) {
-          throw new Error("User is suspended");
-        }
         token.id = user.id;
-        token.role = user.role ?? "USER";
-        token.image = user.image ?? "";
-        token.onboarded = user.onboarded ?? false;
-        token.newsletter = user.newsletter ?? false;
-        token.suspended = user.suspended ?? false;
+        token.role = (user as any).role ?? "USER";
+        token.onboarded = (user as any).onboarded ?? false;
+        token.newsletter = (user as any).newsletter ?? false;
+        token.suspended = (user as any).suspended ?? false;
+      } else if (token.email) {
+        // Refresh token data if needed, but for now we trust the token
       }
-
       return token;
     },
     async session({ session, token }) {
-      if (session.user && token.id) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as Role;
-        session.user.image = token.image as string;
-        session.user.onboarded = token.onboarded as boolean;
-        session.user.newsletter = token.newsletter as boolean;
-        session.user.suspended = token.suspended as boolean;
+      if (session.user && token) {
+         session.user.id = token.id as string;
+         session.user.role = token.role as Role;
+         session.user.onboarded = token.onboarded as boolean;
+         session.user.newsletter = token.newsletter as boolean;
+         session.user.suspended = token.suspended as boolean;
       }
       return session;
     },
@@ -118,7 +111,6 @@ export const authOptions: NextAuthOptions = {
           where: { id: user.id },
           data: {
             role: user.email === "comparlify@gmail.com" ? "ADMIN" : "USER",
-            image: user.image,
           },
         });
       }
@@ -135,11 +127,23 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/login",
-    signOut: "/login",
+    signOut: "/auth/signout",
     error: "/auth/error",
   },
 };
 
+// V4 to V5 Shim for App Router compatibility
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };
+export const handlers = { GET: handler, POST: handler };
+
+/**
+ * Helper to get the session from server components.
+ * Equivalent to v5's 'auth()' function.
+ */
 export async function auth() {
-  return getServerSession(authOptions);
+  return await getServerSession(authOptions);
 }
+
+// Re-export signOut/signIn if needed, though they usually come from next-auth/react on client
+export { signIn, signOut } from "next-auth/react";

@@ -20,10 +20,10 @@ export function FeaturedReports({ comparisons }: FeaturedReportsProps) {
   if (comparisons.length === 0) return null;
 
   return (
-    <section className="py-32 bg-secondary/0 relative overflow-hidden">
+    <section className="py-16 bg-secondary/0 relative overflow-hidden">
       <div className="absolute inset-0 bg-grid-pattern-light opacity-5 pointer-events-none"></div>
-      <div className="container px-4 md:px-6 relative z-10">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
+      <div className="container mx-auto px-4 md:px-6 relative z-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-500 mb-6 shadow-sm">
               <Zap className="h-4 w-4" />
@@ -31,7 +31,7 @@ export function FeaturedReports({ comparisons }: FeaturedReportsProps) {
                 Live Assessments
               </span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-6">
+            <h2 className="text-2xl md:text-4xl font-black tracking-tight mb-4">
               Latest <span className="text-primary italic">Intelligence</span>{" "}
               Reports
             </h2>
@@ -43,7 +43,7 @@ export function FeaturedReports({ comparisons }: FeaturedReportsProps) {
           <Button
             asChild
             variant="ghost"
-            className="group h-14 px-8 rounded-2xl hover:bg-primary/10 text-primary font-black uppercase tracking-widest text-xs transition-all"
+            className="group h-12 px-6 rounded-xl hover:bg-primary/10 text-primary font-black uppercase tracking-widest text-[10px] transition-all"
           >
             <NextLink href="/compare">
               View Extensive Reports{" "}
@@ -52,7 +52,7 @@ export function FeaturedReports({ comparisons }: FeaturedReportsProps) {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {comparisons.map((comp, idx) => (
             <MotionDiv
               key={comp.id}
@@ -62,7 +62,7 @@ export function FeaturedReports({ comparisons }: FeaturedReportsProps) {
               transition={{ duration: 0.6, delay: idx * 0.1 }}
             >
               <Card className="group overflow-hidden rounded-[2.5rem] border border-border/10 bg-card/20 backdrop-blur-xl shadow-lg transition-all duration-700 hover:shadow-xl hover:shadow-primary/5 h-full flex flex-col sm:flex-row">
-                <div className="flex-1 p-8 flex flex-col justify-between">
+                <div className="flex-1 p-6 flex flex-col justify-between">
                   <div className="space-y-8">
                     <div className="flex items-center space-x-3 mb-4 p-2 bg-background/50 rounded-2xl border border-border/10 w-fit">
                       <div className="flex -space-x-3">
@@ -84,7 +84,7 @@ export function FeaturedReports({ comparisons }: FeaturedReportsProps) {
                         </div>
                       </div>
                       <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-2">
-                        Tactical Report
+                        Comparison
                       </span>
                     </div>
                     <NextLink href={`/compare/${comp.slug}`}>
@@ -103,7 +103,7 @@ export function FeaturedReports({ comparisons }: FeaturedReportsProps) {
                     The Full Breakdown <ArrowRight className="ml-3 h-4 w-4" />
                   </NextLink>
                 </div>
-                <div className="w-full sm:w-[200px] bg-primary/5 p-8 flex flex-col justify-center items-center gap-6 border-l border-border/10">
+                <div className="w-full sm:w-[180px] bg-primary/5 p-6 flex flex-col justify-center items-center gap-6 border-l border-border/10">
                   {(() => {
                     const avgScore = calculateComparisonAverageScore(
                       comp.platformA,
@@ -114,9 +114,9 @@ export function FeaturedReports({ comparisons }: FeaturedReportsProps) {
                       <>
                         <div className="text-center group/score">
                           <div className="text-[8px] font-black uppercase tracking-[0.3em] text-muted-foreground mb-4">
-                            Signal Score
+                            Rating
                           </div>
-                          <div className="text-6xl text-primary italic drop-shadow-sm font-black">
+                          <div className="text-5xl text-primary italic drop-shadow-sm font-black">
                             {avgScore}
                           </div>
                         </div>

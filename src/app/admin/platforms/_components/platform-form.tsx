@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { createPlatform, updatePlatform } from "@/app/actions/platforms";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,6 +48,7 @@ export function PlatformForm({
   featureCategories,
 }: PlatformFormProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -55,6 +57,24 @@ export function PlatformForm({
     ? updatePlatform.bind(null, platform.id)
     : createPlatform;
   const [state, action] = useActionState(formAction, { error: null });
+
+  useEffect(() => {
+    if (state?.error) {
+      if (typeof state.error === "string") {
+        toast({
+          title: "Error",
+          description: state.error,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Validation Error",
+          description: "Please check the form for mistakes.",
+          variant: "destructive",
+        });
+      }
+    }
+  }, [state?.error, toast]);
 
   const [name, setName] = useState(platform?.name ?? "");
   const [description, setDescription] = useState(platform?.description ?? "");

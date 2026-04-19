@@ -30,11 +30,11 @@ export default async function SimplePagesLayout({
 
   return (
     <>
-      <PromoBanner
-      //  content={content}
-      />
+      <PromoBanner />
       <Header navLinks={navLinks} siteName={siteName} />
-      <main>{children}</main>
+      <main className="flex-1 flex flex-col min-h-[60vh]">
+        {children}
+      </main>
       {session?.user && <Chatbot />}
       <Footer content={footerContent} siteName={siteName} />
     </>

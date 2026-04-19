@@ -59,7 +59,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
     },
     {
       id: "ai-tools",
-      title: content["homepage.whyus.aitools.title"] || "Neural Assets",
+      title: content["homepage.whyus.aitools.title"] || "AI Tools",
       Icon: BrainCircuit,
       description:
         content["homepage.whyus.aitools.description"] ||
@@ -74,7 +74,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
     {
       id: "strategies",
       title:
-        content["homepage.whyus.strategies.title"] || "Scalability Protocols",
+        content["homepage.whyus.strategies.title"] || "Growth Strategies",
       Icon: Scaling,
       description:
         content["homepage.whyus.strategies.description"] ||
@@ -151,7 +151,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
       ref={targetRef}
       className={cn(
         "relative w-full flex flex-col justify-start",
-        !isMobile ? "min-h-[400vh]" : "py-24 bg-background",
+        !isMobile ? "min-h-[300vh]" : "bg-background py-16",
       )}
     >
       {/* Main Content Area */}
@@ -159,13 +159,13 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
         className={cn(
           "relative z-10",
           !isMobile
-            ? "sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden"
+            ? "sticky -top-12 min-h-screen flex flex-col items-center justify-center overflow-visible"
             : "",
         )}
       >
         {/* Background Orbs & Effects */}
         {!isMobile && (
-          <div className="absolute -z-10 top-0 h-screen w-full overflow-hidden pointer-events-none">
+          <div className="absolute -z-10 top-20 h-screen w-full overflow-hidden pointer-events-none">
             <div className="absolute inset-0 bg-transparent"></div>
             <div className="absolute inset-0 bg-grid-white/[0.01] bg-size-[60px_60px]"></div>
             <div className="absolute inset-0 bg-linear-to-b from-transparent via-background/0 to-transparent"></div>
@@ -199,7 +199,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
           {/* Header Area */}
           <div
             className={cn(
-              "mb-12 space-y-4 text-center w-full relative z-30",
+              "mb-6 lg:mb-8 space-y-1 text-center w-full relative z-30",
               !isMobile ? "mt-0" : "",
             )}
           >
@@ -211,11 +211,11 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
             >
               <Zap className="h-4 w-4" />
               <span className="text-[10px] font-black uppercase tracking-[0.4em]">
-                Elite Ecosystem
+                What We Offer
               </span>
             </motion.div>
             <motion.h2
-              className="text-2xl md:text-4xl lg:text-5xl font-black tracking-tight leading-tight"
+              className="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight leading-tight"
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
@@ -227,12 +227,12 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
 
           <div
             className={cn(
-              "grid gap-10 lg:gap-16 items-center",
+              "grid gap-8 lg:gap-12 items-center",
               !isMobile ? "grid-cols-2" : "grid-cols-1 mt-8",
             )}
           >
             {/* LEFT SIDE: CONTROL PANEL */}
-            <div className="flex flex-col gap-8 relative items-center lg:items-start">
+            <div className="flex flex-col gap-3 md:gap-4 relative items-center lg:items-start">
               {/* Mobile Tabs Wrapper */}
               {isMobile && (
                 <div className="flex gap-4 overflow-x-auto pb-6 w-full no-scrollbar px-2">
@@ -256,7 +256,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
 
               {/* Desktop Feature Selectors */}
               {!isMobile && (
-                <div className="flex flex-col gap-4 w-full relative">
+                <div className="flex flex-col gap-3 w-full relative">
                   {features.map((feature, idx) => (
                     <motion.div
                       key={feature.id}
@@ -269,7 +269,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
                       <button
                         onClick={() => setActiveFeature(feature.id)}
                         className={cn(
-                          "w-full text-left p-4 md:p-5 rounded-3xl transition-all duration-200 relative group overflow-hidden border",
+                          "w-full text-left p-3 md:p-4 rounded-2xl transition-all duration-200 relative group overflow-hidden border",
                           activeFeature === feature.id
                             ? "bg-card/40 backdrop-blur-2xl shadow-xl border-primary/30 z-20"
                             : "hover:bg-card/30 backdrop-blur-sm border-transparent opacity-40 hover:opacity-100 grayscale hover:grayscale-0",
@@ -389,13 +389,13 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
                       </div>
 
                       {/* Info Panel */}
-                      <div className="flex-1 p-6 lg:p-8 flex flex-col justify-between">
+                      <div className="flex-1 p-5 lg:p-6 flex flex-col justify-between">
                         <div className="space-y-3">
                           <div className="flex items-center gap-2.5">
                             <div className="flex items-center gap-1.5 px-2 py-0.5 bg-primary/10 rounded-full border border-primary/20">
                               <Sparkles className="h-2 w-2 text-primary animate-sparkle" />
                               <span className="text-[7.5px] font-black uppercase tracking-[0.3em] text-primary">
-                                Live Neural Processing
+                                Powered by AI
                               </span>
                             </div>
                             <div className="flex -space-x-1">
@@ -413,9 +413,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
                             {activeFeatureData?.title}
                           </h4>
                           <p className="text-muted-foreground leading-relaxed text-xs max-w-md">
-                            {activeFeatureData?.description} Unlock
-                            industrial-grade insights designed for rapid
-                            execution and tactical advantage.
+                            {activeFeatureData?.description} Discover tools and insights designed to help you make faster, smarter decisions.
                           </p>
                         </div>
 
@@ -426,7 +424,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
                             className="rounded-full px-8 h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-widest text-[9px] shadow-lg active:scale-95 transition-all group/btn"
                           >
                             <Link href={activeFeatureData?.href || "#"}>
-                              Initialize Stack{" "}
+                              Get Started{" "}
                               <ArrowRight className="ml-2.5 h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-2" />
                             </Link>
                           </Button>

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -21,9 +22,15 @@ export function Logo({
       </span>
       {sidebar && (
         <span
-          className={`group-data-[state=expanded]:hidden group-data-[state=collapsed]:inline italic text-primary font-black`}
+          className={`group-data-[state=expanded]:hidden group-data-[state=collapsed]:flex items-center justify-center`}
         >
-          {siteName.charAt(0)}
+          <Image
+            src="/icon.png"
+            alt={siteName}
+            width={32}
+            height={32}
+            className="rounded-lg object-contain drop-shadow-[0_0_0_rgba(0,0,0,1)]"
+          />
         </span>
       )}
     </>

@@ -1,5 +1,5 @@
 
-import Link from 'next/link';
+import Link from "next/link";
 import { Button } from '@/components/ui/button';
 import type { SearchParams } from '@/types/next';
 import { PlusCircle } from 'lucide-react';

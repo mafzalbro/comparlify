@@ -22,7 +22,7 @@ export default function LoginPage() {
         <div className="absolute bottom-[20%] left-[10%] w-[40%] h-[40%] bg-blue-500/5 rounded-full blur-[120px] animate-pulse delay-1000"></div>
       </div>
 
-      <div className="container relative z-10 grid lg:grid-cols-2 gap-16 items-center px-4 md:px-6 py-12">
+      <div className="container mx-auto relative z-10 grid lg:grid-cols-2 gap-16 items-center px-4 md:px-6 py-12">
         {/* Visual Brand Side */}
         <MotionDiv
           initial={{ opacity: 0, x: -40 }}

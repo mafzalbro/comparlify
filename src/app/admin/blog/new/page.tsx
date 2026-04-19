@@ -3,7 +3,7 @@ import { PostForm } from '../_components/post-form';
 import prisma from '@/lib/prisma';
 import type { PostCategory } from '@prisma/client';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import Link from "next/link";
 import { ArrowLeft } from 'lucide-react';
 import { cache } from 'react';
 

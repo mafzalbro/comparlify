@@ -10,7 +10,7 @@ import type { ForumPost, ForumTopic, User, ForumCategory, ForumTopicStatus, Foru
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import Link from "next/link";
 
 export type ModerationItem =
     | ({ type: 'TOPIC' } & (ForumTopic & { author: User, category: ForumCategory }))

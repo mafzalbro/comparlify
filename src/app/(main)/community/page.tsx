@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return generateSeoMetadata({
     title: "Community Forums | Connect with Creators",
     description:
-      "Join the conversation! Ask questions, share your knowledge, and connect with thousands of course creators in our high-signal community.",
+      "Join the conversation! Ask questions, share your knowledge, and connect with thousands of course creators in our active community.",
     path: "/community",
   });
 }
@@ -54,7 +54,7 @@ export default async function CommunityPage() {
       {/* ── HERO ─────────────────────────── */}
       <CommunityHero />
 
-      <div id="categories" className="container py-24 px-4 md:px-6">
+      <div id="categories" className="container mx-auto py-24 px-4 md:px-6">
         {/* ── STATS BAR ───────────────────── */}
         <CommunityStatsBar stats={stats} />
 

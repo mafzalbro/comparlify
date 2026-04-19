@@ -51,7 +51,7 @@ export function BattleSelector({ platforms }: { platforms: Platform[] }) {
           </h3>
           <p className="text-sm font-medium text-muted-foreground max-w-xs">
             Can&apos;t find what you need? Select any two platforms to see a
-            detailed head-to-head comparison.
+            detailed comparison.
           </p>
         </div>
 

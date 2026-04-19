@@ -1,8 +1,7 @@
+"use client";
 
-'use client';
-
-import type { Session } from 'next-auth';
-import { WelcomeOnboarding } from '@/components/welcome-onboarding';
+import type { Session } from "next-auth";
+import { WelcomeOnboarding } from "@/components/welcome-onboarding";
 
 interface HomePageClientProps {
   session: Session | null;

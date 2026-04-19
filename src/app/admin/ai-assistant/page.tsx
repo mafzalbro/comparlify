@@ -142,7 +142,7 @@ export default async function AdminAiAssistantPage() {
                     {tool.description}
                   </CardDescription>
                   <div className="flex items-center gap-2 text-primary font-black uppercase tracking-widest text-[10px] opacity-0 group-hover:opacity-100 transition-all">
-                    Initiate Sequence <ArrowRight className="h-4 w-4" />
+                    Open Tool <ArrowRight className="h-4 w-4" />
                   </div>
                 </CardContent>
               </Card>
@@ -159,10 +159,9 @@ export default async function AdminAiAssistantPage() {
                 How it works
               </h3>
               <p className="text-lg text-muted-foreground font-medium leading-relaxed">
-                These tools aren't just GPT-wrappers. They are specialized
-                **Neural Flows** tuned for the Comparlify ecosystem. They
-                understand your site structure, your existing platforms, and
-                your unique brand voice.
+                These tools are fine-tuned specifically for Comparlify. They
+                understand your site structure, your platform data, and
+                your content style — so results are relevant from the start.
               </p>
               <div className="flex gap-4">
                 <Badge

@@ -10,9 +10,9 @@ interface PostsChartProps {
 
 export function PostsChart({ data }: PostsChartProps) {
   return (
-    <Card>
-        <CardHeader>
-            <CardTitle>Posts Created (Last 7 Days)</CardTitle>
+    <Card className="rounded-[2.5rem] border border-border/10 bg-card/40 backdrop-blur-xl shadow-sm overflow-hidden">
+        <CardHeader className="pb-6">
+            <CardTitle className="text-xl font-black tracking-tight">Post Momentum</CardTitle>
         </CardHeader>
         <CardContent className="pl-2">
             <ResponsiveContainer width="100%" height={350}>

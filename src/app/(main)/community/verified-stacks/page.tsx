@@ -19,7 +19,7 @@ export default async function VerifiedStacksPage() {
     <div className="min-h-screen bg-background pb-20">
       <VerifiedStacksHero />
 
-      <div className="container px-4 md:px-6 -mt-10 relative z-20">
+      <div className="container mx-auto px-4 md:px-6 -mt-10 relative z-20">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12 p-8 rounded-[2.5rem] bg-card/60 backdrop-blur-3xl border border-border/10 shadow-2xl">
           <div className="flex items-center gap-6">
             <div className="h-16 w-16 rounded-4xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-lg shadow-primary/5">

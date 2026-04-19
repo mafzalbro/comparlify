@@ -45,9 +45,18 @@ firebase-debug.log
 firestore-debug.log
 
 # ai agents
+<<<<<<< HEAD
 .agents/
 .agent/
 _agents/
 _agent/
 
 package-lock.json
+=======
+# .agents/
+# .agent/
+# _agents/
+# _agent/
+
+.vscode
+>>>>>>> refs/remotes/origin/main

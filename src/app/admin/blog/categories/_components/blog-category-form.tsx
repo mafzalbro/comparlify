@@ -1,8 +1,9 @@
 
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { createBlogCategory, updateBlogCategory } from '@/app/actions/categories';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,9 +19,28 @@ interface BlogCategoryFormProps {
 
 export function BlogCategoryForm({ category }: BlogCategoryFormProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const isEditing = !!category;
   const formAction = isEditing ? updateBlogCategory.bind(null, category.id) : createBlogCategory;
   const [state, action] = useActionState(formAction, { error: null });
+
+  useEffect(() => {
+    if (state?.error) {
+      if (typeof state.error === "string") {
+        toast({
+          title: "Error",
+          description: state.error,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Validation Error",
+          description: "Please check the form for mistakes.",
+          variant: "destructive",
+        });
+      }
+    }
+  }, [state?.error, toast]);
 
   const [name, setName] = useState(category?.name ?? '');
   const [slug, setSlug] = useState(category?.slug ?? '');

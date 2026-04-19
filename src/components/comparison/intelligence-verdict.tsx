@@ -53,7 +53,6 @@ export function IntelligenceVerdict({
           </h2>
           <MarkdownContent 
             content={conclusion} 
-            className="prose-xl prose-headings:font-black prose-p:leading-relaxed prose-p:text-muted-foreground font-medium"
           />
         </div>
       </div>

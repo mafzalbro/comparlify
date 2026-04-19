@@ -118,7 +118,7 @@ function ErrorCard({ title, message }: { title: string; message: string }) {
 
 export default function UnsubscribePage() {
   return (
-    <div className="container py-32 min-h-[80vh] flex items-center justify-center relative overflow-hidden">
+    <div className="container mx-auto py-32 min-h-[80vh] flex items-center justify-center relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-primary/5 via-background to-background pointer-events-none"></div>
       <div className="relative z-10 w-full">
         <Suspense

@@ -1,5 +1,5 @@
 
-import Link from 'next/link';
+import Link from "next/link";
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MessageSquare, ThumbsUp } from 'lucide-react';

@@ -31,7 +31,7 @@ function SubmitButton() {
         className="h-14 px-10 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-destructive/20"
       >
         {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-        Execute Purge
+        Delete My Account
       </Button>
     </AlertDialogAction>
   );
@@ -68,7 +68,7 @@ export function DeleteAccountDialog() {
           variant="destructive"
           className="w-full h-12 rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-destructive/20 hover:scale-[1.02] transition-transform"
         >
-          Terminate Node
+          Delete Account
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="bg-card/90 backdrop-blur-3xl border-destructive/20 rounded-[2.5rem] p-10 max-w-lg">
@@ -78,12 +78,11 @@ export function DeleteAccountDialog() {
               <div className="h-10 w-10 rounded-xl bg-destructive/10 flex items-center justify-center">
                 <TriangleAlert className="h-6 w-6" />
               </div>
-              Absolute Termination?
+              Are you absolutely sure?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-base text-muted-foreground leading-relaxed font-medium">
-              This protocol is irreversible. Executing this will permanently
-              purge your identity node and all associated research data from the
-              neural network.
+              This action cannot be undone. Your account and all associated data
+              will be permanently deleted. You will be signed out immediately.
               {state?.error && (
                 <p className="text-destructive mt-4 font-bold uppercase tracking-widest text-xs">
                   {state.error.toString()}
@@ -93,7 +92,7 @@ export function DeleteAccountDialog() {
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-10 gap-4">
             <AlertDialogCancel className="h-14 px-8 rounded-2xl font-black uppercase tracking-widest border-border/10 hover:bg-secondary/10">
-              Abort
+              Cancel
             </AlertDialogCancel>
             <SubmitButton />
           </AlertDialogFooter>

@@ -210,16 +210,16 @@ export default async function BlogPostPage(props: {
         </Alert>
       )}
 
-      <article className="pb-32">
+      <article className="pb-16">
         {/* Premium Header - Majestic Scale */}
-        <header className="relative pt-32 pb-24 overflow-hidden border-b border-border/10">
+        <header className="relative pt-16 pb-12 overflow-hidden border-b border-border/10">
           <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-30"></div>
           <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
             <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-primary/15 rounded-full blur-[150px] animate-pulse"></div>
             <div className="absolute bottom-[20%] -right-[10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px] animate-pulse delay-1000"></div>
           </div>
 
-          <div className="container relative z-10 px-4 md:px-6">
+          <div className="container mx-auto relative z-10 px-4 md:px-6">
             <MotionDiv
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -240,7 +240,7 @@ export default async function BlogPostPage(props: {
                   {post.category?.name || "Uncategorized Intelligence"}
                 </div>
 
-                <h1 className="text-4xl md:text-6xl font-black tracking-tight text-foreground mb-10 leading-[1.1] uppercase max-w-4xl">
+                <h1 className="text-3xl md:text-5xl font-black tracking-tight text-foreground mb-8 leading-[1.1] uppercase max-w-4xl">
                   {post.title}
                 </h1>
 
@@ -294,13 +294,13 @@ export default async function BlogPostPage(props: {
         </header>
 
         {/* Featured Image - Immersive Scale */}
-        <section className="container px-4 md:px-6 -mt-12 mb-24">
+        <section className="container mx-auto px-4 md:px-6 -mt-8 mb-16">
           <MotionDiv
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1.2, delay: 0.4 }}
           >
-            <div className="relative aspect-21/9 rounded-[2.5rem] overflow-hidden shadow-[0_40px_80px_-20px_rgba(0,0,0,0.4)] group border-8 border-background ring-1 ring-border/10">
+            <div className="relative aspect-[3/1] rounded-[2rem] overflow-hidden shadow-[0_40px_80px_-20px_rgba(0,0,0,0.4)] group border-8 border-background ring-1 ring-border/10">
               <ManagedImage
                 src={post.image.replace("400/250", "1920/1080")}
                 alt={post.title}
@@ -315,8 +315,8 @@ export default async function BlogPostPage(props: {
         </section>
 
         {/* Main Content Layout */}
-        <section className="container px-4 md:px-6 max-w-7xl">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
+        <section className="container mx-auto px-4 md:px-6 max-w-7xl">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             {/* Left Sidebar Actions - Desktop Only */}
             <aside className="hidden lg:block lg:col-span-1">
               <div className="sticky top-40 flex flex-col items-center space-y-12">
@@ -350,7 +350,6 @@ export default async function BlogPostPage(props: {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6 }}
-                className="prose prose-xl dark:prose-invert max-w-none prose-headings:font-black prose-headings:tracking-tighter prose-a:text-primary prose-img:rounded-[2rem] prose-blockquote:border-primary prose-blockquote:bg-primary/5 prose-blockquote:py-6 prose-blockquote:px-8 prose-blockquote:rounded-[2rem] prose-blockquote:not-italic prose-blockquote:font-black prose-p:leading-relaxed prose-p:text-muted-foreground/90 font-medium"
               >
                 <MarkdownContent content={post.content} />
               </MotionDiv>
@@ -433,7 +432,7 @@ export default async function BlogPostPage(props: {
 
             {/* Right Sidebar - TOC & Related */}
             <aside className="lg:col-span-4 space-y-16">
-              <div className="sticky top-40 space-y-16">
+              <div className="sticky top-20 space-y-16">
                 <section className="bg-card/40 backdrop-blur-3xl border border-border/10 p-8 rounded-4xl shadow-xl relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-8 text-primary/5 select-none pointer-events-none -rotate-12 translate-x-8 -translate-y-8">
                     <ListFilter className="h-32 w-32" />
@@ -447,12 +446,12 @@ export default async function BlogPostPage(props: {
                       <Scale className="h-24 w-24" />
                     </div>
                     <Badge className="bg-primary/20 text-primary border-primary/30 px-4 py-1.5 uppercase tracking-widest text-[8px] font-black rounded-full mb-8 relative z-10 transition-all group-hover:bg-primary group-hover:text-primary-foreground">
-                      Intelligence Trending
+                      Trending
                     </Badge>
                     <h3 className="text-2xl font-black text-foreground mb-10 relative z-10">
-                      Latest <br />
+                      Platform <br />
                       <span className="text-primary italic font-black">
-                        Head-to-Head
+                        Comparisons
                       </span>
                     </h3>
                     <div className="space-y-6 relative z-10">

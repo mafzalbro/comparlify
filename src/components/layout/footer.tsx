@@ -102,7 +102,7 @@ export default function Footer({ content, siteName }: FooterProps) {
       {/* Background Visuals */}
       <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-10"></div>
 
-      <div className="container relative z-10 px-4 md:px-6">
+      <div className="container mx-auto relative z-10 px-4 md:px-6">
         {/* Newsletter Callout - High Impact */}
         <MotionDiv
           initial={{ opacity: 0, y: 30 }}
@@ -134,12 +134,12 @@ export default function Footer({ content, siteName }: FooterProps) {
           <div className="w-full max-w-md">
             <form ref={formRef} action={formAction} className="relative group">
               <div className="absolute -inset-1 bg-primary/20 rounded-2xl blur-lg opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
-              <div className="relative flex p-1.5 bg-background border border-border/10 rounded-2xl shadow-xl">
+              <div className="relative flex p-1.5 bg-background border border-border/10 rounded-2xl shadow-xl justify-center items-center gap-2">
                 <Input
                   name="email"
                   type="email"
                   placeholder="Enter your email address..."
-                  className="bg-transparent border-none h-12 focus-visible:ring-0 text-sm font-medium px-4"
+                  className="bg-transparent border-none h-12 focus-visible:ring-0! text-sm font-medium px-4 mt-0!"
                   required
                 />
                 <SubmitButton />

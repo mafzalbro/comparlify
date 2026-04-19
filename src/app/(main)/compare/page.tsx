@@ -14,9 +14,10 @@ import { FilterControls } from "./_components/filter-controls";
 import { CompareHero } from "@/components/compare/compare-hero";
 import { ComparisonList } from "@/components/compare/comparison-list";
 import { BattleSelector } from "./_components/battle-selector";
+import { GlobalMatchEngine } from "@/components/compare/global-match-engine";
 
 export const metadata: Metadata = await generateSeoMetadata({
-  title: "Side-by-Side | Head-to-Head Comparisons",
+  title: "Side-by-Side | Platform Comparisons",
   description:
     "Detailed, data-driven comparisons of the top course creation platforms. Find the perfect fit for your business with expert guidance.",
   path: "/compare",
@@ -83,6 +84,13 @@ const getAllPlatforms = cache(async () => {
   return prisma.platform.findMany({ orderBy: { name: "asc" } });
 });
 
+const getAllComparisonsList = cache(async () => {
+  return prisma.comparison.findMany({
+    where: { published: true },
+    include: { platformA: true, platformB: true },
+  });
+});
+
 const getComparisonCategories = cache(async () => {
   return prisma.comparisonCategory.findMany({ orderBy: { name: "asc" } });
 });
@@ -99,7 +107,7 @@ export default async function ComparePage(props: {
       ? [platformsParam]
       : [];
 
-  const [comparisons, allPlatforms, categories, content] = await Promise.all([
+  const [comparisons, allPlatforms, allComps, categories, content] = await Promise.all([
     getComparisons({
       search: String(search ?? ""),
       sort: String(sort ?? "newest"),
@@ -107,6 +115,7 @@ export default async function ComparePage(props: {
       category: String(category ?? "all"),
     }),
     getAllPlatforms(),
+    getAllComparisonsList(),
     getComparisonCategories(),
     getContent(),
   ]);
@@ -131,7 +140,13 @@ export default async function ComparePage(props: {
       {/* ── HERO ─────────────────────────── */}
       <CompareHero subtitle={content["compare.hero.subtitle"]} />
 
-      <div className="container py-12 px-4 md:px-6">
+      <div className="container mx-auto py-12 px-4 md:px-6">
+        {/* ── MATCH ENGINE WIZARD ──────────── */}
+        <GlobalMatchEngine allPlatforms={allPlatforms} allComparisons={allComps} />
+        {/* ── BATTLE SELECTOR ─────────────── */}
+        <BattleSelector platforms={allPlatforms} />
+
+        {/* ── FILTERS ─────────────── */}
         <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -149,9 +164,6 @@ export default async function ComparePage(props: {
             />
           </div>
         </MotionDiv>
-
-        {/* ── BATTLE SELECTOR ─────────────── */}
-        <BattleSelector platforms={allPlatforms} />
 
         {/* ── LIST ────────────────────────── */}
         <ComparisonList

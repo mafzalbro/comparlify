@@ -34,7 +34,7 @@ export function CreatorOutput() {
   return (
     <section className="py-32 relative overflow-hidden bg-secondary/0">
       <div className="absolute inset-0 bg-grid-pattern-light opacity-5 pointer-events-none"></div>
-      <div className="container px-4 md:px-6 relative z-10">
+      <div className="container mx-auto px-4 md:px-6 relative z-10">
         <div className="mx-auto max-w-3xl text-center mb-24 space-y-6">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary mb-2 shadow-sm">
             <Star className="h-4 w-4" />

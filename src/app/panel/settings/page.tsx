@@ -72,10 +72,10 @@ export default function UserSettingsPage() {
     <div className="max-w-6xl mx-auto space-y-12 pb-24">
       <header className="space-y-4 px-4">
         <h2 className="text-3xl font-black text-foreground tracking-tight uppercase">
-          Terminal <span className="text-primary italic">Protocols</span>
+          Account <span className="text-primary italic">Settings</span>
         </h2>
         <p className="text-sm text-muted-foreground font-medium">
-          Configure your node parameters and communication preferences.
+          Manage your profile information and preferences.
         </p>
       </header>
 
@@ -88,7 +88,7 @@ export default function UserSettingsPage() {
                   Public <span className="text-primary">Identity</span>
                 </CardTitle>
                 <CardDescription className="text-base">
-                  This information is broadcasted via your signals and comments.
+                  This information appears on your profile and comments.
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-10 space-y-10">
@@ -116,7 +116,7 @@ export default function UserSettingsPage() {
                     htmlFor="email"
                     className="text-xs font-black uppercase tracking-widest text-muted-foreground"
                   >
-                    Immutable Email
+                    Email Address
                   </Label>
                   <Input
                     id="email"
@@ -126,7 +126,7 @@ export default function UserSettingsPage() {
                     className="h-14 rounded-2xl border-border/10 bg-muted/20 opacity-50 cursor-not-allowed"
                   />
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-2">
-                    Primary communication channel cannot be altered.
+                    Your email address cannot be changed.
                   </p>
                 </div>
               </CardContent>
@@ -135,10 +135,10 @@ export default function UserSettingsPage() {
 
               <CardHeader className="p-10 pb-4">
                 <CardTitle className="text-2xl font-black uppercase tracking-tight">
-                  Signal <span className="text-primary">Preferences</span>
+                  Email <span className="text-primary">Preferences</span>
                 </CardTitle>
                 <CardDescription className="text-base">
-                  Manage your verified data-stream subscriptions.
+                  Manage your email notification and newsletter settings.
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-10 pt-0">
@@ -148,11 +148,10 @@ export default function UserSettingsPage() {
                       htmlFor="newsletter"
                       className="text-lg font-black tracking-tight group-hover:text-primary transition-colors"
                     >
-                      Premium Intelligence Feed
+                      Newsletter
                     </Label>
                     <p className="text-sm text-muted-foreground leading-relaxed max-w-md">
-                      Receive surgical updates from {siteName} regarding elite
-                      tools and creator strategies.
+                      Receive updates from {siteName} about new comparisons, tools, and platform insights.
                     </p>
                   </div>
                   <Switch
@@ -167,7 +166,7 @@ export default function UserSettingsPage() {
               <CardFooter className="p-10 bg-secondary/5 border-t border-border/5 flex justify-end">
                 <SubmitButton
                   isEditing={true}
-                  editingText="Commit All Changes"
+                  editingText="Save Changes"
                   // className="h-14 px-10 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20"
                 />
               </CardFooter>
@@ -185,8 +184,7 @@ export default function UserSettingsPage() {
             </CardHeader>
             <CardContent className="p-10 pt-0 space-y-6">
               <p className="text-sm text-muted-foreground font-medium leading-relaxed">
-                Terminate your neural connection to the network. This action is
-                irreversible and all signals will be lost.
+                Permanently delete your account and all of your data. This action cannot be undone.
               </p>
               <DeleteAccountDialog />
             </CardContent>

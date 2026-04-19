@@ -20,7 +20,7 @@ export default function RegisterPage() {
         <div className="absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] bg-blue-500/5 rounded-full blur-[150px] animate-pulse delay-700"></div>
       </div>
 
-      <div className="container relative z-10 grid lg:grid-cols-2 gap-20 items-center px-4 md:px-6 py-12">
+      <div className="container mx-auto relative z-10 grid lg:grid-cols-2 gap-20 items-center px-4 md:px-6 py-12">
         {/* Visual Brand Side */}
         <MotionDiv
           initial={{ opacity: 0, x: -40 }}
@@ -32,16 +32,16 @@ export default function RegisterPage() {
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary">
               <Rocket className="h-4 w-4" />
               <span className="text-[10px] font-black uppercase tracking-widest text-primary">
-                System Initialization
+                Create Your Account
               </span>
             </div>
             <h1 className="text-5xl md:text-7xl font-black text-foreground tracking-tight leading-[0.9]">
-              Build your <br />{" "}
-              <span className="text-primary italic">Intelligence Archive.</span>
+              Join the <br />{" "}
+              <span className="text-primary italic">Creator Community.</span>
             </h1>
             <p className="text-lg text-muted-foreground max-w-lg leading-relaxed font-medium">
-              Join the most advanced network for course creators. Secure your
-              handle and start personalizing your research feed today.
+              Join thousands of course creators. Create your free account and
+              start comparing platforms today.
             </p>
           </div>
 
@@ -54,8 +54,8 @@ export default function RegisterPage() {
               },
               {
                 icon: Sparkles,
-                title: "AI Cockpit",
-                desc: "Access the full suite of gen-tools.",
+                title: "AI Tools",
+                desc: "Access the full AI toolkit.",
               },
             ].map((feature, i) => (
               <div key={i} className="space-y-4">
@@ -77,7 +77,7 @@ export default function RegisterPage() {
             className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-all font-black uppercase tracking-widest text-[10px] group"
           >
             <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-2" />
-            Abort & Return to Safety
+            Back to Home
           </Link>
         </MotionDiv>
 
@@ -94,10 +94,10 @@ export default function RegisterPage() {
                 <UserPlus className="h-7 w-7" />
               </div>
               <CardTitle className="text-3xl font-black tracking-tight text-foreground mb-4">
-                Initialize <span className="text-primary">Profile</span>
+                Create <span className="text-primary">Account</span>
               </CardTitle>
               <CardDescription className="text-sm text-muted-foreground font-medium">
-                Begin your journey into the elite network.
+                Get started in seconds. It's completely free.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6 p-0">
@@ -117,13 +117,13 @@ export default function RegisterPage() {
                 </div>
                 <div className="relative flex justify-center text-[8px] font-black uppercase tracking-[0.3em]">
                   <span className="bg-transparent px-4 text-muted-foreground">
-                    Certified Identity Protocol
+                    Secure Sign Up
                   </span>
                 </div>
               </div>
 
               <p className="text-center text-xs text-muted-foreground font-medium">
-                Already have an archive?{" "}
+                Already have an account?{" "}
                 <Link
                   href="/login"
                   className="text-primary font-black hover:underline underline-offset-4"

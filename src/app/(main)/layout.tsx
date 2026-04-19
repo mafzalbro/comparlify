@@ -1,11 +1,11 @@
 import { Chatbot } from "@/components/chatbot";
 import Footer from "@/components/layout/footer";
 import Header from "@/components/layout/header";
-import { Logo } from "@/components/logo";
-import { PromoBanner } from "@/components/layout/promo-banner";
 import { auth } from "@/lib/auth";
 import { getContent } from "@/lib/content";
 import { AdPlacement } from "@/components/ad-placement";
+import { PromoBanner } from "@/components/layout/promo-banner";
+import { ViewTransition } from "react";
 
 export const dynamic = "force-dynamic";
 
@@ -36,9 +36,12 @@ export default async function MainLayout({
   return (
     <>
       <PromoBanner />
+      <div className="fixed inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-[0.05] pointer-events-none"></div>
       <Header navLinks={navLinks} siteName={siteName} />
       <AdPlacement placement="HEADER" className="container mx-auto" />
-      <main className="flex-1">{children}</main>
+      {/* <ViewTransition name="page-transition"> */}
+      <main className="flex-1 flex flex-col">{children}</main>
+      {/* </ViewTransition> */}
       {session?.user && <Chatbot />}
       <Footer content={footerContent} siteName={siteName} />
     </>

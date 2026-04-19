@@ -14,9 +14,9 @@ export default async function PrivacyPage() {
 
   return (
     <div className="bg-background min-h-screen">
-      <header className="relative pt-24 pb-16 overflow-hidden">
+      <header className="relative pt-12 pb-16 overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-30"></div>
-        <div className="container relative z-10 px-4 md:px-6">
+        <div className="container mx-auto relative z-10 px-4 md:px-6">
           <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -53,7 +53,7 @@ export default async function PrivacyPage() {
         </div>
       </header>
 
-      <main className="container max-w-4xl py-24 px-4 md:px-6">
+      <main className="container mx-auto max-w-screen-xl py-12 px-1.5 md:px-8">
         <MotionDiv
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -70,7 +70,7 @@ export default async function PrivacyPage() {
         </MotionDiv>
       </main>
 
-      <footer className="container max-w-5xl py-12 px-4 md:px-6">
+      <footer className="container mx-auto max-w-5xl py-12 px-4 md:px-6">
         <div className="p-8 rounded-3xl bg-secondary/50 border border-border/10 text-center">
           <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">
             Our Commitment

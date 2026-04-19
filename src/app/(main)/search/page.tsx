@@ -66,9 +66,9 @@ export default async function SearchPage(props: {
   return (
     <div className="bg-background min-h-screen">
       {/* Premium Search Hero */}
-      <section className="relative pt-24 pb-16 overflow-hidden">
+      <section className="relative pt-12 pb-16 overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-30"></div>
-        <div className="container relative z-10 px-4 md:px-6">
+        <div className="container mx-auto relative z-10 px-4 md:px-6">
           <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -98,7 +98,7 @@ export default async function SearchPage(props: {
         </div>
       </section>
 
-      <div className="container py-24 px-4 md:px-6 max-w-7xl">
+      <div className="container mx-auto py-24 px-4 md:px-6 max-w-7xl">
         {query ? (
           totalResults > 0 ? (
             <div className="space-y-16">

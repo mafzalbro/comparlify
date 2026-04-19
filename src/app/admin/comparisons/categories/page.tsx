@@ -1,6 +1,6 @@
 
 import prisma from '@/lib/prisma';
-import Link from 'next/link';
+import Link from "next/link";
 import {
   Table,
   TableHeader,

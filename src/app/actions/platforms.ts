@@ -11,7 +11,7 @@ import { Prisma } from "@prisma/client";
 const platformSchema = z.object({
   name: z.string().min(2),
   website: z.string().url(),
-  logoUrl: z.string().url(),
+  logoUrl: z.string().min(1, "Logo URL is required"),
   description: z.string().min(10),
   rating: z
     .string()

@@ -21,7 +21,7 @@ export function VerifiedStacksHero() {
                 >
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 mb-8">
                         <ShieldCheck className="h-4 w-4" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em]">Community Tech Hub</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em]">Verified Stacks</span>
                     </div>
 
                     <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-6 leading-[0.9]">

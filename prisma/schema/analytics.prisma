@@ -4,6 +4,12 @@ model AffiliateClick {
     platform   Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
     referrer   String   @db.Text
     userAgent  String   @db.Text
+    device     String?
+    browser    String?
+    os         String?
+    country    String?
+    city       String?
+    region     String?
     ip         String
     createdAt  DateTime @default(now())
 

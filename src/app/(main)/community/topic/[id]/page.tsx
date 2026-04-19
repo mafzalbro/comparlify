@@ -69,9 +69,9 @@ export default async function TopicPage(props: {
 
   return (
     <div className="bg-background min-h-screen">
-      <header className="relative pt-24 pb-16 overflow-hidden">
+      <header className="relative pt-12 pb-16 overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-30"></div>
-        <div className="container relative z-10 px-4 md:px-6">
+        <div className="container mx-auto relative z-10 px-4 md:px-6">
           <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -146,7 +146,7 @@ export default async function TopicPage(props: {
         </div>
       </header>
 
-      <main className="container py-12 px-4 md:px-6 max-w-5xl">
+      <main className="container mx-auto py-12 px-4 md:px-6 max-w-5xl">
         <div className="space-y-12">
           <MotionDiv
             initial={{ opacity: 0, x: -30 }}
@@ -214,7 +214,7 @@ export default async function TopicPage(props: {
       </main>
 
       {/* Bottom Actions Hint */}
-      <section className="container max-w-5xl py-24 px-4 md:px-6">
+      <section className="container mx-auto max-w-5xl py-24 px-4 md:px-6">
         <div className="flex items-center justify-between p-6 rounded-4xl bg-secondary/50 border border-border/10 overflow-hidden relative">
           <div className="flex items-center gap-6">
             <div className="flex items-center -space-x-4">

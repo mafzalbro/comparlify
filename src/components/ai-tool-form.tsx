@@ -272,7 +272,7 @@ export function AIToolFormResult() {
 
   return (
     <Card className="bg-transparent border-none rounded-none h-full flex flex-col overflow-visible shadow-none">
-      <CardHeader className="flex flex-col md:flex-row items-center justify-between py-5 px-8 bg-zinc-900/40 backdrop-blur-md gap-6 rounded-t-4xl border-x border-t border-white/10 border-b-0">
+      <CardHeader className="flex flex-col md:flex-row items-center justify-between py-5 px-8 bg-secondary/40 backdrop-blur-md gap-6 rounded-t-4xl border-x border-t border-border/10 border-b-0">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary/20 rounded-lg">
@@ -281,12 +281,14 @@ export function AIToolFormResult() {
             <CardTitle className="text-lg font-bold tracking-tight">AI Output</CardTitle>
           </div>
 
-          <div className="flex items-center bg-muted/50 p-1 rounded-full border border-border">
+          <div className="flex items-center bg-background/60 p-1.5 rounded-2xl border border-border/5 shadow-inner">
             <button
               onClick={() => setViewMode("reading")}
               className={cn(
-                "flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all",
-                viewMode === "reading" ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "text-muted-foreground hover:text-foreground"
+                "flex items-center gap-2 px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300",
+                viewMode === "reading" 
+                  ? "bg-primary text-primary-foreground shadow-[0_5px_15px_-5px_rgba(var(--primary-rgb),0.4)]" 
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent-surface/20"
               )}
             >
               <Eye className="h-3 w-3" /> Reading
@@ -294,8 +296,10 @@ export function AIToolFormResult() {
             <button
               onClick={handleSwitchToWorkflow}
               className={cn(
-                "flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all",
-                viewMode === "workflow" ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "text-muted-foreground hover:text-foreground"
+                "flex items-center gap-2 px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300",
+                viewMode === "workflow" 
+                  ? "bg-primary text-primary-foreground shadow-[0_5px_15px_-5px_rgba(var(--primary-rgb),0.4)]" 
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent-surface/20"
               )}
             >
               <Workflow className={cn("h-3 w-3", isStructuring && "animate-spin")} /> {isStructuring ? "Mapping..." : "Workflow"}
@@ -351,17 +355,26 @@ export function AIToolFormResult() {
           <div 
             ref={exportRef} 
             className={cn(
-               "min-h-[11in] w-full transition-all duration-700 ease-in-out",
+               "min-h-[11in] w-full transition-all duration-700 ease-in-out relative",
                viewMode === "reading" 
-                ? "max-w-[900px] bg-white dark:bg-zinc-950 shadow-[0_20px_80px_-15px_rgba(0,0,0,0.2)] dark:shadow-[0_20px_80px_-15px_rgba(0,0,0,0.6)] p-[0.6in] md:p-[0.8in] border border-border/10 rounded-sm" 
+                ? "max-w-[900px] bg-background shadow-[0_30px_100px_-20px_rgba(0,0,0,0.3)] dark:shadow-[0_40px_120px_-20px_rgba(0,0,0,0.8)] p-[0.6in] md:p-[1in] border border-border/10 rounded-sm" 
                 : "max-w-none p-4"
             )}
           >
+            {/* Paper texture overlay for reading mode */}
+            {viewMode === "reading" && (
+              <div className="absolute inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05] bg-[url('https://www.transparenttextures.com/patterns/notebook.png')]" />
+            )}
+            
+            <div className="relative z-10">
              {viewMode === "reading" ? (
-               <MarkdownContent content={state.generatedContent} />
+               <div className="prose prose-zinc dark:prose-invert max-w-none">
+                 <MarkdownContent content={state.generatedContent} />
+               </div>
              ) : (
                <WorkflowRenderer content={state.generatedContent} structuredData={structuredWorkflow} isLoading={isStructuring} />
              )}
+            </div>
           </div>
         </div>
         
@@ -394,12 +407,13 @@ export function AIToolFormEmpty() {
     <Card className="flex flex-col items-center justify-center h-full min-h-[500px] border-2 border-dashed border-border/20 rounded-4xl bg-secondary/5 group overflow-hidden relative">
       <div className="absolute inset-0 bg-grid-pattern-light opacity-5 group-hover:opacity-10 transition-opacity"></div>
       <div className="relative z-10 text-center px-10">
-        <div className="p-8 bg-muted/50 rounded-full w-fit mx-auto mb-8 shadow-inner group-hover:scale-110 transition-transform duration-500">
-          <Wand2 className="mx-auto h-20 w-20 text-muted-foreground/30" />
+        <div className="p-10 bg-secondary/50 rounded-full w-fit mx-auto mb-10 shadow-inner group-hover:scale-110 transition-transform duration-700 border border-border/10 relative">
+          <div className="absolute inset-0 rounded-full bg-primary/5 animate-pulse" />
+          <Wand2 className="relative z-10 mx-auto h-24 w-24 text-primary/20 group-hover:text-primary/40 transition-colors" />
         </div>
-        <h3 className="text-2xl font-bold text-foreground mb-4">Awaiting Input</h3>
-        <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed">
-          Fill in the details and hit generate to see your AI-powered results here.
+        <h3 className="text-3xl font-black text-foreground mb-4 uppercase tracking-tight">Forge <span className="text-primary italic">Intelligence</span></h3>
+        <p className="text-muted-foreground text-base max-w-sm mx-auto leading-relaxed font-medium">
+          Input your parameters on the left and let our AI engine craft your high-fidelity content.
         </p>
       </div>
     </Card>

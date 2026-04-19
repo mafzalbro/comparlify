@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { LegalDocumentForm } from '../../_components/legal-document-form';
 import type { SiteContent } from '@prisma/client';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import Link from "next/link";
 import { ArrowLeft } from 'lucide-react';
 
 async function getDocument(id: string): Promise<SiteContent | null> {

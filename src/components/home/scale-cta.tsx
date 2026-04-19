@@ -10,25 +10,25 @@ interface ScaleCTAProps {
 
 export function ScaleCTA({ subtitle, buttonText }: ScaleCTAProps) {
   return (
-    <section className="relative overflow-hidden bg-transparent py-32 md:py-48 mt-24">
+    <section className="relative overflow-hidden bg-transparent py-16 md:py-20 mt-16">
       <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-primary/30 to-transparent"></div>
       <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-[0.01]"></div>
       <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-primary/3 rounded-full blur-[120px]"></div>
       </div>
 
-      <div className="container relative z-10 px-4 md:px-6 text-center">
-        <div className="max-w-4xl mx-auto flex flex-col items-center space-y-10">
+      <div className="container mx-auto relative z-10 px-4 md:px-6 text-center">
+        <div className="max-w-4xl mx-auto flex flex-col items-center space-y-6">
           <MotionDiv
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             className="w-20 h-20 bg-primary/10 rounded-4xl flex items-center justify-center text-primary shadow-2xl shadow-primary/10 animate-bounce"
           >
-            <Zap className="h-10 w-10 drop-shadow-lg" />
+            <Zap className="h-8 w-8 drop-shadow-lg" />
           </MotionDiv>
           <div className="space-y-6">
-            <h2 className="text-4xl md:text-6xl font-black tracking-tight leading-[0.9] mb-4">
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight leading-[0.9] mb-3">
               Ready to <span className="text-primary italic">Scale?</span>
             </h2>
             <p className="text-lg md:text-xl text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed">
@@ -42,16 +42,16 @@ export function ScaleCTA({ subtitle, buttonText }: ScaleCTAProps) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
-            className="flex flex-col sm:flex-row gap-6 items-center pt-8"
+            className="flex flex-col sm:flex-row gap-4 items-center pt-4"
           >
             <Button
-              size="xl"
-              className="rounded-full px-14 h-16 text-lg font-black uppercase tracking-widest shadow-xl shadow-primary/20 group hover:scale-105 active:scale-95 transition-all"
+              size="lg"
+              className="rounded-full px-10 h-14 text-base font-black uppercase tracking-widest shadow-xl shadow-primary/20 group hover:scale-105 active:scale-95 transition-all"
               asChild
             >
               <NextLink href="/register">
                 {buttonText || "Initialize Account"}
-                <ArrowRight className="ml-4 h-6 w-6 transition-transform group-hover:translate-x-3" />
+                <ArrowRight className="ml-3 h-5 w-5 transition-transform group-hover:translate-x-3" />
               </NextLink>
             </Button>
             <NextLink
