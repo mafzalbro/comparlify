@@ -37,6 +37,8 @@ const ComparisonChart = dynamic(
   { ssr: true },
 );
 
+export const revalidate = 3600; // ISR for comparison pages
+
 const getComparisonBySlug = cache(async (slug: string) => {
   return prisma.comparison.findUnique({
     where: { slug, published: true },
@@ -69,8 +71,13 @@ export async function generateMetadata(props: {
   const { slug } = await props.params;
   const comparison = await getComparisonBySlug(slug);
   if (!comparison) return {};
+  
+  // Professional high-intent title strategy
+  const currentYear = new Date().getFullYear();
+  const professionalTitle = `${comparison.platformA.name} vs ${comparison.platformB.name} ${currentYear}: Pricing, Fees, and Infrastructure Comparison`;
+
   return generateSeoMetadata({
-    title: comparison.title,
+    title: professionalTitle,
     description: comparison.summary,
     path: `/compare/${comparison.slug}`,
   });

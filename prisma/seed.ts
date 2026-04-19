@@ -10,13 +10,21 @@ import {
 } from "@prisma/client";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 
-const adapter = new PrismaMariaDb(process.env.DATABASE_URL!);
-const prisma = new PrismaClient({ adapter });
+/**
+ * SEED SCRIPT
+ * Note: When run via 'prisma db seed', this file uses its own client.
+ * When imported via the app actions, it should ideally use the app's singleton.
+ * However, to keep it simple and runnable as a standalone script, 
+ * we use a local client if one isn't provided.
+ */
 
-import { promises as fs } from "fs";
-import path from "path";
+const createLocalClient = () => {
+    const adapter = new PrismaMariaDb(process.env.DATABASE_URL!);
+    return new PrismaClient({ adapter });
+};
 
-export async function cleanupDatabase() {
+export async function cleanupDatabase(prismaInstance?: PrismaClient) {
+  const prisma = prismaInstance || createLocalClient();
   console.log("🧹 Starting database cleanup...");
 
   const models = Object.keys(prisma).filter(
@@ -80,22 +88,22 @@ export async function cleanupDatabase() {
         }
       }
     } catch (e: any) {
-      // This might fail if the model doesn't exist in some versions, so we just log it.
       if (e.code !== "P2025") {
-        // P2025 = Record to delete does not exist.
         console.warn(`  - Could not delete from ${model}: ${e.message}`);
       }
     }
   }
 
   console.log("✅ Database cleanup complete.");
+  if (!prismaInstance) await prisma.$disconnect();
 }
 
-async function main(skipCleanup = false) {
+async function main(prismaInstance?: PrismaClient, skipCleanup = false) {
+  const prisma = prismaInstance || createLocalClient();
   console.log("🌱 Starting database seeding...");
 
   if (!skipCleanup) {
-    await cleanupDatabase();
+    await cleanupDatabase(prisma);
   } else {
     console.log("Skipping cleanup as requested.");
   }
@@ -1844,6 +1852,8 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
 
   // --- 15. Seed Images from /public/uploads ---
   console.log("\n🖼️ Seeding existing images from public/uploads...");
+  const fs = await import("fs/promises");
+  const path = await import("path");
   const uploadsDir = path.join(process.cwd(), "public", "uploads");
   try {
     const files = await fs.readdir(uploadsDir);
@@ -1891,17 +1901,16 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
   }
 
   console.log("\n🎉 Seeding finished successfully!");
+  if (!prismaInstance) await prisma.$disconnect();
 }
 
 export const seed = async (skipCleanup = false) => {
   try {
-    await main(skipCleanup);
+    await main(undefined, skipCleanup);
   } catch (e) {
     console.error("\n❌ An error occurred during seeding:");
     console.error(e);
     process.exit(1);
-  } finally {
-    await prisma.$disconnect();
   }
 };
 

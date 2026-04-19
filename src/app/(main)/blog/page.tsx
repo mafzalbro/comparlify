@@ -29,6 +29,8 @@ import { getContent } from "@/lib/content";
 import { MotionDiv } from "@/components/motion-wrapper";
 import { PremiumNewsletterForm } from "@/components/premium-newsletter-form";
 
+export const revalidate = 3600;
+
 export async function generateMetadata(): Promise<Metadata> {
   return generateSeoMetadata({
     title: "Creator Insights | The Comparlify Blog",
@@ -210,7 +212,7 @@ export default async function BlogPage(props: {
               >
                 <Link
                   href={`/blog/${featuredPost.slug}`}
-                  className="group block"
+                  className="block"
                 >
                   <div className="relative grid grid-cols-1 lg:grid-cols-12 overflow-hidden rounded-[2.5rem] border border-border/10 glass shadow-[0_40px_80px_-20px_rgba(0,0,0,0.3)] hover:shadow-primary/10 transition-all duration-1000 h-full lg:min-h-[400px]">
                     <div className="lg:col-span-7 relative h-[300px] lg:h-auto overflow-hidden">

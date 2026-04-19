@@ -16,12 +16,16 @@ import { ComparisonList } from "@/components/compare/comparison-list";
 import { BattleSelector } from "./_components/battle-selector";
 import { GlobalMatchEngine } from "@/components/compare/global-match-engine";
 
-export const metadata: Metadata = await generateSeoMetadata({
-  title: "Side-by-Side | Platform Comparisons",
-  description:
-    "Detailed, data-driven comparisons of the top course creation platforms. Find the perfect fit for your business with expert guidance.",
-  path: "/compare",
-});
+export const revalidate = 3600;
+
+export async function generateMetadata(): Promise<Metadata> {
+  return generateSeoMetadata({
+    title: "Side-by-Side | Platform Comparisons",
+    description:
+      "Detailed, data-driven comparisons of the top course creation platforms. Find the perfect fit for your business with expert guidance.",
+    path: "/compare",
+  });
+}
 
 const getComparisons = cache(
   async ({

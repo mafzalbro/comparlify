@@ -5,9 +5,8 @@ import { auth } from "@/lib/auth";
 import { getContent } from "@/lib/content";
 import { AdPlacement } from "@/components/ad-placement";
 import { PromoBanner } from "@/components/layout/promo-banner";
-import { ViewTransition } from "react";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600; // Default revalidation for main pages
 
 export default async function MainLayout({
   children,
@@ -39,9 +38,7 @@ export default async function MainLayout({
       <div className="fixed inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-[0.05] pointer-events-none"></div>
       <Header navLinks={navLinks} siteName={siteName} />
       <AdPlacement placement="HEADER" className="container mx-auto" />
-      {/* <ViewTransition name="page-transition"> */}
       <main className="flex-1 flex flex-col">{children}</main>
-      {/* </ViewTransition> */}
       {session?.user && <Chatbot />}
       <Footer content={footerContent} siteName={siteName} />
     </>
