@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-// import { Link } from "next-view-transitions"; // Wait, checking if they use standard Link or this
 import NextLink from "next/link";
 import { ArrowRight, CheckCircle2, Zap } from "lucide-react";
 import { MotionDiv, MotionH2, MotionP } from "@/components/motion-wrapper";

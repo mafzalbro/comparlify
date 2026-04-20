@@ -1,17 +1,14 @@
-import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 
 /**
  * Prisma Client Singleton for Next.js
  * 
- * In development, Next.js reloads the code on every change. 
- * This can lead to multiple PrismaClient instances being created, 
- * exhausting the database connection pool. 
- * We attach the client to `globalThis` to preserve it across reloads.
+ * Ensures only one instance of the client is used, even across HMR reloads in development.
+ * This prevents "pool timeout" errors caused by exhausting database connections.
  */
 
-const createPrismaClient = () => {
+const prismaClientSingleton = () => {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
     throw new Error("DATABASE_URL is not defined in environment variables");
@@ -20,18 +17,21 @@ const createPrismaClient = () => {
   const adapter = new PrismaMariaDb(connectionString);
   return new PrismaClient({ 
     adapter,
-    log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+    // Minimal logging to keep the console clean while catching errors
+    log: ["error"],
   });
 };
 
+type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>;
+
 const globalForPrisma = globalThis as unknown as {
-  prisma: ReturnType<typeof createPrismaClient> | undefined;
+  prismaGlobal: PrismaClientSingleton | undefined;
 };
 
-export const prisma = globalForPrisma.prisma ?? createPrismaClient();
+export const prisma = globalForPrisma.prismaGlobal ?? prismaClientSingleton();
 
 if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
+  globalForPrisma.prismaGlobal = prisma;
 }
 
 export default prisma;

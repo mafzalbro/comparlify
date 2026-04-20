@@ -1,12 +1,9 @@
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import "dotenv/config";
+import { prisma } from "../src/lib/prisma";
 
 async function main() {
   console.log("🚀 Starting industry-level data seeding...");
 
-  // 1. Clear existing data to avoid duplicates (optional, since we just reset)
-  
   // 2. Define High-Fidelity Platforms
   const platforms = [
     {
@@ -91,7 +88,8 @@ async function main() {
 
     console.log(`✅ Synced Platform: ${platform.name}`);
 
-    // Create tiers
+    // Recreate tiers to ensure sync
+    await prisma.pricingTier.deleteMany({ where: { platformId: platform.id } });
     for (const tier of tiers) {
       await prisma.pricingTier.create({
         data: {
@@ -110,7 +108,4 @@ main()
   .catch((e) => {
     console.error(e);
     process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
   });

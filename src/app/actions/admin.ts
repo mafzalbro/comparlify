@@ -3,7 +3,6 @@
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
-// --- Cache Management Action ---
 export async function revalidateCacheAction(path: "all" | "blog" | "compare" | "news" | "community" | "tools") {
   const session = await auth();
   if (session?.user?.role !== "ADMIN") {
@@ -15,10 +14,12 @@ export async function revalidateCacheAction(path: "all" | "blog" | "compare" | "
       revalidatePath("/", "layout");
     } else {
       revalidatePath(`/${path}`, "layout");
+      // Also revalidate homepage since it has sections for these
+      revalidatePath("/");
     }
-    return { success: `Successfully revalidated ${path} pages.` };
+    return { success: `Successfully revalidated ${path} signals.` };
   } catch (error) {
     console.error("Revalidation error:", error);
-    return { error: `Failed to revalidate ${path} pages.` };
+    return { error: `Failed to revalidate ${path} cache.` };
   }
 }
