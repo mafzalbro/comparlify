@@ -81,16 +81,22 @@ export const authOptions: NextAuthOptions = {
       }
       return true;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.role = (user as any).role ?? "USER";
         token.onboarded = (user as any).onboarded ?? false;
         token.newsletter = (user as any).newsletter ?? false;
         token.suspended = (user as any).suspended ?? false;
-      } else if (token.email) {
-        // Refresh token data if needed, but for now we trust the token
+      } 
+      
+      if (trigger === "update" && session) {
+        if (session.onboarded !== undefined) token.onboarded = session.onboarded;
+        if (session.role !== undefined) token.role = session.role;
+        if (session.name !== undefined) token.name = session.name;
+        if (session.image !== undefined) token.image = session.image;
       }
+
       return token;
     },
     async session({ session, token }) {
