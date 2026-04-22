@@ -34,9 +34,10 @@ export async function checkAuthorization(session: Session | null, pathname: stri
 
     // 1. Check for authentication on protected routes
     if (isProtectedRoute && !session) {
-        const loginUrl = new URL("/login");
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+        const loginUrl = new URL("/login", baseUrl);
         loginUrl.searchParams.set("callbackUrl", pathname);
-        redirect(loginUrl.toString());
+        redirect(loginUrl.pathname + loginUrl.search);
     }
 
     // If not a protected route, or if user is authenticated but not in admin, allow access
