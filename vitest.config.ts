@@ -4,6 +4,11 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
   plugins: [react(), tsconfigPaths()],
+  resolve: {
+    alias: {
+      'server-only': 'identity-obj-proxy',
+    },
+  },
   test: {
     environment: 'jsdom',
     setupFiles: ['./__tests__/setup.tsx'],
