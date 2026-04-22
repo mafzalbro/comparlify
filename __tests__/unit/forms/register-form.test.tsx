@@ -14,10 +14,10 @@ vi.mock('next/navigation', () => ({
 
 describe('RegisterForm component', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-    vi.mocked(useSearchParams).mockReturnValue({
+    vi.clearAllMocks();
+    (useSearchParams as any).mockReturnValue({
       get: vi.fn().mockReturnValue('/')
-    } as any)
+    })
   })
 
   it('renders Google and GitHub sign-in buttons', () => {
@@ -39,9 +39,9 @@ describe('RegisterForm component', () => {
   })
 
   it('uses callbackUrl from searchParams', () => {
-    vi.mocked(useSearchParams).mockReturnValue({
+    (useSearchParams as any).mockReturnValue({
       get: vi.fn().mockReturnValue('/dashboard')
-    } as any)
+    })
 
     render(<RegisterForm />)
     fireEvent.click(screen.getByText(/continue with google/i))

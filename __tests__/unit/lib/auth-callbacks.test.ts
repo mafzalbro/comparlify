@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 
@@ -17,7 +17,7 @@ describe('Auth Configuration Callbacks', () => {
 
   describe('signIn callback', () => {
     it('returns false if user is suspended', async () => {
-      vi.mocked(prisma.user.findUnique).mockResolvedValue({ suspended: true } as any)
+      (prisma.user.findUnique as any).mockResolvedValue({ suspended: true } as any)
 
       const result = await authOptions.callbacks?.signIn?.({
         user: { email: 'suspended@example.com' } as any,
@@ -29,7 +29,7 @@ describe('Auth Configuration Callbacks', () => {
     })
 
     it('returns true if user is not suspended', async () => {
-      vi.mocked(prisma.user.findUnique).mockResolvedValue({ suspended: false } as any)
+      (prisma.user.findUnique as any).mockResolvedValue({ suspended: false } as any)
 
       const result = await authOptions.callbacks?.signIn?.({
         user: { email: 'active@example.com' } as any,

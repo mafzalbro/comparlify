@@ -21,9 +21,9 @@ describe('sendContactMessageAction', () => {
 
   it('returns errors for invalid data', async () => {
     const formData = new FormData()
-    formData.append('name', 'J')
-    formData.append('email', 'invalid-email')
-    formData.append('message', 'short')
+    formData.set('name', 'J')
+    formData.set('email', 'invalid-email')
+    formData.set('message', 'short')
 
     const result = await sendContactMessageAction({ error: null, success: false }, formData)
 
@@ -35,11 +35,11 @@ describe('sendContactMessageAction', () => {
 
   it('creates a contact message and returns success for valid data', async () => {
     const formData = new FormData()
-    formData.append('name', 'John Doe')
-    formData.append('email', 'john@example.com')
-    formData.append('message', 'This is a long enough message.')
+    formData.set('name', 'John Doe')
+    formData.set('email', 'john@example.com')
+    formData.set('message', 'This is a long enough message.')
 
-    vi.mocked(prisma.contactMessage.create).mockResolvedValue({} as any)
+    ;(prisma.contactMessage.create as any).mockResolvedValue({} as any)
 
     const result = await sendContactMessageAction({ error: null, success: false }, formData)
 
@@ -56,11 +56,11 @@ describe('sendContactMessageAction', () => {
 
   it('returns an error message if prisma create fails', async () => {
     const formData = new FormData()
-    formData.append('name', 'John Doe')
-    formData.append('email', 'john@example.com')
-    formData.append('message', 'This is a long enough message.')
+    formData.set('name', 'John Doe')
+    formData.set('email', 'john@example.com')
+    formData.set('message', 'This is a long enough message.')
 
-    vi.mocked(prisma.contactMessage.create).mockRejectedValue(new Error('DB Error'))
+    ;(prisma.contactMessage.create as any).mockRejectedValue(new Error('DB Error'))
 
     const result = await sendContactMessageAction({ error: null, success: false }, formData)
 
