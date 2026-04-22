@@ -26,18 +26,8 @@ export async function POST(request: Request) {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
-  // Generate a unique filename and validate extension
-  const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'];
-  const originalName = file.name;
-  const extension = originalName.split('.').pop()?.toLowerCase() || '';
-
-  if (!ALLOWED_EXTENSIONS.includes(extension)) {
-    return NextResponse.json(
-      { error: 'Invalid file type. Allowed types: ' + ALLOWED_EXTENSIONS.join(', ') },
-      { status: 400 }
-    );
-  }
-
+  // Generate a unique filename
+  const extension = file.name.split('.').pop();
   const timestamp = format(new Date(), 'yyyyMMdd_HHmmss');
   const randomString = Math.random().toString(36).substring(2, 8);
   const filename = `${timestamp}_${randomString}.${extension}`;

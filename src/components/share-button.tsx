@@ -6,10 +6,11 @@ import React, { useState, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ShareButtonProps {
   className?: string;
@@ -57,28 +58,20 @@ export const ShareButton = React.memo(function ShareButton({
   }, [handleCopy]);
 
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={handleNativeShare}
-          className={cn(
-            "h-12 w-12 rounded-2xl hover:bg-primary hover:text-primary-foreground transition-all",
-            className,
-          )}
-          aria-label="Share article"
-        >
-          {copied ? (
-            <Check className="h-5 w-5 animate-in fade-in zoom-in" />
-          ) : (
-            <Share2 className="h-5 w-5" />
-          )}
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p>{copied ? "Link Copied" : "Share"}</p>
-      </TooltipContent>
-    </Tooltip>
+    <Button
+      variant="outline"
+      size="icon"
+      onClick={handleNativeShare}
+      className={cn(
+        "h-12 w-12 rounded-2xl hover:bg-primary hover:text-primary-foreground transition-all",
+        className,
+      )}
+    >
+      {copied ? (
+        <Check className="h-5 w-5 animate-in fade-in zoom-in" />
+      ) : (
+        <Share2 className="h-5 w-5" />
+      )}
+    </Button>
   );
 });

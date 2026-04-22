@@ -52,7 +52,7 @@ export function WelcomeOnboarding({ user }: WelcomeOnboardingProps) {
     startTransition(async () => {
       try {
         await markUserAsOnboarded();
-        await update({ onboarded: true }); // Force a session update with new status
+        await update(); // Force a session refetch
         setIsOpen(false);
       } catch (error) {
         console.error("Failed to mark user as onboarded:", error);

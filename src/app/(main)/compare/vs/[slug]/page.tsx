@@ -31,25 +31,10 @@ const ComparisonChart = dynamic(
   { ssr: true },
 );
 
-const getPlatformNames = cache(async () => {
-  return prisma.platform.findMany({
-    select: { id: true, name: true },
-  });
-});
-
 const getPlatformBySlug = cache(async (slug: string) => {
-  // First, find the platform ID using a lightweight name lookup
-  // This avoids fetching heavy relations for all platforms in every request
-  const allPlatforms = await getPlatformNames();
-  const platformMatch = allPlatforms.find(
-    (p) => p.name.toLowerCase().replace(/\s+/g, "-") === slug,
-  );
-
-  if (!platformMatch) return null;
-
-  // Then fetch full data only for the matched platform
-  return prisma.platform.findUnique({
-    where: { id: platformMatch.id },
+  // Try to match platform name from slug (e.g., 'kajabi' from 'kajabi-vs-teachable')
+  // This is a simplified lookup
+  const platforms = await prisma.platform.findMany({
     include: {
       features: { include: { feature: { include: { category: true } } } },
       posts: { take: 2, where: { published: true } },
@@ -57,6 +42,10 @@ const getPlatformBySlug = cache(async (slug: string) => {
       forumTopics: { take: 2, where: { status: "APPROVED" } },
     },
   });
+
+  return platforms.find(
+    (p) => p.name.toLowerCase().replace(/\s+/g, "-") === slug,
+  );
 });
 
 export async function generateMetadata(props: {

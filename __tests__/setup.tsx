@@ -34,7 +34,12 @@ vi.mock('next/navigation', () => ({
     back: vi.fn(),
   }),
   usePathname: () => '/',
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => ({
+    get: vi.fn(),
+    forEach: vi.fn(),
+    entries: vi.fn(() => []),
+    toString: vi.fn(() => ''),
+  }),
 }))
 
 // Mock Next-Auth
@@ -44,26 +49,24 @@ vi.mock('next-auth/react', () => ({
     status: 'unauthenticated',
   }),
   SessionProvider: ({ children }: { children: React.ReactNode }) => children,
+  signIn: vi.fn(),
+  signOut: vi.fn(),
 }))
 
 // Mock Framer Motion to avoid animation issues in tests
-vi.mock('framer-motion', () => ({
-  motion: {
-    div: React.forwardRef(({ children, ...props }: any, ref: any) => (
-      <div {...props} ref={ref}>{children}</div>
-    )),
-    section: React.forwardRef(({ children, ...props }: any, ref: any) => (
-      <section {...props} ref={ref}>{children}</section>
-    )),
-    h1: React.forwardRef(({ children, ...props }: any, ref: any) => (
-      <h1 {...props} ref={ref}>{children}</h1>
-    )),
-    p: React.forwardRef(({ children, ...props }: any, ref: any) => (
-      <p {...props} ref={ref}>{children}</p>
-    )),
-    span: React.forwardRef(({ children, ...props }: any, ref: any) => (
-      <span {...props} ref={ref}>{children}</span>
-    )),
-  },
-  AnimatePresence: ({ children }: any) => children,
-}))
+vi.mock('framer-motion', () => {
+  const MockComponent = React.forwardRef(({ children, whileInView, whileHover, viewport, transition, initial, animate, ...props }: any, ref: any) => (
+    <div {...props} ref={ref}>{children}</div>
+  ))
+  return {
+    motion: {
+      div: MockComponent,
+      section: MockComponent,
+      h1: MockComponent,
+      p: MockComponent,
+      span: MockComponent,
+      button: MockComponent,
+    },
+    AnimatePresence: ({ children }: any) => children,
+  }
+})

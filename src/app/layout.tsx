@@ -2,7 +2,6 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import type { Metadata } from "next";
 import { generateSeoMetadata } from "@/lib/seo";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
@@ -108,15 +107,13 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <TooltipProvider>
-            <AuthProvider>
-              <div className="flex-1 flex flex-col">
-                <Suspense fallback={null}>{children}</Suspense>
-              </div>
-              <Toaster />
-              <CookieConsentBanner />
-            </AuthProvider>
-          </TooltipProvider>
+          <AuthProvider>
+            <div className="flex-1 flex flex-col">
+              <Suspense fallback={null}>{children}</Suspense>
+            </div>
+            <Toaster />
+            <CookieConsentBanner />
+          </AuthProvider>
         </ThemeProvider>
         {bodyCode && <div dangerouslySetInnerHTML={{ __html: bodyCode }} />}
       </body>
