@@ -9,7 +9,7 @@ vi.mock('@/lib/api-auth', () => ({
 
 describe('REST API root route', () => {
   it('returns 401 if unauthorized', async () => {
-    vi.mocked(isAuthorized).mockReturnValue(false)
+    (isAuthorized as any).mockReturnValue(false)
     const req = new Request('http://localhost:3000/api/rest')
 
     const response = await GET(req)
@@ -20,7 +20,7 @@ describe('REST API root route', () => {
   })
 
   it('returns 200 and data if authorized', async () => {
-    vi.mocked(isAuthorized).mockReturnValue(true)
+    (isAuthorized as any).mockReturnValue(true)
     const req = new Request('http://localhost:3000/api/rest')
 
     const response = await GET(req)
