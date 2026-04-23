@@ -4,44 +4,49 @@ export const medusa: PlatformData = {
   name: "Medusa",
   website: "https://medusajs.com",
   logoUrl: "https://medusajs.com/images/logo.png",
-  description: "The open-source alternative to Shopify. Medusa provides a headless commerce engine for developers who need to build custom, high-scale digital commerce experiences.",
+  description: "The world's most flexible open-source commerce platform. Medusa is built for developers who want full control over their commerce logic and infrastructure.",
   rating: 4.8,
-  easeOfUse: 3.2,
+  easeOfUse: 3.5,
   featuresRating: 4.9,
-  support: 4.3,
+  support: 4.6,
   pros: [
-    "Full ownership of source code and data",
-    "Highly extensible and developer-friendly",
-    "Native headless architecture (use any frontend)",
-    "Strong support for multi-currency and multi-region",
-    "Active open-source community"
+    "Completely open-source and free to self-host",
+    "Headless architecture for full frontend freedom",
+    "Highly modular and extensible",
+    "Excellent developer experience and documentation",
+    "Growing ecosystem of plugins and integrations"
   ],
   cons: [
-    "Requires technical expertise to set up and manage",
-    "You are responsible for hosting and security",
-    "Fewer out-of-the-box integrations than Shopify",
-    "No official marketplace for simple one-click apps"
+    "Requires technical expertise to set up and maintain",
+    "Cloud hosting can get expensive as you scale",
+    "Fewer out-of-the-box features than Shopify"
   ],
   tiers: [
     {
-      name: "Open Source",
-      monthlyPrice: 0,
-      features: ["All core features", "Self-hosted", "Unlimited admin users", "Unlimited products"],
+      name: "Develop",
+      monthlyPrice: 29,
+      features: ["Zero-config infra", "GitHub integration", "Medusa Cache", "Medusa Emails"],
+      isPopular: false
+    },
+    {
+      name: "Launch",
+      monthlyPrice: 99,
+      features: ["Autoscaling infra", "Custom domains", "Automatic backups", "Zero downtime"],
       isPopular: true
     },
     {
-      name: "Enterprise",
-      monthlyPrice: 2000,
-      features: ["Priority support", "Governance tools", "Custom SLAs", "Dedicated success manager"],
+      name: "Scale",
+      monthlyPrice: 299,
+      features: ["Higher server capacity", "Background workers", "Priority support", "3 Cloud seats"],
       isPopular: false
     }
   ],
   features: [
-    { featureName: "Headless Core", categoryName: "Architecture", hasFeature: true },
-    { featureName: "Multi-Region Support", categoryName: "Commerce", hasFeature: true },
-    { featureName: "Plug-and-play Admin", categoryName: "Workflow", hasFeature: true },
-    { featureName: "Source Control", categoryName: "Developer", hasFeature: true }
+    { featureName: "Headless Commerce", categoryName: "Architecture", hasFeature: true },
+    { featureName: "Multi-currency", categoryName: "Sales", hasFeature: true },
+    { featureName: "Plugin System", categoryName: "Ecosystem", hasFeature: true },
+    { featureName: "RMA Flows", categoryName: "Operations", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-04-17T00:00:00Z",
-  sourceUrl: "https://medusajs.com"
+  lastVerifiedAt: "2024-05-15T00:00:00Z",
+  sourceUrl: "https://medusajs.com/pricing"
 };

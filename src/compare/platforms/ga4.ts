@@ -3,45 +3,45 @@ import { PlatformData } from "../types";
 export const ga4: PlatformData = {
   name: "Google Analytics 4",
   website: "https://analytics.google.com",
-  logoUrl: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_Analytics_logo.svg",
-  description: "The next generation of Google Analytics. GA4 uses event-based data and AI-driven insights to help businesses understand the customer journey across websites and apps.",
-  rating: 4.5,
-  easeOfUse: 2.8,
+  logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Google_Analytics_logo.svg/1200px-Google_Analytics_logo.svg.png",
+  description: "The next generation of Google Analytics. GA4 uses an event-based data model to provide a more complete view of the customer journey across websites and apps.",
+  rating: 4.6,
+  easeOfUse: 3.2,
   featuresRating: 5.0,
   support: 4.0,
   pros: [
     "Completely free for most businesses",
-    "Extremely powerful data collection and predictive analytics",
-    "Seamless integration with the Google Ads ecosystem",
-    "Deep audience segmentation and cohort analysis",
-    "BigQuery export support"
+    "Most powerful and detailed analytics tool",
+    "Cross-platform tracking (Web + App)",
+    "Deep integration with Google Ads and BigQuery",
+    "Advanced machine learning insights and predictions"
   ],
   cons: [
-    "Overwhelmingly complex to set up and use",
-    "Privacy concerns (requires complex consent handling and GDPR banners)",
-    "Data thresholding can hide small amounts of traffic",
-    "Very steep learning curve for non-data analysts"
+    "Significant learning curve compared to Universal Analytics",
+    "Privacy concerns and complex GDPR configuration",
+    "Interface can be confusing for non-experts",
+    "Data retention limits on the free tier"
   ],
   tiers: [
     {
-      name: "Free",
+      name: "Standard",
       monthlyPrice: 0,
-      features: ["Unlimited data collection", "Predictive metrics", "BigQuery export", "AdWords integration"],
+      features: ["Cross-platform tracking", "Event-based data", "Predictive insights", "BigQuery export"],
       isPopular: true
     },
     {
-      name: "Analytics 360",
-      monthlyPrice: 12500,
-      features: ["Higher data limits", "Advanced support", "SLAs", "Enterprise governance"],
+      name: "360 (Enterprise)",
+      monthlyPrice: 2500,
+      features: ["Higher data limits", "SLA on data freshness", "Advanced sub-properties", "Dedicated support"],
       isPopular: false
     }
   ],
   features: [
-    { featureName: "Event-based Tracking", categoryName: "Analytics", hasFeature: true },
-    { featureName: "Predictive Analytics", categoryName: "AI", hasFeature: true },
-    { featureName: "Cross-platform Tracking", categoryName: "Analytics", hasFeature: true },
-    { featureName: "Google Ads Integration", categoryName: "Marketing", hasFeature: true }
+    { featureName: "Event Tracking", categoryName: "Analytics", hasFeature: true },
+    { featureName: "Machine Learning", categoryName: "Intelligence", hasFeature: true },
+    { featureName: "BigQuery Integration", categoryName: "Data", hasFeature: true },
+    { featureName: "Custom Explorations", categoryName: "Reporting", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-04-17T00:00:00Z",
+  lastVerifiedAt: "2024-05-15T00:00:00Z",
   sourceUrl: "https://marketingplatform.google.com/about/analytics/pricing/"
 };

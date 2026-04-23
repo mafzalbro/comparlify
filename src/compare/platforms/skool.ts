@@ -24,9 +24,15 @@ export const skool: PlatformData = {
   ],
   tiers: [
     {
-      name: "All-in-One",
+      name: "Hobby",
+      monthlyPrice: 9,
+      features: ["Unlimited members", "Unlimited courses", "Community", "10% transaction fee"],
+      isPopular: false
+    },
+    {
+      name: "Pro",
       monthlyPrice: 99,
-      features: ["Unlimited members", "Unlimited courses", "Community", "Calendar", "Leaderboards"],
+      features: ["Unlimited members", "Unlimited courses", "Community", "2.9% transaction fee", "Leaderboards"],
       isPopular: true
     }
   ],
@@ -36,6 +42,6 @@ export const skool: PlatformData = {
     { featureName: "Leaderboards", categoryName: "Gamification", hasFeature: true },
     { featureName: "Group Calendar", categoryName: "Events", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-04-17T00:00:00Z",
+  lastVerifiedAt: "2024-05-15T00:00:00Z",
   sourceUrl: "https://www.skool.com/pricing"
 };

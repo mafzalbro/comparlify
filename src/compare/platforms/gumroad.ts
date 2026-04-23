@@ -3,40 +3,40 @@ import { PlatformData } from "../types";
 export const gumroad: PlatformData = {
   name: "Gumroad",
   website: "https://gumroad.com",
-  logoUrl: "https://upload.wikimedia.org/wikipedia/commons/e/e0/Gumroad_Logo.png",
-  description: "A simple, yet powerful e-commerce platform for creators. Sell anything from digital products and subscriptions to physical goods with a focus on ease of setup.",
+  logoUrl: "https://assets.gumroad.com/assets/logo-g-9ae0790a0136b136f1979c9759d2a04c051cde5f7caf59231750793e387245ca.svg",
+  description: "The most powerful platform for creators to sell digital products, memberships, and more directly to their audience. Simple, transparent pricing with no monthly fees.",
   rating: 4.5,
   easeOfUse: 4.8,
-  featuresRating: 4.1,
-  support: 3.8,
+  featuresRating: 4.2,
+  support: 4.0,
   pros: [
-    "Simple one-page checkout functionality",
-    "Built-in marketplace for discovery",
-    "No monthly fees",
-    "Handles VAT for digital products",
-    "Integrated email marketing tools"
+    "Extremely simple setup and easy to use",
+    "No monthly subscription fees",
+    "Acts as Merchant of Record (handles global taxes)",
+    "Built-in affiliate system",
+    "Discover marketplace for extra reach"
   ],
   cons: [
-    "High flat fee of 10% on every sale",
-    "Limited branding on the checkout page",
-    "Lack of professional SaaS-focused features",
-    "Recent fee changes have been controversial among large creators"
+    "High flat 10% transaction fee",
+    "Limited customization of checkout pages",
+    "Customer support can be slow",
+    "Discover marketplace takes a 30% cut"
   ],
   tiers: [
     {
-      name: "Flat Fee",
+      name: "Standard",
       monthlyPrice: 0,
       transactionFeePercent: 10,
-      features: ["All features included", "No monthly fee", "VAT handling"],
+      features: ["Unlimited products", "Unlimited posts", "Unlimited members", "Global tax handling"],
       isPopular: true
     }
   ],
   features: [
-    { featureName: "VAT Collection", categoryName: "Compliance", hasFeature: true },
-    { featureName: "Affiliate Support", categoryName: "Marketing", hasFeature: true },
-    { featureName: "Memberships", categoryName: "Subscription", hasFeature: true },
-    { featureName: "Mobile App", categoryName: "Access", hasFeature: true }
+    { featureName: "Tax/VAT Handling", categoryName: "Compliance", hasFeature: true },
+    { featureName: "Email Marketing", categoryName: "Marketing", hasFeature: true },
+    { featureName: "Digital Downloads", categoryName: "Sales", hasFeature: true },
+    { featureName: "Memberships", categoryName: "Sales", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-04-17T00:00:00Z",
+  lastVerifiedAt: "2024-05-15T00:00:00Z",
   sourceUrl: "https://gumroad.com/pricing"
 };

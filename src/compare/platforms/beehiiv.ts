@@ -26,21 +26,21 @@ export const beehiiv: PlatformData = {
     {
       name: "Launch",
       monthlyPrice: 0,
-      features: ["Up to 2,500 subscribers", "Unlimited sends", "Basic analytics"],
+      features: ["Up to 2,500 subscribers", "Unlimited sends", "Custom Website", "Custom Domains"],
       isPopular: false
     },
     {
       name: "Scale",
-      monthlyPrice: 39,
-      annualPriceMonthlyEquivalent: 33,
-      features: ["Referral program", "Ad Network", "Premium subscriptions", "Custom domains"],
+      monthlyPrice: 49,
+      annualPriceMonthlyEquivalent: 43,
+      features: ["Ad Network", "Boosts Network", "Automations", "Surveys & Polls"],
       isPopular: true
     },
     {
-      name: "Enterprise",
-      monthlyPrice: 99,
-      annualPriceMonthlyEquivalent: 84,
-      features: ["Multiple publications", "Priority support", "Advanced API access"],
+      name: "Max",
+      monthlyPrice: 109,
+      annualPriceMonthlyEquivalent: 96,
+      features: ["Remove beehiiv Branding", "Priority Support", "Unlimited Teams", "Dynamic Content"],
       isPopular: false
     }
   ],
@@ -50,6 +50,6 @@ export const beehiiv: PlatformData = {
     { featureName: "Custom Domains", categoryName: "Branding", hasFeature: true },
     { featureName: "A/B Testing", categoryName: "Optimization", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-04-17T00:00:00Z",
+  lastVerifiedAt: "2024-05-15T00:00:00Z",
   sourceUrl: "https://www.beehiiv.com/pricing"
 };

@@ -24,24 +24,31 @@ export const kajabi: PlatformData = {
   ],
   tiers: [
     {
+      name: "Starter",
+      monthlyPrice: 89,
+      annualPriceMonthlyEquivalent: 71,
+      features: ["1 Product", "250 Contacts", "1 Website", "1 Community", "Unlimited Emails"],
+      isPopular: false
+    },
+    {
       name: "Basic",
-      monthlyPrice: 149,
-      annualPriceMonthlyEquivalent: 119,
-      features: ["3 Products", "3 Funnels", "Unlimited Emails", "10,000 Contacts"],
+      monthlyPrice: 179,
+      annualPriceMonthlyEquivalent: 143,
+      features: ["5 Products", "2,500 Contacts", "1 Website", "1 Community", "Unlimited Emails"],
       isPopular: false
     },
     {
       name: "Growth",
-      monthlyPrice: 199,
-      annualPriceMonthlyEquivalent: 159,
-      features: ["15 Products", "15 Funnels", "Affiliate Program", "25,000 Contacts"],
+      monthlyPrice: 249,
+      annualPriceMonthlyEquivalent: 199,
+      features: ["50 Products", "25,000 Contacts", "1 Website", "1 Community", "Affiliate Program"],
       isPopular: true
     },
     {
       name: "Pro",
-      monthlyPrice: 399,
-      annualPriceMonthlyEquivalent: 319,
-      features: ["100 Products", "100 Funnels", "Code Editor access", "100,000 Contacts"],
+      monthlyPrice: 499,
+      annualPriceMonthlyEquivalent: 399,
+      features: ["Unlimited Products", "100,000 Contacts", "3 Websites", "3 Communities", "Code Editor"],
       isPopular: false
     }
   ],
@@ -51,6 +58,6 @@ export const kajabi: PlatformData = {
     { featureName: "Mobile App", categoryName: "Access", hasFeature: true },
     { featureName: "CRM", categoryName: "Business", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-04-17T00:00:00Z",
+  lastVerifiedAt: "2024-05-15T00:00:00Z",
   sourceUrl: "https://kajabi.com/pricing"
 };

@@ -3,46 +3,40 @@ import { PlatformData } from "../types";
 export const substack: PlatformData = {
   name: "Substack",
   website: "https://substack.com",
-  logoUrl: "https://substackcdn.com/image/fetch/f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F8ed3aa40-8f77-440f-90ca-47d3d7119e83_512x512.png",
-  description: "The platform where great writing is valuable. Substack provides a simple interface for writers to start a newsletter for free and monetize through paid subscriptions with a reader-first discovery network.",
+  logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Substack_logo.svg/1200px-Substack_logo.svg.png",
+  description: "The home for independent writing and culture. Substack makes it simple for writers to publish a newsletter and get paid by their most dedicated readers.",
   rating: 4.6,
   easeOfUse: 4.9,
-  featuresRating: 4.2,
-  support: 4.0,
+  featuresRating: 4.1,
+  support: 4.3,
   pros: [
-    "Zero upfront cost",
-    "Extreme simplicity and focus on writing",
-    "Strong network effect and discoverability via Substack Notes",
-    "Free podcast and video hosting included",
-    "Built-in community features (chat, comments)"
+    "Completely free to get started (no monthly cost)",
+    "High trust and built-in network effects (Recommendations)",
+    "Clean, professional writing interface",
+    "Built-in podcasting and video support",
+    "Writers own their audience and email list"
   ],
   cons: [
-    "10% revenue share on paid subscriptions",
-    "Limited branding and SEO customization",
-    "No built-in referral system for the free tier",
-    "Limited analytics compared to competitors"
+    "High 10% platform fee on paid subscriptions",
+    "Very limited design and branding customization",
+    "Limited advanced marketing features (no funnels/automations)",
+    "No built-in landing page builder beyond the standard signup"
   ],
   tiers: [
     {
-      name: "Free",
-      monthlyPrice: 0,
-      features: ["Unlimited subscribers", "Unlimited posts", "Community features", "Podcast hosting"],
-      isPopular: true
-    },
-    {
-      name: "Pro (Revenue Share)",
+      name: "Publishing",
       monthlyPrice: 0,
       transactionFeePercent: 10,
-      features: ["Paid subscriptions", "Custom domains (one-time fee)", "Advanced stats"],
-      isPopular: false
+      features: ["Unlimited newsletters", "Unlimited subscribers", "Podcasting", "Substack Notes"],
+      isPopular: true
     }
   ],
   features: [
-    { featureName: "Discovery Network", categoryName: "Growth", hasFeature: true },
-    { featureName: "Podcast Hosting", categoryName: "Content", hasFeature: true },
-    { featureName: "Community Chat", categoryName: "Community", hasFeature: true },
-    { featureName: "Custom Domains", categoryName: "Branding", hasFeature: true, details: "$50 one-time setup fee" }
+    { featureName: "Paid Subscriptions", categoryName: "Monetization", hasFeature: true },
+    { featureName: "Podcast Hosting", categoryName: "Media", hasFeature: true },
+    { featureName: "Custom Domains", categoryName: "Branding", hasFeature: true },
+    { featureName: "Community Notes", categoryName: "Social", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-04-17T00:00:00Z",
+  lastVerifiedAt: "2024-05-15T00:00:00Z",
   sourceUrl: "https://substack.com/going-paid"
 };

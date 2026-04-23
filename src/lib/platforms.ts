@@ -13,11 +13,11 @@ export const PLATFORM_DEFAULTS: Record<string, PlatformMetadata> = {
     name: "Teachable",
     color: "text-blue-500",
     tier: {
-      id: "t-basic",
-      name: "Basic",
-      monthlyPrice: 59,
-      annualPriceMonthlyEquivalent: 39,
-      transactionFeePercent: 5,
+      id: "t-starter",
+      name: "Starter",
+      monthlyPrice: 39,
+      annualPriceMonthlyEquivalent: 29,
+      transactionFeePercent: 7.5,
     }
   },
   kajabi: {
@@ -25,10 +25,10 @@ export const PLATFORM_DEFAULTS: Record<string, PlatformMetadata> = {
     name: "Kajabi",
     color: "text-blue-600",
     tier: {
-      id: "k-basic",
-      name: "Basic",
-      monthlyPrice: 149,
-      annualPriceMonthlyEquivalent: 119,
+      id: "k-starter",
+      name: "Starter",
+      monthlyPrice: 89,
+      annualPriceMonthlyEquivalent: 71,
       transactionFeePercent: 0,
     }
   },
@@ -41,7 +41,7 @@ export const PLATFORM_DEFAULTS: Record<string, PlatformMetadata> = {
       name: "Mover",
       monthlyPrice: 39,
       annualPriceMonthlyEquivalent: 33,
-      transactionFeePercent: 0,
+      transactionFeePercent: 5,
     }
   },
   thinkific: {

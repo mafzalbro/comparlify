@@ -36,6 +36,6 @@ export const lemonsqueezy: PlatformData = {
     { featureName: "Affiliate Center", categoryName: "Marketing", hasFeature: true },
     { featureName: "SaaS Licensing", categoryName: "SaaS", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-04-17T00:00:00Z",
+  lastVerifiedAt: "2024-05-15T00:00:00Z",
   sourceUrl: "https://www.lemonsqueezy.com/pricing"
 };

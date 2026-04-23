@@ -41,6 +41,6 @@ export const vscode: PlatformData = {
     { featureName: "Source Control", categoryName: "Collaboration", hasFeature: true },
     { featureName: "Remote Development", categoryName: "Environment", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-04-17T00:00:00Z",
+  lastVerifiedAt: "2024-05-15T00:00:00Z",
   sourceUrl: "https://code.visualstudio.com"
 };

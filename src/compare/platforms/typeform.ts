@@ -2,55 +2,55 @@ import { PlatformData } from "../types";
 
 export const typeform: PlatformData = {
   name: "Typeform",
-  website: "https://www.typeform.com",
-  logoUrl: "https://upload.wikimedia.org/wikipedia/commons/e/e4/Typeform_logo.svg",
-  description: "The gold standard in conversational forms. Typeform focuses on design and empathy, making forms feel like a conversation to drive higher completion rates.",
+  website: "https://typeform.com",
+  logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Typeform_logo.svg/1200px-Typeform_logo.svg.png",
+  description: "Create beautiful, conversational forms, surveys, and quizzes. Typeform makes data collection interactive and engaging for your audience.",
   rating: 4.7,
-  easeOfUse: 4.8,
-  featuresRating: 4.9,
+  easeOfUse: 4.6,
+  featuresRating: 4.8,
   support: 4.4,
   pros: [
-    "World-class design and aesthetics",
-    "High conversion rates due to conversational UX",
-    "Extensive template library",
-    "Deep integrations with enterprise stacks (Salesforce, etc.)",
-    "Advanced branching and logic capabilities"
+    "Best-in-class conversational UI",
+    "Beautiful design templates and customization",
+    "Advanced logic jumps and branching",
+    "Massive library of native integrations",
+    "Sophisticated analytics and reporting"
   ],
   cons: [
-    "Expensive pricing tiers",
-    "Limited free plan (10 responses/month)",
-    "Can be slower than minimalist builders like Tally",
-    "Steep jump in price for small feature additions"
+    "Expensive for low response volumes",
+    "Free plan is very limited (10 responses/mo)",
+    "Strict response limits on lower paid tiers",
+    "Can feel overkill for simple forms"
   ],
   tiers: [
     {
       name: "Basic",
-      monthlyPrice: 29,
-      annualPriceMonthlyEquivalent: 25,
-      features: ["100 responses/month", "Unlimited forms", "100MB file storage"],
+      monthlyPrice: 39,
+      annualPriceMonthlyEquivalent: 28,
+      features: ["100 responses/mo", "Unlimited forms", "Unlimited questions", "1 User"],
       isPopular: false
     },
     {
       name: "Plus",
-      monthlyPrice: 59,
-      annualPriceMonthlyEquivalent: 50,
-      features: ["1,000 responses/month", "No Typeform branding", "Custom domain"],
+      monthlyPrice: 79,
+      annualPriceMonthlyEquivalent: 56,
+      features: ["1,000 responses/mo", "Remove branding", "Custom subdomain", "3 Users"],
       isPopular: true
     },
     {
       name: "Business",
-      monthlyPrice: 99,
-      annualPriceMonthlyEquivalent: 83,
-      features: ["10,000 responses/month", "Priority support", "Conversion tracking", "Salesforce integration"],
+      monthlyPrice: 129,
+      annualPriceMonthlyEquivalent: 91,
+      features: ["10,000 responses/mo", "Drop-off analysis", "Conversion tracking", "5 Users"],
       isPopular: false
     }
   ],
   features: [
-    { featureName: "Conversational UX", categoryName: "Design", hasFeature: true },
-    { featureName: "Enterprise Integrations", categoryName: "Integrations", hasFeature: true },
-    { featureName: "Video Ask Support", categoryName: "Engagement", hasFeature: true },
-    { featureName: "Hidden Fields", categoryName: "Logic", hasFeature: true }
+    { featureName: "Logic Jumps", categoryName: "Forms", hasFeature: true },
+    { featureName: "Conversational UI", categoryName: "UX", hasFeature: true },
+    { featureName: "Video Ask", categoryName: "Forms", hasFeature: true },
+    { featureName: "Advanced Analytics", categoryName: "Reporting", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-04-17T00:00:00Z",
-  sourceUrl: "https://www.typeform.com/pricing"
+  lastVerifiedAt: "2024-05-15T00:00:00Z",
+  sourceUrl: "https://typeform.com/pricing"
 };

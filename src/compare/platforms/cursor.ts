@@ -2,51 +2,51 @@ import { PlatformData } from "../types";
 
 export const cursor: PlatformData = {
   name: "Cursor",
-  website: "https://www.cursor.com",
-  logoUrl: "https://www.cursor.com/assets/favicon.ico",
-  description: "The AI-native code editor. Forked from VS Code, Cursor is designed from the ground up for collaborative AI programming with deep codebase indexing and agentic capabilities.",
+  website: "https://cursor.com",
+  logoUrl: "https://mintlify.s3-us-west-1.amazonaws.com/cursor/logo/light.svg",
+  description: "The AI Code Editor. Built on top of VS Code, Cursor is designed for pair-programming with AI. It includes powerful features like codebase indexing, chat, and 'composer' for multi-file edits.",
   rating: 4.9,
   easeOfUse: 4.7,
   featuresRating: 4.9,
   support: 4.5,
   pros: [
-    "Native codebase indexing (knows your entire project)",
-    "Composer mode for multi-file edits",
-    "Uses latest models (Claude 3.5 Sonnet, GPT-4o)",
-    "Zero-config - works like VS Code",
-    "Agentic workflows"
+    "Deep codebase integration for accurate AI suggestions",
+    "Seamless transition from VS Code (supports all extensions)",
+    "Powerful multi-file editing with 'Composer'",
+    "Fast and responsive interface",
+    "Regularly updated with the latest AI models"
   ],
   cons: [
-    "Paid subscription required for high-volume use",
-    "Can be resource-intensive on older systems",
-    "Privacy concerns for some enterprise users (requires Opt-Out)"
+    "Subscription cost for Pro features",
+    "Privacy concerns for some sensitive projects (though they offer Privacy Mode)",
+    "Requires an internet connection for most AI features"
   ],
   tiers: [
     {
-      name: "Free",
+      name: "Hobby",
       monthlyPrice: 0,
-      features: ["2,000 completions", "50 slow premium requests", "10 Claude 3.5 Sonnet uses"],
+      features: ["2000 Completions/mo", "50 Premium Chat requests", "Unlimited basic models"],
       isPopular: false
     },
     {
       name: "Pro",
       monthlyPrice: 20,
-      features: ["Unlimited completions", "500 fast premium requests", "Unlimited slow premium", "Composer access"],
+      features: ["Unlimited Completions", "500 Premium Chat requests", "Unlimited Composer", "Frontier models"],
       isPopular: true
     },
     {
       name: "Business",
       monthlyPrice: 40,
-      features: ["Everything in Pro", "Centralized billing", "Admin dashboard", "Data privacy mode"],
+      features: ["Centralized billing", "Admin dashboard", "SAML/SSO", "Privacy Mode by default"],
       isPopular: false
     }
   ],
   features: [
     { featureName: "Codebase Indexing", categoryName: "AI", hasFeature: true },
-    { featureName: "Composer (Multi-file)", categoryName: "AI", hasFeature: true },
-    { featureName: "Terminal AI", categoryName: "AI", hasFeature: true },
-    { featureName: "Context Awareness", categoryName: "AI", hasFeature: true }
+    { featureName: "Multi-file Edits", categoryName: "AI", hasFeature: true },
+    { featureName: "VS Code Extensions", categoryName: "Editor", hasFeature: true },
+    { featureName: "Privacy Mode", categoryName: "Security", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-04-17T00:00:00Z",
-  sourceUrl: "https://www.cursor.com/pricing"
+  lastVerifiedAt: "2024-05-15T00:00:00Z",
+  sourceUrl: "https://cursor.com/pricing"
 };

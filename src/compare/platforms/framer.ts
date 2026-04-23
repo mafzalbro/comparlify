@@ -2,55 +2,55 @@ import { PlatformData } from "../types";
 
 export const framer: PlatformData = {
   name: "Framer",
-  website: "https://www.framer.com",
-  logoUrl: "https://upload.wikimedia.org/wikipedia/commons/9/90/Framer_Logo.svg",
-  description: "The visual builder for professional sites. Framer feels like a design tool but outputs lightning-fast production code, making it the choice for designers who want to build high-end marketing sites.",
+  website: "https://framer.com",
+  logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Framer_logo.svg/1200px-Framer_logo.svg.png",
+  description: "The modern web builder for designers. Framer allows you to design and publish high-performance websites without writing code, with powerful animations and a relational CMS.",
   rating: 4.8,
-  easeOfUse: 4.7,
-  featuresRating: 4.6,
+  easeOfUse: 4.4,
+  featuresRating: 4.9,
   support: 4.5,
   pros: [
-    "Figma-like design experience",
-    "Best-in-class site performance and SEO",
-    "Stunning built-in animations and effects",
-    "Powerful CMS for blog and collection management",
-    "Real-time collaboration"
+    "Unmatched design flexibility and animation tools",
+    "Figma-to-Web workflow is seamless",
+    "Incredible performance and SEO out of the box",
+    "Modern, intuitive interface",
+    "Built-in AI tools for content and layout generation"
   ],
   cons: [
-    "Steep pricing for custom domains",
-    "Scaling complex web apps is limited (better for static/marketing)",
-    "Limited custom code control compared to Webflow",
-    "No e-commerce native solution"
+    "Steeper learning curve than simpler builders like Carrd",
+    "CMS is powerful but can be complex to set up",
+    "Limited native functionality for complex web applications (logic-heavy)",
+    "Pricing is per-site, which can get expensive"
   ],
   tiers: [
     {
-      name: "Mini",
-      monthlyPrice: 10,
-      annualPriceMonthlyEquivalent: 5,
-      features: ["Custom domain", "Home page + 404", "1,000 visitors"],
+      name: "Basic",
+      monthlyPrice: 15,
+      annualPriceMonthlyEquivalent: 10,
+      features: ["Personal sites", "Connect domain", "1,000 CMS items", "10GB Bandwidth"],
       isPopular: false
     },
     {
-      name: "Basic",
-      monthlyPrice: 20,
-      annualPriceMonthlyEquivalent: 15,
-      features: ["Unlimited pages", "1 CMS collection", "10,000 visitors"],
+      name: "Pro",
+      monthlyPrice: 45,
+      annualPriceMonthlyEquivalent: 30,
+      features: ["Commercial sites", "Staging environment", "10,000 CMS items", "100GB Bandwidth"],
       isPopular: true
     },
     {
-      name: "Pro",
-      monthlyPrice: 40,
-      annualPriceMonthlyEquivalent: 30,
-      features: ["Advanced CMS", "Analytics", "Staging environment", "200,000 visitors"],
+      name: "Scale",
+      monthlyPrice: 100,
+      annualPriceMonthlyEquivalent: 100,
+      features: ["High-traffic sites", "Advanced SEO", "Custom redirects", "200GB Bandwidth"],
       isPopular: false
     }
   ],
   features: [
-    { featureName: "Design-to-Code", categoryName: "Workflow", hasFeature: true },
-    { featureName: "Scroll Animations", categoryName: "Design", hasFeature: true },
-    { featureName: "Visual CMS", categoryName: "Content", hasFeature: true },
-    { featureName: "Figma Import", categoryName: "Integrations", hasFeature: true }
+    { featureName: "Visual Designer", categoryName: "Design", hasFeature: true },
+    { featureName: "Advanced Animations", categoryName: "Design", hasFeature: true },
+    { featureName: "Relational CMS", categoryName: "Content", hasFeature: true },
+    { featureName: "Figma Integration", categoryName: "Workflow", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-04-17T00:00:00Z",
-  sourceUrl: "https://www.framer.com/pricing"
+  lastVerifiedAt: "2024-05-15T00:00:00Z",
+  sourceUrl: "https://framer.com/pricing"
 };

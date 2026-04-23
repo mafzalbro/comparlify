@@ -3,45 +3,52 @@ import { PlatformData } from "../types";
 export const tally: PlatformData = {
   name: "Tally",
   website: "https://tally.so",
-  logoUrl: "https://tally.so/images/tally-logo.png",
-  description: "The simplest way to create forms. Tally works like a document—just type your questions and publish. It offers a generous free tier and integrates seamlessly with common workspace tools.",
+  logoUrl: "https://tally.so/images/logo_v2.png",
+  description: "The simplest way to create forms. Tally works like a document and lets you build any form in seconds, without code, and for free.",
   rating: 4.9,
   easeOfUse: 5.0,
-  featuresRating: 4.8,
+  featuresRating: 4.6,
   support: 4.8,
   pros: [
-    "Most generous free tier (unlimited forms/responses)",
-    "Notion-like experience (type '/' for commands)",
-    "No-code and easy to embed",
-    "Clean, minimalistic design out of the box",
-    "Payments integration included in free tier"
+    "Unlimited forms and submissions for free",
+    "Intuitive Notion-like editor",
+    "Advanced features like logic and calculations are free",
+    "Clean, modern form designs",
+    "GDPR compliant and privacy-focused"
   ],
   cons: [
-    "Fewer advanced conversational features than Typeform",
-    "Limited animation control",
-    "Smaller template library than legacy competitors"
+    "Branding removal requires a paid plan",
+    "Custom domains require a paid plan",
+    "Fewer native integrations than Typeform",
+    "No quiz-specific scoring features in free tier"
   ],
   tiers: [
     {
       name: "Free",
       monthlyPrice: 0,
-      features: ["Unlimited forms", "Unlimited responses", "Collect payments", "File uploads", "Logic jumps"],
+      features: ["Unlimited forms", "Unlimited submissions", "Logic & calculations", "Payment collection"],
       isPopular: true
     },
     {
-      name: "Tally Pro",
-      monthlyPrice: 29,
-      annualPriceMonthlyEquivalent: 24,
-      features: ["No Tally branding", "Custom domains", "Partial submissions", "Collaborative workspaces"],
+      name: "Pro",
+      monthlyPrice: 24,
+      annualPriceMonthlyEquivalent: 20,
+      features: ["No Tally branding", "Custom domains", "Partial submissions", "Custom CSS"],
+      isPopular: false
+    },
+    {
+      name: "Business",
+      monthlyPrice: 74,
+      features: ["Verify emails", "Data retention controls", "Everything in Pro"],
       isPopular: false
     }
   ],
   features: [
-    { featureName: "Payments Integration", categoryName: "Monetization", hasFeature: true },
-    { featureName: "Conditional Logic", categoryName: "Functionality", hasFeature: true },
+    { featureName: "Conditional Logic", categoryName: "Forms", hasFeature: true },
+    { featureName: "Payment Collection", categoryName: "Forms", hasFeature: true },
     { featureName: "Custom Domains", categoryName: "Branding", hasFeature: true },
-    { featureName: "API & Webhooks", categoryName: "Developer", hasFeature: true }
+    { featureName: "Airtable Integration", categoryName: "Integrations", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-04-17T00:00:00Z",
+  lastVerifiedAt: "2024-05-15T00:00:00Z",
   sourceUrl: "https://tally.so/pricing"
 };

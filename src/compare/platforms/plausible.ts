@@ -3,44 +3,44 @@ import { PlatformData } from "../types";
 export const plausible: PlatformData = {
   name: "Plausible",
   website: "https://plausible.io",
-  logoUrl: "https://plausible.io/assets/images/icon/plausible-logo.png",
-  description: "Lightweight and open-source web analytics. No cookies and fully compliant with GDPR, CCPA, and PECR. Made and hosted in the EU.",
-  rating: 4.9,
+  logoUrl: "https://plausible.io/assets/images/icon/plausible_logo.png",
+  description: "Lightweight and open-source web analytics. Plausible is a privacy-friendly alternative to Google Analytics that doesn't use cookies and is fully compliant with GDPR, CCPA, and PECR.",
+  rating: 4.8,
   easeOfUse: 5.0,
-  featuresRating: 4.5,
-  support: 4.7,
+  featuresRating: 4.4,
+  support: 4.6,
   pros: [
-    "Privacy-first (No cookies, no GDPR banners needed)",
-    "Extremely lightweight script (< 1KB)",
-    "Clean, simple one-page dashboard",
+    "Extremely lightweight (< 1KB script)",
+    "Privacy-first (no cookies, no cross-site tracking)",
+    "Simple and intuitive one-page dashboard",
     "Open-source and transparent",
-    "Easy to set up and understand"
+    "Easy to set up in minutes"
   ],
   cons: [
-    "No free tier (paid monthly based on traffic)",
-    "Limited feature set compared to GA4 (no advanced cohorts/predictive analytics)",
-    "Limited attribution data for complex ad campaigns"
+    "Fewer advanced features than GA4",
+    "No free tier beyond the 30-day trial",
+    "Limited depth for complex ecommerce tracking"
   ],
   tiers: [
     {
-      name: "10k Monthly Views",
+      name: "Growth (10k)",
       monthlyPrice: 9,
-      features: ["Unlimited websites", "Custom events", "Email reports", "Shared dashboards"],
+      features: ["10,000 Monthly Pageviews", "50 Websites", "Unlimited data retention", "Email/Slack reports"],
       isPopular: true
     },
     {
-      name: "100k Monthly Views",
+      name: "Business (100k)",
       monthlyPrice: 19,
-      features: ["Everything in 10k tier", "Higher traffic limit"],
+      features: ["100,000 Monthly Pageviews", "50 Websites", "Custom events", "Unlimited team members"],
       isPopular: false
     }
   ],
   features: [
+    { featureName: "Privacy Compliance", categoryName: "Compliance", hasFeature: true },
     { featureName: "Cookieless Tracking", categoryName: "Privacy", hasFeature: true },
     { featureName: "Custom Events", categoryName: "Analytics", hasFeature: true },
-    { featureName: "Email/Slack Reports", categoryName: "Reporting", hasFeature: true },
-    { featureName: "Google Search Console Integration", categoryName: "Integrations", hasFeature: true }
+    { featureName: "Shared Dashboards", categoryName: "Social", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-04-17T00:00:00Z",
+  lastVerifiedAt: "2024-05-15T00:00:00Z",
   sourceUrl: "https://plausible.io/pricing"
 };
