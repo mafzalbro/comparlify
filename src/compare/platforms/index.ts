@@ -20,6 +20,12 @@ import { heygen } from "./heygen";
 import { synthesia } from "./synthesia";
 import { medusa } from "./medusa";
 import { shopify } from "./shopify";
+import { teachable } from "./teachable";
+import { podia } from "./podia";
+import { thinkific } from "./thinkific";
+import { ghost } from "./ghost";
+import { kit } from "./kit";
+import { mightynetworks } from "./mightynetworks";
 
 export const allPlatforms = [
   beehiiv,
@@ -44,4 +50,10 @@ export const allPlatforms = [
   synthesia,
   medusa,
   shopify,
+  teachable,
+  podia,
+  thinkific,
+  ghost,
+  kit,
+  mightynetworks,
 ];

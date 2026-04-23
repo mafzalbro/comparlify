@@ -382,6 +382,17 @@ export default async function ComparisonDetailPage(props: {
                 />
               </section>
 
+              {/* Detailed Content Analysis */}
+              {comparison.content && (
+                <section className="space-y-16">
+                  <div className="inline-flex items-center gap-3 text-primary font-black uppercase tracking-[0.4em] text-[11px]">
+                    <div className="w-12 h-px bg-primary/30" />
+                    Deep Dive Analysis
+                  </div>
+                  <MarkdownContent content={comparison.content} />
+                </section>
+              )}
+
               {/* Feature Matrix */}
               <ComparisonFeatureMatrix
                 features={featureRows}

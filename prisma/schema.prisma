@@ -360,6 +360,7 @@ model Comparison {
   slug           String     @unique
   summary        String     @db.Text
   introduction   String     @db.Text
+  content        String?    @db.LongText
   conclusion     String     @db.Text
   published      Boolean    @default(false)
   platformAId    String
