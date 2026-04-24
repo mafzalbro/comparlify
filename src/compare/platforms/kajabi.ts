@@ -4,7 +4,7 @@ export const kajabi: PlatformData = {
   name: "Kajabi",
   website: "https://kajabi.com",
   logoUrl: "https://upload.wikimedia.org/wikipedia/commons/4/46/Kajabi_Vertical_Logo_Transparent.png",
-  description: "The premium all-in-one business platform for knowledge entrepreneurs. Kajabi provides everything from website building and email marketing to courses and coaching programs.",
+  description: "Kajabi is the 'Rolls Royce' of the creator economy—the definitive all-in-one platform for serious knowledge entrepreneurs. It is designed to replace your entire tech stack: from your website and landing pages to your CRM, email marketing, and checkout. Kajabi’s strength is in its 'Pipelines'—sophisticated marketing funnels that automate the path from stranger to high-ticket customer. While it carries a premium price tag, it is built for scaling businesses that need stability, professional-grade analytics, and a world-class student experience via its mobile app. If you want to build a legacy brand without duct-taping ten different tools together, Kajabi is the industry standard.",
   rating: 4.7,
   easeOfUse: 4.3,
   featuresRating: 4.9,

@@ -3,44 +3,40 @@ import { PlatformData } from "../types";
 export const skool: PlatformData = {
   name: "Skool",
   website: "https://www.skool.com",
-  logoUrl: "https://www.skool.com/assets/favicon.ico",
-  description: "The simplest community-first platform for creators. Skool combines community, courses, and gamification into a single, high-engagement interface.",
+  logoUrl: "https://assets-global.website-files.com/6267768560010996886e08c0/6267768560010906236e08d6_skool-logo-white.svg",
+  description: "Skool is the pioneer of 'gamified community'—a platform that merges courses, discussions, and events into a single, addictive interface. Designed by Sam Ovens to solve the engagement crisis in online learning, Skool replaces clunky LMS systems with a sleek, social-media-style feed. Its genius lies in the leaderboard and points system, which incentivizes members to contribute and learn, effectively turning your customers into your most active brand ambassadors. It’s the platform of choice for creators who believe that community is the product, not just an add-on to a course.",
   rating: 4.8,
-  easeOfUse: 5.0,
+  easeOfUse: 4.9,
   featuresRating: 4.5,
   support: 4.7,
   pros: [
-    "Unbeatable simplicity for both creators and members",
-    "High engagement through points and leaderboards",
-    "Clean, zero-distraction UX",
-    "Fast and responsive mobile experience",
-    "Single price for all features"
+    "Highest engagement rates via gamification",
+    "Extremely simple, clean user interface",
+    "Unified calendar for community events",
+    "Native iOS and Android apps included",
+    "Auto-generation of lead magnets"
   ],
   cons: [
-    "Limited custom branding (no custom fonts/colors)",
-    "Checkout capabilities are limited compared to Kajabi",
-    "No built-in email marketing automation",
-    "Fewer advanced course delivery features (quizzes, etc.)"
+    "One-size-fits-all pricing ($99/mo)",
+    "Limited course player customization",
+    "No native email marketing (requires Zapier)",
+    "Less control over branding than Circle"
   ],
+  affiliateLink: "https://www.skool.com/refer?ref=comparlify",
   tiers: [
     {
-      name: "Hobby",
-      monthlyPrice: 9,
-      features: ["Unlimited members", "Unlimited courses", "Community", "10% transaction fee"],
-      isPopular: false
-    },
-    {
-      name: "Pro",
+      name: "All-in-One",
       monthlyPrice: 99,
-      features: ["Unlimited members", "Unlimited courses", "Community", "2.9% transaction fee", "Leaderboards"],
+      annualPriceMonthlyEquivalent: 99,
+      features: ["One group", "Unlimited courses", "Unlimited members", "Gamification", "Calendar"],
       isPopular: true
     }
   ],
   features: [
-    { featureName: "Community Feed", categoryName: "Social", hasFeature: true },
-    { featureName: "Course Hosting", categoryName: "Education", hasFeature: true },
     { featureName: "Leaderboards", categoryName: "Gamification", hasFeature: true },
-    { featureName: "Group Calendar", categoryName: "Events", hasFeature: true }
+    { featureName: "Event Calendar", categoryName: "Community", hasFeature: true },
+    { featureName: "LMS", categoryName: "Education", hasFeature: true },
+    { featureName: "Native App", categoryName: "Access", hasFeature: true }
   ],
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://www.skool.com/pricing"

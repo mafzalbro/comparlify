@@ -3,47 +3,59 @@ import { PlatformData } from "../types";
 export const podia: PlatformData = {
   name: "Podia",
   website: "https://podia.com",
-  logoUrl: "https://images.crunchbase.com/image/upload/c_pad,h_256,w_256,f_auto,q_auto:eco,dpr_1/v1491295904/p96jnxq8yqj7q2v2q8zq.png",
-  description: "The all-in-one creator platform for websites, email marketing, and digital products. Podia replaces multiple tools with a single, easy-to-use interface.",
+  logoUrl: "https://podia.com/favicon.ico",
+  description: "Podia is the 'all-in-one' platform for creators who prioritize simplicity and kindness. It was built to eliminate the 'tech stress' of selling digital products, offering courses, downloads, webinars, and a community under one roof. Podia’s standout feature is its beautiful, minimalist design and its commitment to 'zero transaction fees' on paid plans. It’s perfect for the solo creator who wants a professional-looking site and a seamless buying experience for their customers, without the steep learning curve or high price tag of Kajabi.",
   rating: 4.7,
   easeOfUse: 4.9,
-  featuresRating: 4.5,
-  support: 4.8,
+  featuresRating: 4.4,
+  support: 4.9,
   pros: [
-    "Incredibly user-friendly and clean interface",
-    "Unlimited products and hosting on all paid plans",
-    "Integrated email marketing and community",
-    "No transaction fees on most plans",
-    "Free migration from other platforms"
+    "Zero transaction fees (on paid plans)",
+    "Incredibly simple and beautiful interface",
+    "Consolidates courses, downloads, and community",
+    "Free migrations from other platforms",
+    "World-class customer support"
   ],
   cons: [
-    "Email marketing features are less advanced than dedicated tools",
-    "Limited customization of site design",
-    "Community features are basic compared to specialized platforms"
+    "Limited advanced marketing automations",
+    "Less design flexibility than dedicated site builders",
+    "Community features are newer and simpler",
+    "No mobile app for students"
   ],
   tiers: [
+    {
+      name: "Free",
+      monthlyPrice: 0,
+      features: ["Full website", "Community", "1 Download", "8% fee"],
+      isPopular: false
+    },
+    {
+      name: "Starter",
+      monthlyPrice: 9,
+      annualPriceMonthlyEquivalent: 4,
+      features: ["Custom domain", "Chat support", "8% fee"],
+      isPopular: false
+    },
     {
       name: "Mover",
       monthlyPrice: 39,
       annualPriceMonthlyEquivalent: 33,
-      transactionFeePercent: 5,
-      features: ["Unlimited products", "Full website", "Email marketing", "7-day support"],
+      features: ["Zero transaction fees", "Unlimited courses", "Unlimited downloads"],
       isPopular: true
     },
     {
       name: "Shaker",
       monthlyPrice: 89,
       annualPriceMonthlyEquivalent: 75,
-      transactionFeePercent: 0,
-      features: ["Affiliate marketing", "Third-party code", "Remove branding", "Unlimited members"],
+      features: ["Affiliate marketing", "Embedded checkout", "White-labeling"],
       isPopular: false
     }
   ],
   features: [
-    { featureName: "Email Marketing", categoryName: "Marketing", hasFeature: true },
     { featureName: "Digital Downloads", categoryName: "Sales", hasFeature: true },
-    { featureName: "Webinars", categoryName: "Media", hasFeature: true },
-    { featureName: "Custom Domain", categoryName: "Branding", hasFeature: true }
+    { featureName: "Course Hosting", categoryName: "Education", hasFeature: true },
+    { featureName: "Email Marketing", categoryName: "Marketing", hasFeature: true },
+    { featureName: "Community", categoryName: "Engagement", hasFeature: true }
   ],
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://podia.com/pricing"

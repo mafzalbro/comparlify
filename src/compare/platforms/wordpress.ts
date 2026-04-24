@@ -4,7 +4,7 @@ export const wordpress: PlatformData = {
   name: "WordPress",
   website: "https://wordpress.com",
   logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Wordpress_Blue_logo.png/1200px-Wordpress_Blue_logo.png",
-  description: "The world's most popular website builder. From personal blogs to enterprise-scale publishers and ecommerce stores, WordPress powers over 40% of the web.",
+  description: "WordPress is the undisputed king of the internet, powering over 40% of all websites globally. It has survived every 'killer' app and platform because of its radical open-source philosophy and its infinite extensibility. Through its massive ecosystem of over 60,000 plugins and thousands of themes, you can turn a WordPress site into literally anything—from a simple hobby blog to a global e-commerce empire (via WooCommerce) or a complex membership site. While it has a steeper learning curve than 'all-in-one' builders, WordPress offers the ultimate insurance policy: you own your data, your code, and your platform entirely. If you want a site that can grow with you for the next 20 years, WordPress is the foundation you build on.",
   rating: 4.5,
   easeOfUse: 3.8,
   featuresRating: 5.0,

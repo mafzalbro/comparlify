@@ -3,45 +3,44 @@ import { PlatformData } from "../types";
 export const patreon: PlatformData = {
   name: "Patreon",
   website: "https://patreon.com",
-  logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Patreon_logo.svg/1200px-Patreon_logo.svg.png",
-  description: "The best place for creators to build memberships by providing exclusive access to their work and a deeper connection with their communities.",
-  rating: 4.6,
-  easeOfUse: 4.7,
-  featuresRating: 4.3,
-  support: 4.2,
+  logoUrl: "https://upload.wikimedia.org/wikipedia/commons/9/94/Patreon_logo.svg",
+  description: "Patreon is the pioneer that defined the 'membership' economy, allowing fans to become active participants in the work of their favorite creators. It is the gold standard for YouTubers, podcasters, and artists who want to build a reliable, monthly recurring income. While many platforms have since added membership features, Patreon’s power lies in its name recognition and the trust it has built with millions of patrons worldwide. With its new 'Commerce' features and native video hosting, it has evolved from a simple donation button into a full-scale creative business hub where you can sell digital goods and host a private community under one roof.",
+  rating: 4.4,
+  easeOfUse: 4.8,
+  featuresRating: 4.0,
+  support: 3.8,
   pros: [
-    "Most recognized membership platform for creators",
-    "Easy to set up recurring payments",
-    "Built-in community engagement tools",
-    "Strong mobile app for creators and patrons",
-    "Free to start (only pay when you earn)"
+    "Most recognized membership platform in the world",
+    "Extremely easy for fans to join and pay",
+    "Native video hosting included (Pro tier)",
+    "Strong integration with Discord and YouTube",
+    "New 'Commerce' features for one-time sales"
   ],
   cons: [
-    "High platform percentage fees (8-12%)",
-    "Limited branding options for the page",
-    "No built-in course hosting features"
+    "High revenue share (up to 12%)",
+    "Limited design and branding flexibility",
+    "Community features are basic compared to Circle/Skool",
+    "Limited email marketing capabilities"
   ],
   tiers: [
     {
       name: "Pro",
       monthlyPrice: 0,
-      transactionFeePercent: 8,
-      features: ["Unlimited tiers", "Analytics", "Special Offers tool", "Workshops"],
+      features: ["8% Revenue share", "Membership tiers", "Analytics", "App integrations"],
       isPopular: true
     },
     {
       name: "Premium",
       monthlyPrice: 0,
-      transactionFeePercent: 12,
-      features: ["Dedicated Account Manager", "Merch for Membership", "Team Accounts"],
+      features: ["12% Revenue share", "Dedicated account manager", "Merch for membership"],
       isPopular: false
     }
   ],
   features: [
-    { featureName: "Membership Tiers", categoryName: "Sales", hasFeature: true },
-    { featureName: "Community Feed", categoryName: "Social", hasFeature: true },
-    { featureName: "Merch Fulfillment", categoryName: "Operations", hasFeature: true },
-    { featureName: "Mobile App", categoryName: "Access", hasFeature: true }
+    { featureName: "Membership Tiers", categoryName: "Monetization", hasFeature: true },
+    { featureName: "Native Video", categoryName: "Content", hasFeature: true },
+    { featureName: "Discord Integration", categoryName: "Community", hasFeature: true },
+    { featureName: "Merch Fulfillment", categoryName: "Sales", hasFeature: true }
   ],
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://www.patreon.com/pricing"

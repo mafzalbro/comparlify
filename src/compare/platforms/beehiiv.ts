@@ -4,7 +4,7 @@ export const beehiiv: PlatformData = {
   name: "Beehiiv",
   website: "https://www.beehiiv.com",
   logoUrl: "https://upload.wikimedia.org/wikipedia/commons/e/e5/Beehiiv_logo.png",
-  description: "The newsletter platform built for growth. Founded by the team behind Morning Brew, Beehiiv focuses on scale with built-in referral systems, ad networks, and advanced segmentation.",
+  description: "Beehiiv has rapidly emerged as the 'secret weapon' for high-growth newsletters, founded by the masterminds who scaled Morning Brew to millions. Unlike legacy providers that tax your success, Beehiiv offers a flat-rate model that lets you keep 100% of your subscription revenue. Its true power lies in its native growth engine—featuring a world-class referral program, a built-in ad network for instant monetization, and 'Boosts' that allow you to pay-for-performance to acquire new subscribers. If you're looking to turn a simple newsletter into a media empire with high-end analytics and seamless SEO, Beehiiv is the modern standard.",
   rating: 4.8,
   easeOfUse: 4.5,
   featuresRating: 4.9,

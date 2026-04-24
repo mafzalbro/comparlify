@@ -111,6 +111,72 @@ export async function generateGenericContentAction(
   }
 }
 
+// Helper for specific AI tools that just wrap generateGenericContentAction
+async function generateSpecificContent(prompt: string, topic: string, context?: string) {
+  return generateGenericContentAction({ prompt, topic, context });
+}
+
+export const generateAnalogyAction = async (input: { topic: string }) =>
+  generateSpecificContent("Generate a creative analogy for the following topic.", input.topic);
+
+export const generateAudiencePersonaAction = async (input: { topic: string }) =>
+  generateSpecificContent("Create a detailed target audience persona for this niche or product.", input.topic);
+
+export const generateContentRepurposerAction = async (input: { topic: string }) =>
+  generateSpecificContent("Repurpose this content for 5 different social media platforms.", input.topic);
+
+export const generateContentRepurposeIdeasAction = generateContentRepurposerAction;
+
+export const generateCourseDescriptionAction = async (input: { topic: string }) =>
+  generateSpecificContent("Write a compelling course landing page description.", input.topic);
+
+export const generateCourseOutlineAction = async (input: { topic: string }) =>
+  generateSpecificContent("Create a comprehensive 10-module course outline.", input.topic);
+
+export const generateCoursePrerequisitesAction = async (input: { topic: string }) =>
+  generateSpecificContent("List the necessary prerequisites and tools needed for this course.", input.topic);
+
+export const generateTitleAction = async (input: { topic: string }) =>
+  generateSpecificContent("Generate 10 viral headline ideas for this topic.", input.topic);
+
+export const generateCourseTitleAction = generateTitleAction;
+
+export const generateEmailSubjectLineAction = async (input: { topic: string }) =>
+  generateSpecificContent("Write 10 high-open-rate email subject lines.", input.topic);
+
+export const generateEmailSubjectLinesAction = generateEmailSubjectLineAction;
+
+export const generateFAQAction = async (input: { topic: string }) =>
+  generateSpecificContent("Generate 10 frequently asked questions and answers for this topic.", input.topic);
+
+export const generateFaqsAction = generateFAQAction;
+
+export const generateIceBreakerAction = async (input: { context: string }) =>
+  generateSpecificContent("Create 5 engaging ice breaker questions for a community or workshop.", input.context);
+
+export const generateIceBreakersAction = generateIceBreakerAction;
+
+export const generateLearningObjectivesAction = async (input: { topic: string }) =>
+  generateSpecificContent("Define 5 clear learning objectives for this lesson.", input.topic);
+
+export const generateLessonSummaryAction = async (input: { topic: string }) =>
+  generateSpecificContent("Write a concise summary for this lesson.", input.topic);
+
+export const generatePromoVideoIdeasAction = async (input: { courseTitle: string }) =>
+  generateSpecificContent("Brainstorm 5 promotional video ideas for this product.", input.courseTitle);
+
+export const generateVideoIdeasAction = generatePromoVideoIdeasAction;
+
+export const generateQuizAction = async (input: { topic: string }) =>
+  generateSpecificContent("Create a 5-question multiple choice quiz with an answer key.", input.topic);
+
+export const generateSocialMediaPostAction = async (input: { topic: string }) =>
+  generateSpecificContent("Write an engaging social media post for LinkedIn, Twitter, and Instagram.", input.topic);
+
+export const generateVideoScriptAction = async (input: { topic: string }) =>
+  generateSpecificContent("Write a detailed video script with intro, hook, main points, and outro.", input.topic);
+
+
 // --- AI Image Generator ---
 const imageGeneratorSchema = z.object({
   prompt: z.string().min(3, "Prompt must be at least 3 characters long."),

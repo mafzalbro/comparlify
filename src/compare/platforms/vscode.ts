@@ -4,42 +4,37 @@ export const vscode: PlatformData = {
   name: "VS Code",
   website: "https://code.visualstudio.com",
   logoUrl: "https://upload.wikimedia.org/wikipedia/commons/9/9a/Visual_Studio_Code_1.35_icon.svg",
-  description: "The most popular code editor in the world. Built by Microsoft, VS Code is a free, open-source editor that supports thousands of extensions and deep integration with Azure and GitHub Copilot.",
+  description: "Visual Studio Code (VS Code) is the world's most popular code editor, having achieved a level of dominance that few software tools ever reach. Built by Microsoft, it struck the perfect balance between a lightweight text editor and a full-featured IDE. Its secret sauce is the 'Extension Marketplace,' a massive ecosystem that allows you to turn VS Code into anything from a simple markdown editor to a powerful C++ environment. While AI-native editors like Cursor are gaining ground, VS Code remains the ultimate 'blank canvas'—highly customizable, completely free, and backed by the largest developer community on the planet.",
   rating: 4.8,
   easeOfUse: 4.5,
-  featuresRating: 4.7,
-  support: 4.2,
+  featuresRating: 4.9,
+  support: 4.0,
   pros: [
-    "Completely free and open source",
-    "Massive ecosystem of extensions",
-    "Extremely stable and optimized performance",
-    "Deep GitHub integration (Copilot, Pull Requests)",
-    "Available as a browser-based IDE (vscode.dev)"
+    "Completely free and open-source (VS Code core)",
+    "Largest ecosystem of extensions in the world",
+    "Near-perfect Git integration built-in",
+    "Highly optimized and fast performance",
+    "Works on every major operating system"
   ],
   cons: [
-    "AI features are added via extensions (not native)",
-    "Setting up complex AI workflows can be tedious",
-    "Telemetry is enabled by default"
+    "AI features are not 'native' (requires extensions)",
+    "Can become bloated with too many extensions",
+    "Can't handle extremely large files as well as Sublime Text",
+    "Configuring complex environments can take time"
   ],
   tiers: [
     {
       name: "Free",
       monthlyPrice: 0,
-      features: ["All editor features", "Extension access", "Source control integration"],
+      features: ["Unlimited use", "Extension access", "Git integration", "Terminal"],
       isPopular: true
-    },
-    {
-      name: "GitHub Copilot (Add-on)",
-      monthlyPrice: 10,
-      features: ["AI Code Suggestions", "Chat Interface", "PR Summaries"],
-      isPopular: false
     }
   ],
   features: [
-    { featureName: "Extension Marketplace", categoryName: "Ecosystem", hasFeature: true },
-    { featureName: "Integrated Terminal", categoryName: "Editor", hasFeature: true },
-    { featureName: "Source Control", categoryName: "Collaboration", hasFeature: true },
-    { featureName: "Remote Development", categoryName: "Environment", hasFeature: true }
+    { featureName: "Extension Marketplace", categoryName: "Editor", hasFeature: true },
+    { featureName: "Integrated Terminal", categoryName: "Workflow", hasFeature: true },
+    { featureName: "IntelliSense", categoryName: "AI/Code", hasFeature: true },
+    { featureName: "Remote Development", categoryName: "Workflow", hasFeature: true }
   ],
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://code.visualstudio.com"

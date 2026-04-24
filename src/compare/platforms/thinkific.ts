@@ -4,7 +4,7 @@ export const thinkific: PlatformData = {
   name: "Thinkific",
   website: "https://thinkific.com",
   logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Thinkific_logo.svg/1200px-Thinkific_logo.svg.png",
-  description: "The power of Thinkific is in its scalability. Whether you're an individual creator or a large company, Thinkific provides the tools to build, market, and sell online courses.",
+  description: "Thinkific is the 'architect's choice' for online courses, built for creators and companies who want absolute control over the student journey. While platforms like Teachable focus on ease of use, Thinkific focuses on deep educational impact and technical reliability. It allows you to build sophisticated curriculums with multimedia lessons, assessments, and drip content that feel like a premium university experience. With its 'Thinkific App Store,' you can extend your school with hundreds of third-party tools, making it one of the most flexible LMS solutions on the market. It’s the platform you choose when you want to build a serious, scalable education business with zero transaction fees on its native payment processor.",
   rating: 4.7,
   easeOfUse: 4.4,
   featuresRating: 4.8,
@@ -17,7 +17,7 @@ export const thinkific: PlatformData = {
     "Strong emphasis on student success and outcomes"
   ],
   cons: [
-    "Free trial is time-limited (30 days)",
+    "Free tier is more limited than it used to be",
     "Checkout experience can be more complex to customize",
     "Some marketing features require external tools"
   ],

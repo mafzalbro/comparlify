@@ -4,7 +4,7 @@ export const tally: PlatformData = {
   name: "Tally",
   website: "https://tally.so",
   logoUrl: "https://tally.so/images/logo_v2.png",
-  description: "The simplest way to create forms. Tally works like a document and lets you build any form in seconds, without code, and for free.",
+  description: "Tally is the form builder for people who hate complex form builders. It looks and feels exactly like Notion, allowing you to build beautiful, functional forms by simply typing on a page. The 'Tally Magic' is their incredible free tier—offering unlimited forms and submissions without charging you for every extra field or logic jump. It’s a favorite among indie hackers and startups because it stays out of your way and integrates seamlessly with your favorite data tools. If you want a modern, minimalist form that converts without the enterprise price tag of Typeform, Tally is the clear winner.",
   rating: 4.9,
   easeOfUse: 5.0,
   featuresRating: 4.6,

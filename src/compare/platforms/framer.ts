@@ -4,7 +4,7 @@ export const framer: PlatformData = {
   name: "Framer",
   website: "https://framer.com",
   logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Framer_logo.svg/1200px-Framer_logo.svg.png",
-  description: "The modern web builder for designers. Framer allows you to design and publish high-performance websites without writing code, with powerful animations and a relational CMS.",
+  description: "Framer has effectively killed the gap between 'design' and 'development.' It is the only web builder that feels as fluid as Figma but outputs production-ready, lightning-fast code. For designers and marketing teams, Framer is a superpower—enabling the creation of world-class landing pages with complex scroll animations, 3D effects, and custom transitions without ever touching a line of CSS. Its CMS is surprisingly robust, and with the 'Figma to HTML' plugin, you can literally copy-paste your designs directly onto the live web. If your goal is to build a site that looks like it cost $50,000 in development time, Framer is your best friend.",
   rating: 4.8,
   easeOfUse: 4.4,
   featuresRating: 4.9,

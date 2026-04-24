@@ -3,43 +3,43 @@ import { PlatformData } from "../types";
 export const ga4: PlatformData = {
   name: "Google Analytics 4",
   website: "https://analytics.google.com",
-  logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Google_Analytics_logo.svg/1200px-Google_Analytics_logo.svg.png",
-  description: "The next generation of Google Analytics. GA4 uses an event-based data model to provide a more complete view of the customer journey across websites and apps.",
-  rating: 4.6,
-  easeOfUse: 3.2,
+  logoUrl: "https://upload.wikimedia.org/wikipedia/commons/7/7d/Google_Analytics_logo.svg",
+  description: "Google Analytics 4 (GA4) is the world’s most powerful and widely used analytics platform, redesigned from the ground up to handle a future without third-party cookies. Unlike its predecessor, GA4 is 'event-based,' meaning it tracks every single interaction (clicks, scrolls, file downloads) as a distinct event rather than a pageview. This makes it incredibly powerful for mobile apps and complex web applications. While it has a notoriously high learning curve and a cluttered UI, the depth of data available—especially when integrated with Google Ads and BigQuery—is unmatched by any other free tool. It is the 'Big Data' solution for everyone from solo bloggers to Fortune 500 companies.",
+  rating: 4.0,
+  easeOfUse: 2.0,
   featuresRating: 5.0,
-  support: 4.0,
+  support: 3.5,
   pros: [
-    "Completely free for most businesses",
-    "Most powerful and detailed analytics tool",
-    "Cross-platform tracking (Web + App)",
-    "Deep integration with Google Ads and BigQuery",
-    "Advanced machine learning insights and predictions"
+    "Most advanced data modeling and AI insights",
+    "Completely free for the vast majority of users",
+    "Deep integration with Google Ads ecosystem",
+    "Native BigQuery export for custom analysis",
+    "Cross-platform tracking (Web + App)"
   ],
   cons: [
-    "Significant learning curve compared to Universal Analytics",
-    "Privacy concerns and complex GDPR configuration",
-    "Interface can be confusing for non-experts",
-    "Data retention limits on the free tier"
+    "Extremely steep learning curve",
+    "Confusing UI compared to Plausible",
+    "Privacy concerns and cookie banner requirements",
+    "Data takes 24-48 hours to fully process"
   ],
   tiers: [
     {
-      name: "Standard",
+      name: "Free",
       monthlyPrice: 0,
-      features: ["Cross-platform tracking", "Event-based data", "Predictive insights", "BigQuery export"],
+      features: ["Unlimited data collection", "Standard reports", "Google Ads integration", "BigQuery export"],
       isPopular: true
     },
     {
-      name: "360 (Enterprise)",
+      name: "Analytics 360",
       monthlyPrice: 2500,
-      features: ["Higher data limits", "SLA on data freshness", "Advanced sub-properties", "Dedicated support"],
+      features: ["Advanced governance", "Unsampled reports", "Higher data limits", "SLA support"],
       isPopular: false
     }
   ],
   features: [
-    { featureName: "Event Tracking", categoryName: "Analytics", hasFeature: true },
-    { featureName: "Machine Learning", categoryName: "Intelligence", hasFeature: true },
-    { featureName: "BigQuery Integration", categoryName: "Data", hasFeature: true },
+    { featureName: "Event-based Tracking", categoryName: "Analytics", hasFeature: true },
+    { featureName: "Predictive Insights", categoryName: "AI", hasFeature: true },
+    { featureName: "BigQuery Export", categoryName: "Data", hasFeature: true },
     { featureName: "Custom Explorations", categoryName: "Reporting", hasFeature: true }
   ],
   lastVerifiedAt: "2026-04-24T00:00:00Z",

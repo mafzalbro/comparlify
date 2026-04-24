@@ -3,50 +3,45 @@ import { PlatformData } from "../types";
 export const medusa: PlatformData = {
   name: "Medusa",
   website: "https://medusajs.com",
-  logoUrl: "https://medusajs.com/images/logo.png",
-  description: "The world's most flexible open-source commerce platform. Medusa is built for developers who want full control over their commerce logic and infrastructure.",
+  logoUrl: "https://medusajs.com/favicon.ico",
+  description: "Medusa is the open-source 'Shopify Alternative' built for developers who demand total control. It is a headless commerce engine that gives you the building blocks to create unique, high-performance shopping experiences without the constraints of traditional platforms. Medusa's 'modular' architecture means you can swap out your payment processor, CMS, or fulfillment logic with ease. For brands that have outgrown the rigid structures of Shopify and need a custom checkout flow, multi-currency support, or complex inventory management, Medusa provides the flexibility of a custom-built solution with the speed of a ready-made framework.",
   rating: 4.8,
-  easeOfUse: 3.5,
-  featuresRating: 4.9,
-  support: 4.6,
+  easeOfUse: 3.0,
+  featuresRating: 5.0,
+  support: 4.5,
   pros: [
-    "Completely open-source and free to self-host",
-    "Headless architecture for full frontend freedom",
-    "Highly modular and extensible",
-    "Excellent developer experience and documentation",
-    "Growing ecosystem of plugins and integrations"
+    "Complete architectural freedom (Headless)",
+    "No monthly subscription or transaction fees",
+    "Modern tech stack (Node.js, React, PostgreSQL)",
+    "Thriving developer community and plugin ecosystem",
+    "Infinite scalability for complex business models"
   ],
   cons: [
-    "Requires technical expertise to set up and maintain",
-    "Cloud hosting can get expensive as you scale",
-    "Fewer out-of-the-box features than Shopify"
+    "Requires significant engineering resources",
+    "No hosted version (you manage the infrastructure)",
+    "No built-in 'theme store' like Shopify",
+    "Admin dashboard is powerful but basic in design"
   ],
   tiers: [
     {
-      name: "Develop",
-      monthlyPrice: 29,
-      features: ["Zero-config infra", "GitHub integration", "Medusa Cache", "Medusa Emails"],
-      isPopular: false
-    },
-    {
-      name: "Launch",
-      monthlyPrice: 99,
-      features: ["Autoscaling infra", "Custom domains", "Automatic backups", "Zero downtime"],
+      name: "Open Source",
+      monthlyPrice: 0,
+      features: ["Full source code", "Self-hosted", "Community support", "Custom modules"],
       isPopular: true
     },
     {
-      name: "Scale",
-      monthlyPrice: 299,
-      features: ["Higher server capacity", "Background workers", "Priority support", "3 Cloud seats"],
+      name: "Enterprise",
+      monthlyPrice: 2000,
+      features: ["SLA support", "Dedicated account manager", "Training & onboarding"],
       isPopular: false
     }
   ],
   features: [
-    { featureName: "Headless Commerce", categoryName: "Architecture", hasFeature: true },
+    { featureName: "Headless Engine", categoryName: "Architecture", hasFeature: true },
     { featureName: "Multi-currency", categoryName: "Sales", hasFeature: true },
-    { featureName: "Plugin System", categoryName: "Ecosystem", hasFeature: true },
-    { featureName: "RMA Flows", categoryName: "Operations", hasFeature: true }
+    { featureName: "Plugin Ecosystem", categoryName: "Extensibility", hasFeature: true },
+    { featureName: "Custom Checkout", categoryName: "Sales", hasFeature: true }
   ],
   lastVerifiedAt: "2026-04-24T00:00:00Z",
-  sourceUrl: "https://medusajs.com/pricing"
+  sourceUrl: "https://medusajs.com"
 };

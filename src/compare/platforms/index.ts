@@ -29,6 +29,11 @@ import { mightynetworks } from "./mightynetworks";
 import { patreon } from "./patreon";
 import { discord } from "./discord";
 import { wordpress } from "./wordpress";
+import { activecampaign } from "./activecampaign";
+import { mailerlite } from "./mailerlite";
+import { wix } from "./wix";
+import { squarespace } from "./squarespace";
+import { klaviyo } from "./klaviyo";
 
 export const allPlatforms = [
   beehiiv,
@@ -62,4 +67,9 @@ export const allPlatforms = [
   patreon,
   discord,
   wordpress,
+  activecampaign,
+  mailerlite,
+  wix,
+  squarespace,
+  klaviyo,
 ];

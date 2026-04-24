@@ -2,53 +2,54 @@ import { PlatformData } from "../types";
 
 export const synthesia: PlatformData = {
   name: "Synthesia",
-  website: "https://synthesia.io",
-  logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Synthesia_logo.svg/1200px-Synthesia_logo.svg.png",
-  description: "The #1 AI video communications platform. Synthesia enables businesses to create professional videos in minutes with AI avatars, replacing expensive cameras and studios.",
+  website: "https://www.synthesia.io",
+  logoUrl: "https://www.synthesia.io/favicon.ico",
+  description: "Synthesia is the enterprise-grade AI video platform that turned 'text-to-video' into a reality for the world's biggest brands. While HeyGen focuses on marketing and sales, Synthesia is the king of L&D (Learning and Development) and corporate communications. It offers a massive library of 150+ diverse avatars and supports over 120 languages, making it the perfect tool for global companies to localize their training materials in minutes. With its robust API and focus on security (SOC2 compliant), Synthesia is built for scale, allowing organizations to maintain consistent brand messaging across thousands of videos without the cost of a traditional film crew.",
   rating: 4.7,
   easeOfUse: 4.6,
   featuresRating: 4.8,
   support: 4.4,
   pros: [
-    "Enterprise-grade security and SOC 2 compliance",
-    "Massive library of 160+ AI avatars",
-    "Automatic translation into 120+ languages",
-    "Powerful collaboration features for teams",
-    "Excellent for corporate training and internal comms"
+    "Widest selection of diverse AI avatars",
+    "Best-in-class multi-language localization",
+    "Enterprise-grade security and SOC2 compliance",
+    "Powerful API for automated video generation",
+    "Professional templates for training and corporate use"
   ],
   cons: [
-    "High starting price for teams",
-    "Personal plan has limits on video minutes",
-    "Avatar movements can sometimes feel slightly robotic"
+    "Pricing can be high for high-volume users",
+    "Lip-syncing can occasionally look 'uncanny'",
+    "Less focus on 'personalized' video messaging than HeyGen",
+    "Limited animation controls compared to traditional editors"
   ],
   tiers: [
     {
-      name: "Free",
-      monthlyPrice: 0,
-      features: ["10-min video/mo", "9 AI avatars", "1 editor seat"],
-      isPopular: false
-    },
-    {
       name: "Starter",
       monthlyPrice: 29,
-      annualPriceMonthlyEquivalent: 18,
-      features: ["120-min video/yr", "125+ AI avatars", "AI Dubbing"],
-      isPopular: true
+      annualPriceMonthlyEquivalent: 22,
+      features: ["120 mins/year", "1 User", "70+ Avatars", "120+ Languages"],
+      isPopular: false
     },
     {
       name: "Creator",
       monthlyPrice: 89,
-      annualPriceMonthlyEquivalent: 64,
-      features: ["360-min video/yr", "180+ AI avatars", "Custom fonts"],
+      annualPriceMonthlyEquivalent: 67,
+      features: ["360 mins/year", "1 User", "90+ Avatars", "Custom Avatars"],
+      isPopular: true
+    },
+    {
+      name: "Enterprise",
+      monthlyPrice: 500,
+      features: ["Unlimited mins", "SAML/SSO", "Dedicated support", "Brand kits"],
       isPopular: false
     }
   ],
   features: [
-    { featureName: "Enterprise Security", categoryName: "Security", hasFeature: true },
-    { featureName: "AI Dubbing", categoryName: "Localization", hasFeature: true },
-    { featureName: "SCORM Export", categoryName: "Education", hasFeature: true },
-    { featureName: "Interactive Video", categoryName: "Engagement", hasFeature: true }
+    { featureName: "Multi-language AI", categoryName: "Content", hasFeature: true },
+    { featureName: "Enterprise Security", categoryName: "Compliance", hasFeature: true },
+    { featureName: "API Access", categoryName: "Developer", hasFeature: true },
+    { featureName: "Interactive Video", categoryName: "Experience", hasFeature: true }
   ],
   lastVerifiedAt: "2026-04-24T00:00:00Z",
-  sourceUrl: "https://synthesia.io/pricing"
+  sourceUrl: "https://www.synthesia.io/pricing"
 };
