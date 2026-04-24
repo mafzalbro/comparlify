@@ -49,6 +49,6 @@ export const linear: PlatformData = {
     { featureName: "Roadmaps", categoryName: "Planning", hasFeature: true },
     { featureName: "Issue Triage", categoryName: "Workflow", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-05-15T00:00:00Z",
+  lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://linear.app/pricing"
 };

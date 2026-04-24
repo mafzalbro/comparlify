@@ -50,6 +50,6 @@ export const ghost: PlatformData = {
     { featureName: "Newsletter Sends", categoryName: "Marketing", hasFeature: true },
     { featureName: "SEO Tools", categoryName: "Optimization", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-05-15T00:00:00Z",
+  lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://ghost.org/pricing"
 };

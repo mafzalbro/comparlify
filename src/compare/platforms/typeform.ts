@@ -51,6 +51,6 @@ export const typeform: PlatformData = {
     { featureName: "Video Ask", categoryName: "Forms", hasFeature: true },
     { featureName: "Advanced Analytics", categoryName: "Reporting", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-05-15T00:00:00Z",
+  lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://typeform.com/pricing"
 };

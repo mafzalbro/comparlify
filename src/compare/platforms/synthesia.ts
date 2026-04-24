@@ -49,6 +49,6 @@ export const synthesia: PlatformData = {
     { featureName: "SCORM Export", categoryName: "Education", hasFeature: true },
     { featureName: "Interactive Video", categoryName: "Engagement", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-05-15T00:00:00Z",
+  lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://synthesia.io/pricing"
 };

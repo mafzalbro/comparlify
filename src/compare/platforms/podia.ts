@@ -45,6 +45,6 @@ export const podia: PlatformData = {
     { featureName: "Webinars", categoryName: "Media", hasFeature: true },
     { featureName: "Custom Domain", categoryName: "Branding", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-05-15T00:00:00Z",
+  lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://podia.com/pricing"
 };

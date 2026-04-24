@@ -42,6 +42,6 @@ export const ga4: PlatformData = {
     { featureName: "BigQuery Integration", categoryName: "Data", hasFeature: true },
     { featureName: "Custom Explorations", categoryName: "Reporting", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-05-15T00:00:00Z",
+  lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://marketingplatform.google.com/about/analytics/pricing/"
 };

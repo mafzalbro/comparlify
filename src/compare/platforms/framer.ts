@@ -51,6 +51,6 @@ export const framer: PlatformData = {
     { featureName: "Relational CMS", categoryName: "Content", hasFeature: true },
     { featureName: "Figma Integration", categoryName: "Workflow", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-05-15T00:00:00Z",
+  lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://framer.com/pricing"
 };

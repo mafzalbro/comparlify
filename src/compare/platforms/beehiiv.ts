@@ -50,6 +50,6 @@ export const beehiiv: PlatformData = {
     { featureName: "Custom Domains", categoryName: "Branding", hasFeature: true },
     { featureName: "A/B Testing", categoryName: "Optimization", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-05-15T00:00:00Z",
+  lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://www.beehiiv.com/pricing"
 };

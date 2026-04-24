@@ -50,6 +50,6 @@ export const thinkific: PlatformData = {
     { featureName: "App Store", categoryName: "Integrations", hasFeature: true },
     { featureName: "Certificates", categoryName: "Education", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-05-15T00:00:00Z",
+  lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://thinkific.com/pricing"
 };

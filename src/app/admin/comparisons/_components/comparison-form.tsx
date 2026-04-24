@@ -62,6 +62,7 @@ export function ComparisonForm({
   const [introduction, setIntroduction] = useState(
     comparison?.introduction ?? "",
   );
+  const [content, setContent] = useState(comparison?.content ?? "");
   const [conclusion, setConclusion] = useState(comparison?.conclusion ?? "");
   const [platformAId, setPlatformAId] = useState(comparison?.platformAId ?? "");
   const [platformBId, setPlatformBId] = useState(comparison?.platformBId ?? "");
@@ -109,6 +110,7 @@ export function ComparisonForm({
   return (
     <form action={action}>
       <input type="hidden" name="introduction" value={introduction} />
+      <input type="hidden" name="content" value={content} />
       <input type="hidden" name="conclusion" value={conclusion} />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-6">
@@ -223,6 +225,25 @@ export function ComparisonForm({
                       {state.error.introduction[0]}
                     </p>
                   )}
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="content">Deep Dive Content (Markdown)</Label>
+                  <AiFillButton
+                    fieldType="Comparison Content"
+                    topic={title}
+                    context={introduction}
+                    onContentReceived={(content) => {
+                      setContent(content);
+                    }}
+                  />
+                </div>
+                <Editor initialContent={content} onChange={setContent} />
+                {typeof state.error !== "string" && state?.error?.content && (
+                  <p className="text-destructive text-sm">
+                    {state.error.content[0]}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">

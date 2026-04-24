@@ -17,6 +17,7 @@ const comparisonSchema = z
     platformAId: z.string(),
     platformBId: z.string(),
     introduction: z.string().min(20),
+    content: z.string().optional(),
     conclusion: z.string().min(20),
     published: z.preprocess((val) => val === "on", z.boolean()),
   })

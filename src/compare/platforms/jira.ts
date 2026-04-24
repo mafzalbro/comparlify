@@ -47,6 +47,6 @@ export const jira: PlatformData = {
     { featureName: "Agile Boards", categoryName: "Workflow", hasFeature: true },
     { featureName: "Automation", categoryName: "Workflow", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-05-15T00:00:00Z",
+  lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://www.atlassian.com/software/jira/pricing"
 };

@@ -51,6 +51,6 @@ export const shopify: PlatformData = {
     { featureName: "Shopify POS", categoryName: "Sales", hasFeature: true },
     { featureName: "Abandoned Cart Recovery", categoryName: "Marketing", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-05-15T00:00:00Z",
+  lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://shopify.com/pricing"
 };

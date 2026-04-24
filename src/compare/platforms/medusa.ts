@@ -47,6 +47,6 @@ export const medusa: PlatformData = {
     { featureName: "Plugin System", categoryName: "Ecosystem", hasFeature: true },
     { featureName: "RMA Flows", categoryName: "Operations", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-05-15T00:00:00Z",
+  lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://medusajs.com/pricing"
 };

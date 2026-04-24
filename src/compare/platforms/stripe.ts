@@ -44,6 +44,6 @@ export const stripe: PlatformData = {
     { featureName: "Mobile SDKs", categoryName: "Access", hasFeature: true },
     { featureName: "Fraud Prevention", categoryName: "Security", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-05-15T00:00:00Z",
+  lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://stripe.com/pricing"
 };

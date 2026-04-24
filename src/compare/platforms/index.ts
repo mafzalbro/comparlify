@@ -26,6 +26,9 @@ import { thinkific } from "./thinkific";
 import { ghost } from "./ghost";
 import { kit } from "./kit";
 import { mightynetworks } from "./mightynetworks";
+import { patreon } from "./patreon";
+import { discord } from "./discord";
+import { wordpress } from "./wordpress";
 
 export const allPlatforms = [
   beehiiv,
@@ -56,4 +59,7 @@ export const allPlatforms = [
   ghost,
   kit,
   mightynetworks,
+  patreon,
+  discord,
+  wordpress,
 ];

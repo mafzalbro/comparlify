@@ -49,6 +49,6 @@ export const kit: PlatformData = {
     { featureName: "Creator Network", categoryName: "Growth", hasFeature: true },
     { featureName: "Subscriber Tagging", categoryName: "Segmentation", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-05-15T00:00:00Z",
+  lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://kit.com/pricing"
 };

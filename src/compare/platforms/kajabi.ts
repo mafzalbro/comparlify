@@ -58,6 +58,6 @@ export const kajabi: PlatformData = {
     { featureName: "Mobile App", categoryName: "Access", hasFeature: true },
     { featureName: "CRM", categoryName: "Business", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-05-15T00:00:00Z",
+  lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://kajabi.com/pricing"
 };

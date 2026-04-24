@@ -49,6 +49,6 @@ export const heygen: PlatformData = {
     { featureName: "Video Translation", categoryName: "Localization", hasFeature: true },
     { featureName: "Talking Photos", categoryName: "Media", hasFeature: true }
   ],
-  lastVerifiedAt: "2024-05-15T00:00:00Z",
+  lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://heygen.com/pricing"
 };
