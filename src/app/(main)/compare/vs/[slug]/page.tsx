@@ -24,6 +24,7 @@ import { ComparisonStats } from "@/components/comparison/comparison-stats";
 import { ComparisonFeatureMatrix } from "@/components/comparison/comparison-feature-matrix";
 import { PlatformVisitCards } from "@/components/comparison/platform-visit-cards";
 import { MotionDiv } from "@/components/motion-wrapper";
+import { ComparativeDeepDive } from "@/components/comparison/comparative-deep-dive";
 
 const ComparisonChart = dynamic(
   () =>
@@ -253,6 +254,13 @@ export default async function DynamicBattlePage(props: {
                   provides immediate professional clarity.
                 </p>
               </div>
+
+              <ComparativeDeepDive
+                platformAName={platformA.name}
+                platformBName={platformB.name}
+                platformADescription={platformA.description}
+                platformBDescription={platformB.description}
+              />
 
               <ComparisonFeatureMatrix
                 features={featureRows}
