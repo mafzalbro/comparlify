@@ -25,12 +25,6 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "upload.wikimedia.org",
-        port: "",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
         hostname: "assets.findstack.com",
         port: "",
         pathname: "/**",
