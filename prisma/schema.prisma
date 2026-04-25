@@ -183,7 +183,6 @@ model ComparisonCategory {
   id          String       @id @default(cuid())
   slug        String       @unique
   name        String
-  description String?      @db.Text
   comparisons Comparison[]
 }
 
