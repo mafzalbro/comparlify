@@ -176,13 +176,10 @@ async function main(prismaInstance?: PrismaClient, skipCleanup = false) {
   // --- 5. Seed Comparison Category ---
   const compCategory = await prisma.comparisonCategory.upsert({
     where: { slug: "platform-showdowns" },
-    update: {
-        description: "In-depth, data-driven comparisons of the world's leading platforms."
-    },
+    update: {},
     create: {
       name: "Platform Showdowns",
       slug: "platform-showdowns",
-      description: "In-depth, data-driven comparisons of the world's leading platforms."
     }
   });
 

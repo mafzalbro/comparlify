@@ -13,6 +13,27 @@ export function ManagedImage(props: ImageProps) {
 
   const currentSrc = error ? fallbackSrc : props.src;
 
+  const isExternal = typeof props.src === 'string' && props.src.startsWith('http');
+
+  if (isExternal) {
+    return (
+      <img
+        {...(props as any)}
+        src={currentSrc as string}
+        onError={() => {
+          if (!error) {
+            setError(true);
+          }
+        }}
+        style={{
+          width: props.width ? `${props.width}px` : 'auto',
+          height: props.height ? `${props.height}px` : 'auto',
+          ...props.style,
+        }}
+      />
+    );
+  }
+
   return (
     <Image
       {...props}
