@@ -8,7 +8,7 @@ import { allPlatforms } from "../src/compare/platforms";
 /**
  * SEED SCRIPT
  * Uses the application's Prisma singleton to avoid connection pool leaks.
- * Now dynamically pulls high-fidelity data from the codebase.
+ * Now dynamically pulls high-fidelity data from the codebase and maintains legacy sync requirements.
  */
 
 export async function cleanupDatabase(prismaInstance?: PrismaClient) {
@@ -126,10 +126,59 @@ async function main(prismaInstance?: PrismaClient, skipCleanup = false) {
     }
   }
 
-  // --- 3. Seed Comparison Category ---
+  // --- 3. Legacy Feature Seeding (Ensure specific categories exist) ---
+  const categoriesData = [
+    { name: "LMS Core", features: ["Course Builder", "Video Hosting", "Content Dripping"] },
+    { name: "Marketing", features: ["Funnels", "Email Marketing", "Affiliate System"] }
+  ];
+
+  for (const cat of categoriesData) {
+    const category = await prisma.featureCategory.upsert({
+      where: { name: cat.name },
+      update: {},
+      create: { name: cat.name }
+    });
+    for (const fName of cat.features) {
+      const featId = `feat-${fName.toLowerCase().replace(/\s+/g, '-')}`;
+      await prisma.feature.upsert({
+        where: { id: featId },
+        update: { name: fName, categoryId: category.id },
+        create: { id: featId, name: fName, categoryId: category.id }
+      });
+    }
+  }
+
+  // --- 4. Sync Uploads (Legacy requirement) ---
+  console.log("\n🖼️ Syncing public/uploads to Image gallery...");
+  const fs = await import("fs/promises");
+  const path = await import("path");
+  const uploadsDir = path.join(process.cwd(), "public", "uploads");
+  try {
+    const files = await fs.readdir(uploadsDir);
+    const imageFiles = files.filter(f => /\.(jpe?g|png|gif|webp|svg)$/i.test(f));
+    for (const filename of imageFiles) {
+      const existing = await prisma.image.findFirst({ where: { filename } });
+      if (!existing) {
+        const stats = await fs.stat(path.join(uploadsDir, filename));
+        await prisma.image.create({
+          data: {
+            filename,
+            url: `/uploads/${filename}`,
+            altText: filename.split(".")[0].replace(/[-_]/g, " "),
+            size: stats.size,
+            authorId: admin.id,
+          }
+        });
+      }
+    }
+  } catch (e) {}
+
+  // --- 5. Seed Comparison Category ---
   const compCategory = await prisma.comparisonCategory.upsert({
     where: { slug: "platform-showdowns" },
-    update: {},
+    update: {
+        description: "In-depth, data-driven comparisons of the world's leading platforms."
+    },
     create: {
       name: "Platform Showdowns",
       slug: "platform-showdowns",
@@ -137,7 +186,7 @@ async function main(prismaInstance?: PrismaClient, skipCleanup = false) {
     }
   });
 
-  // --- 4. Seed Curated Comparison Guides ---
+  // --- 6. Seed Curated Comparison Guides ---
   const platforms = await prisma.platform.findMany();
   const getPlat = (name: string) => platforms.find(p => p.name === name);
 
