@@ -1,5 +1,7 @@
 import prisma from "@/lib/prisma";
 import { allPlatforms } from "./platforms";
+import { PlatformData } from "./types";
+
 export async function syncComparisonData() {
   console.log("🔄 Starting comparison data sync...");
 
@@ -62,19 +64,19 @@ export async function syncComparisonData() {
 
     // Better strategy for tiers:
     await prisma.pricingTier.deleteMany({
-      where: { platformId: platform.id },
+      where: { platformId: platform.id }
     });
 
     await prisma.pricingTier.createMany({
-      data: data.tiers.map((t) => ({
+      data: data.tiers.map(t => ({
         name: t.name,
         monthlyPrice: t.monthlyPrice,
         annualPriceMonthlyEquivalent: t.annualPriceMonthlyEquivalent,
         transactionFeePercent: t.transactionFeePercent,
         isPopular: t.isPopular || false,
         features: t.features,
-        platformId: platform.id,
-      })),
+        platformId: platform.id
+      }))
     });
 
     // 3. Sync Features & Categories
@@ -90,7 +92,7 @@ export async function syncComparisonData() {
           // Feature doesn't have a unique name?
           // Schema: model Feature { id, name, categoryId ... }
           // Let's check name uniqueness.
-          id: `feat-${feat.featureName.toLowerCase().replace(/\s+/g, "-")}`,
+          id: `feat-${feat.featureName.toLowerCase().replace(/\s+/g, '-')}`
         } as any,
         // Wait, schema doesn't have unique on name.
         // I'll check if I can use findFirst.
@@ -98,12 +100,12 @@ export async function syncComparisonData() {
 
       // Let's find or create feature properly.
       let existingFeature = await prisma.feature.findFirst({
-        where: { name: feat.featureName, categoryId: category.id },
+        where: { name: feat.featureName, categoryId: category.id }
       });
 
       if (!existingFeature) {
         existingFeature = await prisma.feature.create({
-          data: { name: feat.featureName, categoryId: category.id },
+          data: { name: feat.featureName, categoryId: category.id }
         });
       }
 
@@ -112,19 +114,19 @@ export async function syncComparisonData() {
         where: {
           platformId_featureId: {
             platformId: platform.id,
-            featureId: existingFeature.id,
-          },
+            featureId: existingFeature.id
+          }
         },
         update: {
           hasFeature: feat.hasFeature,
-          details: feat.details,
+          details: feat.details
         },
         create: {
           platformId: platform.id,
           featureId: existingFeature.id,
           hasFeature: feat.hasFeature,
-          details: feat.details,
-        },
+          details: feat.details
+        }
       });
     }
   }
