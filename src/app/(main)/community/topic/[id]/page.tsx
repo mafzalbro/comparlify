@@ -21,15 +21,23 @@ import {
 import { MotionDiv } from "@/components/motion-wrapper";
 import { Button } from "@/components/ui/button";
 
-const getTopic = cache(async (id: string) => {
+const getTopic = cache(async (id: string, userId?: string) => {
   return prisma.forumTopic.findUnique({
     where: { id },
     include: {
-      author: true,
+      author: {
+        include: { stacks: { select: { isVerified: true } } }
+      },
       category: true,
+      votes: true,
       posts: {
         where: { status: "APPROVED" },
-        include: { author: true },
+        include: {
+          author: {
+            include: { stacks: { select: { isVerified: true } } }
+          },
+          votes: true
+        },
         orderBy: { createdAt: "asc" },
       },
     },
@@ -56,7 +64,8 @@ export default async function TopicPage(props: {
 }) {
   const params = await props.params;
   const { id } = params;
-  const [topic, session] = await Promise.all([getTopic(id), auth()]);
+  const session = await auth();
+  const topic = await getTopic(id, session?.user?.id);
 
   if (!topic) notFound();
 
@@ -159,6 +168,8 @@ export default async function TopicPage(props: {
               content={topic.content}
               createdAt={topic.createdAt}
               isTopicPost={true}
+              votes={topic.votes.reduce((acc, v) => acc + v.value, 0)}
+              userVote={topic.votes.find(v => v.userId === session?.user?.id)?.value ?? 0}
             />
           </MotionDiv>
 
@@ -180,6 +191,8 @@ export default async function TopicPage(props: {
                     author={post.author}
                     content={post.content}
                     createdAt={post.createdAt}
+                    votes={post.votes.reduce((acc, v) => acc + v.value, 0)}
+                    userVote={post.votes.find(v => v.userId === session?.user?.id)?.value ?? 0}
                   />
                 </MotionDiv>
               ))}

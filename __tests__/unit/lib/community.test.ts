@@ -18,8 +18,8 @@ describe('Community Utilities', () => {
 
     const stats = await getCommunityStats()
 
-    expect(stats.verifiedNodes).toBe(1300) // 100 + 1200
-    expect(stats.activeSyncs).toBe(670) // 50 + 200 + 420
-    expect(stats.signalAccuracy).toBe('99.2%')
+    expect(stats.verifiedNodes).toBe(1384) // 100 + 1284
+    expect(stats.activeSyncs).toBe(762) // 50 + 200 + 512
+    expect(stats.signalAccuracy).toBe('99.4%')
   })
 })

@@ -25,12 +25,22 @@ export async function markUserAsOnboarded() {
 // --- User Profile/Settings Actions ---
 const updateUserProfileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
+  username: z.string().min(3, "Username must be at least 3 characters.").regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores.").optional().or(z.literal('')),
+  bio: z.string().max(500, "Bio must be less than 500 characters.").optional().or(z.literal('')),
+  website: z.string().url("Invalid URL").optional().or(z.literal('')),
+  twitter: z.string().optional().or(z.literal('')),
+  linkedin: z.string().optional().or(z.literal('')),
   newsletter: z.preprocess((val) => val === 'on', z.boolean()),
 });
 
 interface UpdateProfileState {
   error: {
     name?: string[];
+    username?: string[];
+    bio?: string[];
+    website?: string[];
+    twitter?: string[];
+    linkedin?: string[];
     newsletter?: string[];
   } | string | null;
   success: boolean;
@@ -47,6 +57,11 @@ export async function updateUserProfileAction(
 
   const validatedFields = updateUserProfileSchema.safeParse({
     name: formData.get('name'),
+    username: formData.get('username'),
+    bio: formData.get('bio'),
+    website: formData.get('website'),
+    twitter: formData.get('twitter'),
+    linkedin: formData.get('linkedin'),
     newsletter: formData.get('newsletter'),
   });
 

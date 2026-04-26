@@ -3,6 +3,8 @@ import { Breadcrumbs } from "@/components/breadcrumb";
 import { Button } from "@/components/ui/button";
 import NextLink from "next/link";
 import { Users, PlusCircle, MessageSquare } from "lucide-react";
+import { CommunitySearch } from "./community-search";
+import { Suspense } from "react";
 
 export function CommunityHero() {
   return (
@@ -58,6 +60,10 @@ export function CommunityHero() {
                 </NextLink>
               </Button>
             </div>
+
+            <Suspense fallback={<div className="h-16 w-full max-w-xl bg-card/20 rounded-full mt-12 animate-pulse mx-auto" />}>
+              <CommunitySearch />
+            </Suspense>
           </div>
         </MotionDiv>
       </div>

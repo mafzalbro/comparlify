@@ -92,24 +92,122 @@ export default function UserSettingsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-10 space-y-10">
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <Label
+                      htmlFor="name"
+                      className="text-xs font-black uppercase tracking-widest text-muted-foreground"
+                    >
+                      Display Name
+                    </Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      defaultValue={user.name ?? ""}
+                      className="h-14 rounded-2xl border-border/10 bg-background/50 focus:bg-background transition-all"
+                    />
+                    {typeof state.error !== "string" && state.error?.name && (
+                      <p className="text-xs font-bold text-destructive uppercase tracking-widest pl-2">
+                        {state.error.name[0]}
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-3">
+                    <Label
+                      htmlFor="username"
+                      className="text-xs font-black uppercase tracking-widest text-muted-foreground"
+                    >
+                      Username
+                    </Label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-black italic">@</span>
+                      <Input
+                        id="username"
+                        name="username"
+                        defaultValue={(user as any).username ?? ""}
+                        className="h-14 pl-10 rounded-2xl border-border/10 bg-background/50 focus:bg-background transition-all"
+                      />
+                    </div>
+                    {typeof state.error !== "string" && state.error?.username && (
+                      <p className="text-xs font-bold text-destructive uppercase tracking-widest pl-2">
+                        {state.error.username[0]}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
                 <div className="space-y-3">
                   <Label
-                    htmlFor="name"
+                    htmlFor="bio"
                     className="text-xs font-black uppercase tracking-widest text-muted-foreground"
                   >
-                    Display Name
+                    Short Bio
                   </Label>
                   <Input
-                    id="name"
-                    name="name"
-                    defaultValue={user.name ?? ""}
+                    id="bio"
+                    name="bio"
+                    defaultValue={(user as any).bio ?? ""}
                     className="h-14 rounded-2xl border-border/10 bg-background/50 focus:bg-background transition-all"
+                    placeholder="Tell the community about your creator journey..."
                   />
-                  {typeof state.error !== "string" && state.error?.name && (
+                  {typeof state.error !== "string" && state.error?.bio && (
                     <p className="text-xs font-bold text-destructive uppercase tracking-widest pl-2">
-                      {state.error.name[0]}
+                      {state.error.bio[0]}
                     </p>
                   )}
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-8">
+                  <div className="space-y-3">
+                    <Label
+                      htmlFor="website"
+                      className="text-xs font-black uppercase tracking-widest text-muted-foreground"
+                    >
+                      Website
+                    </Label>
+                    <Input
+                      id="website"
+                      name="website"
+                      defaultValue={(user as any).website ?? ""}
+                      className="h-14 rounded-2xl border-border/10 bg-background/50 focus:bg-background transition-all"
+                      placeholder="https://..."
+                    />
+                    {typeof state.error !== "string" && state.error?.website && (
+                      <p className="text-xs font-bold text-destructive uppercase tracking-widest pl-2">
+                        {state.error.website[0]}
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-3">
+                    <Label
+                      htmlFor="twitter"
+                      className="text-xs font-black uppercase tracking-widest text-muted-foreground"
+                    >
+                      X (Twitter)
+                    </Label>
+                    <Input
+                      id="twitter"
+                      name="twitter"
+                      defaultValue={(user as any).twitter ?? ""}
+                      className="h-14 rounded-2xl border-border/10 bg-background/50 focus:bg-background transition-all"
+                      placeholder="username"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <Label
+                      htmlFor="linkedin"
+                      className="text-xs font-black uppercase tracking-widest text-muted-foreground"
+                    >
+                      LinkedIn
+                    </Label>
+                    <Input
+                      id="linkedin"
+                      name="linkedin"
+                      defaultValue={(user as any).linkedin ?? ""}
+                      className="h-14 rounded-2xl border-border/10 bg-background/50 focus:bg-background transition-all"
+                      placeholder="username"
+                    />
+                  </div>
                 </div>
                 <div className="space-y-3">
                   <Label
