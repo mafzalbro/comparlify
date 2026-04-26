@@ -4,6 +4,7 @@ import { ManagedImage } from "@/components/managed-image";
 import { BookmarkButton } from "@/components/bookmark-button";
 import { ShareButton } from "@/components/share-button";
 import { Badge } from "@/components/ui/badge";
+import { PlatformIntelligenceModal } from "./platform-intelligence-modal";
 import { MotionDiv } from "@/components/motion-wrapper";
 import { Scale, Zap, ShieldCheck } from "lucide-react";
 import type { Platform } from "@prisma/client";
@@ -106,9 +107,16 @@ export function ComparisonHero({
                   />
                 </div>
                 <div className="text-center">
-                  <h3 className="text-2xl font-black text-foreground uppercase tracking-tighter">
-                    {platform.name}
-                  </h3>
+                  <div className="flex items-center justify-center gap-2">
+                    <h3 className="text-2xl font-black text-foreground uppercase tracking-tighter">
+                      {platform.name}
+                    </h3>
+                    <PlatformIntelligenceModal
+                      platformName={platform.name}
+                      description={platform.description}
+                      triggerClassName="h-8 w-8 rounded-full bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary transition-colors"
+                    />
+                  </div>
                   <Badge className="mt-4 bg-secondary/50 text-muted-foreground text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full border-none">
                     Expert Assessment
                   </Badge>

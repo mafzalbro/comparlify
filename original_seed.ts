@@ -1,5 +1,8 @@
-import { PrismaClient, Role } from "@prisma/client";
-import { prisma as sharedClient } from "@/lib/prisma";
+import {
+  PrismaClient,
+  Role,
+} from "@prisma/client";
+import { prisma as sharedClient } from "../src/lib/prisma";
 
 /**
  * SEED SCRIPT
@@ -12,39 +15,16 @@ export async function cleanupDatabase(prismaInstance?: PrismaClient) {
 
   // Break circular dependencies first to avoid foreign key constraints
   try {
-    await prisma.$executeRawUnsafe(
-      `UPDATE Post SET nextId = NULL, previousId = NULL`,
-    );
+    await prisma.$executeRawUnsafe(`UPDATE Post SET nextId = NULL, previousId = NULL`);
   } catch (e) {}
 
   const deletionOrder = [
-    "Notification",
-    "Bookmark",
-    "Comment",
-    "Fact",
-    "Faq",
-    "PlatformFeature",
-    "Post",
-    "Comparison",
-    "Feature",
-    "NewsArticle",
-    "EmailRecipient",
-    "EmailCampaign",
-    "ContactMessage",
-    "Subscription",
-    "ForumPost",
-    "ForumTopic",
-    "FeatureCategory",
-    "ComparisonCategory",
-    "PostCategory",
-    "ForumCategory",
-    "Image",
-    "SiteContent",
-    "Tool",
-    "User",
-    "Account",
-    "Session",
-    "VerificationToken",
+    "Notification", "Bookmark", "Comment", "Fact", "Faq", "PlatformFeature",
+    "Post", "Comparison", "Feature", "NewsArticle", "EmailRecipient",
+    "EmailCampaign", "ContactMessage", "Subscription", "ForumPost",
+    "ForumTopic", "FeatureCategory", "ComparisonCategory", "PostCategory",
+    "ForumCategory", "Image", "SiteContent", "Tool", "User", "Account",
+    "Session", "VerificationToken",
   ];
 
   // Execute deletions sequentially to respect remaining constraints
@@ -54,10 +34,7 @@ export async function cleanupDatabase(prismaInstance?: PrismaClient) {
         await (prisma as any)[model].deleteMany({});
       }
     } catch (e) {
-      console.warn(
-        `⚠️ Warning: Could not clean model ${model}:`,
-        e instanceof Error ? e.message : e,
-      );
+      console.warn(`⚠️ Warning: Could not clean model ${model}:`, e instanceof Error ? e.message : e);
     }
   }
 
@@ -83,36 +60,26 @@ async function main(prismaInstance?: PrismaClient, skipCleanup = false) {
       role: Role.ADMIN,
       onboarded: true,
       newsletter: true,
-    },
+    }
   });
 
   // --- 2. Feature Categories & Features ---
   const categoriesData = [
-    {
-      name: "LMS Core",
-      features: ["Course Builder", "Video Hosting", "Content Dripping"],
-    },
-    {
-      name: "Marketing",
-      features: ["Funnels", "Email Marketing", "Affiliate System"],
-    },
+    { name: "LMS Core", features: ["Course Builder", "Video Hosting", "Content Dripping"] },
+    { name: "Marketing", features: ["Funnels", "Email Marketing", "Affiliate System"] }
   ];
 
   for (const cat of categoriesData) {
     const category = await prisma.featureCategory.upsert({
       where: { name: cat.name },
       update: {},
-      create: { name: cat.name },
+      create: { name: cat.name }
     });
     for (const fName of cat.features) {
       await prisma.feature.upsert({
-        where: { id: `feat-${fName.toLowerCase().replace(/\s+/g, "-")}` },
+        where: { id: `feat-${fName.toLowerCase().replace(/\s+/g, '-')}` },
         update: { name: fName, categoryId: category.id },
-        create: {
-          id: `feat-${fName.toLowerCase().replace(/\s+/g, "-")}`,
-          name: fName,
-          categoryId: category.id,
-        },
+        create: { id: `feat-${fName.toLowerCase().replace(/\s+/g, '-')}`, name: fName, categoryId: category.id }
       });
     }
   }
@@ -124,9 +91,7 @@ async function main(prismaInstance?: PrismaClient, skipCleanup = false) {
   const uploadsDir = path.join(process.cwd(), "public", "uploads");
   try {
     const files = await fs.readdir(uploadsDir);
-    const imageFiles = files.filter((f) =>
-      /\.(jpe?g|png|gif|webp|svg)$/i.test(f),
-    );
+    const imageFiles = files.filter(f => /\.(jpe?g|png|gif|webp|svg)$/i.test(f));
     for (const filename of imageFiles) {
       const existing = await prisma.image.findFirst({ where: { filename } });
       if (!existing) {
@@ -138,7 +103,7 @@ async function main(prismaInstance?: PrismaClient, skipCleanup = false) {
             altText: filename.split(".")[0].replace(/[-_]/g, " "),
             size: stats.size,
             authorId: admin.id,
-          },
+          }
         });
       }
     }
