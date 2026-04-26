@@ -116,7 +116,7 @@ export function ComparisonHero({
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10"
+                        className="h-8 w-8 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10 opacity-0 group-hover:opacity-100 transition-all duration-300"
                         aria-label={`View ${platform.name} Intelligence Report`}
                       >
                         <Info className="h-4 w-4" />

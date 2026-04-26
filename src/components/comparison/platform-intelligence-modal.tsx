@@ -28,7 +28,7 @@ export function PlatformIntelligenceModal({
           <div className="flex items-center justify-between">
             <div>
               <DialogTitle className="text-3xl font-black uppercase tracking-tighter">
-                {platform.name} Intelligence Report
+                Sovereign Intelligence Report
               </DialogTitle>
               <div className="flex gap-2 mt-2">
                 <Badge variant="outline" className="text-[10px] font-bold uppercase">

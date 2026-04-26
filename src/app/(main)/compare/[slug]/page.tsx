@@ -239,6 +239,8 @@ export default async function ComparisonDetailPage(props: {
 
         {/* ── STAT CARDS ───────────────────── */}
         <ComparisonStats
+          platformAName={platformA.name}
+          platformBName={platformB.name}
           stats={stats}
         />
 
@@ -248,12 +250,12 @@ export default async function ComparisonDetailPage(props: {
             platformA={{
               id: platformA.id,
               name: platformA.name,
-              affiliateUrl: platformA.affiliateLink
+              affiliateUrl: platformA.affiliateLink,
             }}
             platformB={{
               id: platformB.id,
               name: platformB.name,
-              affiliateUrl: platformB.affiliateLink
+              affiliateUrl: platformB.affiliateLink,
             }}
           />
         </section>
@@ -276,6 +278,8 @@ export default async function ComparisonDetailPage(props: {
                     <ComparisonChart
                       chartConfig={chartConfig}
                       chartData={chartData}
+                      platformAName={platformA.name}
+                      platformBName={platformB.name}
                     />
                   </div>
                 </section>
@@ -395,6 +399,8 @@ export default async function ComparisonDetailPage(props: {
               {/* Feature Matrix */}
               <ComparisonFeatureMatrix
                 features={featureRows}
+                platformAName={platformA.name}
+                platformBName={platformB.name}
               />
 
               {/* Final Verdict */}
@@ -402,6 +408,8 @@ export default async function ComparisonDetailPage(props: {
                 conclusion={comparison.conclusion}
                 isPlatformAWinner={isPlatformAWinner}
                 isCloseCall={isCloseCall}
+                platformAName={platformA.name}
+                platformBName={platformB.name}
               />
 
               {/* Mobile Share Row */}

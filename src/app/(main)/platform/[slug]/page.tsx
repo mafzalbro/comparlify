@@ -29,7 +29,7 @@ const getPlatformBySlug = cache(async (slug: string) => {
   // Assuming name is used as slug for now, or we can add a slug field.
   // For the purpose of this task, let's look by name case-insensitive or similar.
   return prisma.platform.findFirst({
-    where: { name: { equals: slug.replace(/-/g, " "), mode: "insensitive" } },
+    where: { name: { equals: slug.replace(/-/g, " ") } },
     include: {
       tiers: { orderBy: { monthlyPrice: "asc" } },
       features: { include: { feature: { include: { category: true } } } },
@@ -59,8 +59,12 @@ export default async function PlatformDetailPage(props: {
 
   if (!platform) notFound();
 
-  const platformPros = Array.isArray(platform.pros) ? (platform.pros as string[]) : [];
-  const platformCons = Array.isArray(platform.cons) ? (platform.cons as string[]) : [];
+  const platformPros = Array.isArray(platform.pros)
+    ? (platform.pros as string[])
+    : [];
+  const platformCons = Array.isArray(platform.cons)
+    ? (platform.cons as string[])
+    : [];
 
   return (
     <div className="bg-background min-h-screen">
@@ -81,22 +85,43 @@ export default async function PlatformDetailPage(props: {
               />
               <h1 className="text-5xl md:text-7xl font-black text-foreground tracking-tighter mb-8 leading-[0.9]">
                 {platform.name} <br />
-                <span className="text-primary italic">Intelligence Report.</span>
+                <span className="text-primary italic">
+                  Sovereign Intelligence Report.
+                </span>
               </h1>
               <p className="text-xl text-muted-foreground font-medium mb-12 max-w-2xl">
-                The comprehensive 2026 deep dive into architecture, monetization, and growth potential.
+                The comprehensive 2026 deep dive into architecture,
+                monetization, and growth potential.
               </p>
 
               <div className="flex flex-wrap justify-center gap-6">
-                <Button asChild size="lg" className="rounded-full px-10 h-16 font-black uppercase tracking-widest gap-3">
-                  <a href={platform.website} target="_blank" rel="noopener noreferrer">
+                <Button
+                  asChild
+                  size="lg"
+                  className="rounded-full px-10 h-16 font-black uppercase tracking-widest gap-3"
+                >
+                  <a
+                    href={platform.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     Visit Website <ExternalLink className="h-5 w-5" />
                   </a>
                 </Button>
                 {platform.affiliateLink && (
-                  <Button asChild variant="outline" size="lg" className="rounded-full px-10 h-16 font-black uppercase tracking-widest border-2">
-                    <a href={platform.affiliateLink} target="_blank" rel="noopener noreferrer">
-                      Claim Discount <Sparkles className="h-5 w-5 text-primary" />
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="lg"
+                    className="rounded-full px-10 h-16 font-black uppercase tracking-widest border-2"
+                  >
+                    <a
+                      href={platform.affiliateLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Claim Discount{" "}
+                      <Sparkles className="h-5 w-5 text-primary" />
                     </a>
                   </Button>
                 )}
@@ -153,7 +178,10 @@ export default async function PlatformDetailPage(props: {
                       </h4>
                       <ul className="space-y-4">
                         {platformPros.map((pro, i) => (
-                          <li key={i} className="text-xs font-bold text-muted-foreground leading-relaxed">
+                          <li
+                            key={i}
+                            className="text-xs font-bold text-muted-foreground leading-relaxed"
+                          >
                             {pro}
                           </li>
                         ))}
@@ -176,22 +204,33 @@ export default async function PlatformDetailPage(props: {
               {/* Tiers */}
               <section className="space-y-12">
                 <h2 className="text-4xl font-black uppercase tracking-tighter">
-                  Pricing <span className="text-primary italic">Architecture.</span>
+                  Pricing{" "}
+                  <span className="text-primary italic">Architecture.</span>
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {platform.tiers.map((tier) => (
-                    <div key={tier.id} className={`p-8 rounded-3xl border ${tier.isPopular ? 'bg-primary/5 border-primary/30 ring-1 ring-primary/20' : 'bg-card border-border/10'}`}>
+                    <div
+                      key={tier.id}
+                      className={`p-8 rounded-3xl border ${tier.isPopular ? "bg-primary/5 border-primary/30 ring-1 ring-primary/20" : "bg-card border-border/10"}`}
+                    >
                       <div className="flex justify-between items-start mb-6">
                         <h4 className="text-xl font-bold">{tier.name}</h4>
                         {tier.isPopular && <Badge>Most Popular</Badge>}
                       </div>
                       <div className="mb-8">
-                        <span className="text-4xl font-black">${tier.monthlyPrice}</span>
-                        <span className="text-muted-foreground font-bold ml-2">/mo</span>
+                        <span className="text-4xl font-black">
+                          ${tier.monthlyPrice}
+                        </span>
+                        <span className="text-muted-foreground font-bold ml-2">
+                          /mo
+                        </span>
                       </div>
                       <ul className="space-y-3 mb-8">
-                        {(tier.features as string[] || []).map((f, i) => (
-                          <li key={i} className="flex items-center gap-3 text-sm text-muted-foreground font-medium">
+                        {((tier.features as string[]) || []).map((f, i) => (
+                          <li
+                            key={i}
+                            className="flex items-center gap-3 text-sm text-muted-foreground font-medium"
+                          >
                             <div className="h-1.5 w-1.5 rounded-full bg-primary" />
                             {f}
                           </li>
@@ -209,11 +248,20 @@ export default async function PlatformDetailPage(props: {
                   Ready to Build with {platform.name}?
                 </h2>
                 <p className="text-lg font-medium opacity-80 max-w-xl mx-auto relative z-10">
-                  Start your journey today on the industry's leading infrastructure.
+                  Start your journey today on the industry's leading
+                  infrastructure.
                 </p>
                 <div className="flex justify-center relative z-10">
-                   <Button asChild size="lg" className="rounded-full px-12 h-20 text-lg font-black uppercase tracking-widest bg-background text-foreground hover:bg-primary hover:text-white transition-all">
-                    <a href={platform.website} target="_blank" rel="noopener noreferrer">
+                  <Button
+                    asChild
+                    size="lg"
+                    className="rounded-full px-12 h-20 text-lg font-black uppercase tracking-widest bg-background text-foreground hover:bg-primary hover:text-white transition-all"
+                  >
+                    <a
+                      href={platform.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       Get Started Now <ArrowRight className="h-6 w-6" />
                     </a>
                   </Button>

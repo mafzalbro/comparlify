@@ -1,11 +1,10 @@
+import "dotenv/config";
 import { fileURLToPath } from "url";
 import { allPlatforms } from "../src/compare/platforms";
-import "dotenv/config";
 import {
   PrismaClient,
   Prisma,
   Role,
-  ToolCategory,
   CommentStatus,
   ContentType,
   Post,
@@ -164,16 +163,16 @@ async function main(skipCleanup = false) {
         videoHostingIncluded: data.videoHostingIncluded,
         lastVerifiedAt: new Date(data.lastVerifiedAt),
         tiers: {
-          create: data.tiers.map(t => ({
+          create: data.tiers.map((t) => ({
             name: t.name,
             monthlyPrice: t.monthlyPrice,
             annualPriceMonthlyEquivalent: t.annualPriceMonthlyEquivalent,
             transactionFeePercent: t.transactionFeePercent,
             isPopular: t.isPopular || false,
             features: t.features,
-          }))
-        }
-      }
+          })),
+        },
+      },
     });
 
     for (const feat of data.features) {
@@ -184,12 +183,12 @@ async function main(skipCleanup = false) {
       });
 
       let existingFeature = await prisma.feature.findFirst({
-        where: { name: feat.featureName, categoryId: category.id }
+        where: { name: feat.featureName, categoryId: category.id },
       });
 
       if (!existingFeature) {
         existingFeature = await prisma.feature.create({
-          data: { name: feat.featureName, categoryId: category.id }
+          data: { name: feat.featureName, categoryId: category.id },
         });
       }
 
@@ -198,12 +197,11 @@ async function main(skipCleanup = false) {
           platformId: platform.id,
           featureId: existingFeature.id,
           hasFeature: feat.hasFeature,
-          details: feat.details
-        }
+          details: feat.details,
+        },
       });
     }
   }
-
 
   // --- 3. Seed Features and Categories ---
   console.log("\n✨ Seeding Features & Categories...");
@@ -264,526 +262,6 @@ async function main(skipCleanup = false) {
     `   ✓ Seeded ${categoriesData.length} feature categories and ${totalFeatures} features.`,
   );
 
-  // --- 4. Seed Platforms ---
-  console.log("\n🚀 Seeding Platforms...");
-  const allFeatures = await prisma.feature.findMany();
-  const featureMap = new Map(allFeatures.map((f) => [f.name, f.id]));
-
-  const platformsData: Omit<
-    Prisma.PlatformCreateInput,
-    "createdAt" | "updatedAt"
-  >[] = [
-    {
-      name: "Teachable",
-      website: "https://teachable.com",
-      logoUrl: "/logos/teachable.svg",
-      description:
-        "Focuses on ease of use for starting creators. Great for simple course structures with solid marketing tools.",
-      rating: 4.2,
-      easeOfUse: 4.8,
-      featuresRating: 4.0,
-      support: 4.1,
-    },
-    {
-      name: "Thinkific",
-      website: "https://www.thinkific.com",
-      logoUrl: "/logos/thinkific.svg",
-      description:
-        "Powerful and flexible platform with 0% transaction fees. Offers deep customization and an extensive app store.",
-      rating: 4.6,
-      easeOfUse: 4.5,
-      featuresRating: 4.7,
-      support: 4.6,
-    },
-    {
-      name: "Kajabi",
-      website: "https://kajabi.com",
-      logoUrl: "/logos/kajabi.svg",
-      description:
-        "The premier all-in-one platform. Includes email marketing, funnels, and CRM in a premium closed ecosystem.",
-      rating: 4.8,
-      easeOfUse: 4.3,
-      featuresRating: 4.9,
-      support: 4.7,
-    },
-    {
-      name: "Podia",
-      website: "https://www.podia.com",
-      logoUrl: "/logos/podia.svg",
-      description:
-        "Creator-friendly platform for courses and downloads. Focused on simplicity, affordability, and clean design.",
-      rating: 4.5,
-      easeOfUse: 4.9,
-      featuresRating: 4.2,
-      support: 4.5,
-    },
-    {
-      name: "Skool",
-      website: "https://www.skool.com",
-      logoUrl: "/logos/skool.svg",
-      description:
-        "Community-first platform focused on gamification and engagement. Minimalist design with maximum social impact.",
-      rating: 4.7,
-      easeOfUse: 5.0,
-      featuresRating: 3.8,
-      support: 4.4,
-    },
-    {
-      name: "Circle",
-      website: "https://circle.so",
-      logoUrl: "/logos/circle.svg",
-      description:
-        "The modern community platform for creators. Seamlessly combines discussions, events, and courses.",
-      rating: 4.6,
-      easeOfUse: 4.4,
-      featuresRating: 4.5,
-      support: 4.3,
-    },
-    {
-      name: "LearnWorlds",
-      website: "https://www.learnworlds.com",
-      logoUrl: "/logos/learnworlds.svg",
-      description:
-        "Advanced course authoring with interactive video and SCORM support. Ideal for professional training sites.",
-      rating: 4.4,
-      easeOfUse: 3.5,
-      featuresRating: 5.0,
-      support: 4.2,
-    },
-    {
-      name: "Gumroad",
-      website: "https://gumroad.com",
-      logoUrl: "/logos/gumroad.svg",
-      description:
-        "The simplest way to sell digital products and courses. Lightweight with a focus on quick setup and commerce.",
-      rating: 4.1,
-      easeOfUse: 4.9,
-      featuresRating: 3.5,
-      support: 3.8,
-    },
-    {
-      name: "Mighty Networks",
-      website: "https://www.mightynetworks.com",
-      logoUrl: "/logos/mightynetworks.svg",
-      description:
-        "Build communities and courses on your own branded mobile apps. Strong focus on network effects.",
-      rating: 4.3,
-      easeOfUse: 3.8,
-      featuresRating: 4.6,
-      support: 4.1,
-    },
-  ];
-
-  await prisma.platform.createMany({ data: platformsData });
-  const createdPlatforms = await prisma.platform.findMany();
-  console.log(`   ✓ Seeded ${createdPlatforms.length} platforms.`);
-
-  // --- 4.1 Seed Pricing Tiers ---
-  console.log("💳 Seeding Pricing Tiers...");
-  const tiersData = {
-    Teachable: [
-      {
-        name: "Free",
-        monthlyPrice: 0,
-        transactionFeePercent: 10,
-        isPopular: false,
-      },
-      {
-        name: "Basic",
-        monthlyPrice: 39,
-        transactionFeePercent: 5,
-        isPopular: true,
-        annualPriceMonthlyEquivalent: 33,
-      },
-      {
-        name: "Pro",
-        monthlyPrice: 119,
-        transactionFeePercent: 0,
-        isPopular: false,
-        annualPriceMonthlyEquivalent: 99,
-      },
-    ],
-    Thinkific: [
-      {
-        name: "Free",
-        monthlyPrice: 0,
-        transactionFeePercent: 0,
-        isPopular: false,
-      },
-      {
-        name: "Basic",
-        monthlyPrice: 39,
-        transactionFeePercent: 0,
-        isPopular: false,
-        annualPriceMonthlyEquivalent: 33,
-      },
-      {
-        name: "Start",
-        monthlyPrice: 74,
-        transactionFeePercent: 0,
-        isPopular: true,
-        annualPriceMonthlyEquivalent: 62,
-      },
-      {
-        name: "Grow",
-        monthlyPrice: 149,
-        transactionFeePercent: 0,
-        isPopular: false,
-        annualPriceMonthlyEquivalent: 124,
-      },
-    ],
-    Kajabi: [
-      {
-        name: "Basic",
-        monthlyPrice: 149,
-        transactionFeePercent: 0,
-        isPopular: true,
-        annualPriceMonthlyEquivalent: 119,
-      },
-      {
-        name: "Growth",
-        monthlyPrice: 199,
-        transactionFeePercent: 0,
-        isPopular: false,
-        annualPriceMonthlyEquivalent: 159,
-      },
-      {
-        name: "Pro",
-        monthlyPrice: 399,
-        transactionFeePercent: 0,
-        isPopular: false,
-        annualPriceMonthlyEquivalent: 319,
-      },
-    ],
-    Podia: [
-      {
-        name: "Free",
-        monthlyPrice: 0,
-        transactionFeePercent: 8,
-        isPopular: false,
-      },
-      {
-        name: "Mover",
-        monthlyPrice: 39,
-        transactionFeePercent: 0,
-        isPopular: true,
-        annualPriceMonthlyEquivalent: 33,
-      },
-      {
-        name: "Shaker",
-        monthlyPrice: 89,
-        transactionFeePercent: 0,
-        isPopular: false,
-        annualPriceMonthlyEquivalent: 75,
-      },
-    ],
-    Skool: [
-      {
-        name: "All-in-One",
-        monthlyPrice: 99,
-        transactionFeePercent: 0,
-        isPopular: true,
-      },
-    ],
-    Circle: [
-      {
-        name: "Basic",
-        monthlyPrice: 49,
-        transactionFeePercent: 4,
-        isPopular: false,
-      },
-      {
-        name: "Professional",
-        monthlyPrice: 99,
-        transactionFeePercent: 0,
-        isPopular: true,
-      },
-      {
-        name: "Business",
-        monthlyPrice: 219,
-        transactionFeePercent: 0,
-        isPopular: false,
-      },
-    ],
-    LearnWorlds: [
-      {
-        name: "Starter",
-        monthlyPrice: 29,
-        transactionFeePercent: 5,
-        isPopular: false,
-      },
-      {
-        name: "Pro Trainer",
-        monthlyPrice: 99,
-        transactionFeePercent: 0,
-        isPopular: true,
-      },
-      {
-        name: "Learning Center",
-        monthlyPrice: 299,
-        transactionFeePercent: 0,
-        isPopular: false,
-      },
-    ],
-    Gumroad: [
-      {
-        name: "Simple",
-        monthlyPrice: 0,
-        transactionFeePercent: 10,
-        isPopular: true,
-      },
-    ],
-    "Mighty Networks": [
-      {
-        name: "Community",
-        monthlyPrice: 39,
-        transactionFeePercent: 3,
-        isPopular: false,
-      },
-      {
-        name: "Business",
-        monthlyPrice: 119,
-        transactionFeePercent: 2,
-        isPopular: true,
-      },
-    ],
-  };
-
-  let tierCount = 0;
-  for (const platform of createdPlatforms) {
-    const platformTiers = tiersData[platform.name as keyof typeof tiersData];
-    if (platformTiers) {
-      await prisma.pricingTier.createMany({
-        data: platformTiers.map((t) => ({ ...t, platformId: platform.id })),
-      });
-      tierCount += platformTiers.length;
-    }
-  }
-  console.log(`   ✓ Seeded ${tierCount} pricing tiers.`);
-
-  // --- 5. Seed Platform Features ---
-  console.log("🔗 Seeding Platform Features...");
-  const platformFeatureData = {
-    Teachable: {
-      "Course Builder": true,
-      "Video Hosting": true,
-      "Quizzes & Surveys": true,
-      Assignments: false,
-      "Certificates of Completion": true,
-      "Content Dripping": true,
-      "Website Builder": true,
-      "Custom Domain": true,
-      Blogging: true,
-      "Affiliate Marketing": true,
-      "Email Marketing": true,
-      "Sales & Coupons": true,
-      "Community Forum": false,
-      "Mobile App Access": { hasFeature: true, details: "iOS only" },
-      "Live Classes / Webinars": false,
-      "Student Dashboard": true,
-      "Payment Gateways": true,
-      "Advanced Analytics": true,
-      "API Access": { hasFeature: true, details: "On Pro plan+" },
-      "App Integrations": true,
-    },
-    Thinkific: {
-      "Course Builder": true,
-      "Video Hosting": true,
-      "Quizzes & Surveys": true,
-      Assignments: true,
-      "Certificates of Completion": true,
-      "Content Dripping": true,
-      "Website Builder": true,
-      "Custom Domain": true,
-      Blogging: false,
-      "Affiliate Marketing": true,
-      "Email Marketing": false,
-      "Sales & Coupons": true,
-      "Community Forum": true,
-      "Mobile App Access": true,
-      "Live Classes / Webinars": true,
-      "Student Dashboard": true,
-      "Payment Gateways": true,
-      "Advanced Analytics": true,
-      "API Access": true,
-      "App Integrations": true,
-    },
-    Kajabi: {
-      "Course Builder": true,
-      "Video Hosting": true,
-      "Quizzes & Surveys": true,
-      Assignments: true,
-      "Certificates of Completion": true,
-      "Content Dripping": true,
-      "Website Builder": true,
-      "Custom Domain": true,
-      Blogging: true,
-      "Affiliate Marketing": true,
-      "Email Marketing": true,
-      "Sales & Coupons": true,
-      "Community Forum": true,
-      "Mobile App Access": true,
-      "Live Classes / Webinars": true,
-      "Student Dashboard": true,
-      "Payment Gateways": true,
-      "Advanced Analytics": true,
-      "API Access": true,
-      "App Integrations": true,
-    },
-    Podia: {
-      "Course Builder": true,
-      "Video Hosting": true,
-      "Quizzes & Surveys": { hasFeature: true, details: "Simple quizzes" },
-      Assignments: false,
-      "Certificates of Completion": false,
-      "Content Dripping": true,
-      "Website Builder": true,
-      "Custom Domain": true,
-      Blogging: false,
-      "Affiliate Marketing": true,
-      "Email Marketing": true,
-      "Sales & Coupons": true,
-      "Community Forum": true,
-      "Mobile App Access": false,
-      "Live Classes / Webinars": true,
-      "Student Dashboard": true,
-      "Payment Gateways": true,
-      "Advanced Analytics": false,
-      "API Access": false,
-      "App Integrations": false,
-    },
-    Skool: {
-      "Course Builder": true,
-      "Video Hosting": false,
-      "Quizzes & Surveys": false,
-      Assignments: false,
-      "Certificates of Completion": false,
-      "Content Dripping": true,
-      "Website Builder": false,
-      "Custom Domain": true,
-      Blogging: false,
-      "Affiliate Marketing": false,
-      "Email Marketing": false,
-      "Sales & Coupons": false,
-      "Community Forum": true,
-      "Mobile App Access": true,
-      "Live Classes / Webinars": false,
-      "Student Dashboard": true,
-      "Payment Gateways": true,
-      "Advanced Analytics": true,
-      "API Access": true,
-      "App Integrations": true,
-    },
-    Circle: {
-      "Course Builder": true,
-      "Video Hosting": true,
-      "Quizzes & Surveys": true,
-      Assignments: true,
-      "Certificates of Completion": true,
-      "Content Dripping": true,
-      "Website Builder": true,
-      "Custom Domain": true,
-      Blogging: false,
-      "Affiliate Marketing": false,
-      "Email Marketing": true,
-      "Sales & Coupons": true,
-      "Community Forum": true,
-      "Mobile App Access": true,
-      "Live Classes / Webinars": true,
-      "Student Dashboard": true,
-      "Payment Gateways": true,
-      "Advanced Analytics": true,
-      "API Access": true,
-      "App Integrations": true,
-    },
-    LearnWorlds: {
-      "Course Builder": true,
-      "Video Hosting": true,
-      "Quizzes & Surveys": true,
-      Assignments: true,
-      "Certificates of Completion": true,
-      "Content Dripping": true,
-      "Website Builder": true,
-      "Custom Domain": true,
-      Blogging: true,
-      "Affiliate Marketing": true,
-      "Email Marketing": true,
-      "Sales & Coupons": true,
-      "Community Forum": true,
-      "Mobile App Access": true,
-      "Live Classes / Webinars": true,
-      "Student Dashboard": true,
-      "Payment Gateways": true,
-      "Advanced Analytics": true,
-      "API Access": true,
-      "App Integrations": true,
-    },
-    Gumroad: {
-      "Course Builder": true,
-      "Video Hosting": true,
-      "Quizzes & Surveys": false,
-      Assignments: false,
-      "Certificates of Completion": false,
-      "Content Dripping": false,
-      "Website Builder": false,
-      "Custom Domain": true,
-      Blogging: false,
-      "Affiliate Marketing": true,
-      "Email Marketing": true,
-      "Sales & Coupons": true,
-      "Community Forum": false,
-      "Mobile App Access": false,
-      "Live Classes / Webinars": false,
-      "Student Dashboard": true,
-      "Payment Gateways": true,
-      "Advanced Analytics": true,
-      "API Access": true,
-      "App Integrations": true,
-    },
-    "Mighty Networks": {
-      "Course Builder": true,
-      "Video Hosting": true,
-      "Quizzes & Surveys": true,
-      Assignments: true,
-      "Certificates of Completion": true,
-      "Content Dripping": true,
-      "Website Builder": true,
-      "Custom Domain": true,
-      Blogging: false,
-      "Affiliate Marketing": false,
-      "Email Marketing": true,
-      "Sales & Coupons": true,
-      "Community Forum": true,
-      "Mobile App Access": true,
-      "Live Classes / Webinars": true,
-      "Student Dashboard": true,
-      "Payment Gateways": true,
-      "Advanced Analytics": true,
-      "API Access": true,
-      "App Integrations": true,
-    },
-  };
-
-  let platformFeatureCount = 0;
-  for (const platform of createdPlatforms) {
-    const features =
-      platformFeatureData[platform.name as keyof typeof platformFeatureData];
-    for (const [featureName, value] of Object.entries(features)) {
-      const featureId = featureMap.get(featureName);
-      if (featureId) {
-        const hasFeature =
-          typeof value === "boolean" ? value : value.hasFeature;
-        const details =
-          typeof value === "object" && value.details ? value.details : null;
-        await prisma.platformFeature.create({
-          data: { platformId: platform.id, featureId, hasFeature, details },
-        });
-        platformFeatureCount++;
-      }
-    }
-  }
-  console.log(`   ✓ Seeded ${platformFeatureCount} platform features.`);
-
   // --- 6. Seed Blog Post Categories ---
   console.log("\n📚 Seeding Blog Post Categories...");
   const postCategoryData = [
@@ -811,7 +289,7 @@ async function main(skipCleanup = false) {
       content: "Full content about choosing platforms...",
       image: "https://picsum.photos/400/250?random=1",
       dataAiHint: "decision making choices",
-      published: true, content: (cData as any).content || null,
+      published: true,
       authorId: adminUser.id,
       categoryName: "Platform Guides",
     },
@@ -823,7 +301,7 @@ async function main(skipCleanup = false) {
       content: "Full content about engaging content...",
       image: "https://picsum.photos/400/250?random=2",
       dataAiHint: "creative content creation",
-      published: true, content: (cData as any).content || null,
+      published: true,
       authorId: adminUser.id,
       categoryName: "Course Creation",
     },
@@ -835,7 +313,7 @@ async function main(skipCleanup = false) {
       content: "Full content about marketing courses...",
       image: "https://picsum.photos/400/250?random=3",
       dataAiHint: "digital marketing strategy",
-      published: true, content: (cData as any).content || null,
+      published: true,
       authorId: adminUser.id,
       categoryName: "Marketing",
     },
@@ -936,12 +414,6 @@ async function main(skipCleanup = false) {
 
   // --- 10. Seed Comparisons ---
   console.log("🆚 Seeding Comparisons...");
-  const platformTeachable = createdPlatforms.find(
-    (p) => p.name === "Teachable",
-  )!;
-  const platformThinkific = createdPlatforms.find(
-    (p) => p.name === "Thinkific",
-  )!;
 
   const explicitComparisons = [
     {
@@ -953,7 +425,58 @@ async function main(skipCleanup = false) {
       platformB: "Thinkific",
       category: "Flagship Showdowns",
       introduction:
-        "Choosing between Teachable and Thinkific is a common dilemma...",
+        "Choosing between Teachable and Thinkific is the 'original' creator dilemma. In 2026, the landscape has shifted, but these two remain the foundation of the online school model. We analyze which infrastructure best supports your long-term sovereignty.",
+      content: `## The Institutional Battle: User Experience vs. Profit Margins
+
+For over a decade, the choice between Teachable and Thinkific has defined the "Online School" market. While they appear similar on the surface, their underlying philosophies regarding **Transaction Fees** and **Customization** create vastly different economic outcomes for the creator.
+
+### The Teachable Philosophy: Speed to Market
+Teachable is built for the creator who wants to launch *yesterday*. Its interface is famously intuitive, allowing a new educator to upload their first module and start accepting payments in under an hour. 
+
+However, this speed comes with a "Tax." Teachable's lower tiers include transaction fees (ranging from 1% to 10%), which can significantly eat into your margins as you scale. In 2026, Teachable's **"Smart-Checkout"** technology helps mitigate this by increasing conversion rates through AI-driven upsells and one-click payments, often recapturing the revenue lost to fees through sheer volume.
+
+### The Thinkific Philosophy: Operational Control
+Thinkific is the platform for the "Scaling School." Its most famous advantage is the **0% Transaction Fee** across all paid plans. If you are doing $10,000+ per month in revenue, the savings on Thinkific compared to Teachable's lower tiers can pay for your entire tech stack.
+
+Thinkific’s 2026 **"App Store"** ecosystem is another major differentiator. While Teachable is a "walled garden," Thinkific allows you to plug in hundreds of third-party apps for marketing, student engagement, and analytics. It is the platform for the creator who wants to build a custom-engineered academy rather than a standardized shop.
+
+---
+
+## Scenario Analysis: Strategic Paths to Sovereignty
+
+### Scenario A: The First-Time Course Creator (The Bootstrapper)
+**Profile:** A creator with an audience but no product, looking to test the waters with a small course.
+**The Solution:** **Teachable**.
+
+You don't need a complex app store; you need a dashboard that doesn't confuse you. Teachable’s "Free" and "Basic" plans allow you to start with minimal upfront investment. The transaction fees are a fair trade for the lack of technical headache.
+
+### Scenario B: The Established Academy (The Scaler)
+**Profile:** An educator with multiple courses and a high volume of monthly sales.
+**The Solution:** **Thinkific**.
+
+Once you have a predictable revenue stream, 0% fees become a non-negotiable requirement. Thinkific's robust site builder also allows you to create a more "Institutional" feel, which is critical for selling to B2B or high-end corporate clients.
+
+---
+
+## Technical Architecture & Fee Comparison
+
+| Metric | Teachable | Thinkific |
+|--------|-----------|-----------|
+| **Transaction Fees** | 1% to 10% (Lower Tiers) | 0% (All Paid Plans) |
+| **Custom Domain** | Paid Plans | All Plans |
+| **Site Builder** | Simple / Clean | Advanced / Modular |
+| **Integrations** | Moderate (Zapier-heavy) | High (Native App Store) |
+| **Bulk Student Import**| High-End Plans | All Paid Plans |
+
+---
+
+## The Verdict: The Scaling Score for 2026
+
+In 2026, **Teachable** is the winner for **Velocity and Ease**, while **Thinkific** is the winner for **Profit Optimization and Scalability**.
+
+### Conclusion
+Choose **Teachable** if you want the most frictionless path to your first $1,000.
+Choose **Thinkific** if you are planning to build a $100,000+ per year educational empire.`,
       conclusion:
         "For beginners, Teachable is great. For scaling, Thinkific wins on fees.",
       facts: [
@@ -971,9 +494,60 @@ async function main(skipCleanup = false) {
       platformB: "Circle",
       category: "Flagship Showdowns",
       introduction:
-        "Community-led growth is the current meta. But should you choose Skool or Circle?",
+        "In 2026, the creator economy has shifted from 'Content-First' to 'Community-First'. But where should you host your movement? We analyze Skool and Circle—the two dominant architectures for community-led growth.",
+      content: `## The Community Thesis: Engagement vs. Branding
+
+The choice between Skool and Circle is a choice between **Psychology** and **Aesthetics**. Skool is designed to keep people *doing* things, while Circle is designed to keep people *belonging* to things.
+
+### The Skool Philosophy: Gamification as Core Utility
+Skool, founded by Sam Ovens, is built on a singular, obsessive goal: **Engagement**. It stripped away every feature that didn't contribute to the "Community Feedback Loop." There are no custom fonts, no complex sidebar layouts, and no third-party app integrations that distract from the feed. 
+
+In 2026, Skool's **"Engagement Games"** are the industry benchmark. By turning the community into a leaderboard-driven experience, it creates a "Dopamine-Laced" learning environment. Students don't just consume content; they compete to unlock it. This gamified architecture is perfect for creators who want to build "High-Velocity" masterminds where student results are the primary marketing asset.
+
+### The Circle Philosophy: The White-Label Infrastructure
+Circle is built for the "Modern Brand." It views community as a sophisticated, multi-modal asset that should look and feel like a proprietary social network. It is ideal for the established brand or the high-end membership site that requires a specific aesthetic and deep technical integration.
+
+Circle’s 2026 update, **"Circle Enterprise,"** allows for deep white-labeling, custom CSS, and a sophisticated API that connects to your existing SaaS stack. It is the platform for the creator who wants their community to feel like a "Private Club" rather than a gamified app.
+
+---
+
+## Scenario Analysis: Strategic Paths to Community Sovereignty
+
+### Scenario A: The High-Ticket Coach (The Results Architect)
+**Profile:** A coach selling a $5,000+ program where student completion is everything.
+**The Solution:** **Skool**.
+
+If your business relies on students actually finishing the work and getting results, Skool’s simplicity is your greatest weapon. There is no technical friction. Every student sees the same feed, the same calendar, and the same leaderboards. The "Course" is secondary to the "Community."
+
+### Scenario B: The Legacy Brand (The Membership Hub)
+**Profile:** An established company with an existing ecosystem (e.g., a software company, a professional association) looking to add a social layer.
+**The Solution:** **Circle**.
+
+You need your community to look like *you*, not like Skool. Circle allows you to maintain brand continuity. Features like "Spaces," "Groups," and the ability to host live streams natively make it a complete ecosystem. For the legacy brand, Circle provides the professional polish required for corporate-level membership.
+
+---
+
+## Technical Architecture & Feature Comparison
+
+| Feature | Skool | Circle |
+|---------|-------|--------|
+| **Gamification** | Level-based unlocking (Native) | Basic badges |
+| **Course Engine** | Ultra-Simple / Integrated | Advanced / Modular |
+| **Live Streaming** | Via Zoom/YouTube | Native high-fidelity |
+| **Customization** | Zero (Strategic Minimalism) | High (White-Label) |
+| **Mobile App** | World-Class (Native) | Custom-Branded (Enterprise) |
+
+---
+
+## The Verdict: The Engagement Score for 2026
+
+In 2026, **Skool** is the undisputed king of **User Retention and Engagement**, while **Circle** is the leader in **Brand Customization and Modular Growth**.
+
+### Conclusion
+Choose **Skool** if you want to run a "Game" that your students love to play.
+Choose **Circle** if you want to build a "Digital Home" that your members are proud to belong to.`,
       conclusion:
-        "Choose Skool for high engagement, Circle for professional branding.",
+        "Choose Skool for high engagement and 'Game' mechanics; Choose Circle for professional white-labeling and multi-modal community building.",
       facts: [
         { title: "Gamification", a: "Native leaderboards", b: "Moderate" },
         { title: "App Experience", a: "Highly Rated", b: "IOS/Android" },
@@ -989,9 +563,60 @@ async function main(skipCleanup = false) {
       platformB: "Podia",
       category: "All-in-One vs. Standalone",
       introduction:
-        "Do you need a Ferrari or a reliable Tesla? We compare the two most popular all-in-one platforms.",
+        "Do you need a Ferrari or a reliable Tesla? We compare the two most popular all-in-one platforms in 2026. This intelligence report breaks down the financial and operational reality of running your business on Kajabi vs Podia.",
+      content: `## The All-in-One Thesis: Automation vs. Simplicity
+
+The "All-in-One" market is divided between two philosophies: **Industrial Power** and **Creator Zen**. Kajabi represents the industrial-strength marketing machine, while Podia represents the streamlined, intuitive cockpit.
+
+### The Kajabi Philosophy: The Marketing Engine
+Kajabi is the undisputed heavyweight champion of the all-in-one space. It doesn't just host your courses; it builds your entire sales machine. In 2026, its **"Pipeline Mastery"** feature allows you to build multi-step, high-conversion funnels that would usually require three separate SaaS tools (ClickFunnels, ActiveCampaign, and Teachable).
+
+Kajabi's architecture is built for the "High-LTV" creator—those whose students are worth $1,000 to $10,000. Every pixel is optimized for conversion. With its 2026 **"AI Sales Agent"** integration, Kajabi can automatically adjust your email sequences based on student behavior, creating a "Silent Salesman" that operates 24/7.
+
+### The Podia Philosophy: The Frictionless Office
+Podia is built for the creator who hates tech. It views software as a utility that should "get out of the way." Podia's 2026 update, **"Podia Creator Site,"** has made it the fastest way to launch a beautiful, professional digital storefront. 
+
+While Kajabi focuses on "The Funnel," Podia focuses on "The Connection." It includes everything—courses, webinars, downloads, and community—in a single, beautiful interface that requires zero design skills. It is the platform for the "Sovereign Solopreneur" who wants a professional home without the $149/month price tag or the steep learning curve.
+
+---
+
+## Scenario Analysis: Strategic Paths to All-in-One Sovereignty
+
+### Scenario A: The Scaling Entrepreneur (The Funnel Expert)
+**Profile:** A creator with a proven offer who needs to scale through complex automation and webinars.
+**The Solution:** **Kajabi**.
+
+If your business lives or dies by your email automation and landing page conversion rates, Kajabi is the only choice. The cost ($149+) is easily justified by the replacement of other tools. You gain a level of "Marketing Intelligence" that Podia cannot match, allowing you to track exactly where every dollar of revenue is coming from.
+
+### Scenario B: The Creative Multipotentialite (The Digital Shopkeeper)
+**Profile:** A creator selling a mix of small courses, digital downloads, and coaching sessions.
+**The Solution:** **Podia**.
+
+You don't need a complex funnel; you need a beautiful shop. Podia allows you to launch new products in minutes. The "Unlimited Everything" model on their higher tiers means you can experiment with 10 different course ideas without increasing your monthly overhead. For the creator who values speed and aesthetic simplicity, Podia is the superior asset.
+
+---
+
+## Technical Architecture & Operational Comparison
+
+| Feature | Kajabi | Podia |
+|---------|--------|-------|
+| **Marketing Automation** | High (Visual Pipelines) | Moderate (Sequences) |
+| **Website Builder** | Enterprise-Grade | Minimalist / Beautiful |
+| **Email Marketing** | Built-in (Advanced) | Built-in (Friendly) |
+| **Transaction Fees** | 0% | 0% (Paid Plans) |
+| **Complexity** | High (Powerful) | Low (Intuitive) |
+
+---
+
+## The Verdict: The ROI Score for 2026
+
+In 2026, **Kajabi** remains the leader for **Conversion Performance**, while **Podia** is the leader for **Operational Speed and Value**.
+
+### Conclusion
+Choose **Kajabi** if you are building an "Industrial Sales Machine."
+Choose **Podia** if you are building a "Sovereign Digital Storefront."`,
       conclusion:
-        "Kajabi for those with a high budget, Podia for everyone else.",
+        "Kajabi for high-end automation and complex funnels; Podia for simplicity, aesthetics, and affordable all-in-one hosting.",
       facts: [
         { title: "Email Marketing", a: "Full Automation", b: "Standard" },
         { title: "Pricing", a: "$149+/mo", b: "$39+/mo" },
@@ -1006,9 +631,60 @@ async function main(skipCleanup = false) {
       platformB: "Teachable",
       category: "All-in-One vs. Standalone",
       introduction:
-        "Selling your first digital product? Gumroad is the easy choice, but Teachable offers more growth.",
+        "Selling your first digital product? We compare Gumroad’s radical simplicity with Teachable’s institutional depth. In 2026, the choice depends entirely on whether you are selling a 'File' or a 'Future'.",
+      content: `## The Fulfillment Thesis: Delivery vs. Transformation
+
+The choice between Gumroad and Teachable is the choice between **Commerce** and **Education**. Gumroad is a checkout page; Teachable is a classroom.
+
+### The Gumroad Philosophy: Radical Frictionless Selling
+Gumroad’s 2026 architecture is focused on one thing: **The Buy Button**. It is the absolute fastest way to put a price tag on a PDF, a video file, or a zip folder. There is no "Learning Management System" (LMS) to configure. You upload a file, set a price, and tweet the link.
+
+Gumroad's **10% Flat Fee** (plus processing) is the "Sovereignty Tax" you pay for zero monthly subscriptions. For a creator with irregular launches or small digital products, this model is the most capital-efficient way to operate.
+
+### The Teachable Philosophy: The Educational Journey
+Teachable views the sale as the *beginning* of the relationship, not the end. When a student buys on Teachable, they aren't just downloading a file; they are entering a structured environment. Features like **Lesson Progress Tracking**, **Certificates**, and **Drip Content** are designed to ensure the student actually finishes the material.
+
+In 2026, Teachable’s **"Outcome-Based Pricing"** tools allow creators to charge higher prices by proving the transformational nature of their content—something that is difficult to do on a simple file-delivery platform like Gumroad.
+
+---
+
+## Scenario Analysis: Strategic Paths to Sales Sovereignty
+
+### Scenario A: The Digital Nomad (The Product Spitter)
+**Profile:** A creator who launches 5-10 small products a year (templates, guides, short videos).
+**The Solution:** **Gumroad**.
+
+You don't need a course dashboard for a $19 PDF. Gumroad’s simplicity and lack of monthly fees allow you to be prolific without financial pressure.
+
+### Scenario B: The Transformational Expert (The Teacher)
+**Profile:** An expert selling a high-priced curriculum that requires student engagement.
+**The Solution:** **Teachable**.
+
+If you are selling a $497 "Video Editing Masterclass," your students will feel short-changed if they just get a download link. They need the "Academy" experience to justify the price point.
+
+---
+
+## Technical Architecture & Operational Comparison
+
+| Feature | Gumroad | Teachable |
+|---------|---------|-----------|
+| **Primary Focus** | Sales Velocity | Student Success |
+| **Course Player** | Minimalist / Linear | Advanced / Interactive |
+| **Pricing Model** | 10% Flat (No Sub) | Monthly Sub + Variable Fees |
+| **Affiliate System** | Built-in (Simple) | Built-in (Professional) |
+| **Discovery** | High (Gumroad Discover) | Low (Sovereign Brand) |
+
+---
+
+## The Verdict: The Transaction Score for 2026
+
+In 2026, **Gumroad** is the king of **Digital Commerce**, while **Teachable** is the king of **Online Education**.
+
+### Conclusion
+Choose **Gumroad** if you want to sell **Products**.
+Choose **Teachable** if you want to sell **Transformations**.`,
       conclusion:
-        "Start on Gumroad, migrate to Teachable once you have a curriculum.",
+        "Start on Gumroad for small digital products; migrate to Teachable once you have a structured curriculum and high-ticket goals.",
       facts: [
         { title: "Platform Fee", a: "10% Flat", b: "Tiered" },
         { title: "Quizzes/Exams", a: "No", b: "Yes" },
@@ -1017,80 +693,47 @@ async function main(skipCleanup = false) {
     },
   ];
 
-  const comparisonsToCreate = [...explicitComparisons];
+  const platforms_lookup = await prisma.platform.findMany();
 
-  for (let i = 0; i < createdPlatforms.length; i++) {
-    for (let j = i + 1; j < createdPlatforms.length; j++) {
-      const pA = createdPlatforms[i];
-      const pB = createdPlatforms[j];
+  // 10.1 Create explicit comparisons
+  for (const compData of explicitComparisons) {
+    const pA = platforms_lookup.find((p) => p.name === compData.platformA);
+    const pB = platforms_lookup.find((p) => p.name === compData.platformB);
+    const categoryId = compCategoryMap.get(compData.category);
 
-      const exists = comparisonsToCreate.find(
-        (c) =>
-          (c.platformA === pA.name && c.platformB === pB.name) ||
-          (c.platformA === pB.name && c.platformB === pA.name),
-      );
-
-      if (!exists) {
-        comparisonsToCreate.push({
-          title: `${pA.name} vs. ${pB.name}: Which is Better?`,
-          slug: `${pA.name.toLowerCase().replace(/\s+/g, "-")}-vs-${pB.name.toLowerCase().replace(/\s+/g, "-")}`,
-          summary: `A comprehensive comparison between ${pA.name} and ${pB.name} for modern course creators and community builders.`,
-          platformA: pA.name,
-          platformB: pB.name,
-          category: "All-in-One vs. Standalone",
-          introduction: `Deciding whether to use ${pA.name} or ${pB.name} depends heavily on your specific needs, budget, and future growth plans.`,
-          conclusion: `Both ${pA.name} and ${pB.name} offer excellent features, but the right choice depends on your prioritization of ease of use and pricing.`,
-          facts: [
-            { title: "Users Rating", a: `${pA.rating}/5`, b: `${pB.rating}/5` },
-            {
-              title: "Ease of Use",
-              a: `${pA.easeOfUse}/5`,
-              b: `${pB.easeOfUse}/5`,
-            },
-            {
-              title: "Features Rating",
-              a: `${pA.featuresRating}/5`,
-              b: `${pB.featuresRating}/5`,
-            },
-          ],
-        });
-      }
-    }
-  }
-
-  for (const cData of comparisonsToCreate) {
-    const pA = createdPlatforms.find((p) => p.name === cData.platformA);
-    const pB = createdPlatforms.find((p) => p.name === cData.platformB);
-    const catId = compCategoryMap.get(cData.category);
-
-    if (pA && pB && catId) {
-      await prisma.comparison.create({
-        data: {
-          title: cData.title,
-          slug: cData.slug,
-          summary: cData.summary,
+    if (pA && pB && categoryId) {
+      await prisma.comparison.upsert({
+        where: { slug: compData.slug },
+        update: {
+          title: compData.title,
+          summary: compData.summary,
           platformAId: pA.id,
           platformBId: pB.id,
-          categoryId: catId,
-          introduction: cData.introduction,
-          conclusion: cData.conclusion,
-          published: true, content: (cData as any).content || null,
-          facts: {
-            create: cData.facts.map((f) => ({
-              title: f.title,
-              platformAValue: f.a,
-              platformBValue: f.b,
-            })),
-          },
+          categoryId: categoryId,
+          introduction: compData.introduction,
+          content: compData.content,
+          conclusion: compData.conclusion,
+          published: true,
+        },
+        create: {
+          title: compData.title,
+          slug: compData.slug,
+          summary: compData.summary,
+          platformAId: pA.id,
+          platformBId: pB.id,
+          categoryId: categoryId,
+          introduction: compData.introduction,
+          content: compData.content,
+          conclusion: compData.conclusion,
+          published: true,
         },
       });
     }
   }
 
-
   // Curated Strategic Comparison
-  const platforms_lookup = await prisma.platform.findMany();
-  const get_plat = (name) => platforms_lookup.find(p => p.name === name);
+  const get_plat = (name: string) =>
+    platforms_lookup.find((p) => p.name === name);
   const pA_tp = get_plat("Teachable");
   const pB_tp = get_plat("Patreon");
 
@@ -1099,41 +742,71 @@ async function main(skipCleanup = false) {
       data: {
         title: "Teachable vs Patreon: The Definitive Creator Strategy Guide",
         slug: "teachable-vs-patreon",
-        summary: "Direct Courses vs. Membership Communities. Which model scales your sovereignty?",
+        summary:
+          "Direct Courses vs. Membership Communities. Which model scales your sovereignty?",
         platformAId: pA_tp.id,
         platformBId: pB_tp.id,
-        categoryId: compCategoryMap.get("Flagship Showdowns") || Array.from(compCategoryMap.values())[0],
-        introduction: "Choosing between Teachable and Patreon is more than just a software decision; it is a choice between two fundamentally different business architectures. In 2026, the successful creator must decide whether they are building a school or a movement.",
-        conclusion: "Use Teachable if you have a structured curriculum and want to sell high-ticket transformational assets. Use Patreon if you are a creative building a long-term membership community where the product is the recurring relationship.",
+        categoryId:
+          compCategoryMap.get("Flagship Showdowns") ||
+          Array.from(compCategoryMap.values())[0],
+        introduction:
+          "Choosing between Teachable and Patreon is more than just a software decision; it is a choice between two fundamentally different business architectures. In 2026, the successful creator must decide whether they are building a school or a movement.",
+        conclusion:
+          "Use Teachable if you have a structured curriculum and want to sell high-ticket transformational assets. Use Patreon if you are a creative building a long-term membership community where the product is the recurring relationship.",
         published: true,
         content: `## The Strategic Divergence: Assets vs. Access
 
-Choosing between Teachable and Patreon is more than just a software decision; it is a choice between two fundamentally different business architectures. In 2026, the successful creator must decide whether they are building a **School (Institutional Model)** or a **Movement (Community Model)**.
+Choosing between Teachable and Patreon is more than just a software decision; it is a choice between two fundamentally different business architectures. In 2026, the successful creator must decide whether they are building a **School (Institutional Model)** or a **Movement (Community Model)**. This deep-dive intelligence report analyzes the economic, technical, and psychological factors that define these two giants.
 
 ### The Teachable Philosophy: Institutional Scaling
 Teachable is built for the "Expert Economy." It views content as a structured, transformational asset that should be packaged, certified, and sold as a journey. It is ideal for the teacher who wants to build an academy. The infrastructure is designed to handle high-intent students who are investing significantly in their future. Features like lesson locking, course completion certificates, and advanced quiz logic ensure a pedagogical rigor that justifica premium pricing.
 
+In 2026, Teachable has doubled down on its **"Sovereign Brand"** initiative. This means creators have unprecedented control over their data, checkout flows, and tax compliance. For the professional educator, Teachable isn't just a host; it's a back-office partner that handles the "unglamorous" side of education—VAT, global payouts, and student management—allowing the expert to focus on the curriculum.
+
 ### The Patreon Philosophy: Relationship Velocity
-Patreon is built for the "Fan Economy." It views content as fuel for membership. It is optimized for creators who have a consistent creative output (artists, podcasters, writers) and want to monetize their most loyal 1% through recurring support. On Patreon, the value isn't just in the 'lesson'; it's in the 'proximity.' Supporters pay for early access, behind-the-scenes insights, and the feeling of being part of an inner circle. The technical friction is near-zero, focusing on a continuous stream of engagement rather than a static curriculum.
+Patreon is built for the "Fan Economy." It views content as fuel for membership. It is optimized for creators who have a consistent creative output (artists, podcasters, writers) and want to monetize their most loyal 1% through recurring support. On Patreon, the value isn't just in the 'lesson'; it's in the 'proximity.' Supporters pay for early access, behind-the-scenes insights, and the feeling of being part of an inner circle. 
+
+The technical friction is near-zero, focusing on a continuous stream of engagement rather than a static curriculum. Patreon's 2026 update introduced the **"Community Stream,"** a real-time engagement layer that allows creators to host audio-only rooms and private chat threads directly within the app, further distancing it from the "one-and-done" course model of Teachable.
 
 ---
 
 ## Scenario Analysis: Strategic Paths to Sovereignty
 
 ### Scenario A: The Career Transitioner (The Aspiring Teacher)
-**Profile:** A former corporate leader transitioning to online education.
+**Profile:** A former corporate leader transitioning to online education with a high-value skill set (e.g., Enterprise Sales, Data Science, Executive Coaching).
 **The Solution:** **Teachable**.
-If you are selling your professional expertise, you need to provide the professional infrastructure that matches your background. A student paying $997 for a "Data Engineering Masterclass" expects a structured dashboard, a clear roadmap, and a professional receipt for tax purposes. Patreon’s low-barrier entry ($5-$20) might inadvertently devalue your high-end intellectual property. Teachable allows you to maintain "Brand Gravitas" and implement complex sales funnels that move cold traffic to a high-ticket enrollment.
+
+If you are selling your professional expertise, you need to provide the professional infrastructure that matches your background. A student paying $997 for a "Data Engineering Masterclass" expects a structured dashboard, a clear roadmap, and a professional receipt for tax purposes. Patreon’s low-barrier entry ($5-$20) might inadvertently devalue your high-end intellectual property. Teachable allows you to maintain "Brand Gravitas" and implement complex sales funnels that move cold traffic to a high-ticket enrollment. 
+
+**Expert Insight:** For the transitioner, the **LMS-native certificates** on Teachable are a critical psychological trigger for high-ticket buyers, providing tangible proof of investment that a Patreon "shout-out" simply cannot match.
 
 ### Scenario B: The Expanding Artist (The Scaler)
-**Profile:** A creator with a massive existing audience on YouTube, TikTok, or Instagram looking for a home base.
+**Profile:** A creator with a massive existing audience on YouTube, TikTok, or Instagram looking for a home base to monetize loyal fans.
 **The Solution:** **Patreon**.
+
 You are already producing regular content and want a way to monetize that output directly without relying on fickle ad revenue. Patreon handles the complex psychology of "supporting the creator" better than any LMS. It turns your audience into a predictable monthly revenue stream. In 2026, the integration between Patreon and platforms like Discord or Spotify means you can provide "Multi-Channel Access" as a single perk, creating a social stickiness that a static course platform cannot replicate.
+
+**Expert Insight:** The **"Recurring Revenue Floor"** provided by Patreon allows artists to take creative risks that would be too dangerous if they were reliant on individual course launches. It provides the "Creative Safety Net" required for long-term growth.
 
 ### Scenario C: The Failed Businessman (The Restructuring)
 **Profile:** An entrepreneur who previously attempted to build a complex SaaS or a physical product business and hit a wall.
 **The Solution:** **Teachable (Consulting-Hybrid)**.
+
 Moving to a Teachable-based academy allows you to monetize your "Lessons Learned." This is a classic "Sell the Shovel" strategy. You can package your failures and successes into a consulting-heavy course. Teachable allows you to focus 100% on the curriculum and 0% on the engineering. For the entrepreneur looking to rebuild capital quickly, the "High-Ticket Course" model on Teachable offers significantly higher margins than the "High-Volume Membership" model on Patreon.
+
+---
+
+## Technical Architecture & Monetization Engine Deep-Dive
+
+### Data Sovereignty and Audience Ownership
+In 2026, the "Golden Metric" for any creator is **Data Control**. 
+- **Teachable** provides a full export of student data, including progress tracking and detailed engagement metrics. You own the relationship entirely, and you can pipe this data into external CRMs like HubSpot or ActiveCampaign.
+- **Patreon** provides subscriber emails, but the "interaction data" is largely locked within their ecosystem. While you can message your fans, you are ultimately operating within Patreon's "rented space."
+
+### The "Tax Nightmare" Solution
+Global tax compliance is the silent killer of creator businesses.
+- **Teachable:pay** acts as a tax gateway, handling VAT and sales tax in over 100 countries. For a solo creator, this feature alone is worth the subscription price.
+- **Patreon** acts as the **Merchant of Record (MoR)**, meaning they are legally responsible for the transaction. This offers the ultimate "set it and forget it" tax peace of mind, although their percentage cut reflects this service.
 
 ---
 
@@ -1148,20 +821,36 @@ Moving to a Teachable-based academy allows you to monetize your "Lessons Learned
 | **Video Infrastructure** | High-Fidelity LMS Native | External (Vimeo/YT/Upload) |
 | **Custom Domain** | Yes (Sovereign Brand) | No (Platform Dependent) |
 
-## Expert Verdict: The Sovereignty Score
+---
 
-In 2026, **Teachable** scores higher for **Financial Sovereignty** (High margin, brand ownership, data control), while **Patreon** scores higher for **Social Leverage** (Community energy, direct feedback loops, audience intimacy).`,
+## The Verdict: The Sovereignty Score for 2026
+
+In 2026, **Teachable** scores higher for **Financial Sovereignty** (High margin, brand ownership, data control), while **Patreon** scores higher for **Social Leverage** (Community energy, direct feedback loops, audience intimacy).
+
+### Conclusion for the Modern Creator
+If your business is built on **Transformation**, go with **Teachable**. You are selling a "Before and After."
+If your business is built on **Relationship**, go with **Patreon**. You are selling "Proximity and Support."
+
+Final Verdict: For those building a high-ticket educational empire, Teachable remains the gold standard for sovereign infrastructure. For those building a direct-to-fan creative engine, Patreon's simplicity and network effect are unbeatable.`,
         facts: {
           create: [
-            { title: "Primary Model", platformAValue: "Academy/LMS", platformBValue: "Membership/Fan-Club" },
-            { title: "Pricing Philosophy", platformAValue: "High-Ticket/Asset-Based", platformBValue: "Micro-Payments/Recurring" }
-          ]
-        }
-      }
+            {
+              title: "Primary Model",
+              platformAValue: "Academy/LMS",
+              platformBValue: "Membership/Fan-Club",
+            },
+            {
+              title: "Pricing Philosophy",
+              platformAValue: "High-Ticket/Asset-Based",
+              platformBValue: "Micro-Payments/Recurring",
+            },
+          ],
+        },
+      },
     });
   }
 
-  console.log(`   ✓ Seeded ${comparisonsToCreate.length} comparisons.`);
+  console.log(`   ✓ Seeded ${explicitComparisons.length} comparisons.`);
 
   // --- 11. Seed AI Tools ---
   console.log("\n🤖 Seeding AI Tools...");
@@ -1949,7 +1638,7 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
       "We're excited to announce a major update to our platform. Our new suite of AI-powered tools is designed to help course creators streamline their workflow and produce higher-quality content faster than ever before. From generating course outlines to scripting video lessons, these tools are your new creative co-pilot.",
     image: "https://picsum.photos/400/250?random=10",
     dataAiHint: "technology launch announcement",
-    published: true, content: (cData as any).content || null,
+    published: true,
     authorId: adminUser.id,
   };
   await prisma.newsArticle.create({ data: newsData });
@@ -2060,7 +1749,6 @@ export const seed = async (skipCleanup = false) => {
   }
 };
 
-import { fileURLToPath } from "url";
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   seed();
 }
