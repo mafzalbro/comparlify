@@ -30,7 +30,6 @@ import { ComparisonFaqs } from "@/components/comparison/comparison-faqs";
 import { PlatformVisitCards } from "@/components/comparison/platform-visit-cards";
 import { InlineROICalculator } from "@/components/comparison/inline-roi-calculator";
 import { PlatformPicker } from "@/components/tool/PlatformPicker";
-import { ComparativeDeepDive } from "@/components/comparison/comparative-deep-dive";
 
 const ComparisonChart = dynamic(
   () =>
@@ -393,13 +392,6 @@ export default async function ComparisonDetailPage(props: {
                   <MarkdownContent content={comparison.content} />
                 </section>
               )}
-
-              <ComparativeDeepDive
-                platformAName={platformA.name}
-                platformBName={platformB.name}
-                platformADescription={platformA.description}
-                platformBDescription={platformB.description}
-              />
 
               {/* Feature Matrix */}
               <ComparisonFeatureMatrix

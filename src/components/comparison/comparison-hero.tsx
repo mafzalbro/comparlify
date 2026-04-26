@@ -6,6 +6,7 @@ import { ShareButton } from "@/components/share-button";
 import { Badge } from "@/components/ui/badge";
 import { MotionDiv } from "@/components/motion-wrapper";
 import { Scale, Zap, ShieldCheck } from "lucide-react";
+import { PlatformIntelligenceModal } from "@/components/comparison/platform-intelligence-modal";
 import type { Platform } from "@prisma/client";
 import type { Session } from "next-auth";
 
@@ -80,8 +81,7 @@ export function ComparisonHero({
           </div>
           {[platformA, platformB].map((platform, i) => {
             const isWinner =
-              (i === 0 && isPlatformAWinner) ||
-              (i === 1 && isPlatformBWinner);
+              (i === 0 && isPlatformAWinner) || (i === 1 && isPlatformBWinner);
             return (
               <div
                 key={platform.id}
@@ -105,10 +105,16 @@ export function ComparisonHero({
                     className="object-contain filter grayscale group-hover:grayscale-0 transition-all duration-700"
                   />
                 </div>
-                <div className="text-center">
-                  <h3 className="text-2xl font-black text-foreground uppercase tracking-tighter">
-                    {platform.name}
-                  </h3>
+                <div className="text-center flex flex-col items-center">
+                  <div className="flex items-center gap-3 group/name">
+                    <h3 className="text-2xl font-black text-foreground uppercase tracking-tighter">
+                      {platform.name}
+                    </h3>
+                    <PlatformIntelligenceModal 
+                      name={platform.name} 
+                      description={platform.description} 
+                    />
+                  </div>
                   <Badge className="mt-4 bg-secondary/50 text-muted-foreground text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full border-none">
                     Expert Assessment
                   </Badge>

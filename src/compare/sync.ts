@@ -1,10 +1,14 @@
 import prisma from "@/lib/prisma";
 import { allPlatforms } from "./platforms";
+import { patreonVsTeachable } from "./comparisons/patreon-vs-teachable";
+
+export const allComparisons = [patreonVsTeachable];
+
 export async function syncComparisonData() {
   console.log("🔄 Starting comparison data sync...");
 
   for (const data of allPlatforms) {
-    console.log(`📍 Syncing platform: ${data.name}`);
+    console.log("� Syncing platform: ", data.name);
 
     // 1. Upsert Platform
     const platform = await prisma.platform.upsert({
@@ -43,24 +47,6 @@ export async function syncComparisonData() {
     });
 
     // 2. Sync Pricing Tiers
-    // Delete existing tiers first or update them?
-    // Usually easier to delete and recreate for static data sync if IDs aren't referenced elsewhere.
-    // However, to be safe, we'll upsert by name for that platform.
-    for (const tierData of data.tiers) {
-      await prisma.pricingTier.upsert({
-        where: {
-          // We don't have a unique constraint on name in schema, so we should probably find and update or create.
-          // Since it's a small set, we'll just delete and create-many if we want absolute sync.
-          // But PricingTier doesn't have a natural unique key other than ID.
-          // Let's check schema again.
-          id: `${platform.id}-${tierData.name}`, // We can't do this if ID is cuid()
-        },
-        // Wait, schema has @@index([platformId]).
-        // Let's just delete all tiers for this platform and recreate to ensure exact match with code.
-      } as any);
-    }
-
-    // Better strategy for tiers:
     await prisma.pricingTier.deleteMany({
       where: { platformId: platform.id },
     });
@@ -85,18 +71,6 @@ export async function syncComparisonData() {
         create: { name: feat.categoryName },
       });
 
-      const feature = await prisma.feature.upsert({
-        where: {
-          // Feature doesn't have a unique name?
-          // Schema: model Feature { id, name, categoryId ... }
-          // Let's check name uniqueness.
-          id: `feat-${feat.featureName.toLowerCase().replace(/\s+/g, "-")}`,
-        } as any,
-        // Wait, schema doesn't have unique on name.
-        // I'll check if I can use findFirst.
-      } as any);
-
-      // Let's find or create feature properly.
       let existingFeature = await prisma.feature.findFirst({
         where: { name: feat.featureName, categoryId: category.id },
       });
@@ -129,5 +103,87 @@ export async function syncComparisonData() {
     }
   }
 
+  console.log("✅ Platform data sync complete.");
+
+  console.log("🔄 Starting comparison data sync...");
+
+  for (const data of allComparisons) {
+    console.log("� Syncing comparison: ");
+
+    const platformA = await prisma.platform.findUnique({
+      where: { name: data.platformAName },
+    });
+    const platformB = await prisma.platform.findUnique({
+      where: { name: data.platformBName },
+    });
+    const category = await prisma.comparisonCategory.findUnique({
+      where: { name: data.categoryName } as any,
+    });
+
+    if (!platformA || !platformB) {
+      console.error("Skipping comparison : One or both platforms not found.");
+      continue;
+    }
+    // Attempt to create category if not found
+    let comparisonCategory = category;
+    if (!comparisonCategory) {
+      comparisonCategory = await prisma.comparisonCategory.create({
+        data: {
+          name: data.categoryName,
+          slug: data.categoryName.toLowerCase().replace(/\s+/g, "-"),
+        },
+      });
+      console.log("Created new comparison category: ");
+    }
+
+    const comparison = await prisma.comparison.upsert({
+      where: { slug: data.slug },
+      update: {
+        title: data.title,
+        summary: data.summary,
+        introduction: data.introduction,
+        content: data.content,
+        conclusion: data.conclusion,
+        published: data.published,
+        platformAId: platformA.id,
+        platformBId: platformB.id,
+        categoryId: comparisonCategory.id,
+      },
+      create: {
+        title: data.title,
+        slug: data.slug,
+        summary: data.summary,
+        introduction: data.introduction,
+        content: data.content,
+        conclusion: data.conclusion,
+        published: data.published,
+        platformAId: platformA.id,
+        platformBId: platformB.id,
+        categoryId: comparisonCategory.id,
+      },
+    });
+
+    // Sync Facts
+    await prisma.fact.deleteMany({
+      where: { comparisonId: comparison.id },
+    });
+    await prisma.fact.createMany({
+      data: data.facts.map((fact) => ({
+        ...fact,
+        comparisonId: comparison.id,
+      })),
+    });
+
+    // Sync FAQs
+    await prisma.faq.deleteMany({
+      where: { comparisonId: comparison.id },
+    });
+    await prisma.faq.createMany({
+      data: data.faqs.map((faq) => ({
+        ...faq,
+        comparisonId: comparison.id,
+      })),
+    });
+  }
   console.log("✅ Comparison data sync complete.");
 }
