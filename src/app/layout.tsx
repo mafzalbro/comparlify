@@ -29,6 +29,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // await syncComparisonData();
   const content = await getContent();
   const siteName = content["global.siteName"] || "Comparlify";
   const headCode = content["settings.code.head"] || "";

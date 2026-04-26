@@ -31,6 +31,7 @@ import { PlatformVisitCards } from "@/components/comparison/platform-visit-cards
 import { InlineROICalculator } from "@/components/comparison/inline-roi-calculator";
 import { PlatformPicker } from "@/components/tool/PlatformPicker";
 import { ComparativeDeepDive } from "@/components/comparison/comparative-deep-dive";
+import LazyDetail from "@/components/comparison/LazyDetail";
 
 const ComparisonChart = dynamic(
   () =>
@@ -72,7 +73,7 @@ export async function generateMetadata(props: {
   const { slug } = await props.params;
   const comparison = await getComparisonBySlug(slug);
   if (!comparison) return {};
-  
+
   // Professional high-intent title strategy
   const currentYear = new Date().getFullYear();
   const professionalTitle = `${comparison.platformA.name} vs ${comparison.platformB.name} ${currentYear}: Pricing, Fees, and Infrastructure Comparison`;
@@ -246,17 +247,17 @@ export default async function ComparisonDetailPage(props: {
 
         {/* ── PLATFORM PICKER (Decision Engine) ────────────────── */}
         <section className="py-24 overflow-hidden">
-          <PlatformPicker 
+          <PlatformPicker
             platformA={{
               id: platformA.id,
               name: platformA.name,
-              affiliateUrl: platformA.affiliateLink
-            }} 
+              affiliateUrl: platformA.affiliateLink,
+            }}
             platformB={{
               id: platformB.id,
               name: platformB.name,
-              affiliateUrl: platformB.affiliateLink
-            }} 
+              affiliateUrl: platformB.affiliateLink,
+            }}
           />
         </section>
 
@@ -385,12 +386,13 @@ export default async function ComparisonDetailPage(props: {
 
               {/* Detailed Content Analysis */}
               {comparison.content && (
-                <section className="space-y-16">
+                <section className="space-y-8">
                   <div className="inline-flex items-center gap-3 text-primary font-black uppercase tracking-[0.4em] text-[11px]">
                     <div className="w-12 h-px bg-primary/30" />
                     Curated Comparison Deep Dive
                   </div>
-                  <MarkdownContent content={comparison.content} />
+                  {/* Toggle button for optional detailed view */}
+                  <LazyDetail content={comparison.content} />
                 </section>
               )}
 
