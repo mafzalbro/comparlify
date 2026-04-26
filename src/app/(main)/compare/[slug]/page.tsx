@@ -30,6 +30,7 @@ import { ComparisonFaqs } from "@/components/comparison/comparison-faqs";
 import { PlatformVisitCards } from "@/components/comparison/platform-visit-cards";
 import { InlineROICalculator } from "@/components/comparison/inline-roi-calculator";
 import { PlatformPicker } from "@/components/tool/PlatformPicker";
+import { IntelligentAnalysis } from "@/components/comparison/intelligent-analysis";
 
 const ComparisonChart = dynamic(
   () =>
@@ -239,8 +240,6 @@ export default async function ComparisonDetailPage(props: {
         {/* ── STAT CARDS ───────────────────── */}
         <ComparisonStats
           stats={stats}
-          platformAName={platformA.name}
-          platformBName={platformB.name}
         />
 
         {/* ── PLATFORM PICKER (Decision Engine) ────────────────── */}
@@ -277,8 +276,6 @@ export default async function ComparisonDetailPage(props: {
                     <ComparisonChart
                       chartConfig={chartConfig}
                       chartData={chartData}
-                      platformAName={platformA.name}
-                      platformBName={platformB.name}
                     />
                   </div>
                 </section>
@@ -393,19 +390,16 @@ export default async function ComparisonDetailPage(props: {
                 </section>
               )}
 
+              <IntelligentAnalysis content={comparison.content || ""} />
 
               {/* Feature Matrix */}
               <ComparisonFeatureMatrix
                 features={featureRows}
-                platformAName={platformA.name}
-                platformBName={platformB.name}
               />
 
               {/* Final Verdict */}
               <IntelligenceVerdict
                 conclusion={comparison.conclusion}
-                platformAName={platformA.name}
-                platformBName={platformB.name}
                 isPlatformAWinner={isPlatformAWinner}
                 isCloseCall={isCloseCall}
               />

@@ -10,7 +10,6 @@ import {
   Zap,
   MessageSquare,
   Newspaper,
-  BookOpen,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
@@ -23,7 +22,7 @@ import { ComparisonHero } from "@/components/comparison/comparison-hero";
 import { ComparisonStats } from "@/components/comparison/comparison-stats";
 import { ComparisonFeatureMatrix } from "@/components/comparison/comparison-feature-matrix";
 import { PlatformVisitCards } from "@/components/comparison/platform-visit-cards";
-import { MotionDiv } from "@/components/motion-wrapper";
+import { IntelligentAnalysis } from "@/components/comparison/intelligent-analysis";
 
 const ComparisonChart = dynamic(
   () =>
@@ -32,8 +31,6 @@ const ComparisonChart = dynamic(
 );
 
 const getPlatformBySlug = cache(async (slug: string) => {
-  // Try to match platform name from slug (e.g., 'kajabi' from 'kajabi-vs-teachable')
-  // This is a simplified lookup
   const platforms = await prisma.platform.findMany({
     include: {
       features: { include: { feature: { include: { category: true } } } },
@@ -171,8 +168,6 @@ export default async function DynamicBattlePage(props: {
 
         <ComparisonStats
           stats={stats}
-          platformAName={platformA.name}
-          platformBName={platformB.name}
         />
 
         <section className="container mx-auto px-4 md:px-6 max-w-7xl">
@@ -186,8 +181,6 @@ export default async function DynamicBattlePage(props: {
                   <ComparisonChart
                     chartConfig={chartConfig}
                     chartData={chartData}
-                    platformAName={platformA.name}
-                    platformBName={platformB.name}
                   />
                 </div>
               </div>
@@ -254,11 +247,10 @@ export default async function DynamicBattlePage(props: {
                 </p>
               </div>
 
+              <IntelligentAnalysis content="" />
 
               <ComparisonFeatureMatrix
                 features={featureRows}
-                platformAName={platformA.name}
-                platformBName={platformB.name}
               />
 
               <div className="bg-card p-12 rounded-[3.5rem] border border-border/10">

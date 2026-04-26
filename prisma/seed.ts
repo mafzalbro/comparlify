@@ -1,3 +1,5 @@
+import { fileURLToPath } from "url";
+import { allPlatforms } from "../src/compare/platforms";
 import "dotenv/config";
 import {
   PrismaClient,
@@ -142,6 +144,66 @@ async function main(skipCleanup = false) {
   }
 
   console.log(`   ✓ Seeded ${usersData.length} users.`);
+  // --- 2.1 Seed High-Fidelity Platforms (36 Entities) ---
+  console.log("📍 Seeding 36 high-fidelity platforms...");
+  for (const data of allPlatforms) {
+    const platform = await prisma.platform.create({
+      data: {
+        name: data.name,
+        website: data.website,
+        logoUrl: data.logoUrl,
+        description: data.description,
+        rating: data.rating,
+        easeOfUse: data.easeOfUse,
+        featuresRating: data.featuresRating,
+        support: data.support,
+        pros: data.pros,
+        cons: data.cons,
+        affiliateLink: data.affiliateLink,
+        dealDescription: data.dealDescription,
+        videoHostingIncluded: data.videoHostingIncluded,
+        lastVerifiedAt: new Date(data.lastVerifiedAt),
+        tiers: {
+          create: data.tiers.map(t => ({
+            name: t.name,
+            monthlyPrice: t.monthlyPrice,
+            annualPriceMonthlyEquivalent: t.annualPriceMonthlyEquivalent,
+            transactionFeePercent: t.transactionFeePercent,
+            isPopular: t.isPopular || false,
+            features: t.features,
+          }))
+        }
+      }
+    });
+
+    for (const feat of data.features) {
+      const category = await prisma.featureCategory.upsert({
+        where: { name: feat.categoryName },
+        update: {},
+        create: { name: feat.categoryName },
+      });
+
+      let existingFeature = await prisma.feature.findFirst({
+        where: { name: feat.featureName, categoryId: category.id }
+      });
+
+      if (!existingFeature) {
+        existingFeature = await prisma.feature.create({
+          data: { name: feat.featureName, categoryId: category.id }
+        });
+      }
+
+      await prisma.platformFeature.create({
+        data: {
+          platformId: platform.id,
+          featureId: existingFeature.id,
+          hasFeature: feat.hasFeature,
+          details: feat.details
+        }
+      });
+    }
+  }
+
 
   // --- 3. Seed Features and Categories ---
   console.log("\n✨ Seeding Features & Categories...");
@@ -749,7 +811,7 @@ async function main(skipCleanup = false) {
       content: "Full content about choosing platforms...",
       image: "https://picsum.photos/400/250?random=1",
       dataAiHint: "decision making choices",
-      published: true,
+      published: true, content: (cData as any).content || null,
       authorId: adminUser.id,
       categoryName: "Platform Guides",
     },
@@ -761,7 +823,7 @@ async function main(skipCleanup = false) {
       content: "Full content about engaging content...",
       image: "https://picsum.photos/400/250?random=2",
       dataAiHint: "creative content creation",
-      published: true,
+      published: true, content: (cData as any).content || null,
       authorId: adminUser.id,
       categoryName: "Course Creation",
     },
@@ -773,7 +835,7 @@ async function main(skipCleanup = false) {
       content: "Full content about marketing courses...",
       image: "https://picsum.photos/400/250?random=3",
       dataAiHint: "digital marketing strategy",
-      published: true,
+      published: true, content: (cData as any).content || null,
       authorId: adminUser.id,
       categoryName: "Marketing",
     },
@@ -1012,7 +1074,7 @@ async function main(skipCleanup = false) {
           categoryId: catId,
           introduction: cData.introduction,
           conclusion: cData.conclusion,
-          published: true,
+          published: true, content: (cData as any).content || null,
           facts: {
             create: cData.facts.map((f) => ({
               title: f.title,
@@ -1040,30 +1102,28 @@ async function main(skipCleanup = false) {
         summary: "Direct Courses vs. Membership Communities. Which model scales your sovereignty?",
         platformAId: pA_tp.id,
         platformBId: pB_tp.id,
-        categoryId: compCategoryMap.get("Flagship Showdowns"),
+        categoryId: compCategoryMap.get("Flagship Showdowns") || Array.from(compCategoryMap.values())[0],
         introduction: "Choosing between Teachable and Patreon is more than just a software decision; it is a choice between two fundamentally different business architectures. In 2026, the successful creator must decide whether they are building a school or a movement.",
         conclusion: "Use Teachable if you have a structured curriculum and want to sell high-ticket transformational assets. Use Patreon if you are a creative building a long-term membership community where the product is the recurring relationship.",
         published: true,
-        content: `# Teachable vs Patreon: The Definitive Creator Strategy Guide (2026 Edition)
+        content: `## The Strategic Divergence: Assets vs. Access
 
 Choosing between Teachable and Patreon is more than just a software decision; it is a choice between two fundamentally different business architectures. In 2026, the successful creator must decide whether they are building a **School (Institutional Model)** or a **Movement (Community Model)**.
 
-## 1. The Strategic Divergence: Assets vs. Access
-
 ### The Teachable Philosophy: Institutional Scaling
-Teachable is built for the "Expert Economy." It views content as a structured, transformational asset that should be packaged, certified, and sold as a journey. It is ideal for the teacher who wants to build an academy. The infrastructure is designed to handle high-intent students who are investing significantly in their future. Features like lesson locking, course completion certificates, and advanced quiz logic ensure a pedagogical rigor that justifies premium pricing (\$500 - \$2,500+).
+Teachable is built for the "Expert Economy." It views content as a structured, transformational asset that should be packaged, certified, and sold as a journey. It is ideal for the teacher who wants to build an academy. The infrastructure is designed to handle high-intent students who are investing significantly in their future. Features like lesson locking, course completion certificates, and advanced quiz logic ensure a pedagogical rigor that justifica premium pricing.
 
 ### The Patreon Philosophy: Relationship Velocity
 Patreon is built for the "Fan Economy." It views content as fuel for membership. It is optimized for creators who have a consistent creative output (artists, podcasters, writers) and want to monetize their most loyal 1% through recurring support. On Patreon, the value isn't just in the 'lesson'; it's in the 'proximity.' Supporters pay for early access, behind-the-scenes insights, and the feeling of being part of an inner circle. The technical friction is near-zero, focusing on a continuous stream of engagement rather than a static curriculum.
 
 ---
 
-## 2. Scenario Analysis: Strategic Paths to Sovereignty
+## Scenario Analysis: Strategic Paths to Sovereignty
 
 ### Scenario A: The Career Transitioner (The Aspiring Teacher)
-**Profile:** A former corporate leader (e.g., Data Science Manager or Marketing Director) transitioning to online education.
+**Profile:** A former corporate leader transitioning to online education.
 **The Solution:** **Teachable**.
-If you are selling your professional expertise, you need to provide the professional infrastructure that matches your background. A student paying \$997 for a "Data Engineering Masterclass" expects a structured dashboard, a clear roadmap, and a professional receipt for tax purposes. Patreon’s low-barrier entry (\$5-\$20) might inadvertently devalue your high-end intellectual property. Teachable allows you to maintain "Brand Gravitas" and implement complex sales funnels that move cold traffic to a high-ticket enrollment.
+If you are selling your professional expertise, you need to provide the professional infrastructure that matches your background. A student paying $997 for a "Data Engineering Masterclass" expects a structured dashboard, a clear roadmap, and a professional receipt for tax purposes. Patreon’s low-barrier entry ($5-$20) might inadvertently devalue your high-end intellectual property. Teachable allows you to maintain "Brand Gravitas" and implement complex sales funnels that move cold traffic to a high-ticket enrollment.
 
 ### Scenario B: The Expanding Artist (The Scaler)
 **Profile:** A creator with a massive existing audience on YouTube, TikTok, or Instagram looking for a home base.
@@ -1077,32 +1137,20 @@ Moving to a Teachable-based academy allows you to monetize your "Lessons Learned
 
 ---
 
-## 3. Industrial Facts and Economic Realities (2026 Data)
+## Industrial Facts and Economic Realities (2026 Data)
 
 | Metric | Teachable | Patreon |
 |--------|-----------|---------|
 | **Monetization Model** | One-time / Installments | Monthly / Per-Creation |
-| **Average Transaction** | \$250 - \$1,200 | \$5 - \$50 |
+| **Average Transaction** | $250 - $1,200 | $5 - $50 |
 | **Platform Fees** | 0% (Pro) to 10% (Free) | 5% to 12% + Processing |
 | **Global Tax Compliance** | Integrated (Teachable:pay) | Merchant of Record (Full) |
 | **Video Infrastructure** | High-Fidelity LMS Native | External (Vimeo/YT/Upload) |
 | **Custom Domain** | Yes (Sovereign Brand) | No (Platform Dependent) |
 
-## 4. Operational Scalability: The ROI of Time
+## Expert Verdict: The Sovereignty Score
 
-### Teachable ROI: The Passive Asset
-The "Asset-Based" model of Teachable means you do the work once (record the course, build the funnel) and sell it indefinitely. Your ROI increases over time as you optimize your ad spend. It is the path to "Passive Income" for the expert who wants to stop trading time for money.
-
-### Patreon ROI: The Active Community
-The "Membership" model requires ongoing work. You are on a content treadmill. However, the ROI here is in the **Retention**. Patreon members are 3x more likely to stay subscribed for 12+ months compared to course students who often experience "Churn after Completion." It is the path to "Financial Stability" for the creative who loves the process of creation.
-
-## 5. Expert Verdict: The Sovereignty Score
-
-In 2026, **Teachable** scores higher for **Financial Sovereignty** (High margin, brand ownership, data control), while **Patreon** scores higher for **Social Leverage** (Community energy, direct feedback loops, audience intimacy).
-
-**Choose Teachable if:** You want to build a \$500k/year business with fewer than 500 high-value customers. It is the engine for the "Intellectual Elite."
-**Choose Patreon if:** You want to build a high-volume tribe of 5,000+ members who support your creative journey. It is the engine for the "Cultural Vanguard."
-`,
+In 2026, **Teachable** scores higher for **Financial Sovereignty** (High margin, brand ownership, data control), while **Patreon** scores higher for **Social Leverage** (Community energy, direct feedback loops, audience intimacy).`,
         facts: {
           create: [
             { title: "Primary Model", platformAValue: "Academy/LMS", platformBValue: "Membership/Fan-Club" },
@@ -1112,6 +1160,7 @@ In 2026, **Teachable** scores higher for **Financial Sovereignty** (High margin,
       }
     });
   }
+
   console.log(`   ✓ Seeded ${comparisonsToCreate.length} comparisons.`);
 
   // --- 11. Seed AI Tools ---
@@ -1900,7 +1949,7 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
       "We're excited to announce a major update to our platform. Our new suite of AI-powered tools is designed to help course creators streamline their workflow and produce higher-quality content faster than ever before. From generating course outlines to scripting video lessons, these tools are your new creative co-pilot.",
     image: "https://picsum.photos/400/250?random=10",
     dataAiHint: "technology launch announcement",
-    published: true,
+    published: true, content: (cData as any).content || null,
     authorId: adminUser.id,
   };
   await prisma.newsArticle.create({ data: newsData });
