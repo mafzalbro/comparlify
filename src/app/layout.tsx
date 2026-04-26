@@ -11,6 +11,7 @@ import { getContent } from "@/lib/content";
 import { Suspense } from "react";
 import NextTopLoader from "nextjs-toploader";
 import { themeConfig } from "@/lib/theme";
+// import { syncComparisonData } from "@/compare/sync";
 
 const font = Outfit({
   subsets: ["latin"],
