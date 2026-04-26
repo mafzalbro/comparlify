@@ -1,57 +1,128 @@
-import { fileURLToPath } from "url";
-"use server";
-import prisma from "@/lib/prisma";
-import { allPlatforms } from "../src/compare/platforms";
-import { Prisma, Role } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import "dotenv/config";
+import {
+  PrismaClient,
+  Prisma,
+  Role,
+  ToolCategory,
+  CommentStatus,
+  ContentType,
+  Post,
+} from "@prisma/client";
+import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 
-async function main() {
-  console.log("Start seeding...");
+const adapter = new PrismaMariaDb(process.env.DATABASE_URL!);
+const prisma = new PrismaClient({ adapter });
 
-  // --- 1. Clean up existing data ---
-  console.log("Cleaning up existing data...");
+import { promises as fs } from "fs";
+import path from "path";
 
-  // First, break the navigation links
-  await prisma.$executeRaw`UPDATE Post SET previousId = NULL, nextId = NULL`;
+export async function cleanupDatabase() {
+  console.log("🧹 Starting database cleanup...");
 
-  // Then delete in correct order
-  await prisma.siteContent.deleteMany();
-  await prisma.comment.deleteMany();
-  await prisma.bookmark.deleteMany(); // Delete bookmarks before posts
-  await prisma.post.deleteMany();
-  await prisma.comparison.deleteMany();
-  await prisma.platformFeature.deleteMany();
-  await prisma.fact.deleteMany(); // Delete facts before comparisons
-  await prisma.faq.deleteMany(); // Delete FAQs before comparisons
-  await prisma.bookmark.deleteMany(); // Delete any remaining bookmarks
-  await prisma.feature.deleteMany();
-  await prisma.featureCategory.deleteMany();
-  await prisma.platform.deleteMany();
-  await prisma.user.deleteMany();
-  await prisma.postCategory.deleteMany();
-  await prisma.comparisonCategory.deleteMany();
+  const models = Object.keys(prisma).filter(
+    (key) =>
+      !key.startsWith("_") &&
+      !key.endsWith("Delegate") &&
+      typeof (prisma as any)[key].deleteMany === "function",
+  );
 
-  console.log("Cleaned up existing data.");
+  // Break circular dependencies first
+  console.log("  - Breaking Post navigation links...");
+  try {
+    await prisma.$executeRawUnsafe(
+      `UPDATE Post SET nextId = NULL, previousId = NULL`,
+    );
+  } catch (e: any) {
+    console.warn(`  - Could not break Post links: ${e.message}`);
+  }
+
+  // Deletion order matters due to foreign key constraints.
+  const deletionOrder = [
+    "Notification",
+    "Bookmark",
+    "Comment",
+    "Fact",
+    "Faq",
+    "PlatformFeature",
+    "Post",
+    "Comparison",
+    "Feature",
+    "NewsArticle",
+    "EmailRecipient",
+    "EmailCampaign",
+    "ContactMessage",
+    "Subscription",
+    "ForumPost",
+    "ForumTopic",
+    "FeatureCategory",
+    "ComparisonCategory",
+    "PostCategory",
+    "ForumCategory",
+    "Image",
+    "SiteContent",
+    "Tool",
+    "User",
+    "Account",
+    "Session",
+    "VerificationToken",
+  ];
+
+  // Add any models not in the explicit order to the end
+  const remainingModels = models.filter((m) => !deletionOrder.includes(m));
+  const finalDeletionOrder = [...deletionOrder, ...remainingModels];
+
+  for (const model of finalDeletionOrder) {
+    try {
+      if ((prisma as any)[model]?.deleteMany) {
+        const { count } = await (prisma as any)[model].deleteMany({});
+        if (count > 0) {
+          console.log(`  🔥 Deleted ${count} records from ${model}`);
+        }
+      }
+    } catch (e: any) {
+      // This might fail if the model doesn't exist in some versions, so we just log it.
+      if (e.code !== "P2025") {
+        // P2025 = Record to delete does not exist.
+        console.warn(`  - Could not delete from ${model}: ${e.message}`);
+      }
+    }
+  }
+
+  console.log("✅ Database cleanup complete.");
+}
+
+async function main(skipCleanup = false) {
+  console.log("🌱 Starting database seeding...");
+
+  if (!skipCleanup) {
+    await cleanupDatabase();
+  } else {
+    console.log("Skipping cleanup as requested.");
+  }
 
   // --- 2. Seed Users ---
+  console.log("\n👤 Seeding Users...");
   const usersData = [
     {
       name: "Afzal Creator",
       email: "mafzalbro@gmail.com",
       role: Role.ADMIN,
       onboarded: true,
+      newsletter: true,
     },
     {
       name: "Bob Builder",
       email: "maf415415@gmail.com",
-      role: Role.USER,
+      role: Role.AUTHOR,
       onboarded: false,
+      newsletter: true,
     },
     {
       name: "Charlie User",
       email: "ma4156250@gmail.com",
       role: Role.USER,
       onboarded: false,
+      newsletter: false,
     },
   ];
   await prisma.user.createMany({ data: usersData });
@@ -70,69 +141,10 @@ async function main() {
     throw new Error("Failed to seed users correctly.");
   }
 
-  console.log(`Seeded ${usersData.length} users.`);
-
-  // --- 2.1 Seed High-Fidelity Platforms (36 Entities) ---
-  console.log("📍 Seeding 36 high-fidelity platforms...");
-  for (const data of allPlatforms) {
-    const platform = await prisma.platform.create({
-      data: {
-        name: data.name,
-        website: data.website,
-        logoUrl: data.logoUrl,
-        description: data.description,
-        rating: data.rating,
-        easeOfUse: data.easeOfUse,
-        featuresRating: data.featuresRating,
-        support: data.support,
-        pros: data.pros,
-        cons: data.cons,
-        affiliateLink: data.affiliateLink,
-        dealDescription: data.dealDescription,
-        videoHostingIncluded: data.videoHostingIncluded,
-        lastVerifiedAt: new Date(data.lastVerifiedAt),
-        tiers: {
-          create: data.tiers.map(t => ({
-            name: t.name,
-            monthlyPrice: t.monthlyPrice,
-            annualPriceMonthlyEquivalent: t.annualPriceMonthlyEquivalent,
-            transactionFeePercent: t.transactionFeePercent,
-            isPopular: t.isPopular || false,
-            features: t.features,
-          }))
-        }
-      }
-    });
-
-    for (const feat of data.features) {
-      const category = await prisma.featureCategory.upsert({
-        where: { name: feat.categoryName },
-        update: {},
-        create: { name: feat.categoryName },
-      });
-
-      let existingFeature = await prisma.feature.findFirst({
-        where: { name: feat.featureName, categoryId: category.id }
-      });
-
-      if (!existingFeature) {
-        existingFeature = await prisma.feature.create({
-          data: { name: feat.featureName, categoryId: category.id }
-        });
-      }
-
-      await prisma.platformFeature.create({
-        data: {
-          platformId: platform.id,
-          featureId: existingFeature.id,
-          hasFeature: feat.hasFeature,
-          details: feat.details
-        }
-      });
-    }
-  }
+  console.log(`   ✓ Seeded ${usersData.length} users.`);
 
   // --- 3. Seed Features and Categories ---
+  console.log("\n✨ Seeding Features & Categories...");
   const categoriesData = [
     {
       name: "Core Course Features",
@@ -176,6 +188,7 @@ async function main() {
     },
   ];
 
+  let totalFeatures = 0;
   for (const cat of categoriesData) {
     const category = await prisma.featureCategory.create({
       data: { name: cat.name },
@@ -183,10 +196,14 @@ async function main() {
     await prisma.feature.createMany({
       data: cat.features.map((name) => ({ name, categoryId: category.id })),
     });
+    totalFeatures += cat.features.length;
   }
-  console.log("Seeded feature categories and features.");
+  console.log(
+    `   ✓ Seeded ${categoriesData.length} feature categories and ${totalFeatures} features.`,
+  );
 
   // --- 4. Seed Platforms ---
+  console.log("\n🚀 Seeding Platforms...");
   const allFeatures = await prisma.feature.findMany();
   const featureMap = new Map(allFeatures.map((f) => [f.name, f.id]));
 
@@ -199,7 +216,7 @@ async function main() {
       website: "https://teachable.com",
       logoUrl: "/logos/teachable.svg",
       description:
-        "A popular platform that focuses on ease of use for creators just starting out. Great for simple course structures.",
+        "Focuses on ease of use for starting creators. Great for simple course structures with solid marketing tools.",
       rating: 4.2,
       easeOfUse: 4.8,
       featuresRating: 4.0,
@@ -210,7 +227,7 @@ async function main() {
       website: "https://www.thinkific.com",
       logoUrl: "/logos/thinkific.svg",
       description:
-        "A powerful and flexible platform that offers more customization options and advanced features for growing businesses.",
+        "Powerful and flexible platform with 0% transaction fees. Offers deep customization and an extensive app store.",
       rating: 4.6,
       easeOfUse: 4.5,
       featuresRating: 4.7,
@@ -221,7 +238,7 @@ async function main() {
       website: "https://kajabi.com",
       logoUrl: "/logos/kajabi.svg",
       description:
-        "An all-in-one platform that includes email marketing, website building, and sales funnels in addition to course hosting.",
+        "The premier all-in-one platform. Includes email marketing, funnels, and CRM in a premium closed ecosystem.",
       rating: 4.8,
       easeOfUse: 4.3,
       featuresRating: 4.9,
@@ -232,19 +249,258 @@ async function main() {
       website: "https://www.podia.com",
       logoUrl: "/logos/podia.svg",
       description:
-        "A creator-friendly platform for courses, digital downloads, and memberships with a focus on simplicity and affordability.",
+        "Creator-friendly platform for courses and downloads. Focused on simplicity, affordability, and clean design.",
       rating: 4.5,
       easeOfUse: 4.9,
       featuresRating: 4.2,
       support: 4.5,
     },
+    {
+      name: "Skool",
+      website: "https://www.skool.com",
+      logoUrl: "/logos/skool.svg",
+      description:
+        "Community-first platform focused on gamification and engagement. Minimalist design with maximum social impact.",
+      rating: 4.7,
+      easeOfUse: 5.0,
+      featuresRating: 3.8,
+      support: 4.4,
+    },
+    {
+      name: "Circle",
+      website: "https://circle.so",
+      logoUrl: "/logos/circle.svg",
+      description:
+        "The modern community platform for creators. Seamlessly combines discussions, events, and courses.",
+      rating: 4.6,
+      easeOfUse: 4.4,
+      featuresRating: 4.5,
+      support: 4.3,
+    },
+    {
+      name: "LearnWorlds",
+      website: "https://www.learnworlds.com",
+      logoUrl: "/logos/learnworlds.svg",
+      description:
+        "Advanced course authoring with interactive video and SCORM support. Ideal for professional training sites.",
+      rating: 4.4,
+      easeOfUse: 3.5,
+      featuresRating: 5.0,
+      support: 4.2,
+    },
+    {
+      name: "Gumroad",
+      website: "https://gumroad.com",
+      logoUrl: "/logos/gumroad.svg",
+      description:
+        "The simplest way to sell digital products and courses. Lightweight with a focus on quick setup and commerce.",
+      rating: 4.1,
+      easeOfUse: 4.9,
+      featuresRating: 3.5,
+      support: 3.8,
+    },
+    {
+      name: "Mighty Networks",
+      website: "https://www.mightynetworks.com",
+      logoUrl: "/logos/mightynetworks.svg",
+      description:
+        "Build communities and courses on your own branded mobile apps. Strong focus on network effects.",
+      rating: 4.3,
+      easeOfUse: 3.8,
+      featuresRating: 4.6,
+      support: 4.1,
+    },
   ];
 
   await prisma.platform.createMany({ data: platformsData });
   const createdPlatforms = await prisma.platform.findMany();
-  console.log(`Seeded ${createdPlatforms.length} platforms.`);
+  console.log(`   ✓ Seeded ${createdPlatforms.length} platforms.`);
+
+  // --- 4.1 Seed Pricing Tiers ---
+  console.log("💳 Seeding Pricing Tiers...");
+  const tiersData = {
+    Teachable: [
+      {
+        name: "Free",
+        monthlyPrice: 0,
+        transactionFeePercent: 10,
+        isPopular: false,
+      },
+      {
+        name: "Basic",
+        monthlyPrice: 39,
+        transactionFeePercent: 5,
+        isPopular: true,
+        annualPriceMonthlyEquivalent: 33,
+      },
+      {
+        name: "Pro",
+        monthlyPrice: 119,
+        transactionFeePercent: 0,
+        isPopular: false,
+        annualPriceMonthlyEquivalent: 99,
+      },
+    ],
+    Thinkific: [
+      {
+        name: "Free",
+        monthlyPrice: 0,
+        transactionFeePercent: 0,
+        isPopular: false,
+      },
+      {
+        name: "Basic",
+        monthlyPrice: 39,
+        transactionFeePercent: 0,
+        isPopular: false,
+        annualPriceMonthlyEquivalent: 33,
+      },
+      {
+        name: "Start",
+        monthlyPrice: 74,
+        transactionFeePercent: 0,
+        isPopular: true,
+        annualPriceMonthlyEquivalent: 62,
+      },
+      {
+        name: "Grow",
+        monthlyPrice: 149,
+        transactionFeePercent: 0,
+        isPopular: false,
+        annualPriceMonthlyEquivalent: 124,
+      },
+    ],
+    Kajabi: [
+      {
+        name: "Basic",
+        monthlyPrice: 149,
+        transactionFeePercent: 0,
+        isPopular: true,
+        annualPriceMonthlyEquivalent: 119,
+      },
+      {
+        name: "Growth",
+        monthlyPrice: 199,
+        transactionFeePercent: 0,
+        isPopular: false,
+        annualPriceMonthlyEquivalent: 159,
+      },
+      {
+        name: "Pro",
+        monthlyPrice: 399,
+        transactionFeePercent: 0,
+        isPopular: false,
+        annualPriceMonthlyEquivalent: 319,
+      },
+    ],
+    Podia: [
+      {
+        name: "Free",
+        monthlyPrice: 0,
+        transactionFeePercent: 8,
+        isPopular: false,
+      },
+      {
+        name: "Mover",
+        monthlyPrice: 39,
+        transactionFeePercent: 0,
+        isPopular: true,
+        annualPriceMonthlyEquivalent: 33,
+      },
+      {
+        name: "Shaker",
+        monthlyPrice: 89,
+        transactionFeePercent: 0,
+        isPopular: false,
+        annualPriceMonthlyEquivalent: 75,
+      },
+    ],
+    Skool: [
+      {
+        name: "All-in-One",
+        monthlyPrice: 99,
+        transactionFeePercent: 0,
+        isPopular: true,
+      },
+    ],
+    Circle: [
+      {
+        name: "Basic",
+        monthlyPrice: 49,
+        transactionFeePercent: 4,
+        isPopular: false,
+      },
+      {
+        name: "Professional",
+        monthlyPrice: 99,
+        transactionFeePercent: 0,
+        isPopular: true,
+      },
+      {
+        name: "Business",
+        monthlyPrice: 219,
+        transactionFeePercent: 0,
+        isPopular: false,
+      },
+    ],
+    LearnWorlds: [
+      {
+        name: "Starter",
+        monthlyPrice: 29,
+        transactionFeePercent: 5,
+        isPopular: false,
+      },
+      {
+        name: "Pro Trainer",
+        monthlyPrice: 99,
+        transactionFeePercent: 0,
+        isPopular: true,
+      },
+      {
+        name: "Learning Center",
+        monthlyPrice: 299,
+        transactionFeePercent: 0,
+        isPopular: false,
+      },
+    ],
+    Gumroad: [
+      {
+        name: "Simple",
+        monthlyPrice: 0,
+        transactionFeePercent: 10,
+        isPopular: true,
+      },
+    ],
+    "Mighty Networks": [
+      {
+        name: "Community",
+        monthlyPrice: 39,
+        transactionFeePercent: 3,
+        isPopular: false,
+      },
+      {
+        name: "Business",
+        monthlyPrice: 119,
+        transactionFeePercent: 2,
+        isPopular: true,
+      },
+    ],
+  };
+
+  let tierCount = 0;
+  for (const platform of createdPlatforms) {
+    const platformTiers = tiersData[platform.name as keyof typeof tiersData];
+    if (platformTiers) {
+      await prisma.pricingTier.createMany({
+        data: platformTiers.map((t) => ({ ...t, platformId: platform.id })),
+      });
+      tierCount += platformTiers.length;
+    }
+  }
+  console.log(`   ✓ Seeded ${tierCount} pricing tiers.`);
 
   // --- 5. Seed Platform Features ---
+  console.log("🔗 Seeding Platform Features...");
   const platformFeatureData = {
     Teachable: {
       "Course Builder": true,
@@ -334,8 +590,119 @@ async function main() {
       "API Access": false,
       "App Integrations": false,
     },
+    Skool: {
+      "Course Builder": true,
+      "Video Hosting": false,
+      "Quizzes & Surveys": false,
+      Assignments: false,
+      "Certificates of Completion": false,
+      "Content Dripping": true,
+      "Website Builder": false,
+      "Custom Domain": true,
+      Blogging: false,
+      "Affiliate Marketing": false,
+      "Email Marketing": false,
+      "Sales & Coupons": false,
+      "Community Forum": true,
+      "Mobile App Access": true,
+      "Live Classes / Webinars": false,
+      "Student Dashboard": true,
+      "Payment Gateways": true,
+      "Advanced Analytics": true,
+      "API Access": true,
+      "App Integrations": true,
+    },
+    Circle: {
+      "Course Builder": true,
+      "Video Hosting": true,
+      "Quizzes & Surveys": true,
+      Assignments: true,
+      "Certificates of Completion": true,
+      "Content Dripping": true,
+      "Website Builder": true,
+      "Custom Domain": true,
+      Blogging: false,
+      "Affiliate Marketing": false,
+      "Email Marketing": true,
+      "Sales & Coupons": true,
+      "Community Forum": true,
+      "Mobile App Access": true,
+      "Live Classes / Webinars": true,
+      "Student Dashboard": true,
+      "Payment Gateways": true,
+      "Advanced Analytics": true,
+      "API Access": true,
+      "App Integrations": true,
+    },
+    LearnWorlds: {
+      "Course Builder": true,
+      "Video Hosting": true,
+      "Quizzes & Surveys": true,
+      Assignments: true,
+      "Certificates of Completion": true,
+      "Content Dripping": true,
+      "Website Builder": true,
+      "Custom Domain": true,
+      Blogging: true,
+      "Affiliate Marketing": true,
+      "Email Marketing": true,
+      "Sales & Coupons": true,
+      "Community Forum": true,
+      "Mobile App Access": true,
+      "Live Classes / Webinars": true,
+      "Student Dashboard": true,
+      "Payment Gateways": true,
+      "Advanced Analytics": true,
+      "API Access": true,
+      "App Integrations": true,
+    },
+    Gumroad: {
+      "Course Builder": true,
+      "Video Hosting": true,
+      "Quizzes & Surveys": false,
+      Assignments: false,
+      "Certificates of Completion": false,
+      "Content Dripping": false,
+      "Website Builder": false,
+      "Custom Domain": true,
+      Blogging: false,
+      "Affiliate Marketing": true,
+      "Email Marketing": true,
+      "Sales & Coupons": true,
+      "Community Forum": false,
+      "Mobile App Access": false,
+      "Live Classes / Webinars": false,
+      "Student Dashboard": true,
+      "Payment Gateways": true,
+      "Advanced Analytics": true,
+      "API Access": true,
+      "App Integrations": true,
+    },
+    "Mighty Networks": {
+      "Course Builder": true,
+      "Video Hosting": true,
+      "Quizzes & Surveys": true,
+      Assignments: true,
+      "Certificates of Completion": true,
+      "Content Dripping": true,
+      "Website Builder": true,
+      "Custom Domain": true,
+      Blogging: false,
+      "Affiliate Marketing": false,
+      "Email Marketing": true,
+      "Sales & Coupons": true,
+      "Community Forum": true,
+      "Mobile App Access": true,
+      "Live Classes / Webinars": true,
+      "Student Dashboard": true,
+      "Payment Gateways": true,
+      "Advanced Analytics": true,
+      "API Access": true,
+      "App Integrations": true,
+    },
   };
 
+  let platformFeatureCount = 0;
   for (const platform of createdPlatforms) {
     const features =
       platformFeatureData[platform.name as keyof typeof platformFeatureData];
@@ -349,27 +716,30 @@ async function main() {
         await prisma.platformFeature.create({
           data: { platformId: platform.id, featureId, hasFeature, details },
         });
+        platformFeatureCount++;
       }
     }
   }
-  console.log("Seeded platform features.");
+  console.log(`   ✓ Seeded ${platformFeatureCount} platform features.`);
 
   // --- 6. Seed Blog Post Categories ---
-  await prisma.postCategory.createMany({
-    data: [
-      { name: "Platform Guides", slug: "platform-guides" },
-      { name: "Course Creation", slug: "course-creation" },
-      { name: "Marketing", slug: "marketing" },
-      { name: "Tech Trends", slug: "tech-trends" },
-    ],
-  });
+  console.log("\n📚 Seeding Blog Post Categories...");
+  const postCategoryData = [
+    { name: "Platform Guides", slug: "platform-guides" },
+    { name: "Course Creation", slug: "course-creation" },
+    { name: "Marketing", slug: "marketing" },
+    { name: "Tech Trends", slug: "tech-trends" },
+  ];
+  await prisma.postCategory.createMany({ data: postCategoryData });
   const postCategories = await prisma.postCategory.findMany();
-  console.log("Seeded post categories.");
+  console.log(`   ✓ Seeded ${postCategories.length} post categories.`);
   const postCategoryMap = new Map(postCategories.map((c) => [c.name, c.id]));
 
   // --- 7. Seed Blog Posts ---
+  console.log("📝 Seeding Blog Posts...");
   const postsData: (Omit<Prisma.PostCreateInput, "author" | "category"> & {
     categoryName: string;
+    authorId: string;
   })[] = [
     {
       slug: "choosing-the-right-platform",
@@ -423,162 +793,477 @@ async function main() {
 
   let previousPostId: string | null = null;
   for (let i = 0; i < postsData.length; i++) {
-    const { categoryName, ...rest } = postsData[i];
+    const { categoryName, authorId, ...rest } = postsData[i];
     const categoryId = postCategoryMap.get(categoryName);
     if (!categoryId) {
       console.warn(
-        `Category '${categoryName}' not found for post '${postsData[i].title}'. Skipping post.`
+        `Category '${categoryName}' not found for post '${postsData[i].title}'. Skipping post.`,
       );
       continue;
     }
-    const post = await prisma.post.create({
+    const createdPost: Post = await prisma.post.create({
       data: {
         ...rest,
-        categoryId,
-        previousId: previousPostId,
+        author: { connect: { id: authorId } },
+        category: { connect: { id: categoryId } },
+        previous: previousPostId
+          ? { connect: { id: previousPostId } }
+          : undefined,
       },
     });
     if (previousPostId) {
       await prisma.post.update({
         where: { id: previousPostId },
-        data: { nextId: post.id },
+        data: { nextId: createdPost.id },
       });
     }
-    previousPostId = post.id;
+    previousPostId = createdPost.id;
   }
-  console.log("Seeded blog posts with navigation links.");
+  console.log(
+    `   ✓ Seeded ${postsData.length} blog posts with navigation links.`,
+  );
 
   const allPosts = await prisma.post.findMany();
   const post1 = allPosts.find((p) => p.slug === "choosing-the-right-platform")!;
   const post2 = allPosts.find((p) => p.slug === "engaging-course-content")!;
 
   // --- 8. Seed Comments ---
-  await prisma.comment.createMany({
-    data: [
-      {
-        content:
-          "This was incredibly helpful! I was stuck between Teachable and Thinkific, and this breakdown made the choice clear.",
-        postId: post1.id,
-        authorId: charlieUser.id,
-        status: "APPROVED",
-      },
-      {
-        content:
-          "Great article. What are your thoughts on Kajabi's price point for new creators? Seems a bit steep.",
-        postId: post1.id,
-        authorId: bobUser.id,
-        status: "PENDING",
-      },
-      {
-        content:
-          "These are fantastic ideas for engagement. I'm definitely going to try adding more interactive quizzes.",
-        postId: post2.id,
-        authorId: charlieUser.id,
-        status: "APPROVED",
-      },
-      {
-        content: "I don't agree with point #3.",
-        postId: post2.id,
-        authorId: bobUser.id,
-        status: "REJECTED",
-      },
-    ],
-  });
-  console.log("Seeded comments.");
+  console.log("💬 Seeding Comments...");
+  const commentData = [
+    {
+      content:
+        "This was incredibly helpful! I was stuck between Teachable and Thinkific, and this breakdown made the choice clear.",
+      postId: post1.id,
+      authorId: charlieUser.id,
+      status: CommentStatus.APPROVED,
+    },
+    {
+      content:
+        "Great article. What are your thoughts on Kajabi's price point for new creators? Seems a bit steep.",
+      postId: post1.id,
+      authorId: bobUser.id,
+      status: CommentStatus.PENDING,
+    },
+    {
+      content:
+        "These are fantastic ideas for engagement. I'm definitely going to try adding more interactive quizzes.",
+      postId: post2.id,
+      authorId: charlieUser.id,
+      status: CommentStatus.APPROVED,
+    },
+    {
+      content: "I don't agree with point #3.",
+      postId: post2.id,
+      authorId: bobUser.id,
+      status: CommentStatus.REJECTED,
+    },
+  ];
+  await prisma.comment.createMany({ data: commentData });
+  console.log(`   ✓ Seeded ${commentData.length} comments.`);
 
   // --- 9. Seed Comparison Categories ---
-  await prisma.comparisonCategory.createMany({
-    data: [
-      { name: "Flagship Showdowns", slug: "flagship-showdowns" },
-      { name: "All-in-One vs. Standalone", slug: "all-in-one-vs-standalone" },
-    ],
-  });
+  console.log("\n⚖️ Seeding Comparison Categories...");
+  const compCategoryData = [
+    { name: "Flagship Showdowns", slug: "flagship-showdowns" },
+    { name: "All-in-One vs. Standalone", slug: "all-in-one-vs-standalone" },
+  ];
+  await prisma.comparisonCategory.createMany({ data: compCategoryData });
   const compCategories = await prisma.comparisonCategory.findMany();
-  console.log("Seeded comparison categories.");
+  console.log(`   ✓ Seeded ${compCategories.length} comparison categories.`);
   const compCategoryMap = new Map(compCategories.map((c) => [c.name, c.id]));
 
   // --- 10. Seed Comparisons ---
+  console.log("🆚 Seeding Comparisons...");
   const platformTeachable = createdPlatforms.find(
-    (p) => p.name === "Teachable"
+    (p) => p.name === "Teachable",
   )!;
   const platformThinkific = createdPlatforms.find(
-    (p) => p.name === "Thinkific"
+    (p) => p.name === "Thinkific",
   )!;
 
-  await prisma.comparison.create({
-    data: {
+  const explicitComparisons = [
+    {
       title: "Teachable vs. Thinkific: The Ultimate 2024 Showdown",
       slug: "teachable-vs-thinkific",
       summary:
-        "We dive deep into the features, pricing, and user experience of Teachable and Thinkific to help you decide which is the best fit for your course creation journey.",
-      platformAId: platformTeachable.id,
-      platformBId: platformThinkific.id,
-      categoryId: compCategoryMap.get("Flagship Showdowns"),
+        "Battle of the industry giants: ease of use vs. 0% transaction fees.",
+      platformA: "Teachable",
+      platformB: "Thinkific",
+      category: "Flagship Showdowns",
       introduction:
-        "### Introduction\nChoosing between Teachable and Thinkific is a common dilemma for course creators. Both are industry leaders, but they cater to slightly different needs. This comparison will break down the key differences.",
+        "Choosing between Teachable and Thinkific is a common dilemma...",
       conclusion:
-        "### Conclusion\nFor beginners who prioritize simplicity, Teachable is a fantastic starting point. For those needing more customization and advanced features, Thinkific offers a more robust platform to grow into.",
-      published: true,
-      facts: {
-        create: [
-          {
-            title: "Best For",
-            platformAValue: "Beginners",
-            platformBValue: "Entrepreneurs",
-          },
-          {
-            title: "Free Plan",
-            platformAValue: "Yes, limited",
-            platformBValue: "Yes, limited",
-          },
-          {
-            title: "Transaction Fees (on free plan)",
-            platformAValue: "10% + $1",
-            platformBValue: "0%",
-          },
-        ],
-      },
-      faqs: {
-        create: [
-          {
-            question: "Which platform has better marketing tools?",
-            answer:
-              "Kajabi is generally considered to have the most comprehensive, all-in-one marketing suite.",
-          },
-          {
-            question: "Can I use my own domain with both?",
-            answer:
-              "Yes, both Teachable and Thinkific support custom domains on their paid plans.",
-          },
-        ],
-      },
+        "For beginners, Teachable is great. For scaling, Thinkific wins on fees.",
+      facts: [
+        { title: "Best For", a: "Beginners", b: "Scaling Schools" },
+        { title: "Transaction Fees", a: "1% - 10%", b: "0%" },
+        { title: "Custom Domain", a: "Paid Plans", b: "All Plans" },
+      ],
     },
-  });
-  const platforms = await prisma.platform.findMany();
-  await prisma.comparison.create({
-    data: {
-      title: "Kajabi vs Skool: The Ultimate 2026 Comparison Guide",
-      slug: "kajabi-vs-skool",
-      summary: "Marketing Powerhouse vs. Engagement Engine.",
-      platformAId: platforms.find(p => p.name === "Kajabi")!.id,
-      platformBId: platforms.find(p => p.name === "Skool")!.id,
-      categoryId: compCategoryMap.get("Flagship Showdowns"),
-      introduction: "Choosing between Kajabi and Skool is critical in 2026.",
-      conclusion: "Kajabi for all-in-one, Skool for engagement.",
-      published: true,
-      content: `## Architecture and Philosophy: Stability vs. Velocity\n\nIn 2026, the lines between course hosting and community management have blurred...`,
-      facts: {
-        create: [
-          { title: "Primary Focus", platformAValue: "Sales Funnels", platformBValue: "Community Engagement" },
-          { title: "Gamification", platformAValue: "Basic", platformBValue: "Advanced" }
-        ]
+    {
+      title: "Skool vs. Circle: The Community Battle",
+      slug: "skool-vs-circle",
+      summary:
+        "Gamification and simplicity vs. Enterprise-grade community features.",
+      platformA: "Skool",
+      platformB: "Circle",
+      category: "Flagship Showdowns",
+      introduction:
+        "Community-led growth is the current meta. But should you choose Skool or Circle?",
+      conclusion:
+        "Choose Skool for high engagement, Circle for professional branding.",
+      facts: [
+        { title: "Gamification", a: "Native leaderboards", b: "Moderate" },
+        { title: "App Experience", a: "Highly Rated", b: "IOS/Android" },
+        { title: "Course Engine", a: "Sleek/Basic", b: "Advanced/Modular" },
+      ],
+    },
+    {
+      title: "Kajabi vs. Podia: The All-in-One Choice",
+      slug: "kajabi-vs-podia",
+      summary:
+        "High-end marketing automation vs. the creator-friendly affordable alternative.",
+      platformA: "Kajabi",
+      platformB: "Podia",
+      category: "All-in-One vs. Standalone",
+      introduction:
+        "Do you need a Ferrari or a reliable Tesla? We compare the two most popular all-in-one platforms.",
+      conclusion:
+        "Kajabi for those with a high budget, Podia for everyone else.",
+      facts: [
+        { title: "Email Marketing", a: "Full Automation", b: "Standard" },
+        { title: "Pricing", a: "$149+/mo", b: "$39+/mo" },
+        { title: "Complexity", a: "High", b: "Very Low" },
+      ],
+    },
+    {
+      title: "Gumroad vs. Teachable: Digital Sales Faceoff",
+      slug: "gumroad-vs-teachable",
+      summary: "Lightweight sales vs. structured course hosting.",
+      platformA: "Gumroad",
+      platformB: "Teachable",
+      category: "All-in-One vs. Standalone",
+      introduction:
+        "Selling your first digital product? Gumroad is the easy choice, but Teachable offers more growth.",
+      conclusion:
+        "Start on Gumroad, migrate to Teachable once you have a curriculum.",
+      facts: [
+        { title: "Platform Fee", a: "10% Flat", b: "Tiered" },
+        { title: "Quizzes/Exams", a: "No", b: "Yes" },
+        { title: "Setup Speed", a: "Instant", b: "Fast" },
+      ],
+    },
+  ];
+
+  const comparisonsToCreate = [...explicitComparisons];
+
+  for (let i = 0; i < createdPlatforms.length; i++) {
+    for (let j = i + 1; j < createdPlatforms.length; j++) {
+      const pA = createdPlatforms[i];
+      const pB = createdPlatforms[j];
+
+      const exists = comparisonsToCreate.find(
+        (c) =>
+          (c.platformA === pA.name && c.platformB === pB.name) ||
+          (c.platformA === pB.name && c.platformB === pA.name),
+      );
+
+      if (!exists) {
+        comparisonsToCreate.push({
+          title: `${pA.name} vs. ${pB.name}: Which is Better?`,
+          slug: `${pA.name.toLowerCase().replace(/\s+/g, "-")}-vs-${pB.name.toLowerCase().replace(/\s+/g, "-")}`,
+          summary: `A comprehensive comparison between ${pA.name} and ${pB.name} for modern course creators and community builders.`,
+          platformA: pA.name,
+          platformB: pB.name,
+          category: "All-in-One vs. Standalone",
+          introduction: `Deciding whether to use ${pA.name} or ${pB.name} depends heavily on your specific needs, budget, and future growth plans.`,
+          conclusion: `Both ${pA.name} and ${pB.name} offer excellent features, but the right choice depends on your prioritization of ease of use and pricing.`,
+          facts: [
+            { title: "Users Rating", a: `${pA.rating}/5`, b: `${pB.rating}/5` },
+            {
+              title: "Ease of Use",
+              a: `${pA.easeOfUse}/5`,
+              b: `${pB.easeOfUse}/5`,
+            },
+            {
+              title: "Features Rating",
+              a: `${pA.featuresRating}/5`,
+              b: `${pB.featuresRating}/5`,
+            },
+          ],
+        });
       }
     }
-  });
-  console.log("Seeded comparisons.");
+  }
 
-  // --- 11. Seed Site Content ---
+  for (const cData of comparisonsToCreate) {
+    const pA = createdPlatforms.find((p) => p.name === cData.platformA);
+    const pB = createdPlatforms.find((p) => p.name === cData.platformB);
+    const catId = compCategoryMap.get(cData.category);
+
+    if (pA && pB && catId) {
+      await prisma.comparison.create({
+        data: {
+          title: cData.title,
+          slug: cData.slug,
+          summary: cData.summary,
+          platformAId: pA.id,
+          platformBId: pB.id,
+          categoryId: catId,
+          introduction: cData.introduction,
+          conclusion: cData.conclusion,
+          published: true,
+          facts: {
+            create: cData.facts.map((f) => ({
+              title: f.title,
+              platformAValue: f.a,
+              platformBValue: f.b,
+            })),
+          },
+        },
+      });
+    }
+  }
+
+  console.log(`   ✓ Seeded ${comparisonsToCreate.length} comparisons.`);
+
+  // --- 11. Seed AI Tools ---
+  console.log("\n🤖 Seeding AI Tools...");
+  const toolsData: Omit<
+    Prisma.ToolCreateInput,
+    "id" | "createdAt" | "updatedAt"
+  >[] = [
+    {
+      slug: "title-generator",
+      title: "AI Title Generator",
+      description: "Craft catchy, SEO-friendly titles for your course.",
+      Icon: "Lightbulb",
+      category: "Marketing",
+      enabled: true,
+      inputTopicLabel: "Course Description",
+      inputContextLabel: "",
+      prompt:
+        "You are an expert in creating engaging and effective course titles. Based on the provided course description, generate a title that will attract more students and increase enrollment.\n\nCourse Description: {{{topic}}}",
+    },
+    {
+      slug: "course-outliner",
+      title: "AI Course Outliner",
+      description:
+        "Generate a comprehensive, structured outline for your course.",
+      Icon: "FileText",
+      category: "CurriculumDesign",
+      enabled: true,
+      inputTopicLabel: "Course Description",
+      inputContextLabel: "Existing Outline (optional)",
+      prompt:
+        "You are an expert curriculum designer. Based on the provided course description, create a comprehensive and well-structured course outline. Use headings for modules and nested lists for lessons within each module. Each lesson should have a brief, one-sentence description.\n\nCourse Description: {{{topic}}}\n{{#if context}}\n\nExisting Outline:\n{{{context}}}\n\nContinue From There:{{/if}}",
+    },
+    {
+      slug: "video-scripter",
+      title: "AI Video Script Assistant",
+      description: "Create engaging scripts for your video lessons.",
+      Icon: "Video",
+      category: "ContentCreation",
+      enabled: true,
+      inputTopicLabel: "Lesson Topic",
+      inputContextLabel: "Existing Script (optional)",
+      prompt:
+        'You are an expert scriptwriter for educational videos. Based on the lesson topic, write a complete, word-for-word video script. Include cues for the presenter\'s tone (e.g., "[enthusiastically]") and suggestions for on-screen visuals (e.g., "[Show B-roll of...]").\n\nLesson Topic: {{{topic}}}\n{{#if context}}\n\nExisting Script:\n{{{context}}}\n\nContinue writing from here:{{/if}}',
+    },
+    {
+      slug: "lesson-summarizer",
+      title: "AI Lesson Summarizer",
+      description: "Automatically generate key takeaways for your lessons.",
+      Icon: "BookOpen",
+      category: "Productivity",
+      enabled: true,
+      inputTopicLabel: "Lesson Content",
+      inputContextLabel: "Existing Summary (optional)",
+      prompt:
+        "You are an expert at distilling information. Based on the lesson content, create a concise summary. It should be a short paragraph followed by the 3-5 most important key takeaways as a bulleted list.\n\nLesson Content: {{{topic}}}\n{{#if context}}\n\nExisting Summary:\n{{{context}}}\n\nContinue From There:{{/if}}",
+    },
+    {
+      slug: "blog-post-idea-generator",
+      title: "Blog Post Idea Generator",
+      description:
+        "Generate a list of blog post ideas to attract your target audience.",
+      Icon: "FilePenLine",
+      category: "SEO",
+      enabled: true,
+      inputTopicLabel: "Course Topic",
+      inputContextLabel: "Target Audience (optional)",
+      prompt:
+        "You are a content marketing strategist. Generate a list of 5-7 blog post ideas that are relevant to the given course topic and target audience. The ideas should be engaging and designed to attract potential students.\n\nCourse Topic: {{{topic}}}\n{{#if context}}Target Audience: {{{context}}}{{/if}}",
+    },
+  ];
+  await prisma.tool.createMany({ data: toolsData });
+  console.log(`   ✓ Seeded ${toolsData.length} AI tools.`);
+
+  // --- 12. Seed Site Content ---
+  console.log("\n🌐 Seeding Site Content...");
   const siteContent = [
+    // Globals
+    { key: "global.siteName", group: "Globals", value: "Comparlify" },
+    {
+      key: "global.banner.text",
+      group: "Globals",
+      value: "🎉 New AI Tools added! Supercharge your workflow now.",
+    },
+    {
+      key: "global.banner.link.text",
+      group: "Globals",
+      value: "Explore Tools",
+    },
+    { key: "global.banner.link.href", group: "Globals", value: "/tools" },
+    { key: "global.banner.enabled", group: "Globals", value: "true" },
+
+    // SEO Settings
+    { key: "seo.default.title", group: "SEO Settings", value: "Comparlify" },
+    {
+      key: "seo.default.description",
+      group: "SEO Settings",
+      type: ContentType.TEXTAREA,
+      value:
+        "Unbiased comparisons, AI-powered tools, and community insights to help course creators succeed.",
+    },
+    {
+      key: "seo.default.keywords",
+      group: "SEO Settings",
+      type: ContentType.TEXTAREA,
+      value:
+        "online course platform, course creation, e-learning, ai tools for creators, teachable vs thinkific, course marketing",
+    },
+    { key: "seo.default.twitter", group: "SEO Settings", value: "@comparlify" },
+    {
+      key: "seo.default.url",
+      group: "SEO Settings",
+      value: "https://comparlify.com",
+    },
+    {
+      key: "seo.og.image",
+      group: "SEO Settings",
+      value: "https://comparlify.com/og-image.png",
+    },
+    {
+      key: "seo.twitter.image",
+      group: "SEO Settings",
+      value: "https://comparlify.com/twitter-image.png",
+    },
+
+    // Organization Settings
+    {
+      key: "seo.org.name",
+      group: "Organization Settings",
+      value: "Comparlify",
+    },
+    {
+      key: "seo.org.logo",
+      group: "Organization Settings",
+      value: "https://comparlify.com/logo.png",
+    },
+
+    // Theme Settings: Light Mode
+    { key: "theme.light.background", group: "Theme", value: "48 100% 98%" },
+    { key: "theme.light.foreground", group: "Theme", value: "35 33% 20%" },
+    { key: "theme.light.card", group: "Theme", value: "48 100% 98%" },
+    { key: "theme.light.card-foreground", group: "Theme", value: "35 33% 20%" },
+    { key: "theme.light.popover", group: "Theme", value: "48 100% 98%" },
+    {
+      key: "theme.light.popover-foreground",
+      group: "Theme",
+      value: "35 33% 20%",
+    },
+    { key: "theme.light.primary", group: "Theme", value: "45 93% 58%" },
+    {
+      key: "theme.light.primary-foreground",
+      group: "Theme",
+      value: "35 33% 15%",
+    },
+    { key: "theme.light.secondary", group: "Theme", value: "48 95% 91%" },
+    {
+      key: "theme.light.secondary-foreground",
+      group: "Theme",
+      value: "35 33% 20%",
+    },
+    { key: "theme.light.muted", group: "Theme", value: "48 95% 94%" },
+    {
+      key: "theme.light.muted-foreground",
+      group: "Theme",
+      value: "35 33% 45%",
+    },
+    { key: "theme.light.accent", group: "Theme", value: "45 93% 85%" },
+    {
+      key: "theme.light.accent-foreground",
+      group: "Theme",
+      value: "35 33% 15%",
+    },
+    { key: "theme.light.destructive", group: "Theme", value: "0 84.2% 60.2%" },
+    {
+      key: "theme.light.destructive-foreground",
+      group: "Theme",
+      value: "0 0% 98%",
+    },
+    { key: "theme.light.border", group: "Theme", value: "45 80% 92%" },
+    { key: "theme.light.input", group: "Theme", value: "45 80% 92%" },
+    { key: "theme.light.ring", group: "Theme", value: "45 93% 58%" },
+
+    // Theme Settings: Dark Mode
+    { key: "theme.dark.background", group: "Theme", value: "30 10% 10%" },
+    { key: "theme.dark.foreground", group: "Theme", value: "45 60% 95%" },
+    { key: "theme.dark.card", group: "Theme", value: "30 10% 12%" },
+    { key: "theme.dark.card-foreground", group: "Theme", value: "45 60% 95%" },
+    { key: "theme.dark.popover", group: "Theme", value: "30 10% 10%" },
+    {
+      key: "theme.dark.popover-foreground",
+      group: "Theme",
+      value: "45 60% 95%",
+    },
+    { key: "theme.dark.primary", group: "Theme", value: "45 93% 58%" },
+    {
+      key: "theme.dark.primary-foreground",
+      group: "Theme",
+      value: "35 33% 15%",
+    },
+    { key: "theme.dark.secondary", group: "Theme", value: "30 10% 18%" },
+    {
+      key: "theme.dark.secondary-foreground",
+      group: "Theme",
+      value: "45 60% 95%",
+    },
+    { key: "theme.dark.muted", group: "Theme", value: "30 10% 18%" },
+    { key: "theme.dark.muted-foreground", group: "Theme", value: "45 60% 75%" },
+    { key: "theme.dark.accent", group: "Theme", value: "30 10% 22%" },
+    {
+      key: "theme.dark.accent-foreground",
+      group: "Theme",
+      value: "45 60% 95%",
+    },
+    { key: "theme.dark.destructive", group: "Theme", value: "0 62.8% 30.6%" },
+    {
+      key: "theme.dark.destructive-foreground",
+      group: "Theme",
+      value: "0 0% 98%",
+    },
+    { key: "theme.dark.border", group: "Theme", value: "30 10% 25%" },
+    { key: "theme.dark.input", group: "Theme", value: "30 10% 25%" },
+    { key: "theme.dark.ring", group: "Theme", value: "45 93% 58%" },
+
+    // Module Visibility
+    { key: "module.blog.enabled", group: "Module Visibility", value: "true" },
+    {
+      key: "module.compare.enabled",
+      group: "Module Visibility",
+      value: "true",
+    },
+    { key: "module.news.enabled", group: "Module Visibility", value: "true" },
+    {
+      key: "module.community.enabled",
+      group: "Module Visibility",
+      value: "true",
+    },
+    { key: "module.tools.enabled", group: "Module Visibility", value: "true" },
+
+    // Homepage
     {
       key: "homepage.hero.supertitle",
       group: "Homepage",
@@ -697,10 +1382,32 @@ async function main() {
       group: "Homepage",
       value: "Sign Up for Free",
     },
+
+    // Header & Footer
+    {
+      key: "header.navLinks",
+      group: "Header",
+      type: "TEXTAREA",
+      value: JSON.stringify(
+        [
+          { href: "/", label: "Home" },
+          { href: "/compare", label: "Comparisons" },
+          { href: "/blog", label: "Blog" },
+          { href: "/news", label: "News" },
+          { href: "/community", label: "Community" },
+          { href: "/tools", label: "Tools" },
+          { href: "/about", label: "About" },
+          { href: "/contact", label: "Contact" },
+        ],
+        null,
+        2,
+      ),
+    },
     {
       key: "footer.tagline",
       group: "Footer",
-      value: "Helping course creators thrive with better tools and insights.",
+      value:
+        "Helping course creators thrive with better tools and expert insights.",
     },
     { key: "footer.newsletter.title", group: "Footer", value: "Stay Updated" },
     {
@@ -708,6 +1415,38 @@ async function main() {
       group: "Footer",
       value: "Get the latest tips and tool updates straight to your inbox.",
     },
+    {
+      key: "footer.navLinks.navigate",
+      group: "Footer",
+      type: "TEXTAREA",
+      value: JSON.stringify(
+        [
+          { label: "Comparisons", href: "/compare" },
+          { label: "Blog", href: "/blog" },
+          { label: "Tools", href: "/tools" },
+        ],
+        null,
+        2,
+      ),
+    },
+    {
+      key: "footer.navLinks.company",
+      group: "Footer",
+      type: "TEXTAREA",
+      value: JSON.stringify(
+        [
+          { label: "About Us", href: "/about" },
+          { label: "Contact", href: "/contact" },
+          { label: "Privacy Policy", href: "/privacy" },
+          { label: "Terms of Service", href: "/legal/terms-of-service" },
+          { label: "Sponsor Policy", href: "/legal/sponsor-policy" },
+        ],
+        null,
+        2,
+      ),
+    },
+
+    // About Page
     {
       key: "about.hero.title",
       group: "About Page",
@@ -784,20 +1523,26 @@ async function main() {
       value: JSON.stringify(
         [
           {
-            name: "Alex Doe",
-            role: "Co-Founder & Lead Strategist",
-            avatar: "https://picsum.photos/seed/alex/100/100",
-            dataAiHint: "man professional portrait",
+            name: "Marcus Sterling",
+            role: "Chief Executive Architect",
+            avatar: "/ceo_avatar_1773077297883.png",
+            dataAiHint: "ceo high-end portrait professional suit",
           },
           {
-            name: "Jamie Smith",
-            role: "Co-Founder & Head of Product",
-            avatar: "https://picsum.photos/seed/jamie/100/100",
-            dataAiHint: "woman smiling portrait",
+            name: "Elena Vance",
+            role: "Head of Digital Strategy",
+            avatar: "/marketing_avatar_1773077331514.png",
+            dataAiHint: "marketing expert professional portrait",
+          },
+          {
+            name: "Dr. Aris Thorne",
+            role: "Chief Technology Officer",
+            avatar: "/cto_avatar_1773077313648.png",
+            dataAiHint: "cto tech expert professional portrait",
           },
         ],
         null,
-        2
+        2,
       ),
     },
     { key: "about.cta.title", group: "About Page", value: "Ready to Join Us?" },
@@ -812,6 +1557,8 @@ async function main() {
       group: "About Page",
       value: "Get Started for Free",
     },
+
+    // Contact Page
     { key: "contact.hero.title", group: "Contact Page", value: "Get in Touch" },
     {
       key: "contact.hero.subtitle",
@@ -847,6 +1594,8 @@ async function main() {
       group: "Contact Page",
       value: "123 Creator Lane, Suite 100\nInnovation City, 12345",
     },
+
+    // Privacy Page
     {
       key: "privacy.policy",
       group: "Privacy Page",
@@ -888,17 +1637,286 @@ We reserve the right to modify this privacy policy at any time, so please review
 If you have any questions about our privacy policy, please contact us at <a href="mailto:privacy@comparlify.com">privacy@comparlify.com</a>.
 `,
     },
-  ];
-  for (const content of siteContent) { await prisma.siteContent.upsert({ where: { key: content.key }, update: content as any, create: content as any }); }
-  console.log("Seeded site content.");
 
-  console.log("Seeding finished.");
+    // Blog Page Content
+    { key: "blog.hero.title", group: "Blog Page", value: "Creator Insights" },
+    {
+      key: "blog.hero.subtitle",
+      group: "Blog Page",
+      value:
+        "Actionable advice, deep dives, and growth strategies for the modern course creator.",
+    },
+    { key: "blog.empty.title", group: "Blog Page", value: "No Posts Found" },
+    {
+      key: "blog.empty.subtitle",
+      group: "Blog Page",
+      value: "Try adjusting your search or filters. Or check back soon!",
+    },
+    { key: "blog.post.backLink", group: "Blog Page", value: "Back to Blog" },
+    {
+      key: "blog.post.relatedTitle",
+      group: "Blog Page",
+      value: "Related Posts",
+    },
+    {
+      key: "blog.post.preview.title",
+      group: "Blog Page",
+      value: "Preview Mode",
+    },
+    {
+      key: "blog.post.preview.subtitle",
+      group: "Blog Page",
+      value: "This is a draft post and is not visible to the public.",
+    },
+    {
+      key: "blog.post.preview.exitButton",
+      group: "Blog Page",
+      value: "Exit Preview",
+    },
+
+    // Comparison Page Content
+    {
+      key: "compare.hero.title",
+      group: "Comparison Page",
+      value: "Course Platform Face-Off",
+    },
+    {
+      key: "compare.hero.subtitle",
+      group: "Comparison Page",
+      value:
+        "We've put the top platforms head-to-head. Get unbiased, in-depth analysis to make the right choice.",
+    },
+    {
+      key: "compare.empty.title",
+      group: "Comparison Page",
+      value: "No Comparisons Found",
+    },
+    {
+      key: "compare.empty.subtitle",
+      group: "Comparison Page",
+      value: "Try adjusting your search or filters. Or check back soon!",
+    },
+    {
+      key: "compare.detail.backLink",
+      group: "Comparison Page",
+      value: "Back to All Comparisons",
+    },
+    {
+      key: "compare.detail.glance.title",
+      group: "Comparison Page",
+      value: "At a Glance",
+    },
+    {
+      key: "compare.detail.ratings.title",
+      group: "Comparison Page",
+      value: "Ratings Breakdown",
+    },
+    {
+      key: "compare.detail.ratings.chartTitle",
+      group: "Comparison Page",
+      value: "Side-by-Side Ratings",
+    },
+    {
+      key: "compare.detail.features.title",
+      group: "Comparison Page",
+      value: "Feature Comparison",
+    },
+    {
+      key: "compare.detail.faq.title",
+      group: "Comparison Page",
+      value: "Frequently Asked Questions",
+    },
+
+    // Admin Settings
+    {
+      key: "settings.email.fromName",
+      group: "Email Settings",
+      value: "Comparlify",
+    },
+    {
+      key: "settings.email.fromEmail",
+      group: "Email Settings",
+      value: "noreply@comparlify.com",
+    },
+    {
+      key: "settings.code.head",
+      group: "Code Injection",
+      type: "TEXTAREA",
+      value: "",
+    },
+    {
+      key: "settings.code.body",
+      group: "Code Injection",
+      type: "TEXTAREA",
+      value: "",
+    },
+
+    // Legal Pages
+    {
+      key: "legal.terms-of-service",
+      group: "Legal Pages",
+      type: "MARKDOWN",
+      value: `
+# Terms of Service
+
+**Last Updated:** ${new Date().toLocaleDateString()}
+
+Welcome to Comparlify! These terms and conditions outline the rules and regulations for the use of Comparlify's Website, located at comparlify.com.
+
+By accessing this website we assume you accept these terms and conditions. Do not continue to use Comparlify if you do not agree to take all of the terms and conditions stated on this page.
+
+... (full terms content) ...
+`,
+    },
+    {
+      key: "legal.sponsor-policy",
+      group: "Legal Pages",
+      type: "MARKDOWN",
+      value: `
+# Sponsor & Affiliate Policy
+
+**Last Updated:** ${new Date().toLocaleDateString()}
+
+At Comparlify, our mission is to provide clear, unbiased, and valuable information to course creators. To support our work and keep our content free, we may partner with companies through sponsorships or affiliate links. This policy outlines our commitment to transparency.
+
+## Our Principles
+
+1.  **Editorial Independence:** Our content is created independently. Sponsors do not influence our reviews, comparisons, or opinions.
+2.  **Transparency:** We will always clearly disclose sponsored content or affiliate relationships.
+3.  **Relevance:** We only partner with companies whose products or services we believe are genuinely valuable to our audience.
+
+... (full policy content) ...
+`,
+    },
+  ];
+  for (const content of siteContent) {
+    try {
+      await prisma.siteContent.upsert({
+        where: { key: content.key },
+        update: content as any,
+        create: content as any,
+      });
+    } catch (e: any) {
+      console.error(
+        `   ❌ Failed to seed site content key '${content.key}': ${e.message}`,
+      );
+    }
+  }
+  console.log(`   ✓ Seeded ${siteContent.length} site content records.`);
+
+  // --- 13. Seed News ---
+  console.log("\n📰 Seeding News...");
+  const newsData = {
+    title: "Comparlify Launches New AI-Powered Tool Suite",
+    slug: "comparlify-launches-ai-tools",
+    content:
+      "We're excited to announce a major update to our platform. Our new suite of AI-powered tools is designed to help course creators streamline their workflow and produce higher-quality content faster than ever before. From generating course outlines to scripting video lessons, these tools are your new creative co-pilot.",
+    image: "https://picsum.photos/400/250?random=10",
+    dataAiHint: "technology launch announcement",
+    published: true,
+    authorId: adminUser.id,
+  };
+  await prisma.newsArticle.create({ data: newsData });
+  console.log(`   ✓ Seeded 1 news article.`);
+
+  // --- 14. Seed Community ---
+  console.log("\n💬 Seeding Community Forums...");
+  const generalCategory = await prisma.forumCategory.create({
+    data: {
+      name: "General Discussion",
+      slug: "general-discussion",
+      description: "Talk about anything related to course creation.",
+    },
+  });
+  console.log(`   ✓ Seeded 1 forum category.`);
+
+  const introductionsTopic = await prisma.forumTopic.create({
+    data: {
+      title: "Welcome! Introduce Yourself",
+      content:
+        "Welcome to the community! Take a moment to introduce yourself and tell us what you're working on.",
+      authorId: adminUser.id,
+      categoryId: generalCategory.id,
+      status: "APPROVED",
+    },
+  });
+  console.log(`   ✓ Seeded 1 forum topic.`);
+
+  await prisma.forumPost.createMany({
+    data: [
+      {
+        content:
+          "Hey everyone! I'm Bob, and I'm building a course on woodworking for beginners. Excited to learn from you all!",
+        authorId: bobUser.id,
+        topicId: introductionsTopic.id,
+        status: "APPROVED",
+      },
+      {
+        content: "Welcome, Bob! Glad to have you here.",
+        authorId: adminUser.id,
+        topicId: introductionsTopic.id,
+        status: "APPROVED",
+      },
+    ],
+  });
+  console.log(`   ✓ Seeded 2 forum posts.`);
+
+  // --- 15. Seed Images from /public/uploads ---
+  console.log("\n🖼️ Seeding existing images from public/uploads...");
+  const uploadsDir = path.join(process.cwd(), "public", "uploads");
+  try {
+    const files = await fs.readdir(uploadsDir);
+    const imageFiles = files.filter((file) =>
+      /\.(jpe?g|png|gif|webp|svg)$/i.test(file),
+    );
+    let newImagesCount = 0;
+
+    for (const filename of imageFiles) {
+      const existingImage = await prisma.image.findFirst({
+        where: { filename },
+      });
+
+      if (!existingImage) {
+        const filePath = path.join(uploadsDir, filename);
+        const stats = await fs.stat(filePath);
+
+        await prisma.image.create({
+          data: {
+            filename,
+            url: `/uploads/${filename}`,
+            altText: filename
+              .split(".")
+              .slice(0, -1)
+              .join(".")
+              .replace(/[-_]/g, " "),
+            size: stats.size,
+            authorId: adminUser.id,
+          },
+        });
+        newImagesCount++;
+      }
+    }
+    console.log(
+      `   ✓ Found ${imageFiles.length} images, added ${newImagesCount} new records to the database.`,
+    );
+  } catch (error: any) {
+    if (error.code === "ENOENT") {
+      console.log(
+        "   - public/uploads directory not found, skipping image seeding.",
+      );
+    } else {
+      console.error("   - Error seeding images from public/uploads:", error);
+    }
+  }
+
+  console.log("\n🎉 Seeding finished successfully!");
 }
 
-export const seed = async () => {
+export const seed = async (skipCleanup = false) => {
   try {
-    await main();
+    await main(skipCleanup);
   } catch (e) {
+    console.error("\n❌ An error occurred during seeding:");
     console.error(e);
     process.exit(1);
   } finally {
@@ -906,7 +1924,7 @@ export const seed = async () => {
   }
 };
 
-// If this file is run directly, execute the seed function.
+import { fileURLToPath } from "url";
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   seed();
 }
