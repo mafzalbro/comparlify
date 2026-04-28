@@ -5,7 +5,12 @@ import { generateSeoMetadata } from "@/lib/seo";
 import { SchemaScript } from "@/components/schema-script";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Zap, MessageSquare, Newspaper } from "lucide-react";
+import {
+  Sparkles,
+  Zap,
+  MessageSquare,
+  Newspaper,
+} from "lucide-react";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { cache } from "react";
@@ -163,8 +168,6 @@ export default async function DynamicBattlePage(props: {
 
         <ComparisonStats
           stats={stats}
-          platformAName={platformA.name}
-          platformBName={platformB.name}
         />
 
         <section className="container mx-auto px-4 md:px-6 max-w-7xl">
@@ -178,8 +181,6 @@ export default async function DynamicBattlePage(props: {
                   <ComparisonChart
                     chartConfig={chartConfig}
                     chartData={chartData}
-                    platformAName={platformA.name}
-                    platformBName={platformB.name}
                   />
                 </div>
               </div>
@@ -246,12 +247,10 @@ export default async function DynamicBattlePage(props: {
                 </p>
               </div>
 
-              <IntelligentAnalysis content={""} />
+              <IntelligentAnalysis content="" />
 
               <ComparisonFeatureMatrix
                 features={featureRows}
-                platformAName={platformA.name}
-                platformBName={platformB.name}
               />
 
               <div className="bg-card p-12 rounded-[3.5rem] border border-border/10">

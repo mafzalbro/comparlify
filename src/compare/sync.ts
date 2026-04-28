@@ -1,20 +1,14 @@
 import prisma from "@/lib/prisma";
 import { allPlatforms } from "./platforms";
-<<<<<<< HEAD
-import { PlatformData } from "./types";
-=======
-import { patreonVsTeachable } from "./comparisons/patreon-vs-teachable";
-
-export const allComparisons = [patreonVsTeachable];
->>>>>>> main
+import { allComparisons } from "./comparisons";
 
 export async function syncComparisonData() {
   console.log("🔄 Starting comparison data sync...");
 
+  // 1. Sync Platforms
   for (const data of allPlatforms) {
-    console.log("� Syncing platform: ", data.name);
+    console.log(`📍 Syncing platform: ${data.name}`);
 
-    // 1. Upsert Platform
     const platform = await prisma.platform.upsert({
       where: { name: data.name },
       update: {
@@ -50,7 +44,7 @@ export async function syncComparisonData() {
       },
     });
 
-    // 2. Sync Pricing Tiers
+    // Sync Pricing Tiers (Delete and Recreate for simple sync)
     await prisma.pricingTier.deleteMany({
       where: { platformId: platform.id }
     });
@@ -67,7 +61,7 @@ export async function syncComparisonData() {
       }))
     });
 
-    // 3. Sync Features & Categories
+    // Sync Features & Categories
     for (const feat of data.features) {
       const category = await prisma.featureCategory.upsert({
         where: { name: feat.categoryName },
@@ -75,21 +69,6 @@ export async function syncComparisonData() {
         create: { name: feat.categoryName },
       });
 
-<<<<<<< HEAD
-      const feature = await prisma.feature.upsert({
-        where: {
-          // Feature doesn't have a unique name?
-          // Schema: model Feature { id, name, categoryId ... }
-          // Let's check name uniqueness.
-          id: `feat-${feat.featureName.toLowerCase().replace(/\s+/g, '-')}`
-        } as any,
-        // Wait, schema doesn't have unique on name.
-        // I'll check if I can use findFirst.
-      } as any);
-
-      // Let's find or create feature properly.
-=======
->>>>>>> main
       let existingFeature = await prisma.feature.findFirst({
         where: { name: feat.featureName, categoryId: category.id }
       });
@@ -100,7 +79,6 @@ export async function syncComparisonData() {
         });
       }
 
-      // 4. Link PlatformFeature
       await prisma.platformFeature.upsert({
         where: {
           platformId_featureId: {
@@ -122,87 +100,73 @@ export async function syncComparisonData() {
     }
   }
 
-  console.log("✅ Platform data sync complete.");
-
-  console.log("🔄 Starting comparison data sync...");
-
-  for (const data of allComparisons) {
-    console.log("� Syncing comparison: ");
-
-    const platformA = await prisma.platform.findUnique({
-      where: { name: data.platformAName },
-    });
-    const platformB = await prisma.platform.findUnique({
-      where: { name: data.platformBName },
-    });
-    const category = await prisma.comparisonCategory.findUnique({
-      where: { name: data.categoryName } as any,
-    });
+  // 2. Sync Curated Comparisons
+  console.log("🆚 Syncing curated flagship comparisons...");
+  for (const cData of allComparisons) {
+    const platformA = await prisma.platform.findUnique({ where: { name: cData.platformA } });
+    const platformB = await prisma.platform.findUnique({ where: { name: cData.platformB } });
 
     if (!platformA || !platformB) {
-      console.error("Skipping comparison : One or both platforms not found.");
+      console.warn(`⚠️ Skipping comparison ${cData.title}: Platform ${!platformA ? cData.platformA : cData.platformB} not found.`);
       continue;
     }
-    // Attempt to create category if not found
-    let comparisonCategory = category;
-    if (!comparisonCategory) {
-      comparisonCategory = await prisma.comparisonCategory.create({
-        data: {
-          name: data.categoryName,
-          slug: data.categoryName.toLowerCase().replace(/\s+/g, "-"),
-        },
-      });
-      console.log("Created new comparison category: ");
-    }
+
+    const category = await prisma.comparisonCategory.upsert({
+      where: { slug: cData.category.toLowerCase().replace(/\s+/g, '-') },
+      update: { name: cData.category },
+      create: { name: cData.category, slug: cData.category.toLowerCase().replace(/\s+/g, '-') },
+    });
 
     const comparison = await prisma.comparison.upsert({
-      where: { slug: data.slug },
+      where: { slug: cData.slug },
       update: {
-        title: data.title,
-        summary: data.summary,
-        introduction: data.introduction,
-        content: data.content,
-        conclusion: data.conclusion,
-        published: data.published,
+        title: cData.title,
+        summary: cData.summary,
+        introduction: cData.introduction,
+        content: cData.content,
+        conclusion: cData.conclusion,
+        published: cData.published,
         platformAId: platformA.id,
         platformBId: platformB.id,
-        categoryId: comparisonCategory.id,
+        categoryId: category.id,
       },
       create: {
-        title: data.title,
-        slug: data.slug,
-        summary: data.summary,
-        introduction: data.introduction,
-        content: data.content,
-        conclusion: data.conclusion,
-        published: data.published,
+        title: cData.title,
+        slug: cData.slug,
+        summary: cData.summary,
+        introduction: cData.introduction,
+        content: cData.content,
+        conclusion: cData.conclusion,
+        published: cData.published,
         platformAId: platformA.id,
         platformBId: platformB.id,
-        categoryId: comparisonCategory.id,
-      },
+        categoryId: category.id,
+      }
     });
 
     // Sync Facts
-    await prisma.fact.deleteMany({
-      where: { comparisonId: comparison.id },
-    });
+    await prisma.fact.deleteMany({ where: { comparisonId: comparison.id } });
     await prisma.fact.createMany({
-      data: data.facts.map((fact) => ({
-        ...fact,
-        comparisonId: comparison.id,
-      })),
+      data: cData.facts.map(f => ({
+        title: f.title,
+        platformAValue: f.a,
+        platformBValue: f.b,
+        comparisonId: comparison.id
+      }))
     });
 
     // Sync FAQs
-    await prisma.faq.deleteMany({
-      where: { comparisonId: comparison.id },
-    });
-    await prisma.faq.createMany({
-      data: data.faqs.map((faq) => ({
-        ...faq,
-        comparisonId: comparison.id,
-      })),
-    });
+    if (cData.faqs) {
+      await prisma.faq.deleteMany({ where: { comparisonId: comparison.id } });
+      await prisma.faq.createMany({
+        data: cData.faqs.map(f => ({
+          question: f.question,
+          answer: f.answer,
+          comparisonId: comparison.id
+        }))
+      });
+    }
   }
+
   console.log("✅ Comparison data sync complete.");
 }
