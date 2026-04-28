@@ -33,3 +33,30 @@ export interface PlatformData {
   lastVerifiedAt: string; // ISO string
   sourceUrl: string;
 }
+
+export interface FactData {
+  title: string;
+  platformAValue: string;
+  platformBValue: string;
+}
+
+export interface FaqData {
+  question: string;
+  answer: string;
+}
+
+export interface ComparisonData {
+  title: string;
+  slug: string;
+  summary: string;
+  introduction: string;
+  content?: string;
+  conclusion: string;
+  platformAName: string;
+  platformBName: string;
+  categoryName: string;
+  facts: FactData[];
+  faqs: FaqData[];
+  published?: boolean;
+}
+

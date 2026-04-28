@@ -20,11 +20,19 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-async function getForumCategories() {
+async function getForumCategories(search?: string) {
   return prisma.forumCategory.findMany({
     include: {
       topics: {
-        where: { status: "APPROVED" },
+        where: {
+          status: "APPROVED",
+          ...(search ? {
+            OR: [
+              { title: { contains: search, mode: 'insensitive' } },
+              { content: { contains: search, mode: 'insensitive' } }
+            ]
+          } : {})
+        },
         select: {
           id: true,
           _count: { select: { posts: { where: { status: "APPROVED" } } } },
@@ -35,12 +43,14 @@ async function getForumCategories() {
   });
 }
 
-export default async function CommunityPage() {
+export default async function CommunityPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   // Ensure we have real categories
   await ensureDefaultCategories();
 
+  const { q: search } = await searchParams;
+
   const [categories, stats, content] = await Promise.all([
-    getForumCategories(),
+    getForumCategories(search),
     getCommunityStats(),
     getContent(),
   ]);

@@ -22,7 +22,11 @@ import { ComparisonHero } from "@/components/comparison/comparison-hero";
 import { ComparisonStats } from "@/components/comparison/comparison-stats";
 import { ComparisonFeatureMatrix } from "@/components/comparison/comparison-feature-matrix";
 import { PlatformVisitCards } from "@/components/comparison/platform-visit-cards";
+<<<<<<< HEAD
 import { IntelligentAnalysis } from "@/components/comparison/intelligent-analysis";
+=======
+import { MotionDiv } from "@/components/motion-wrapper";
+>>>>>>> main
 
 const ComparisonChart = dynamic(
   () =>
