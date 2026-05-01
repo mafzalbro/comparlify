@@ -10,7 +10,13 @@ import {
   Target,
   Briefcase,
   TrendingUp,
-  FileSearch
+  FileSearch,
+  Zap,
+  BarChart4,
+  Cpu,
+  Layers,
+  Lock,
+  Globe
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -22,9 +28,17 @@ import {
 
 interface IntelligentAnalysisProps {
   content: string;
+  platformA?: any;
+  platformB?: any;
+  comparison?: any;
 }
 
-export const IntelligentAnalysis: React.FC<IntelligentAnalysisProps> = ({ content }) => {
+export const IntelligentAnalysis: React.FC<IntelligentAnalysisProps> = ({
+  content,
+  platformA,
+  platformB,
+  comparison
+}) => {
   const [isExpanded, setIsExpanded] = useState(true);
 
   if (!content) return null;
@@ -72,10 +86,17 @@ export const IntelligentAnalysis: React.FC<IntelligentAnalysisProps> = ({ conten
 
               // Map icons to common titles
               let Icon = FileSearch;
-              if (title.toLowerCase().includes("scenario")) Icon = Target;
-              if (title.toLowerCase().includes("business")) Icon = Briefcase;
-              if (title.toLowerCase().includes("strategic")) Icon = Sparkles;
-              if (title.toLowerCase().includes("monetization")) Icon = TrendingUp;
+              const lowTitle = title.toLowerCase();
+              if (lowTitle.includes("scenario")) Icon = Target;
+              if (lowTitle.includes("business") || lowTitle.includes("economic")) Icon = Briefcase;
+              if (lowTitle.includes("strategic") || lowTitle.includes("intelligence")) Icon = Sparkles;
+              if (lowTitle.includes("monetization") || lowTitle.includes("revenue")) Icon = TrendingUp;
+              if (lowTitle.includes("logic") || lowTitle.includes("architecture")) Icon = Cpu;
+              if (lowTitle.includes("experience") || lowTitle.includes("ux")) Icon = Zap;
+              if (lowTitle.includes("data") || lowTitle.includes("analytics")) Icon = BarChart4;
+              if (lowTitle.includes("sovereignty") || lowTitle.includes("privacy")) Icon = Lock;
+              if (lowTitle.includes("ecosystem") || lowTitle.includes("marketplace")) Icon = Globe;
+              if (lowTitle.includes("enterprise") || lowTitle.includes("scale")) Icon = Layers;
 
               return (
                 <AccordionItem

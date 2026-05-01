@@ -27,10 +27,11 @@ import { ComparisonStats } from "@/components/comparison/comparison-stats";
 import { ComparisonFeatureMatrix } from "@/components/comparison/comparison-feature-matrix";
 import { IntelligenceVerdict } from "@/components/comparison/intelligence-verdict";
 import { ComparisonFaqs } from "@/components/comparison/comparison-faqs";
+import { AuthorSection } from "@/components/comparison/author-section";
+import { IntelligentAnalysis } from "@/components/comparison/intelligent-analysis";
 import { PlatformVisitCards } from "@/components/comparison/platform-visit-cards";
 import { InlineROICalculator } from "@/components/comparison/inline-roi-calculator";
 import { PlatformPicker } from "@/components/tool/PlatformPicker";
-import { ComparativeDeepDive } from "@/components/comparison/comparative-deep-dive";
 
 const ComparisonChart = dynamic(
   () =>
@@ -394,12 +395,21 @@ export default async function ComparisonDetailPage(props: {
                 </section>
               )}
 
-              <ComparativeDeepDive
-                platformAName={platformA.name}
-                platformBName={platformB.name}
-                platformADescription={platformA.description}
-                platformBDescription={platformB.description}
+              <IntelligentAnalysis
+                content={comparison.content || ""}
+                platformA={platformA}
+                platformB={platformB}
+                comparison={comparison}
               />
+
+              {comparison.authorName && (
+                <AuthorSection
+                  name={comparison.authorName}
+                  role={comparison.authorRole || ""}
+                  bio={comparison.authorBio || ""}
+                  credentials={(comparison.authorCredentials as string[]) || []}
+                />
+              )}
 
               {/* Feature Matrix */}
               <ComparisonFeatureMatrix
