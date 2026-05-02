@@ -11,6 +11,17 @@ import { teachableToSkoolMigration } from "./teachable-to-skool-migration-guide"
 import { creatorOpsScalingGuide } from "./creator-ops-scaling-guide";
 import { highTicketHybrid } from "./kajabi-discord-hybrid-monetization";
 import { beehiivAiSegmentation } from "./beehiiv-ai-segmentation-guide";
+import { membershipRetention2026 } from "./membership-retention-playbook-2026";
+import { selfHostedInfrastructure } from "./self-hosted-course-infrastructure";
+import { nocodeCreatorApps } from "./nocode-creator-apps-flutterflow";
+import { aiChatbotsCourseEnrollment } from "./ai-chatbots-course-enrollment";
+import { appleGoogleAttentionTax } from "./apple-google-attention-tax-2026";
+import { microSaasForCreators } from "./micro-saas-for-creators";
+import { deathOfGenericContent } from "./death-of-generic-content-expert-pov";
+import { longFormTextResurgence } from "./resurgence-of-long-form-text";
+import { podcastMonetization2026 } from "./podcast-monetization-2-0";
+import { whiteLabelRevolution } from "./white-label-revolution-creator-apps";
+import { aiPersonalizedCurriculum } from "./ai-personalized-curriculum-elearning";
 
 export const allPosts = [
   futureOfCreatorMonetization,
@@ -26,4 +37,15 @@ export const allPosts = [
   creatorOpsScalingGuide,
   highTicketHybrid,
   beehiivAiSegmentation,
+  membershipRetention2026,
+  selfHostedInfrastructure,
+  nocodeCreatorApps,
+  aiChatbotsCourseEnrollment,
+  appleGoogleAttentionTax,
+  microSaasForCreators,
+  deathOfGenericContent,
+  longFormTextResurgence,
+  podcastMonetization2026,
+  whiteLabelRevolution,
+  aiPersonalizedCurriculum,
 ];
