@@ -60,6 +60,11 @@ model User {
   email           String?         @unique
   emailVerified   DateTime?
   image           String?
+  username        String?         @unique
+  bio             String?         @db.Text
+  website         String?
+  twitter         String?
+  linkedin        String?
   role            Role            @default(USER)
   onboarded       Boolean         @default(false)
   newsletter      Boolean         @default(false)
@@ -79,6 +84,8 @@ model User {
   authoredImages  Image[]         @relation("UploadedBy")
   stacks          UserStack[]     @relation("UserToStacks")
   projects        Project[]
+  topicVotes      TopicVote[]
+  postVotes       PostVote[]
 }
 
 
@@ -202,6 +209,21 @@ model Post {
   comments    Comment[]
   bookmarks   Bookmark[]
 
+  // Meta SEO
+  metaTitle       String?
+  metaDescription String?
+
+  // High-fidelity Author Info
+  authorRole        String?
+  authorBio         String?
+  authorCredentials String?
+
+  // Engagement Materials
+  keyTakeaways Json?
+  checklist    Json?
+  facts        PostFact[]
+  faqs         PostFaq[]
+
   // New category relation
   categoryId String?
   category   PostCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
@@ -217,6 +239,30 @@ model Post {
 
   @@index([authorId])
   @@index([categoryId])
+}
+
+model PostFact {
+  id        String   @id @default(cuid())
+  title     String
+  value     String   @db.Text
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([postId])
+}
+
+model PostFaq {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String   @db.Text
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([postId])
 }
 
 model Comment {
@@ -460,6 +506,7 @@ model ForumTopic {
   posts      ForumPost[]
   status     ForumTopicStatus @default(PENDING)
   platforms  Platform[]
+  votes      TopicVote[]
 
   @@index([authorId])
   @@index([categoryId])
@@ -475,9 +522,34 @@ model ForumPost {
   topicId   String
   topic     ForumTopic      @relation(fields: [topicId], references: [id], onDelete: Cascade)
   status    ForumPostStatus @default(PENDING)
+  votes     PostVote[]
 
   @@index([authorId])
   @@index([topicId])
+}
+
+model TopicVote {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topicId   String
+  topic     ForumTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  value     Int      // 1 for upvote, -1 for downvote
+
+  @@unique([userId, topicId])
+  @@index([topicId])
+}
+
+model PostVote {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId    String
+  post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  value     Int      // 1 for upvote, -1 for downvote
+
+  @@unique([userId, postId])
+  @@index([postId])
 }
 
 model Image {

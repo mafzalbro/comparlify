@@ -24,6 +24,11 @@ import { auth } from "@/lib/auth";
 import { CommentsSection } from "@/components/comments-section";
 import { TableOfContents } from "@/components/table-of-contents";
 import { ManagedImage } from "@/components/managed-image";
+import { BlogQuickLook } from "../_components/blog-quick-look";
+import { BlogIntelligentLayout } from "../_components/blog-intelligent-layout";
+import { BlogActionableSteps } from "../_components/blog-actionable-steps";
+import { BlogFactsSidebar } from "../_components/blog-facts-sidebar";
+import { BlogAuthorSection } from "../_components/blog-author-section";
 import { cache } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { BookmarkButton } from "@/components/bookmark-button";
@@ -52,6 +57,9 @@ const getPostData = cache(async (slug: string, isPreview = false) => {
     include: {
       author: true,
       category: true,
+      platforms: true,
+      facts: true,
+      faqs: true,
       comments: {
         where: { status: "APPROVED" },
         include: { author: true },
@@ -117,8 +125,8 @@ export async function generateMetadata(props: {
   }
 
   return generateSeoMetadata({
-    title: post.title,
-    description: post.description,
+    title: post.metaTitle || post.title,
+    description: post.metaDescription || post.description,
     image: post.image.replace("400/250", "800/400"),
     path: `/blog/${post.slug}`,
   });
@@ -351,7 +359,27 @@ export default async function BlogPostPage(props: {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6 }}
               >
-                <MarkdownContent content={post.content} />
+                {post.keyTakeaways && (
+                  <BlogQuickLook
+                    keyTakeaways={post.keyTakeaways as string[]}
+                  />
+                )}
+
+                <BlogIntelligentLayout content={post.content} />
+
+                {post.checklist && (
+                  <BlogActionableSteps
+                    steps={post.checklist as any[]}
+                  />
+                )}
+
+                <BlogAuthorSection
+                  name={post.author.name ?? "Anonymous"}
+                  image={post.author.image}
+                  role={post.authorRole}
+                  bio={post.authorBio}
+                  credentials={post.authorCredentials}
+                />
               </MotionDiv>
 
               <AdPlacement placement="POST_BOTTOM" className="mt-24" />
@@ -439,6 +467,46 @@ export default async function BlogPostPage(props: {
                   </div>
                   <TableOfContents content={post.content} />
                 </section>
+
+                <BlogFactsSidebar facts={post.facts} />
+
+                {post.platforms.length > 0 && (
+                  <section className="bg-blue-500/5 border border-blue-500/20 p-8 rounded-4xl shadow-xl relative overflow-hidden group">
+                    <Badge className="bg-blue-500/20 text-blue-500 border-blue-500/30 px-4 py-1.5 uppercase tracking-widest text-[8px] font-black rounded-full mb-8 relative z-10">
+                      Recommended
+                    </Badge>
+                    <h3 className="text-2xl font-black text-foreground mb-10 relative z-10">
+                      Intelligence <br />
+                      <span className="text-blue-500 italic font-black">
+                        Tools
+                      </span>
+                    </h3>
+                    <div className="space-y-4 relative z-10">
+                      {post.platforms.map((platform) => (
+                        <Link
+                          key={platform.id}
+                          href={`/platform/${platform.name.toLowerCase().replace(/\s+/g, "-")}`}
+                          className="flex items-center gap-4 p-4 rounded-2xl bg-background/60 hover:bg-background transition-all group/item border border-border/5"
+                        >
+                          <div className="w-10 h-10 rounded-xl border border-border/10 overflow-hidden relative shadow-sm">
+                            <ManagedImage
+                              fill
+                              src={platform.logoUrl}
+                              alt={platform.name}
+                              className="object-cover p-2"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-black text-foreground uppercase tracking-tight truncate group-hover/item:text-blue-500 transition-colors">
+                              {platform.name}
+                            </h4>
+                          </div>
+                          <ArrowRight className="h-4 w-4 text-muted-foreground group-hover/item:text-blue-500 transition-transform group-hover/item:translate-x-1" />
+                        </Link>
+                      ))}
+                    </div>
+                  </section>
+                )}
 
                 {trendingComparisons.length > 0 && (
                   <section className="bg-primary/5 border border-primary/20 p-8 rounded-4xl shadow-xl relative overflow-hidden group">
