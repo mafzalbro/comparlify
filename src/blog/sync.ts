@@ -53,6 +53,7 @@ export async function syncBlogData() {
         authorId: author.id,
         metaTitle: data.metaTitle,
         metaDescription: data.metaDescription,
+        keywords: data.keywords ? data.keywords.join(", ") : null,
         authorRole: data.authorRole,
         authorBio: data.authorBio,
         authorCredentials: data.authorCredentials,

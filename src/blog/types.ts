@@ -22,6 +22,7 @@ export interface BlogPostData {
   // Meta SEO
   metaTitle?: string;
   metaDescription?: string;
+  keywords?: string[];
 
   // High-fidelity Author Info
   authorRole?: string;

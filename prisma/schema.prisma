@@ -212,6 +212,7 @@ model Post {
   // Meta SEO
   metaTitle       String?
   metaDescription String?
+  keywords        String?
 
   // High-fidelity Author Info
   authorRole        String?

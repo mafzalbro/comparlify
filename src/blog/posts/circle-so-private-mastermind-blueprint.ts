@@ -10,6 +10,7 @@ export const circleMastermind: BlogPostData = {
   published: true,
   metaTitle: "Building a $10k/Month Mastermind on Circle.so | 2026 Strategy",
   metaDescription: "Step-by-step blueprint for high-ticket communities. Learn how to use Circle.so to scale your coaching business.",
+  keywords: ["Circle.so guide", "private mastermind", "membership site 2026", "high-ticket community", "Circle vs Facebook Groups"],
   authorRole: "Membership Strategist",
   authorBio: "Consultant for top-tier creators moving from Facebook Groups to professional community platforms.",
   authorCredentials: "MBA, Founder of The Membership Academy",

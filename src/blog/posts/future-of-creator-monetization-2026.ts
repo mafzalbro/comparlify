@@ -10,6 +10,7 @@ export const futureOfCreatorMonetization: BlogPostData = {
   published: true,
   metaTitle: "Creator Monetization 2026: Trends, Data, and Strategy | Comparlify",
   metaDescription: "Explore the 2026 shift in creator monetization. Learn why simple subscriptions are dying and how to build a resilient multi-tier revenue ecosystem.",
+  keywords: ["creator monetization", "creator economy 2026", "digital architecture", "subscription fatigue", "platform sovereignty"],
   authorRole: "Principal Economy Analyst",
   authorBio: "Specializing in digital infrastructure and the financialization of attention, with over a decade of experience tracking creator platforms.",
   authorCredentials: "MSc Digital Business, ex-Stripe Strategy Lead",

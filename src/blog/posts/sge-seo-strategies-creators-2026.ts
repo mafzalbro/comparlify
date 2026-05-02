@@ -10,6 +10,7 @@ export const sgeSeoStrategies: BlogPostData = {
   published: true,
   metaTitle: "SEO for Creators 2026: The SGE Survival Guide | Comparlify",
   metaDescription: "Master Search Generative Experience (SGE). Learn how to optimize your creator brand for AI search engines like Google and Perplexity.",
+  keywords: ["SGE SEO", "search generative experience", "AI search optimization", "contextual authority", "SEO for creators 2026"],
   authorRole: "Search Intelligence Specialist",
   authorBio: "Analyzing the transition from blue links to generative answers and its impact on independent media.",
   authorCredentials: "Former Head of SEO at HubSpot, Author of 'The Generative Web'",

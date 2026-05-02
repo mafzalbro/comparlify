@@ -10,6 +10,7 @@ export const verticalAiCreators: BlogPostData = {
   published: true,
   metaTitle: "Vertical AI for Creators: The 2026 Shift | Comparlify Intelligence",
   metaDescription: "Explore why specialized AI models are outperforming generic LLMs for creators. A deep dive into vertical AI strategy.",
+  keywords: ["vertical AI", "AI for creators", "specialized LLMs", "AI brand voice", "agentic workflows"],
   authorRole: "AI Product Analyst",
   authorBio: "Tracking the evolution of generative models from general-purpose assistants to specialized industrial agents.",
   authorCredentials: "CS PhD, Stanford AI Lab Alumni",

@@ -9,6 +9,8 @@ import { lemonSqueezyVsShopify } from "./lemon-squeezy-vs-shopify-digital-goods"
 import { sgeSeoStrategies } from "./sge-seo-strategies-creators-2026";
 import { teachableToSkoolMigration } from "./teachable-to-skool-migration-guide";
 import { creatorOpsScalingGuide } from "./creator-ops-scaling-guide";
+import { highTicketHybrid } from "./kajabi-discord-hybrid-monetization";
+import { beehiivAiSegmentation } from "./beehiiv-ai-segmentation-guide";
 
 export const allPosts = [
   futureOfCreatorMonetization,
@@ -22,4 +24,6 @@ export const allPosts = [
   sgeSeoStrategies,
   teachableToSkoolMigration,
   creatorOpsScalingGuide,
+  highTicketHybrid,
+  beehiivAiSegmentation,
 ];

@@ -10,6 +10,7 @@ export const deathOfLinkInBio: BlogPostData = {
   published: true,
   metaTitle: "Beyond Linktree: Building Your Sovereign Creator Stack 2026",
   metaDescription: "Stop being a tenant on social media. Learn how to transition from a 'Link in Bio' to a fully owned creator platform.",
+  keywords: ["link in bio", "creator stack", "platform sovereignty", "linktree alternatives", "owned audience"],
   authorRole: "Platform Architect",
   authorBio: "Specializing in the technical migration of high-volume creators from social platforms to sovereign infrastructure.",
   authorCredentials: "Ex-Meta Engineering Lead, Founder of StackEngine",

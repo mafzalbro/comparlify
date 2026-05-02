@@ -10,6 +10,7 @@ export const creatorOpsScalingGuide: BlogPostData = {
   published: true,
   metaTitle: "Creator Operations & Scaling Guide 2026 | Comparlify",
   metaDescription: "Master Creator Ops. Learn how to hire, automate, and scale your creator business beyond yourself.",
+  keywords: ["creator ops", "scaling creator business", "creator automation", "hiring for creators", "media house systems"],
   authorRole: "Creator Operations Consultant",
   authorBio: "Advising 7-figure creators on operational efficiency and team management.",
   authorCredentials: "MBA, Lean Six Sigma Green Belt",

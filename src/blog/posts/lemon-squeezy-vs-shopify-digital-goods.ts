@@ -10,6 +10,7 @@ export const lemonSqueezyVsShopify: BlogPostData = {
   published: true,
   metaTitle: "Lemon Squeezy vs Shopify 2026: The Digital Goods Showdown",
   metaDescription: "Is Lemon Squeezy better than Shopify for digital products? We analyze the Merchant of Record model and global tax compliance for 2026.",
+  keywords: ["Lemon Squeezy vs Shopify", "merchant of record", "digital goods e-commerce", "VAT compliance", "creator payments"],
   authorRole: "E-commerce Architect",
   authorBio: "Specializing in global payment infrastructure and tax automation for digital entrepreneurs.",
   authorCredentials: "CPA, Former Head of Payments at Gumroad",

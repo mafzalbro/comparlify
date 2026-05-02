@@ -10,6 +10,7 @@ export const substackVsBeehiiv: BlogPostData = {
   published: true,
   metaTitle: "Substack vs Beehiiv 2026: The Strategic Deep Dive",
   metaDescription: "Choosing the right newsletter infrastructure. We compare Substack's ecosystem with Beehiiv's advanced growth tools.",
+  keywords: ["Substack vs Beehiiv", "newsletter platform 2026", "email growth strategy", "newsletter monetization", "creator discovery"],
   authorRole: "Newsletter Economy Analyst",
   authorBio: "Helping media brands build sustainable recurring revenue through advanced newsletter infrastructure.",
   authorCredentials: "Former Head of Growth at Morning Brew",

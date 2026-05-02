@@ -10,6 +10,7 @@ export const aiVideoRevolution: BlogPostData = {
   published: true,
   metaTitle: "HeyGen vs Synthesia 2026: The Ultimate AI Video Showdown",
   metaDescription: "Comparing the top two AI video platforms. We analyze avatar quality, lip-sync precision, and enterprise features for 2026.",
+  keywords: ["AI video", "HeyGen vs Synthesia", "generative video 2026", "digital double", "AI avatars"],
   authorRole: "AI Implementation Strategist",
   authorBio: "Pioneering the use of generative AI in corporate training and digital marketing since 2023.",
   authorCredentials: "Google Certified Professional Machine Learning Engineer",

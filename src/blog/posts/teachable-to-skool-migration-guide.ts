@@ -10,6 +10,7 @@ export const teachableToSkoolMigration: BlogPostData = {
   published: true,
   metaTitle: "Migrating from Teachable to Skool: The 2026 Guide",
   metaDescription: "Step-by-step migration guide from Teachable to Skool. Learn how to transition your students and content to a gamified community.",
+  keywords: ["Teachable to Skool migration", "LMS migration", "community platform switch", "moving online courses", "Skool onboarding"],
   authorRole: "Migration Specialist",
   authorBio: "Managing large-scale platform transitions for top-tier creators since the 'Great Migration' of 2024.",
   authorCredentials: "PMP Certified, Former Customer Success Lead at Thinkific",

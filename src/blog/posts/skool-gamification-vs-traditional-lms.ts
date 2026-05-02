@@ -10,6 +10,7 @@ export const skoolGamification: BlogPostData = {
   published: true,
   metaTitle: "Skool vs Traditional LMS: The Gamification Revolution 2026",
   metaDescription: "Analyzing Skool's disruptive community-first education model. Learn how gamification leads to higher student success.",
+  keywords: ["Skool vs Teachable", "gamification in education", "community-first LMS", "student engagement", "Skool review 2026"],
   authorRole: "Behavioral Design Analyst",
   authorBio: "Specializing in the intersection of psychology and digital learning environments.",
   authorCredentials: "PhD Behavioral Science, ex-Duolingo Gamification Lead",

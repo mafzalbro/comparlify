@@ -128,6 +128,7 @@ export async function generateMetadata(props: {
     title: post.metaTitle || post.title,
     description: post.metaDescription || post.description,
     image: post.image.replace("400/250", "800/400"),
+    keywords: post.keywords || undefined,
     path: `/blog/${post.slug}`,
   });
 }
@@ -180,12 +181,34 @@ export default async function BlogPostPage(props: {
     },
   };
 
+  const faqJsonLd =
+    post.faqs.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: post.faqs.map((faq) => ({
+            "@type": "Question",
+            name: faq.question,
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: faq.answer,
+            },
+          })),
+        }
+      : null;
+
   return (
     <div className="bg-background min-h-screen">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
 
       {!post.published && (
         <Alert
