@@ -44,6 +44,33 @@ import { aiCommunityModeration } from "./ai-community-moderation-skool";
 import { monetizingShadowCurriculum } from "./monetizing-shadow-curriculum";
 import { web3Creators2026 } from "./web3-creators-2026-reality-check";
 import { algorithmProofNewsletter } from "./algorithm-proof-newsletter";
+import { attentionArbitrage } from "./attention-arbitrage-underpriced-traffic";
+import { communityKnowledgeGraph } from "./community-knowledge-graph-wiki";
+import { platformAgnosticCreator } from "./platform-agnostic-creator-ecosystem";
+import { industrialCreatorLean } from "./industrial-creator-lean-content";
+import { aiMarketResearch } from "./ai-market-research-student-needs";
+import { invisibleCourseMessaging } from "./invisible-course-messaging-apps";
+import { monetizingArchives } from "./monetizing-newsletter-archives";
+import { subscriptionToSaas } from "./subscription-to-saas-pipeline";
+import { creatorHealthLongevity } from "./creator-health-longevity-sustainability";
+import { b2bCreatorPartnerships } from "./b2b-creator-corporate-partnerships";
+import { aiTranslationMastery } from "./ai-translation-multi-language-course";
+import { ghostCreatorFaceless } from "./ghost-creator-faceless-branding";
+import { interactiveEbooks } from "./interactive-ebooks-evolution";
+import { referralEngineViral } from "./referral-engine-community-viral-loop";
+import { seoForAiRetrieval } from "./seo-for-ai-llm-retrieval";
+import { highTicketCoaching2026 } from "./high-ticket-coaching-strategy-2026";
+import { microCommunityTrend } from "./micro-community-trend";
+import { sovereignIdentity } from "./sovereign-identity-beyond-email";
+import { incomeShareAgreements } from "./income-share-agreements-2026";
+import { aiGeneratedPodcasting } from "./ai-generated-podcasting-scale";
+import { productLedCreator } from "./product-led-creator-strategy";
+import { creatorOsInternalSystems } from "./creator-os-internal-systems";
+import { expertInResidence } from "./expert-in-residence-community-model";
+import { aiEnhancedCreativity } from "./ai-enhanced-creativity-brainstorming";
+import { transparencyBrandOpenFinancials } from "./transparency-brand-open-financials";
+import { collaborativeCourseCurriculum } from "./collaborative-course-curriculum";
+import { platformFreeMovement } from "./platform-free-movement-social-media";
 
 export const allPosts = [
   futureOfCreatorMonetization,
@@ -92,4 +119,31 @@ export const allPosts = [
   monetizingShadowCurriculum,
   web3Creators2026,
   algorithmProofNewsletter,
+  attentionArbitrage,
+  communityKnowledgeGraph,
+  platformAgnosticCreator,
+  industrialCreatorLean,
+  aiMarketResearch,
+  invisibleCourseMessaging,
+  monetizingArchives,
+  subscriptionToSaas,
+  creatorHealthLongevity,
+  b2bCreatorPartnerships,
+  aiTranslationMastery,
+  ghostCreatorFaceless,
+  interactiveEbooks,
+  referralEngineViral,
+  seoForAiRetrieval,
+  highTicketCoaching2026,
+  microCommunityTrend,
+  sovereignIdentity,
+  incomeShareAgreements,
+  aiGeneratedPodcasting,
+  productLedCreator,
+  creatorOsInternalSystems,
+  expertInResidence,
+  aiEnhancedCreativity,
+  transparencyBrandOpenFinancials,
+  collaborativeCourseCurriculum,
+  platformFreeMovement,
 ];

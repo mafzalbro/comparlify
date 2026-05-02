@@ -111,6 +111,19 @@ export async function syncBlogData() {
         })),
       });
     }
+
+    // 7. Sync Sources
+    await prisma.postSource.deleteMany({
+      where: { postId: post.id },
+    });
+    if (data.sources && data.sources.length > 0) {
+      await prisma.postSource.createMany({
+        data: data.sources.map((source) => ({
+          ...source,
+          postId: post.id,
+        })),
+      });
+    }
   }
 
   console.log("✅ Blog data sync complete.");
