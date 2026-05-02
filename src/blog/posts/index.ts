@@ -23,6 +23,27 @@ import { podcastMonetization2026 } from "./podcast-monetization-2-0";
 import { whiteLabelRevolution } from "./white-label-revolution-creator-apps";
 import { aiPersonalizedCurriculum } from "./ai-personalized-curriculum-elearning";
 import { sovereignCreator2026 } from "./the-sovereign-creator-2026";
+import { quietLuxuryCommunities } from "./quiet-luxury-private-communities";
+import { hybridLearning2026 } from "./hybrid-learning-on-demand-real-time";
+import { roiOfAuthenticity } from "./roi-of-authenticity-lofi-content";
+import { dataDrivenCourseDesign } from "./data-driven-course-design";
+import { creatorSyndicates } from "./creator-syndicate-pooling-resources";
+import { monetizingOpenSource } from "./monetizing-open-source-blueprint";
+import { futureOfAffiliateMarketing } from "./future-of-affiliate-marketing-2026";
+import { platformMigrationChecklist } from "./platform-migration-technical-checklist";
+import { creatorBusinessExitStrategy } from "./creator-business-exit-strategy";
+import { aiGeoTargetingLocal } from "./ai-geo-targeting-local-creators";
+import { postSubscriptionModels } from "./post-subscription-pay-per-outcome";
+import { voiceFirstEducation } from "./voice-first-education-ai-assistants";
+import { monetizingCuration } from "./monetizing-curation-intelligence";
+import { ethicalAiBrandTrust } from "./ethical-ai-brand-trust";
+import { indieLmsMovement } from "./indie-lms-movement";
+import { visualStorytelling2026 } from "./visual-storytelling-creator-branding";
+import { trueFans2026 } from "./100-true-fans-revisited-2026";
+import { aiCommunityModeration } from "./ai-community-moderation-skool";
+import { monetizingShadowCurriculum } from "./monetizing-shadow-curriculum";
+import { web3Creators2026 } from "./web3-creators-2026-reality-check";
+import { algorithmProofNewsletter } from "./algorithm-proof-newsletter";
 
 export const allPosts = [
   futureOfCreatorMonetization,
@@ -50,4 +71,25 @@ export const allPosts = [
   whiteLabelRevolution,
   aiPersonalizedCurriculum,
   sovereignCreator2026,
+  quietLuxuryCommunities,
+  hybridLearning2026,
+  roiOfAuthenticity,
+  dataDrivenCourseDesign,
+  creatorSyndicates,
+  monetizingOpenSource,
+  futureOfAffiliateMarketing,
+  platformMigrationChecklist,
+  creatorBusinessExitStrategy,
+  aiGeoTargetingLocal,
+  postSubscriptionModels,
+  voiceFirstEducation,
+  monetizingCuration,
+  ethicalAiBrandTrust,
+  indieLmsMovement,
+  visualStorytelling2026,
+  trueFans2026,
+  aiCommunityModeration,
+  monetizingShadowCurriculum,
+  web3Creators2026,
+  algorithmProofNewsletter,
 ];
