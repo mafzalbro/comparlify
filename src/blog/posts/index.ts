@@ -22,6 +22,7 @@ import { longFormTextResurgence } from "./resurgence-of-long-form-text";
 import { podcastMonetization2026 } from "./podcast-monetization-2-0";
 import { whiteLabelRevolution } from "./white-label-revolution-creator-apps";
 import { aiPersonalizedCurriculum } from "./ai-personalized-curriculum-elearning";
+import { sovereignCreator2026 } from "./the-sovereign-creator-2026";
 
 export const allPosts = [
   futureOfCreatorMonetization,
@@ -48,4 +49,5 @@ export const allPosts = [
   podcastMonetization2026,
   whiteLabelRevolution,
   aiPersonalizedCurriculum,
+  sovereignCreator2026,
 ];
