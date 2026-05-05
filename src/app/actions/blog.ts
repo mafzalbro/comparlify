@@ -150,3 +150,67 @@ export async function deletePost(
     return { error: "Failed to delete post." };
   }
 }
+
+export type PostWithAuthorAndCategory = Post & {
+  author: User;
+  category: PostCategory | null;
+};
+
+export async function getPaginatedPosts({
+  page = 1,
+  limit = 10,
+  search,
+  sort,
+  author,
+  category,
+}: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sort?: string;
+  author?: string;
+  category?: string;
+}) {
+  let where: any = { published: true };
+  let orderBy: any = { createdAt: "desc" };
+
+  if (search) {
+    where.OR = [
+      { title: { contains: search } },
+      { description: { contains: search } },
+      { content: { contains: search } },
+    ];
+  }
+
+  if (author && author !== "all") {
+    where.authorId = author;
+  }
+
+  if (category && category !== "all") {
+    where.categoryId = category;
+  }
+
+  if (sort === "oldest") {
+    orderBy = { createdAt: "asc" };
+  } else if (sort === "alpha") {
+    orderBy = { title: "asc" };
+  } else {
+    orderBy = { createdAt: "desc" };
+  }
+
+  const posts = await prisma.post.findMany({
+    where,
+    include: { author: true, category: true },
+    orderBy,
+    skip: (page - 1) * limit,
+    take: limit,
+  });
+
+  const total = await prisma.post.count({ where });
+
+  return {
+    posts: posts as PostWithAuthorAndCategory[],
+    total,
+    hasNextPage: total > page * limit,
+  };
+}
