@@ -8,6 +8,11 @@ export interface PostFaqData {
   answer: string;
 }
 
+export interface PostSourceData {
+  title: string;
+  url: string;
+}
+
 export interface BlogPostData {
   title: string;
   slug: string;
@@ -34,6 +39,7 @@ export interface BlogPostData {
   checklist?: { item: string; description?: string }[];
   facts?: PostFactData[];
   faqs?: PostFaqData[];
+  sources?: PostSourceData[];
 
   // Platform linking
   platformNames?: string[]; // Array of platform names to link

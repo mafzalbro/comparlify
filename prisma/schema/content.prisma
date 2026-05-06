@@ -59,6 +59,7 @@ model Post {
   checklist    Json?
   facts        PostFact[]
   faqs         PostFaq[]
+  sources      PostSource[]
 
   // New category relation
   categoryId String?
@@ -93,6 +94,18 @@ model PostFaq {
   id        String   @id @default(cuid())
   question  String
   answer    String   @db.Text
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([postId])
+}
+
+model PostSource {
+  id        String   @id @default(cuid())
+  title     String
+  url       String
   postId    String
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())

@@ -29,6 +29,7 @@ import { BlogIntelligentLayout } from "../_components/blog-intelligent-layout";
 import { BlogActionableSteps } from "../_components/blog-actionable-steps";
 import { BlogFactsSidebar } from "../_components/blog-facts-sidebar";
 import { BlogAuthorSection } from "../_components/blog-author-section";
+import { BlogSourcesSection } from "../_components/blog-sources-section";
 import { cache } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { BookmarkButton } from "@/components/bookmark-button";
@@ -60,6 +61,7 @@ const getPostData = cache(async (slug: string, isPreview = false) => {
       platforms: true,
       facts: true,
       faqs: true,
+      sources: true,
       comments: {
         where: { status: "APPROVED" },
         include: { author: true },
@@ -403,6 +405,8 @@ export default async function BlogPostPage(props: {
                   bio={post.authorBio}
                   credentials={post.authorCredentials}
                 />
+
+                <BlogSourcesSection sources={post.sources} />
               </MotionDiv>
 
               <AdPlacement placement="POST_BOTTOM" className="mt-24" />
