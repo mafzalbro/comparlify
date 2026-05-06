@@ -17,6 +17,8 @@ const prisma = new PrismaClient({ adapter });
 
 import { promises as fs } from "fs";
 import path from "path";
+import { syncComparisonData } from "../src/compare/sync";
+import { syncBlogData } from "../src/blog/sync";
 
 export async function cleanupDatabase() {
   console.log("🧹 Starting database cleanup...");
@@ -2044,6 +2046,10 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
       console.error("   - Error seeding images from public/uploads:", error);
     }
   }
+
+  console.log("\n🔄 Starting industrial data sync (Platforms, Comparisons, Blogs)...");
+  await syncComparisonData();
+  await syncBlogData();
 
   console.log("\n🎉 Seeding finished successfully!");
 }

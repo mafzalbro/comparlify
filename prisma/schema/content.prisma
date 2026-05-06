@@ -44,6 +44,23 @@ model Post {
   comments    Comment[]
   bookmarks   Bookmark[]
 
+  // Meta SEO
+  metaTitle       String?
+  metaDescription String?
+  keywords        String?
+
+  // High-fidelity Author Info
+  authorRole        String?
+  authorBio         String?
+  authorCredentials String?
+
+  // Engagement Materials
+  keyTakeaways Json?
+  checklist    Json?
+  facts        PostFact[]
+  faqs         PostFaq[]
+  sources      PostSource[]
+
   // New category relation
   categoryId String?
   category   PostCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
@@ -59,6 +76,42 @@ model Post {
 
   @@index([authorId])
   @@index([categoryId])
+}
+
+model PostFact {
+  id        String   @id @default(cuid())
+  title     String
+  value     String   @db.Text
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([postId])
+}
+
+model PostFaq {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String   @db.Text
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([postId])
+}
+
+model PostSource {
+  id        String   @id @default(cuid())
+  title     String
+  url       String
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([postId])
 }
 
 model Comment {
