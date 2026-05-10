@@ -22,6 +22,8 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/hooks/use-toast";
+import { generateIntelligenceReportAction } from "@/app/actions/ai";
 import { useRouter } from "next/navigation";
 import {
   Select,
@@ -31,7 +33,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SubmitButton } from "@/components/submit-button";
-import { Trash2, PlusCircle, Zap, Scale } from "lucide-react";
+import { Trash2, PlusCircle, Zap, Scale, Sparkles, Loader2 } from "lucide-react";
 import { AiFillButton } from "../../blog/_components/ai-fill-button";
 import dynamic from "next/dynamic";
 const Editor = dynamic(
@@ -61,6 +63,9 @@ export function ComparisonForm({
   const [summary, setSummary] = useState(comparison?.summary ?? "");
   const [introduction, setIntroduction] = useState(
     comparison?.introduction ?? "",
+  );
+  const [isGenerating, setIsGenerating] = useState(false);
+  const { toast } = useToast(
   );
   const [content, setContent] = useState(comparison?.content ?? "");
   const [conclusion, setConclusion] = useState(comparison?.conclusion ?? "");
@@ -550,6 +555,61 @@ export function ComparisonForm({
                 <p className="text-[9px] text-muted-foreground leading-tight italic">
                   Pro Tip: This field is synced with the rich text editor for
                   rapid drafting.
+                </p>
+              </div>
+
+              <div className="pt-4 border-t border-primary/10">
+                <Button
+                  type="button"
+                  variant="default"
+                  size="sm"
+                  className="w-full bg-primary text-primary-foreground font-black uppercase tracking-widest text-[10px] h-10 gap-2 shadow-lg shadow-primary/20"
+                  disabled={!platformAId || !platformBId || isGenerating}
+                  onClick={async () => {
+                    const pA = platforms.find(p => p.id === platformAId);
+                    const pB = platforms.find(p => p.id === platformBId);
+                    if (!pA || !pB) return;
+
+                    setIsGenerating(true);
+                    try {
+                      const result = await generateIntelligenceReportAction({
+                        platformAName: pA.name,
+                        platformBName: pB.name
+                      });
+
+                      if (result.generatedContent) {
+                        setContent(result.generatedContent);
+                        toast({
+                          title: "Intelligence Report Generated",
+                          description: "The analysis has been loaded into the editor.",
+                        });
+                      } else {
+                        toast({
+                          title: "Generation Failed",
+                          description: result.error || "Check your AI configuration.",
+                          variant: "destructive",
+                        });
+                      }
+                    } catch (err) {
+                      toast({
+                        title: "Error",
+                        description: "Failed to connect to AI engine.",
+                        variant: "destructive",
+                      });
+                    } finally {
+                      setIsGenerating(false);
+                    }
+                  }}
+                >
+                  {isGenerating ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-3 w-3" />
+                  )}
+                  Generate Intel Report
+                </Button>
+                <p className="text-[8px] text-muted-foreground mt-2 text-center font-bold uppercase tracking-tighter">
+                  Uses GenAI to draft a 3,000-word deep dive.
                 </p>
               </div>
             </CardContent>
