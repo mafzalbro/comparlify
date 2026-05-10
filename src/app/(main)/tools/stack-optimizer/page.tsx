@@ -1,4 +1,5 @@
 import { StackOptimizer } from "@/components/tools/stack-optimizer";
+import prisma from "@/lib/prisma";
 import { generateSeoMetadata } from "@/lib/seo";
 import { Metadata } from "next";
 import { Zap, ChevronLeft, ShieldCheck } from "lucide-react";
@@ -12,7 +13,15 @@ export const metadata: Metadata = await generateSeoMetadata({
   path: "/tools/stack-optimizer",
 });
 
-export default function StackOptimizerPage() {
+async function getPlatforms() {
+  return await prisma.platform.findMany({
+    include: { tiers: { orderBy: { monthlyPrice: "asc" } }, features: { include: { feature: true } } },
+    orderBy: { name: "asc" },
+  });
+}
+
+export default async function StackOptimizerPage() {
+  const platforms = await getPlatforms();
   return (
     <div className="min-h-screen bg-background pb-20">
       <div className="container px-4 md:px-6 py-12">
@@ -53,7 +62,7 @@ export default function StackOptimizerPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <StackOptimizer />
+          <StackOptimizer platforms={platforms} />
         </MotionDiv>
         
         <div className="mt-12 max-w-3xl mx-auto text-center">

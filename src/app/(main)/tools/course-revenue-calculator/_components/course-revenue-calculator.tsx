@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const PLATFORM_PRESETS = [
+const STATIC_PLATFORM_PRESETS = [
   { name: "Teachable (Free)", fee: 10, MonthlyBase: 0 },
   { name: "Teachable (Basic)", fee: 5, MonthlyBase: 39 },
   { name: "Kajabi (All)", fee: 0, MonthlyBase: 149 },
@@ -26,7 +26,22 @@ const PLATFORM_PRESETS = [
   { name: "Gumroad", fee: 10, MonthlyBase: 0 },
 ];
 
-export function CourseRevenueCalculator() {
+interface CourseRevenueCalculatorProps {
+  platforms?: any[];
+}
+
+export function CourseRevenueCalculator({ platforms = [] }: CourseRevenueCalculatorProps) {
+  const dynamicPresets = useMemo(() => {
+    if (!platforms || platforms.length === 0) return STATIC_PLATFORM_PRESETS;
+    return platforms.flatMap(p =>
+      (p.tiers || []).map((t: any) => ({
+        name: `${p.name} (${t.name})`,
+        fee: t.transactionFeePercent || 0,
+        MonthlyBase: t.monthlyPrice || 0
+      }))
+    ).slice(0, 12);
+  }, [platforms]);
+
   const [price, setPrice] = useState<number>(97);
   const [students, setStudents] = useState<number>(100);
   const [fee, setFee] = useState<number>(5);
@@ -37,16 +52,21 @@ export function CourseRevenueCalculator() {
   const feeAmount = useMemo(() => (revenue * fee) / 100, [revenue, fee]);
   const profit = useMemo(() => revenue - feeAmount, [revenue, feeAmount]);
 
-  // Comparison Results (Teachable Basic vs Kajabi Basic)
-  // Teachable: $39/mo + 5%
-  // Kajabi: $149/mo + 0%
-  const teachableFee = (revenue * 5) / 100;
-  const teachableProfit = revenue - teachableFee - 39;
-  
-  const kajabiFee = 0;
-  const kajabiProfit = revenue - kajabiFee - 149;
+  // Dynamic Comparison logic
+  const comparisonList = useMemo(() => {
+    return dynamicPresets.map(p => {
+        const platformFee = (revenue * p.fee) / 100;
+        const platformProfit = revenue - platformFee - p.MonthlyBase;
+        return {
+            ...p,
+            estProfit: platformProfit,
+            estFee: platformFee
+        };
+    }).sort((a, b) => b.estProfit - a.estProfit);
+  }, [dynamicPresets, revenue]);
 
-  const betterOption = kajabiProfit > teachableProfit ? "Kajabi" : "Teachable";
+  const bestOption = comparisonList[0];
+  const secondBest = comparisonList[1] || bestOption;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -157,7 +177,7 @@ export function CourseRevenueCalculator() {
               </div>
               
               <div className="mt-6 flex flex-wrap gap-2">
-                {PLATFORM_PRESETS.map((p) => (
+                {dynamicPresets.map((p) => (
                   <button
                     key={p.name}
                     onClick={() => setFee(p.fee)}
@@ -249,67 +269,38 @@ export function CourseRevenueCalculator() {
             "grid grid-cols-1 md:grid-cols-2 gap-4 transition-all duration-500",
             isComparisonMode ? "opacity-100 scale-100 h-auto" : "opacity-0 scale-95 h-0 overflow-hidden pointer-events-none"
           )}>
-            <div className="p-6 rounded-2xl border border-border/10 bg-background hover:border-primary/50 transition-colors group">
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  <h4 className="font-black uppercase tracking-tight">Teachable</h4>
-                  <p className="text-[10px] text-muted-foreground uppercase font-bold">Basic Plan ($39 + 5%)</p>
+            {[bestOption, secondBest].map((opt, i) => (
+                <div key={i} className="p-6 rounded-2xl border border-border/10 bg-background hover:border-primary/50 transition-colors group">
+                    <div className="flex justify-between items-start mb-6">
+                        <div>
+                        <h4 className="font-black uppercase tracking-tight truncate max-w-[150px]">{opt.name}</h4>
+                        <p className="text-[10px] text-muted-foreground uppercase font-bold">Plan: ${opt.MonthlyBase} + {opt.fee}%</p>
+                        </div>
+                        <div className={cn(
+                        "px-2 py-1 rounded text-[8px] font-black uppercase",
+                        i === 0 ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground"
+                        )}>
+                        {i === 0 ? "Optimal" : "Runner Up"}
+                        </div>
+                    </div>
+                    <div className="space-y-4">
+                        <div className="flex justify-between text-xs font-bold uppercase tracking-tight items-baseline">
+                        <span className="text-muted-foreground">Est. Monthly Profit</span>
+                        <span className="text-primary text-xl">
+                            ${Math.max(0, Math.round(opt.estProfit)).toLocaleString()}
+                        </span>
+                        </div>
+                        <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                        <MotionDiv
+                            className="bg-primary h-full"
+                            initial={{ width: 0 }}
+                            animate={{ width: isComparisonMode ? `${(Math.max(0, opt.estProfit) / Math.max(bestOption.estProfit, 1)) * 100}%` : 0 }}
+                            transition={{ duration: 1 }}
+                        />
+                        </div>
+                    </div>
                 </div>
-                <div className={cn(
-                  "px-2 py-1 rounded text-[8px] font-black uppercase",
-                  betterOption === "Teachable" ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground"
-                )}>
-                  {betterOption === "Teachable" ? "Optimal" : "Higher Fees"}
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div className="flex justify-between text-xs font-bold uppercase tracking-tight items-baseline">
-                  <span className="text-muted-foreground">Est. Monthly Profit</span>
-                  <span className="text-primary text-xl">
-                    ${Math.max(0, Math.round(teachableProfit)).toLocaleString()}
-                  </span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
-                   <MotionDiv 
-                    className="bg-primary h-full" 
-                    initial={{ width: 0 }}
-                    animate={{ width: isComparisonMode ? `${(Math.max(0, teachableProfit) / Math.max(teachableProfit, kajabiProfit, 1)) * 100}%` : 0 }}
-                    transition={{ duration: 1 }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 rounded-2xl border border-border/10 bg-background hover:border-primary/50 transition-colors group">
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  <h4 className="font-black uppercase tracking-tight">Kajabi</h4>
-                  <p className="text-[10px] text-muted-foreground uppercase font-bold">Basic Plan ($149 + 0%)</p>
-                </div>
-                <div className={cn(
-                  "px-2 py-1 rounded text-[8px] font-black uppercase",
-                  betterOption === "Kajabi" ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground"
-                )}>
-                   {betterOption === "Kajabi" ? "Optimal" : "Higher Fees"}
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div className="flex justify-between text-xs font-bold uppercase tracking-tight items-baseline">
-                  <span className="text-muted-foreground">Est. Monthly Profit</span>
-                  <span className="text-primary text-xl">
-                    ${Math.max(0, Math.round(kajabiProfit)).toLocaleString()}
-                  </span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
-                   <MotionDiv 
-                    className="bg-primary h-full" 
-                    initial={{ width: 0 }}
-                    animate={{ width: isComparisonMode ? `${(Math.max(0, kajabiProfit) / Math.max(teachableProfit, kajabiProfit, 1)) * 100}%` : 0 }}
-                    transition={{ duration: 1 }}
-                  />
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
           
           <MotionDiv 
@@ -318,9 +309,9 @@ export function CourseRevenueCalculator() {
           >
             <Info className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
             <p className="text-sm text-muted-foreground font-medium italic leading-relaxed">
-              * Calculations include monthly subscription basic fees. {kajabiProfit > teachableProfit 
-                ? "At your current volume, Kajabi's 0% transaction fee model is significantly more profitable than Teachable's 5% cut." 
-                : "At your current volume, Teachable's lower $39 base price keeps your costs down, even with the 5% transaction fee."}
+              * Calculations include monthly subscription fees and transaction cuts. {bestOption.estProfit > secondBest.estProfit
+                ? `At your current volume, ${bestOption.name} is the most profitable choice, saving you $${Math.round(bestOption.estProfit - secondBest.estProfit).toLocaleString()} per month over ${secondBest.name}.`
+                : "Your selected platform options are equally efficient for your current volume."}
             </p>
           </MotionDiv>
         </div>

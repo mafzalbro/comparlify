@@ -284,3 +284,15 @@ export async function saveAdSnapshot(
         return { success: false, error: error.message || "Failed to save ad forecast." };
     }
 }
+
+export async function getMatchFeatures() {
+    const features = await prisma.feature.findMany({
+        take: 12,
+        orderBy: { platforms: { _count: 'desc' } }
+    });
+    return features.map(f => ({
+        id: f.id,
+        name: f.name,
+        icon: "✨"
+    }));
+}
