@@ -17,6 +17,7 @@ import {
   ExternalLink,
   ArrowRight,
   CheckCircle2,
+  Trophy,
 } from "lucide-react";
 import Link from "next/link";
 import { cache } from "react";
@@ -69,9 +70,21 @@ export default async function PlatformDetailPage(props: {
         <section className="relative pt-32 pb-24 overflow-hidden border-b border-border/10">
           <div className="container mx-auto px-4 md:px-6 relative z-10">
             <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
-              <Badge className="bg-primary/10 text-primary border-primary/20 px-6 py-2 uppercase tracking-[0.4em] text-[10px] font-black rounded-full mb-12 shadow-sm">
-                Expert Platform Review
-              </Badge>
+              <div className="flex gap-3 mb-12">
+                <Badge className="bg-primary/10 text-primary border-primary/20 px-6 py-2 uppercase tracking-[0.4em] text-[10px] font-black rounded-full shadow-sm">
+                  Expert Platform Review
+                </Badge>
+                {platform.rating && platform.rating >= 4.5 && (
+                   <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 px-6 py-2 uppercase tracking-[0.4em] text-[10px] font-black rounded-full shadow-sm">
+                    <Trophy className="h-3 w-3 mr-2" /> Top Rated 2026
+                  </Badge>
+                )}
+                {platform.easeOfUse && platform.easeOfUse >= 4.7 && (
+                   <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20 px-6 py-2 uppercase tracking-[0.4em] text-[10px] font-black rounded-full shadow-sm">
+                    <Zap className="h-3 w-3 mr-2" /> Easiest to Use
+                  </Badge>
+                )}
+              </div>
               <ManagedImage
                 src={platform.logoUrl}
                 alt={platform.name}

@@ -1,6 +1,7 @@
 import React, { Suspense } from "react";
 import { generateSeoMetadata } from "@/lib/seo";
 import { CourseRevenueCalculator } from "./_components/course-revenue-calculator";
+import prisma from "@/lib/prisma";
 import { MotionDiv } from "@/components/motion-wrapper";
 import { Breadcrumbs } from "@/components/breadcrumb";
 import { Calculator, Sparkles, Loader2, Coins, TrendingUp } from "lucide-react";
@@ -15,7 +16,15 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default function CourseRevenueCalculatorPage() {
+async function getPlatforms() {
+  return await prisma.platform.findMany({
+    include: { tiers: { orderBy: { monthlyPrice: "asc" } } },
+    orderBy: { name: "asc" },
+  });
+}
+
+export default async function CourseRevenueCalculatorPage() {
+  const platforms = await getPlatforms();
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <Breadcrumbs
@@ -52,7 +61,7 @@ export default function CourseRevenueCalculatorPage() {
           </div>
         }
       >
-        <CourseRevenueCalculator />
+        <CourseRevenueCalculator platforms={platforms} />
       </Suspense>
 
       <MotionDiv

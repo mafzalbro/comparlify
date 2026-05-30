@@ -42,7 +42,11 @@ import { Badge } from "@/components/ui/badge";
 import { PLATFORM_DEFAULTS } from "@/lib/platforms";
 import { cn } from "@/lib/utils";
 
-export function PricingCalculator() {
+interface PricingCalculatorProps {
+  platforms: any[];
+}
+
+export function PricingCalculator({ platforms }: PricingCalculatorProps) {
   const [price, setPrice] = useState<number>(97);
   const [students, setStudents] = useState<number>(50);
   const [platform1Id, setPlatform1Id] = useState<string>("teachable");
@@ -52,30 +56,30 @@ export function PricingCalculator() {
   const revenue = price * students;
 
   const result1 = useMemo(() => {
-    return calculateROI(revenue, students, PLATFORM_DEFAULTS[platform1Id].tier, GATEWAYS.stripe);
+    return calculateROI(revenue, students, platforms.find(p => p.id === platform1Id)?.tiers[0] || PLATFORM_DEFAULTS[platform1Id].tier, GATEWAYS.stripe);
   }, [revenue, students, platform1Id]);
 
   const result2 = useMemo(() => {
-    return calculateROI(revenue, students, PLATFORM_DEFAULTS[platform2Id].tier, GATEWAYS.stripe);
+    return calculateROI(revenue, students, platforms.find(p => p.id === platform2Id)?.tiers[0] || PLATFORM_DEFAULTS[platform2Id].tier, GATEWAYS.stripe);
   }, [revenue, students, platform2Id]);
 
   const profit1 = revenue - result1.monthlyTotalCost;
   const profit2 = revenue - result2.monthlyTotalCost;
 
-  const winner = profit1 > profit2 ? PLATFORM_DEFAULTS[platform1Id] : PLATFORM_DEFAULTS[platform2Id];
-  const loser = profit1 > profit2 ? PLATFORM_DEFAULTS[platform2Id] : PLATFORM_DEFAULTS[platform1Id];
+  const winner = profit1 > profit2 ? (platforms.find(p => p.id === platform1Id) || PLATFORM_DEFAULTS[platform1Id]) : (platforms.find(p => p.id === platform2Id) || PLATFORM_DEFAULTS[platform2Id]);
+  const loser = profit1 > profit2 ? (platforms.find(p => p.id === platform2Id) || PLATFORM_DEFAULTS[platform2Id]) : (platforms.find(p => p.id === platform1Id) || PLATFORM_DEFAULTS[platform1Id]);
   const savings = Math.abs(profit1 - profit2);
 
   const chartData = useMemo(() => [
     {
-      name: PLATFORM_DEFAULTS[platform1Id].name,
-      fees: result1.monthlyTotalCost - PLATFORM_DEFAULTS[platform1Id].tier.monthlyPrice,
-      subscription: PLATFORM_DEFAULTS[platform1Id].tier.monthlyPrice,
+      name: platforms.find(p => p.id === platform1Id)?.name || PLATFORM_DEFAULTS[platform1Id].name,
+      fees: result1.monthlyTotalCost - platforms.find(p => p.id === platform1Id)?.tiers[0] || PLATFORM_DEFAULTS[platform1Id].tier.monthlyPrice,
+      subscription: platforms.find(p => p.id === platform1Id)?.tiers[0] || PLATFORM_DEFAULTS[platform1Id].tier.monthlyPrice,
     },
     {
-      name: PLATFORM_DEFAULTS[platform2Id].name,
-      fees: result2.monthlyTotalCost - PLATFORM_DEFAULTS[platform2Id].tier.monthlyPrice,
-      subscription: PLATFORM_DEFAULTS[platform2Id].tier.monthlyPrice,
+      name: platforms.find(p => p.id === platform2Id)?.name || PLATFORM_DEFAULTS[platform2Id].name,
+      fees: result2.monthlyTotalCost - platforms.find(p => p.id === platform2Id)?.tiers[0] || PLATFORM_DEFAULTS[platform2Id].tier.monthlyPrice,
+      subscription: platforms.find(p => p.id === platform2Id)?.tiers[0] || PLATFORM_DEFAULTS[platform2Id].tier.monthlyPrice,
     }
   ], [platform1Id, platform2Id, result1, result2]);
 
@@ -147,7 +151,7 @@ export function PricingCalculator() {
                       <SelectValue placeholder="Select Platform" />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.values(PLATFORM_DEFAULTS).map(p => (
+                      {(platforms.length > 0 ? platforms : Object.values(PLATFORM_DEFAULTS)).map(p => (
                         <SelectItem key={p.id} value={p.id} className="text-xs font-bold uppercase">{p.name}</SelectItem>
                       ))}
                     </SelectContent>
@@ -198,7 +202,7 @@ export function PricingCalculator() {
             >
               <div>
                 <Badge variant="outline" className="mb-4 text-[10px] font-black uppercase tracking-widest border-primary/20 bg-primary/5">
-                  {PLATFORM_DEFAULTS[platform1Id].name}
+                  {platforms.find(p => p.id === platform1Id)?.name || PLATFORM_DEFAULTS[platform1Id].name}
                 </Badge>
                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Monthly Net Profit</p>
                 <h4 className="text-5xl font-black tracking-tighter italic text-primary">${profit1.toLocaleString(undefined, { maximumFractionDigits: 0 })}</h4>
@@ -226,7 +230,7 @@ export function PricingCalculator() {
               {!isComparison && (
                  <div className="mt-8">
                     <button className="w-full py-4 rounded-2xl bg-primary text-primary-foreground text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 group/btn hover:scale-[1.02] transition-transform">
-                      Switch to {PLATFORM_DEFAULTS[platform1Id].name} <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
+                      Switch to {platforms.find(p => p.id === platform1Id)?.name || PLATFORM_DEFAULTS[platform1Id].name} <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
                     </button>
                  </div>
               )}
@@ -241,7 +245,7 @@ export function PricingCalculator() {
               >
                 <div>
                   <Badge variant="outline" className="mb-4 text-[10px] font-black uppercase tracking-widest border-muted/20 bg-muted/5">
-                    {PLATFORM_DEFAULTS[platform2Id].name}
+                    {platforms.find(p => p.id === platform2Id)?.name || PLATFORM_DEFAULTS[platform2Id].name}
                   </Badge>
                   <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Monthly Net Profit</p>
                   <h4 className="text-5xl font-black tracking-tighter italic opacity-60">${profit2.toLocaleString(undefined, { maximumFractionDigits: 0 })}</h4>

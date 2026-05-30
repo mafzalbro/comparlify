@@ -17,37 +17,46 @@ import {
   Sparkles,
 } from "lucide-react";
 
-const PLATFORM_COMPLEXITY: Record<string, number> = {
-  Kajabi: 0.8, // Better export tools
-  Teachable: 1.2, // Harder to get data out
+const STATIC_PLATFORM_COMPLEXITY = {
+  Kajabi: 0.8,
+  Teachable: 1.2,
   Thinkific: 1.0,
   Podia: 0.9,
   "Custom/Other": 1.5,
 };
 
-export function MigrationEstimator() {
+interface MigrationEstimatorProps {
+  platforms?: any[];
+}
+
+export function MigrationEstimator({ platforms = [] }: MigrationEstimatorProps) {
+  const dynamicComplexity = useMemo(() => {
+    if (!platforms || platforms.length === 0) return STATIC_PLATFORM_COMPLEXITY;
+    const complexity = {};
+    platforms.forEach(p => {
+        complexity[p.name] = p.name === "Teachable" ? 1.2 : p.name === "Kajabi" ? 0.8 : 1.0;
+    });
+    if (!complexity["Custom/Other"]) complexity["Custom/Other"] = 1.5;
+    return complexity;
+  }, [platforms]);
+
   const [courses, setCourses] = useState(3);
   const [lessons, setLessons] = useState(50);
   const [videos, setVideos] = useState(10);
   const [fromPlatform, setFromPlatform] = useState("Kajabi");
 
   const estimates = useMemo(() => {
-    const complexityMultiplier = PLATFORM_COMPLEXITY[fromPlatform] || 1.0;
-
-    // Logic: 2 hours per course structure + 0.5 hours per lesson + 0.2 hours per video upload
+    const complexityMultiplier = dynamicComplexity[fromPlatform] || 1.0;
     const baseHours = courses * 2 + lessons * 0.5 + videos * 0.2;
     const totalHours = Math.round(baseHours * complexityMultiplier);
-
-    // Cost if hiring a specialist (avg $50/hr)
     const hiredCost = totalHours * 50;
 
-    // Risk Level
     let risk = "Low";
     if (totalHours > 40) risk = "Medium";
     if (totalHours > 100 || complexityMultiplier > 1.3) risk = "High";
 
     return { totalHours, hiredCost, risk };
-  }, [courses, lessons, videos, fromPlatform]);
+  }, [courses, lessons, videos, fromPlatform, dynamicComplexity]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -118,7 +127,7 @@ export function MigrationEstimator() {
                 onChange={(e) => setFromPlatform(e.target.value)}
                 className="w-full bg-background/50 border border-border/10 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none"
               >
-                {Object.keys(PLATFORM_COMPLEXITY).map((p) => (
+                {Object.keys(dynamicComplexity).map((p) => (
                   <option key={p} value={p}>
                     {p}
                   </option>
@@ -139,8 +148,7 @@ export function MigrationEstimator() {
                 Manual Labor Estimate
               </h4>
               <div className="text-5xl font-black tracking-tighter text-foreground mb-2 tabular-nums">
-                {estimates.totalHours}{" "}
-                <span className="text-xl opacity-50">hrs</span>
+                {estimates.totalHours} <span className="text-xl opacity-50">hrs</span>
               </div>
               <p className="text-sm font-bold opacity-70 leading-relaxed">
                 Time required for structure rebuild, content copy, and file
@@ -166,7 +174,7 @@ export function MigrationEstimator() {
                 Specialist Hiring Cost
               </h4>
               <div className="text-3xl font-black tracking-tight text-foreground tabular-nums">
-                ${estimates.hiredCost.toLocaleString()}
+                $${estimates.hiredCost.toLocaleString()}
               </div>
               <p className="text-xs font-bold opacity-50 mt-2 italic">
                 Based on median migration rates.
@@ -174,16 +182,16 @@ export function MigrationEstimator() {
             </Card>
 
             <Card
-              className={`p-8 border rounded-[2.5rem] flex-1 ${estimates.risk === "High" ? "bg-destructive/10 border-destructive/20" : "bg-green-500/10 border-green-500/20"}`}
+              className={`p-8 border rounded-[2.5rem] flex-1 \${estimates.risk === "High" ? "bg-destructive/10 border-destructive/20" : "bg-green-500/10 border-green-500/20"}`}
             >
               <ShieldAlert
-                className={`h-6 w-6 mb-4 ${estimates.risk === "High" ? "text-destructive" : "text-green-500"}`}
+                className={`h-6 w-6 mb-4 \${estimates.risk === "High" ? "text-destructive" : "text-green-500"}`}
               />
               <h4 className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-2">
                 Data Loss Risk
               </h4>
               <div
-                className={`text-3xl font-black tracking-tight ${estimates.risk === "High" ? "text-destructive" : "text-green-500"}`}
+                className={`text-3xl font-black tracking-tight \${estimates.risk === "High" ? "text-destructive" : "text-green-500"}`}
               >
                 {estimates.risk}
               </div>

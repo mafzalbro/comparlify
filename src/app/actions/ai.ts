@@ -176,6 +176,33 @@ export const generateSocialMediaPostAction = async (input: { topic: string }) =>
 export const generateVideoScriptAction = async (input: { topic: string }) =>
   generateSpecificContent("Write a detailed video script with intro, hook, main points, and outro.", input.topic);
 
+export async function generateIntelligenceReportAction(input: {
+  platformAName: string;
+  platformBName: string;
+}) {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") {
+    return { generatedContent: null, error: "Not authorized." };
+  }
+
+  const prompt = `
+    Generate a HIGH-FIDELITY, 3,000-word industrial deep-dive comparison between ${input.platformAName} and ${input.platformBName}.
+
+    STRUCTURE:
+    1. THE BILLION DOLLAR QUESTION: A high-stakes hook.
+    2. ARCHITECTURE & SCALABILITY: Technical breakdown.
+    3. MONETIZATION STRATEGY: Transaction fees, pricing tiers, and hidden costs.
+    4. THE 2026 AI ADVANTAGE: Future-proofing analysis.
+    5. SCENARIO-BASED VERDICT: Who wins for Coaches vs. SaaS vs. Course Creators.
+
+    STYLE: Use the HUMAN_STYLE_PROMPT guidelines. Be ruthless, objective, and data-driven.
+  `;
+
+  return generateGenericContentAction({
+    prompt,
+    topic: `${input.platformAName} vs ${input.platformBName}`,
+  });
+}
 
 // --- AI Image Generator ---
 const imageGeneratorSchema = z.object({

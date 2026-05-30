@@ -94,17 +94,10 @@ Kajabi is the "heavy hitter" of the industry. It is a sophisticated, powerful, a
   ],
   tiers: [
     {
-      name: "Starter",
-      monthlyPrice: 89,
-      annualPriceMonthlyEquivalent: 71,
-      features: ["1 Product", "250 Contacts", "1 Website", "1 Community", "Unlimited Emails"],
-      isPopular: false
-    },
-    {
       name: "Basic",
-      monthlyPrice: 179,
-      annualPriceMonthlyEquivalent: 143,
-      features: ["5 Products", "2,500 Contacts", "1 Website", "1 Community", "Unlimited Emails"],
+      monthlyPrice: 199,
+      annualPriceMonthlyEquivalent: 149,
+      features: ["3 Products", "10,000 Contacts", "1 Website", "1 Community", "Unlimited Emails"],
       isPopular: false
     },
     {

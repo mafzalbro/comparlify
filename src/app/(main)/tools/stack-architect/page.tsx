@@ -16,14 +16,9 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-async function getLmsPlatforms() {
+async function getPlatforms() {
   return await prisma.platform.findMany({
-    select: {
-      id: true,
-      name: true,
-      flatMonthlyFee: true,
-      description: true,
-    },
+    include: { tiers: true, features: { include: { feature: true } } },
     orderBy: {
       name: "asc",
     },
@@ -31,7 +26,7 @@ async function getLmsPlatforms() {
 }
 
 export default async function StackArchitectPage() {
-  const lmsPlatforms = await getLmsPlatforms();
+  const platforms = await getPlatforms();
   const projects = await getUserProjects();
 
   return (
@@ -66,7 +61,7 @@ export default async function StackArchitectPage() {
         </p>
       </MotionDiv>
 
-      <StackArchitect lmsPlatforms={lmsPlatforms as any} projects={projects as any} />
+      <StackArchitect platforms={platforms as any} projects={projects as any} />
 
       <MotionDiv
         initial={{ opacity: 0 }}

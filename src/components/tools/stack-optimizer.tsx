@@ -11,7 +11,8 @@ import {
   DollarSign, 
   CheckCircle2,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  Layers
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -36,7 +37,7 @@ const CATEGORIES: ToolCategory[] = [
   { id: "checkout", name: "Checkout / Funnels" },
 ];
 
-const TOOLS_LIBRARY: StackTool[] = [
+const STATIC_TOOLS_LIBRARY: StackTool[] = [
     // LMS
     { id: "kajabi", name: "Kajabi", category: "lms", cost: 199, features: ["lms", "email", "funnels", "community", "crm"] },
     { id: "teachable", name: "Teachable", category: "lms", cost: 119, features: ["lms", "checkout"] },
@@ -58,12 +59,33 @@ const TOOLS_LIBRARY: StackTool[] = [
     { id: "thrivecart", name: "ThriveCart", category: "checkout", cost: 0, features: ["checkout"] }, // Lifetime usually
 ];
 
-export function StackOptimizer() {
+interface StackOptimizerProps {
+  platforms?: any[];
+}
+
+export function StackOptimizer({ platforms = [] }: StackOptimizerProps) {
+  const dynamicTools = useMemo(() => {
+    if (!platforms || platforms.length === 0) return STATIC_TOOLS_LIBRARY;
+
+    const dbTools: StackTool[] = platforms.map(p => ({
+      id: p.id,
+      name: p.name,
+      category: p.name.toLowerCase().includes("email") || p.name === "Kit" ? "email" :
+                p.name.toLowerCase().includes("community") || p.name === "Skool" || p.name === "Circle" ? "community" :
+                p.name.toLowerCase().includes("stripe") || p.name.toLowerCase().includes("squeezy") ? "checkout" : "lms",
+      cost: p.tiers?.[0]?.monthlyPrice || 0,
+      features: p.features?.map((f: any) => f.feature?.name.toLowerCase()) || []
+    }));
+
+    // Merge logic: prefer DB tools, fallback to static for missing categories if needed, but here we just use DB if present
+    return dbTools;
+  }, [platforms]);
+
   const [selectedToolIds, setSelectedToolIds] = useState<string[]>([]);
   
   const selectedTools = useMemo(() => 
-    TOOLS_LIBRARY.filter(t => selectedToolIds.includes(t.id)), 
-  [selectedToolIds]);
+    dynamicTools.filter(t => selectedToolIds.includes(t.id)),
+  [selectedToolIds, dynamicTools]);
 
   const analysis = useMemo(() => {
     const redundancies: { tool: StackTool, redundantWith: StackTool, feature: string }[] = [];
@@ -72,23 +94,15 @@ export function StackOptimizer() {
     selectedTools.forEach(tool => {
         tool.features.forEach(feature => {
             if (featurePool[feature] && featurePool[feature].id !== tool.id) {
-                // Potential redundancy
-                // If the tool providing the feature is a 'Primary' for that category, the other might be redundant
                 const provider = featurePool[feature];
-                
-                // Rule: If an LMS provides Email, and you have a dedicated Email tool, it's redundant
                 if (provider.category === "lms" && tool.category === "email" && feature === "email") {
                     redundancies.push({ tool, redundantWith: provider, feature });
                 } else if (tool.category === "lms" && provider.category === "email" && feature === "email") {
                     redundancies.push({ tool: provider, redundantWith: tool, feature });
                 }
-                
-                // Rule: LMS vs Community
                 if (provider.category === "community" && tool.category === "lms" && feature === "lms") {
                     redundancies.push({ tool, redundantWith: provider, feature });
                 }
-
-                // Rule: Checkout
                 if (provider.category === "lms" && tool.category === "checkout" && feature === "checkout") {
                     redundancies.push({ tool, redundantWith: provider, feature });
                 }
@@ -143,18 +157,19 @@ export function StackOptimizer() {
                 <div key={cat.id} className="space-y-4">
                     <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 border-b border-border/10 pb-2">{cat.name}</h4>
                     <div className="grid grid-cols-1 gap-2">
-                        {TOOLS_LIBRARY.filter(t => t.category === cat.id).map(tool => (
+                        {dynamicTools.filter(t => t.category === cat.id).map(tool => (
                             <button
                                 key={tool.id}
                                 onClick={() => toggleTool(tool.id)}
-                                className={`flex items-center justify-between p-4 rounded-2xl border transition-all duration-300 ${
+                                className={cn(
+                                    "flex items-center justify-between p-4 rounded-2xl border transition-all duration-300",
                                     selectedToolIds.includes(tool.id) 
                                     ? "bg-primary/10 border-primary shadow-lg shadow-primary/5" 
                                     : "bg-background/40 border-border/10 hover:border-border/30"
-                                }`}
+                                )}
                             >
                                 <div className="flex items-center gap-3 text-left">
-                                    <div className={`h-2 w-2 rounded-full ${selectedToolIds.includes(tool.id) ? "bg-primary animate-pulse" : "bg-muted"}`} />
+                                    <div className={cn("h-2 w-2 rounded-full", selectedToolIds.includes(tool.id) ? "bg-primary animate-pulse" : "bg-muted")} />
                                     <span className="text-xs font-bold uppercase tracking-tight">{tool.name}</span>
                                 </div>
                                 <span className="text-[10px] font-black opacity-40">${tool.cost}/mo</span>
@@ -258,19 +273,3 @@ export function StackOptimizer() {
     </Card>
   );
 }
-
-const Layers = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg 
-      {...props} 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-    >
-      <path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" />
-      <path d="m2.6 12.08 8.58 3.9a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83" />
-      <path d="m2.6 17.08 8.58 3.9a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83" />
-    </svg>
-);
