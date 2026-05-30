@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { saveRoiSnapshot } from "@/app/actions/projects";
+import { captureLeadAction } from "@/app/actions/leads";
 import { Button } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
@@ -84,6 +85,8 @@ export function ROICalculator({ platforms, projects }: ROICalculatorProps) {
   const [projectionYears, setProjectionYears] = useState<1 | 3>(() => Number(searchParams.get("years")) as any || 1);
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
+  const [leadEmail, setLeadEmail] = useState("");
+  const [isCapturingLead, setIsCapturingLead] = useState(false);
 
   // Sync state to URL for sharing
   useEffect(() => {
@@ -227,6 +230,49 @@ export function ROICalculator({ platforms, projects }: ROICalculatorProps) {
       });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleLeadCapture = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!leadEmail) return;
+
+    setIsCapturingLead(true);
+    try {
+      const result = await captureLeadAction({
+        email: leadEmail,
+        tool: "ROI Calculator",
+        data: {
+          revenue,
+          salesCount,
+          currentPlatform: currentPlatform?.name,
+          bestOption: bestOption.platformName,
+          bestOptionId: bestOption.platformId,
+          annualSavings: maxSavings,
+        }
+      });
+
+      if (result.success) {
+        toast({
+          title: "Report Sent!",
+          description: "Check your inbox for the full financial breakdown.",
+        });
+        setLeadEmail("");
+      } else {
+        toast({
+          title: "Error",
+          description: result.error,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send report.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCapturingLead(false);
     }
   };
 
@@ -421,6 +467,34 @@ export function ROICalculator({ platforms, projects }: ROICalculatorProps) {
         </div>
 
         <Card className="p-8 bg-card/40 backdrop-blur-3xl border border-border/10 rounded-[2.5rem] shadow-xl overflow-hidden relative">
+          {/* Lead Magnet Section */}
+          <div className="mb-12 p-8 bg-primary/10 border border-primary/20 rounded-[2rem] relative overflow-hidden group">
+            <div className="relative z-10">
+              <h4 className="text-xl font-black tracking-tight mb-2">Get the <span className="text-primary italic">Full Intelligence</span> Report</h4>
+              <p className="text-xs font-medium text-muted-foreground mb-6 max-w-md">We&apos;ll send you a detailed migration blueprint, transaction fee breakdown, and a 3-year growth forecast based on your numbers.</p>
+
+              <form onSubmit={handleLeadCapture} className="flex gap-2">
+                <input
+                  type="email"
+                  placeholder="Enter your email..."
+                  value={leadEmail}
+                  onChange={(e) => setLeadEmail(e.target.value)}
+                  required
+                  className="flex-1 bg-background border border-border/10 rounded-xl px-4 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+                <Button
+                  type="submit"
+                  disabled={isCapturingLead}
+                  className="rounded-xl px-6 bg-primary text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20"
+                >
+                  {isCapturingLead ? <Loader2 className="h-4 w-4 animate-spin" /> : "Email Report"}
+                </Button>
+              </form>
+              <p className="text-[9px] font-medium text-muted-foreground mt-3 italic opacity-60">No spam. Just data. (Optional)</p>
+            </div>
+            <Zap className="absolute -right-4 -bottom-4 h-32 w-32 text-primary/10 -rotate-12 group-hover:scale-110 transition-transform" />
+          </div>
+
           <div className="flex items-center justify-between mb-8">
             <h3 className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
               <PieChart className="h-5 w-5 text-primary" /> Cost <span className="text-primary italic">Breakdown</span>

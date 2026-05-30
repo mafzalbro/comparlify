@@ -34,7 +34,6 @@ model ForumTopic {
   posts      ForumPost[]
   status     ForumTopicStatus @default(PENDING)
   platforms  Platform[]
-  votes      TopicVote[]
 
   @@index([authorId])
   @@index([categoryId])
@@ -50,32 +49,7 @@ model ForumPost {
   topicId   String
   topic     ForumTopic      @relation(fields: [topicId], references: [id], onDelete: Cascade)
   status    ForumPostStatus @default(PENDING)
-  votes     PostVote[]
 
   @@index([authorId])
   @@index([topicId])
-}
-
-model TopicVote {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  topicId   String
-  topic     ForumTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
-  value     Int      // 1 for upvote, -1 for downvote
-
-  @@unique([userId, topicId])
-  @@index([topicId])
-}
-
-model PostVote {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  postId    String
-  post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  value     Int      // 1 for upvote, -1 for downvote
-
-  @@unique([userId, postId])
-  @@index([postId])
 }

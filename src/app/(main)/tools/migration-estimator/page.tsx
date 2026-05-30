@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { generateSeoMetadata } from "@/lib/seo";
 import { MigrationEstimator } from "./_components/migration-estimator";
+import prisma from "@/lib/prisma";
 import { MotionDiv } from "@/components/motion-wrapper";
 import { Breadcrumbs } from "@/components/breadcrumb";
 import { ArrowRightLeft, ShieldAlert, Sparkles } from "lucide-react";
@@ -14,7 +15,15 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
+async function getPlatforms() {
+  return await prisma.platform.findMany({
+    select: { name: true },
+    orderBy: { name: "asc" },
+  });
+}
+
 export default async function MigrationEstimatorPage() {
+  const platforms = await getPlatforms();
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <Breadcrumbs 
@@ -46,7 +55,7 @@ export default async function MigrationEstimatorPage() {
         </p>
       </MotionDiv>
 
-      <MigrationEstimator />
+      <MigrationEstimator platforms={platforms} />
 
       <MotionDiv
         initial={{ opacity: 0 }}

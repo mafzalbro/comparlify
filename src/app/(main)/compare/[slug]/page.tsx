@@ -27,6 +27,8 @@ import { ComparisonStats } from "@/components/comparison/comparison-stats";
 import { ComparisonFeatureMatrix } from "@/components/comparison/comparison-feature-matrix";
 import { IntelligenceVerdict } from "@/components/comparison/intelligence-verdict";
 import { ComparisonFaqs } from "@/components/comparison/comparison-faqs";
+import { AuthorSection } from "@/components/comparison/author-section";
+import { IntelligentAnalysis } from "@/components/comparison/intelligent-analysis";
 import { PlatformVisitCards } from "@/components/comparison/platform-visit-cards";
 import { InlineROICalculator } from "@/components/comparison/inline-roi-calculator";
 import { PlatformPicker } from "@/components/tool/PlatformPicker";
@@ -71,7 +73,7 @@ export async function generateMetadata(props: {
   const { slug } = await props.params;
   const comparison = await getComparisonBySlug(slug);
   if (!comparison) return {};
-  
+
   // Professional high-intent title strategy
   const currentYear = new Date().getFullYear();
   const professionalTitle = `${comparison.platformA.name} vs ${comparison.platformB.name} ${currentYear}: Pricing, Fees, and Infrastructure Comparison`;
@@ -245,17 +247,17 @@ export default async function ComparisonDetailPage(props: {
 
         {/* ── PLATFORM PICKER (Decision Engine) ────────────────── */}
         <section className="py-24 overflow-hidden">
-          <PlatformPicker 
+          <PlatformPicker
             platformA={{
               id: platformA.id,
               name: platformA.name,
               affiliateUrl: platformA.affiliateLink
-            }} 
+            }}
             platformB={{
               id: platformB.id,
               name: platformB.name,
               affiliateUrl: platformB.affiliateLink
-            }} 
+            }}
           />
         </section>
 
@@ -391,6 +393,22 @@ export default async function ComparisonDetailPage(props: {
                   </div>
                   <MarkdownContent content={comparison.content} />
                 </section>
+              )}
+
+              <IntelligentAnalysis
+                content={comparison.content || ""}
+                platformA={platformA}
+                platformB={platformB}
+                comparison={comparison}
+              />
+
+              {comparison.authorName && (
+                <AuthorSection
+                  name={comparison.authorName}
+                  role={comparison.authorRole || ""}
+                  bio={comparison.authorBio || ""}
+                  credentials={(comparison.authorCredentials as string[]) || []}
+                />
               )}
 
               {/* Feature Matrix */}

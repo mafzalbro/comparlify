@@ -2,15 +2,13 @@
 import Link from "next/link";
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MessageSquare, ThumbsUp, ShieldCheck } from 'lucide-react';
+import { MessageSquare, ThumbsUp } from 'lucide-react';
 import type { ForumTopic, User } from '@prisma/client';
 import { formatDistanceToNow } from 'date-fns';
-import { Badge } from "@/components/ui/badge";
 
 type TopicWithAuthorAndCounts = ForumTopic & { 
-    author: User & { stacks?: { isVerified: boolean }[] },
-    _count: { posts: number },
-    votes?: { value: number }[]
+    author: User,
+    _count: { posts: number }
 };
 
 interface TopicListProps {
@@ -43,14 +41,9 @@ export function TopicList({ topics }: TopicListProps) {
                                     <AvatarFallback>{topic.author.name?.charAt(0)}</AvatarFallback>
                                 </Avatar>
                                 <div>
-                                    <div className="flex items-center gap-2">
-                                        <h3 className="font-semibold text-lg text-foreground">{topic.title}</h3>
-                                        {topic.author.stacks?.some(s => s.isVerified) && (
-                                            <ShieldCheck className="h-4 w-4 text-emerald-500" />
-                                        )}
-                                    </div>
-                                    <p className="text-sm text-muted-foreground italic font-medium">
-                                        By <span className="text-primary font-bold">{topic.author.name}</span> &bull; {formatDistanceToNow(topic.createdAt, { addSuffix: true })}
+                                    <h3 className="font-semibold text-lg text-foreground">{topic.title}</h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        By {topic.author.name} &bull; {formatDistanceToNow(topic.createdAt, { addSuffix: true })}
                                     </p>
                                 </div>
                             </div>

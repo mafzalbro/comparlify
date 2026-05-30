@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 interface ToolOption {
   id: string;
@@ -40,7 +41,7 @@ interface ToolOption {
   description: string;
 }
 
-const EXTERNAL_TOOLS: ToolOption[] = [
+const STATIC_EXTERNAL_TOOLS: ToolOption[] = [
   {
     id: "convertkit",
     name: "ConvertKit",
@@ -85,20 +86,47 @@ const EXTERNAL_TOOLS: ToolOption[] = [
   },
 ];
 
-interface Platform {
-  id: string;
-  name: string;
-  flatMonthlyFee: number | null;
-  description: string;
-}
-
 interface StackArchitectProps {
-  lmsPlatforms: Platform[];
+  platforms: any[];
   projects: any[];
 }
 
-export function StackArchitect({ lmsPlatforms, projects }: StackArchitectProps) {
+export function StackArchitect({ platforms, projects }: StackArchitectProps) {
   const { toast } = useToast();
+
+  const dynamicLMS = useMemo(() => {
+    return platforms.filter(p =>
+        !p.name.toLowerCase().includes("email") &&
+        !p.name.toLowerCase().includes("community")
+    );
+  }, [platforms]);
+
+  const dynamicEmail = useMemo(() => {
+    const dbEmail = platforms
+        .filter(p => p.name.toLowerCase().includes("email") || p.name === "Kit")
+        .map(p => ({
+            id: p.id,
+            name: p.name,
+            monthlyPrice: p.tiers?.[0]?.monthlyPrice || 0,
+            category: "EMAIL" as const,
+            description: p.description.substring(0, 50) + "..."
+        }));
+    return [...dbEmail, ...STATIC_EXTERNAL_TOOLS.filter(t => t.category === "EMAIL")];
+  }, [platforms]);
+
+  const dynamicCommunity = useMemo(() => {
+    const dbComm = platforms
+        .filter(p => p.name.toLowerCase().includes("community") || p.name === "Skool" || p.name === "Circle")
+        .map(p => ({
+            id: p.id,
+            name: p.name,
+            monthlyPrice: p.tiers?.[0]?.monthlyPrice || 0,
+            category: "COMMUNITY" as const,
+            description: p.description.substring(0, 50) + "..."
+        }));
+    return [...dbComm, ...STATIC_EXTERNAL_TOOLS.filter(t => t.category === "COMMUNITY")];
+  }, [platforms]);
+
   const [selectedLMS, setSelectedLMS] = useState<string>("");
   const [selectedEmail, setSelectedEmail] = useState<string>("");
   const [selectedCommunity, setSelectedCommunity] = useState<string>("");
@@ -106,10 +134,10 @@ export function StackArchitect({ lmsPlatforms, projects }: StackArchitectProps) 
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
 
-  const lmsData = lmsPlatforms.find((p) => p.id === selectedLMS);
-  const emailData = EXTERNAL_TOOLS.find((t) => t.id === selectedEmail);
-  const communityData = EXTERNAL_TOOLS.find((t) => t.id === selectedCommunity);
-  const paymentData = EXTERNAL_TOOLS.find((t) => t.id === selectedPayments);
+  const lmsData = dynamicLMS.find((p) => p.id === selectedLMS);
+  const emailData = dynamicEmail.find((t) => t.id === selectedEmail);
+  const communityData = dynamicCommunity.find((t) => t.id === selectedCommunity);
+  const paymentData = STATIC_EXTERNAL_TOOLS.find((t) => t.id === selectedPayments);
 
   const stack = [
     { label: "LMS Core", data: lmsData, icon: Layers, type: "LMS" },
@@ -124,7 +152,7 @@ export function StackArchitect({ lmsPlatforms, projects }: StackArchitectProps) 
   ];
 
   const totalCost =
-    (lmsData?.flatMonthlyFee || 0) +
+    (lmsData?.tiers?.[0]?.monthlyPrice || 0) +
     (emailData?.monthlyPrice || 0) +
     (communityData?.monthlyPrice || 0);
 
@@ -140,13 +168,13 @@ export function StackArchitect({ lmsPlatforms, projects }: StackArchitectProps) 
 
     setIsSaving(true);
     try {
-      const platforms = [];
-      if (selectedLMS) platforms.push({ platformId: selectedLMS, role: "LMS" });
-      if (selectedEmail) platforms.push({ platformId: selectedEmail, role: "EMAIL" });
-      if (selectedCommunity) platforms.push({ platformId: selectedCommunity, role: "COMMUNITY" });
-      if (selectedPayments) platforms.push({ platformId: selectedPayments, role: "PAYMENTS" });
+      const selectedPlatforms = [];
+      if (selectedLMS) selectedPlatforms.push({ platformId: selectedLMS, role: "LMS" });
+      if (selectedEmail) selectedPlatforms.push({ platformId: selectedEmail, role: "EMAIL" });
+      if (selectedCommunity) selectedPlatforms.push({ platformId: selectedCommunity, role: "COMMUNITY" });
+      if (selectedPayments) selectedPlatforms.push({ platformId: selectedPayments, role: "PAYMENTS" });
 
-      const result = await createStackFromBlueprint(selectedProjectId, platforms);
+      const result = await createStackFromBlueprint(selectedProjectId, selectedPlatforms);
 
       if (result.success) {
         toast({
@@ -173,8 +201,7 @@ export function StackArchitect({ lmsPlatforms, projects }: StackArchitectProps) 
 
   const warnings = useMemo(() => {
     const list = [];
-    if (selectedLMS === "cmmld8rs5000t" || lmsData?.name === "Kajabi") {
-      // Kajabi
+    if (lmsData?.name === "Kajabi") {
       if (selectedEmail)
         list.push(
           "Kajabi includes robust Email Marketing. You likely don't need " +
@@ -192,7 +219,7 @@ export function StackArchitect({ lmsPlatforms, projects }: StackArchitectProps) 
       );
     }
     return list;
-  }, [selectedLMS, selectedEmail, selectedCommunity, lmsData, emailData]);
+  }, [selectedEmail, selectedCommunity, lmsData, emailData, communityData]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -219,9 +246,9 @@ export function StackArchitect({ lmsPlatforms, projects }: StackArchitectProps) 
               className="w-full bg-background/50 border border-border/10 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 outline-none"
             >
               <option value="">Select Platform...</option>
-              {lmsPlatforms.map((p) => (
+              {dynamicLMS.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.name} (${p.flatMonthlyFee}/mo)
+                  {p.name} (${p.tiers?.[0]?.monthlyPrice || 0}/mo)
                 </option>
               ))}
             </select>
@@ -243,7 +270,7 @@ export function StackArchitect({ lmsPlatforms, projects }: StackArchitectProps) 
               className="w-full bg-background/50 border border-border/10 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 outline-none"
             >
               <option value="">No External Tool (Use LMS Native)</option>
-              {EXTERNAL_TOOLS.filter((t) => t.category === "EMAIL").map((t) => (
+              {dynamicEmail.map((t) => (
                 <option key={t.id} value={t.id}>
                   {t.name} (+${t.monthlyPrice}/mo)
                 </option>
@@ -267,13 +294,11 @@ export function StackArchitect({ lmsPlatforms, projects }: StackArchitectProps) 
               className="w-full bg-background/50 border border-border/10 rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 outline-none"
             >
               <option value="">No External Tool (Use LMS Native)</option>
-              {EXTERNAL_TOOLS.filter((t) => t.category === "COMMUNITY").map(
-                (t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name} (+${t.monthlyPrice}/mo)
-                  </option>
-                ),
-              )}
+              {dynamicCommunity.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name} (+${t.monthlyPrice}/mo)
+                </option>
+              ))}
             </select>
           </Card>
         </div>
@@ -334,10 +359,16 @@ export function StackArchitect({ lmsPlatforms, projects }: StackArchitectProps) 
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className={`flex items-center gap-6 p-6 rounded-3xl border transition-all ${item.data ? "bg-background/80 border-primary/20 shadow-lg" : "bg-muted/30 border-dashed border-border/20 opacity-50"}`}
+                className={cn(
+                    "flex items-center gap-6 p-6 rounded-3xl border transition-all",
+                    item.data ? "bg-background/80 border-primary/20 shadow-lg" : "bg-muted/30 border-dashed border-border/20 opacity-50"
+                )}
               >
                 <div
-                  className={`p-4 rounded-2xl ${item.data ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+                  className={cn(
+                      "p-4 rounded-2xl",
+                      item.data ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                  )}
                 >
                   <item.icon className="h-6 w-6" />
                 </div>
@@ -353,8 +384,8 @@ export function StackArchitect({ lmsPlatforms, projects }: StackArchitectProps) 
                   <div className="text-right">
                     <p className="text-sm font-black text-foreground">
                       $
-                      {(item.data as any).flatMonthlyFee ||
-                        (item.data as any).monthlyPrice ||
+                      {(item.data as any).monthlyPrice ||
+                        (item.data as any).tiers?.[0]?.monthlyPrice ||
                         0}
                     </p>
                     <p className="text-[10px] font-bold opacity-50 uppercase tracking-widest">

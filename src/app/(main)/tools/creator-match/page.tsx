@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { MotionDiv } from "@/components/motion-wrapper";
 import { MatchWizard } from "@/components/tools/match-wizard";
 import { MatchResults } from "@/components/tools/match-results";
-import { createProjectWithProfile, getPlatformMatches } from "@/app/actions/projects";
+import { createProjectWithProfile, getPlatformMatches, getMatchFeatures } from "@/app/actions/projects";
 import { useToast } from "@/hooks/use-toast";
 import { ShieldCheck, Zap, Sparkles } from "lucide-react";
 import { Breadcrumbs } from "@/components/breadcrumb";
@@ -12,6 +12,11 @@ import { Breadcrumbs } from "@/components/breadcrumb";
 export default function CreatorMatchPage() {
     const [results, setResults] = useState<any[]>([]);
     const [isCalculating, setIsCalculating] = useState(false);
+    const [availableFeatures, setAvailableFeatures] = useState<any[]>([]);
+
+    React.useEffect(() => {
+        getMatchFeatures().then(setAvailableFeatures);
+    }, []);
     const { toast } = useToast();
 
     const handleRunAlgorithm = async (formData: any) => {
@@ -89,7 +94,7 @@ export default function CreatorMatchPage() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                     >
-                        <MatchWizard 
+                        <MatchWizard availableFeatures={availableFeatures}
                           onComplete={handleRunAlgorithm}
                           isLoading={isCalculating}
                         />

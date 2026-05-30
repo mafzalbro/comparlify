@@ -1,4 +1,3 @@
-
 "use server";
 
 import { z } from "zod";
@@ -210,65 +209,4 @@ export async function deleteCommunityItemAction(
     console.error(e);
     return { error: `Failed to delete ${itemType.toLowerCase()}.` };
   }
-}
-
-export async function voteTopic(topicId: string, value: number) {
-  const session = await auth();
-  if (!session?.user) throw new Error("Unauthorized");
-
-  const userId = session.user.id;
-
-  // upsert vote
-  await prisma.topicVote.upsert({
-    where: {
-      userId_topicId: {
-        userId,
-        topicId,
-      },
-    },
-    update: {
-      value: value === 0 ? 0 : value, // allow removing vote with 0
-    },
-    create: {
-      userId,
-      topicId,
-      value,
-    },
-  });
-
-  revalidatePath(`/community/topic/${topicId}`);
-  revalidatePath("/community");
-}
-
-export async function votePost(postId: string, value: number) {
-  const session = await auth();
-  if (!session?.user) throw new Error("Unauthorized");
-
-  const userId = session.user.id;
-
-  const post = await prisma.forumPost.findUnique({
-    where: { id: postId },
-    select: { topicId: true },
-  });
-
-  if (!post) throw new Error("Post not found");
-
-  await prisma.postVote.upsert({
-    where: {
-      userId_postId: {
-        userId,
-        postId,
-      },
-    },
-    update: {
-      value,
-    },
-    create: {
-      userId,
-      postId,
-      value,
-    },
-  });
-
-  revalidatePath(`/community/topic/${post.topicId}`);
 }

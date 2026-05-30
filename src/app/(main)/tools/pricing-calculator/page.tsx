@@ -1,6 +1,7 @@
 import React from "react";
 import { generateSeoMetadata } from "@/lib/seo";
 import { PricingCalculator } from "@/components/tools/pricing-calculator";
+import prisma from "@/lib/prisma";
 import { Breadcrumbs } from "@/components/breadcrumb";
 import { MotionDiv } from "@/components/motion-wrapper";
 import { Calculator, Sparkles, TrendingUp, ShieldCheck } from "lucide-react";
@@ -14,7 +15,15 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default function PricingCalculatorPage() {
+async function getPlatforms() {
+  return await prisma.platform.findMany({
+    include: { tiers: { orderBy: { monthlyPrice: "asc" } } },
+    orderBy: { name: "asc" },
+  });
+}
+
+export default async function PricingCalculatorPage() {
+  const platforms = await getPlatforms();
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <Breadcrumbs
@@ -45,7 +54,7 @@ export default function PricingCalculatorPage() {
         </p>
       </MotionDiv>
 
-      <PricingCalculator />
+      <PricingCalculator platforms={platforms} />
 
       <MotionDiv
         initial={{ opacity: 0 }}

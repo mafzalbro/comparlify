@@ -26,9 +26,7 @@ const getCategory = cache(async (slug: string) => {
       topics: {
         where: { status: "APPROVED" },
         include: {
-          author: {
-            include: { stacks: { select: { isVerified: true } } }
-          },
+          author: true,
           _count: {
             select: { posts: { where: { status: "APPROVED" } } },
           },

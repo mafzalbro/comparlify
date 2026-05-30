@@ -24,7 +24,7 @@ const STEPS = [
   { id: "requirements", title: "Feature Needs", icon: Settings },
 ];
 
-const FEATURES = [
+const STATIC_FEATURES = [
     { id: "lms", name: "Course Hosting", icon: "📚" },
     { id: "email", name: "Email Automations", icon: "📧" },
     { id: "community", name: "Community Groups", icon: "👥" },
@@ -34,11 +34,13 @@ const FEATURES = [
 ];
 
 interface MatchWizardProps {
+  availableFeatures?: any[];
   onComplete: (data: any) => void;
   isLoading?: boolean;
 }
 
-export function MatchWizard({ onComplete, isLoading }: MatchWizardProps) {
+export function MatchWizard({ onComplete, isLoading, availableFeatures = [] }: MatchWizardProps) {
+  const dynamicFeatures = availableFeatures.length > 0 ? availableFeatures : STATIC_FEATURES;
   const [step, setStep] = useState(0);
   const [formData, setFormData] = useState({
     name: "",
@@ -179,7 +181,7 @@ export function MatchWizard({ onComplete, isLoading }: MatchWizardProps) {
                       </div>
 
                       <div className="grid grid-cols-2 gap-3">
-                          {FEATURES.map(f => (
+                          {dynamicFeatures.map(f => (
                               <button
                                 key={f.id}
                                 onClick={() => toggleFeature(f.id)}

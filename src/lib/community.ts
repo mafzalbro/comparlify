@@ -1,25 +1,20 @@
 import prisma from "./prisma";
 
 export async function getCommunityStats() {
-  const [totalUsers, totalTopics, totalPosts, topicsToday] = await Promise.all([
+  const [totalUsers, totalTopics, totalPosts] = await Promise.all([
     prisma.user.count(),
     prisma.forumTopic.count({ where: { status: "APPROVED" } }),
     prisma.forumPost.count({ where: { status: "APPROVED" } }),
-    prisma.forumTopic.count({
-      where: {
-        status: "APPROVED",
-        createdAt: { gte: new Date(new Date().setHours(0,0,0,0)) }
-      }
-    }),
   ]);
 
-  // Dynamic real-time signals mixed with historical baseline
+  // We can calculate "Active Syncs" or "Nodes" nicely
+  // For branding, we can use a multiplier or just show real numbers
   return {
-    verifiedNodes: totalUsers + 1284,
-    activeSyncs: totalTopics + totalPosts + 512,
-    totalMessages: totalTopics + totalPosts + 15420,
-    signalAccuracy: "99.4%",
-    syncingNow: Math.floor(Math.random() * 15) + 42 + (topicsToday * 2), // Influenced by real daily activity
+    verifiedNodes: totalUsers + 1200, // Real users + some base signal nodes
+    activeSyncs: totalTopics + totalPosts + 420, // Activity base
+    totalMessages: totalTopics + totalPosts + 12400, // Real activity + historical base
+    signalAccuracy: "99.2%", // Branding stat
+    syncingNow: Math.floor(Math.random() * 50) + 120, // Dynamic fake/real hybrid
   };
 }
 
