@@ -1,4 +1,4 @@
-import { BlogPostData } from "./types";
+import { BlogPostData } from "../types";
 import { trueFans2026 } from "./100-true-fans-revisited-2026";
 import { aiChatbotsCourseEnrollment } from "./ai-chatbots-course-enrollment";
 import { aiCommunityModeration } from "./ai-community-moderation-skool";
@@ -22,7 +22,7 @@ import { beehiivAiSegmentation } from "./beehiiv-ai-segmentation-guide";
 import { circleMastermind } from "./circle-so-private-mastermind-blueprint";
 import { collaborativeCourseCurriculum } from "./collaborative-course-curriculum";
 import { communityAsAServiceB2B } from "./community-as-a-service-b2b";
-import { communityAsAServiceSaas } from "./community-as-a-service-saas";
+import { b2bCommunityModel as communityAsAServiceSaas } from "./community-as-a-service-saas";
 import { communityKnowledgeGraph } from "./community-knowledge-graph-wiki";
 import { sovereignMandate2026 } from "./conclusion-sovereign-mandate-2026";
 import { contentToCommerceFlywheel } from "./content-to-commerce-physical-products";
@@ -117,7 +117,6 @@ export const allPosts: BlogPostData[] = [
   aiTranslationMastery,
   aiVideoRevolution,
   algorithmProofNewsletter,
-  allPosts,
   appleGoogleAttentionTax,
   attentionArbitrage,
   attentionRecession,

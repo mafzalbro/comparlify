@@ -48,19 +48,6 @@ export async function syncComparisonData() {
     // Delete existing tiers first or update them?
     // Usually easier to delete and recreate for static data sync if IDs aren't referenced elsewhere.
     // However, to be safe, we'll upsert by name for that platform.
-    for (const tierData of data.tiers) {
-      await prisma.pricingTier.upsert({
-        where: {
-          // We don't have a unique constraint on name in schema, so we should probably find and update or create.
-          // Since it's a small set, we'll just delete and create-many if we want absolute sync.
-          // But PricingTier doesn't have a natural unique key other than ID.
-          // Let's check schema again.
-          id: `${platform.id}-${tierData.name}`, // We can't do this if ID is cuid()
-        },
-        // Wait, schema has @@index([platformId]).
-        // Let's just delete all tiers for this platform and recreate to ensure exact match with code.
-      } as any);
-    }
 
     // Better strategy for tiers:
     await prisma.pricingTier.deleteMany({
@@ -89,14 +76,15 @@ export async function syncComparisonData() {
 
       const feature = await prisma.feature.upsert({
         where: {
-          // Feature doesn't have a unique name?
-          // Schema: model Feature { id, name, categoryId ... }
-          // Let's check name uniqueness.
-          id: `feat-${feat.featureName.toLowerCase().replace(/\s+/g, '-')}`
-        } as any,
-        // Wait, schema doesn't have unique on name.
-        // I'll check if I can use findFirst.
-      } as any);
+          id: `feat-${feat.featureName.toLowerCase().replace(/\s+/g, '-')}`,
+        },
+        update: {},
+        create: {
+          id: `feat-${feat.featureName.toLowerCase().replace(/\s+/g, '-')}`,
+          name: feat.featureName,
+          categoryId: category.id,
+        },
+      });
 
       // Let's find or create feature properly.
       let existingFeature = await prisma.feature.findFirst({

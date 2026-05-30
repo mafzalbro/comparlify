@@ -1,5 +1,5 @@
 import prisma from "../src/lib/prisma";
-import { syncBlogData } from "../src/blog/sync";
+import { syncBlogData } from "../src/data/blog/sync";
 
 async function main() {
   console.log("🚀 Starting industrial sync...");

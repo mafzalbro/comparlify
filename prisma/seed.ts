@@ -1,11 +1,9 @@
-import { fileURLToPath } from "url";
-import { allPlatforms } from "../src/compare/platforms";
+import { allPlatforms } from "../src/data/compare/platforms";
 import "dotenv/config";
 import {
   PrismaClient,
   Prisma,
   Role,
-  ToolCategory,
   CommentStatus,
   ContentType,
   Post,
@@ -17,8 +15,8 @@ const prisma = new PrismaClient({ adapter });
 
 import { promises as fs } from "fs";
 import path from "path";
-import { syncComparisonData } from "../src/compare/sync";
-import { syncBlogData } from "../src/blog/sync";
+import { syncComparisonData } from "../src/data/compare/sync";
+import { syncBlogData } from "../src/data/blog/sync";
 
 export async function cleanupDatabase() {
   console.log("🧹 Starting database cleanup...");
@@ -149,8 +147,35 @@ async function main(skipCleanup = false) {
   // --- 2.1 Seed High-Fidelity Platforms (36 Entities) ---
   console.log("📍 Seeding 36 high-fidelity platforms...");
   for (const data of allPlatforms) {
-    const platform = await prisma.platform.create({
-      data: {
+    const platform = await prisma.platform.upsert({
+      where: { name: data.name },
+      update: {
+        website: data.website,
+        logoUrl: data.logoUrl,
+        description: data.description,
+        rating: data.rating,
+        easeOfUse: data.easeOfUse,
+        featuresRating: data.featuresRating,
+        support: data.support,
+        pros: data.pros,
+        cons: data.cons,
+        affiliateLink: data.affiliateLink,
+        dealDescription: data.dealDescription,
+        videoHostingIncluded: data.videoHostingIncluded,
+        lastVerifiedAt: new Date(data.lastVerifiedAt),
+        tiers: {
+          deleteMany: {},
+          create: data.tiers.map((t) => ({
+            name: t.name,
+            monthlyPrice: t.monthlyPrice,
+            annualPriceMonthlyEquivalent: t.annualPriceMonthlyEquivalent,
+            transactionFeePercent: t.transactionFeePercent,
+            isPopular: t.isPopular || false,
+            features: t.features,
+          })),
+        },
+      },
+      create: {
         name: data.name,
         website: data.website,
         logoUrl: data.logoUrl,
@@ -166,14 +191,14 @@ async function main(skipCleanup = false) {
         videoHostingIncluded: data.videoHostingIncluded,
         lastVerifiedAt: new Date(data.lastVerifiedAt),
         tiers: {
-          create: data.tiers.map(t => ({
+          create: data.tiers.map((t) => ({
             name: t.name,
             monthlyPrice: t.monthlyPrice,
             annualPriceMonthlyEquivalent: t.annualPriceMonthlyEquivalent,
             transactionFeePercent: t.transactionFeePercent,
             isPopular: t.isPopular || false,
             features: t.features,
-          }))
+          })),
         }
       }
     });
@@ -207,585 +232,6 @@ async function main(skipCleanup = false) {
   }
 
 
-  // --- 3. Seed Features and Categories ---
-  console.log("\n✨ Seeding Features & Categories...");
-  const categoriesData = [
-    {
-      name: "Core Course Features",
-      features: [
-        "Course Builder",
-        "Video Hosting",
-        "Quizzes & Surveys",
-        "Assignments",
-        "Certificates of Completion",
-        "Content Dripping",
-      ],
-    },
-    {
-      name: "Site & Marketing",
-      features: [
-        "Website Builder",
-        "Custom Domain",
-        "Blogging",
-        "Affiliate Marketing",
-        "Email Marketing",
-        "Sales & Coupons",
-      ],
-    },
-    {
-      name: "Student Experience",
-      features: [
-        "Community Forum",
-        "Mobile App Access",
-        "Live Classes / Webinars",
-        "Student Dashboard",
-      ],
-    },
-    {
-      name: "Business & Analytics",
-      features: [
-        "Payment Gateways",
-        "Advanced Analytics",
-        "API Access",
-        "App Integrations",
-      ],
-    },
-  ];
-
-  let totalFeatures = 0;
-  for (const cat of categoriesData) {
-    const category = await prisma.featureCategory.create({
-      data: { name: cat.name },
-    });
-    await prisma.feature.createMany({
-      data: cat.features.map((name) => ({ name, categoryId: category.id })),
-    });
-    totalFeatures += cat.features.length;
-  }
-  console.log(
-    `   ✓ Seeded ${categoriesData.length} feature categories and ${totalFeatures} features.`,
-  );
-
-  // --- 4. Seed Platforms ---
-  console.log("\n🚀 Seeding Platforms...");
-  const allFeatures = await prisma.feature.findMany();
-  const featureMap = new Map(allFeatures.map((f) => [f.name, f.id]));
-
-  const platformsData: Omit<
-    Prisma.PlatformCreateInput,
-    "createdAt" | "updatedAt"
-  >[] = [
-    {
-      name: "Teachable",
-      website: "https://teachable.com",
-      logoUrl: "/logos/teachable.svg",
-      description:
-        "Focuses on ease of use for starting creators. Great for simple course structures with solid marketing tools.",
-      rating: 4.2,
-      easeOfUse: 4.8,
-      featuresRating: 4.0,
-      support: 4.1,
-    },
-    {
-      name: "Thinkific",
-      website: "https://www.thinkific.com",
-      logoUrl: "/logos/thinkific.svg",
-      description:
-        "Powerful and flexible platform with 0% transaction fees. Offers deep customization and an extensive app store.",
-      rating: 4.6,
-      easeOfUse: 4.5,
-      featuresRating: 4.7,
-      support: 4.6,
-    },
-    {
-      name: "Kajabi",
-      website: "https://kajabi.com",
-      logoUrl: "/logos/kajabi.svg",
-      description:
-        "The premier all-in-one platform. Includes email marketing, funnels, and CRM in a premium closed ecosystem.",
-      rating: 4.8,
-      easeOfUse: 4.3,
-      featuresRating: 4.9,
-      support: 4.7,
-    },
-    {
-      name: "Podia",
-      website: "https://www.podia.com",
-      logoUrl: "/logos/podia.svg",
-      description:
-        "Creator-friendly platform for courses and downloads. Focused on simplicity, affordability, and clean design.",
-      rating: 4.5,
-      easeOfUse: 4.9,
-      featuresRating: 4.2,
-      support: 4.5,
-    },
-    {
-      name: "Skool",
-      website: "https://www.skool.com",
-      logoUrl: "/logos/skool.svg",
-      description:
-        "Community-first platform focused on gamification and engagement. Minimalist design with maximum social impact.",
-      rating: 4.7,
-      easeOfUse: 5.0,
-      featuresRating: 3.8,
-      support: 4.4,
-    },
-    {
-      name: "Circle",
-      website: "https://circle.so",
-      logoUrl: "/logos/circle.svg",
-      description:
-        "The modern community platform for creators. Seamlessly combines discussions, events, and courses.",
-      rating: 4.6,
-      easeOfUse: 4.4,
-      featuresRating: 4.5,
-      support: 4.3,
-    },
-    {
-      name: "LearnWorlds",
-      website: "https://www.learnworlds.com",
-      logoUrl: "/logos/learnworlds.svg",
-      description:
-        "Advanced course authoring with interactive video and SCORM support. Ideal for professional training sites.",
-      rating: 4.4,
-      easeOfUse: 3.5,
-      featuresRating: 5.0,
-      support: 4.2,
-    },
-    {
-      name: "Gumroad",
-      website: "https://gumroad.com",
-      logoUrl: "/logos/gumroad.svg",
-      description:
-        "The simplest way to sell digital products and courses. Lightweight with a focus on quick setup and commerce.",
-      rating: 4.1,
-      easeOfUse: 4.9,
-      featuresRating: 3.5,
-      support: 3.8,
-    },
-    {
-      name: "Mighty Networks",
-      website: "https://www.mightynetworks.com",
-      logoUrl: "/logos/mightynetworks.svg",
-      description:
-        "Build communities and courses on your own branded mobile apps. Strong focus on network effects.",
-      rating: 4.3,
-      easeOfUse: 3.8,
-      featuresRating: 4.6,
-      support: 4.1,
-    },
-  ];
-
-  await prisma.platform.createMany({ data: platformsData });
-  const createdPlatforms = await prisma.platform.findMany();
-  console.log(`   ✓ Seeded ${createdPlatforms.length} platforms.`);
-
-  // --- 4.1 Seed Pricing Tiers ---
-  console.log("💳 Seeding Pricing Tiers...");
-  const tiersData = {
-    Teachable: [
-      {
-        name: "Free",
-        monthlyPrice: 0,
-        transactionFeePercent: 10,
-        isPopular: false,
-      },
-      {
-        name: "Basic",
-        monthlyPrice: 39,
-        transactionFeePercent: 5,
-        isPopular: true,
-        annualPriceMonthlyEquivalent: 33,
-      },
-      {
-        name: "Pro",
-        monthlyPrice: 119,
-        transactionFeePercent: 0,
-        isPopular: false,
-        annualPriceMonthlyEquivalent: 99,
-      },
-    ],
-    Thinkific: [
-      {
-        name: "Free",
-        monthlyPrice: 0,
-        transactionFeePercent: 0,
-        isPopular: false,
-      },
-      {
-        name: "Basic",
-        monthlyPrice: 39,
-        transactionFeePercent: 0,
-        isPopular: false,
-        annualPriceMonthlyEquivalent: 33,
-      },
-      {
-        name: "Start",
-        monthlyPrice: 74,
-        transactionFeePercent: 0,
-        isPopular: true,
-        annualPriceMonthlyEquivalent: 62,
-      },
-      {
-        name: "Grow",
-        monthlyPrice: 149,
-        transactionFeePercent: 0,
-        isPopular: false,
-        annualPriceMonthlyEquivalent: 124,
-      },
-    ],
-    Kajabi: [
-      {
-        name: "Basic",
-        monthlyPrice: 149,
-        transactionFeePercent: 0,
-        isPopular: true,
-        annualPriceMonthlyEquivalent: 119,
-      },
-      {
-        name: "Growth",
-        monthlyPrice: 199,
-        transactionFeePercent: 0,
-        isPopular: false,
-        annualPriceMonthlyEquivalent: 159,
-      },
-      {
-        name: "Pro",
-        monthlyPrice: 399,
-        transactionFeePercent: 0,
-        isPopular: false,
-        annualPriceMonthlyEquivalent: 319,
-      },
-    ],
-    Podia: [
-      {
-        name: "Free",
-        monthlyPrice: 0,
-        transactionFeePercent: 8,
-        isPopular: false,
-      },
-      {
-        name: "Mover",
-        monthlyPrice: 39,
-        transactionFeePercent: 0,
-        isPopular: true,
-        annualPriceMonthlyEquivalent: 33,
-      },
-      {
-        name: "Shaker",
-        monthlyPrice: 89,
-        transactionFeePercent: 0,
-        isPopular: false,
-        annualPriceMonthlyEquivalent: 75,
-      },
-    ],
-    Skool: [
-      {
-        name: "All-in-One",
-        monthlyPrice: 99,
-        transactionFeePercent: 0,
-        isPopular: true,
-      },
-    ],
-    Circle: [
-      {
-        name: "Basic",
-        monthlyPrice: 49,
-        transactionFeePercent: 4,
-        isPopular: false,
-      },
-      {
-        name: "Professional",
-        monthlyPrice: 99,
-        transactionFeePercent: 0,
-        isPopular: true,
-      },
-      {
-        name: "Business",
-        monthlyPrice: 219,
-        transactionFeePercent: 0,
-        isPopular: false,
-      },
-    ],
-    LearnWorlds: [
-      {
-        name: "Starter",
-        monthlyPrice: 29,
-        transactionFeePercent: 5,
-        isPopular: false,
-      },
-      {
-        name: "Pro Trainer",
-        monthlyPrice: 99,
-        transactionFeePercent: 0,
-        isPopular: true,
-      },
-      {
-        name: "Learning Center",
-        monthlyPrice: 299,
-        transactionFeePercent: 0,
-        isPopular: false,
-      },
-    ],
-    Gumroad: [
-      {
-        name: "Simple",
-        monthlyPrice: 0,
-        transactionFeePercent: 10,
-        isPopular: true,
-      },
-    ],
-    "Mighty Networks": [
-      {
-        name: "Community",
-        monthlyPrice: 39,
-        transactionFeePercent: 3,
-        isPopular: false,
-      },
-      {
-        name: "Business",
-        monthlyPrice: 119,
-        transactionFeePercent: 2,
-        isPopular: true,
-      },
-    ],
-  };
-
-  let tierCount = 0;
-  for (const platform of createdPlatforms) {
-    const platformTiers = tiersData[platform.name as keyof typeof tiersData];
-    if (platformTiers) {
-      await prisma.pricingTier.createMany({
-        data: platformTiers.map((t) => ({ ...t, platformId: platform.id })),
-      });
-      tierCount += platformTiers.length;
-    }
-  }
-  console.log(`   ✓ Seeded ${tierCount} pricing tiers.`);
-
-  // --- 5. Seed Platform Features ---
-  console.log("🔗 Seeding Platform Features...");
-  const platformFeatureData = {
-    Teachable: {
-      "Course Builder": true,
-      "Video Hosting": true,
-      "Quizzes & Surveys": true,
-      Assignments: false,
-      "Certificates of Completion": true,
-      "Content Dripping": true,
-      "Website Builder": true,
-      "Custom Domain": true,
-      Blogging: true,
-      "Affiliate Marketing": true,
-      "Email Marketing": true,
-      "Sales & Coupons": true,
-      "Community Forum": false,
-      "Mobile App Access": { hasFeature: true, details: "iOS only" },
-      "Live Classes / Webinars": false,
-      "Student Dashboard": true,
-      "Payment Gateways": true,
-      "Advanced Analytics": true,
-      "API Access": { hasFeature: true, details: "On Pro plan+" },
-      "App Integrations": true,
-    },
-    Thinkific: {
-      "Course Builder": true,
-      "Video Hosting": true,
-      "Quizzes & Surveys": true,
-      Assignments: true,
-      "Certificates of Completion": true,
-      "Content Dripping": true,
-      "Website Builder": true,
-      "Custom Domain": true,
-      Blogging: false,
-      "Affiliate Marketing": true,
-      "Email Marketing": false,
-      "Sales & Coupons": true,
-      "Community Forum": true,
-      "Mobile App Access": true,
-      "Live Classes / Webinars": true,
-      "Student Dashboard": true,
-      "Payment Gateways": true,
-      "Advanced Analytics": true,
-      "API Access": true,
-      "App Integrations": true,
-    },
-    Kajabi: {
-      "Course Builder": true,
-      "Video Hosting": true,
-      "Quizzes & Surveys": true,
-      Assignments: true,
-      "Certificates of Completion": true,
-      "Content Dripping": true,
-      "Website Builder": true,
-      "Custom Domain": true,
-      Blogging: true,
-      "Affiliate Marketing": true,
-      "Email Marketing": true,
-      "Sales & Coupons": true,
-      "Community Forum": true,
-      "Mobile App Access": true,
-      "Live Classes / Webinars": true,
-      "Student Dashboard": true,
-      "Payment Gateways": true,
-      "Advanced Analytics": true,
-      "API Access": true,
-      "App Integrations": true,
-    },
-    Podia: {
-      "Course Builder": true,
-      "Video Hosting": true,
-      "Quizzes & Surveys": { hasFeature: true, details: "Simple quizzes" },
-      Assignments: false,
-      "Certificates of Completion": false,
-      "Content Dripping": true,
-      "Website Builder": true,
-      "Custom Domain": true,
-      Blogging: false,
-      "Affiliate Marketing": true,
-      "Email Marketing": true,
-      "Sales & Coupons": true,
-      "Community Forum": true,
-      "Mobile App Access": false,
-      "Live Classes / Webinars": true,
-      "Student Dashboard": true,
-      "Payment Gateways": true,
-      "Advanced Analytics": false,
-      "API Access": false,
-      "App Integrations": false,
-    },
-    Skool: {
-      "Course Builder": true,
-      "Video Hosting": false,
-      "Quizzes & Surveys": false,
-      Assignments: false,
-      "Certificates of Completion": false,
-      "Content Dripping": true,
-      "Website Builder": false,
-      "Custom Domain": true,
-      Blogging: false,
-      "Affiliate Marketing": false,
-      "Email Marketing": false,
-      "Sales & Coupons": false,
-      "Community Forum": true,
-      "Mobile App Access": true,
-      "Live Classes / Webinars": false,
-      "Student Dashboard": true,
-      "Payment Gateways": true,
-      "Advanced Analytics": true,
-      "API Access": true,
-      "App Integrations": true,
-    },
-    Circle: {
-      "Course Builder": true,
-      "Video Hosting": true,
-      "Quizzes & Surveys": true,
-      Assignments: true,
-      "Certificates of Completion": true,
-      "Content Dripping": true,
-      "Website Builder": true,
-      "Custom Domain": true,
-      Blogging: false,
-      "Affiliate Marketing": false,
-      "Email Marketing": true,
-      "Sales & Coupons": true,
-      "Community Forum": true,
-      "Mobile App Access": true,
-      "Live Classes / Webinars": true,
-      "Student Dashboard": true,
-      "Payment Gateways": true,
-      "Advanced Analytics": true,
-      "API Access": true,
-      "App Integrations": true,
-    },
-    LearnWorlds: {
-      "Course Builder": true,
-      "Video Hosting": true,
-      "Quizzes & Surveys": true,
-      Assignments: true,
-      "Certificates of Completion": true,
-      "Content Dripping": true,
-      "Website Builder": true,
-      "Custom Domain": true,
-      Blogging: true,
-      "Affiliate Marketing": true,
-      "Email Marketing": true,
-      "Sales & Coupons": true,
-      "Community Forum": true,
-      "Mobile App Access": true,
-      "Live Classes / Webinars": true,
-      "Student Dashboard": true,
-      "Payment Gateways": true,
-      "Advanced Analytics": true,
-      "API Access": true,
-      "App Integrations": true,
-    },
-    Gumroad: {
-      "Course Builder": true,
-      "Video Hosting": true,
-      "Quizzes & Surveys": false,
-      Assignments: false,
-      "Certificates of Completion": false,
-      "Content Dripping": false,
-      "Website Builder": false,
-      "Custom Domain": true,
-      Blogging: false,
-      "Affiliate Marketing": true,
-      "Email Marketing": true,
-      "Sales & Coupons": true,
-      "Community Forum": false,
-      "Mobile App Access": false,
-      "Live Classes / Webinars": false,
-      "Student Dashboard": true,
-      "Payment Gateways": true,
-      "Advanced Analytics": true,
-      "API Access": true,
-      "App Integrations": true,
-    },
-    "Mighty Networks": {
-      "Course Builder": true,
-      "Video Hosting": true,
-      "Quizzes & Surveys": true,
-      Assignments: true,
-      "Certificates of Completion": true,
-      "Content Dripping": true,
-      "Website Builder": true,
-      "Custom Domain": true,
-      Blogging: false,
-      "Affiliate Marketing": false,
-      "Email Marketing": true,
-      "Sales & Coupons": true,
-      "Community Forum": true,
-      "Mobile App Access": true,
-      "Live Classes / Webinars": true,
-      "Student Dashboard": true,
-      "Payment Gateways": true,
-      "Advanced Analytics": true,
-      "API Access": true,
-      "App Integrations": true,
-    },
-  };
-
-  let platformFeatureCount = 0;
-  for (const platform of createdPlatforms) {
-    const features =
-      platformFeatureData[platform.name as keyof typeof platformFeatureData];
-    for (const [featureName, value] of Object.entries(features)) {
-      const featureId = featureMap.get(featureName);
-      if (featureId) {
-        const hasFeature =
-          typeof value === "boolean" ? value : value.hasFeature;
-        const details =
-          typeof value === "object" && value.details ? value.details : null;
-        await prisma.platformFeature.create({
-          data: { platformId: platform.id, featureId, hasFeature, details },
-        });
-        platformFeatureCount++;
-      }
-    }
-  }
-  console.log(`   ✓ Seeded ${platformFeatureCount} platform features.`);
-
   // --- 6. Seed Blog Post Categories ---
   console.log("\n📚 Seeding Blog Post Categories...");
   const postCategoryData = [
@@ -805,55 +251,55 @@ async function main(skipCleanup = false) {
     categoryName: string;
     authorId: string;
   })[] = [
-    {
-      slug: "choosing-the-right-platform",
-      title: "10 Things to Consider When Choosing a Course Platform",
-      description:
-        "From pricing and features to scalability and support, here are the key factors to weigh before committing to a platform.",
-      content: "Full content about choosing platforms...",
-      image: "https://picsum.photos/400/250?random=1",
-      dataAiHint: "decision making choices",
-      published: true, content: (cData as any).content || null,
-      authorId: adminUser.id,
-      categoryName: "Platform Guides",
-    },
-    {
-      slug: "engaging-course-content",
-      title: "5 Secrets to Creating Wildly Engaging Course Content",
-      description:
-        "Move beyond static videos. Discover interactive techniques that captivate students and boost completion rates.",
-      content: "Full content about engaging content...",
-      image: "https://picsum.photos/400/250?random=2",
-      dataAiHint: "creative content creation",
-      published: true, content: (cData as any).content || null,
-      authorId: adminUser.id,
-      categoryName: "Course Creation",
-    },
-    {
-      slug: "marketing-your-online-course",
-      title: "The Ultimate Guide to Marketing Your Online Course in 2024",
-      description:
-        "Explore the latest strategies for social media, email marketing, and SEO to attract your ideal students.",
-      content: "Full content about marketing courses...",
-      image: "https://picsum.photos/400/250?random=3",
-      dataAiHint: "digital marketing strategy",
-      published: true, content: (cData as any).content || null,
-      authorId: adminUser.id,
-      categoryName: "Marketing",
-    },
-    {
-      slug: "ai-in-education",
-      title: "How AI is Revolutionizing the E-Learning Industry",
-      description:
-        "Learn how artificial intelligence is personalizing learning paths, automating grading, and creating smarter content.",
-      content: "Full content about AI in education...",
-      image: "https://picsum.photos/400/250?random=4",
-      dataAiHint: "artificial intelligence education",
-      published: false,
-      authorId: adminUser.id,
-      categoryName: "Tech Trends",
-    },
-  ];
+      {
+        slug: "choosing-the-right-platform",
+        title: "10 Things to Consider When Choosing a Course Platform",
+        description:
+          "From pricing and features to scalability and support, here are the key factors to weigh before committing to a platform.",
+        content: "Full content about choosing platforms...",
+        image: "https://picsum.photos/400/250?random=1",
+        dataAiHint: "decision making choices",
+        published: true,
+        authorId: adminUser.id,
+        categoryName: "Platform Guides",
+      },
+      {
+        slug: "engaging-course-content",
+        title: "5 Secrets to Creating Wildly Engaging Course Content",
+        description:
+          "Move beyond static videos. Discover interactive techniques that captivate students and boost completion rates.",
+        content: "Full content about engaging content...",
+        image: "https://picsum.photos/400/250?random=2",
+        dataAiHint: "creative content creation",
+        published: true,
+        authorId: adminUser.id,
+        categoryName: "Course Creation",
+      },
+      {
+        slug: "marketing-your-online-course",
+        title: "The Ultimate Guide to Marketing Your Online Course in 2024",
+        description:
+          "Explore the latest strategies for social media, email marketing, and SEO to attract your ideal students.",
+        content: "Full content about marketing courses...",
+        image: "https://picsum.photos/400/250?random=3",
+        dataAiHint: "digital marketing strategy",
+        published: true,
+        authorId: adminUser.id,
+        categoryName: "Marketing",
+      },
+      {
+        slug: "ai-in-education",
+        title: "How AI is Revolutionizing the E-Learning Industry",
+        description:
+          "Learn how artificial intelligence is personalizing learning paths, automating grading, and creating smarter content.",
+        content: "Full content about AI in education...",
+        image: "https://picsum.photos/400/250?random=4",
+        dataAiHint: "artificial intelligence education",
+        published: false,
+        authorId: adminUser.id,
+        categoryName: "Tech Trends",
+      },
+    ];
 
   let previousPostId: string | null = null;
   for (let i = 0; i < postsData.length; i++) {
@@ -938,6 +384,7 @@ async function main(skipCleanup = false) {
 
   // --- 10. Seed Comparisons ---
   console.log("🆚 Seeding Comparisons...");
+  const createdPlatforms = await prisma.platform.findMany();
   const platformTeachable = createdPlatforms.find(
     (p) => p.name === "Teachable",
   )!;
@@ -1076,7 +523,7 @@ async function main(skipCleanup = false) {
           categoryId: catId,
           introduction: cData.introduction,
           conclusion: cData.conclusion,
-          published: true, content: (cData as any).content || null,
+          published: true,
           facts: {
             create: cData.facts.map((f) => ({
               title: f.title,
@@ -1097,6 +544,7 @@ async function main(skipCleanup = false) {
   const pB_tp = get_plat("Patreon");
 
   if (pA_tp && pB_tp) {
+    await prisma.comparison.deleteMany({ where: { slug: "teachable-vs-patreon" } });
     await prisma.comparison.create({
       data: {
         title: "Teachable vs Patreon: The Definitive Creator Strategy Guide",
@@ -1171,69 +619,69 @@ In 2026, **Teachable** scores higher for **Financial Sovereignty** (High margin,
     Prisma.ToolCreateInput,
     "id" | "createdAt" | "updatedAt"
   >[] = [
-    {
-      slug: "title-generator",
-      title: "AI Title Generator",
-      description: "Craft catchy, SEO-friendly titles for your course.",
-      Icon: "Lightbulb",
-      category: "Marketing",
-      enabled: true,
-      inputTopicLabel: "Course Description",
-      inputContextLabel: "",
-      prompt:
-        "You are an expert in creating engaging and effective course titles. Based on the provided course description, generate a title that will attract more students and increase enrollment.\n\nCourse Description: {{{topic}}}",
-    },
-    {
-      slug: "course-outliner",
-      title: "AI Course Outliner",
-      description:
-        "Generate a comprehensive, structured outline for your course.",
-      Icon: "FileText",
-      category: "CurriculumDesign",
-      enabled: true,
-      inputTopicLabel: "Course Description",
-      inputContextLabel: "Existing Outline (optional)",
-      prompt:
-        "You are an expert curriculum designer. Based on the provided course description, create a comprehensive and well-structured course outline. Use headings for modules and nested lists for lessons within each module. Each lesson should have a brief, one-sentence description.\n\nCourse Description: {{{topic}}}\n{{#if context}}\n\nExisting Outline:\n{{{context}}}\n\nContinue From There:{{/if}}",
-    },
-    {
-      slug: "video-scripter",
-      title: "AI Video Script Assistant",
-      description: "Create engaging scripts for your video lessons.",
-      Icon: "Video",
-      category: "ContentCreation",
-      enabled: true,
-      inputTopicLabel: "Lesson Topic",
-      inputContextLabel: "Existing Script (optional)",
-      prompt:
-        'You are an expert scriptwriter for educational videos. Based on the lesson topic, write a complete, word-for-word video script. Include cues for the presenter\'s tone (e.g., "[enthusiastically]") and suggestions for on-screen visuals (e.g., "[Show B-roll of...]").\n\nLesson Topic: {{{topic}}}\n{{#if context}}\n\nExisting Script:\n{{{context}}}\n\nContinue writing from here:{{/if}}',
-    },
-    {
-      slug: "lesson-summarizer",
-      title: "AI Lesson Summarizer",
-      description: "Automatically generate key takeaways for your lessons.",
-      Icon: "BookOpen",
-      category: "Productivity",
-      enabled: true,
-      inputTopicLabel: "Lesson Content",
-      inputContextLabel: "Existing Summary (optional)",
-      prompt:
-        "You are an expert at distilling information. Based on the lesson content, create a concise summary. It should be a short paragraph followed by the 3-5 most important key takeaways as a bulleted list.\n\nLesson Content: {{{topic}}}\n{{#if context}}\n\nExisting Summary:\n{{{context}}}\n\nContinue From There:{{/if}}",
-    },
-    {
-      slug: "blog-post-idea-generator",
-      title: "Blog Post Idea Generator",
-      description:
-        "Generate a list of blog post ideas to attract your target audience.",
-      Icon: "FilePenLine",
-      category: "SEO",
-      enabled: true,
-      inputTopicLabel: "Course Topic",
-      inputContextLabel: "Target Audience (optional)",
-      prompt:
-        "You are a content marketing strategist. Generate a list of 5-7 blog post ideas that are relevant to the given course topic and target audience. The ideas should be engaging and designed to attract potential students.\n\nCourse Topic: {{{topic}}}\n{{#if context}}Target Audience: {{{context}}}{{/if}}",
-    },
-  ];
+      {
+        slug: "title-generator",
+        title: "AI Title Generator",
+        description: "Craft catchy, SEO-friendly titles for your course.",
+        Icon: "Lightbulb",
+        category: "Marketing",
+        enabled: true,
+        inputTopicLabel: "Course Description",
+        inputContextLabel: "",
+        prompt:
+          "You are an expert in creating engaging and effective course titles. Based on the provided course description, generate a title that will attract more students and increase enrollment.\n\nCourse Description: {{{topic}}}",
+      },
+      {
+        slug: "course-outliner",
+        title: "AI Course Outliner",
+        description:
+          "Generate a comprehensive, structured outline for your course.",
+        Icon: "FileText",
+        category: "CurriculumDesign",
+        enabled: true,
+        inputTopicLabel: "Course Description",
+        inputContextLabel: "Existing Outline (optional)",
+        prompt:
+          "You are an expert curriculum designer. Based on the provided course description, create a comprehensive and well-structured course outline. Use headings for modules and nested lists for lessons within each module. Each lesson should have a brief, one-sentence description.\n\nCourse Description: {{{topic}}}\n{{#if context}}\n\nExisting Outline:\n{{{context}}}\n\nContinue From There:{{/if}}",
+      },
+      {
+        slug: "video-scripter",
+        title: "AI Video Script Assistant",
+        description: "Create engaging scripts for your video lessons.",
+        Icon: "Video",
+        category: "ContentCreation",
+        enabled: true,
+        inputTopicLabel: "Lesson Topic",
+        inputContextLabel: "Existing Script (optional)",
+        prompt:
+          'You are an expert scriptwriter for educational videos. Based on the lesson topic, write a complete, word-for-word video script. Include cues for the presenter\'s tone (e.g., "[enthusiastically]") and suggestions for on-screen visuals (e.g., "[Show B-roll of...]").\n\nLesson Topic: {{{topic}}}\n{{#if context}}\n\nExisting Script:\n{{{context}}}\n\nContinue writing from here:{{/if}}',
+      },
+      {
+        slug: "lesson-summarizer",
+        title: "AI Lesson Summarizer",
+        description: "Automatically generate key takeaways for your lessons.",
+        Icon: "BookOpen",
+        category: "Productivity",
+        enabled: true,
+        inputTopicLabel: "Lesson Content",
+        inputContextLabel: "Existing Summary (optional)",
+        prompt:
+          "You are an expert at distilling information. Based on the lesson content, create a concise summary. It should be a short paragraph followed by the 3-5 most important key takeaways as a bulleted list.\n\nLesson Content: {{{topic}}}\n{{#if context}}\n\nExisting Summary:\n{{{context}}}\n\nContinue From There:{{/if}}",
+      },
+      {
+        slug: "blog-post-idea-generator",
+        title: "Blog Post Idea Generator",
+        description:
+          "Generate a list of blog post ideas to attract your target audience.",
+        Icon: "FilePenLine",
+        category: "SEO",
+        enabled: true,
+        inputTopicLabel: "Course Topic",
+        inputContextLabel: "Target Audience (optional)",
+        prompt:
+          "You are a content marketing strategist. Generate a list of 5-7 blog post ideas that are relevant to the given course topic and target audience. The ideas should be engaging and designed to attract potential students.\n\nCourse Topic: {{{topic}}}\n{{#if context}}Target Audience: {{{context}}}{{/if}}",
+      },
+    ];
   await prisma.tool.createMany({ data: toolsData });
   console.log(`   ✓ Seeded ${toolsData.length} AI tools.`);
 
@@ -1951,7 +1399,7 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
       "We're excited to announce a major update to our platform. Our new suite of AI-powered tools is designed to help course creators streamline their workflow and produce higher-quality content faster than ever before. From generating course outlines to scripting video lessons, these tools are your new creative co-pilot.",
     image: "https://picsum.photos/400/250?random=10",
     dataAiHint: "technology launch announcement",
-    published: true, content: (cData as any).content || null,
+    published: true,
     authorId: adminUser.id,
   };
   await prisma.newsArticle.create({ data: newsData });
