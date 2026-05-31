@@ -29,13 +29,16 @@ export const revalidate = 3600; // ISR
 const getPlatformBySlug = cache(async (slug: string) => {
   // Assuming name is used as slug for now, or we can add a slug field.
   // For the purpose of this task, let's look by name case-insensitive or similar.
-  return prisma.platform.findFirst({
-    where: { name: { equals: slug.replace(/-/g, " "),  } },
+  const platforms = await prisma.platform.findMany({
     include: {
       tiers: { orderBy: { monthlyPrice: "asc" } },
       features: { include: { feature: { include: { category: true } } } },
     },
   });
+
+  return platforms.find(
+    (p) => p.name.toLowerCase().replace(/\s+/g, "-") === slug
+  );
 });
 
 export async function generateMetadata(props: {
