@@ -539,7 +539,7 @@ async function main(skipCleanup = false) {
 
   // Curated Strategic Comparison
   const platforms_lookup = await prisma.platform.findMany();
-  const get_plat = (name) => platforms_lookup.find(p => p.name === name);
+  const get_plat = (name: string) => platforms_lookup.find(p => p.name === name);
   const pA_tp = get_plat("Teachable");
   const pB_tp = get_plat("Patreon");
 

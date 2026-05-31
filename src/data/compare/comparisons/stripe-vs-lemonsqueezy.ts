@@ -154,14 +154,14 @@ In 2026, **Lemon Squeezy** is the winner for **Administrative Peace.** It allows
   `,
   conclusion: "Choose Lemon Squeezy if you want to offload all global tax and compliance headaches to a Merchant of Record; choose Stripe if you need absolute control over your checkout and want to optimize for the lowest possible transaction fees at scale with a dedicated finance team.",
   facts: [
-    { title: "Merchant of Record", a: "No (You are the Merchant)", b: "Yes (They are the Merchant)" },
-    { title: "Global Tax Remittance", a: "You handle (with Stripe Tax tool)", b: "They handle (Automatic)" },
-    { title: "Transaction Fee", a: "2.9% + 30¢ (Base)", b: "5% + 50¢ (All-in)" },
-    { title: "Affiliate System", a: "External (requires 3rd party)", b: "Native / Included" },
-    { title: "Subscription Management", a: "Advanced / Enterprise-grade", b: "Simple / Creator-focused" },
-    { title: "Payout Reliability", a: "Direct to Bank", b: "Monthly / Bi-weekly" },
-    { title: "Customization", a: "Bespoke / API-driven", b: "Hosted / Template-driven" },
-    { title: "Global Availability", a: "Limited (40+ Countries)", b: "Near-Universal (via MoR model)" }
+    { title: "Merchant of Record", platformAValue: "No (You are the Merchant)", platformBValue: "Yes (They are the Merchant)" },
+    { title: "Global Tax Remittance", platformAValue: "You handle (with Stripe Tax tool)", platformBValue: "They handle (Automatic)" },
+    { title: "Transaction Fee", platformAValue: "2.9% + 30¢ (Base)", platformBValue: "5% + 50¢ (All-in)" },
+    { title: "Affiliate System", platformAValue: "External (requires 3rd party)", platformBValue: "Native / Included" },
+    { title: "Subscription Management", platformAValue: "Advanced / Enterprise-grade", platformBValue: "Simple / Creator-focused" },
+    { title: "Payout Reliability", platformAValue: "Direct to Bank", platformBValue: "Monthly / Bi-weekly" },
+    { title: "Customization", platformAValue: "Bespoke / API-driven", platformBValue: "Hosted / Template-driven" },
+    { title: "Global Availability", platformAValue: "Limited (40+ Countries)", platformBValue: "Near-Universal (via MoR model)" }
   ],
   faqs: [
     {

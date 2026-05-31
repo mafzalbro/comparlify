@@ -176,6 +176,10 @@ export const generateSocialMediaPostAction = async (input: { topic: string }) =>
 export const generateVideoScriptAction = async (input: { topic: string }) =>
   generateSpecificContent("Write a detailed video script with intro, hook, main points, and outro.", input.topic);
 
+export async function structureWorkflowAction(input: { topic: string }) {
+  return generateSpecificContent("Generate a structured multi-branch workflow for the following topic.", input.topic);
+}
+
 export async function generateIntelligenceReportAction(input: {
   platformAName: string;
   platformBName: string;

@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { ActionState } from "@/types/actions";
-import { Post } from "@prisma/client";
+import { Post, User, PostCategory } from "@prisma/client";
 import { cache } from "react";
 
 export const getPostPreview = cache(

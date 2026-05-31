@@ -36,8 +36,8 @@ export interface PlatformData {
 
 export interface FactData {
   title: string;
-  a: string;
-  b: string;
+  platformAValue: string;
+  platformBValue: string;
 }
 
 export interface FaqData {
@@ -58,4 +58,14 @@ export interface ComparisonData {
   published: boolean;
   facts: FactData[];
   faqs?: FaqData[];
+
+  // Industrial Metadata
+  authorName?: string;
+  authorRole?: string;
+  authorBio?: string;
+  authorCredentials?: string[];
+  metaTitle?: string;
+  metaDescription?: string;
+  sovereigntyScoreA?: number;
+  sovereigntyScoreB?: number;
 }

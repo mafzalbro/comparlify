@@ -147,14 +147,14 @@ In 2026, the choice between Shopify and Wix is a choice between **Utility and Ar
   `,
   conclusion: "Choose Shopify if you are building a serious, scalable e-commerce business that requires high-volume reliability and a massive app ecosystem; choose Wix if you want pixel-perfect design control and an all-in-one marketing suite for a smaller, brand-focused store.",
   facts: [
-    { title: "Primary Focus", a: "Pure E-commerce", b: "Visual Design & CMS" },
-    { title: "Checkout", a: "World-class (Shop Pay)", b: "Customizable / Standard" },
-    { title: "Inventory Management", a: "Enterprise-grade", b: "Standard / Pro" },
-    { title: "App Ecosystem", a: "Industry-leading (Paid)", b: "Built-in features (Free)" },
-    { title: "Design Freedom", a: "Template-based (Liquid)", b: "Total (Wix Studio)" },
-    { title: "Transaction Fees", a: "0% (Shopify Payments)", b: "0% (Wix Payments)" },
-    { title: "Point of Sale (POS)", a: "Industry Leading", b: "Basic / Standard" },
-    { title: "Headless Support", a: "Advanced (Hydrogen)", b: "Limited / API-based" }
+    { title: "Primary Focus", platformAValue: "Pure E-commerce", platformBValue: "Visual Design & CMS" },
+    { title: "Checkout", platformAValue: "World-class (Shop Pay)", platformBValue: "Customizable / Standard" },
+    { title: "Inventory Management", platformAValue: "Enterprise-grade", platformBValue: "Standard / Pro" },
+    { title: "App Ecosystem", platformAValue: "Industry-leading (Paid)", platformBValue: "Built-in features (Free)" },
+    { title: "Design Freedom", platformAValue: "Template-based (Liquid)", platformBValue: "Total (Wix Studio)" },
+    { title: "Transaction Fees", platformAValue: "0% (Shopify Payments)", platformBValue: "0% (Wix Payments)" },
+    { title: "Point of Sale (POS)", platformAValue: "Industry Leading", platformBValue: "Basic / Standard" },
+    { title: "Headless Support", platformAValue: "Advanced (Hydrogen)", platformBValue: "Limited / API-based" }
   ],
   faqs: [
     {

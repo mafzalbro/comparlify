@@ -23,6 +23,7 @@ export interface BlogPostData {
   published?: boolean;
   categoryName: string;
   authorEmail: string; // To link to an existing user
+  authorName?: string;
 
   // Meta SEO
   metaTitle?: string;

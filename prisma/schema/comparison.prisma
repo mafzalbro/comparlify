@@ -20,6 +20,16 @@ model Comparison {
   updatedAt      DateTime   @updatedAt
   lastVerifiedAt DateTime?
 
+  // Industrial Metadata
+  authorName        String?
+  authorRole        String?
+  authorBio         String?    @db.Text
+  authorCredentials Json?      // Store as array of strings
+  metaTitle         String?
+  metaDescription   String?    @db.Text
+  sovereigntyScoreA Float?
+  sovereigntyScoreB Float?
+
   // New category relation
   categoryId String?
   category   ComparisonCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)

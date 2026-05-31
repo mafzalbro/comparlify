@@ -156,14 +156,14 @@ In 2026, the market has realized that **Simplicity is the Ultimate Sophisticatio
   `,
   conclusion: "Choose Ghost if you want a fast, modern, and native membership platform designed for professional publishers; choose WordPress if you need maximum flexibility and a massive ecosystem of plugins to build a complex, multi-functional website.",
   facts: [
-    { title: "Primary Model", a: "Native Publishing & Membership", b: "General Purpose CMS / Plugin-Based" },
-    { title: "Newsletter Engine", a: "Native / Included", b: "Plugin (MailPoet) or External" },
-    { title: "Membership Fees", a: "0% (Flat SaaS fee)", b: "Depends on Plugin (1-5%)" },
-    { title: "Page Speed", a: "Sub-Second / Node.js", b: "Variable / PHP (Usually slower)" },
-    { title: "Maintenance", a: "Near Zero (Managed)", b: "High (Plugin/Theme Updates)" },
-    { title: "Extensibility", a: "Focused / API-Based", b: "Infinite / Plugin-Based" },
-    { title: "Data Ownership", a: "Total / Absolute", b: "Total / Absolute" },
-    { title: "Security", a: "High (Minimal attack surface)", b: "Moderate (Plugin vulnerabilities)" }
+    { title: "Primary Model", platformAValue: "Native Publishing & Membership", platformBValue: "General Purpose CMS / Plugin-Based" },
+    { title: "Newsletter Engine", platformAValue: "Native / Included", platformBValue: "Plugin (MailPoet) or External" },
+    { title: "Membership Fees", platformAValue: "0% (Flat SaaS fee)", platformBValue: "Depends on Plugin (1-5%)" },
+    { title: "Page Speed", platformAValue: "Sub-Second / Node.js", platformBValue: "Variable / PHP (Usually slower)" },
+    { title: "Maintenance", platformAValue: "Near Zero (Managed)", platformBValue: "High (Plugin/Theme Updates)" },
+    { title: "Extensibility", platformAValue: "Focused / API-Based", platformBValue: "Infinite / Plugin-Based" },
+    { title: "Data Ownership", platformAValue: "Total / Absolute", platformBValue: "Total / Absolute" },
+    { title: "Security", platformAValue: "High (Minimal attack surface)", platformBValue: "Moderate (Plugin vulnerabilities)" }
   ],
   faqs: [
     {

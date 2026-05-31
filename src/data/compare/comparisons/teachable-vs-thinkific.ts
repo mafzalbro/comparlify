@@ -148,14 +148,14 @@ In 2026, the choice between Teachable and Thinkific is a choice between **Simpli
   `,
   conclusion: "Choose Teachable if you want the easiest, most streamlined path to selling your first course with professional marketing templates; choose Thinkific if you want a powerful, zero-transaction-fee platform that can scale into a professional online school with deep customization.",
   facts: [
-    { title: "Transaction Fees", a: "0% to 10% (Tier dependent)", b: "0% (All Paid Tiers)" },
-    { title: "Course Builder", a: "Exceptional / Intuitive", b: "Powerful / Modular" },
-    { title: "App Ecosystem", a: "Limited / Internal", b: "Extensive / Marketplace" },
-    { title: "Affiliate Management", a: "Automated / Native", b: "Advanced / App-based" },
-    { title: "Customization", a: "Template-Based", b: "High / Flexible" },
-    { title: "VAT / Tax Handling", a: "Native (Teachable Pay)", b: "External (Integrations)" },
-    { title: "Video Hosting", a: "Unlimited / Native", b: "Unlimited / Native" },
-    { title: "Support Quality", a: "Good", b: "Excellent / Award-winning" }
+    { title: "Transaction Fees", platformAValue: "0% to 10% (Tier dependent)", platformBValue: "0% (All Paid Tiers)" },
+    { title: "Course Builder", platformAValue: "Exceptional / Intuitive", platformBValue: "Powerful / Modular" },
+    { title: "App Ecosystem", platformAValue: "Limited / Internal", platformBValue: "Extensive / Marketplace" },
+    { title: "Affiliate Management", platformAValue: "Automated / Native", platformBValue: "Advanced / App-based" },
+    { title: "Customization", platformAValue: "Template-Based", platformBValue: "High / Flexible" },
+    { title: "VAT / Tax Handling", platformAValue: "Native (Teachable Pay)", platformBValue: "External (Integrations)" },
+    { title: "Video Hosting", platformAValue: "Unlimited / Native", platformBValue: "Unlimited / Native" },
+    { title: "Support Quality", platformAValue: "Good", platformBValue: "Excellent / Award-winning" }
   ],
   faqs: [
     {

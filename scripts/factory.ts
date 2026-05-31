@@ -1,6 +1,6 @@
 import { ai } from "../src/ai/genkit";
-import { BlogPostData } from "../src/blog/types";
-import { trendingTopics } from "../src/blog/topics";
+import { BlogPostData } from "../src/data/blog/types";
+import { trendingTopics } from "../src/data/blog/topics";
 import * as fs from "fs";
 import * as path from "path";
 

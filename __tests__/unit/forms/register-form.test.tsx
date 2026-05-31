@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { RegisterForm } from '@/app/register/_components/register-form'
 import { signIn } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'

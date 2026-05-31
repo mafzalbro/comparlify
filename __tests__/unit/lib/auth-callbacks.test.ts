@@ -91,7 +91,7 @@ describe('Auth Configuration Callbacks', () => {
         suspended: false,
       }
 
-      const result = await authOptions.callbacks?.session?.({
+      const result = await (authOptions.callbacks?.session as any)?.({
         session: session as any,
         token: token as any,
         user: {} as any,

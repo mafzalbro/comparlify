@@ -165,14 +165,14 @@ In 2026, the choice between Framer and Webflow is a choice between **Depth and S
   `,
   conclusion: "Choose Webflow if you need enterprise-grade CMS relational data and absolute control over semantic HTML; choose Framer if you prioritize design speed, organic physics-based animations, and sub-second iteration cycles for marketing-heavy sites.",
   facts: [
-    { title: "Primary Philosophy", a: "Design-Native / Drawing", b: "Development-Native / Box Model" },
-    { title: "Animation Engine", a: "Physics-Based (Framer Motion)", b: "Timeline-Based (Interactions 2.0)" },
-    { title: "CMS Power", a: "Simple / Designer-focused", b: "Advanced / Relational Database" },
-    { title: "Learning Curve", a: "Low (Days)", b: "High (Weeks)" },
-    { title: "Code Export", a: "React-focused", b: "Semantic HTML/CSS" },
-    { title: "SEO Control", a: "Good", b: "Industry Best" },
-    { title: "Page Speed", a: "Exceptional (React SPA)", b: "Solid (Static HTML)" },
-    { title: "AI Capability", a: "Generative UI (Landing pages)", b: "Co-pilot (Development assist)" }
+    { title: "Primary Philosophy", platformAValue: "Design-Native / Drawing", platformBValue: "Development-Native / Box Model" },
+    { title: "Animation Engine", platformAValue: "Physics-Based (Framer Motion)", platformBValue: "Timeline-Based (Interactions 2.0)" },
+    { title: "CMS Power", platformAValue: "Simple / Designer-focused", platformBValue: "Advanced / Relational Database" },
+    { title: "Learning Curve", platformAValue: "Low (Days)", platformBValue: "High (Weeks)" },
+    { title: "Code Export", platformAValue: "React-focused", platformBValue: "Semantic HTML/CSS" },
+    { title: "SEO Control", platformAValue: "Good", platformBValue: "Industry Best" },
+    { title: "Page Speed", platformAValue: "Exceptional (React SPA)", platformBValue: "Solid (Static HTML)" },
+    { title: "AI Capability", platformAValue: "Generative UI (Landing pages)", platformBValue: "Co-pilot (Development assist)" }
   ],
   faqs: [
     {

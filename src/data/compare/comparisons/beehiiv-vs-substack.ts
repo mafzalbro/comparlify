@@ -225,16 +225,16 @@ If the answer is publisher, your choice is clear.
   `,
   conclusion: "Choose Beehiiv if you are building a media business with long-term exit value and want to keep 100% of your earnings; choose Substack if you want to leverage a social network of writers and don't mind a 10% revenue share for the sake of simplicity.",
   facts: [
-    { title: "Revenue Share", a: "0% (Flat Monthly Fee)", b: "10% + Stripe Fees" },
-    { title: "Custom Domain", a: "Yes (All Paid Tiers)", b: "Yes ($50 one-time fee)" },
-    { title: "Ad Network", a: "Native & Integrated", b: "None (Manual Only)" },
-    { title: "Referral Program", a: "Native & Automated", b: "Basic / Manual" },
-    { title: "SEO Control", a: "Institutional-Grade", b: "Standardized" },
-    { title: "Data Ownership", a: "Total / Absolute", b: "Platform-Linked" },
-    { title: "A/B Testing", a: "Advanced Multi-variate", b: "Basic Subject Lines" },
-    { title: "Attribution", a: "Surgical / UTM-Based", b: "High-Level / Basic" },
-    { title: "API Access", a: "Full / Developer Friendly", b: "Very Limited" },
-    { title: "Mobile Strategy", a: "PWA / Brand-First", b: "Centralized App / Aggregator" }
+    { title: "Revenue Share", platformAValue: "0% (Flat Monthly Fee)", platformBValue: "10% + Stripe Fees" },
+    { title: "Custom Domain", platformAValue: "Yes (All Paid Tiers)", platformBValue: "Yes ($50 one-time fee)" },
+    { title: "Ad Network", platformAValue: "Native & Integrated", platformBValue: "None (Manual Only)" },
+    { title: "Referral Program", platformAValue: "Native & Automated", platformBValue: "Basic / Manual" },
+    { title: "SEO Control", platformAValue: "Institutional-Grade", platformBValue: "Standardized" },
+    { title: "Data Ownership", platformAValue: "Total / Absolute", platformBValue: "Platform-Linked" },
+    { title: "A/B Testing", platformAValue: "Advanced Multi-variate", platformBValue: "Basic Subject Lines" },
+    { title: "Attribution", platformAValue: "Surgical / UTM-Based", platformBValue: "High-Level / Basic" },
+    { title: "API Access", platformAValue: "Full / Developer Friendly", platformBValue: "Very Limited" },
+    { title: "Mobile Strategy", platformAValue: "PWA / Brand-First", platformBValue: "Centralized App / Aggregator" }
   ],
   faqs: [
     {

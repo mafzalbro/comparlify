@@ -30,7 +30,7 @@ const getPlatformBySlug = cache(async (slug: string) => {
   // Assuming name is used as slug for now, or we can add a slug field.
   // For the purpose of this task, let's look by name case-insensitive or similar.
   return prisma.platform.findFirst({
-    where: { name: { equals: slug.replace(/-/g, " "), mode: "insensitive" } },
+    where: { name: { equals: slug.replace(/-/g, " "),  } },
     include: {
       tiers: { orderBy: { monthlyPrice: "asc" } },
       features: { include: { feature: { include: { category: true } } } },

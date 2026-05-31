@@ -60,11 +60,6 @@ model User {
   email           String?         @unique
   emailVerified   DateTime?
   image           String?
-  username        String?         @unique
-  bio             String?         @db.Text
-  website         String?
-  twitter         String?
-  linkedin        String?
   role            Role            @default(USER)
   onboarded       Boolean         @default(false)
   newsletter      Boolean         @default(false)
@@ -84,8 +79,6 @@ model User {
   authoredImages  Image[]         @relation("UploadedBy")
   stacks          UserStack[]     @relation("UserToStacks")
   projects        Project[]
-  topicVotes      TopicVote[]
-  postVotes       PostVote[]
 }
 
 
@@ -434,6 +427,16 @@ model Comparison {
   updatedAt      DateTime   @updatedAt
   lastVerifiedAt DateTime?
 
+  // Industrial Metadata
+  authorName        String?
+  authorRole        String?
+  authorBio         String?    @db.Text
+  authorCredentials Json?      // Store as array of strings
+  metaTitle         String?
+  metaDescription   String?    @db.Text
+  sovereigntyScoreA Float?
+  sovereigntyScoreB Float?
+
   // New category relation
   categoryId String?
   category   ComparisonCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
@@ -520,7 +523,6 @@ model ForumTopic {
   posts      ForumPost[]
   status     ForumTopicStatus @default(PENDING)
   platforms  Platform[]
-  votes      TopicVote[]
 
   @@index([authorId])
   @@index([categoryId])
@@ -536,34 +538,9 @@ model ForumPost {
   topicId   String
   topic     ForumTopic      @relation(fields: [topicId], references: [id], onDelete: Cascade)
   status    ForumPostStatus @default(PENDING)
-  votes     PostVote[]
 
   @@index([authorId])
   @@index([topicId])
-}
-
-model TopicVote {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  topicId   String
-  topic     ForumTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
-  value     Int      // 1 for upvote, -1 for downvote
-
-  @@unique([userId, topicId])
-  @@index([topicId])
-}
-
-model PostVote {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  postId    String
-  post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  value     Int      // 1 for upvote, -1 for downvote
-
-  @@unique([userId, postId])
-  @@index([postId])
 }
 
 model Image {

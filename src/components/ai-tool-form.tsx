@@ -215,9 +215,9 @@ export function AIToolFormResult() {
     if (!structuredWorkflow && state.generatedContent && !isStructuring) {
       setIsStructuring(true);
       const { structureWorkflowAction } = await import("@/app/actions/ai");
-      const result = await structureWorkflowAction(state.generatedContent);
-      if (result.branches) {
-        setStructuredWorkflow(result.branches);
+      const result = await structureWorkflowAction({ topic: state.generatedContent });
+      if (((result as any).generatedContent)) {
+        setStructuredWorkflow(((result as any).generatedContent));
       }
       setIsStructuring(false);
     }

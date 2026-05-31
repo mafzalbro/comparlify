@@ -167,7 +167,7 @@ export default async function DynamicBattlePage(props: {
         />
 
         <ComparisonStats
-          stats={stats}
+          stats={stats} platformAName={platformA.name} platformBName={platformB.name}
         />
 
         <section className="container mx-auto px-4 md:px-6 max-w-7xl">
@@ -180,7 +180,7 @@ export default async function DynamicBattlePage(props: {
                 <div className="h-[250px]">
                   <ComparisonChart
                     chartConfig={chartConfig}
-                    chartData={chartData}
+                    chartData={chartData} platformAName={platformA.name} platformBName={platformB.name}
                   />
                 </div>
               </div>
@@ -250,7 +250,7 @@ export default async function DynamicBattlePage(props: {
               <IntelligentAnalysis content="" />
 
               <ComparisonFeatureMatrix
-                features={featureRows}
+                features={featureRows} platformAName={platformA.name} platformBName={platformB.name}
               />
 
               <div className="bg-card p-12 rounded-[3.5rem] border border-border/10">

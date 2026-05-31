@@ -34,9 +34,9 @@ export function MigrationEstimator({ platforms = [] }: MigrationEstimatorProps) 
     if (!platforms || platforms.length === 0) return STATIC_PLATFORM_COMPLEXITY;
     const complexity = {};
     platforms.forEach(p => {
-        complexity[p.name] = p.name === "Teachable" ? 1.2 : p.name === "Kajabi" ? 0.8 : 1.0;
+        ((complexity as any)[p.name]) = p.name === "Teachable" ? 1.2 : p.name === "Kajabi" ? 0.8 : 1.0;
     });
-    if (!complexity["Custom/Other"]) complexity["Custom/Other"] = 1.5;
+    if (!((complexity as any)["Custom/Other"])) ((complexity as any)["Custom/Other"]) = 1.5;
     return complexity;
   }, [platforms]);
 
@@ -46,7 +46,7 @@ export function MigrationEstimator({ platforms = [] }: MigrationEstimatorProps) 
   const [fromPlatform, setFromPlatform] = useState("Kajabi");
 
   const estimates = useMemo(() => {
-    const complexityMultiplier = dynamicComplexity[fromPlatform] || 1.0;
+    const complexityMultiplier = ((dynamicComplexity as any)[fromPlatform]) || 1.0;
     const baseHours = courses * 2 + lessons * 0.5 + videos * 0.2;
     const totalHours = Math.round(baseHours * complexityMultiplier);
     const hiredCost = totalHours * 50;

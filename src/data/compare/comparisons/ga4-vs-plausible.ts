@@ -3,23 +3,18 @@ import { ComparisonData } from "../types";
 const currentYear = new Date().getFullYear();
 
 export const ga4VsPlausible: ComparisonData = {
-  title: "GA4 vs. Plausible {{currentYear}}: The Data Privacy Battle",
+  title: `GA4 vs. Plausible ${currentYear}: The Data Privacy Battle`,
   slug: "ga4-vs-plausible",
   summary: "Surveillance vs. Privacy. Do you want to know everything about everyone, or just enough to run your business? A 3,000-word analysis.",
-  platformAId: "ga4",
-  platformBId: "plausible",
   platformA: "GA4",
   platformB: "Plausible",
   category: "Flagship Showdowns",
-  author: {
-    name: "Marcus Sterling",
-    role: "Lead Industrial Analyst",
-    credentials: ["Data Privacy Consultant", "Analytics Architect", "GDPR Specialist"],
-    bio: "Marcus specializes in the intersection of data sovereignty, user privacy, and marketing intelligence for modern digital enterprises."
-  },
-  lastModifiedAt: "2026-05-01T00:00:00Z",
+  authorName: "Marcus Sterling",
+  authorRole: "Lead Industrial Analyst",
+  authorCredentials: ["Data Privacy Consultant", "Analytics Architect", "GDPR Specialist"],
+  authorBio: "Marcus specializes in the intersection of data sovereignty, user privacy, and marketing intelligence for modern digital enterprises.",
   introduction: `
-In {{currentYear}}, the world of digital analytics has reached a breaking point. On one hand, we have the need for deep, behavioral data to drive marketing decisions. On the other, we have the "Privacy Revolution"—a global movement of users and governments demanding an end to invasive tracking.
+In ${currentYear}, the world of digital analytics has reached a breaking point. On one hand, we have the need for deep, behavioral data to drive marketing decisions. On the other, we have the "Privacy Revolution"—a global movement of users and governments demanding an end to invasive tracking.
 
 ### The Behemoth vs. The Minimalist
 The battle for your site's data is between **GA4 (Google Analytics 4)**, the industry standard that tracks every move a user makes across the entire web, and **Plausible**, the lightweight, open-source, and 100% privacy-focused alternative that has become the "Cool Choice" for modern developers and ethical brands.
@@ -27,9 +22,9 @@ The battle for your site's data is between **GA4 (Google Analytics 4)**, the ind
 - **GA4** is a **Data Surveillance Engine.** It is built to feed Google's advertising machine. It is complex, powerful, and free (if you don't mind the data tax).
 - **Plausible** is a **Privacy-First Utility.** It is built to give you the metrics you need to grow without collecting a single byte of personal data.
 
-This 3,000-word industrial analysis explores the "Consent Trap," the reality of data accuracy in {{currentYear}}, and the hidden cost of "Free" analytics.
+This 3,000-word industrial analysis explores the "Consent Trap," the reality of data accuracy in ${currentYear}, and the hidden cost of "Free" analytics.
 
-**The Hook:** In {{currentYear}}, 40% of users block Google Analytics by default. Are you building your business on data that doesn't actually exist?
+**The Hook:** In ${currentYear}, 40% of users block Google Analytics by default. Are you building your business on data that doesn't actually exist?
   `,
   content: `
 ## Part 1: Philosophy — Behavioral Complexity vs. Metric Simplicity
@@ -50,7 +45,7 @@ Plausible is built for **Clarity.**
 
 ## Part 2: The Privacy and Compliance War
 
-In {{currentYear}}, GDPR, CCPA, and PECR are no longer "suggestions"; they are enforced realities.
+In ${currentYear}, GDPR, CCPA, and PECR are no longer "suggestions"; they are enforced realities.
 
 ### GA4: The Compliance Headache
 GA4 is a legal minefield in many jurisdictions (especially in the EU).
@@ -66,7 +61,7 @@ Plausible does not use cookies. It does not collect PII. It is 100% compliant wi
 
 ## Part 3: Site Performance — The Weight of the Script
 
-In {{currentYear}}, a 1-second delay in load time equals a 7% drop in conversion.
+In ${currentYear}, a 1-second delay in load time equals a 7% drop in conversion.
 
 ### GA4: The Heavyweight
 The Google Analytics script is large. When you add "Google Tag Manager" and other marketing tags, you are adding significant weight to every page load. This hurts your "Core Web Vitals" and your SEO.
@@ -101,13 +96,8 @@ The Plausible script is **< 1 KB.** It is 45 times smaller than the GA4 script.
       answer: "Yes, Plausible has a very simple 'Goals' system that allows you to track sign-ups, clicks, and purchases without tracking PII."
     }
   ],
-  seo: {
-    metaTitle: "GA4 vs Plausible {{currentYear}}: The Definitive Privacy Comparison",
-    metaDescription: "A ruthless analysis of GA4 vs Plausible. Which analytics tool offers the best balance of data insight and user privacy in 2026?",
-    keywords: ["ga4 vs plausible", "privacy analytics comparison", "google analytics alternatives"]
-  },
-  sovereigntyScore: {
-    platformA: 6.2,
-    platformB: 9.8
-  }
+  metaTitle: `GA4 vs Plausible ${currentYear}: The Definitive Privacy Comparison`,
+  metaDescription: "A ruthless analysis of GA4 vs Plausible. Which analytics tool offers the best balance of data insight and user privacy in 2026?",
+  sovereigntyScoreA: 6.2,
+  sovereigntyScoreB: 9.8
 };
