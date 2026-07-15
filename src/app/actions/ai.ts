@@ -204,6 +204,36 @@ export async function generateIntelligenceReportAction(input: {
   });
 }
 
+export async function generateMigrationRoadmapAction(input: {
+  currentPlatform: string;
+  targetPlatform: string;
+  studentCount: number;
+}) {
+  const session = await auth();
+  if (!session?.user) {
+    return { generatedContent: null, error: "Not authorized." };
+  }
+
+  const prompt = `
+    Generate a 10-step, HIGH-FIDELITY MIGRATION ROADMAP for a creator moving from ${input.currentPlatform} to ${input.targetPlatform}.
+    Student count: ${input.studentCount.toLocaleString()}.
+
+    THE ROADMAP MUST INCLUDE:
+    1. DATA EXTRACTION: Specific tools or methods to export CSVs and assets.
+    2. ARCHITECTURAL MAPPING: How to translate their current "products" or "groups" to the new system.
+    3. THE COMMUNICATION PLAN: Email templates for students to minimize churn during the move.
+    4. TECHNICAL CUTOVER: DNS settings and "Go-Live" checklists.
+    5. RETENTION STRATEGY: How to use the new platform's unique features to keep students engaged immediately.
+
+    STYLE: Use the HUMAN_STYLE_PROMPT guidelines. Focus on REDUCING ANXIETY and maximizing clarity.
+  `;
+
+  return generateGenericContentAction({
+    prompt,
+    topic: `Migration from ${input.currentPlatform} to ${input.targetPlatform}`,
+  });
+}
+
 // --- AI Image Generator ---
 const imageGeneratorSchema = z.object({
   prompt: z.string().min(3, "Prompt must be at least 3 characters long."),

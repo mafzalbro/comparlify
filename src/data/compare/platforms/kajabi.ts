@@ -122,5 +122,14 @@ Kajabi is the "heavy hitter" of the industry. It is a sophisticated, powerful, a
     { featureName: "CRM", categoryName: "Business", hasFeature: true }
   ],
   lastVerifiedAt: "2026-04-24T00:00:00Z",
-  sourceUrl: "https://kajabi.com/pricing"
+  sourceUrl: "https://kajabi.com/pricing",
+  sovereigntyScore: 85,
+  audit: {
+    auditorName: "Marcus Sterling",
+    auditorRole: "Senior SaaS Strategist",
+    trustScore: 94,
+    sovereigntyScore: 85,
+    verificationLevel: "INDUSTRIAL",
+    auditNotes: "Kajabi remains the benchmark for all-in-one infrastructure. Its sovereignty score is bolstered by robust data export tools and custom domain flexibility, though its closed ecosystem creates moderate 'architectural gravity'."
+  }
 };
