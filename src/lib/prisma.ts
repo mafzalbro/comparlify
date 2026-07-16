@@ -14,12 +14,21 @@ const prismaClientSingleton = () => {
     throw new Error("DATABASE_URL is not defined in environment variables");
   }
   
-  const adapter = new PrismaMariaDb(connectionString);
-  return new PrismaClient({ 
-    adapter,
-    // Minimal logging to keep the console clean while catching errors
-    log: ["error"],
-  });
+  const isMongo = connectionString.startsWith("mongodb://") || connectionString.startsWith("mongodb+srv://");
+
+  if (isMongo) {
+    return new PrismaClient({
+      // Minimal logging to keep the console clean while catching errors
+      log: ["error"],
+    });
+  } else {
+    const adapter = new PrismaMariaDb(connectionString);
+    return new PrismaClient({
+      adapter,
+      // Minimal logging to keep the console clean while catching errors
+      log: ["error"],
+    });
+  }
 };
 
 type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>;

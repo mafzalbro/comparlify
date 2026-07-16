@@ -15,7 +15,7 @@
     "test:run": "vitest run",
     "postinstall": "pnpm run prisma:cat && prisma generate",
     "prisma:seed": "pnpm run prisma:cat && prisma db seed",
-    "prisma:cat": "concat-cli -f prisma/schema/_base.prisma -f prisma/schema/notification.prisma -f prisma/schema/user.prisma -f prisma/schema/email.prisma -f prisma/schema/content.prisma -f prisma/schema/platform.prisma -f prisma/schema/comparison.prisma -f prisma/schema/news.prisma -f prisma/schema/community.prisma -f prisma/schema/image.prisma -f prisma/schema/tool.prisma -f prisma/schema/advertisement.prisma -f prisma/schema/analytics.prisma -f prisma/schema/stack.prisma -f prisma/schema/project.prisma -o prisma/schema.prisma",
+    "prisma:cat": "node scripts/prisma-switch.js",
     "prisma:migrate:dev": "pnpm run prisma:cat && prisma migrate dev",
     "generate": "prisma generate"
   },

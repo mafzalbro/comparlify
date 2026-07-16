@@ -1,172 +1,187 @@
+
+// --- Merged from _base.prisma ---
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider     = "mysql"
-  relationMode = "prisma"
-}
-
-model Notification {
-  id        String           @id @default(cuid())
-  userId    String
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type      NotificationType
-  message   String
-  link      String
-  read      Boolean          @default(false)
-  createdAt DateTime         @default(now())
-
-  @@index([userId])
-}
-
-enum NotificationType {
-  NEW_USER_REGISTERED
-  COMMENT_APPROVED
-  NEW_COMMENT_AWAITING_APPROVAL
-  NEW_FORUM_CONTENT
-}
-
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model User {
-  id              String          @id @default(cuid())
-  name            String?
-  email           String?         @unique
-  emailVerified   DateTime?
-  image           String?
-  username        String?         @unique
-  bio             String?         @db.Text
-  website         String?
-  twitter         String?
-  linkedin        String?
-  role            Role            @default(USER)
-  onboarded       Boolean         @default(false)
-  newsletter      Boolean         @default(false)
-  suspended       Boolean         @default(false)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  accounts        Account[]
-  sessions        Session[]
-  posts           Post[]
-  comments        Comment[]
-  bookmarks       Bookmark[]
-  newsArticles    NewsArticle[]   @relation("AuthoredNews")  // ✅ must match
-  notifications   Notification[]
-  forumTopics     ForumTopic[]    @relation("TopicAuthor")
-  forumPosts      ForumPost[]     @relation("PostAuthor")
-  emailRecipients EmailRecipient[]
-  authoredImages  Image[]         @relation("UploadedBy")
-  stacks          UserStack[]     @relation("UserToStacks")
-  projects        Project[]
-  topicVotes      TopicVote[]
-  postVotes       PostVote[]
+  provider     = "mongodb"
 }
 
 
-model VerificationToken {
-  id         String   @id @default(cuid())
-  identifier String
-  token      String   @unique
-  expires    DateTime
+// --- Merged from advertisement.prisma ---
+model Advertisement {
+    id String @id @default(cuid()) @map("_id")
+    type         AdvertisementType @default(IMAGE)
+    content      String
+    imageUrl     String?
+    linkUrl      String?
+    placement    AdPlacementType
+    active       Boolean           @default(true)
+    allowedPages String?            // Comma-separated or "*"
+    createdAt    DateTime          @default(now())
+    updatedAt    DateTime          @updatedAt
 
-  @@unique([identifier, token])
+    @@index([placement])
+}
+
+enum AdvertisementType {
+    SCRIPT
+    IMAGE
+}
+
+enum AdPlacementType {
+    HEADER
+    SIDEBAR
+    POST_TOP
+    POST_BOTTOM
+    COMPARISON_BETWEEN
+    MOBILE_FIXED_BOTTOM
 }
 
 
-enum Role {
-  USER
-  AUTHOR
-  EDITOR
-  MODERATOR
-  SUPPORT
-  ADMIN
+// --- Merged from analytics.prisma ---
+model AffiliateClick {
+    id String @id @default(cuid()) @map("_id")
+    platformId String
+    platform   Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+    referrer   String
+    userAgent  String
+    device     String?
+    browser    String?
+    os         String?
+    country    String?
+    city       String?
+    region     String?
+    ip         String
+    createdAt  DateTime @default(now())
+
+    @@index([platformId])
 }
 
 
-model EmailCampaign {
-  id              String          @id @default(cuid())
-  subject         String
-  content         String          @db.LongText
-  status          CampaignStatus  @default(PENDING)
-  createdAt       DateTime        @default(now())
-  sentAt          DateTime?
-  recipients      EmailRecipient[]
-  excludedUserIds String?         @db.Text
-}
+// --- Merged from community.prisma ---
 
-model EmailRecipient {
-  id          String         @id @default(cuid())
-  campaignId  String
-  userId      String
-  status      RecipientStatus @default(PENDING)
-  sentAt      DateTime?
-  errorMessage String?
-  campaign    EmailCampaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([campaignId, userId])
-  @@index([campaignId])
-  @@index([userId])
-}
-
-model ContactMessage {
-  id        String   @id @default(cuid())
-  name      String
-  email     String
-  message   String   @db.Text
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
-}
-
-model Subscription {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  createdAt DateTime @default(now())
-}
-
-
-enum CampaignStatus {
+enum ForumTopicStatus {
   PENDING
-  SENDING
-  SENT
+  APPROVED
+  REJECTED
 }
 
-enum RecipientStatus {
+enum ForumPostStatus {
   PENDING
-  SUCCESS
-  FAILED
+  APPROVED
+  REJECTED
 }
 
+model ForumCategory {
+  id String @id @default(cuid()) @map("_id")
+  name        String       @unique
+  slug        String       @unique
+  description String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  topics      ForumTopic[]
+}
+
+model ForumTopic {
+  id String @id @default(cuid()) @map("_id")
+  title      String
+  content    String
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  authorId   String
+  author     User             @relation("TopicAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  categoryId String
+  category   ForumCategory    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  posts      ForumPost[]
+  status     ForumTopicStatus @default(PENDING)
+  platforms  Platform[]
+
+  @@index([authorId])
+  @@index([categoryId])
+}
+
+model ForumPost {
+  id String @id @default(cuid()) @map("_id")
+  content   String
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  authorId  String
+  author    User            @relation("PostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  topicId   String
+  topic     ForumTopic      @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  status    ForumPostStatus @default(PENDING)
+
+  @@index([authorId])
+  @@index([topicId])
+}
+
+
+// --- Merged from comparison.prisma ---
+// comparison.prisma
+
+model Comparison {
+  id String @id @default(cuid()) @map("_id")
+  title          String
+  slug           String     @unique
+  summary        String
+  introduction   String
+  content        String?
+  conclusion     String
+  published      Boolean    @default(false)
+  platformAId    String
+  platformBId    String
+  platformA      Platform   @relation("PlatformA", fields: [platformAId], references: [id], onDelete: Cascade)
+  platformB      Platform   @relation("PlatformB", fields: [platformBId], references: [id], onDelete: Cascade)
+  facts          Fact[]
+  faqs           Faq[]
+  bookmarks      Bookmark[]
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  lastVerifiedAt DateTime?
+
+  // New category relation
+  categoryId String?
+  category   ComparisonCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([platformAId])
+  @@index([platformBId])
+  @@index([categoryId])
+}
+
+model Fact {
+  id String @id @default(cuid()) @map("_id")
+  title          String
+  platformAValue String
+  platformBValue String
+  comparisonId   String
+  comparison     Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  lastVerifiedAt DateTime?
+
+  @@index([comparisonId])
+}
+
+model Faq {
+  id String @id @default(cuid()) @map("_id")
+  question     String
+  answer       String
+  comparisonId String
+  comparison   Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([comparisonId])
+}
+
+
+// --- Merged from content.prisma ---
 model SiteContent {
-  id        String      @id @default(cuid())
+  id String @id @default(cuid()) @map("_id")
   key       String      @unique // e.g., "homepage.hero.title"
-  value     String      @db.Text
+  value     String
   group     String // e.g., "Homepage", "Footer"
   type      ContentType @default(TEXT)
   createdAt DateTime    @default(now())
@@ -180,25 +195,25 @@ enum ContentType {
 }
 
 model PostCategory {
-  id    String @id @default(cuid())
+  id String @id @default(cuid()) @map("_id")
   slug  String @unique
   name  String
   posts Post[]
 }
 
 model ComparisonCategory {
-  id          String       @id @default(cuid())
+  id String @id @default(cuid()) @map("_id")
   slug        String       @unique
   name        String
   comparisons Comparison[]
 }
 
 model Post {
-  id          String     @id @default(cuid())
+  id String @id @default(cuid()) @map("_id")
   title       String
   slug        String     @unique
-  description String     @db.VarChar(191)
-  content     String     @db.Text
+  description String
+  content     String
   image       String
   dataAiHint  String?
   published   Boolean    @default(false)
@@ -244,9 +259,9 @@ model Post {
 }
 
 model PostFact {
-  id        String   @id @default(cuid())
+  id String @id @default(cuid()) @map("_id")
   title     String
-  value     String   @db.Text
+  value     String
   postId    String
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
@@ -256,9 +271,9 @@ model PostFact {
 }
 
 model PostFaq {
-  id        String   @id @default(cuid())
+  id String @id @default(cuid()) @map("_id")
   question  String
-  answer    String   @db.Text
+  answer    String
   postId    String
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
@@ -268,7 +283,7 @@ model PostFaq {
 }
 
 model PostSource {
-  id        String   @id @default(cuid())
+  id String @id @default(cuid()) @map("_id")
   title     String
   url       String
   postId    String
@@ -280,8 +295,8 @@ model PostSource {
 }
 
 model Comment {
-  id        String        @id @default(cuid())
-  content   String        @db.Text
+  id String @id @default(cuid()) @map("_id")
+  content   String
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
   status    CommentStatus @default(PENDING)
@@ -301,7 +316,7 @@ enum CommentStatus {
 }
 
 model Bookmark {
-  id        String   @id @default(cuid())
+  id String @id @default(cuid()) @map("_id")
   createdAt DateTime @default(now())
 
   userId String
@@ -318,21 +333,132 @@ model Bookmark {
 
 
 model LegalDocument {
-  id        String   @id @default(cuid())
+  id String @id @default(cuid()) @map("_id")
   title     String
   slug      String   @unique
-  content   String   @db.LongText
+  content   String
   published Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
+
+// --- Merged from email.prisma ---
+
+model EmailCampaign {
+  id String @id @default(cuid()) @map("_id")
+  subject         String
+  content         String
+  status          CampaignStatus  @default(PENDING)
+  createdAt       DateTime        @default(now())
+  sentAt          DateTime?
+  recipients      EmailRecipient[]
+  excludedUserIds String?
+}
+
+model EmailRecipient {
+  id String @id @default(cuid()) @map("_id")
+  campaignId  String
+  userId      String
+  status      RecipientStatus @default(PENDING)
+  sentAt      DateTime?
+  errorMessage String?
+  campaign    EmailCampaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, userId])
+  @@index([campaignId])
+  @@index([userId])
+}
+
+model ContactMessage {
+  id String @id @default(cuid()) @map("_id")
+  name      String
+  email     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Subscription {
+  id String @id @default(cuid()) @map("_id")
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
+
+enum CampaignStatus {
+  PENDING
+  SENDING
+  SENT
+}
+
+enum RecipientStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+
+// --- Merged from image.prisma ---
+model Image {
+  id String @id @default(cuid()) @map("_id")
+  filename  String
+  url       String
+  altText   String?
+  size      Int
+  createdAt DateTime @default(now())
+  authorId  String
+  author    User     @relation("UploadedBy", fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+
+// --- Merged from news.prisma ---
+model NewsArticle {
+  id String @id @default(cuid()) @map("_id")
+  slug       String     @unique
+  title      String
+  content    String
+  image      String
+  dataAiHint String?
+  published  Boolean    @default(false)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  authorId   String
+  author     User       @relation("AuthoredNews", fields: [authorId], references: [id], onDelete: Cascade)
+  platforms  Platform[]
+}
+
+
+// --- Merged from notification.prisma ---
+model Notification {
+  id String @id @default(cuid()) @map("_id")
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  message   String
+  link      String
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
+}
+
+enum NotificationType {
+  NEW_USER_REGISTERED
+  COMMENT_APPROVED
+  NEW_COMMENT_AWAITING_APPROVAL
+  NEW_FORUM_CONTENT
+}
+
+
+// --- Merged from platform.prisma ---
 model Platform {
-  id                    String            @id @default(cuid())
+  id String @id @default(cuid()) @map("_id")
   name                  String            @unique
   website               String
   logoUrl               String
-  description           String            @db.Text
+  description           String
   rating                Float?
   easeOfUse             Float?
   featuresRating        Float?
@@ -365,7 +491,7 @@ model Platform {
 }
 
 model PricingTier {
-  id                            String   @id @default(cuid())
+  id String @id @default(cuid()) @map("_id")
   name                          String
   monthlyPrice                  Float
   annualPriceMonthlyEquivalent  Float?
@@ -381,7 +507,7 @@ model PricingTier {
 }
 
 model FeatureCategory {
-  id        String    @id @default(cuid())
+  id String @id @default(cuid()) @map("_id")
   name      String    @unique
   features  Feature[]
   createdAt DateTime  @default(now())
@@ -389,7 +515,7 @@ model FeatureCategory {
 }
 
 model Feature {
-  id         String            @id @default(cuid())
+  id String @id @default(cuid()) @map("_id")
   name       String
   categoryId String
   category   FeatureCategory   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
@@ -401,6 +527,7 @@ model Feature {
 }
 
 model PlatformFeature {
+  id String @id @default(cuid()) @map("_id")
   platformId String
   platform   Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
   featureId  String
@@ -408,254 +535,60 @@ model PlatformFeature {
   hasFeature Boolean
   details    String?
 
-  @@id([platformId, featureId])
+  @@unique([platformId, featureId])
   @@index([featureId])
 }
 
-// comparison.prisma
 
-model Comparison {
-  id             String     @id @default(cuid())
-  title          String
-  slug           String     @unique
-  summary        String     @db.Text
-  introduction   String     @db.Text
-  content        String?    @db.LongText
-  conclusion     String     @db.Text
-  published      Boolean    @default(false)
-  platformAId    String
-  platformBId    String
-  platformA      Platform   @relation("PlatformA", fields: [platformAId], references: [id], onDelete: Cascade)
-  platformB      Platform   @relation("PlatformB", fields: [platformBId], references: [id], onDelete: Cascade)
-  facts          Fact[]
-  faqs           Faq[]
-  bookmarks      Bookmark[]
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
-  lastVerifiedAt DateTime?
-
-  // New category relation
-  categoryId String?
-  category   ComparisonCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-
-  @@index([platformAId])
-  @@index([platformBId])
-  @@index([categoryId])
+// --- Merged from project.prisma ---
+enum ProjectStatus {
+  ACTIVE
+  ARCHIVED
+  COMPLETED
 }
 
-model Fact {
-  id             String     @id @default(cuid())
-  title          String
-  platformAValue String
-  platformBValue String
-  comparisonId   String
-  comparison     Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
-  lastVerifiedAt DateTime?
+model Project {
+  id String @id @default(cuid()) @map("_id")
+  name        String
+  description String?
+  status      ProjectStatus @default(ACTIVE)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
-  @@index([comparisonId])
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  matchProfile MatchProfile?
+  savedStacks  UserStack[]
+
+  // Storage for snapshots of calculations
+  roiSnapshots   Json?
+  churnSnapshots Json?
+  adSnapshots    Json?
 }
 
-model Faq {
-  id           String     @id @default(cuid())
-  question     String
-  answer       String     @db.Text
-  comparisonId String
-  comparison   Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+model MatchProfile {
+  id String @id @default(cuid()) @map("_id")
+  revenue          Float
+  studentCount     Int
+  technicalSkill   Int
+  requiredFeatures Json     // Array of feature IDs
+  monthlyBudget    Float
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  @@index([comparisonId])
-}
-
-model NewsArticle {
-  id         String     @id @default(cuid())
-  slug       String     @unique
-  title      String
-  content    String     @db.Text
-  image      String
-  dataAiHint String?
-  published  Boolean    @default(false)
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  authorId   String
-  author     User       @relation("AuthoredNews", fields: [authorId], references: [id], onDelete: Cascade)
-  platforms  Platform[]
+  projectId String  @unique
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 
-enum ForumTopicStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-enum ForumPostStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-model ForumCategory {
-  id          String       @id @default(cuid())
-  name        String       @unique
-  slug        String       @unique
-  description String
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  topics      ForumTopic[]
-}
-
-model ForumTopic {
-  id         String           @id @default(cuid())
-  title      String
-  content    String           @db.Text
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
-  authorId   String
-  author     User             @relation("TopicAuthor", fields: [authorId], references: [id], onDelete: Cascade)
-  categoryId String
-  category   ForumCategory    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  posts      ForumPost[]
-  status     ForumTopicStatus @default(PENDING)
-  platforms  Platform[]
-  votes      TopicVote[]
-
-  @@index([authorId])
-  @@index([categoryId])
-}
-
-model ForumPost {
-  id        String          @id @default(cuid())
-  content   String          @db.Text
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
-  authorId  String
-  author    User            @relation("PostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
-  topicId   String
-  topic     ForumTopic      @relation(fields: [topicId], references: [id], onDelete: Cascade)
-  status    ForumPostStatus @default(PENDING)
-  votes     PostVote[]
-
-  @@index([authorId])
-  @@index([topicId])
-}
-
-model TopicVote {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  topicId   String
-  topic     ForumTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
-  value     Int      // 1 for upvote, -1 for downvote
-
-  @@unique([userId, topicId])
-  @@index([topicId])
-}
-
-model PostVote {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  postId    String
-  post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  value     Int      // 1 for upvote, -1 for downvote
-
-  @@unique([userId, postId])
-  @@index([postId])
-}
-
-model Image {
-  id        String   @id @default(cuid())
-  filename  String
-  url       String
-  altText   String?
-  size      Int
-  createdAt DateTime @default(now())
-  authorId  String
-  author    User     @relation("UploadedBy", fields: [authorId], references: [id], onDelete: Cascade)
-}
-
-
-model Tool {
-  id                  String       @id @default(cuid())
-  slug                String       @unique
-  title               String
-  description         String       @db.Text
-  Icon                String
-  category            ToolCategory
-  enabled             Boolean      @default(true)
-  prompt              String       @db.LongText
-  inputTopicLabel     String?
-  inputContextLabel   String?
-  seoContent          String?      @db.LongText
-  createdAt           DateTime     @default(now())
-  updatedAt           DateTime     @updatedAt
-}
-
-enum ToolCategory {
-  ContentCreation
-  Marketing
-  CurriculumDesign
-  SEO
-  Productivity
-  EngagementInteraction
-}
-
-model Advertisement {
-    id           String            @id @default(cuid())
-    type         AdvertisementType @default(IMAGE)
-    content      String            @db.Text
-    imageUrl     String?           @db.Text
-    linkUrl      String?           @db.Text
-    placement    AdPlacementType
-    active       Boolean           @default(true)
-    allowedPages String?           @db.Text // Comma-separated or "*"
-    createdAt    DateTime          @default(now())
-    updatedAt    DateTime          @updatedAt
-
-    @@index([placement])
-}
-
-enum AdvertisementType {
-    SCRIPT
-    IMAGE
-}
-
-enum AdPlacementType {
-    HEADER
-    SIDEBAR
-    POST_TOP
-    POST_BOTTOM
-    COMPARISON_BETWEEN
-    MOBILE_FIXED_BOTTOM
-}
-
-model AffiliateClick {
-    id         String   @id @default(cuid())
-    platformId String
-    platform   Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
-    referrer   String   @db.Text
-    userAgent  String   @db.Text
-    device     String?
-    browser    String?
-    os         String?
-    country    String?
-    city       String?
-    region     String?
-    ip         String
-    createdAt  DateTime @default(now())
-
-    @@index([platformId])
-}
-
+// --- Merged from stack.prisma ---
 model UserStack {
-  id              String          @id @default(cuid())
+  id String @id @default(cuid()) @map("_id")
   title           String
-  description     String          @db.Text
+  description     String
   isVerified      Boolean         @default(false)
-  verificationUrl String?         @db.Text
+  verificationUrl String?
   userId          String
   user            User            @relation("UserToStacks", fields: [userId], references: [id], onDelete: Cascade)
   platforms       StackPlatform[]
@@ -670,53 +603,117 @@ model UserStack {
 }
 
 model StackPlatform {
-  id          String    @id @default(cuid())
+  id String @id @default(cuid()) @map("_id")
   stackId     String
   stack       UserStack @relation(fields: [stackId], references: [id], onDelete: Cascade)
   platformId  String
   platform    Platform  @relation(fields: [platformId], references: [id], onDelete: Cascade)
   role        String    // e.g., "LMS", "EMAIL", "CRM", "COMMUNITY"
-  
+
   @@index([stackId])
   @@index([platformId])
 }
 
-enum ProjectStatus {
-  ACTIVE
-  ARCHIVED
-  COMPLETED
+
+// --- Merged from tool.prisma ---
+
+model Tool {
+  id String @id @default(cuid()) @map("_id")
+  slug                String       @unique
+  title               String
+  description         String
+  Icon                String
+  category            ToolCategory
+  enabled             Boolean      @default(true)
+  prompt              String
+  inputTopicLabel     String?
+  inputContextLabel   String?
+  seoContent          String?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
 }
 
-model Project {
-  id          String        @id @default(cuid())
-  name        String
-  description String?
-  status      ProjectStatus @default(ACTIVE)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  matchProfile MatchProfile?
-  savedStacks  UserStack[]
-  
-  // Storage for snapshots of calculations
-  roiSnapshots   Json?
-  churnSnapshots Json?
-  adSnapshots    Json?
+enum ToolCategory {
+  ContentCreation
+  Marketing
+  CurriculumDesign
+  SEO
+  Productivity
+  EngagementInteraction
 }
 
-model MatchProfile {
-  id               String   @id @default(cuid())
-  revenue          Float
-  studentCount     Int
-  technicalSkill   Int
-  requiredFeatures Json     // Array of feature IDs
-  monthlyBudget    Float
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
 
-  projectId String  @unique
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+// --- Merged from user.prisma ---
+model Account {
+  id String @id @default(cuid()) @map("_id")
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id String @id @default(cuid()) @map("_id")
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id String @id @default(cuid()) @map("_id")
+  name            String?
+  email           String?         @unique
+  emailVerified   DateTime?
+  image           String?
+  role            Role            @default(USER)
+  onboarded       Boolean         @default(false)
+  newsletter      Boolean         @default(false)
+  suspended       Boolean         @default(false)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  accounts        Account[]
+  sessions        Session[]
+  posts           Post[]
+  comments        Comment[]
+  bookmarks       Bookmark[]
+  newsArticles    NewsArticle[]   @relation("AuthoredNews")  // ✅ must match
+  notifications   Notification[]
+  forumTopics     ForumTopic[]    @relation("TopicAuthor")
+  forumPosts      ForumPost[]     @relation("PostAuthor")
+  emailRecipients EmailRecipient[]
+  authoredImages  Image[]         @relation("UploadedBy")
+  stacks          UserStack[]     @relation("UserToStacks")
+  projects        Project[]
+}
+
+
+model VerificationToken {
+  id String @id @default(cuid()) @map("_id")
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+
+enum Role {
+  USER
+  AUTHOR
+  EDITOR
+  MODERATOR
+  SUPPORT
+  ADMIN
 }

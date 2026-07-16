@@ -10,8 +10,16 @@ import {
 } from "@prisma/client";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 
-const adapter = new PrismaMariaDb(process.env.DATABASE_URL!);
-const prisma = new PrismaClient({ adapter });
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error("DATABASE_URL is not defined in environment variables");
+}
+
+const isMongo = connectionString.startsWith("mongodb://") || connectionString.startsWith("mongodb+srv://");
+
+const prisma = isMongo
+  ? new PrismaClient({ log: ["error"] })
+  : new PrismaClient({ adapter: new PrismaMariaDb(connectionString), log: ["error"] });
 
 import { promises as fs } from "fs";
 import path from "path";
@@ -31,9 +39,18 @@ export async function cleanupDatabase() {
   // Break circular dependencies first
   console.log("  - Breaking Post navigation links...");
   try {
-    await prisma.$executeRawUnsafe(
-      `UPDATE Post SET nextId = NULL, previousId = NULL`,
-    );
+    if (isMongo) {
+      await (prisma as any).post.updateMany({
+        data: {
+          nextId: null,
+          previousId: null,
+        },
+      });
+    } else {
+      await prisma.$executeRawUnsafe(
+        `UPDATE Post SET nextId = NULL, previousId = NULL`,
+      );
+    }
   } catch (e: any) {
     console.warn(`  - Could not break Post links: ${e.message}`);
   }
