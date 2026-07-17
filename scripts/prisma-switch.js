@@ -61,19 +61,31 @@ function compileSchema() {
       `datasource db {\n  provider     = "mongodb"\n}`
     );
 
-    // 2. Map all ID fields to _id (using a regex that is safe and captures whitespace variation)
+    // 2. Update the generator block to include engineType = "library" to prevent Prisma v7 client adapter constraint errors
+    combinedContent = combinedContent.replace(
+      /generator\s+client\s*\{([\s\S]*?provider\s*=\s*"prisma-client-js"[\s\S]*?)\}/g,
+      `generator client {\n  provider   = "prisma-client-js"\n  engineType = "library"\n}`
+    );
+
+    // 3. Map all ID fields to _id (using a regex that is safe and captures whitespace variation)
     combinedContent = combinedContent.replace(
       /\bid\s+String\s+@id(\s+@default\(cuid\(\)\))?/g,
       `id String @id$1 @map("_id")`
     );
 
-    // 3. Remove all SQL-specific @db.* annotations (like @db.Text, @db.LongText, etc.)
+    // 4. Remove all SQL-specific @db.* annotations (like @db.Text, @db.LongText, etc.)
     combinedContent = combinedContent.replace(/@db\.[a-zA-Z0-9_]+(\([^)]*\))?/g, "");
   } else {
     // Under mysql, make sure the datasource is explicitly mysql with relationMode prisma
     combinedContent = combinedContent.replace(
       /datasource\s+db\s*\{[\s\S]*?provider\s*=\s*"(mysql|mongodb)"[\s\S]*?\}/g,
       `datasource db {\n  provider     = "mysql"\n  relationMode = "prisma"\n}`
+    );
+
+    // Ensure generator block does not have engineType = "library"
+    combinedContent = combinedContent.replace(
+      /generator\s+client\s*\{([\s\S]*?provider\s*=\s*"prisma-client-js"[\s\S]*?)\s*engineType\s*=\s*"library"([\s\S]*?)\}/g,
+      `generator client {\n  provider   = "prisma-client-js"\n}`
     );
   }
 
