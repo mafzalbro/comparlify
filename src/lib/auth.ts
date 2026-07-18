@@ -79,13 +79,25 @@ export const authOptions: NextAuthConfig = {
       }
       return true;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id;
         token.role = (user as any).role ?? "USER";
         token.onboarded = (user as any).onboarded ?? false;
         token.newsletter = (user as any).newsletter ?? false;
         token.suspended = (user as any).suspended ?? false;
+      }
+      if (trigger === "update" && token.id) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { onboarded: true, role: true, newsletter: true, suspended: true }
+        });
+        if (dbUser) {
+          token.role = dbUser.role;
+          token.onboarded = dbUser.onboarded;
+          token.newsletter = dbUser.newsletter;
+          token.suspended = dbUser.suspended;
+        }
       }
       return token;
     },
