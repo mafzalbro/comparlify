@@ -28,6 +28,7 @@ import { Badge } from "@/components/ui/badge";
 import { getContent } from "@/lib/content";
 import { MotionDiv } from "@/components/motion-wrapper";
 import { PremiumNewsletterForm } from "@/components/premium-newsletter-form";
+import { InfiniteScrollList } from "@/components/infinite-scroll-list";
 
 export const revalidate = 3600;
 
@@ -263,18 +264,17 @@ export default async function BlogPage(props: {
               </MotionDiv>
             )}
 
-            {/* --- ARTICLE GRID --- */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16">
-              {(featuredPost && !search && !category && !author
-                ? otherPosts
-                : blogPosts
-              ).map((post, index) => (
+            <InfiniteScrollList
+              items={featuredPost && !search && !category && !author ? otherPosts : blogPosts}
+              batchSize={9}
+              gridClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16"
+              renderItem={(post, index) => (
                 <MotionDiv
                   key={post.slug}
                   initial={{ opacity: 0, y: 40 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.8, delay: index * 0.1 }}
+                  transition={{ duration: 0.8, delay: (index % 3) * 0.1 }}
                 >
                   <Card className="flex flex-col h-full group overflow-hidden rounded-[2.5rem] border border-border/10 bg-card/40 backdrop-blur-2xl shadow-xl transition-all duration-700 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-3">
                     <div className="relative overflow-hidden aspect-16/11">
@@ -340,8 +340,8 @@ export default async function BlogPage(props: {
                     </CardFooter>
                   </Card>
                 </MotionDiv>
-              ))}
-            </div>
+              )}
+            />
           </div>
         )}
       </div>

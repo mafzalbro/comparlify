@@ -27,6 +27,7 @@ import { getContent } from "@/lib/content";
 import { MotionDiv } from "@/components/motion-wrapper";
 import { Badge } from "@/components/ui/badge";
 import { PremiumNewsletterForm } from "@/components/premium-newsletter-form";
+import { InfiniteScrollList } from "@/components/infinite-scroll-list";
 
 export async function generateMetadata(): Promise<Metadata> {
   return generateSeoMetadata({
@@ -185,14 +186,17 @@ export default async function NewsPage() {
 
             {/* --- DISPATCH GRID --- */}
             {otherArticles.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-                {otherArticles.map((article, index) => (
+              <InfiniteScrollList
+                items={otherArticles}
+                batchSize={9}
+                gridClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12"
+                renderItem={(article, index) => (
                   <MotionDiv
                     key={article.slug}
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-100px" }}
-                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    transition={{ duration: 0.6, delay: (index % 3) * 0.1 }}
                   >
                     <Card className="flex flex-col h-full group overflow-hidden rounded-4xl border border-border/10 bg-card/20 backdrop-blur-xl shadow-xl transition-all duration-500 hover:shadow-2xl hover:-translate-y-3">
                       <div className="relative overflow-hidden aspect-16/10">
@@ -264,8 +268,8 @@ export default async function NewsPage() {
                       </CardFooter>
                     </Card>
                   </MotionDiv>
-                ))}
-              </div>
+                )}
+              />
             )}
           </div>
         )}

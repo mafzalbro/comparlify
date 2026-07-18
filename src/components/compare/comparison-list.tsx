@@ -17,38 +17,41 @@ interface ComparisonListProps {
   emptySubtitle?: string;
 }
 
+import { InfiniteScrollList } from "@/components/infinite-scroll-list";
+
 export function ComparisonList({
   comparisons,
   emptyTitle = "No Reports Found",
   emptySubtitle = "Our intelligence engine is currently refreshing. Try adjusting your signal filters.",
 }: ComparisonListProps) {
-  if (comparisons.length === 0) {
-    return (
-      <MotionDiv
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="text-center py-40 rounded-[4rem] border-2 border-dashed border-border/20 bg-secondary/5"
-      >
-        <Zap className="mx-auto h-20 w-20 text-muted-foreground/20 mb-8" />
-        <h3 className="text-4xl font-black mb-4 uppercase tracking-tight">
-          {emptyTitle}
-        </h3>
-        <p className="text-xl text-muted-foreground max-w-md mx-auto font-medium leading-relaxed">
-          {emptySubtitle}
-        </p>
-      </MotionDiv>
-    );
-  }
+  const emptyState = (
+    <MotionDiv
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="text-center py-40 rounded-[4rem] border-2 border-dashed border-border/20 bg-secondary/5"
+    >
+      <Zap className="mx-auto h-20 w-20 text-muted-foreground/20 mb-8" />
+      <h3 className="text-4xl font-black mb-4 uppercase tracking-tight">
+        {emptyTitle}
+      </h3>
+      <p className="text-xl text-muted-foreground max-w-md mx-auto font-medium leading-relaxed">
+        {emptySubtitle}
+      </p>
+    </MotionDiv>
+  );
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-      {comparisons.map((comp, index) => (
+    <InfiniteScrollList
+      items={comparisons}
+      batchSize={9}
+      emptyState={emptyState}
+      renderItem={(comp, index) => (
         <MotionDiv
           key={comp.id}
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6, delay: index * 0.1 }}
+          transition={{ duration: 0.6, delay: (index % 3) * 0.1 }}
           whileHover={{ y: -12 }}
         >
           <Card className="flex flex-col h-full group overflow-hidden rounded-[2.5rem] border border-border/10 bg-card/20 backdrop-blur-xl shadow-xl transition-all duration-700 hover:shadow-2xl hover:shadow-primary/5">
@@ -149,7 +152,7 @@ export function ComparisonList({
             </CardFooter>
           </Card>
         </MotionDiv>
-      ))}
-    </div>
+      )}
+    />
   );
 }
