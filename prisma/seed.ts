@@ -13,7 +13,7 @@ if (!connectionString) {
   throw new Error("DATABASE_URL is not defined in environment variables");
 }
 
-const isMongo = connectionString.startsWith("mongodb://") || connectionString.startsWith("mongodb+srv://") || process.env.DATABASE_PROVIDER === "mongodb";
+const isMongo = connectionString.startsWith("mongodb://") || connectionString.startsWith("mongodb+srv://") || process.env.DATABASE_PROVIDER?.toLowerCase().trim() === "mongodb";
 
 const prisma = new PrismaClient({ log: ["error"] });
 
@@ -126,26 +126,60 @@ async function main(skipCleanup = false) {
     console.log("Skipping cleanup as requested.");
   }
 
-  // Transaction-free flat create strategy for MongoDB standalone using standard Prisma Client for proper type serialization
+  // Transaction-free direct raw insert strategy for MongoDB standalone
   async function safeCreate(modelName: string, data: any) {
-    const doc = { ...data };
+    if (isMongo) {
+      const doc = { ...data };
 
-    // Clean up any nested relation object schemas so Prisma doesn't do transaction-wrapping validation
-    const relationKeys = ["platformA", "platformB", "category", "author", "topic", "posts", "facts", "faqs"];
-    for (const rKey of relationKeys) {
-      delete doc[rKey];
-    }
-
-    // Convert date strings to native JS Date objects, keeping Date objects intact for correct native BSON DateTime serialization
-    for (const key of Object.keys(doc)) {
-      if (typeof doc[key] === "string" && (key.endsWith("At") || key === "emailVerified" || key === "expires")) {
-        doc[key] = new Date(doc[key]);
+      if (!doc._id) {
+        doc._id = doc.id || `c${Math.random().toString(36).substring(2, 15)}${Date.now().toString(36)}`;
       }
-    }
+      delete doc.id;
 
-    return await (prisma as any)[modelName.toLowerCase()].create({
-      data: doc
-    });
+      // Populate database defaults for MongoDB raw insertion to prevent conversion errors
+      if (!doc.createdAt) doc.createdAt = new Date();
+      if (!doc.updatedAt) doc.updatedAt = new Date();
+
+      if (modelName === "User") {
+        if (doc.onboarded === undefined) doc.onboarded = false;
+        if (doc.newsletter === undefined) doc.newsletter = false;
+        if (doc.suspended === undefined) doc.suspended = false;
+        if (doc.role === undefined) doc.role = "USER";
+      }
+      if (modelName === "Post" || modelName === "Comparison" || modelName === "NewsArticle") {
+        if (doc.published === undefined) doc.published = false;
+      }
+      if (modelName === "ForumTopic" || modelName === "ForumPost" || modelName === "Comment") {
+        if (doc.status === undefined) doc.status = "PENDING";
+      }
+      if (modelName === "Tool") {
+        if (doc.enabled === undefined) doc.enabled = true;
+      }
+      if (modelName === "PricingTier") {
+        if (doc.isPopular === undefined) doc.isPopular = false;
+      }
+
+      const relationKeys = ["platformA", "platformB", "category", "author", "topic", "posts", "facts", "faqs"];
+      for (const rKey of relationKeys) {
+        delete doc[rKey];
+      }
+
+      // Convert date strings to standard native Date object representation so that MongoDB stores them as real BSON Date types
+      for (const key of Object.keys(doc)) {
+        if (typeof doc[key] === "string" && (key.endsWith("At") || key === "emailVerified" || key === "expires")) {
+          doc[key] = new Date(doc[key]);
+        }
+      }
+
+      // Use MongoDB's raw insert command to bypass Prisma transactions entirely
+      await (prisma as any).$runCommandRaw({
+        insert: modelName,
+        documents: [doc],
+      });
+      return { id: doc._id, ...doc };
+    } else {
+      return await (prisma as any)[modelName.toLowerCase()].create({ data });
+    }
   }
 
   async function safeCreateMany(modelName: string, dataArray: any[]) {
