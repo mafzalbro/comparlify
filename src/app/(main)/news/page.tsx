@@ -27,7 +27,7 @@ import { getContent } from "@/lib/content";
 import { MotionDiv } from "@/components/motion-wrapper";
 import { Badge } from "@/components/ui/badge";
 import { PremiumNewsletterForm } from "@/components/premium-newsletter-form";
-import { InfiniteScrollList } from "@/components/infinite-scroll-list";
+import { InfiniteScrollGrid } from "@/components/infinite-scroll-grid";
 
 export async function generateMetadata(): Promise<Metadata> {
   return generateSeoMetadata({
@@ -186,11 +186,11 @@ export default async function NewsPage() {
 
             {/* --- DISPATCH GRID --- */}
             {otherArticles.length > 0 && (
-              <InfiniteScrollList
-                items={otherArticles}
+              <InfiniteScrollGrid
                 batchSize={9}
                 gridClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12"
-                renderItem={(article, index) => (
+              >
+                {otherArticles.map((article, index) => (
                   <MotionDiv
                     key={article.slug}
                     initial={{ opacity: 0, y: 30 }}
@@ -268,8 +268,8 @@ export default async function NewsPage() {
                       </CardFooter>
                     </Card>
                   </MotionDiv>
-                )}
-              />
+                ))}
+              </InfiniteScrollGrid>
             )}
           </div>
         )}

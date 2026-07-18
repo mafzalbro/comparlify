@@ -28,7 +28,7 @@ import { Badge } from "@/components/ui/badge";
 import { getContent } from "@/lib/content";
 import { MotionDiv } from "@/components/motion-wrapper";
 import { PremiumNewsletterForm } from "@/components/premium-newsletter-form";
-import { InfiniteScrollList } from "@/components/infinite-scroll-list";
+import { InfiniteScrollGrid } from "@/components/infinite-scroll-grid";
 
 export const revalidate = 3600;
 
@@ -264,11 +264,11 @@ export default async function BlogPage(props: {
               </MotionDiv>
             )}
 
-            <InfiniteScrollList
-              items={featuredPost && !search && !category && !author ? otherPosts : blogPosts}
+            <InfiniteScrollGrid
               batchSize={9}
               gridClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16"
-              renderItem={(post, index) => (
+            >
+              {(featuredPost && !search && !category && !author ? otherPosts : blogPosts).map((post, index) => (
                 <MotionDiv
                   key={post.slug}
                   initial={{ opacity: 0, y: 40 }}
@@ -340,8 +340,8 @@ export default async function BlogPage(props: {
                     </CardFooter>
                   </Card>
                 </MotionDiv>
-              )}
-            />
+              ))}
+            </InfiniteScrollGrid>
           </div>
         )}
       </div>

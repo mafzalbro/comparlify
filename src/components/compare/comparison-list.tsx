@@ -17,7 +17,7 @@ interface ComparisonListProps {
   emptySubtitle?: string;
 }
 
-import { InfiniteScrollList } from "@/components/infinite-scroll-list";
+import { InfiniteScrollGrid } from "@/components/infinite-scroll-grid";
 
 export function ComparisonList({
   comparisons,
@@ -41,11 +41,8 @@ export function ComparisonList({
   );
 
   return (
-    <InfiniteScrollList
-      items={comparisons}
-      batchSize={9}
-      emptyState={emptyState}
-      renderItem={(comp, index) => (
+    <InfiniteScrollGrid batchSize={9} emptyState={emptyState}>
+      {comparisons.map((comp, index) => (
         <MotionDiv
           key={comp.id}
           initial={{ opacity: 0, y: 30 }}
@@ -152,7 +149,7 @@ export function ComparisonList({
             </CardFooter>
           </Card>
         </MotionDiv>
-      )}
-    />
+      ))}
+    </InfiniteScrollGrid>
   );
 }
