@@ -126,6 +126,16 @@ async function main(skipCleanup = false) {
     console.log("Skipping cleanup as requested.");
   }
 
+  function getModelDelegate(modelName: string): any {
+    const keys = Object.keys(prisma);
+    const target = modelName.toLowerCase();
+    const foundKey = keys.find(k => k.toLowerCase() === target);
+    if (foundKey) {
+      return (prisma as any)[foundKey];
+    }
+    return (prisma as any)[modelName.toLowerCase()];
+  }
+
   // Transaction-free direct raw insert strategy for MongoDB standalone
   async function safeCreate(modelName: string, data: any) {
     if (isMongo) {
@@ -183,7 +193,7 @@ async function main(skipCleanup = false) {
       });
       return { id: doc._id, ...doc };
     } else {
-      return await (prisma as any)[modelName.toLowerCase()].create({ data });
+      return await getModelDelegate(modelName).create({ data });
     }
   }
 
@@ -193,7 +203,7 @@ async function main(skipCleanup = false) {
         await safeCreate(modelName, item);
       }
     } else {
-      await (prisma as any)[modelName.toLowerCase()].createMany({ data: dataArray });
+      await getModelDelegate(modelName).createMany({ data: dataArray });
     }
   }
 

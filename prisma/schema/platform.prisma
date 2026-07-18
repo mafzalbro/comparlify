@@ -1,8 +1,8 @@
 model Platform {
   id                    String            @id @default(cuid())
   name                  String            @unique
-  website               String
-  logoUrl               String
+  website               String            @db.VarChar(1024)
+  logoUrl               String            @db.VarChar(1024)
   description           String            @db.Text
   rating                Float?
   easeOfUse             Float?
@@ -18,7 +18,7 @@ model Platform {
   // High-fidelity data fields
   pros                  Json?             // Array of strings or objects
   cons                  Json?             // Array of strings or objects
-  affiliateLink         String?
+  affiliateLink         String?           @db.VarChar(1024)
   dealDescription       String?
   videoHostingIncluded  Boolean?
   
