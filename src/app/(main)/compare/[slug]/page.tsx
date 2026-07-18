@@ -42,7 +42,7 @@ const ComparisonChart = dynamic(
 export const revalidate = 3600; // ISR for comparison pages
 
 const getComparisonBySlug = cache(async (slug: string) => {
-  return prisma.comparison.findUnique({
+  return prisma.comparison.findFirst({
     where: { slug, published: true },
     include: {
       platformA: {
