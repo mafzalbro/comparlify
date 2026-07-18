@@ -47,7 +47,7 @@ export async function cleanupDatabase() {
         });
       }
     } else {
-      await prisma.$executeRawUnsafe(
+      await (prisma as any).$executeRawUnsafe(
         `UPDATE Post SET nextId = NULL, previousId = NULL`,
       );
     }
@@ -164,10 +164,15 @@ async function main(skipCleanup = false) {
         delete doc[rKey];
       }
 
-      // Convert date strings to standard native Date object representation so that MongoDB stores them as real BSON Date types
+      // Convert date strings and Date objects to standard MongoDB Extended JSON Date representation so that MongoDB stores them as real BSON Date types
       for (const key of Object.keys(doc)) {
-        if (typeof doc[key] === "string" && (key.endsWith("At") || key === "emailVerified" || key === "expires")) {
-          doc[key] = new Date(doc[key]);
+        if (doc[key] instanceof Date) {
+          doc[key] = { $date: doc[key].toISOString() };
+        } else if (typeof doc[key] === "string" && (key.endsWith("At") || key === "emailVerified" || key === "expires")) {
+          const d = new Date(doc[key]);
+          if (!isNaN(d.getTime())) {
+            doc[key] = { $date: d.toISOString() };
+          }
         }
       }
 

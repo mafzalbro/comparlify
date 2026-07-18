@@ -239,14 +239,25 @@ export async function sendCampaignAction(
       };
     }
 
-    await prisma.emailRecipient.createMany({
-      data: subscribers.map((sub) => ({
-        campaignId: campaignId,
-        userId: sub.id,
-        status: "PENDING",
-      })),
-      skipDuplicates: true,
-    });
+    const isMongo = process.env.DATABASE_URL?.startsWith("mongodb://") || process.env.DATABASE_URL?.startsWith("mongodb+srv://") || process.env.DATABASE_PROVIDER?.toLowerCase().trim() === "mongodb";
+    if (isMongo) {
+      await prisma.emailRecipient.createMany({
+        data: subscribers.map((sub) => ({
+          campaignId: campaignId,
+          userId: sub.id,
+          status: "PENDING",
+        })),
+      });
+    } else {
+      await (prisma.emailRecipient.createMany as any)({
+        data: subscribers.map((sub) => ({
+          campaignId: campaignId,
+          userId: sub.id,
+          status: "PENDING",
+        })),
+        skipDuplicates: true,
+      });
+    }
 
     // Trigger background job without awaiting it
     processEmailCampaign(campaignId).catch(console.error);
