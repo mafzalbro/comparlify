@@ -258,6 +258,13 @@ async function main(skipCleanup = false) {
       newsletter: true,
     },
     {
+      name: "Comparlify Admin",
+      email: "admin@comparlify.com",
+      role: Role.ADMIN,
+      onboarded: true,
+      newsletter: true,
+    },
+    {
       name: "Bob Builder",
       email: "maf415415@gmail.com",
       role: Role.AUTHOR,

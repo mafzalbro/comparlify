@@ -32,10 +32,10 @@ model Post {
   id          String     @id @default(cuid())
   title       String
   slug        String     @unique
-  description String     @db.VarChar(191)
+  description String     @db.VarChar(1024)
   content     String     @db.Text
   image       String
-  dataAiHint  String?
+  dataAiHint  String?    @db.Text
   published   Boolean    @default(false)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
@@ -45,14 +45,14 @@ model Post {
   bookmarks   Bookmark[]
 
   // Meta SEO
-  metaTitle       String?
-  metaDescription String?
-  keywords        String?
+  metaTitle       String?    @db.VarChar(1024)
+  metaDescription String?    @db.Text
+  keywords        String?    @db.Text
 
   // High-fidelity Author Info
-  authorRole        String?
-  authorBio         String?
-  authorCredentials String?
+  authorRole        String?    @db.VarChar(1024)
+  authorBio         String?    @db.Text
+  authorCredentials String?    @db.VarChar(1024)
 
   // Engagement Materials
   keyTakeaways Json?
