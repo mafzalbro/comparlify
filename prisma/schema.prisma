@@ -541,25 +541,6 @@ enum NotificationType {
 
 // --- Merged from platform.prisma ---
 model Platform {
-  <<<<<<< HEAD
-  id             String            @id @default(cuid())
-  name           String            @unique
-  website        String
-  logoUrl        String
-  description    String            @db.Text
-  rating         Float?
-  easeOfUse      Float?
-  featuresRating Float?
-  support        Float?
-  features       PlatformFeature[]
-  comparisonsA   Comparison[]      @relation("PlatformA")
-  comparisonsB   Comparison[]      @relation("PlatformB")
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
-  lastVerifiedAt DateTime?
-
-  =======
-
   id             String            @id @default(cuid()) @map("_id")
   name           String            @unique
   website        String
@@ -576,7 +557,6 @@ model Platform {
   updatedAt      DateTime          @updatedAt
   lastVerifiedAt DateTime?
 
-  >>>>>>> feat-switchable-database-support-4581492962382643619
   // High-fidelity data fields
   pros                 Json? // Array of strings or objects
   cons                 Json? // Array of strings or objects
@@ -585,24 +565,15 @@ model Platform {
   videoHostingIncluded Boolean?
 
   // Relations
-  <<<<<<< HEAD
   tiers           PricingTier[]
-  newsArticles    NewsArticle[]
   posts           Post[]
   forumTopics     ForumTopic[]
   affiliateClicks AffiliateClick[]
   stackPlatforms  StackPlatform[]
-  =======
-  tiers           PricingTier[]
   newsArticleIds  String[]
   newsArticles    NewsArticle[]    @relation(fields: [newsArticleIds], references: [id])
   postIds         String[]
-  posts           Post[]           @relation(fields: [postIds], references: [id])
   forumTopicIds   String[]
-  forumTopics     ForumTopic[]     @relation(fields: [forumTopicIds], references: [id])
-  affiliateClicks AffiliateClick[]
-  stackPlatforms  StackPlatform[]
-  >>>>>>> feat-switchable-database-support-4581492962382643619
 
   // Deprecated fields (keeping for migration safety, will remove later)
   transactionFeePercent Float?
@@ -610,19 +581,6 @@ model Platform {
 }
 
 model PricingTier {
-  <<<<<<< HEAD
-  id                           String   @id @default(cuid())
-  name                         String
-  monthlyPrice                 Float
-  annualPriceMonthlyEquivalent Float?
-  transactionFeePercent        Float?
-  isPopular                    Boolean  @default(false)
-  features                     Json? // Optional list of key features for this specific tier
-  platformId                   String
-  platform                     Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
-  createdAt                    DateTime @default(now())
-  updatedAt                    DateTime @updatedAt
-  =======
   id                           String   @id @default(cuid()) @map("_id")
   name                         String
   monthlyPrice                 Float
@@ -634,7 +592,6 @@ model PricingTier {
   platform                     Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
   createdAt                    DateTime @default(now())
   updatedAt                    DateTime @updatedAt
-  >>>>>>> feat-switchable-database-support-4581492962382643619
 
   @@index([platformId])
 }
