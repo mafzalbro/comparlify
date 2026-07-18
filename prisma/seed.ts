@@ -38,12 +38,14 @@ export async function cleanupDatabase() {
     if (isMongo) {
       const posts = await prisma.post.findMany({ select: { id: true } });
       for (const p of posts) {
-        await prisma.post.update({
-          where: { id: p.id },
-          data: {
-            nextId: null,
-            previousId: null,
-          },
+        await (prisma as any).$runCommandRaw({
+          update: "Post",
+          updates: [
+            {
+              q: { _id: p.id },
+              u: { $set: { nextId: null, previousId: null } }
+            }
+          ]
         });
       }
     } else {
@@ -134,6 +136,44 @@ async function main(skipCleanup = false) {
       return (prisma as any)[foundKey];
     }
     return (prisma as any)[modelName.toLowerCase()];
+  }
+
+  async function safeUpdate(modelName: string, id: string, data: any) {
+    if (isMongo) {
+      const doc = { ...data };
+      delete doc.id;
+      delete doc._id;
+
+      // Convert Date objects and strings to Extended JSON
+      for (const key of Object.keys(doc)) {
+        if (doc[key] instanceof Date) {
+          doc[key] = { $date: doc[key].toISOString() };
+        } else if (typeof doc[key] === "string" && (key.endsWith("At") || key === "emailVerified" || key === "expires")) {
+          const d = new Date(doc[key]);
+          if (!isNaN(d.getTime())) {
+            doc[key] = { $date: d.toISOString() };
+          }
+        }
+      }
+
+      await (prisma as any).$runCommandRaw({
+        update: modelName,
+        updates: [
+          {
+            q: { _id: id },
+            u: { $set: doc },
+            upsert: false
+          }
+        ]
+      });
+
+      return { id, ...doc };
+    } else {
+      return await getModelDelegate(modelName).update({
+        where: { id },
+        data,
+      });
+    }
   }
 
   // Transaction-free direct raw insert strategy for MongoDB standalone
@@ -264,23 +304,20 @@ async function main(skipCleanup = false) {
         const updateData = { ...data };
         delete (updateData as any).tiers;
         delete (updateData as any).features;
-        platform = await prisma.platform.update({
-          where: { id: existing.id },
-          data: {
-            website: updateData.website,
-            logoUrl: updateData.logoUrl,
-            description: updateData.description,
-            rating: updateData.rating,
-            easeOfUse: updateData.easeOfUse,
-            featuresRating: updateData.featuresRating,
-            support: updateData.support,
-            pros: updateData.pros,
-            cons: updateData.cons,
-            affiliateLink: updateData.affiliateLink,
-            dealDescription: updateData.dealDescription,
-            videoHostingIncluded: updateData.videoHostingIncluded,
-            lastVerifiedAt: new Date(updateData.lastVerifiedAt),
-          },
+        platform = await safeUpdate("Platform", existing.id, {
+          website: updateData.website,
+          logoUrl: updateData.logoUrl,
+          description: updateData.description,
+          rating: updateData.rating,
+          easeOfUse: updateData.easeOfUse,
+          featuresRating: updateData.featuresRating,
+          support: updateData.support,
+          pros: updateData.pros,
+          cons: updateData.cons,
+          affiliateLink: updateData.affiliateLink,
+          dealDescription: updateData.dealDescription,
+          videoHostingIncluded: updateData.videoHostingIncluded,
+          lastVerifiedAt: new Date(updateData.lastVerifiedAt),
         });
       } else {
         const createData = { ...data };
@@ -414,9 +451,9 @@ async function main(skipCleanup = false) {
           where: { platformId: platform.id, featureId: existingFeature.id }
         });
         if (existingPf) {
-          await prisma.platformFeature.update({
-            where: { id: existingPf.id },
-            data: { hasFeature: feat.hasFeature, details: feat.details }
+          await safeUpdate("PlatformFeature", existingPf.id, {
+            hasFeature: feat.hasFeature,
+            details: feat.details
           });
         } else {
           await safeCreate("PlatformFeature", {
@@ -542,10 +579,22 @@ async function main(skipCleanup = false) {
     }
 
     if (previousPostId) {
-      await prisma.post.update({
-        where: { id: previousPostId },
-        data: { nextId: createdPost.id },
-      });
+      if (isMongo) {
+        await (prisma as any).$runCommandRaw({
+          update: "Post",
+          updates: [
+            {
+              q: { _id: previousPostId },
+              u: { $set: { nextId: createdPost.id } }
+            }
+          ]
+        });
+      } else {
+        await prisma.post.update({
+          where: { id: previousPostId },
+          data: { nextId: createdPost.id },
+        });
+      }
     }
     previousPostId = createdPost.id;
   }
@@ -1689,10 +1738,7 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
           where: { key: content.key },
         });
         if (existing) {
-          await prisma.siteContent.update({
-            where: { id: existing.id },
-            data: content as any,
-          });
+          await safeUpdate("SiteContent", existing.id, content);
         } else {
           await safeCreate("SiteContent", content);
         }
