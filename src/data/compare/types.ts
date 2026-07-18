@@ -44,7 +44,7 @@ export interface PlatformData {
 
   // Industrial Trust Layer
   audit?: AnalystAudit;
-  sovereigntyScore: number; // Redundant but useful for quick access
+  sovereigntyScore?: number; // Redundant but useful for quick access
 }
 
 export interface FactData {

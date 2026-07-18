@@ -175,7 +175,7 @@ export default async function ComparisonDetailPage(props: {
   });
 
   const getFeature = (platform: typeof platformA, featureId: string) =>
-    platform.features.find((f) => f.featureId === featureId);
+    platform.features.find((f: any) => f.featureId === featureId);
 
   const featureRows = allFeatures.slice(0, 10).map((feature) => {
     const pfA = getFeature(platformA, feature.id);

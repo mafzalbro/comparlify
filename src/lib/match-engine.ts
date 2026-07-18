@@ -7,7 +7,7 @@ export interface AuditDimensions {
     requiredFeatures: string[];
     monthlyBudget: number;
     currentPlatformId?: string;
-    teamSize: number;
+    teamSize?: number;
 }
 
 export interface TechDebtAudit {

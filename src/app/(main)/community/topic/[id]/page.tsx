@@ -165,7 +165,7 @@ export default async function TopicPage(props: {
           {topic.posts.length > 0 && (
             <div className="relative pl-8 md:pl-0">
               <div className="absolute left-0 md:left-1/2 top-0 bottom-0 w-px bg-linear-to-b from-primary/20 via-border/10 to-transparent md:-translate-x-1/2"></div>
-              {topic.posts.map((post, idx) => (
+              {topic.posts.map((post: any, idx: number) => (
                 <MotionDiv
                   key={post.id}
                   initial={{ opacity: 0, y: 30 }}

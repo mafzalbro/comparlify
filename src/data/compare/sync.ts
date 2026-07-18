@@ -54,17 +54,27 @@ export async function syncComparisonData() {
       where: { platformId: platform.id }
     });
 
-    await prisma.pricingTier.createMany({
-      data: data.tiers.map(t => ({
-        name: t.name,
-        monthlyPrice: t.monthlyPrice,
-        annualPriceMonthlyEquivalent: t.annualPriceMonthlyEquivalent,
-        transactionFeePercent: t.transactionFeePercent,
-        isPopular: t.isPopular || false,
-        features: t.features,
-        platformId: platform.id
-      }))
-    });
+    const pricingTiersData = data.tiers.map(t => ({
+      name: t.name,
+      monthlyPrice: t.monthlyPrice,
+      annualPriceMonthlyEquivalent: t.annualPriceMonthlyEquivalent,
+      transactionFeePercent: t.transactionFeePercent,
+      isPopular: t.isPopular || false,
+      features: t.features,
+      platformId: platform.id
+    }));
+
+    const isMongo = process.env.DATABASE_URL?.startsWith("mongodb://") || process.env.DATABASE_URL?.startsWith("mongodb+srv://") || process.env.DATABASE_PROVIDER === "mongodb";
+
+    if (isMongo) {
+      for (const item of pricingTiersData) {
+        await prisma.pricingTier.create({ data: item });
+      }
+    } else {
+      await prisma.pricingTier.createMany({
+        data: pricingTiersData
+      });
+    }
 
     // 3. Sync Features & Categories
     for (const feat of data.features) {

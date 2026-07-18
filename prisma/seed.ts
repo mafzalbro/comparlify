@@ -13,7 +13,7 @@ if (!connectionString) {
   throw new Error("DATABASE_URL is not defined in environment variables");
 }
 
-const isMongo = connectionString.startsWith("mongodb://") || connectionString.startsWith("mongodb+srv://");
+const isMongo = connectionString.startsWith("mongodb://") || connectionString.startsWith("mongodb+srv://") || process.env.DATABASE_PROVIDER === "mongodb";
 
 const prisma = new PrismaClient({ log: ["error"] });
 
@@ -89,9 +89,26 @@ export async function cleanupDatabase() {
   for (const model of finalDeletionOrder) {
     try {
       if ((prisma as any)[model]?.deleteMany) {
-        const { count } = await (prisma as any)[model].deleteMany({});
-        if (count > 0) {
-          console.log(`  🔥 Deleted ${count} records from ${model}`);
+        try {
+          const { count } = await (prisma as any)[model].deleteMany({});
+          if (count > 0) {
+            console.log(`  🔥 Deleted ${count} records from ${model}`);
+          }
+        } catch (e: any) {
+          if (e.message.includes("replica set") || e.code === "P2031") {
+            console.log(`  ⚠️  Model ${model} deleteMany failed due to replica set requirement. Falling back to individual delete...`);
+            const records = await (prisma as any)[model].findMany({ select: { id: true } });
+            let deletedCount = 0;
+            for (const rec of records) {
+              await (prisma as any)[model].delete({ where: { id: rec.id } });
+              deletedCount++;
+            }
+            if (deletedCount > 0) {
+              console.log(`  🔥 Deleted ${deletedCount} records individually from ${model}`);
+            }
+          } else {
+            throw e;
+          }
         }
       }
     } catch (e: any) {
@@ -113,6 +130,16 @@ async function main(skipCleanup = false) {
     await cleanupDatabase();
   } else {
     console.log("Skipping cleanup as requested.");
+  }
+
+  async function safeCreateMany(modelDelegate: any, dataArray: any[]) {
+    if (isMongo) {
+      for (const item of dataArray) {
+        await modelDelegate.create({ data: item });
+      }
+    } else {
+      await modelDelegate.createMany({ data: dataArray });
+    }
   }
 
   // --- 2. Seed Users ---
@@ -140,7 +167,7 @@ async function main(skipCleanup = false) {
       newsletter: false,
     },
   ];
-  await prisma.user.createMany({ data: usersData });
+  await safeCreateMany(prisma.user, usersData);
 
   const adminUser = await prisma.user.findUnique({
     where: { email: "mafzalbro@gmail.com" },
@@ -253,7 +280,7 @@ async function main(skipCleanup = false) {
     { name: "Marketing", slug: "marketing" },
     { name: "Tech Trends", slug: "tech-trends" },
   ];
-  await prisma.postCategory.createMany({ data: postCategoryData });
+  await safeCreateMany(prisma.postCategory, postCategoryData);
   const postCategories = await prisma.postCategory.findMany();
   console.log(`   ✓ Seeded ${postCategories.length} post categories.`);
   const postCategoryMap = new Map(postCategories.map((c) => [c.name, c.id]));
@@ -381,7 +408,7 @@ async function main(skipCleanup = false) {
       status: CommentStatus.REJECTED,
     },
   ];
-  await prisma.comment.createMany({ data: commentData });
+  await safeCreateMany(prisma.comment, commentData);
   console.log(`   ✓ Seeded ${commentData.length} comments.`);
 
   // --- 9. Seed Comparison Categories ---
@@ -390,7 +417,7 @@ async function main(skipCleanup = false) {
     { name: "Flagship Showdowns", slug: "flagship-showdowns" },
     { name: "All-in-One vs. Standalone", slug: "all-in-one-vs-standalone" },
   ];
-  await prisma.comparisonCategory.createMany({ data: compCategoryData });
+  await safeCreateMany(prisma.comparisonCategory, compCategoryData);
   const compCategories = await prisma.comparisonCategory.findMany();
   console.log(`   ✓ Seeded ${compCategories.length} comparison categories.`);
   const compCategoryMap = new Map(compCategories.map((c) => [c.name, c.id]));
@@ -695,7 +722,7 @@ In 2026, **Teachable** scores higher for **Financial Sovereignty** (High margin,
           "You are a content marketing strategist. Generate a list of 5-7 blog post ideas that are relevant to the given course topic and target audience. The ideas should be engaging and designed to attract potential students.\n\nCourse Topic: {{{topic}}}\n{{#if context}}Target Audience: {{{context}}}{{/if}}",
       },
     ];
-  await prisma.tool.createMany({ data: toolsData });
+  await safeCreateMany(prisma.tool, toolsData);
   console.log(`   ✓ Seeded ${toolsData.length} AI tools.`);
 
   // --- 12. Seed Site Content ---

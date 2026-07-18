@@ -1,5 +1,4 @@
-// lib/auth.ts
-import NextAuth, { getServerSession, type NextAuthOptions } from "next-auth";
+import NextAuth, { type NextAuthConfig } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
@@ -7,11 +6,10 @@ import Credentials from "next-auth/providers/credentials";
 import prisma from "./prisma";
 import { Role } from "@prisma/client";
 import { createNotification } from "./notifications";
-import { Adapter } from "next-auth/adapters";
 
-export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma) as Adapter,
-  session: { strategy: "jwt" }, 
+export const authOptions: NextAuthConfig = {
+  adapter: PrismaAdapter(prisma),
+  session: { strategy: "jwt" },
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -63,7 +61,7 @@ export const authOptions: NextAuthOptions = {
             if (user.suspended) {
               throw new Error("This account is currently suspended.");
             }
-            return user as any;
+            return user;
           }
         }
         return null;
@@ -88,8 +86,6 @@ export const authOptions: NextAuthOptions = {
         token.onboarded = (user as any).onboarded ?? false;
         token.newsletter = (user as any).newsletter ?? false;
         token.suspended = (user as any).suspended ?? false;
-      } else if (token.email) {
-        // Refresh token data if needed, but for now we trust the token
       }
       return token;
     },
@@ -132,18 +128,10 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-// V4 to V5 Shim for App Router compatibility
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
-export const handlers = { GET: handler, POST: handler };
+export const { handlers, auth, signIn: nextAuthSignIn, signOut: nextAuthSignOut } = NextAuth(authOptions);
 
-/**
- * Helper to get the session from server components.
- * Equivalent to v5's 'auth()' function.
- */
-export async function auth() {
-  return await getServerSession(authOptions);
-}
+// Re-export GET/POST handlers for route.ts compatibility
+export const { GET, POST } = handlers;
 
-// Re-export signOut/signIn if needed, though they usually come from next-auth/react on client
+// Client-side helper re-exports
 export { signIn, signOut } from "next-auth/react";

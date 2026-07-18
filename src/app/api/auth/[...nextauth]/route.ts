@@ -1,4 +1,1 @@
-import { handlers } from "@/lib/auth";
-const check = handlers ?? {};
-export const GET = check?.GET;
-export const POST = check?.POST;
+export { GET, POST } from "@/lib/auth";

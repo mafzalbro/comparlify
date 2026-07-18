@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { ActionState } from "@/types/actions";
-import { calculatePlatformMatch, MatchDimensions } from "@/lib/match-engine";
+import { calculatePlatformMatch, AuditDimensions as MatchDimensions } from "@/lib/match-engine";
 
 const matchProfileSchema = z.object({
   name: z.string().min(3).max(100),
