@@ -8,8 +8,6 @@ import {
   ContentType,
   Post,
 } from "@prisma/client";
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
-
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
   throw new Error("DATABASE_URL is not defined in environment variables");
@@ -17,9 +15,7 @@ if (!connectionString) {
 
 const isMongo = connectionString.startsWith("mongodb://") || connectionString.startsWith("mongodb+srv://");
 
-const prisma = isMongo
-  ? new PrismaClient({ log: ["error"] })
-  : new PrismaClient({ adapter: new PrismaMariaDb(connectionString), log: ["error"] });
+const prisma = new PrismaClient({ log: ["error"] });
 
 import { promises as fs } from "fs";
 import path from "path";

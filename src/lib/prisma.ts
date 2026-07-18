@@ -1,8 +1,7 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 
 /**
- * Prisma Client Singleton for Next.js
+ * Prisma Client Singleton for Next.js (Prisma v6)
  * 
  * Ensures only one instance of the client is used, even across HMR reloads in development.
  * This prevents "pool timeout" errors caused by exhausting database connections.
@@ -14,21 +13,10 @@ const prismaClientSingleton = () => {
     throw new Error("DATABASE_URL is not defined in environment variables");
   }
   
-  const isMongo = connectionString.startsWith("mongodb://") || connectionString.startsWith("mongodb+srv://");
-
-  if (isMongo) {
-    return new PrismaClient({
-      // Minimal logging to keep the console clean while catching errors
-      log: ["error"],
-    });
-  } else {
-    const adapter = new PrismaMariaDb(connectionString);
-    return new PrismaClient({
-      adapter,
-      // Minimal logging to keep the console clean while catching errors
-      log: ["error"],
-    });
-  }
+  return new PrismaClient({
+    // Minimal logging to keep the console clean while catching errors
+    log: ["error"],
+  });
 };
 
 type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>;

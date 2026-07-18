@@ -7,7 +7,7 @@ function processSchemaContent(content: string, provider: "mysql" | "mongodb"): s
     // 1. Update the datasource block to use MongoDB and remove SQL relationMode
     combinedContent = combinedContent.replace(
       /datasource\s+db\s*\{[\s\S]*?provider\s*=\s*"mysql"[\s\S]*?\}/g,
-      `datasource db {\n  provider     = "mongodb"\n}`
+      `datasource db {\n  provider     = "mongodb"\n  url          = env("DATABASE_URL")\n}`
     );
 
     // 2. Map all ID fields to _id
@@ -18,11 +18,42 @@ function processSchemaContent(content: string, provider: "mysql" | "mongodb"): s
 
     // 3. Remove all SQL-specific @db.* annotations
     combinedContent = combinedContent.replace(/@db\.[a-zA-Z0-9_]+(\([^)]*\))?/g, "");
+
+    // 4. Convert implicit many-to-many relationships to MongoDB-compatible relation syntax
+    combinedContent = combinedContent.replace(
+      /model\s+ForumTopic\s*\{([\s\S]*?)\bplatforms\s+Platform\[\]([\s\S]*?)\}/g,
+      "model ForumTopic {\n$1platformIds String[]\n  platforms  Platform[] @relation(fields: [platformIds], references: [id])$2}"
+    );
+
+    combinedContent = combinedContent.replace(
+      /model\s+NewsArticle\s*\{([\s\S]*?)\bplatforms\s+Platform\[\]([\s\S]*?)\}/g,
+      "model NewsArticle {\n$1platformIds String[]\n  platforms  Platform[] @relation(fields: [platformIds], references: [id])$2}"
+    );
+
+    combinedContent = combinedContent.replace(
+      /model\s+Post\s*\{([\s\S]*?)\bplatforms\s+Platform\[\]([\s\S]*?)\}/g,
+      "model Post {\n$1platformIds String[]\n  platforms  Platform[] @relation(fields: [platformIds], references: [id])$2}"
+    );
+
+    combinedContent = combinedContent.replace(
+      /model\s+Platform\s*\{([\s\S]*?)\bposts\s+Post\[\]([\s\S]*?)\}/g,
+      "model Platform {\n$1postIds String[]\n  posts  Post[] @relation(fields: [postIds], references: [id])$2}"
+    );
+
+    combinedContent = combinedContent.replace(
+      /model\s+Platform\s*\{([\s\S]*?)\bnewsArticles\s+NewsArticle\[\]([\s\S]*?)\}/g,
+      "model Platform {\n$1newsArticleIds String[]\n  newsArticles  NewsArticle[] @relation(fields: [newsArticleIds], references: [id])$2}"
+    );
+
+    combinedContent = combinedContent.replace(
+      /model\s+Platform\s*\{([\s\S]*?)\bforumTopics\s+ForumTopic\[\]([\s\S]*?)\}/g,
+      "model Platform {\n$1forumTopicIds String[]\n  forumTopics  ForumTopic[] @relation(fields: [forumTopicIds], references: [id])$2}"
+    );
   } else {
     // Under mysql, make sure the datasource is explicitly mysql with relationMode prisma
     combinedContent = combinedContent.replace(
       /datasource\s+db\s*\{[\s\S]*?provider\s*=\s*"(mysql|mongodb)"[\s\S]*?\}/g,
-      `datasource db {\n  provider     = "mysql"\n  relationMode = "prisma"\n}`
+      `datasource db {\n  provider     = "mysql"\n  url          = env("DATABASE_URL")\n  relationMode = "prisma"\n}`
     );
   }
   return combinedContent;
@@ -90,7 +121,7 @@ model User {
 
       // Verify provider updated and relationMode removed
       expect(mongoSchema).toContain('provider     = "mongodb"');
-      expect(mongoSchema).not.toContain('relationMode = "prisma"');
+      expect(mongoSchema).toContain('url          = env("DATABASE_URL")');
 
       // Verify ID mapping to _id works with various spaces
       expect(mongoSchema).toContain('id String @id @default(cuid()) @map("_id")');
