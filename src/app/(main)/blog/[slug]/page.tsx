@@ -53,7 +53,7 @@ const getPostData = cache(async (slug: string, isPreview = false) => {
 
   const whereClause = canViewDraft ? { slug } : { slug, published: true };
 
-  const post = await prisma.post.findUnique({
+  const post = await prisma.post.findFirst({
     where: whereClause,
     include: {
       author: true,

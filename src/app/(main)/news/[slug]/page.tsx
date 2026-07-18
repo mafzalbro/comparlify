@@ -28,7 +28,7 @@ import { SchemaScript } from "@/components/schema-script";
 import { Badge } from "@/components/ui/badge";
 
 const getArticleBySlug = cache(async (slug: string) => {
-  return prisma.newsArticle.findUnique({
+  return prisma.newsArticle.findFirst({
     where: { slug, published: true },
     include: { author: true, platforms: true },
   });
