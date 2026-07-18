@@ -100,5 +100,14 @@ Skool has successfully "cracked the code" of online education. By putting commun
     { featureName: "Native App", categoryName: "Access", hasFeature: true }
   ],
   lastVerifiedAt: "2026-04-24T00:00:00Z",
-  sourceUrl: "https://www.skool.com/pricing"
+  sourceUrl: "https://www.skool.com/pricing",
+  sovereigntyScore: 72,
+  audit: {
+    auditorName: "Elena Rodriguez",
+    auditorRole: "Creator Economy Analyst",
+    trustScore: 89,
+    sovereigntyScore: 72,
+    verificationLevel: "VERIFIED",
+    auditNotes: "Skool excels in engagement but lacks deep data portability. Its 'walled garden' approach is highly effective for retention but presents a higher sovereignty risk if you plan to migrate complex student data later."
+  }
 };

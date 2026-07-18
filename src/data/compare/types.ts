@@ -14,6 +14,15 @@ export interface PlatformFeatureData {
   details?: string;
 }
 
+export interface AnalystAudit {
+  auditorName: string;
+  auditorRole: string;
+  auditNotes: string;
+  trustScore: number; // 0-100
+  sovereigntyScore: number; // 0-100
+  verificationLevel: "BASIC" | "VERIFIED" | "INDUSTRIAL";
+}
+
 export interface PlatformData {
   name: string;
   website: string;
@@ -32,6 +41,10 @@ export interface PlatformData {
   features: PlatformFeatureData[];
   lastVerifiedAt: string; // ISO string
   sourceUrl: string;
+
+  // Industrial Trust Layer
+  audit?: AnalystAudit;
+  sovereigntyScore: number; // Redundant but useful for quick access
 }
 
 export interface FactData {

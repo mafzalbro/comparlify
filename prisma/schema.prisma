@@ -55,39 +55,31 @@ model Session {
 }
 
 model User {
-  id              String          @id @default(cuid())
+  id              String           @id @default(cuid())
   name            String?
-  email           String?         @unique
+  email           String?          @unique
   emailVerified   DateTime?
   image           String?
-  username        String?         @unique
-  bio             String?         @db.Text
-  website         String?
-  twitter         String?
-  linkedin        String?
-  role            Role            @default(USER)
-  onboarded       Boolean         @default(false)
-  newsletter      Boolean         @default(false)
-  suspended       Boolean         @default(false)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  role            Role             @default(USER)
+  onboarded       Boolean          @default(false)
+  newsletter      Boolean          @default(false)
+  suspended       Boolean          @default(false)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   accounts        Account[]
   sessions        Session[]
   posts           Post[]
   comments        Comment[]
   bookmarks       Bookmark[]
-  newsArticles    NewsArticle[]   @relation("AuthoredNews")  // ✅ must match
+  newsArticles    NewsArticle[]    @relation("AuthoredNews") // ✅ must match
   notifications   Notification[]
-  forumTopics     ForumTopic[]    @relation("TopicAuthor")
-  forumPosts      ForumPost[]     @relation("PostAuthor")
+  forumTopics     ForumTopic[]     @relation("TopicAuthor")
+  forumPosts      ForumPost[]      @relation("PostAuthor")
   emailRecipients EmailRecipient[]
-  authoredImages  Image[]         @relation("UploadedBy")
-  stacks          UserStack[]     @relation("UserToStacks")
+  authoredImages  Image[]          @relation("UploadedBy")
+  stacks          UserStack[]      @relation("UserToStacks")
   projects        Project[]
-  topicVotes      TopicVote[]
-  postVotes       PostVote[]
 }
-
 
 model VerificationToken {
   id         String   @id @default(cuid())
@@ -98,7 +90,6 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-
 enum Role {
   USER
   AUTHOR
@@ -108,27 +99,26 @@ enum Role {
   ADMIN
 }
 
-
 model EmailCampaign {
-  id              String          @id @default(cuid())
+  id              String           @id @default(cuid())
   subject         String
-  content         String          @db.LongText
-  status          CampaignStatus  @default(PENDING)
-  createdAt       DateTime        @default(now())
+  content         String           @db.LongText
+  status          CampaignStatus   @default(PENDING)
+  createdAt       DateTime         @default(now())
   sentAt          DateTime?
   recipients      EmailRecipient[]
-  excludedUserIds String?         @db.Text
+  excludedUserIds String?          @db.Text
 }
 
 model EmailRecipient {
-  id          String         @id @default(cuid())
-  campaignId  String
-  userId      String
-  status      RecipientStatus @default(PENDING)
-  sentAt      DateTime?
+  id           String          @id @default(cuid())
+  campaignId   String
+  userId       String
+  status       RecipientStatus @default(PENDING)
+  sentAt       DateTime?
   errorMessage String?
-  campaign    EmailCampaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campaign     EmailCampaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([campaignId, userId])
   @@index([campaignId])
@@ -149,7 +139,6 @@ model Subscription {
   email     String   @unique
   createdAt DateTime @default(now())
 }
-
 
 enum CampaignStatus {
   PENDING
@@ -316,7 +305,6 @@ model Bookmark {
   @@unique([userId, postId, comparisonId])
 }
 
-
 model LegalDocument {
   id        String   @id @default(cuid())
   title     String
@@ -328,36 +316,36 @@ model LegalDocument {
 }
 
 model Platform {
-  id                    String            @id @default(cuid())
-  name                  String            @unique
-  website               String
-  logoUrl               String
-  description           String            @db.Text
-  rating                Float?
-  easeOfUse             Float?
-  featuresRating        Float?
-  support               Float?
-  features              PlatformFeature[]
-  comparisonsA          Comparison[]      @relation("PlatformA")
-  comparisonsB          Comparison[]      @relation("PlatformB")
-  createdAt             DateTime          @default(now())
-  updatedAt             DateTime          @updatedAt
-  lastVerifiedAt        DateTime?
-  
+  id             String            @id @default(cuid())
+  name           String            @unique
+  website        String
+  logoUrl        String
+  description    String            @db.Text
+  rating         Float?
+  easeOfUse      Float?
+  featuresRating Float?
+  support        Float?
+  features       PlatformFeature[]
+  comparisonsA   Comparison[]      @relation("PlatformA")
+  comparisonsB   Comparison[]      @relation("PlatformB")
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  lastVerifiedAt DateTime?
+
   // High-fidelity data fields
-  pros                  Json?             // Array of strings or objects
-  cons                  Json?             // Array of strings or objects
-  affiliateLink         String?
-  dealDescription       String?
-  videoHostingIncluded  Boolean?
-  
+  pros                 Json? // Array of strings or objects
+  cons                 Json? // Array of strings or objects
+  affiliateLink        String?
+  dealDescription      String?
+  videoHostingIncluded Boolean?
+
   // Relations
-  tiers                 PricingTier[]
-  newsArticles          NewsArticle[]
-  posts                 Post[]
-  forumTopics           ForumTopic[]
-  affiliateClicks       AffiliateClick[]
-  stackPlatforms        StackPlatform[]
+  tiers           PricingTier[]
+  newsArticles    NewsArticle[]
+  posts           Post[]
+  forumTopics     ForumTopic[]
+  affiliateClicks AffiliateClick[]
+  stackPlatforms  StackPlatform[]
 
   // Deprecated fields (keeping for migration safety, will remove later)
   transactionFeePercent Float?
@@ -365,17 +353,17 @@ model Platform {
 }
 
 model PricingTier {
-  id                            String   @id @default(cuid())
-  name                          String
-  monthlyPrice                  Float
-  annualPriceMonthlyEquivalent  Float?
-  transactionFeePercent         Float?
-  isPopular                     Boolean  @default(false)
-  features                      Json?    // Optional list of key features for this specific tier
-  platformId                    String
-  platform                      Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
-  createdAt                     DateTime @default(now())
-  updatedAt                     DateTime @updatedAt
+  id                           String   @id @default(cuid())
+  name                         String
+  monthlyPrice                 Float
+  annualPriceMonthlyEquivalent Float?
+  transactionFeePercent        Float?
+  isPopular                    Boolean  @default(false)
+  features                     Json? // Optional list of key features for this specific tier
+  platformId                   String
+  platform                     Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+  createdAt                    DateTime @default(now())
+  updatedAt                    DateTime @updatedAt
 
   @@index([platformId])
 }
@@ -437,10 +425,10 @@ model Comparison {
   // Industrial Metadata
   authorName        String?
   authorRole        String?
-  authorBio         String?    @db.Text
-  authorCredentials Json?      // Store as array of strings
+  authorBio         String? @db.Text
+  authorCredentials Json? // Store as array of strings
   metaTitle         String?
-  metaDescription   String?    @db.Text
+  metaDescription   String? @db.Text
   sovereigntyScoreA Float?
   sovereigntyScoreB Float?
 
@@ -494,7 +482,6 @@ model NewsArticle {
   platforms  Platform[]
 }
 
-
 enum ForumTopicStatus {
   PENDING
   APPROVED
@@ -546,31 +533,30 @@ model ForumPost {
   topicId   String
   topic     ForumTopic      @relation(fields: [topicId], references: [id], onDelete: Cascade)
   status    ForumPostStatus @default(PENDING)
-  votes     PostVote[]
 
   @@index([authorId])
   @@index([topicId])
 }
 
 model TopicVote {
-  id      String @id @default(cuid())
+  id      String     @id @default(cuid())
   userId  String
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   topicId String
   topic   ForumTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
-  value   Int    // 1 or -1
+  value   Int // 1 or -1
 
   @@unique([userId, topicId])
   @@index([topicId])
 }
 
 model PostVote {
-  id     String @id @default(cuid())
+  id     String    @id @default(cuid())
   userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   postId String
   post   ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  value  Int    // 1 or -1
+  value  Int // 1 or -1
 
   @@unique([userId, postId])
   @@index([postId])
@@ -587,21 +573,20 @@ model Image {
   author    User     @relation("UploadedBy", fields: [authorId], references: [id], onDelete: Cascade)
 }
 
-
 model Tool {
-  id                  String       @id @default(cuid())
-  slug                String       @unique
-  title               String
-  description         String       @db.Text
-  Icon                String
-  category            ToolCategory
-  enabled             Boolean      @default(true)
-  prompt              String       @db.LongText
-  inputTopicLabel     String?
-  inputContextLabel   String?
-  seoContent          String?      @db.LongText
-  createdAt           DateTime     @default(now())
-  updatedAt           DateTime     @updatedAt
+  id                String       @id @default(cuid())
+  slug              String       @unique
+  title             String
+  description       String       @db.Text
+  Icon              String
+  category          ToolCategory
+  enabled           Boolean      @default(true)
+  prompt            String       @db.LongText
+  inputTopicLabel   String?
+  inputContextLabel String?
+  seoContent        String?      @db.LongText
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 }
 
 enum ToolCategory {
@@ -614,50 +599,50 @@ enum ToolCategory {
 }
 
 model Advertisement {
-    id           String            @id @default(cuid())
-    type         AdvertisementType @default(IMAGE)
-    content      String            @db.Text
-    imageUrl     String?           @db.Text
-    linkUrl      String?           @db.Text
-    placement    AdPlacementType
-    active       Boolean           @default(true)
-    allowedPages String?           @db.Text // Comma-separated or "*"
-    createdAt    DateTime          @default(now())
-    updatedAt    DateTime          @updatedAt
+  id           String            @id @default(cuid())
+  type         AdvertisementType @default(IMAGE)
+  content      String            @db.Text
+  imageUrl     String?           @db.Text
+  linkUrl      String?           @db.Text
+  placement    AdPlacementType
+  active       Boolean           @default(true)
+  allowedPages String?           @db.Text // Comma-separated or "*"
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
 
-    @@index([placement])
+  @@index([placement])
 }
 
 enum AdvertisementType {
-    SCRIPT
-    IMAGE
+  SCRIPT
+  IMAGE
 }
 
 enum AdPlacementType {
-    HEADER
-    SIDEBAR
-    POST_TOP
-    POST_BOTTOM
-    COMPARISON_BETWEEN
-    MOBILE_FIXED_BOTTOM
+  HEADER
+  SIDEBAR
+  POST_TOP
+  POST_BOTTOM
+  COMPARISON_BETWEEN
+  MOBILE_FIXED_BOTTOM
 }
 
 model AffiliateClick {
-    id         String   @id @default(cuid())
-    platformId String
-    platform   Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
-    referrer   String   @db.Text
-    userAgent  String   @db.Text
-    device     String?
-    browser    String?
-    os         String?
-    country    String?
-    city       String?
-    region     String?
-    ip         String
-    createdAt  DateTime @default(now())
+  id         String   @id @default(cuid())
+  platformId String
+  platform   Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+  referrer   String   @db.Text
+  userAgent  String   @db.Text
+  device     String?
+  browser    String?
+  os         String?
+  country    String?
+  city       String?
+  region     String?
+  ip         String
+  createdAt  DateTime @default(now())
 
-    @@index([platformId])
+  @@index([platformId])
 }
 
 model UserStack {
@@ -672,21 +657,21 @@ model UserStack {
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
-  projectId       String?
-  project         Project?        @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([projectId])
 }
 
 model StackPlatform {
-  id          String    @id @default(cuid())
-  stackId     String
-  stack       UserStack @relation(fields: [stackId], references: [id], onDelete: Cascade)
-  platformId  String
-  platform    Platform  @relation(fields: [platformId], references: [id], onDelete: Cascade)
-  role        String    // e.g., "LMS", "EMAIL", "CRM", "COMMUNITY"
-  
+  id         String    @id @default(cuid())
+  stackId    String
+  stack      UserStack @relation(fields: [stackId], references: [id], onDelete: Cascade)
+  platformId String
+  platform   Platform  @relation(fields: [platformId], references: [id], onDelete: Cascade)
+  role       String // e.g., "LMS", "EMAIL", "CRM", "COMMUNITY"
+
   @@index([stackId])
   @@index([platformId])
 }
@@ -710,7 +695,7 @@ model Project {
 
   matchProfile MatchProfile?
   savedStacks  UserStack[]
-  
+
   // Storage for snapshots of calculations
   roiSnapshots   Json?
   churnSnapshots Json?
@@ -722,7 +707,7 @@ model MatchProfile {
   revenue          Float
   studentCount     Int
   technicalSkill   Int
-  requiredFeatures Json     // Array of feature IDs
+  requiredFeatures Json // Array of feature IDs
   monthlyBudget    Float
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
