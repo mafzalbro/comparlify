@@ -264,20 +264,6 @@ async function main(skipCleanup = false) {
       onboarded: true,
       newsletter: true,
     },
-    {
-      name: "Bob Builder",
-      email: "maf415415@gmail.com",
-      role: Role.AUTHOR,
-      onboarded: false,
-      newsletter: true,
-    },
-    {
-      name: "Charlie User",
-      email: "ma4156250@gmail.com",
-      role: Role.USER,
-      onboarded: false,
-      newsletter: false,
-    },
   ];
 
   for (const u of usersData) {
@@ -287,14 +273,11 @@ async function main(skipCleanup = false) {
   const adminUser = await prisma.user.findUnique({
     where: { email: "mafzalbro@gmail.com" },
   });
-  const bobUser = await prisma.user.findUnique({
-    where: { email: "maf415415@gmail.com" },
-  });
-  const charlieUser = await prisma.user.findUnique({
-    where: { email: "ma4156250@gmail.com" },
+  const comparlifyAdmin = await prisma.user.findUnique({
+    where: { email: "admin@comparlify.com" },
   });
 
-  if (!adminUser || !bobUser || !charlieUser) {
+  if (!adminUser || !comparlifyAdmin) {
     throw new Error("Failed to seed users correctly.");
   }
 
@@ -624,27 +607,27 @@ async function main(skipCleanup = false) {
       content:
         "This was incredibly helpful! I was stuck between Teachable and Thinkific, and this breakdown made the choice clear.",
       postId: post1.id,
-      authorId: charlieUser.id,
+      authorId: comparlifyAdmin.id,
       status: CommentStatus.APPROVED,
     },
     {
       content:
         "Great article. What are your thoughts on Kajabi's price point for new creators? Seems a bit steep.",
       postId: post1.id,
-      authorId: bobUser.id,
+      authorId: adminUser.id,
       status: CommentStatus.PENDING,
     },
     {
       content:
         "These are fantastic ideas for engagement. I'm definitely going to try adding more interactive quizzes.",
       postId: post2.id,
-      authorId: charlieUser.id,
+      authorId: comparlifyAdmin.id,
       status: CommentStatus.APPROVED,
     },
     {
       content: "I don't agree with point #3.",
       postId: post2.id,
-      authorId: bobUser.id,
+      authorId: adminUser.id,
       status: CommentStatus.REJECTED,
     },
   ];
@@ -1833,13 +1816,13 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
   if (isMongo) {
     await safeCreate("ForumPost", {
       content:
-        "Hey everyone! I'm Bob, and I'm building a course on woodworking for beginners. Excited to learn from you all!",
-      authorId: bobUser.id,
+        "Hey everyone! I'm Comparlify Admin, and I'm building a course on woodworking for beginners. Excited to learn from you all!",
+      authorId: comparlifyAdmin.id,
       topicId: introductionsTopic.id,
       status: "APPROVED",
     });
     await safeCreate("ForumPost", {
-      content: "Welcome, Bob! Glad to have you here.",
+      content: "Welcome, Admin! Glad to have you here.",
       authorId: adminUser.id,
       topicId: introductionsTopic.id,
       status: "APPROVED",
@@ -1849,13 +1832,13 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
       data: [
         {
           content:
-            "Hey everyone! I'm Bob, and I'm building a course on woodworking for beginners. Excited to learn from you all!",
-          authorId: bobUser.id,
+            "Hey everyone! I'm Comparlify Admin, and I'm building a course on woodworking for beginners. Excited to learn from you all!",
+          authorId: comparlifyAdmin.id,
           topicId: introductionsTopic.id,
           status: "APPROVED",
         },
         {
-          content: "Welcome, Bob! Glad to have you here.",
+          content: "Welcome, Admin! Glad to have you here.",
           authorId: adminUser.id,
           topicId: introductionsTopic.id,
           status: "APPROVED",
