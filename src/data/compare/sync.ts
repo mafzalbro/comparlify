@@ -10,9 +10,12 @@ export async function syncComparisonData() {
     console.log(`📍 Syncing platform: ${data.name}`);
 
     // 1. Upsert Platform
-    const platform = await prisma.platform.upsert({
-      where: { name: data.name },
-      update: {
+    let platform: any;
+    if (isMongo) {
+      const existing = await prisma.platform.findUnique({
+        where: { name: data.name },
+      });
+      const updateData = {
         website: data.website,
         logoUrl: data.logoUrl,
         description: data.description,
@@ -26,24 +29,56 @@ export async function syncComparisonData() {
         dealDescription: data.dealDescription,
         videoHostingIncluded: data.videoHostingIncluded,
         lastVerifiedAt: new Date(data.lastVerifiedAt),
-      },
-      create: {
-        name: data.name,
-        website: data.website,
-        logoUrl: data.logoUrl,
-        description: data.description,
-        rating: data.rating,
-        easeOfUse: data.easeOfUse,
-        featuresRating: data.featuresRating,
-        support: data.support,
-        pros: data.pros,
-        cons: data.cons,
-        affiliateLink: data.affiliateLink,
-        dealDescription: data.dealDescription,
-        videoHostingIncluded: data.videoHostingIncluded,
-        lastVerifiedAt: new Date(data.lastVerifiedAt),
-      },
-    });
+      };
+      if (existing) {
+        platform = await prisma.platform.update({
+          where: { id: existing.id },
+          data: updateData,
+        });
+      } else {
+        platform = await prisma.platform.create({
+          data: {
+            name: data.name,
+            ...updateData,
+          },
+        });
+      }
+    } else {
+      platform = await prisma.platform.upsert({
+        where: { name: data.name },
+        update: {
+          website: data.website,
+          logoUrl: data.logoUrl,
+          description: data.description,
+          rating: data.rating,
+          easeOfUse: data.easeOfUse,
+          featuresRating: data.featuresRating,
+          support: data.support,
+          pros: data.pros,
+          cons: data.cons,
+          affiliateLink: data.affiliateLink,
+          dealDescription: data.dealDescription,
+          videoHostingIncluded: data.videoHostingIncluded,
+          lastVerifiedAt: new Date(data.lastVerifiedAt),
+        },
+        create: {
+          name: data.name,
+          website: data.website,
+          logoUrl: data.logoUrl,
+          description: data.description,
+          rating: data.rating,
+          easeOfUse: data.easeOfUse,
+          featuresRating: data.featuresRating,
+          support: data.support,
+          pros: data.pros,
+          cons: data.cons,
+          affiliateLink: data.affiliateLink,
+          dealDescription: data.dealDescription,
+          videoHostingIncluded: data.videoHostingIncluded,
+          lastVerifiedAt: new Date(data.lastVerifiedAt),
+        },
+      });
+    }
 
     // 2. Sync Pricing Tiers
     // Delete existing tiers first or update them?
@@ -84,23 +119,50 @@ export async function syncComparisonData() {
 
     // 3. Sync Features & Categories
     for (const feat of data.features) {
-      const category = await prisma.featureCategory.upsert({
-        where: { name: feat.categoryName },
-        update: {},
-        create: { name: feat.categoryName },
-      });
+      let category: any;
+      if (isMongo) {
+        category = await prisma.featureCategory.findUnique({
+          where: { name: feat.categoryName },
+        });
+        if (!category) {
+          category = await prisma.featureCategory.create({
+            data: { name: feat.categoryName },
+          });
+        }
+      } else {
+        category = await prisma.featureCategory.upsert({
+          where: { name: feat.categoryName },
+          update: {},
+          create: { name: feat.categoryName },
+        });
+      }
 
-      const feature = await prisma.feature.upsert({
-        where: {
-          id: `feat-${feat.featureName.toLowerCase().replace(/\s+/g, '-')}`,
-        },
-        update: {},
-        create: {
-          id: `feat-${feat.featureName.toLowerCase().replace(/\s+/g, '-')}`,
-          name: feat.featureName,
-          categoryId: category.id,
-        },
-      });
+      const featId = `feat-${feat.featureName.toLowerCase().replace(/\s+/g, '-')}`;
+      let feature: any;
+      if (isMongo) {
+        feature = await prisma.feature.findUnique({
+          where: { id: featId },
+        });
+        if (!feature) {
+          feature = await prisma.feature.create({
+            data: {
+              id: featId,
+              name: feat.featureName,
+              categoryId: category.id,
+            },
+          });
+        }
+      } else {
+        feature = await prisma.feature.upsert({
+          where: { id: featId },
+          update: {},
+          create: {
+            id: featId,
+            name: feat.featureName,
+            categoryId: category.id,
+          },
+        });
+      }
 
       // Let's find or create feature properly.
       let existingFeature = await prisma.feature.findFirst({
@@ -114,24 +176,53 @@ export async function syncComparisonData() {
       }
 
       // 4. Link PlatformFeature
-      await prisma.platformFeature.upsert({
-        where: {
-          platformId_featureId: {
-            platformId: platform.id,
-            featureId: existingFeature.id
+      if (isMongo) {
+        const existingPf = await prisma.platformFeature.findUnique({
+          where: {
+            platformId_featureId: {
+              platformId: platform.id,
+              featureId: existingFeature.id
+            }
           }
-        },
-        update: {
-          hasFeature: feat.hasFeature,
-          details: feat.details
-        },
-        create: {
-          platformId: platform.id,
-          featureId: existingFeature.id,
-          hasFeature: feat.hasFeature,
-          details: feat.details
+        });
+        if (existingPf) {
+          await prisma.platformFeature.update({
+            where: { id: existingPf.id },
+            data: {
+              hasFeature: feat.hasFeature,
+              details: feat.details
+            }
+          });
+        } else {
+          await prisma.platformFeature.create({
+            data: {
+              platformId: platform.id,
+              featureId: existingFeature.id,
+              hasFeature: feat.hasFeature,
+              details: feat.details
+            }
+          });
         }
-      });
+      } else {
+        await prisma.platformFeature.upsert({
+          where: {
+            platformId_featureId: {
+              platformId: platform.id,
+              featureId: existingFeature.id
+            }
+          },
+          update: {
+            hasFeature: feat.hasFeature,
+            details: feat.details
+          },
+          create: {
+            platformId: platform.id,
+            featureId: existingFeature.id,
+            hasFeature: feat.hasFeature,
+            details: feat.details
+          }
+        });
+      }
     }
   }
 

@@ -373,11 +373,21 @@ async function main(skipCleanup = false) {
     }
 
     for (const feat of data.features) {
-      const category = await prisma.featureCategory.upsert({
-        where: { name: feat.categoryName },
-        update: {},
-        create: { name: feat.categoryName },
-      });
+      let category: any;
+      if (isMongo) {
+        category = await prisma.featureCategory.findUnique({
+          where: { name: feat.categoryName },
+        });
+        if (!category) {
+          category = await safeCreate("FeatureCategory", { name: feat.categoryName });
+        }
+      } else {
+        category = await prisma.featureCategory.upsert({
+          where: { name: feat.categoryName },
+          update: {},
+          create: { name: feat.categoryName },
+        });
+      }
 
       let existingFeature = await prisma.feature.findFirst({
         where: { name: feat.featureName, categoryId: category.id }
