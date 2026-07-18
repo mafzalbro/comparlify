@@ -131,13 +131,46 @@ async function main(skipCleanup = false) {
     console.log("Skipping cleanup as requested.");
   }
 
-  async function safeCreateMany(modelDelegate: any, dataArray: any[]) {
+  // Transaction-free direct raw insert strategy for MongoDB standalone
+  async function safeCreate(modelName: string, data: any) {
+    if (isMongo) {
+      const doc = { ...data };
+
+      if (!doc._id) {
+        doc._id = doc.id || `c${Math.random().toString(36).substring(2, 15)}${Date.now().toString(36)}`;
+      }
+      delete doc.id;
+
+      const relationKeys = ["platformA", "platformB", "category", "author", "topic", "posts", "facts", "faqs"];
+      for (const rKey of relationKeys) {
+        delete doc[rKey];
+      }
+
+      for (const key of Object.keys(doc)) {
+        if (doc[key] instanceof Date) {
+          // Date
+        } else if (typeof doc[key] === "string" && (key.endsWith("At") || key === "emailVerified")) {
+          doc[key] = new Date(doc[key]);
+        }
+      }
+
+      await (prisma as any).$runCommandRaw({
+        insert: modelName,
+        documents: [doc],
+      });
+      return { id: doc._id, ...doc };
+    } else {
+      return await (prisma as any)[modelName.toLowerCase()].create({ data });
+    }
+  }
+
+  async function safeCreateMany(modelName: string, dataArray: any[]) {
     if (isMongo) {
       for (const item of dataArray) {
-        await modelDelegate.create({ data: item });
+        await safeCreate(modelName, item);
       }
     } else {
-      await modelDelegate.createMany({ data: dataArray });
+      await (prisma as any)[modelName.toLowerCase()].createMany({ data: dataArray });
     }
   }
 
@@ -166,7 +199,10 @@ async function main(skipCleanup = false) {
       newsletter: false,
     },
   ];
-  await safeCreateMany(prisma.user, usersData);
+
+  for (const u of usersData) {
+    await safeCreate("User", u);
+  }
 
   const adminUser = await prisma.user.findUnique({
     where: { email: "mafzalbro@gmail.com" },
@@ -186,61 +222,132 @@ async function main(skipCleanup = false) {
   // --- 2.1 Seed High-Fidelity Platforms (36 Entities) ---
   console.log("📍 Seeding 36 high-fidelity platforms...");
   for (const data of allPlatforms) {
-    const platform = await prisma.platform.upsert({
-      where: { name: data.name },
-      update: {
-        website: data.website,
-        logoUrl: data.logoUrl,
-        description: data.description,
-        rating: data.rating,
-        easeOfUse: data.easeOfUse,
-        featuresRating: data.featuresRating,
-        support: data.support,
-        pros: data.pros,
-        cons: data.cons,
-        affiliateLink: data.affiliateLink,
-        dealDescription: data.dealDescription,
-        videoHostingIncluded: data.videoHostingIncluded,
-        lastVerifiedAt: new Date(data.lastVerifiedAt),
-        tiers: {
-          deleteMany: {},
-          create: data.tiers.map((t) => ({
-            name: t.name,
-            monthlyPrice: t.monthlyPrice,
-            annualPriceMonthlyEquivalent: t.annualPriceMonthlyEquivalent,
-            transactionFeePercent: t.transactionFeePercent,
-            isPopular: t.isPopular || false,
-            features: t.features,
-          })),
-        },
-      },
-      create: {
-        name: data.name,
-        website: data.website,
-        logoUrl: data.logoUrl,
-        description: data.description,
-        rating: data.rating,
-        easeOfUse: data.easeOfUse,
-        featuresRating: data.featuresRating,
-        support: data.support,
-        pros: data.pros,
-        cons: data.cons,
-        affiliateLink: data.affiliateLink,
-        dealDescription: data.dealDescription,
-        videoHostingIncluded: data.videoHostingIncluded,
-        lastVerifiedAt: new Date(data.lastVerifiedAt),
-        tiers: {
-          create: data.tiers.map((t) => ({
-            name: t.name,
-            monthlyPrice: t.monthlyPrice,
-            annualPriceMonthlyEquivalent: t.annualPriceMonthlyEquivalent,
-            transactionFeePercent: t.transactionFeePercent,
-            isPopular: t.isPopular || false,
-            features: t.features,
-          })),
-        }
+    let platform: any;
+    if (isMongo) {
+      const existing = await prisma.platform.findUnique({
+        where: { name: data.name },
+      });
+      if (existing) {
+        const updateData = { ...data };
+        delete (updateData as any).tiers;
+        delete (updateData as any).features;
+        platform = await prisma.platform.update({
+          where: { id: existing.id },
+          data: {
+            website: updateData.website,
+            logoUrl: updateData.logoUrl,
+            description: updateData.description,
+            rating: updateData.rating,
+            easeOfUse: updateData.easeOfUse,
+            featuresRating: updateData.featuresRating,
+            support: updateData.support,
+            pros: updateData.pros,
+            cons: updateData.cons,
+            affiliateLink: updateData.affiliateLink,
+            dealDescription: updateData.dealDescription,
+            videoHostingIncluded: updateData.videoHostingIncluded,
+            lastVerifiedAt: new Date(updateData.lastVerifiedAt),
+          },
+        });
+      } else {
+        const createData = { ...data };
+        delete (createData as any).tiers;
+        delete (createData as any).features;
+        platform = await safeCreate("Platform", {
+          name: createData.name,
+          website: createData.website,
+          logoUrl: createData.logoUrl,
+          description: createData.description,
+          rating: createData.rating,
+          easeOfUse: createData.easeOfUse,
+          featuresRating: createData.featuresRating,
+          support: createData.support,
+          pros: createData.pros,
+          cons: createData.cons,
+          affiliateLink: createData.affiliateLink,
+          dealDescription: createData.dealDescription,
+          videoHostingIncluded: createData.videoHostingIncluded,
+          lastVerifiedAt: new Date(createData.lastVerifiedAt),
+        });
       }
-    });
+
+      // Delete existing tiers for this platform
+      const existingTiers = await prisma.pricingTier.findMany({
+        where: { platformId: platform.id }
+      });
+      for (const t of existingTiers) {
+        await prisma.pricingTier.delete({ where: { id: t.id } });
+      }
+
+      // Create new tiers
+      for (const t of data.tiers) {
+        await safeCreate("PricingTier", {
+          name: t.name,
+          monthlyPrice: t.monthlyPrice,
+          annualPriceMonthlyEquivalent: t.annualPriceMonthlyEquivalent,
+          transactionFeePercent: t.transactionFeePercent,
+          isPopular: t.isPopular || false,
+          features: t.features,
+          platformId: platform.id,
+        });
+      }
+    } else {
+      platform = await prisma.platform.upsert({
+        where: { name: data.name },
+        update: {
+          website: data.website,
+          logoUrl: data.logoUrl,
+          description: data.description,
+          rating: data.rating,
+          easeOfUse: data.easeOfUse,
+          featuresRating: data.featuresRating,
+          support: data.support,
+          pros: data.pros,
+          cons: data.cons,
+          affiliateLink: data.affiliateLink,
+          dealDescription: data.dealDescription,
+          videoHostingIncluded: data.videoHostingIncluded,
+          lastVerifiedAt: new Date(data.lastVerifiedAt),
+          tiers: {
+            deleteMany: {},
+            create: data.tiers.map((t) => ({
+              name: t.name,
+              monthlyPrice: t.monthlyPrice,
+              annualPriceMonthlyEquivalent: t.annualPriceMonthlyEquivalent,
+              transactionFeePercent: t.transactionFeePercent,
+              isPopular: t.isPopular || false,
+              features: t.features,
+            })),
+          },
+        },
+        create: {
+          name: data.name,
+          website: data.website,
+          logoUrl: data.logoUrl,
+          description: data.description,
+          rating: data.rating,
+          easeOfUse: data.easeOfUse,
+          featuresRating: data.featuresRating,
+          support: data.support,
+          pros: data.pros,
+          cons: data.cons,
+          affiliateLink: data.affiliateLink,
+          dealDescription: data.dealDescription,
+          videoHostingIncluded: data.videoHostingIncluded,
+          lastVerifiedAt: new Date(data.lastVerifiedAt),
+          tiers: {
+            create: data.tiers.map((t) => ({
+              name: t.name,
+              monthlyPrice: t.monthlyPrice,
+              annualPriceMonthlyEquivalent: t.annualPriceMonthlyEquivalent,
+              transactionFeePercent: t.transactionFeePercent,
+              isPopular: t.isPopular || false,
+              features: t.features,
+            })),
+          }
+        }
+      });
+    }
 
     for (const feat of data.features) {
       const category = await prisma.featureCategory.upsert({
@@ -259,14 +366,33 @@ async function main(skipCleanup = false) {
         });
       }
 
-      await prisma.platformFeature.create({
-        data: {
-          platformId: platform.id,
-          featureId: existingFeature.id,
-          hasFeature: feat.hasFeature,
-          details: feat.details
+      if (isMongo) {
+        const existingPf = await prisma.platformFeature.findFirst({
+          where: { platformId: platform.id, featureId: existingFeature.id }
+        });
+        if (existingPf) {
+          await prisma.platformFeature.update({
+            where: { id: existingPf.id },
+            data: { hasFeature: feat.hasFeature, details: feat.details }
+          });
+        } else {
+          await safeCreate("PlatformFeature", {
+            platformId: platform.id,
+            featureId: existingFeature.id,
+            hasFeature: feat.hasFeature,
+            details: feat.details
+          });
         }
-      });
+      } else {
+        await prisma.platformFeature.create({
+          data: {
+            platformId: platform.id,
+            featureId: existingFeature.id,
+            hasFeature: feat.hasFeature,
+            details: feat.details
+          }
+        });
+      }
     }
   }
 
@@ -279,7 +405,7 @@ async function main(skipCleanup = false) {
     { name: "Marketing", slug: "marketing" },
     { name: "Tech Trends", slug: "tech-trends" },
   ];
-  await safeCreateMany(prisma.postCategory, postCategoryData);
+  await safeCreateMany("PostCategory", postCategoryData);
   const postCategories = await prisma.postCategory.findMany();
   console.log(`   ✓ Seeded ${postCategories.length} post categories.`);
   const postCategoryMap = new Map(postCategories.map((c) => [c.name, c.id]));
@@ -350,16 +476,28 @@ async function main(skipCleanup = false) {
       );
       continue;
     }
-    const createdPost: Post = await prisma.post.create({
-      data: {
+
+    let createdPost: Post;
+    if (isMongo) {
+      createdPost = await safeCreate("Post", {
         ...rest,
-        author: { connect: { id: authorId } },
-        category: { connect: { id: categoryId } },
-        previous: previousPostId
-          ? { connect: { id: previousPostId } }
-          : undefined,
-      },
-    });
+        authorId,
+        categoryId,
+        previousId: previousPostId || undefined,
+      }) as Post;
+    } else {
+      createdPost = await prisma.post.create({
+        data: {
+          ...rest,
+          author: { connect: { id: authorId } },
+          category: { connect: { id: categoryId } },
+          previous: previousPostId
+            ? { connect: { id: previousPostId } }
+            : undefined,
+        },
+      });
+    }
+
     if (previousPostId) {
       await prisma.post.update({
         where: { id: previousPostId },
@@ -407,7 +545,7 @@ async function main(skipCleanup = false) {
       status: CommentStatus.REJECTED,
     },
   ];
-  await safeCreateMany(prisma.comment, commentData);
+  await safeCreateMany("Comment", commentData);
   console.log(`   ✓ Seeded ${commentData.length} comments.`);
 
   // --- 9. Seed Comparison Categories ---
@@ -416,7 +554,7 @@ async function main(skipCleanup = false) {
     { name: "Flagship Showdowns", slug: "flagship-showdowns" },
     { name: "All-in-One vs. Standalone", slug: "all-in-one-vs-standalone" },
   ];
-  await safeCreateMany(prisma.comparisonCategory, compCategoryData);
+  await safeCreateMany("ComparisonCategory", compCategoryData);
   const compCategories = await prisma.comparisonCategory.findMany();
   console.log(`   ✓ Seeded ${compCategories.length} comparison categories.`);
   const compCategoryMap = new Map(compCategories.map((c) => [c.name, c.id]));
@@ -424,12 +562,6 @@ async function main(skipCleanup = false) {
   // --- 10. Seed Comparisons ---
   console.log("🆚 Seeding Comparisons...");
   const createdPlatforms = await prisma.platform.findMany();
-  const platformTeachable = createdPlatforms.find(
-    (p) => p.name === "Teachable",
-  )!;
-  const platformThinkific = createdPlatforms.find(
-    (p) => p.name === "Thinkific",
-  )!;
 
   const explicitComparisons = [
     {
@@ -552,8 +684,8 @@ async function main(skipCleanup = false) {
     const catId = compCategoryMap.get(cData.category);
 
     if (pA && pB && catId) {
-      await prisma.comparison.create({
-        data: {
+      if (isMongo) {
+        const comp = await safeCreate("Comparison", {
           title: cData.title,
           slug: cData.slug,
           summary: cData.summary,
@@ -563,15 +695,38 @@ async function main(skipCleanup = false) {
           introduction: cData.introduction,
           conclusion: cData.conclusion,
           published: true,
-          facts: {
-            create: cData.facts.map((f) => ({
-              title: f.title,
-              platformAValue: f.a,
-              platformBValue: f.b,
-            })),
+        });
+
+        for (const f of cData.facts) {
+          await safeCreate("Fact", {
+            title: f.title,
+            platformAValue: f.a,
+            platformBValue: f.b,
+            comparisonId: comp.id,
+          });
+        }
+      } else {
+        await prisma.comparison.create({
+          data: {
+            title: cData.title,
+            slug: cData.slug,
+            summary: cData.summary,
+            platformAId: pA.id,
+            platformBId: pB.id,
+            categoryId: catId,
+            introduction: cData.introduction,
+            conclusion: cData.conclusion,
+            published: true,
+            facts: {
+              create: cData.facts.map((f) => ({
+                title: f.title,
+                platformAValue: f.a,
+                platformBValue: f.b,
+              })),
+            },
           },
-        },
-      });
+        });
+      }
     }
   }
 
@@ -584,8 +739,8 @@ async function main(skipCleanup = false) {
 
   if (pA_tp && pB_tp) {
     await prisma.comparison.deleteMany({ where: { slug: "teachable-vs-patreon" } });
-    await prisma.comparison.create({
-      data: {
+    if (isMongo) {
+      const comp = await safeCreate("Comparison", {
         title: "Teachable vs Patreon: The Definitive Creator Strategy Guide",
         slug: "teachable-vs-patreon",
         summary: "Direct Courses vs. Membership Communities. Which model scales your sovereignty?",
@@ -640,24 +795,94 @@ Moving to a Teachable-based academy allows you to monetize your "Lessons Learned
 ## Expert Verdict: The Sovereignty Score
 
 In 2026, **Teachable** scores higher for **Financial Sovereignty** (High margin, brand ownership, data control), while **Patreon** scores higher for **Social Leverage** (Community energy, direct feedback loops, audience intimacy).`,
-        facts: {
-          create: [
-            { title: "Primary Model", platformAValue: "Academy/LMS", platformBValue: "Membership/Fan-Club" },
-            { title: "Pricing Philosophy", platformAValue: "High-Ticket/Asset-Based", platformBValue: "Micro-Payments/Recurring" }
-          ]
+      });
+
+      await safeCreate("Fact", {
+        title: "Primary Model",
+        platformAValue: "Academy/LMS",
+        platformBValue: "Membership/Fan-Club",
+        comparisonId: comp.id,
+      });
+
+      await safeCreate("Fact", {
+        title: "Pricing Philosophy",
+        platformAValue: "High-Ticket/Asset-Based",
+        platformBValue: "Micro-Payments/Recurring",
+        comparisonId: comp.id,
+      });
+    } else {
+      await prisma.comparison.create({
+        data: {
+          title: "Teachable vs Patreon: The Definitive Creator Strategy Guide",
+          slug: "teachable-vs-patreon",
+          summary: "Direct Courses vs. Membership Communities. Which model scales your sovereignty?",
+          platformAId: pA_tp.id,
+          platformBId: pB_tp.id,
+          categoryId: compCategoryMap.get("Flagship Showdowns") || Array.from(compCategoryMap.values())[0],
+          introduction: "Choosing between Teachable and Patreon is more than just a software decision; it is a choice between two fundamentally different business architectures. In 2026, the successful creator must decide whether they are building a school or a movement.",
+          conclusion: "Use Teachable if you have a structured curriculum and want to sell high-ticket transformational assets. Use Patreon if you are a creative building a long-term membership community where the product is the recurring relationship.",
+          published: true,
+          content: `## The Strategic Divergence: Assets vs. Access
+
+Choosing between Teachable and Patreon is more than just a software decision; it is a choice between two fundamentally different business architectures. In 2026, the successful creator must decide whether they are building a **School (Institutional Model)** or a **Movement (Community Model)**.
+
+### The Teachable Philosophy: Institutional Scaling
+Teachable is built for the "Expert Economy." It views content as a structured, transformational asset that should be packaged, certified, and sold as a journey. It is ideal for the teacher who wants to build an academy. The infrastructure is designed to handle high-intent students who are investing significantly in their future. Features like lesson locking, course completion certificates, and advanced quiz logic ensure a pedagogical rigor that justifica premium pricing.
+
+### The Patreon Philosophy: Relationship Velocity
+Patreon is built for the "Fan Economy." It views content as fuel for membership. It is optimized for creators who have a consistent creative output (artists, podcasters, writers) and want to monetize their most loyal 1% through recurring support. On Patreon, the value isn't just in the 'lesson'; it's in the 'proximity.' Supporters pay for early access, behind-the-scenes insights, and the feeling of being part of an inner circle. The technical friction is near-zero, focusing on a continuous stream of engagement rather than a static curriculum.
+
+---
+
+## Scenario Analysis: Strategic Paths to Sovereignty
+
+### Scenario A: The Career Transitioner (The Aspiring Teacher)
+**Profile:** A former corporate leader transitioning to online education.
+**The Solution:** **Teachable**.
+If you are selling your professional expertise, you need to provide the professional infrastructure that matches your background. A student paying $997 for a "Data Engineering Masterclass" expects a structured dashboard, a clear roadmap, and a professional receipt for tax purposes. Patreon’s low-barrier entry ($5-$20) might inadvertently devalue your high-end intellectual property. Teachable allows you to maintain "Brand Gravitas" and implement complex sales funnels that move cold traffic to a high-ticket enrollment.
+
+### Scenario B: The Expanding Artist (The Scaler)
+**Profile:** A creator with a massive existing audience on YouTube, TikTok, or Instagram looking for a home base.
+**The Solution:** **Patreon**.
+You are already producing regular content and want a way to monetize that output directly without relying on fickle ad revenue. Patreon handles the complex psychology of "supporting the creator" better than any LMS. It turns your audience into a predictable monthly revenue stream. In 2026, the integration between Patreon and platforms like Discord or Spotify means you can provide "Multi-Channel Access" as a single perk, creating a social stickiness that a static course platform cannot replicate.
+
+### Scenario C: The Failed Businessman (The Restructuring)
+**Profile:** An entrepreneur who previously attempted to build a complex SaaS or a physical product business and hit a wall.
+**The Solution:** **Teachable (Consulting-Hybrid)**.
+Moving to a Teachable-based academy allows you to monetize your "Lessons Learned." This is a classic "Sell the Shovel" strategy. You can package your failures and successes into a consulting-heavy course. Teachable allows you to focus 100% on the curriculum and 0% on the engineering. For the entrepreneur looking to rebuild capital quickly, the "High-Ticket Course" model on Teachable offers significantly higher margins than the "High-Volume Membership" model on Patreon.
+
+---
+
+## Industrial Facts and Economic Realities (2026 Data)
+
+| Metric | Teachable | Patreon |
+|--------|-----------|---------|
+| **Monetization Model** | One-time / Installments | Monthly / Per-Creation |
+| **Average Transaction** | $250 - $1,200 | $5 - $50 |
+| **Platform Fees** | 0% (Pro) to 10% (Free) | 5% to 12% + Processing |
+| **Global Tax Compliance** | Integrated (Teachable:pay) | Merchant of Record (Full) |
+| **Video Infrastructure** | High-Fidelity LMS Native | External (Vimeo/YT/Upload) |
+| **Custom Domain** | Yes (Sovereign Brand) | No (Platform Dependent) |
+
+## Expert Verdict: The Sovereignty Score
+
+In 2026, **Teachable** scores higher for **Financial Sovereignty** (High margin, brand ownership, data control), while **Patreon** scores higher for **Social Leverage** (Community energy, direct feedback loops, audience intimacy).`,
+          facts: {
+            create: [
+              { title: "Primary Model", platformAValue: "Academy/LMS", platformBValue: "Membership/Fan-Club" },
+              { title: "Pricing Philosophy", platformAValue: "High-Ticket/Asset-Based", platformBValue: "Micro-Payments/Recurring" }
+            ]
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   console.log(`   ✓ Seeded ${comparisonsToCreate.length} comparisons.`);
 
   // --- 11. Seed AI Tools ---
   console.log("\n🤖 Seeding AI Tools...");
-  const toolsData: Omit<
-    Prisma.ToolCreateInput,
-    "id" | "createdAt" | "updatedAt"
-  >[] = [
+  const toolsData = [
       {
         slug: "title-generator",
         title: "AI Title Generator",
@@ -721,7 +946,7 @@ In 2026, **Teachable** scores higher for **Financial Sovereignty** (High margin,
           "You are a content marketing strategist. Generate a list of 5-7 blog post ideas that are relevant to the given course topic and target audience. The ideas should be engaging and designed to attract potential students.\n\nCourse Topic: {{{topic}}}\n{{#if context}}Target Audience: {{{context}}}{{/if}}",
       },
     ];
-  await safeCreateMany(prisma.tool, toolsData);
+  await safeCreateMany("Tool", toolsData);
   console.log(`   ✓ Seeded ${toolsData.length} AI tools.`);
 
   // --- 12. Seed Site Content ---
@@ -1416,11 +1641,25 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
   ];
   for (const content of siteContent) {
     try {
-      await prisma.siteContent.upsert({
-        where: { key: content.key },
-        update: content as any,
-        create: content as any,
-      });
+      if (isMongo) {
+        const existing = await prisma.siteContent.findUnique({
+          where: { key: content.key },
+        });
+        if (existing) {
+          await prisma.siteContent.update({
+            where: { id: existing.id },
+            data: content as any,
+          });
+        } else {
+          await safeCreate("SiteContent", content);
+        }
+      } else {
+        await prisma.siteContent.upsert({
+          where: { key: content.key },
+          update: content as any,
+          create: content as any,
+        });
+      }
     } catch (e: any) {
       console.error(
         `   ❌ Failed to seed site content key '${content.key}': ${e.message}`,
@@ -1439,51 +1678,91 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
     image: "https://picsum.photos/400/250?random=10",
     dataAiHint: "technology launch announcement",
     published: true,
-    authorId: adminUser.id,
   };
-  await prisma.newsArticle.create({ data: newsData });
+  if (isMongo) {
+    await safeCreate("NewsArticle", { ...newsData, authorId: adminUser.id });
+  } else {
+    await prisma.newsArticle.create({ data: { ...newsData, authorId: adminUser.id } });
+  }
   console.log(`   ✓ Seeded 1 news article.`);
 
   // --- 14. Seed Community ---
   console.log("\n💬 Seeding Community Forums...");
-  const generalCategory = await prisma.forumCategory.create({
-    data: {
+  let generalCategory: any;
+  if (isMongo) {
+    generalCategory = await safeCreate("ForumCategory", {
       name: "General Discussion",
       slug: "general-discussion",
       description: "Talk about anything related to course creation.",
-    },
-  });
+    });
+  } else {
+    generalCategory = await prisma.forumCategory.create({
+      data: {
+        name: "General Discussion",
+        slug: "general-discussion",
+        description: "Talk about anything related to course creation.",
+      },
+    });
+  }
   console.log(`   ✓ Seeded 1 forum category.`);
 
-  const introductionsTopic = await prisma.forumTopic.create({
-    data: {
+  let introductionsTopic: any;
+  if (isMongo) {
+    introductionsTopic = await safeCreate("ForumTopic", {
       title: "Welcome! Introduce Yourself",
       content:
         "Welcome to the community! Take a moment to introduce yourself and tell us what you're working on.",
       authorId: adminUser.id,
       categoryId: generalCategory.id,
       status: "APPROVED",
-    },
-  });
+    });
+  } else {
+    introductionsTopic = await prisma.forumTopic.create({
+      data: {
+        title: "Welcome! Introduce Yourself",
+        content:
+          "Welcome to the community! Take a moment to introduce yourself and tell us what you're working on.",
+        authorId: adminUser.id,
+        categoryId: generalCategory.id,
+        status: "APPROVED",
+      },
+    });
+  }
   console.log(`   ✓ Seeded 1 forum topic.`);
 
-  await prisma.forumPost.createMany({
-    data: [
-      {
-        content:
-          "Hey everyone! I'm Bob, and I'm building a course on woodworking for beginners. Excited to learn from you all!",
-        authorId: bobUser.id,
-        topicId: introductionsTopic.id,
-        status: "APPROVED",
-      },
-      {
-        content: "Welcome, Bob! Glad to have you here.",
-        authorId: adminUser.id,
-        topicId: introductionsTopic.id,
-        status: "APPROVED",
-      },
-    ],
-  });
+  if (isMongo) {
+    await safeCreate("ForumPost", {
+      content:
+        "Hey everyone! I'm Bob, and I'm building a course on woodworking for beginners. Excited to learn from you all!",
+      authorId: bobUser.id,
+      topicId: introductionsTopic.id,
+      status: "APPROVED",
+    });
+    await safeCreate("ForumPost", {
+      content: "Welcome, Bob! Glad to have you here.",
+      authorId: adminUser.id,
+      topicId: introductionsTopic.id,
+      status: "APPROVED",
+    });
+  } else {
+    await prisma.forumPost.createMany({
+      data: [
+        {
+          content:
+            "Hey everyone! I'm Bob, and I'm building a course on woodworking for beginners. Excited to learn from you all!",
+          authorId: bobUser.id,
+          topicId: introductionsTopic.id,
+          status: "APPROVED",
+        },
+        {
+          content: "Welcome, Bob! Glad to have you here.",
+          authorId: adminUser.id,
+          topicId: introductionsTopic.id,
+          status: "APPROVED",
+        },
+      ],
+    });
+  }
   console.log(`   ✓ Seeded 2 forum posts.`);
 
   // --- 15. Seed Images from /public/uploads ---
@@ -1505,8 +1784,8 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
         const filePath = path.join(uploadsDir, filename);
         const stats = await fs.stat(filePath);
 
-        await prisma.image.create({
-          data: {
+        if (isMongo) {
+          await safeCreate("Image", {
             filename,
             url: `/uploads/${filename}`,
             altText: filename
@@ -1516,8 +1795,22 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
               .replace(/[-_]/g, " "),
             size: stats.size,
             authorId: adminUser.id,
-          },
-        });
+          });
+        } else {
+          await prisma.image.create({
+            data: {
+              filename,
+              url: `/uploads/${filename}`,
+              altText: filename
+                .split(".")
+                .slice(0, -1)
+                .join(".")
+                .replace(/[-_]/g, " "),
+              size: stats.size,
+              authorId: adminUser.id,
+            },
+          });
+        }
         newImagesCount++;
       }
     }
