@@ -441,14 +441,18 @@ async function main(skipCleanup = false) {
       });
 
       if (!existingFeature) {
-        existingFeature = await prisma.feature.create({
-          data: { name: feat.featureName, categoryId: category.id }
-        });
+        if (isMongo) {
+          existingFeature = await safeCreate("Feature", { name: feat.featureName, categoryId: category.id }) as any;
+        } else {
+          existingFeature = await prisma.feature.create({
+            data: { name: feat.featureName, categoryId: category.id }
+          });
+        }
       }
 
       if (isMongo) {
         const existingPf = await prisma.platformFeature.findFirst({
-          where: { platformId: platform.id, featureId: existingFeature.id }
+          where: { platformId: platform.id, featureId: existingFeature!.id }
         });
         if (existingPf) {
           await safeUpdate("PlatformFeature", existingPf.id, {
@@ -458,7 +462,7 @@ async function main(skipCleanup = false) {
         } else {
           await safeCreate("PlatformFeature", {
             platformId: platform.id,
-            featureId: existingFeature.id,
+            featureId: existingFeature!.id,
             hasFeature: feat.hasFeature,
             details: feat.details
           });
@@ -467,7 +471,7 @@ async function main(skipCleanup = false) {
         await prisma.platformFeature.create({
           data: {
             platformId: platform.id,
-            featureId: existingFeature.id,
+            featureId: existingFeature!.id,
             hasFeature: feat.hasFeature,
             details: feat.details
           }
