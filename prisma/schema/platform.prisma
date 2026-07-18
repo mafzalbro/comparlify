@@ -72,6 +72,7 @@ model Feature {
 }
 
 model PlatformFeature {
+  id         String   @id @default(cuid())
   platformId String
   platform   Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
   featureId  String
@@ -79,6 +80,6 @@ model PlatformFeature {
   hasFeature Boolean
   details    String?
 
-  @@id([platformId, featureId])
+  @@unique([platformId, featureId])
   @@index([featureId])
 }
