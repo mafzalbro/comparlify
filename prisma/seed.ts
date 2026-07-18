@@ -36,12 +36,16 @@ export async function cleanupDatabase() {
   console.log("  - Breaking Post navigation links...");
   try {
     if (isMongo) {
-      await (prisma as any).post.updateMany({
-        data: {
-          nextId: null,
-          previousId: null,
-        },
-      });
+      const posts = await prisma.post.findMany({ select: { id: true } });
+      for (const p of posts) {
+        await prisma.post.update({
+          where: { id: p.id },
+          data: {
+            nextId: null,
+            previousId: null,
+          },
+        });
+      }
     } else {
       await prisma.$executeRawUnsafe(
         `UPDATE Post SET nextId = NULL, previousId = NULL`,
@@ -88,26 +92,21 @@ export async function cleanupDatabase() {
 
   for (const model of finalDeletionOrder) {
     try {
-      if ((prisma as any)[model]?.deleteMany) {
-        try {
+      if ((prisma as any)[model]) {
+        if (isMongo) {
+          const records = await (prisma as any)[model].findMany({ select: { id: true } });
+          let deletedCount = 0;
+          for (const rec of records) {
+            await (prisma as any)[model].delete({ where: { id: rec.id } });
+            deletedCount++;
+          }
+          if (deletedCount > 0) {
+            console.log(`  🔥 Deleted ${deletedCount} records individually from ${model}`);
+          }
+        } else if ((prisma as any)[model].deleteMany) {
           const { count } = await (prisma as any)[model].deleteMany({});
           if (count > 0) {
             console.log(`  🔥 Deleted ${count} records from ${model}`);
-          }
-        } catch (e: any) {
-          if (e.message.includes("replica set") || e.code === "P2031") {
-            console.log(`  ⚠️  Model ${model} deleteMany failed due to replica set requirement. Falling back to individual delete...`);
-            const records = await (prisma as any)[model].findMany({ select: { id: true } });
-            let deletedCount = 0;
-            for (const rec of records) {
-              await (prisma as any)[model].delete({ where: { id: rec.id } });
-              deletedCount++;
-            }
-            if (deletedCount > 0) {
-              console.log(`  🔥 Deleted ${deletedCount} records individually from ${model}`);
-            }
-          } else {
-            throw e;
           }
         }
       }
