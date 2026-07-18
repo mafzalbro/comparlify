@@ -4,6 +4,7 @@ import { PlatformData } from "./types";
 
 export async function syncComparisonData() {
   console.log("🔄 Starting comparison data sync...");
+  const isMongo = process.env.DATABASE_URL?.startsWith("mongodb://") || process.env.DATABASE_URL?.startsWith("mongodb+srv://") || process.env.DATABASE_PROVIDER === "mongodb";
 
   for (const data of allPlatforms) {
     console.log(`📍 Syncing platform: ${data.name}`);
@@ -50,9 +51,16 @@ export async function syncComparisonData() {
     // However, to be safe, we'll upsert by name for that platform.
 
     // Better strategy for tiers:
-    await prisma.pricingTier.deleteMany({
-      where: { platformId: platform.id }
-    });
+    if (isMongo) {
+      await (prisma as any).$runCommandRaw({
+        delete: "PricingTier",
+        deletes: [{ q: { platformId: platform.id }, limit: 0 }]
+      });
+    } else {
+      await prisma.pricingTier.deleteMany({
+        where: { platformId: platform.id }
+      });
+    }
 
     const pricingTiersData = data.tiers.map(t => ({
       name: t.name,
@@ -63,8 +71,6 @@ export async function syncComparisonData() {
       features: t.features,
       platformId: platform.id
     }));
-
-    const isMongo = process.env.DATABASE_URL?.startsWith("mongodb://") || process.env.DATABASE_URL?.startsWith("mongodb+srv://") || process.env.DATABASE_PROVIDER === "mongodb";
 
     if (isMongo) {
       for (const item of pricingTiersData) {

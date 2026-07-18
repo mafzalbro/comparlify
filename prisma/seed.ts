@@ -94,15 +94,10 @@ export async function cleanupDatabase() {
     try {
       if ((prisma as any)[model]) {
         if (isMongo) {
-          const records = await (prisma as any)[model].findMany({ select: { id: true } });
-          let deletedCount = 0;
-          for (const rec of records) {
-            await (prisma as any)[model].delete({ where: { id: rec.id } });
-            deletedCount++;
-          }
-          if (deletedCount > 0) {
-            console.log(`  🔥 Deleted ${deletedCount} records individually from ${model}`);
-          }
+          await (prisma as any).$runCommandRaw({
+            delete: model,
+            deletes: [{ q: {}, limit: 0 }],
+          });
         } else if ((prisma as any)[model].deleteMany) {
           const { count } = await (prisma as any)[model].deleteMany({});
           if (count > 0) {
@@ -140,6 +135,29 @@ async function main(skipCleanup = false) {
         doc._id = doc.id || `c${Math.random().toString(36).substring(2, 15)}${Date.now().toString(36)}`;
       }
       delete doc.id;
+
+      // Populate database defaults for MongoDB raw insertion to prevent conversion errors
+      if (!doc.createdAt) doc.createdAt = new Date();
+      if (!doc.updatedAt) doc.updatedAt = new Date();
+
+      if (modelName === "User") {
+        if (doc.onboarded === undefined) doc.onboarded = false;
+        if (doc.newsletter === undefined) doc.newsletter = false;
+        if (doc.suspended === undefined) doc.suspended = false;
+        if (doc.role === undefined) doc.role = "USER";
+      }
+      if (modelName === "Post" || modelName === "Comparison" || modelName === "NewsArticle") {
+        if (doc.published === undefined) doc.published = false;
+      }
+      if (modelName === "ForumTopic" || modelName === "ForumPost" || modelName === "Comment") {
+        if (doc.status === undefined) doc.status = "PENDING";
+      }
+      if (modelName === "Tool") {
+        if (doc.enabled === undefined) doc.enabled = true;
+      }
+      if (modelName === "PricingTier") {
+        if (doc.isPopular === undefined) doc.isPopular = false;
+      }
 
       const relationKeys = ["platformA", "platformB", "category", "author", "topic", "posts", "facts", "faqs"];
       for (const rKey of relationKeys) {
