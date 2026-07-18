@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "authjs-skills": {
+      "source": "gocallum/nextjs16-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/authjs-skills/SKILL.md",
+      "computedHash": "a9e50317bfff481c46c9b7199bbb952c9cd776dc02767e1c0f22232452bb0341"
+    },
     "developing-genkit-js": {
       "source": "genkit-ai/skills",
       "ref": "main",
