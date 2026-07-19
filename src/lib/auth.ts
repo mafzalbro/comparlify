@@ -8,7 +8,7 @@ import { Role } from "@prisma/client";
 import { createNotification } from "./notifications";
 
 export const authOptions: NextAuthConfig = {
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(prisma) as any,
   session: { strategy: "jwt" },
   providers: [
     Google({
@@ -75,7 +75,7 @@ export const authOptions: NextAuthConfig = {
         where: { email: user.email },
       });
       if (dbUser?.suspended) {
-        return false; 
+        return false;
       }
       return true;
     },
@@ -90,7 +90,12 @@ export const authOptions: NextAuthConfig = {
       if (trigger === "update" && token.id) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.id as string },
-          select: { onboarded: true, role: true, newsletter: true, suspended: true }
+          select: {
+            onboarded: true,
+            role: true,
+            newsletter: true,
+            suspended: true,
+          },
         });
         if (dbUser) {
           token.role = dbUser.role;
@@ -103,11 +108,11 @@ export const authOptions: NextAuthConfig = {
     },
     async session({ session, token }) {
       if (session.user && token) {
-         session.user.id = token.id as string;
-         session.user.role = token.role as Role;
-         session.user.onboarded = token.onboarded as boolean;
-         session.user.newsletter = token.newsletter as boolean;
-         session.user.suspended = token.suspended as boolean;
+        session.user.id = token.id as string;
+        session.user.role = token.role as Role;
+        session.user.onboarded = token.onboarded as boolean;
+        session.user.newsletter = token.newsletter as boolean;
+        session.user.suspended = token.suspended as boolean;
       }
       return session;
     },
@@ -140,7 +145,12 @@ export const authOptions: NextAuthConfig = {
   },
 };
 
-export const { handlers, auth, signIn: nextAuthSignIn, signOut: nextAuthSignOut } = NextAuth(authOptions);
+export const {
+  handlers,
+  auth,
+  signIn: nextAuthSignIn,
+  signOut: nextAuthSignOut,
+} = NextAuth(authOptions);
 
 // Re-export GET/POST handlers for route.ts compatibility
 export const { GET, POST } = handlers;

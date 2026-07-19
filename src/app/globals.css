@@ -285,54 +285,234 @@
   width: calc(var(--sidebar-width-icon) + 2rem + 2px) !important;
 }
 
-/* Premium Interactive System - Global Refinement */
-.group,
-.card,
-button,
-a.block,
-[class*="rounded-[2.5rem]"],
-[class*="rounded-4xl"] {
+/* =========================================================
+   Premium Interactive System — Global Refinement
+   ========================================================= */
+
+/* Using :where() keeps specificity at 0 so Tailwind utilities
+   (duration-300, transition-none, etc.) can still override. */
+
+:where(
+  .group,
+  .card,
+  button,
+  a,
+  a.block,
+  input,
+  textarea,
+  select,
+  summary,
+  details,
+  label,
+  img,
+  video,
+  picture,
+  svg,
+  canvas,
+  article,
+  section,
+  aside,
+  nav,
+  header,
+  footer,
+  main,
+  [role="button"],
+  [class*="rounded-[2.5rem]"],
+  [class*="rounded-4xl"]
+) {
   transition-property:
-    transform, box-shadow, background-color, border-color, filter, opacity-70;
-  transition-duration: 500ms !important;
-  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
+    /* Colors */
+    color,
+    background,
+    background-color,
+    background-position,
+    background-size,
+    background-image,
+    border-color,
+    border-top-color,
+    border-right-color,
+    border-bottom-color,
+    border-left-color,
+    outline-color,
+    text-decoration-color,
+    text-emphasis-color,
+    fill,
+    stroke,
+    caret-color,
+    accent-color,
+    column-rule-color,
+    /* Opacity / Visibility */ opacity,
+    visibility,
+    /* Shadows */ box-shadow,
+    text-shadow,
+    /* Transform */ transform,
+    translate,
+    scale,
+    rotate,
+    perspective,
+    transform-origin,
+    /* Filters */ filter,
+    backdrop-filter,
+    /* Clipping / Masking */ clip-path,
+    mask,
+    mask-position,
+    mask-size,
+    /* Borders */ border-radius,
+    border-top-left-radius,
+    border-top-right-radius,
+    border-bottom-left-radius,
+    border-bottom-right-radius,
+    border-width,
+    outline-width,
+    outline-offset,
+    /* Typography */ letter-spacing,
+    word-spacing,
+    line-height,
+    text-indent,
+    text-underline-offset,
+    text-decoration-thickness,
+    font-variation-settings,
+    /* Layout (lightweight only) */ gap,
+    row-gap,
+    column-gap,
+    flex-grow,
+    flex-shrink,
+    flex-basis,
+    order,
+    /* Grid */ grid-template-columns,
+    grid-template-rows,
+    grid-auto-columns,
+    grid-auto-rows,
+    /* SVG */ stroke-width,
+    stroke-dasharray,
+    stroke-dashoffset,
+    /* Object */ object-position,
+    object-fit,
+    aspect-ratio,
+    /* Scroll */ scroll-margin,
+    scroll-padding,
+    scroll-snap-align,
+    scroll-snap-stop,
+    /* Misc */ inset;
+
+  transition-duration: 500ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Ensure child elements like icons also follow the studio curve */
+/* =========================================================
+   Premium Hover Curve for Child Elements
+   ========================================================= */
+
 .group:hover .group-hover\:scale-110,
+.group:hover .group-hover\:scale-105,
+.group:hover .group-hover\:scale-125,
 .group:hover .group-hover\:-translate-y-1,
-.group:hover .group-hover\:translate-x-3 {
+.group:hover .group-hover\:-translate-y-2,
+.group:hover .group-hover\:translate-y-1,
+.group:hover .group-hover\:translate-x-2,
+.group:hover .group-hover\:translate-x-3,
+.group:hover .group-hover\:rotate-1,
+.group:hover .group-hover\:rotate-2,
+.group:hover .group-hover\:rotate-3 {
+  transition-property:
+    transform, translate, scale, rotate, opacity, color, background-color,
+    border-color, box-shadow, filter, backdrop-filter !important;
+
   transition-duration: 600ms !important;
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-/* Premium Image Hover System - Global Refinement */
-img:not(.no-smooth) {
+/* =========================================================
+   Premium Image System
+   ========================================================= */
+
+img:not(.no-smooth),
+picture:not(.no-smooth) img,
+video:not(.no-smooth) {
   transition:
-    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-    filter 0.5s ease,
-    opacity 0.5s ease !important;
-  will-change: transform;
+    transform 800ms cubic-bezier(0.16, 1, 0.3, 1),
+    translate 800ms cubic-bezier(0.16, 1, 0.3, 1),
+    scale 800ms cubic-bezier(0.16, 1, 0.3, 1),
+    rotate 800ms cubic-bezier(0.16, 1, 0.3, 1),
+    filter 500ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 500ms cubic-bezier(0.16, 1, 0.3, 1),
+    clip-path 600ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  will-change: transform, translate, scale, rotate, opacity, filter;
 }
 
-/* Auto-apply subtle scale when a parent 'group' is hovered */
+/* Parent hover auto-scale */
+
 div.group:hover img:not(.no-smooth),
 article.group:hover img:not(.no-smooth),
+section.group:hover img:not(.no-smooth),
 a.group:hover img:not(.no-smooth),
-section.group:hover img:not(.no-smooth) {
-  transform: scale(1.05);
+figure.group:hover img:not(.no-smooth) {
+  scale: 1.05;
 }
 
-/* Individual image hover as fallback */
+/* Fallback */
+
 img:not(.no-smooth):hover {
-  transform: scale(1.03);
+  scale: 1.03;
 }
 
-/* Ensure existing Tailwind scale utilities use the premium bezier */
+/* =========================================================
+   Tailwind Utility Refinements
+   ========================================================= */
+
 .group-hover\:scale-105,
-.hover\:scale-105 {
+.group-hover\:scale-110,
+.group-hover\:scale-125,
+.hover\:scale-105,
+.hover\:scale-110,
+.hover\:scale-125,
+.hover\:-translate-y-1,
+.hover\:-translate-y-2,
+.hover\:translate-x-2,
+.hover\:translate-x-3,
+.hover\:rotate-1,
+.hover\:rotate-2,
+.hover\:rotate-3 {
+  transition-property:
+    transform, translate, scale, rotate, opacity, color, background-color,
+    border-color, box-shadow, filter, backdrop-filter !important;
+
   transition-duration: 800ms !important;
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* =========================================================
+   Smooth Focus
+   ========================================================= */
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  transition:
+    outline-color 250ms ease,
+    outline-offset 250ms ease,
+    box-shadow 250ms ease;
+}
+
+/* =========================================================
+   Reduced Motion Accessibility
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Exclusion utility for icons, logos, or UI elements that shouldn't scale */
