@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
 @theme {
@@ -47,22 +47,25 @@
   /* Box shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.02);
   --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.02);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.02);
+  --shadow-md:
+    0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --shadow-lg:
+    0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.02);
+  --shadow-xl:
+    0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.02);
   --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.1);
 
   /* Animations */
-  --animate-accordion-down: accordion-down 0.2s ease-out;
+  /* --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
   --animate--up: -up 0.6s ease-out forwards;
   --animate-float: float 6s ease-in-out infinite;
   --animate-reveal: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-sparkle: sparkle 2s ease-in-out infinite;
   --animate-pulse: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  --animate-ping: ping 3s cubic-bezier(0, 0, 0.2, 1) infinite;
+  --animate-ping: ping 3s cubic-bezier(0, 0, 0.2, 1) infinite; */
 
-  @keyframes float {
+  /* @keyframes float {
     0%,
     100% {
       transform: translateY(0);
@@ -124,7 +127,7 @@
   @keyframes -up {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
-  }
+  }*/
 }
 
 @utility glass {
@@ -270,8 +273,6 @@
   @apply transition-colors duration-200;
 }
 
-
-
 /* Sidebar Premium Overrides - Fixing smooth transitions and bubble logic externally */
 .group\/sidebar-wrapper [class*="duration-200"] {
   transition-duration: 300ms !important;
@@ -285,13 +286,14 @@
 }
 
 /* Premium Interactive System - Global Refinement */
-.group, 
+.group,
 .card,
 button,
 a.block,
 [class*="rounded-[2.5rem]"],
 [class*="rounded-4xl"] {
-  transition-property: transform, box-shadow, background-color, border-color, filter, opacity-70;
+  transition-property:
+    transform, box-shadow, background-color, border-color, filter, opacity-70;
   transition-duration: 500ms !important;
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
@@ -306,7 +308,10 @@ a.block,
 
 /* Premium Image Hover System - Global Refinement */
 img:not(.no-smooth) {
-  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease, opacity 0.5s ease !important;
+  transition:
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.5s ease,
+    opacity 0.5s ease !important;
   will-change: transform;
 }
 
@@ -324,7 +329,7 @@ img:not(.no-smooth):hover {
 }
 
 /* Ensure existing Tailwind scale utilities use the premium bezier */
-.group-hover\:scale-105, 
+.group-hover\:scale-105,
 .hover\:scale-105 {
   transition-duration: 800ms !important;
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
@@ -337,31 +342,42 @@ img:not(.no-smooth):hover {
 }
 
 /* Premium Shadcn UI Smoothness Overrides (Dialogs, Sheets, Popovers) */
-[data-state="open"], 
+[data-state="open"],
 [data-state="closed"] {
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-
 /* ── STUDIO PREMIUM DESIGN SYSTEM ────────────────────────── */
 
 /* Standard Page Background for subtle depth */
 main:not(.admin-panel) {
-  background-image: 
+  background-image:
     radial-gradient(at 0% 0%, hsla(var(--primary), 0.02) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, hsla(var(--primary), 0.01) 0px, transparent 50%);
+    radial-gradient(
+      at 100% 100%,
+      hsla(var(--primary), 0.01) 0px,
+      transparent 50%
+    );
 }
 
 .admin-panel {
-  background-image: 
+  background-image:
     radial-gradient(at 0% 0%, hsla(var(--primary), 0.05) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, hsla(var(--primary), 0.03) 0px, transparent 50%);
+    radial-gradient(
+      at 100% 100%,
+      hsla(var(--primary), 0.03) 0px,
+      transparent 50%
+    );
 }
 
 /* Global Typography Refinement */
-h1 { @apply font-black tracking-tight text-foreground/90; }
-h2 { @apply font-black tracking-tight text-foreground/80; }
+h1 {
+  @apply font-black tracking-tight text-foreground/90;
+}
+h2 {
+  @apply font-black tracking-tight text-foreground/80;
+}
 
 /* Universal Card System - Studio Quality (Applies to all Shadcn Cards) */
 div[class*="rounded-"].border.bg-card:not(.no-smooth) {
@@ -419,28 +435,42 @@ table:not(.no-smooth) tbody td {
 }
 
 @keyframes studio-fade-out {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 @keyframes studio- {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes studio-scale-out {
-  from { transform: scale(1); filter: blur(0); }
-  to { transform: scale(1.01); filter: blur(4px); }
+  from {
+    transform: scale(1);
+    filter: blur(0);
+  }
+  to {
+    transform: scale(1.01);
+    filter: blur(4px);
+  }
 }
 
 @keyframes studio-pop-in {
-  from { 
+  from {
     transform: scale(0.985) translateY(8px);
     filter: blur(4px);
   }
-  to { 
+  to {
     transform: scale(1) translateY(0);
-    filter: blur(0);    
+    filter: blur(0);
   }
 }
 
@@ -457,8 +487,6 @@ table:not(.no-smooth) tbody td {
     animation: none !important;
   }
 } */
-
-
 
 /* ── HIGH-END STUDIO VIEW TRANSITIONS ────────────────────────── */
 
