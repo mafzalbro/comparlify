@@ -13,8 +13,9 @@ import NextTopLoader from "nextjs-toploader";
 import { themeConfig } from "@/lib/theme";
 
 const font = Outfit({
+  preload: true,
+  variable: "--font-outfit",
   subsets: ["latin"],
-  variable: "--font-body",
 });
 
 export const dynamic = "force-dynamic";
@@ -83,7 +84,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className="scroll-smooth scheme-light dark:scheme-dark"
+      className={"scroll-smooth scheme-light dark:scheme-dark" + font.className}
       suppressHydrationWarning
     >
       <head>
@@ -97,7 +98,7 @@ export default async function RootLayout({
       <body
         className={cn(
           "font-body antialiased flex flex-col min-h-screen bg-background",
-          font.variable,
+          font.className,
         )}
       >
         <NextTopLoader color="hsl(var(--primary))" showSpinner={false} />
