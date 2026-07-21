@@ -1,29 +1,29 @@
-
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { getContent } from '@/lib/content';
-import { useEffect, useState } from 'react';
+import { X } from 'lucide-react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 
-export function PromoBanner() {
-    const [content, setContent] = useState<Record<string,string>>({});
+interface PromoBannerProps {
+  settings?: {
+    enabled?: boolean;
+    text?: string;
+    linkText?: string;
+    linkHref?: string;
+  };
+}
+
+export function PromoBanner({ settings }: PromoBannerProps) {
     const [dismissed, setDismissed] = useLocalStorage('promoBannerDismissed', false);
 
-    useEffect(() => {
-        async function fetchContent() {
-            const siteContent = await getContent();
-            setContent(siteContent);
-        }
-        fetchContent();
-    }, []);
+    if (!settings) {
+        return null;
+    }
 
-    const isEnabled = content['global.banner.enabled'] === 'true';
-    const text = content['global.banner.text'];
-    const linkText = content['global.banner.link.text'];
-    const linkHref = content['global.banner.link.href'];
+    const isEnabled = settings.enabled === true;
+    const text = settings.text;
+    const linkText = settings.linkText;
+    const linkHref = settings.linkHref;
 
     if (!isEnabled || !text || dismissed) {
         return null;

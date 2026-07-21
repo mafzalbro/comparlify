@@ -28,9 +28,16 @@ export default async function SimplePagesLayout({
     console.error("Failed to parse header.navLinks", e);
   }
 
+  const bannerSettings = {
+    enabled: content["global.banner.enabled"] === "true",
+    text: content["global.banner.text"] || "",
+    linkText: content["global.banner.link.text"] || "",
+    linkHref: content["global.banner.link.href"] || "",
+  };
+
   return (
     <>
-      <PromoBanner />
+      <PromoBanner settings={bannerSettings} />
       <Header navLinks={navLinks} siteName={siteName} />
       <main className="flex-1 flex flex-col min-h-[60vh]">
         {children}
