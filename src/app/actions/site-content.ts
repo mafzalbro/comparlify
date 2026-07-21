@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { $Enums } from "@prisma/client";
+import { clearContentCache } from "@/lib/content";
 
 interface UpdateContentState {
   error: string | null;
@@ -61,6 +62,7 @@ export async function updateContentAction(
       ),
     );
 
+    await clearContentCache();
     revalidatePath("/", "layout"); // Revalidate all pages
     return { error: null, success: true };
   } catch (error) {

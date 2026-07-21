@@ -7,6 +7,7 @@ import { ActionState } from "@/types/actions";
 import { $Enums, ContentType } from "@prisma/client";
 import { z } from "zod";
 import { redirect } from "next/navigation";
+import { clearContentCache } from "@/lib/content";
 
 interface UpdateContentState {
   error: string | null;
@@ -64,6 +65,7 @@ export async function updateContentAction(
       ),
     );
 
+    await clearContentCache();
     revalidatePath("/", "layout"); // Revalidate all pages
     return { error: null, success: true };
   } catch (error) {
@@ -132,6 +134,7 @@ export async function createLegalDocumentAction(
         type: "MARKDOWN",
       },
     });
+    await clearContentCache();
     revalidatePath("/admin/legal");
     revalidatePath("/legal", "layout");
   } catch (error) {
@@ -178,6 +181,7 @@ export async function updateLegalDocumentAction(
         value: validatedFields.data.value,
       },
     });
+    await clearContentCache();
     revalidatePath("/admin/legal");
     revalidatePath(`/legal/${doc.key.replace("legal.", "")}`);
   } catch (error) {
@@ -201,6 +205,7 @@ export async function deleteLegalDocumentAction(
   }
   try {
     await prisma.siteContent.delete({ where: { id } });
+    await clearContentCache();
     revalidatePath("/admin/legal");
     revalidatePath("/legal", "layout");
     return { error: null };

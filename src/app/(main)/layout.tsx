@@ -32,9 +32,16 @@ export default async function MainLayout({
     console.error("Failed to parse header.navLinks", e);
   }
 
+  const bannerSettings = {
+    enabled: content["global.banner.enabled"] === "true",
+    text: content["global.banner.text"] || "",
+    linkText: content["global.banner.link.text"] || "",
+    linkHref: content["global.banner.link.href"] || "",
+  };
+
   return (
     <>
-      <PromoBanner />
+      <PromoBanner settings={bannerSettings} />
       <div className="fixed inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-[0.05] pointer-events-none"></div>
       <Header navLinks={navLinks} siteName={siteName} />
       <AdPlacement placement="HEADER" className="container mx-auto" />
