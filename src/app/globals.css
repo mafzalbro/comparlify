@@ -236,8 +236,9 @@
     @apply border-border;
   }
 
-  *:not([class*="ring"]) {
+  *, *::before, *::after {
     box-shadow: none !important;
+    outline: none !important;
   }
 
   html {
