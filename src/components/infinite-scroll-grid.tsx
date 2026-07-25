@@ -20,6 +20,11 @@ export function InfiniteScrollGrid({
   const [loading, setLoading] = useState(false);
   const loaderRef = useRef<HTMLDivElement>(null);
 
+  // Reset visibleCount whenever children length or elements change significantly (e.g. on filtering)
+  useEffect(() => {
+    setVisibleCount(batchSize);
+  }, [children.length, batchSize]);
+
   const hasMore = visibleCount < children.length;
   const visibleChildren = children.slice(0, visibleCount);
 
@@ -30,14 +35,14 @@ export function InfiniteScrollGrid({
       (entries) => {
         if (entries[0].isIntersecting && !loading) {
           setLoading(true);
-          // Cute delayed loading for high-fidelity feel
+          // Standard timeout for a highly professional feel without disruptive layout shifts
           setTimeout(() => {
             setVisibleCount((prev) => Math.min(prev + batchSize, children.length));
             setLoading(false);
-          }, 800);
+          }, 350);
         }
       },
-      { threshold: 0.1, rootMargin: "100px" }
+      { threshold: 0.1, rootMargin: "250px" } // trigger earlier (250px below viewport) to ensure smooth, seamless infinite scrolling
     );
 
     if (loaderRef.current) {
@@ -54,42 +59,25 @@ export function InfiniteScrollGrid({
   }
 
   return (
-    <div className="space-y-16">
+    <div className="space-y-12">
       <div className={gridClassName}>
         {visibleChildren}
       </div>
 
       {hasMore && (
-        <div ref={loaderRef} className="flex flex-col items-center justify-center py-12 space-y-4">
-          <div className="flex items-center gap-3 bg-primary/10 border border-primary/20 px-6 py-3 rounded-full text-primary font-black uppercase tracking-[0.3em] text-[10px] shadow-sm animate-pulse">
+        <div ref={loaderRef} className="flex flex-col items-center justify-center py-6 space-y-4">
+          <div className="flex items-center gap-2.5 bg-primary/10 border border-primary/20 px-5 py-2.5 rounded-full text-primary font-semibold text-xs animate-pulse">
             <Loader2 className="h-4 w-4 animate-spin text-primary" />
-            <span>Analyzing more dispatches...</span>
-          </div>
-
-          {/* Cute Loading Skeletons */}
-          <div className={gridClassName + " w-full opacity-40 pointer-events-none mt-8"}>
-            {Array.from({ length: Math.min(batchSize, children.length - visibleCount) }).map((_, i) => (
-              <div
-                key={i}
-                className="h-80 w-full rounded-[2.5rem] border border-border/10 bg-card/10 animate-pulse relative overflow-hidden"
-              >
-                <div className="h-40 bg-linear-to-r from-muted to-card opacity-20"></div>
-                <div className="p-8 space-y-4">
-                  <div className="h-6 w-3/4 bg-muted rounded-full"></div>
-                  <div className="h-4 w-5/6 bg-muted rounded-full"></div>
-                  <div className="h-10 w-1/2 bg-muted rounded-full pt-4"></div>
-                </div>
-              </div>
-            ))}
+            <span>Loading more...</span>
           </div>
         </div>
       )}
 
       {!hasMore && children.length > batchSize && (
-        <div className="flex items-center justify-center py-12">
-          <div className="flex items-center gap-3 bg-secondary/10 border border-border/10 px-6 py-3 rounded-full text-muted-foreground font-black uppercase tracking-[0.3em] text-[10px] shadow-sm">
+        <div className="flex items-center justify-center py-6">
+          <div className="flex items-center gap-2 bg-secondary border border-border/40 px-5 py-2.5 rounded-full text-muted-foreground font-semibold text-xs">
             <Sparkles className="h-4 w-4 text-primary" />
-            <span>You have reached the end of the archive</span>
+            <span>End of the feed</span>
           </div>
         </div>
       )}

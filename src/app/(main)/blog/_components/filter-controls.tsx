@@ -108,12 +108,14 @@ export function FilterControls({
     <MotionDiv layout className="flex flex-wrap items-center gap-3 w-full">
       {/* --- Capsule Search --- */}
       <MotionDiv layout className="relative flex-1 min-w-[260px] group">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary opacity-60 group-focus-within:opacity-100 transition-opacity" />
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary opacity-60 group-focus-within:opacity-100 transition-opacity flex items-center justify-center z-10 pointer-events-none">
+          <Search className="h-4 w-4" />
+        </div>
         <Input
           id="search"
           name="search"
           placeholder="Search articles and insights..."
-          className="pl-11 h-11 bg-accent-surface dark:bg-white/5 border-border/40 rounded-full focus:ring-accent-surface transition-all font-medium text-xs placeholder:text-muted-foreground/50"
+          className="pl-11 pr-11 h-11 bg-accent-surface dark:bg-white/5 border-border/40 rounded-full focus:ring-accent-surface transition-all font-medium text-xs placeholder:text-muted-foreground/50"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
           disabled={isPending}
@@ -121,7 +123,7 @@ export function FilterControls({
         {searchValue && (
           <button
             onClick={() => setSearchValue("")}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-primary/10 transition-colors"
+            className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-primary/10 transition-colors z-10"
             disabled={isPending}
           >
             <X className="h-3.5 w-3.5 text-muted-foreground" />
