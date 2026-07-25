@@ -241,10 +241,10 @@ export default function Footer({ content, siteName }: FooterProps) {
           <p className="text-xs font-bold text-muted-foreground/60 uppercase tracking-widest">
             &copy; {new Date().getFullYear()} {siteName}. All rights reserved.
           </p>
-          <div className="flex gap-8 text-[10px] font-black text-muted-foreground/40 uppercase tracking-[0.3em]">
+          {/* <div className="flex gap-8 text-[10px] font-black text-muted-foreground/40 uppercase tracking-[0.3em]">
             <span>Status: Operational</span>
             <span className="hidden md:inline">IP: 127.0.0.1 (Local Node)</span>
-          </div>
+          </div> */}
         </div>
       </div>
     </footer>

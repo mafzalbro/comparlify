@@ -264,6 +264,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
 export function Editor({ initialContent = "", onChange }: EditorProps) {
   const [syncedContent, setSyncedContent] = useState(initialContent);
   const [isAiFilling, setIsAiFilling] = useState(false);
+  const lastPropagatedContent = React.useRef(initialContent);
 
   const editor = useEditor({
     extensions: [
@@ -290,6 +291,7 @@ export function Editor({ initialContent = "", onChange }: EditorProps) {
       if (!isAiFilling) {
         const markdown = (editor.storage as any).markdown.getMarkdown();
         setSyncedContent(markdown);
+        lastPropagatedContent.current = markdown;
         onChange(markdown);
       }
     },
@@ -301,22 +303,24 @@ export function Editor({ initialContent = "", onChange }: EditorProps) {
     },
   });
 
-  // Track initial content updates (from AI filling)
+  // Track initial content updates (from AI filling or external actions)
   useEffect(() => {
-    if (editor && initialContent !== syncedContent) {
+    if (editor && initialContent !== lastPropagatedContent.current) {
       if (initialContent) {
         setIsAiFilling(true);
         editor.commands.setContent(initialContent);
         setSyncedContent(initialContent);
+        lastPropagatedContent.current = initialContent;
 
         // Allow selection to remain if it was focused.
         setTimeout(() => setIsAiFilling(false), 50);
-      } else if (initialContent === "" && syncedContent !== "") {
+      } else if (initialContent === "" && lastPropagatedContent.current !== "") {
         editor.commands.clearContent();
         setSyncedContent("");
+        lastPropagatedContent.current = "";
       }
     }
-  }, [initialContent, editor, syncedContent]);
+  }, [initialContent, editor]);
 
   if (!editor) {
     return null;

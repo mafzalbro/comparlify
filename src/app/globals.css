@@ -236,8 +236,13 @@
     @apply border-border;
   }
 
-  *:not([class*="ring"]) {
+  *, *::before, *::after {
     box-shadow: none !important;
+    outline: none !important;
+  }
+
+  button, [role="button"], [class*="button"], [class*="Button"] {
+    border-radius: 9999px !important;
   }
 
   html {
