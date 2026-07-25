@@ -83,7 +83,9 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className="scroll-smooth scheme-light dark:scheme-dark"
+      className={
+        "scroll-smooth scheme-light dark:scheme-dark" + ` ${font.className}`
+      }
       suppressHydrationWarning
     >
       <head>
