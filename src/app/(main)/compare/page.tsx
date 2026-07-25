@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 import type { Metadata } from "next";
 import { generateSeoMetadata } from "@/lib/seo";
 import { notFound } from "next/navigation";
-import { cache } from "react";
+import { Suspense, cache } from "react";
 import type { SearchParams } from "@/types/next";
 import { getContent } from "@/lib/content";
 import { SchemaScript } from "@/components/schema-script";
@@ -12,9 +12,10 @@ import { Zap } from "lucide-react";
 // Components
 import { FilterControls } from "./_components/filter-controls";
 import { CompareHero } from "@/components/compare/compare-hero";
-import { ComparisonList } from "@/components/compare/comparison-list";
 import { BattleSelector } from "./_components/battle-selector";
 import { GlobalMatchEngine } from "@/components/compare/global-match-engine";
+import { ComparisonCardsList } from "./_components/comparison-cards-list";
+import { ComparisonCardsSkeleton } from "./_components/comparison-skeletons";
 
 export const revalidate = 3600;
 
@@ -26,63 +27,6 @@ export async function generateMetadata(): Promise<Metadata> {
     path: "/compare",
   });
 }
-
-const getComparisons = cache(
-  async ({
-    search,
-    sort,
-    platforms,
-    category,
-  }: {
-    search?: string;
-    sort?: string;
-    platforms?: string[];
-    category?: string;
-  }) => {
-    let where: any = { published: true };
-    let orderBy: any = { createdAt: "desc" };
-
-    if (search) {
-      where.OR = [
-        { title: { contains: search } },
-        { summary: { contains: search } },
-        { platformA: { name: { contains: search } } },
-        { platformB: { name: { contains: search } } },
-      ];
-    }
-
-    if (category && category !== "all") {
-      where.categoryId = category;
-    }
-
-    if (sort === "oldest") {
-      orderBy = { createdAt: "asc" };
-    } else if (sort === "rating") {
-      orderBy = { platformA: { rating: "desc" } };
-    }
-
-    if (platforms && platforms.length > 0) {
-      where.AND = [
-        ...(where.AND || []),
-        {
-          OR: [
-            { platformAId: { in: platforms } },
-            { platformBId: { in: platforms } },
-          ],
-        },
-      ];
-    }
-
-    return prisma.comparison.findMany({
-      where,
-      include: {
-        platformA: true,
-        platformB: true,
-      },
-      orderBy,
-    });
-  },
-);
 
 const getAllPlatforms = cache(async () => {
   return prisma.platform.findMany({ orderBy: { name: "asc" } });
@@ -103,21 +47,7 @@ export default async function ComparePage(props: {
   searchParams: Promise<SearchParams>;
 }) {
   const searchParams = await props.searchParams;
-  const { search, sort, category } = searchParams;
-  const platformsParam = searchParams.platforms;
-  const selectedPlatforms = Array.isArray(platformsParam)
-    ? platformsParam
-    : platformsParam
-      ? [platformsParam]
-      : [];
-
-  const [comparisons, allPlatforms, allComps, categories, content] = await Promise.all([
-    getComparisons({
-      search: String(search ?? ""),
-      sort: String(sort ?? "newest"),
-      platforms: selectedPlatforms,
-      category: String(category ?? "all"),
-    }),
+  const [allPlatforms, allComps, categories, content] = await Promise.all([
     getAllPlatforms(),
     getAllComparisonsList(),
     getComparisonCategories(),
@@ -127,6 +57,13 @@ export default async function ComparePage(props: {
   if (content["module.compare.enabled"] === "false") {
     notFound();
   }
+
+  // Suspense key based on filters to allow smooth loading
+  const platformsParam = searchParams.platforms;
+  const selectedPlatformsStr = Array.isArray(platformsParam)
+    ? platformsParam.join(",")
+    : platformsParam || "";
+  const filterKey = `${searchParams.search ?? ""}-${searchParams.category ?? ""}-${searchParams.sort ?? ""}-${selectedPlatformsStr}`;
 
   return (
     <div className="bg-background min-h-screen">
@@ -146,21 +83,23 @@ export default async function ComparePage(props: {
 
       <div className="container mx-auto py-12 px-4 md:px-6">
         {/* ── MATCH ENGINE WIZARD ──────────── */}
-        <GlobalMatchEngine allPlatforms={allPlatforms} allComparisons={allComps} />
+        <div className="mb-10">
+          <GlobalMatchEngine allPlatforms={allPlatforms} allComparisons={allComps} />
+        </div>
+
         {/* ── BATTLE SELECTOR ─────────────── */}
-        <BattleSelector platforms={allPlatforms} />
+        <div className="mb-14">
+          <BattleSelector platforms={allPlatforms} />
+        </div>
 
         {/* ── FILTERS ─────────────── */}
         <MotionDiv
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mb-16 bg-card/20 backdrop-blur-3xl border border-border/10 p-8 rounded-4xl shadow-xl relative overflow-hidden"
+          transition={{ delay: 0.1 }}
+          className="mb-12 max-w-5xl mx-auto"
         >
-          <div className="absolute top-0 right-0 p-8 text-primary/5 select-none pointer-events-none translate-x-12 -translate-y-12">
-            <Zap className="h-48 w-48" />
-          </div>
-          <div className="relative z-10">
+          <div className="bg-card/40 backdrop-blur-md border border-border/40 p-6 rounded-2xl shadow-sm">
             <FilterControls
               allPlatforms={allPlatforms}
               categories={categories}
@@ -169,12 +108,12 @@ export default async function ComparePage(props: {
           </div>
         </MotionDiv>
 
-        {/* ── LIST ────────────────────────── */}
-        <ComparisonList
-          comparisons={comparisons}
-          emptyTitle={content["compare.empty.title"]}
-          emptySubtitle={content["compare.empty.subtitle"]}
-        />
+        {/* ── SUSPENDED LIST ────────────────────────── */}
+        <div className="max-w-6xl mx-auto">
+          <Suspense key={filterKey} fallback={<ComparisonCardsSkeleton />}>
+            <ComparisonCardsList searchParams={searchParams} content={content} />
+          </Suspense>
+        </div>
       </div>
     </div>
   );
