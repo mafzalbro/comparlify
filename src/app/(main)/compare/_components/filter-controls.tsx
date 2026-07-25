@@ -129,7 +129,8 @@ export function FilterControls({
           id="search"
           name="search"
           placeholder="Search comparison reports..."
-          className="pl-11 pr-11 h-10 bg-accent-surface dark:bg-white/5 border-border/40 rounded-full focus:ring-accent-surface transition-all font-medium text-xs placeholder:text-muted-foreground/50 mt-0"
+          className="pr-11 h-10 bg-accent-surface dark:bg-white/5 border-border/40 rounded-full focus:ring-accent-surface transition-all font-medium text-xs placeholder:text-muted-foreground/50 mt-0"
+          style={{ paddingLeft: "2.75rem" }}
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
           disabled={isPending}
