@@ -1,7 +1,7 @@
 import { BlogPostData } from "../types";
 export const creatorLedVcInvesting: BlogPostData = {
   slug: "creator-led-vc-investing",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   published: true,
   image: "https://images.unsplash.com/photo-1553729459-efe14ef6055d?auto=format&fit=crop&q=80&w=1920&h=1080",
   title: "The 'Creator-Led' VC: Why Creators Are Becoming the New Investors",

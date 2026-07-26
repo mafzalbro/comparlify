@@ -5,7 +5,7 @@ export const solopreneurTechStack: BlogPostData = {
   slug: "solopreneur-tech-stack-2026",
   description: "Muhammad Afzal cuts through the software hype to design the absolute leanest, most powerful tech stack for modern solopreneurs looking to maximize profits with zero headcount.",
   categoryName: "Creator Economy",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "The Ultimate Solopreneur Tech Stack (2026) | Muhammad Afzal",

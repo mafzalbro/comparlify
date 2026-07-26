@@ -5,7 +5,7 @@ export const monetizingArchives: BlogPostData = {
   slug: "monetizing-newsletter-archives",
   description: "Muhammad Afzal explains the strategic and technical roadmap to turn your cold newsletter back-issues (Substack or Beehiiv) into high-converting paid products, automated email sequences, and high-fidelity lead magnets.",
   categoryName: "Platform Guides",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1546074177-ffedd1d85d4c?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Monetizing Your Newsletter Archives Guide (2026) | Muhammad Afzal",

@@ -251,9 +251,12 @@ async function main(skipCleanup = false) {
   console.log("\n👤 Seeding Users...");
   const usersData = [
     {
-      name: "Afzal Creator",
+      name: "Muhammad Afzal",
       email: "mafzalbro@gmail.com",
       role: Role.ADMIN,
+      username: "muhammad_afzal",
+      bio: "Over 10 years of experience building and migrating premium online academies. Muhammad focuses on zero-friction migrations, high-LTV student retention, and helping creators own their platform destiny.",
+      website: "https://comparlify.com",
       onboarded: true,
       newsletter: true,
     },

@@ -5,7 +5,7 @@ export const seoForAiRetrieval: BlogPostData = {
   slug: "seo-for-ai-llm-retrieval",
   description: "Muhammad Afzal explains the new landscape of Search Engine Optimization for 2026, detailing how to structure your digital articles so that LLM crawlers (ChatGPT, Claude, Gemini) find, credit, and recommend your brand.",
   categoryName: "Education Trends",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "SEO for AI Engines: LLM & Chatbot Optimization (2026) | Muhammad Afzal",

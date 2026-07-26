@@ -5,7 +5,7 @@ export const aiPersonalizedCurriculum: BlogPostData = {
   slug: "ai-personalized-curriculum-elearning",
   description: "How 'Static Courses' are being replaced by dynamic, AI-driven learning paths that adapt to every student's unique pace and goals.",
   categoryName: "Education Trends",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1501504905252-473c47e087f8?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Personalized AI Curriculum: The 2026 E-Learning Revolution | Comparlify",

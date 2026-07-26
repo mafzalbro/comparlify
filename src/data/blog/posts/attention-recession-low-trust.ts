@@ -1,7 +1,7 @@
 import { BlogPostData } from "../types";
 export const attentionRecession: BlogPostData = {
   slug: "attention-recession-low-trust",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   published: true,
   image: "https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&q=80&w=1920&h=1080",
   title: "The 'Attention' Recession: Strategies for a Low-Trust Digital Environment",

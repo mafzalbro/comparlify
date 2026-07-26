@@ -5,7 +5,7 @@ export const subscriptionToSaas: BlogPostData = {
   slug: "subscription-to-saas-pipeline",
   description: "How high-fidelity creators are leveraging their audience data to build vertical SaaS products, increasing their business valuation by 10x.",
   categoryName: "Tech Trends",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Subscription-to-SaaS Strategy 2026: Building Creator Software | Comparlify",

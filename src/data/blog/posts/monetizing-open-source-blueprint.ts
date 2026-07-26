@@ -5,7 +5,7 @@ export const monetizingOpenSource: BlogPostData = {
   slug: "monetizing-open-source-blueprint",
   description: "How to turn a popular GitHub repository into a 7-figure creator business without alienating your community or sacrificing code quality.",
   categoryName: "Monetization",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Monetizing Open Source 2026: The Founder Blueprint | Comparlify",

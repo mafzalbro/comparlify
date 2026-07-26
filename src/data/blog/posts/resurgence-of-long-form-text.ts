@@ -5,7 +5,7 @@ export const longFormTextResurgence: BlogPostData = {
   slug: "resurgence-of-long-form-text",
   description: "Muhammad Afzal explores the massive, quiet shift back to high-fidelity, long-form written content. Discover why creators are ditching short-form social media feeds to build highly profitable, sovereign newsletter empires.",
   categoryName: "Creator Economy",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "The Resurgence of Long-Form Text (2026) | Muhammad Afzal",

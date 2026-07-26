@@ -5,7 +5,7 @@ export const quietLuxuryCommunities: BlogPostData = {
   slug: "quiet-luxury-private-communities",
   description: "Why the era of 'Massive Memberships' is ending and how creators are earning more by serving fewer, high-value members in exclusive enclaves.",
   categoryName: "Monetization Strategy",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Quiet Luxury Communities: High-Ticket Strategy 2026 | Comparlify",

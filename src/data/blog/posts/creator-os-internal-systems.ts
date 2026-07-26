@@ -5,7 +5,7 @@ export const creatorOsInternalSystems: BlogPostData = {
   slug: "creator-os-internal-systems",
   description: "Muhammad Afzal explains how to build a unified 'Creator OS' database inside Notion or custom workspaces to manage your content pipeline, student onboarding, billing, and platform migrations with absolute calm and efficiency.",
   categoryName: "Creator Economy",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "The Creator OS: Organizing Internal Databases & Workspaces | Muhammad Afzal",

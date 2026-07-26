@@ -5,7 +5,7 @@ export const monetizingCuration: BlogPostData = {
   slug: "monetizing-curation-intelligence",
   description: "Why 'Filter-as-a-Service' is the most profitable business model in the age of AI noise, and how to build a 7-figure curation engine.",
   categoryName: "Content Strategy",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Monetizing Curation 2026: The Filter Economy | Comparlify",

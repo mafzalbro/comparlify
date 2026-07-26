@@ -5,7 +5,7 @@ export const visualStorytelling2026: BlogPostData = {
   slug: "visual-storytelling-creator-branding",
   description: "How to move beyond generic Canva templates and build a high-fidelity visual identity that signals authority and commands premium pricing.",
   categoryName: "Marketing",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Visual Branding for Creators 2026: The Fidelity Guide | Comparlify",

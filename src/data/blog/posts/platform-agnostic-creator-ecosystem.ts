@@ -5,7 +5,7 @@ export const platformAgnosticCreator: BlogPostData = {
   slug: "platform-agnostic-creator-ecosystem",
   description: "Why relying on a single 'All-in-One' platform is a high-risk strategy in 2026, and how to build a decoupled stack that survives any platform shift.",
   categoryName: "Creator Economy",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Platform-Agnostic Creator Strategy 2026 | Comparlify Intelligence",

@@ -5,7 +5,7 @@ export const creatorOpsScaling: BlogPostData = {
   slug: "creator-ops-scaling-guide",
   description: "Muhammad Afzal lays out the practical operational framework to design, write, and execute Standard Operating Procedures (SOPs) that turn a chaotic solo brand into a scalable, stress-free machine.",
   categoryName: "Creator Economy",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "The Solopreneur SOP Scaling Guide (2026) | Muhammad Afzal",

@@ -5,7 +5,7 @@ export const trueFans2026: BlogPostData = {
   slug: "100-true-fans-revisited-2026",
   description: "Why Kevin Kelly's classic thesis is more relevant than ever in the age of AI noise, and how to build a 6-figure business with a tiny, high-fidelity audience.",
   categoryName: "Creator Economy",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "100 True Fans 2026: The Small Audience Strategy | Comparlify",

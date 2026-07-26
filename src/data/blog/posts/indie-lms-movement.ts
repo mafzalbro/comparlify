@@ -5,7 +5,7 @@ export const indieLmsMovement: BlogPostData = {
   slug: "indie-lms-movement",
   description: "Why the one-size-fits-all model of Kajabi and Teachable is being disrupted by a new wave of custom, lightweight, and sovereign learning hubs.",
   categoryName: "Platform Guides",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc51?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Indie-LMS Movement 2026: Custom Education Hubs | Comparlify",

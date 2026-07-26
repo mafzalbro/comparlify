@@ -5,7 +5,7 @@ export const hybridLearning2026: BlogPostData = {
   slug: "hybrid-learning-on-demand-real-time",
   description: "Why the 'Hybrid' model is the most effective path for student transformation in 2026, and how to balance automation with intimacy.",
   categoryName: "Education Trends",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Hybrid Learning Strategy 2026: Video + Coaching | Comparlify",

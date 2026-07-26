@@ -5,7 +5,7 @@ export const creatorSyndicates: BlogPostData = {
   slug: "creator-syndicate-pooling-resources",
   description: "Why the 'Solo' in solopreneur is becoming a liability, and how new creator cooperatives are sharing costs, data, and audiences to win in 2026.",
   categoryName: "Creator Economy",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Creator Syndicates 2026: The Power of Pooling | Comparlify",

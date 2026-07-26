@@ -5,7 +5,7 @@ export const roiOfAuthenticity: BlogPostData = {
   slug: "roi-of-authenticity-lofi-content",
   description: "A behavioral analysis of why highly polished studio content is losing trust in 2026, and how 'Authenticity-at-Scale' is driving 3x more conversions.",
   categoryName: "Marketing",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Lo-Fi vs Studio: The ROI of Authenticity 2026 | Comparlify",

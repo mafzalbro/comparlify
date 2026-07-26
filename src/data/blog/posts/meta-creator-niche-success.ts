@@ -1,7 +1,7 @@
 import { BlogPostData } from "../types";
 export const metaCreatorNicheSuccess: BlogPostData = {
   slug: "meta-creator-niche-success",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   published: true,
   image: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=1920&h=1080",
   title: "The 'Meta-Creator' Niche: Helping Other Creators Succeed",

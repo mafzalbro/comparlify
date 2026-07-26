@@ -5,7 +5,7 @@ export const deathOfGenericContent: BlogPostData = {
   slug: "death-of-generic-content-expert-pov",
   description: "Why AI-generated fluff is failing and how creators are using 'Skin in the Game' to win trust in a synthetic world.",
   categoryName: "Content Strategy",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "The Expert POV: Winning in the Age of AI Fluff | Comparlify",

@@ -5,7 +5,7 @@ export const nocodeCreatorApps: BlogPostData = {
   slug: "nocode-creator-apps-flutterflow",
   description: "How high-fidelity creators are bypassing the App Store complexity and building custom mobile experiences using no-code infrastructure.",
   categoryName: "Tech Trends",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Custom Creator Apps with FlutterFlow 2026 | Comparlify",

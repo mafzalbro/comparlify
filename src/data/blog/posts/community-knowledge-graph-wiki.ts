@@ -5,7 +5,7 @@ export const communityKnowledgeGraph: BlogPostData = {
   slug: "community-knowledge-graph-wiki",
   description: "Why static FAQ pages are failing and how to use RAG (Retrieval-Augmented Generation) to turn your community's collective intelligence into a proprietary asset.",
   categoryName: "Education Trends",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc51?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Community Knowledge Graphs 2026: The AI-Native Wiki | Comparlify",

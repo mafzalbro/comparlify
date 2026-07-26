@@ -5,7 +5,7 @@ export const monetizingShadowCurriculum: BlogPostData = {
   slug: "monetizing-shadow-curriculum",
   description: "Why your messy process is more valuable than your polished results, and how to build a secondary revenue stream by showing your raw work.",
   categoryName: "Monetization Strategy",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Shadow Curriculum: Monetize Your Process 2026 | Comparlify",

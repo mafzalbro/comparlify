@@ -5,7 +5,7 @@ export const aiGeoTargetingLocal: BlogPostData = {
   slug: "ai-geo-targeting-local-creators",
   description: "How brick-and-mortar experts are using hyper-local AI marketing to dominate their cities and convert local followers into high-ticket students.",
   categoryName: "Marketing",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Geo-Targeted AI Marketing for Local Creators 2026 | Comparlify",

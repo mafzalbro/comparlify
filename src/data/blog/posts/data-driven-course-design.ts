@@ -5,7 +5,7 @@ export const dataDrivenCourseDesign: BlogPostData = {
   slug: "data-driven-course-design",
   description: "How to move from 'Intuition-Based' to 'Data-Based' curriculum development. A technical guide to reducing student drop-off using raw data.",
   categoryName: "Education Trends",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Data-Driven Course Optimization 2026 | Comparlify",

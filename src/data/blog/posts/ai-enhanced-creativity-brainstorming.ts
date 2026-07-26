@@ -5,7 +5,7 @@ export const aiEnhancedCreativity: BlogPostData = {
   slug: "ai-enhanced-creativity-brainstorming",
   description: "How to move beyond 'Generate a list of titles' and use advanced reasoning models to challenge your assumptions and find contrarian intelligence.",
   categoryName: "AI Tools",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "AI-Enhanced Creativity Guide 2026: Reasoning Models | Comparlify",

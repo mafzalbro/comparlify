@@ -5,7 +5,7 @@ export const sgeSeoStrategies: BlogPostData = {
   slug: "sge-seo-strategies-creators-2026",
   description: "Muhammad Afzal details the technical and strategic roadmap for creators to navigate Google's Search Generative Experience (SGE), preserving search visibility, click-through rates, and domain sovereignty.",
   categoryName: "Education Trends",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1542744094-3a31f103e35f?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Google SGE & AI Overviews SEO Strategies (2026) | Muhammad Afzal",

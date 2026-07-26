@@ -5,7 +5,7 @@ export const attentionArbitrage: BlogPostData = {
   slug: "attention-arbitrage-underpriced-traffic",
   description: "An industrial report on where the cheapest and highest-converting traffic lives in 2026. Comparing TikTok Shop, LinkedIn Video, and Perplexity Citations.",
   categoryName: "Marketing",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Attention Arbitrage 2026: Underpriced Traffic Guide | Comparlify",

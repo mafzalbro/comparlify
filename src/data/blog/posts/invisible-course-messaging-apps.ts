@@ -5,7 +5,7 @@ export const invisibleCourseMessaging: BlogPostData = {
   slug: "invisible-course-messaging-apps",
   description: "Why high-fidelity creators are moving their curriculum into WhatsApp, Telegram, and iMessage, and how to build a screenless learning experience.",
   categoryName: "Education Trends",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Invisible Courses 2026: Messaging App Education | Comparlify",

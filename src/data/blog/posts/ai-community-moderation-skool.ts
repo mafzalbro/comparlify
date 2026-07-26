@@ -5,7 +5,7 @@ export const aiCommunityModeration: BlogPostData = {
   slug: "ai-community-moderation-skool",
   description: "How to use automated sentiment analysis and agentic moderation to maintain a high-signal community without spending 40 hours a week in the comments.",
   categoryName: "Platform Guides",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "AI Community Moderation Guide 2026: Skool & Circle | Comparlify",

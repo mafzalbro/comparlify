@@ -5,7 +5,7 @@ export const expertInResidence: BlogPostData = {
   slug: "expert-in-residence-community-model",
   description: "Muhammad Afzal explains the operational framework to integrate Expert-in-Residence (EiR) mentors into your Skool or Circle community, multiplying student success and scaling your business without owner burnout.",
   categoryName: "Creator Economy",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "The Expert-in-Residence Community Model (2026) | Muhammad Afzal",

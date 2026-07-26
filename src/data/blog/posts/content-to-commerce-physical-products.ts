@@ -5,7 +5,7 @@ export const contentToCommerceFlywheel: BlogPostData = {
   slug: "content-to-commerce-physical-products",
   description: "Muhammad Afzal details the technical and strategic framework to connect your online education platform with premium physical products, building a highly resilient, high-LTV creator brand.",
   categoryName: "Creator Economy",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "The Content-to-Commerce Flywheel Guide (2026) | Muhammad Afzal",

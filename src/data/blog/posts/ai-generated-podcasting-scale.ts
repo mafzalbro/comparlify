@@ -5,7 +5,7 @@ export const aiGeneratedPodcasting: BlogPostData = {
   slug: "ai-generated-podcasting-scale",
   description: "How to use high-fidelity voice cloning and AI scriptwriting to produce a daily, top-tier podcast in multiple languages with zero recording time.",
   categoryName: "AI Tools",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "AI-Generated Podcasting Strategy 2026 | Comparlify Intelligence",

@@ -5,7 +5,7 @@ export const futureOfCreatorMonetization: BlogPostData = {
   slug: "future-of-creator-monetization-2026",
   description: "An exhaustive 4,000-word analysis of the $600B creator economy. featuring 2026 churn benchmarks, multi-modal revenue modeling, and the shift from 'Access' to 'Outcomes'.",
   categoryName: "Creator Economy",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Creator Monetization 2026: Trends, Data, and Strategy | Comparlify",

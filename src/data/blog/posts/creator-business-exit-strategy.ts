@@ -5,7 +5,7 @@ export const creatorBusinessExitStrategy: BlogPostData = {
   slug: "creator-business-exit-strategy",
   description: "Why most creator businesses are unsellable, and the structural changes you must make to build a media brand that earns a 5x valuation multiple.",
   categoryName: "Business Growth",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Creator Business Exit Strategy: Building Sellable Assets | Comparlify",

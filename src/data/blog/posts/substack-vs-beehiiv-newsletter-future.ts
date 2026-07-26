@@ -5,7 +5,7 @@ export const substackVsBeehiiv: BlogPostData = {
   slug: "substack-vs-beehiiv-newsletter-future",
   description: "An honest, technical, and strategic platform comparison by Muhammad Afzal between Substack and Beehiiv. Learn which engine is best for your writing style, monetization model, and independence.",
   categoryName: "Platform Guides",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1557200134-90327ee9fafa?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Substack vs. Beehiiv (2026): Which Newsletter Platform Wins? | Muhammad Afzal",

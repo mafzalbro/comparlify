@@ -5,7 +5,7 @@ export const teachableToSkoolMigration: BlogPostData = {
   slug: "teachable-to-skool-migration-guide",
   description: "A deep, practical guide written by Muhammad Afzal on why and how to migrate your academy from Teachable to Skool without losing students, billing momentum, or sanity.",
   categoryName: "Platform Guides",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Teachable to Skool Migration Guide (2026) | Muhammad Afzal",

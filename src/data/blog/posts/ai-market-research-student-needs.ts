@@ -5,7 +5,7 @@ export const aiMarketResearch: BlogPostData = {
   slug: "ai-market-research-student-needs",
   description: "How to use automated sentiment analysis, trend forecasting, and LLM-driven audience modeling to build a curriculum that is guaranteed to sell.",
   categoryName: "AI Tools",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "AI Market Research for Creators 2026 | Comparlify Intelligence",

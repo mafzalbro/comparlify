@@ -5,7 +5,7 @@ export const sovereignCreator2026: BlogPostData = {
   slug: "the-sovereign-creator-2026",
   description: "Our definitive 4,500-word industrial report on the transition from 'Platform Tenant' to 'Digital Landlord'. Featuring raw migration data, 2026 CAC benchmarks, and the definitive Sovereignty Framework.",
   categoryName: "Creator Economy",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "The Sovereign Creator 2026: The Ultimate Strategy Report | Comparlify",

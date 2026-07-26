@@ -5,7 +5,7 @@ export const circleMastermind: BlogPostData = {
   slug: "circle-so-private-mastermind-blueprint",
   description: "Muhammad Afzal explains how premium creators use Circle.so to design, manage, and scale intimate, high-ticket masterminds without messy tech silos.",
   categoryName: "Platform Guides",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Circle.so Private Mastermind Blueprint (2026) | Muhammad Afzal",

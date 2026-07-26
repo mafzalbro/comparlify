@@ -1,7 +1,7 @@
 import { BlogPostData } from "../types";
 export const sovereignPodcastRss: BlogPostData = {
   slug: "sovereign-podcast-rss-ownership",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   published: true,
   image: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&q=80&w=1920&h=1080",
   title: "The 'Sovereign' Podcast: Owning Your RSS Feed and Your Audience",

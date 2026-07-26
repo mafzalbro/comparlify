@@ -5,7 +5,7 @@ export const aiChatbotsCourseEnrollment: BlogPostData = {
   slug: "ai-chatbots-course-enrollment",
   description: "How to replace your high-pressure sales calls with intelligent, empathetic AI agents that close $2,000+ deals 24/7.",
   categoryName: "Marketing",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1531746790731-6c087fecd05a?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "AI Sales Agents for Course Creators 2026 | Comparlify",

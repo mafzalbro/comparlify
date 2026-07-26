@@ -5,7 +5,7 @@ export const collaborativeCourseCurriculum: BlogPostData = {
   slug: "collaborative-course-curriculum",
   description: "Why 'Expert-Down' teaching is failing and how the next generation of high-fidelity educators are using co-creation and student-led feedback loops to build better products.",
   categoryName: "Education Trends",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Collaborative Course Design 2026: Co-Creation Strategy | Comparlify",

@@ -5,7 +5,7 @@ export const aiTranslationMastery: BlogPostData = {
   slug: "ai-translation-multi-language-course",
   description: "How to use generative audio and video translation to expand your TAM (Total Addressable Market) by 500% with zero additional recording time.",
   categoryName: "AI Tools",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "AI Course Translation Strategy 2026: Multi-Language Scale | Comparlify",

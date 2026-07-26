@@ -5,7 +5,7 @@ export const microSaasForCreators: BlogPostData = {
   slug: "micro-saas-for-creators",
   description: "Why the next generation of 7-figure creators are becoming software founders, and how to build your first tool with AI.",
   categoryName: "Tech Trends",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Micro-SaaS for Creators: The 2026 Founder Blueprint | Comparlify",

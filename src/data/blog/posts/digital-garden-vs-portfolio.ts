@@ -5,7 +5,7 @@ export const digitalGardenVsPortfolio: BlogPostData = {
   slug: "digital-garden-vs-portfolio",
   description: "Why static portfolios are failing in the AI era and how high-fidelity creators are using 'Digital Gardens' to demonstrate their process, depth, and authorized expert POV.",
   categoryName: "Content Strategy",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Digital Garden vs Portfolio 2026: The New Standard | Comparlify",

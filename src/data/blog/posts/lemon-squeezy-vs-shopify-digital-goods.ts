@@ -5,7 +5,7 @@ export const lemonSqueezyVsShopify: BlogPostData = {
   slug: "lemon-squeezy-vs-shopify-digital-goods",
   description: "Muhammad Afzal explains the critical differences between Lemon Squeezy and Shopify, helping digital creators choose the right checkout engine while managing global tax compliance and developer friction.",
   categoryName: "Platform Guides",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1556742044-3c52d6e88c62?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Lemon Squeezy vs. Shopify (2026): Best for Digital Goods? | Muhammad Afzal",

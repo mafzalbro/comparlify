@@ -5,7 +5,7 @@ export const postSubscriptionModels: BlogPostData = {
   slug: "post-subscription-pay-per-outcome",
   description: "Why the recurring revenue model is under attack and how the next generation of 8-figure creators are charging for results instead of access.",
   categoryName: "Monetization Strategy",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Pay-Per-Outcome: The Future of Monetization 2026 | Comparlify",

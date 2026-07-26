@@ -5,7 +5,7 @@ export const highTicketCoaching: BlogPostData = {
   slug: "high-ticket-coaching-strategy-2026",
   description: "Muhammad Afzal lays out the practical framework to design, sell, and scale $2,000+ premium coaching programs without burning out or running complex, high-pressure webinar funnels.",
   categoryName: "Marketing",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "High-Ticket Coaching Strategy (2026) | Muhammad Afzal",

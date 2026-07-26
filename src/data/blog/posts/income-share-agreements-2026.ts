@@ -5,7 +5,7 @@ export const incomeShareAgreements: BlogPostData = {
   slug: "income-share-agreements-2026",
   description: "Why high-fidelity educators are pivoting from 'Tuition' to 'Shared Equity'. A deep dive into the legal, technical, and financial mechanics of ISAs in the creator economy.",
   categoryName: "Monetization",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Income Share Agreements (ISA) for Creators 2026 | Comparlify",

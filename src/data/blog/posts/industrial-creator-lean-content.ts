@@ -5,7 +5,7 @@ export const industrialCreatorLean: BlogPostData = {
   slug: "industrial-creator-lean-content",
   description: "How to move from 'Creative Chaos' to 'Industrial Output'. A guide to using Kanban, Six Sigma, and AI pipelines to scale content without burnout.",
   categoryName: "Business Growth",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Industrial Content Production 2026: Lean Creator Strategy | Comparlify",

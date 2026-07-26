@@ -5,7 +5,7 @@ export const whiteLabelRevolution: BlogPostData = {
   slug: "white-label-revolution-creator-apps",
   description: "Why high-fidelity creators are moving away from platform-branded apps (like Skool/Circle) and building fully sovereign white-label experiences.",
   categoryName: "Platform Guides",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "White-Label Creator Apps 2026: The New Standard | Comparlify",

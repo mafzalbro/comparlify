@@ -5,7 +5,7 @@ export const beehiivAiSegmentation: BlogPostData = {
   slug: "beehiiv-ai-segmentation-guide",
   description: "Muhammad Afzal explains how to use Beehiiv's powerful segmentation engine to build behavior profiles of your subscribers, driving 2x higher click rates and protecting deliverability.",
   categoryName: "Platform Guides",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Advanced Beehiiv Subscriber Segmentation Guide (2026) | Muhammad Afzal",

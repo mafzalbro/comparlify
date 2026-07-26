@@ -5,7 +5,7 @@ export const microCommunityTrend: BlogPostData = {
   slug: "micro-community-trend",
   description: "Why high-fidelity creators are downsizing their audiences to increase intimacy, peer-to-peer value, and net profit margins.",
   categoryName: "Monetization Strategy",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Micro-Community Strategy 2026: Small is Profitable | Comparlify",

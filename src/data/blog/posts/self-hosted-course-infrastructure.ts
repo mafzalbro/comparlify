@@ -5,7 +5,7 @@ export const selfHostedInfrastructure: BlogPostData = {
   slug: "self-hosted-course-infrastructure",
   description: "A technical guide for creators who want 100% control over their data, code, and monetization by moving away from SaaS platforms.",
   categoryName: "Platform Guides",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc51?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Self-Hosting Online Courses 2026: The Sovereignty Guide",

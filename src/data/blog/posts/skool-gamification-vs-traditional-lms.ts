@@ -5,7 +5,7 @@ export const skoolGamification: BlogPostData = {
   slug: "skool-gamification-vs-traditional-lms",
   description: "Muhammad Afzal details how traditional course software operates as a high-churn video warehouse, and how Skool's community gamification drives 4x completion rates.",
   categoryName: "Creator Economy",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Skool Gamification vs. Traditional LMS (2026) | Muhammad Afzal",

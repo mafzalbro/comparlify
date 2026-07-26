@@ -5,7 +5,7 @@ export const verticalAiCreators: BlogPostData = {
   slug: "rise-of-vertical-ai-creators",
   description: "Why generic LLMs are losing ground to specialized AI agents tailored for course creation, copywriting, and video production.",
   categoryName: "AI Tools",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Vertical AI for Creators: The 2026 Shift | Comparlify Intelligence",

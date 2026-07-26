@@ -5,7 +5,7 @@ export const podcastMonetization2026: BlogPostData = {
   slug: "podcast-monetization-2-0",
   description: "Why the CPM model is failing podcasters and how the top 1% are using 'Ecosystem Monetization' to earn 5x more per listener.",
   categoryName: "Monetization",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Podcast Monetization 2.0: The 2026 Strategy | Comparlify",

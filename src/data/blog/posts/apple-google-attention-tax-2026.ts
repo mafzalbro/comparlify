@@ -5,7 +5,7 @@ export const appleGoogleAttentionTax: BlogPostData = {
   slug: "apple-google-attention-tax-2026",
   description: "An economic report on the rising 'platform fees' and privacy restrictions that are shrinking creator profits, and how to fight back.",
   categoryName: "Creator Economy",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "The Attention Tax 2026: Apple vs Google vs Creators | Comparlify",

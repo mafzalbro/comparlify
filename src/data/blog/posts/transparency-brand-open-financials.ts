@@ -5,7 +5,7 @@ export const transparencyBrandOpenFinancials: BlogPostData = {
   slug: "transparency-brand-open-financials",
   description: "Why high-fidelity creators are sharing their raw P&L, Stripe logs, and churn data to build a high-trust 'Aura of Competence' in a low-trust world.",
   categoryName: "Marketing",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Transparency Branding 2026: The Open Financials Strategy | Comparlify",

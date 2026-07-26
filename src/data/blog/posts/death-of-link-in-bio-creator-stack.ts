@@ -5,7 +5,7 @@ export const deathOfLinkInBio: BlogPostData = {
   slug: "death-of-link-in-bio-creator-stack",
   description: "Muhammad Afzal explains why relying on standard Linktree-style tools is hurting your business, and how to build a highly optimized, fully owned creator database.",
   categoryName: "Creator Economy",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "The Death of the Link-in-Bio Stack (2026) | Muhammad Afzal",

@@ -5,7 +5,7 @@ export const creatorHealthLongevity: BlogPostData = {
   slug: "creator-health-longevity-sustainability",
   description: "Why the 'Hustle Culture' of 2022 is terminal, and how the top 1% of creators are using 'Sovereign Schedules' and AI delegation to prevent burnout and ensure long-term brand durability.",
   categoryName: "Business Growth",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Creator Health & Sustainability 2026: Anti-Burnout Strategy | Comparlify",

@@ -5,7 +5,7 @@ export const algorithmProofNewsletter: BlogPostData = {
   slug: "algorithm-proof-newsletter",
   description: "Why the inbox is the last remaining sovereign space on the internet and how to build a newsletter that survives the death of social reach.",
   categoryName: "Newsletter Strategy",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1512486130939-2c4f79935e4f?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Building an Algorithm-Proof Newsletter 2026 | Comparlify",

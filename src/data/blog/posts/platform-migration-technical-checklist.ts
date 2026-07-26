@@ -5,7 +5,7 @@ export const platformMigrationChecklist: BlogPostData = {
   slug: "platform-migration-technical-checklist",
   description: "Muhammad Afzal shares a highly tactical, step-by-step checklist to migrate your online academy, subscriptions, and student files with zero downtime, data loss, or subscriber churn.",
   categoryName: "Platform Guides",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Zero-Loss Platform Migration Checklist (2026) | Muhammad Afzal",

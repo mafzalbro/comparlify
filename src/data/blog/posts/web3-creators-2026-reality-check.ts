@@ -5,7 +5,7 @@ export const web3Creators2026: BlogPostData = {
   slug: "web3-creators-2026-reality-check",
   description: "Beyond the hype and the crashes: how creators are actually using on-chain infrastructure to build sovereign economies and peer-to-peer communities.",
   categoryName: "Tech Trends",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Web3 for Creators 2026: The Reality Check | Comparlify Intelligence",

@@ -5,7 +5,7 @@ export const b2bCreatorPartnerships: BlogPostData = {
   slug: "b2b-creator-corporate-partnerships",
   description: "Why selling to 'Bored Students' is low-margin, and how the top 1% of creators are pivoting to high-ticket corporate contracts and employee training.",
   categoryName: "Monetization",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "B2B Creator Strategy 2026: Corporate Partnerships | Comparlify",

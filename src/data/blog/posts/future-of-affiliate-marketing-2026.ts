@@ -5,7 +5,7 @@ export const futureOfAffiliateMarketing: BlogPostData = {
   slug: "future-of-affiliate-marketing-2026",
   description: "Why the old way of affiliate marketing is dying and how high-fidelity creators are building proprietary 'Recommendation Engines' that convert 10x better.",
   categoryName: "Marketing",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Affiliate Marketing Strategy 2026: Strategic Partnerships | Comparlify",

@@ -5,7 +5,7 @@ export const highTicketHybrid: BlogPostData = {
   slug: "kajabi-discord-hybrid-monetization",
   description: "Muhammad Afzal explains the technical and strategic reality of connecting Kajabi courses with Discord communities, detailing how to bridge structured learning with fast, real-time engagement.",
   categoryName: "Platform Guides",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1611510338559-2f463335092c?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Kajabi-Discord Hybrid Monetization Guide (2026) | Muhammad Afzal",

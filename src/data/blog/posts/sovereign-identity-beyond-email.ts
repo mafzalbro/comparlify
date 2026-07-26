@@ -5,7 +5,7 @@ export const sovereignIdentity: BlogPostData = {
   slug: "sovereign-identity-beyond-email",
   description: "Why relying on email addresses as your primary student identifier is a 2026 security risk, and how to use DID and on-chain identity to protect your audience.",
   categoryName: "Tech Trends",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Sovereign Identity for Creators 2026: Beyond Email | Comparlify",

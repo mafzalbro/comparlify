@@ -5,7 +5,7 @@ export const ethicalAiBrandTrust: BlogPostData = {
   slug: "ethical-ai-brand-trust",
   description: "How to maintain your 'Human Premium' and build a high-trust brand while leveraging the efficiency of AI automation.",
   categoryName: "AI Tools",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Building a High-Trust AI Brand 2026 | Comparlify Intelligence",

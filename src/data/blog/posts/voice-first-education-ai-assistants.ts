@@ -5,7 +5,7 @@ export const voiceFirstEducation: BlogPostData = {
   slug: "voice-first-education-ai-assistants",
   description: "How to adapt your curriculum for 'Screenless Learning' and leverage AI voice assistants to be in your students' ears 24/7.",
   categoryName: "Tech Trends",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1589254065878-42c9da997008?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Voice-First Learning Strategy 2026 | Comparlify Intelligence",

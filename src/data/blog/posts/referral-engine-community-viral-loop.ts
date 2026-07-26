@@ -5,7 +5,7 @@ export const referralEngineViral: BlogPostData = {
   slug: "referral-engine-community-viral-loop",
   description: "How to turn your members into your marketing team by building automated referral incentives and status-based viral loops on Skool and Circle.",
   categoryName: "Marketing",
-  authorEmail: "admin@comparlify.com",
+  authorEmail: "mafzalbro@gmail.com",
   image: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=1920&h=1080",
   published: true,
   metaTitle: "Community Referral Engines 2026: Viral Growth Guide | Comparlify",
