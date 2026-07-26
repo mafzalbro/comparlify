@@ -177,16 +177,21 @@ export default async function ComparisonDetailPage(props: {
   const getFeature = (platform: typeof platformA, featureId: string) =>
     platform.features.find((f: any) => f.featureId === featureId);
 
-  const featureRows = allFeatures.slice(0, 10).map((feature) => {
-    const pfA = getFeature(platformA, feature.id);
-    const pfB = getFeature(platformB, feature.id);
-    return {
-      id: feature.id,
-      name: feature.name,
-      value1: pfA?.hasFeature ? pfA.details || "Supported" : "Not Included",
-      value2: pfB?.hasFeature ? pfB.details || "Supported" : "Not Included",
-    };
-  });
+  const featureRows = allFeatures
+    .map((feature) => {
+      const pfA = getFeature(platformA, feature.id);
+      const pfB = getFeature(platformB, feature.id);
+      return {
+        id: feature.id,
+        name: feature.name,
+        hasA: !!pfA?.hasFeature,
+        hasB: !!pfB?.hasFeature,
+        value1: pfA?.hasFeature ? pfA.details || "Supported" : "Not Included",
+        value2: pfB?.hasFeature ? pfB.details || "Supported" : "Not Included",
+      };
+    })
+    .filter((row) => row.hasA || row.hasB)
+    .slice(0, 10);
 
   // ── Related Content ─────────────────────────────────────
   const [relatedPosts, relatedNews] = await Promise.all([

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -16,9 +15,36 @@ export function ManagedImage(props: ImageProps) {
   const isExternal = typeof props.src === 'string' && props.src.startsWith('http');
 
   if (isExternal) {
+    const {
+      fill,
+      priority,
+      quality,
+      unoptimized,
+      placeholder,
+      blurDataURL,
+      src,
+      width,
+      height,
+      style,
+      ...imgDomProps
+    } = props;
+
+    const fillStyle: React.CSSProperties = fill
+      ? {
+          position: 'absolute',
+          height: '100%',
+          width: '100%',
+          left: 0,
+          top: 0,
+          right: 0,
+          bottom: 0,
+          objectFit: 'contain',
+        }
+      : {};
+
     return (
       <img
-        {...(props as any)}
+        {...imgDomProps}
         src={currentSrc as string}
         onError={() => {
           if (!error) {
@@ -26,9 +52,10 @@ export function ManagedImage(props: ImageProps) {
           }
         }}
         style={{
-          width: props.width ? `${props.width}px` : 'auto',
-          height: props.height ? `${props.height}px` : 'auto',
-          ...props.style,
+          width: !fill && width ? `${width}px` : undefined,
+          height: !fill && height ? `${height}px` : undefined,
+          ...fillStyle,
+          ...style as any,
         }}
       />
     );

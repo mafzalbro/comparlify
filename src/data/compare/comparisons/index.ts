@@ -12,6 +12,8 @@ import { kajabiVsSkool } from "./kajabi-vs-skool";
 import { teachableVsPatreon } from "./teachable-vs-patreon";
 import { kajabiVsPodia } from "./kajabi-vs-podia";
 import { skoolVsCircle } from "./skool-vs-circle";
+import { ghostVsSubstack } from "./ghost-vs-substack";
+import { activecampaignVsKlaviyo } from "./activecampaign-vs-klaviyo";
 import { ComparisonData } from "../types";
 
 export const allComparisons: ComparisonData[] = [
@@ -29,4 +31,6 @@ export const allComparisons: ComparisonData[] = [
   teachableVsPatreon,
   kajabiVsPodia,
   skoolVsCircle,
+  ghostVsSubstack,
+  activecampaignVsKlaviyo,
 ];
