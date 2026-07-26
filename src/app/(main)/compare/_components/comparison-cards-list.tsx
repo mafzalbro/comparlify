@@ -13,6 +13,9 @@ interface ComparisonCardsListProps {
   content: Record<string, string>;
 }
 
+const comparisonsCache = new Map<string, { data: ComparisonWithPlatforms[]; timestamp: number }>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes in ms
+
 async function getComparisons({
   search,
   sort,
@@ -24,15 +27,23 @@ async function getComparisons({
   platforms?: string[];
   category?: string;
 }) {
+  const cacheKey = JSON.stringify({ search, sort, platforms, category });
+  const cached = comparisonsCache.get(cacheKey);
+  const now = Date.now();
+
+  if (cached && now - cached.timestamp < CACHE_TTL) {
+    return cached.data;
+  }
+
   let where: any = { published: true };
   let orderBy: any = { createdAt: "desc" };
 
   if (search) {
     where.OR = [
-      { title: { contains: search } },
-      { summary: { contains: search } },
-      { platformA: { name: { contains: search } } },
-      { platformB: { name: { contains: search } } },
+      { title: { contains: search, mode: "insensitive" } },
+      { summary: { contains: search, mode: "insensitive" } },
+      { platformA: { name: { contains: search, mode: "insensitive" } } },
+      { platformB: { name: { contains: search, mode: "insensitive" } } },
     ];
   }
 
@@ -58,7 +69,7 @@ async function getComparisons({
     ];
   }
 
-  return prisma.comparison.findMany({
+  const result = await prisma.comparison.findMany({
     where,
     include: {
       platformA: true,
@@ -66,6 +77,9 @@ async function getComparisons({
     },
     orderBy,
   });
+
+  comparisonsCache.set(cacheKey, { data: result, timestamp: now });
+  return result;
 }
 
 export async function ComparisonCardsList({ searchParams, content }: ComparisonCardsListProps) {

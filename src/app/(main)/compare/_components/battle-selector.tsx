@@ -36,75 +36,77 @@ export function BattleSelector({ platforms }: { platforms: Platform[] }) {
 
   return (
     <MotionDiv
-      initial={{ opacity: 0, scale: 0.95 }}
+      initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="p-10 rounded-[3rem] bg-primary/5 border border-primary/20 shadow-inner relative overflow-hidden group mb-20"
+      className="p-8 md:p-10 rounded-2xl bg-card/40 backdrop-blur-md border border-border/40 shadow-sm relative overflow-hidden group mb-14"
     >
-      <div className="absolute top-0 right-0 p-10 text-primary/5 -rotate-12 translate-x-6 -translate-y-6 group-hover:text-primary/10 transition-colors">
-        <GitCompareArrows className="h-40 w-40" />
+      <div className="absolute top-0 right-0 p-8 text-primary/5 -rotate-12 translate-x-6 -translate-y-6 group-hover:text-primary/10 transition-colors pointer-events-none">
+        <GitCompareArrows className="h-32 w-32" />
       </div>
 
-      <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
+      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 md:gap-8">
         <div className="flex-1 space-y-2">
-          <h3 className="text-3xl font-black uppercase tracking-tighter leading-none">
+          <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight leading-none text-foreground">
             Side-by-Side <span className="text-primary italic">Compare</span>
           </h3>
-          <p className="text-sm font-medium text-muted-foreground max-w-xs">
+          <p className="text-xs md:text-sm font-medium text-muted-foreground max-w-md">
             Can&apos;t find what you need? Select any two platforms to see a
-            detailed comparison.
+            detailed, data-driven comparison immediately.
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
-          <Select value={a} onValueChange={setA}>
-            <SelectTrigger className="w-full sm:w-[200px] h-14 rounded-2xl bg-background/50 border-border/10 focus:ring-primary shadow-xl">
-              <SelectValue placeholder="First Platform" />
-            </SelectTrigger>
-            <SelectContent className="rounded-2xl border-border/10">
-              {platforms.map((p) => (
-                <SelectItem key={p.id} value={p.id} disabled={p.id === b}>
-                  {p.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="flex flex-col sm:flex-row items-center gap-3.5 w-full lg:w-auto">
+          <div className="w-full sm:w-[220px]">
+            <Select value={a} onValueChange={setA}>
+              <SelectTrigger className="w-full h-11 rounded-full bg-accent-surface dark:bg-white/5 border border-border/40 focus:ring-primary shadow-none text-xs font-semibold px-5 text-foreground">
+                <SelectValue placeholder="First Platform" />
+              </SelectTrigger>
+              <SelectContent className="rounded-2xl border border-border/40 bg-background max-h-[300px]">
+                {platforms.map((p) => (
+                  <SelectItem key={p.id} value={p.id} disabled={p.id === b} className="text-xs font-semibold">
+                    {p.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/20 text-primary font-black italic shadow-inner">
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 border border-primary/20 text-primary font-black italic text-[10px] shrink-0">
             VS
           </div>
 
-          <Select value={b} onValueChange={setB}>
-            <SelectTrigger className="w-full sm:w-[200px] h-14 rounded-2xl bg-background/50 border-border/10 focus:ring-primary shadow-xl">
-              <SelectValue placeholder="Second Platform" />
-            </SelectTrigger>
-            <SelectContent className="rounded-2xl border-border/10">
-              {platforms.map((p) => (
-                <SelectItem key={p.id} value={p.id} disabled={p.id === a}>
-                  {p.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="w-full sm:w-[220px]">
+            <Select value={b} onValueChange={setB}>
+              <SelectTrigger className="w-full h-11 rounded-full bg-accent-surface dark:bg-white/5 border border-border/40 focus:ring-primary shadow-none text-xs font-semibold px-5 text-foreground">
+                <SelectValue placeholder="Second Platform" />
+              </SelectTrigger>
+              <SelectContent className="rounded-2xl border border-border/40 bg-background max-h-[300px]">
+                {platforms.map((p) => (
+                  <SelectItem key={p.id} value={p.id} disabled={p.id === a} className="text-xs font-semibold">
+                    {p.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           <Button
             onClick={handleBattle}
             disabled={!a || !b || a === b}
-            size="xl"
-            className="w-full sm:w-auto h-14 px-10 rounded-2xl font-black gap-3 shadow-xl shadow-primary/20 transition-all hover:scale-[1.05] group/btn"
+            size="lg"
+            className="w-full sm:w-auto h-11 px-8 rounded-full font-bold gap-2 shadow-none transition-all hover:scale-[1.02] active:scale-[0.98] shrink-0 text-xs uppercase tracking-wider bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            <Zap className="h-5 w-5 group-hover/btn:animate-pulse" /> Compare
-            Now
+            <Zap className="h-4 w-4" /> Compare Now
           </Button>
         </div>
       </div>
 
-      <div className="mt-8 flex items-center justify-center md:justify-start gap-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
-        <div className="flex items-center gap-2">
-          <ShieldCheck className="h-4 w-4 text-primary/40" /> Real-time Data
+      <div className="mt-6 flex items-center justify-center lg:justify-start gap-5 text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 border-t border-border/20 pt-4">
+        <div className="flex items-center gap-1.5">
+          <ShieldCheck className="h-3.5 w-3.5 text-primary/40" /> Real-time Data
         </div>
-        <div className="flex items-center gap-2">
-          <ShieldCheck className="h-4 w-4 text-primary/40" /> Feature Matrix
-          Audit
+        <div className="flex items-center gap-1.5">
+          <ShieldCheck className="h-3.5 w-3.5 text-primary/40" /> Feature Matrix Audit
         </div>
       </div>
     </MotionDiv>

@@ -20,6 +20,9 @@ interface BlogPostsListProps {
   content: Record<string, string>;
 }
 
+const blogPostsCache = new Map<string, { data: PostWithAuthorAndCategory[]; timestamp: number }>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes in ms
+
 async function getBlogPosts({
   search,
   sort,
@@ -31,14 +34,22 @@ async function getBlogPosts({
   author?: string;
   category?: string;
 }) {
+  const cacheKey = JSON.stringify({ search, sort, author, category });
+  const cached = blogPostsCache.get(cacheKey);
+  const now = Date.now();
+
+  if (cached && now - cached.timestamp < CACHE_TTL) {
+    return cached.data;
+  }
+
   let where: any = { published: true };
   let orderBy: any = { createdAt: "desc" };
 
   if (search) {
     where.OR = [
-      { title: { contains: search } },
-      { description: { contains: search } },
-      { content: { contains: search } },
+      { title: { contains: search, mode: "insensitive" } },
+      { description: { contains: search, mode: "insensitive" } },
+      { content: { contains: search, mode: "insensitive" } },
     ];
   }
 
@@ -63,6 +74,8 @@ async function getBlogPosts({
     include: { author: true, category: true },
     orderBy,
   });
+
+  blogPostsCache.set(cacheKey, { data: posts, timestamp: now });
   return posts;
 }
 

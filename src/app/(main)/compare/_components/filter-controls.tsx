@@ -61,7 +61,7 @@ export function FilterControls({
   const [searchValue, setSearchValue] = useState(
     String(searchParams.search || ""),
   );
-  const debouncedSearch = useDebounce(searchValue, 300);
+  const debouncedSearch = useDebounce(searchValue, 500);
 
   const handleFilterChange = useCallback(
     (params: Record<string, any>) => {

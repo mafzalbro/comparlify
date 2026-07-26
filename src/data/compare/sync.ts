@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { allPlatforms } from "./platforms";
+import { allComparisons } from "./comparisons";
 import { PlatformData } from "./types";
 
 export async function syncComparisonData() {
@@ -81,11 +82,6 @@ export async function syncComparisonData() {
     }
 
     // 2. Sync Pricing Tiers
-    // Delete existing tiers first or update them?
-    // Usually easier to delete and recreate for static data sync if IDs aren't referenced elsewhere.
-    // However, to be safe, we'll upsert by name for that platform.
-
-    // Better strategy for tiers:
     if (isMongo) {
       await (prisma as any).$runCommandRaw({
         delete: "PricingTier",
@@ -164,7 +160,6 @@ export async function syncComparisonData() {
         });
       }
 
-      // Let's find or create feature properly.
       let existingFeature = await prisma.feature.findFirst({
         where: { name: feat.featureName, categoryId: category.id }
       });
@@ -221,6 +216,104 @@ export async function syncComparisonData() {
             hasFeature: feat.hasFeature,
             details: feat.details
           }
+        });
+      }
+    }
+  }
+
+  // ── 5. Sync High-Fidelity Comparisons ──
+  console.log("🆚 Syncing comparisons from comparisons directory...");
+  for (const comp of allComparisons) {
+    console.log(`🆚 Syncing comparison: ${comp.title}`);
+
+    // Find platform A
+    const platA = await prisma.platform.findFirst({
+      where: { name: comp.platformA },
+    });
+
+    // Find platform B
+    const platB = await prisma.platform.findFirst({
+      where: { name: comp.platformB },
+    });
+
+    if (!platA || !platB) {
+      console.warn(`⚠️ Skipping comparison '${comp.title}' because platform(s) could not be resolved: [${comp.platformA}: ${!!platA}, ${comp.platformB}: ${!!platB}]`);
+      continue;
+    }
+
+    // Find or create category
+    let categoryObj = await prisma.comparisonCategory.findFirst({
+      where: { name: comp.category },
+    });
+
+    if (!categoryObj) {
+      categoryObj = await prisma.comparisonCategory.create({
+        data: {
+          name: comp.category,
+          slug: comp.category.toLowerCase().replace(/\s+/g, "-"),
+        },
+      });
+    }
+
+    const compData: any = {
+      title: comp.title,
+      summary: comp.summary,
+      introduction: comp.introduction,
+      content: comp.content,
+      conclusion: comp.conclusion,
+      published: comp.published ?? false,
+      platformAId: platA.id,
+      platformBId: platB.id,
+      categoryId: categoryObj.id,
+      authorName: comp.authorName || null,
+      authorRole: comp.authorRole || null,
+      authorBio: comp.authorBio || null,
+      authorCredentials: comp.authorCredentials as any || null,
+      metaTitle: comp.metaTitle || null,
+      metaDescription: comp.metaDescription || null,
+      sovereigntyScoreA: comp.sovereigntyScoreA || null,
+      sovereigntyScoreB: comp.sovereigntyScoreB || null,
+    };
+
+    // Upsert Comparison
+    const dbComp = await prisma.comparison.upsert({
+      where: { slug: comp.slug },
+      update: compData,
+      create: {
+        slug: comp.slug,
+        ...compData,
+      },
+    });
+
+    // Sync Facts
+    await prisma.fact.deleteMany({
+      where: { comparisonId: dbComp.id },
+    });
+    if (comp.facts && comp.facts.length > 0) {
+      for (const fact of comp.facts) {
+        await prisma.fact.create({
+          data: {
+            title: fact.title,
+            platformAValue: fact.platformAValue,
+            platformBValue: fact.platformBValue,
+            comparisonId: dbComp.id,
+          },
+        });
+      }
+    }
+
+    // Sync FAQs
+    await prisma.faq.deleteMany({
+      where: { comparisonId: dbComp.id },
+    });
+    if (comp.faqs && comp.faqs.length > 0) {
+      for (const faq of comp.faqs) {
+        await prisma.faq.create({
+          data: {
+            question: faq.question,
+            answer: faq.answer,
+            comparisonId: dbComp.id,
+          },
         });
       }
     }
