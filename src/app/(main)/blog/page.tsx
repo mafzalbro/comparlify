@@ -96,7 +96,7 @@ export default async function BlogPage(props: {
           transition={{ delay: 0.1 }}
           className="mb-10 max-w-5xl mx-auto"
         >
-          <div className="bg-card/40 backdrop-blur-md border border-border/40 p-6 rounded-2xl shadow-sm">
+          <div className="bg-card/40 backdrop-blur-md border border-border/40 p-6 rounded-3xl shadow-sm">
             <FilterControls
               authors={authors}
               categories={categories}

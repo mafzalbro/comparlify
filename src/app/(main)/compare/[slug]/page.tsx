@@ -23,6 +23,7 @@ import dynamic from "next/dynamic";
 
 import { calculatePlatformScore } from "@/lib/scoring";
 import { ComparisonHero } from "@/components/comparison/comparison-hero";
+import { getContent } from "@/lib/content";
 import { ComparisonStats } from "@/components/comparison/comparison-stats";
 import { ComparisonFeatureMatrix } from "@/components/comparison/comparison-feature-matrix";
 import { IntelligenceVerdict } from "@/components/comparison/intelligence-verdict";
@@ -96,9 +97,10 @@ export default async function ComparisonDetailPage(props: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await props.params;
-  const [session, comparison] = await Promise.all([
+  const [session, comparison, content] = await Promise.all([
     auth(),
     getComparisonBySlug(slug),
+    getContent(),
   ]);
 
   if (!comparison) notFound();
@@ -311,54 +313,58 @@ export default async function ComparisonDetailPage(props: {
                 </section>
 
                 {/* ── COLLECTIVE PULSE ─────────────── */}
-                <section className="bg-primary/5 border border-primary/20 p-8 rounded-[3rem] space-y-8">
-                  <Badge className="bg-primary/20 text-primary border-primary/30 uppercase tracking-widest text-[9px] font-black">
-                    Community Pulse
-                  </Badge>
-                  <h4 className="text-2xl font-black leading-none uppercase">
-                    Expert{" "}
-                    <span className="text-primary italic">Highlights</span>
-                  </h4>
+                {(content["module.community.enabled"] !== "false" || content["module.news.enabled"] !== "false") && (
+                  <section className="bg-primary/5 border border-primary/20 p-8 rounded-[3rem] space-y-8">
+                    <Badge className="bg-primary/20 text-primary border-primary/30 uppercase tracking-widest text-[9px] font-black">
+                      Community Pulse
+                    </Badge>
+                    <h4 className="text-2xl font-black leading-none uppercase">
+                      Expert{" "}
+                      <span className="text-primary italic">Highlights</span>
+                    </h4>
 
-                  <div className="space-y-6">
-                    {[...platformA.forumTopics, ...platformB.forumTopics]
-                      .slice(0, 3)
-                      .map((topic) => (
-                        <Link
-                          key={topic.id}
-                          href={`/community/topic/${topic.id}`}
-                          className="flex items-start gap-4 p-4 rounded-2xl bg-background hover:bg-primary/5 transition-all group"
-                        >
-                          <MessageSquare className="h-5 w-5 text-muted-foreground mt-1 group-hover:text-primary" />
-                          <p className="text-xs font-bold leading-snug group-hover:text-primary transition-colors">
-                            {topic.title}
-                          </p>
-                        </Link>
-                      ))}
-                    {[...platformA.newsArticles, ...platformB.newsArticles]
-                      .slice(0, 2)
-                      .map((news) => (
-                        <Link
-                          key={news.id}
-                          href={`/news/${news.slug}`}
-                          className="flex items-start gap-4 p-4 rounded-2xl bg-background hover:bg-blue-500/5 transition-all group border border-blue-500/10"
-                        >
-                          <Newspaper className="h-5 w-5 text-blue-500 mt-1" />
-                          <p className="text-xs font-bold leading-snug group-hover:text-blue-500 transition-colors">
-                            {news.title}
-                          </p>
-                        </Link>
-                      ))}
-                  </div>
+                    <div className="space-y-6">
+                      {content["module.community.enabled"] !== "false" && [...platformA.forumTopics, ...platformB.forumTopics]
+                        .slice(0, 3)
+                        .map((topic) => (
+                          <Link
+                            key={topic.id}
+                            href={`/community/topic/${topic.id}`}
+                            className="flex items-start gap-4 p-4 rounded-3xl bg-background hover:bg-primary/5 transition-all group"
+                          >
+                            <MessageSquare className="h-5 w-5 text-muted-foreground mt-1 group-hover:text-primary" />
+                            <p className="text-xs font-bold leading-snug group-hover:text-primary transition-colors">
+                              {topic.title}
+                            </p>
+                          </Link>
+                        ))}
+                      {content["module.news.enabled"] !== "false" && [...platformA.newsArticles, ...platformB.newsArticles]
+                        .slice(0, 2)
+                        .map((news) => (
+                          <Link
+                            key={news.id}
+                            href={`/news/${news.slug}`}
+                            className="flex items-start gap-4 p-4 rounded-3xl bg-background hover:bg-blue-500/5 transition-all group border border-blue-500/10"
+                          >
+                            <Newspaper className="h-5 w-5 text-blue-500 mt-1" />
+                            <p className="text-xs font-bold leading-snug group-hover:text-blue-500 transition-colors">
+                              {news.title}
+                            </p>
+                          </Link>
+                        ))}
+                    </div>
 
-                  <Button
-                    asChild
-                    variant="ghost"
-                    className="w-full rounded-2xl h-12 font-black uppercase tracking-widest text-[10px] hover:bg-primary/10"
-                  >
-                    <Link href="/community">Visit Community</Link>
-                  </Button>
-                </section>
+                    {content["module.community.enabled"] !== "false" && (
+                      <Button
+                        asChild
+                        variant="ghost"
+                        className="w-full rounded-3xl h-12 font-black uppercase tracking-widest text-[10px] hover:bg-primary/10"
+                      >
+                        <Link href="/community">Visit Community</Link>
+                      </Button>
+                    )}
+                  </section>
+                )}
               </div>
             </aside>
 

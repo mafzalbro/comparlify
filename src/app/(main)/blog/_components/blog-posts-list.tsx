@@ -175,7 +175,7 @@ export async function BlogPostsList({ searchParams, content }: BlogPostsListProp
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.5, delay: (index % 3) * 0.05 }}
           >
-            <Card className="flex flex-col h-full group overflow-hidden rounded-2xl border border-border/40 bg-card/20 hover:bg-card/30 backdrop-blur-md shadow-sm transition-all duration-500 hover:shadow-md hover:border-primary/20">
+            <Card className="flex flex-col h-full group overflow-hidden rounded-3xl border border-border/40 bg-card/20 hover:bg-card/30 backdrop-blur-md shadow-sm transition-all duration-500 hover:shadow-md hover:border-primary/20">
               <div className="relative overflow-hidden aspect-16/11 bg-muted/10">
                 <Link href={`/blog/${post.slug}`} className="block h-full">
                   <ManagedImage

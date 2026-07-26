@@ -50,7 +50,7 @@ export function ComparisonList({
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.5, delay: (index % 3) * 0.05 }}
         >
-          <Card className="flex flex-col h-full group overflow-hidden rounded-2xl border border-border/40 bg-card/20 hover:bg-card/30 backdrop-blur-md shadow-sm transition-all duration-500 hover:shadow-md hover:border-primary/20">
+          <Card className="flex flex-col h-full group overflow-hidden rounded-3xl border border-border/40 bg-card/20 hover:bg-card/30 backdrop-blur-md shadow-sm transition-all duration-500 hover:shadow-md hover:border-primary/20">
             <NextLink href={`/compare/${comp.slug}`} className="block relative">
               <div className="h-44 bg-linear-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center relative px-8 overflow-hidden border-b border-border/10">
                 <div className="absolute inset-0 bg-grid-pattern-light opacity-5"></div>

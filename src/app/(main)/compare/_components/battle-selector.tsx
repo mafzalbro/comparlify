@@ -38,7 +38,7 @@ export function BattleSelector({ platforms }: { platforms: Platform[] }) {
     <MotionDiv
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="p-8 md:p-10 rounded-2xl bg-card/40 backdrop-blur-md border border-border/40 shadow-sm relative overflow-hidden group mb-14"
+      className="p-8 md:p-10 rounded-3xl bg-card/40 backdrop-blur-md border border-border/40 shadow-sm relative overflow-hidden group mb-14"
     >
       <div className="absolute top-0 right-0 p-8 text-primary/5 -rotate-12 translate-x-6 -translate-y-6 group-hover:text-primary/10 transition-colors pointer-events-none">
         <GitCompareArrows className="h-32 w-32" />

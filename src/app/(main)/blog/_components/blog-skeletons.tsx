@@ -5,7 +5,7 @@ export function BlogCardsSkeleton() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
       {Array.from({ length: 6 }).map((_, i) => (
-        <Card key={i} className="flex flex-col h-full overflow-hidden border border-border/40 bg-card/40 backdrop-blur-md rounded-2xl shadow-sm">
+        <Card key={i} className="flex flex-col h-full overflow-hidden border border-border/40 bg-card/40 backdrop-blur-md rounded-3xl shadow-sm">
           <div className="relative aspect-16/11 w-full bg-muted/20">
             <Skeleton className="absolute inset-0 w-full h-full" />
           </div>
@@ -34,7 +34,7 @@ export function BlogCardsSkeleton() {
 
 export function BlogFeaturedSkeleton() {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-card/20 shadow-sm h-full lg:min-h-[380px] animate-pulse">
+    <div className="relative overflow-hidden rounded-3xl border border-border/40 bg-card/20 shadow-sm h-full lg:min-h-[380px] animate-pulse">
       <div className="grid grid-cols-1 lg:grid-cols-12 h-full">
         <div className="lg:col-span-7 bg-muted/20 relative h-[250px] lg:h-full">
           <Skeleton className="absolute inset-0 w-full h-full" />

@@ -5,7 +5,7 @@ export function ComparisonCardsSkeleton() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
       {Array.from({ length: 6 }).map((_, i) => (
-        <Card key={i} className="flex flex-col h-full overflow-hidden border border-border/40 bg-card/40 backdrop-blur-md rounded-2xl shadow-sm">
+        <Card key={i} className="flex flex-col h-full overflow-hidden border border-border/40 bg-card/40 backdrop-blur-md rounded-3xl shadow-sm">
           <div className="h-44 bg-muted/20 relative flex items-center justify-around px-8">
             <Skeleton className="h-14 w-28 rounded-xl" />
             <div className="h-8 w-8 rounded-full bg-border/20 flex items-center justify-center">
