@@ -3,29 +3,30 @@
 import React, { Suspense } from "react";
 import { MotionDiv } from "@/components/motion-wrapper";
 import dynamic from "next/dynamic";
-import { 
-  ShieldCheck, 
-  Cpu, 
-  Zap,
-  ArrowRightLeft,
-} from "lucide-react";
+import { ShieldCheck, Cpu, Zap, ArrowRightLeft } from "lucide-react";
 
 const UniversalConverter = dynamic(
-  () => import("@/components/tools/converters/universal-converter").then(mod => mod.UniversalConverter),
-  { ssr: false }
+  () =>
+    import("@/components/tools/converters/universal-converter").then(
+      (mod) => mod.UniversalConverter,
+    ),
+  { ssr: false },
 );
 
 interface ConversionPageProps {
   params: Promise<{ from: string; to: string }>;
 }
 
-export default async function ConversionPage({ params }: ConversionPageProps) {
-  const { from, to } = await params;
+export default function ConversionPage({ params }: ConversionPageProps) {
+  const { from, to } = React.use(params);
 
   return (
     <div className="min-h-screen text-foreground">
       {/* Background atmosphere blobs */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+      <div
+        className="fixed inset-0 overflow-hidden pointer-events-none"
+        aria-hidden="true"
+      >
         <div className="absolute top-[-5%] left-[-5%] w-[35%] h-[35%] bg-primary/5 rounded-full blur-[100px] animate-pulse" />
         <div className="absolute bottom-[-5%] right-[-5%] w-[35%] h-[35%] bg-emerald-500/5 rounded-full blur-[100px] animate-pulse delay-700" />
       </div>
@@ -47,13 +48,17 @@ export default async function ConversionPage({ params }: ConversionPageProps) {
             Universal <span className="text-primary italic">Converter</span>
           </h1>
           <p className="text-muted-foreground text-xs md:text-sm font-medium tracking-wide max-w-xl mx-auto leading-relaxed opacity-70">
-            Convert any file format right here in your browser. No uploads, no servers, 
-            no data leaving your device — ever.
+            Convert any file format right here in your browser. No uploads, no
+            servers, no data leaving your device — ever.
           </p>
         </MotionDiv>
 
         {/* Converter Tool */}
-        <Suspense fallback={<div className="h-64 bg-card/20 rounded-2xl animate-pulse" />}>
+        <Suspense
+          fallback={
+            <div className="h-64 bg-card/20 rounded-2xl animate-pulse" />
+          }
+        >
           <UniversalConverter initialFrom={from} initialTo={to} />
         </Suspense>
 
@@ -68,18 +73,18 @@ export default async function ConversionPage({ params }: ConversionPageProps) {
             {
               icon: <ShieldCheck className="h-5 w-5" />,
               title: "Privacy First",
-              desc: "Your files never leave your browser. Everything runs in local RAM — nothing is uploaded."
+              desc: "Your files never leave your browser. Everything runs in local RAM — nothing is uploaded.",
             },
             {
               icon: <Cpu className="h-5 w-5" />,
               title: "Neural Engine",
-              desc: "High-fidelity rendering at 2x resolution. Preserve vectors, colors, and layout precision."
+              desc: "High-fidelity rendering at 2x resolution. Preserve vectors, colors, and layout precision.",
             },
             {
               icon: <ArrowRightLeft className="h-5 w-5" />,
               title: "Multi-Format",
-              desc: "PDF, JPG, PNG, WEBP, HTML, ZIP, and many more — one unified conversion interface."
-            }
+              desc: "PDF, JPG, PNG, WEBP, HTML, ZIP, and many more — one unified conversion interface.",
+            },
           ].map(({ icon, title, desc }) => (
             <div
               key={title}
@@ -89,8 +94,12 @@ export default async function ConversionPage({ params }: ConversionPageProps) {
                 {icon}
               </div>
               <div>
-                <h3 className="text-sm font-black uppercase tracking-tight mb-1">{title}</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed opacity-70">{desc}</p>
+                <h3 className="text-sm font-black uppercase tracking-tight mb-1">
+                  {title}
+                </h3>
+                <p className="text-xs text-muted-foreground leading-relaxed opacity-70">
+                  {desc}
+                </p>
               </div>
             </div>
           ))}
