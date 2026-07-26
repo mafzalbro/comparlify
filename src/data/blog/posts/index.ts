@@ -29,7 +29,7 @@ import { contentToCommerceFlywheel } from "./content-to-commerce-physical-produc
 import { creatorBusinessExitStrategy } from "./creator-business-exit-strategy";
 import { creatorHealthLongevity } from "./creator-health-longevity-sustainability";
 import { creatorLedVcInvesting } from "./creator-led-vc-investing";
-import { creatorOpsScalingGuide } from "./creator-ops-scaling-guide";
+import { creatorOpsScaling } from "./creator-ops-scaling-guide";
 import { creatorOsInternalSystems } from "./creator-os-internal-systems";
 import { creatorSyndicates } from "./creator-syndicate-pooling-resources";
 import { creatorToCorporatePipeline } from "./creator-to-corporate-pipeline";
@@ -46,7 +46,7 @@ import { futureOfAffiliateMarketing } from "./future-of-affiliate-marketing-2026
 import { futureOfCreatorMonetization } from "./future-of-creator-monetization-2026";
 import { futureProofSkills2030 } from "./future-proof-creator-skills-2030";
 import { ghostCreatorFaceless } from "./ghost-creator-faceless-branding";
-import { highTicketCoaching2026 } from "./high-ticket-coaching-strategy-2026";
+import { highTicketCoaching } from "./high-ticket-coaching-strategy-2026";
 import { hybridEventStrategy } from "./hybrid-event-strategy-2026";
 import { hybridLearning2026 } from "./hybrid-learning-on-demand-real-time";
 import { incomeShareAgreements } from "./income-share-agreements-2026";
@@ -131,7 +131,7 @@ export const allPosts: BlogPostData[] = [
   creatorBusinessExitStrategy,
   creatorHealthLongevity,
   creatorLedVcInvesting,
-  creatorOpsScalingGuide,
+  creatorOpsScaling,
   creatorOsInternalSystems,
   creatorSyndicates,
   creatorToCorporatePipeline,
@@ -148,7 +148,7 @@ export const allPosts: BlogPostData[] = [
   futureOfCreatorMonetization,
   futureProofSkills2030,
   ghostCreatorFaceless,
-  highTicketCoaching2026,
+  highTicketCoaching,
   highTicketHybrid,
   hybridEventStrategy,
   hybridLearning2026,
