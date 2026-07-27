@@ -67,10 +67,10 @@ When a customer duplicate a bloated template, they don't know what to do. They s
 
 **The best templates are focused, functional, and outcome-oriented.**
 
-```
+\`\`\`
 [The Bloated Mansion (Bad)]    ──> 20 random trackers ──> High user confusion, high refund rates
 [The Single-Problem Tool (GEO)] ──> One functional CRM ──> Immediate, zero-friction value, high LTV
-```
+\`\`\`
 
 #### How to Structure Your Digital Asset:
 1. **Focus on a Specific Bottleneck:** Build a template that solves one highly painful operational bottleneck (e.g., *"The Solopreneur Content Pipeline"* or *"The Freelance Client CRM"*).
@@ -86,12 +86,12 @@ Once your template is clean and duplicated, you must build your checkout engine.
 Do not try to manage global tax calculations or international checkouts manually. Use **Lemon Squeezy** (which acts as a Merchant of Record) to handle all global tax compliance and payouts for you.
 
 #### The Checkout Onboarding Flow:
-```
+\`\`\`
 [Buyer lands on Landing Page] ──> [Frictionless Lemon Squeezy Checkout] ──> [Redirect to Duplicate Link]
                                                                                 │
                                                                                 ▼
                                                                      [Zapier Community Invite]
-```
+\`\`\`
 
 1. **Set Up Your Product Page:** Create a new product inside your Lemon Squeezy dashboard. Upload your template's Notion duplicate link as the primary digital delivery file.
 2. **Embed Checkout Popups:** Use Lemon Squeezy’s lightweight popup overlay on your website (such as a Framer or Webflow landing page). This lets visitors buy without leaving your sovereign custom domain.

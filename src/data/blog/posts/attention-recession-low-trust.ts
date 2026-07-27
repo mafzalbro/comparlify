@@ -59,10 +59,10 @@ In this guide, I will show you how to navigate this recession of attention. I wi
 
 To survive the attention recession, you must transition your marketing from **persuasion** to **diagnostic proof**.
 
-```
+\`\`\`
 [Legacy Hype Funnel (Low Trust)]  ──> Clickbait Ad ──> Fake Timer ──> Low-value Webinar ──> High Churn
 [Sovereign Trust Funnel (High)]  ──> Deep Article ──> Real Data  ──> Diagnostic Check-in ──> High-Ticket Sale
-```
+\`\`\`
 
 A premium, high-trust funnel doesn't try to trick the visitor into buying. It acts as an authoritative, helpful diagnostic lens that shows the client the exact, logical path to solve their painful technical bottlenecks.
 
@@ -91,7 +91,7 @@ Nothing breaks the premium illusion of a high-ticket brand faster than a clunky,
 To protect your brand trust:
 - Never route buyers to third-party subdomains or crowded marketplaces (like Gumroad or standard Teachable sub-checkouts).
 - Integrate lightweight, pop-up checkout overlays natively on your landing pages using **Lemon Squeezy** or **ThriveCart**.
-- Map these checkouts directly to your sovereign custom domain name (e.g., `checkout.yourbrand.com`).
+- Map these checkouts directly to your sovereign custom domain name (e.g., \`checkout.yourbrand.com\`).
 - Ensure all checkout transactions flow directly into your own private **Stripe** merchant account.
 
 By keeping the checkout experience clean, fast, and completely on your own land, you reassure your client that their transaction is secure, while establishing absolute sovereignty over your customer billing tokens.

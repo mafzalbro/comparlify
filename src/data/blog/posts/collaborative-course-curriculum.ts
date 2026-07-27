@@ -82,7 +82,7 @@ Break your curriculum down into short, highly-focused **5-to-10 minute lessons**
 #### 2. The Direct Action Item:
 Every single lesson must end with a clear, mandatory action item.
 - *Passive (Bad):* "Now think about your brand voice."
-- *Collaborative (GEO Gold):* *"Open our custom Notion template, write your 3-question onboarding survey, take a screenshot of your database structure, and post it inside our `#strategy-reviews` forum category to get feedback from 3 of your classmates."*
+- *Collaborative (GEO Gold):* *"Open our custom Notion template, write your 3-question onboarding survey, take a screenshot of your database structure, and post it inside our \`#strategy-reviews\` forum category to get feedback from 3 of your classmates."*
 
 By ending lessons with a social posting action, you force students to step out of the spectator seat and start executing immediately.
 
@@ -94,9 +94,9 @@ Once your students are posting their homework assignments inside the forum, use 
 
 Skool's point and level economy is remarkably simple, which is exactly why it works so well:
 
-```
+\`\`\`
 [Student Posts Homework] ──> Classmates "Like" Post (1 Like = 1 Point) ──> Student Levels Up ──> Unlocks Bonus Module
-```
+\`\`\`
 
 #### How to configure your levels for active collaboration:
 - **Level 1 (0 points):** Grants access to your core beginner training modules.

@@ -56,10 +56,10 @@ In this guide, I will walk you through the calm, technical reality of the four e
 
 To future-proof your career, you must understand how market valuations are shifting across the digital economy.
 
-```
+\`\`\`
 [Legacy Content Creator] ──> Writes generic articles ──> High manual effort ──> Low LTV, easily automated
 [Sovereign Systems Architect] ──> Connects APIs & CRM ──> Automated operations ──> High-margin asset, immune to AI
-```
+\`\`\`
 
 An architect doesn't just build content. They build the **systems** that capture, nurture, and monetize attention on autopilot.
 

@@ -60,10 +60,10 @@ To understand the mandate, we have to look at the financial math of platform loc
 
 Many platforms market themselves as your "partner." But from an engineering and database perspective, they are designed to build a **walled garden** that makes it incredibly difficult for you to leave.
 
-```
+\`\`\`
 [The Locked-In Creator] ──> Uses native checkouts ──> Customer billing tokens held by platform ──> Cannot migrate without losing active subscriptions
 [The Sovereign Creator] ──> Uses direct Stripe  ──> Customer billing tokens held by you      ──> Can migrate to any software in 2 hours
-```
+\`\`\`
 
 Here is how platforms exploit this lock-in:
 1. **The Subscription Tax:** Platforms like Substack charge a flat 10% fee on your paid subscription revenue. As your business scales to $10,000/mo, you are paying $1,000/mo to a software provider that isn't managing your delivery or hosting your videos. That is a massive leak in your net profit margins.
@@ -93,9 +93,9 @@ Use automated webhooks and integrations (via **Zapier** or **Make**) to tell you
 If you ever decide to leave Skool or Circle, your billing remains completely untouched inside Stripe. You simply point the webhook to your new platform, and your recurring MRR continues running without a single second of downtime or customer churn.
 
 #### Pillar 3: Sovereign Branding Domains
-Every piece of traffic you generate must land on a domain name that **you own and control** (e.g., `yourname.com` or `yourbrand.com`).
+Every piece of traffic you generate must land on a domain name that **you own and control** (e.g., \`yourname.com\` or \`yourbrand.com\`).
 
-Stop routing traffic to `linktr.ee/yourname`, `yourname.substack.com`, or `yourname.kajabi.com`. When you use a third-party subdomain, you are diluting your brand’s SEO domain authority and giving away your tracking and retargeting pixel control.
+Stop routing traffic to \`linktr.ee/yourname\`, \`yourname.substack.com\`, or \`yourname.kajabi.com\`. When you use a third-party subdomain, you are diluting your brand’s SEO domain authority and giving away your tracking and retargeting pixel control.
 
 Host your bio links on a lightweight Carrd or Framer template mapped to your custom domain, keeping 100% of your pixel tracking active.
 

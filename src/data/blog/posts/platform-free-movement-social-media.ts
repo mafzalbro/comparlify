@@ -61,12 +61,12 @@ In this guide, I will take you behind the scenes of the **Platform-Free movement
 
 To build a resilient, high-margin business, you must route all organic traffic away from rented social networks and into **owned database assets**.
 
-```
+\`\`\`
 [Social Media Discovery Billboards] ──> [Single-CTA Carrd Hub] ──> [Sovereign Email CRM Database]
                                                                                 │
                                                                                 ▼
                                                                      [Direct Stripe Payments]
-```
+\`\`\`
 
 When you route attention into this owned architecture, you achieve complete digital autonomy. You are no longer vulnerable to algorithm changes, shadowbans, or platform fee hikes. Your audience, your checkout billing tokens, and your branding sitemaps belong to you.
 
@@ -84,12 +84,12 @@ Every Friday, export your customer CSV files and save them in an offline, encryp
 
 ### Pillar 2: Sovereign Branding Domains
 
-Every single piece of organic content you write on social media must direct readers to a custom domain name that **you own and control** (e.g., `yourbrand.com`).
+Every single piece of organic content you write on social media must direct readers to a custom domain name that **you own and control** (e.g., \`yourbrand.com\`).
 
 #### Stop using:
-- `linktr.ee/yourname`
-- `yourname.substack.com`
-- `yourname.kajabi.com`
+- \`linktr.ee/yourname\`
+- \`yourname.substack.com\`
+- \`yourname.kajabi.com\`
 
 When you route bio traffic to a third-party subdomain, you are giving away your SEO domain authority and tracking pixel control.
 

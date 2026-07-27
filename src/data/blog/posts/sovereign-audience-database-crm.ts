@@ -62,7 +62,7 @@ In this guide, I will show you how to claim your sovereignty. I will walk you th
 
 A professional CRM is the absolute central source of truth for your business. It is the database that links all your marketing, sales, and delivery tools together.
 
-```
+\`\`\`
 ┌────────────────────────┐      ┌────────────────────────┐      ┌────────────────────────┐
 │   MARKETING FUNNEL     │ ───> │     CENTRAL CRM        │ <─── │    DELIVERY ENGINES    │
 │  (Beehiiv / Substack)  │      │   (Relational Notion)  │      │     (Skool / Circle)   │
@@ -73,7 +73,7 @@ A professional CRM is the absolute central source of truth for your business. It
                                 │     PAYMENTS ENGINE    │
                                 │   (Stripe / Checkouts) │
                                 └────────────────────────┘
-```
+\`\`\`
 
 When you centralize your customer data inside a relational Notion CRM, every member profile becomes an incredibly valuable, self-updating data asset containing:
 - **Contact Info:** Name, verified email address, custom usernames.

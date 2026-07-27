@@ -75,7 +75,7 @@ To deliver a premium B2B experience, you must host multiple corporate accounts i
 
 I design this architecture inside **Circle.so** using three core structural layers:
 
-```
+\`\`\`
                    ┌──────────────────────────────────┐
                    │       Circle B2B CaaS Hub        │
                    ├──────────────────────────────────┤
@@ -83,14 +83,14 @@ I design this architecture inside **Circle.so** using three core structural laye
                    │  - Layer 2: Hidden Tenant Spaces │
                    │  - Layer 3: Admin Reporting Logs │
                    └──────────────────────────────────┘
-```
+\`\`\`
 
 #### Layer 1: The Global Resource Room (Open to All Tenants)
 This houses your core video classrooms, master template libraries, and global industry events calendar. Every employee from every corporate client logs in and accesses this exact same training layer, saving you from having to manage multiple disconnected course portals.
 
 #### Layer 2: The Hidden Tenant Spaces (Hidden & Confined)
-Using Circle's custom permission groups, configure a private space group for each corporate client (e.g., `#tenant-acme-boardroom`).
-- Only employees with the verified `@tenant-acme` role can view, write, or comment inside this space.
+Using Circle's custom permission groups, configure a private space group for each corporate client (e.g., \`#tenant-acme-boardroom\`).
+- Only employees with the verified \`@tenant-acme\` role can view, write, or comment inside this space.
 - They can discuss internal company strategies, share sensitive spreadsheets, and host private team reviews safely with absolute, legally-secure confidentiality.
 
 #### Layer 3: The Admin Reporting Log

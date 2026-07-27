@@ -63,10 +63,10 @@ In this guide, I will walk you through the technical, database, and operational 
 
 To command a premium valuation multiple from private equity firms, you must understand how professional buyers evaluate digital properties.
 
-```
+\`\`\`
 [Legacy Personal Brand (Unsellable)] ──> Tied to your face ──> Manual daily labor ──> 0x Multiple
 [Systematized Creator OS (Sellable)]  ──> Owned databases   ──> Documented SOPs  ──> 4x-6x EBITDA Multiple
-```
+\`\`\`
 
 Professional buyers do not pay for your personality. They pay for **Sovereign, Replicable Assets**:
 1. **Owned Database Assets:** Your direct subscriber email CSV files (sifted by engagement and niche tags) and active student databases.

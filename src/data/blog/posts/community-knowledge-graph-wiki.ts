@@ -62,10 +62,10 @@ In this guide, I will show you how to pull valuable strategic insights out of yo
 
 To build a high-LTV business network, you must organize your community's shared insights into a **relational database sitemap**.
 
-```
+\`\`\`
 [Raw Forum Chatter (Messy)] ──> Pinned Posts ──> Chronological Feed ──> Buried & Lost (High Support Load)
 [Community Wiki (Structured)]  ──> Structured SOPs ──> Searchable Database ──> Always Accessible (Low Support)
-```
+\`\`\`
 
 By curating a shared knowledge database, you achieve three massive technical wins:
 1. **Zero Support Latency:** Students get instant, searchable answers to complex technical questions 24/7 without waiting for your support team.
@@ -102,7 +102,7 @@ You do not need to spend hours writing Wiki articles personally. You must build 
 I design this workflow using a simple, three-step SOP:
 
 #### Step 1: The Tagging Trigger
-Whenever you or your community moderator spots a high-value, detailed answer or case study inside your Skool or Circle discussion board, apply a custom tag (e.g., `#wiki-candidate`) or save the post link.
+Whenever you or your community moderator spots a high-value, detailed answer or case study inside your Skool or Circle discussion board, apply a custom tag (e.g., \`#wiki-candidate\`) or save the post link.
 
 #### Step 2: The VA Extraction
 Once a week, your part-time virtual assistant logs in, reviews the tagged posts, and executes your Wiki SOP:

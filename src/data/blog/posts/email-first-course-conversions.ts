@@ -58,10 +58,10 @@ In this guide, I will show you how to strip away the marketing hype. I will shar
 
 To design a high-converting system, you must design for **convenience and respect**.
 
-```
+\`\`\`
 [The Complex Webinar Funnel] ──> Opt-in Page ──> Wait 3 days ──> 60-Min Video ──> Pushy Sales Pitch (90% Drop-off)
 [The Sovereign Email Funnel]  ──> Subscribe   ──> 5-Day Value Sequence ──> Frictionless Checkout (High Conversion)
-```
+\`\`\`
 
 #### 1. Why Webinars are Dying:
 A webinar requires your prospect to commit to a specific time, sit in front of a screen for an hour, and sit through 40 minutes of generic content before getting to the actual lesson. It is a high-commitment, high-friction event.

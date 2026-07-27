@@ -59,10 +59,10 @@ In this guide, I will take you behind the scenes of **building a high-value nich
 
 To understand why vertical newsletters are so incredibly profitable, we must look at the economics of **Targeted Attention**.
 
-```
+\`\`\`
 [Broad Newsletter (100k free readers)]  ──> $15 CPM  ──> Low-value display ads, high software costs
 [Vertical Newsletter (5k niche readers)] ──> $100 CPM ──> Premium high-paying sponsors, high profit margins
-```
+\`\`\`
 
 Advertisers do not want to waste their budgets throwing generic ads at massive, untargeted audiences. They want to speak directly to the specific decision-makers who buy their high-ticket enterprise software, hire their consultants, or purchase their products.
 
@@ -105,7 +105,7 @@ While old newsletter tools treated emails as temporary broadcasts, Beehiiv serve
 
 If you are ready to launch your vertical media business this week, follow this step-by-step roadmap:
 
-1. **Map Your Brand Identity:** Register a clean, memorable personal domain name (e.g., `healthcarecotech.com`). Connect it to your Beehiiv workspace on day one.
+1. **Map Your Brand Identity:** Register a clean, memorable personal domain name (e.g., \`healthcarecotech.com\`). Connect it to your Beehiiv workspace on day one.
 2. **Draft Your Signature Case Study:** Write **one authoritative, 2,500+ word deep-dive article** addressing the single biggest operational bottleneck in your niche. Re-organize your content into dense Markdown tables and clear ASCII diagrams that both human readers and AI search bots love.
 3. **Queue Your Welcome Automation:** Build an automated Welcome Flow in Beehiiv. Deliver your signature case study on Day 2, and prompt readers to reply directly with their current bottlenecks to boost your Gmail inbox deliverability.
 4. **Publish Consistently Every Thursday:** Commit to a predictable, calm publishing calendar. Deliver pure, factual value every single week. Focus on quality over volume, and establish your E-E-A-T credentials with absolute clarity.

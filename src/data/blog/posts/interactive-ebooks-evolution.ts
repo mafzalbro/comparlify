@@ -61,12 +61,12 @@ In this guide, I will show you how to redesign your written digital products. I 
 
 To build an interactive ebook, you must design your chapters to **directly prompt student execution**.
 
-```
+\`\`\`
 [Written Chapter Concept] ──> [Embedded Loom Walkthrough] ──> [Direct Notion Template Link]
                                                                           │
                                                                           ▼
                                                               [Community Check-in Button]
-```
+\`\`\`
 
 #### How the Dynamic Loop Works:
 1. **The Written Concept teaches the theory:** You explain the strategy of *\"Daily Time Auditing\"* inside your chapter.

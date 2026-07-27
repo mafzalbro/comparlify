@@ -61,12 +61,12 @@ In this guide, I will show you the exact, technical, and strategic framework I d
 
 To eliminate software churn, you must merge your technical tool with a **structured learning and peer networking dashboard**.
 
-```
+\`\`\`
 [Software Purchase] ──> [Stripe Webhook] ──> [Automatic Community Invite]
                                                     │
                                                     ▼
 [Active Software Usage] <── [Monthly Live Workshops] <── [Structured Video Classroom]
-```
+\`\`\`
 
 When you wrap your software inside an active, gamified community, you achieve three massive technical wins:
 1. **Frictionless Onboarding:** Your users log in and immediately find short, 3-minute video lessons showing them exactly how to configure your tool for their specific business.
@@ -92,10 +92,10 @@ To make your community completely self-cleaning, connect your Stripe SaaS billin
 
 Here is the exact technical integration blueprint:
 
-```
+\`\`\`
 [Stripe: Subscription Created] ──> [Make.com Webhook] ──> [Skool/Circle: Invite Member]
 [Stripe: Subscription Cancelled] ──> [Make.com Webhook] ──> [Skool/Circle: Remove Member]
-```
+\`\`\`
 
 This automated loop ensures that only active, paying software subscribers can view your premium classrooms, post in the forums, and RSVP to your live workshops.
 
@@ -121,7 +121,7 @@ Let’s compare the brand performance of these two operational models:
 If you want to integrate an active customer community with your software database this week, follow this checklist:
 
 1. **Perform a Churn Audit:** Look at your database analytics. Locate the exact day and page where your software users are dropping off.
-2. **Build Your Community Workspace:** Launch a clean, beautifully branded group on **Skool** or **Circle**. Custom-map it to your domain name (e.g., `community.yourbrand.com`).
+2. **Build Your Community Workspace:** Launch a clean, beautifully branded group on **Skool** or **Circle**. Custom-map it to your domain name (e.g., \`community.yourbrand.com\`).
 3. **Record Your Video Lessons:** Record short, 3-minute Loom screen-shares demonstrating how to set up your tool, connect APIs, and automate workflows.
 4. **Deploy the Automated Stripe Webhooks:** Configure your Make or Zapier flows to completely synchronize your software subscription billing with your community member list.
 

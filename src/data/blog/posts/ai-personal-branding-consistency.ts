@@ -107,7 +107,7 @@ Completely ban the robotic terms that trigger audience skepticism. If the model 
 
 To scale your operations with zero headcount, manage your draft pipeline inside a relational workspace database like **Notion**.
 
-```
+\`\`\`
                    ┌──────────────────────────────────┐
                    │    Creator OS Content CRM        │
                    ├──────────────────────────────────┤
@@ -115,7 +115,7 @@ To scale your operations with zero headcount, manage your draft pipeline inside 
                    │  - Database Relational Property  │
                    │  - Draft Linked to Voice Model   │
                    └──────────────────────────────────┘
-```
+\`\`\`
 
 1. **Step 1: Input Raw Strategic Ideas:** Whenever you have a breakthrough on a coaching call, log the raw concept inside your Notion content database.
 2. **Step 2: Generate the Technical Draft:** Paste your raw notes and sitemaps into your custom-styled Claude or GPT-5 workspace. Let the model build the 2,000-word article structure, write the definitions, and construct the Markdown comparison tables.

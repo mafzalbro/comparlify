@@ -81,9 +81,9 @@ I design keyword audit workflows around three simple technical steps:
 
 #### Step 1: Map the Migration Intents
 Create a list of every software platform in your niche. Write down the transitional search phrases:
-- `[Platform A] to [Platform B] migration`
-- `[Platform A] vs [Platform B] pricing`
-- `[Platform A] subscription webhooks Zapier`
+- \`[Platform A] to [Platform B] migration\`
+- \`[Platform A] vs [Platform B] pricing\`
+- \`[Platform A] subscription webhooks Zapier\`
 
 #### Step 2: Query the Search Difficulty Tiers
 Use a professional keyword tool (such as **Ahrefs** or **SEMrush**) to analyze these phrases.
@@ -104,7 +104,7 @@ If the existing answers are low-quality, you have discovered an attention arbitr
 
 To capture search traffic and rank in Google's SGE/AI Overviews card carousel, you must structure your content layout cleanly.
 
-```
+\`\`\`
                     ┌──────────────────────────────────┐
                     │    SGE Optimized Article Page    │
                     ├──────────────────────────────────┤
@@ -112,11 +112,11 @@ To capture search traffic and rank in Google's SGE/AI Overviews card carousel, y
                     │  - 30-word absolute summary      │
                     │  - Pre-formatted Markdown Table  │
                     └──────────────────────────────────┘
-```
+\`\`\`
 
 #### 1. The H2 Direct Q&A Header
 Start your strategic sections with direct questions that match exact search intents:
-- `## How do I handle recurring billing when migrating from Teachable to Skool?`
+- \`## How do I handle recurring billing when migrating from Teachable to Skool?\`
 
 #### 2. The 30-Word Definition Block
 Immediately follow your heading with a concise, absolute, and factual summary:

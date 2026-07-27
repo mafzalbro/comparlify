@@ -81,7 +81,7 @@ How do you host multiple corporate accounts inside a single platform without let
 
 I design this architecture using three core layers:
 
-```
+\`\`\`
                    ┌──────────────────────────────────┐
                    │    Circle Master Community       │
                    ├──────────────────────────────────┤
@@ -89,14 +89,14 @@ I design this architecture using three core layers:
                    │  - Category B: Private Company A │
                    │  - Category C: Private Company B │
                    └──────────────────────────────────┘
-```
+\`\`\`
 
 #### Layer 1: The Shared Classroom (Open to All Tenants)
 This houses your core video training modules and resource templates. Every employee from every corporate client logs in and views the exact same educational classroom, saving you from having to host separate course portals.
 
 #### Layer 2: The Tenant Space Group (Hidden & Private)
-Using Circle's custom permission groups, create a hidden category space for each corporate account (e.g., `#company-acme-study-hall`).
-- Only employees with the `@company-acme` role can view or post inside this space.
+Using Circle's custom permission groups, create a hidden category space for each corporate account (e.g., \`#company-acme-study-hall\`).
+- Only employees with the \`@company-acme\` role can view or post inside this space.
 - They can discuss internal company strategies, share sensitive documents, and coordinate team homework assignments safely with absolute confidentiality.
 
 #### Layer 3: The Manager Dashboard (Read-Only Log)
