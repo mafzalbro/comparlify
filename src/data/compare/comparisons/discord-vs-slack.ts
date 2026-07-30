@@ -93,7 +93,7 @@ When a customer purchases our $99/mo premium membership on Payhip, we want to in
 ### Step 1: Handling the Payhip Webhook
 We write a secure API endpoint in our Next.js application that receives Payhip's billing webhook:
 
-\\\`\\\`\\\`typescript
+\`\`\`typescript
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { REST } from "@discordjs/rest";
@@ -120,13 +120,13 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ success: true });
 }
-\\\`\\\`\\\`
+\`\`\`
 
 ### Step 2: Assigning the Discord Role via Bot REST APIs
 How does our server bot map usernames and assign role permissions?
 We write a helper function that queries the Discord Guild (server) API:
 
-\\\`\\\`\\\`typescript
+\`\`\`typescript
 async function assignDiscordRole(username: string, roleId: string) {
   const guildId = process.env.DISCORD_GUILD_ID!;
 
@@ -144,7 +144,7 @@ async function assignDiscordRole(username: string, roleId: string) {
     );
   }
 }
-\\\`\\\`\\\`
+\`\`\`
 
 This illustrates the absolute customizability of Discord's API. Because Discord does not charge per-user seat fees, you can run a community of **10,000 active students** with native role automations while paying **$0 in platform seat taxes**, keeping your operating margins exceptionally high.
 
@@ -160,19 +160,19 @@ Track git pull-requests, monitor deployment alerts, search across historical spe
 ### Step 1: Git-Deployment Alert Pipeline
 We integrate our GitHub repository natively with Slack:
 - **DevOps Channels:** When a developer pushes code or opens a Pull Request, the GitHub bot pushes a clean notification card directly into \`#dev-deploys\`:
-  \\\`\\\`\\\`
+  \`\`\`
   [GitHub] Pull Request #147 Opened by Muhammad Afzal:
   "feat: Implement Batch 5 high-fidelity database migrations"
   Merged: 12 files changed, 256 insertions(+), 12 deletions(-)
-  \\\`\\\`\\\`
+  \`\`\`
 - **Instant Code Reviews:** Clicking the notification opens the PR directly on GitHub, allowing the lead architect to review code changes instantly.
 
 ### Step 2: Advanced Search across Team Wikis
 A developer stands up a new feature and needs to locate our historical CORS database policies.
 They don't browse folder directories; they type directly into Slack's search bar:
-\\\`\\\`\\\`
+\`\`\`
 "CORS config" in:#dev-backend
-\\\`\\\`\\\`
+\`\`\`
 
 Slack’s intelligent search index compiles the results instantly, searching inside:
 - Relational conversation threads.

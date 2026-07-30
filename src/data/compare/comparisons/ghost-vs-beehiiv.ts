@@ -90,7 +90,7 @@ Let us examine the exact structural and technical process of executing a multi-u
 
 ### Step 1: Exporting Content and Mapping the JSON Schema
 We query the Beehiiv API to extract all published posts as structured JSON, or download the flat archive file:
-\\\`\\\`\\\`typescript
+\`\`\`typescript
 import { prisma } from "@/lib/prisma";
 
 export async function importBeehiivPosts(beehiivPostArchive: any[]) {
@@ -117,11 +117,11 @@ export async function importBeehiivPosts(beehiivPostArchive: any[]) {
   }
   console.log("✅ Post migration mapping complete.");
 }
-\\\`\\\`\\\`
+\`\`\`
 
 ### Step 2: Customizing the Front-End Theme with Handlebars.js
 To ensure our digital magazine looks completely unique and passes all Core Web Vitals, we edit Ghost's default template. We define a high-performance grid inside a visual file called \`post.hbs\`:
-\\\`\\\`\\\`handlebars
+\`\`\`handlebars
 {{!< default}}
 
 <article class="gh-article {{post_class}}">
@@ -137,7 +137,7 @@ To ensure our digital magazine looks completely unique and passes all Core Web V
         {{content}}
     </section>
 </article>
-\\\`\\\`\\\`
+\`\`\`
 
 Because this is a plain-text Handlebars template file, you can customize the class layout, add custom CSS animations, and compile it locally. Your page loads in less than 80ms because it is compiled into native HTML on your server with zero heavy JavaScript libraries.
 
@@ -156,10 +156,10 @@ Inside the Beehiiv dashboard, we establish a referral milestone funnel:
 - **Milestone 2:** Refer 10 friends -> Receive a custom branded t-shirt shipped natively.
 
 We write a short snippet that Beehiiv compiles dynamically into every email signature block:
-\\\`\\\`\\\`
+\`\`\`
 Refer 3 friends to unlock our private database. You currently have {{subscriber.referrals_count}} referrals!
 Your unique share link: {{subscriber.referrals_unique_url}}
-\\\`\\\`\\\`
+\`\`\`
 
 ### Step 2: Leveraging the Programmatic Ad Network
 Instead of writing cold sales emails to find newsletter sponsors:
@@ -287,7 +287,7 @@ The day-to-day work of publishing is determined by the writing interface.
 
 ### Ghost: The Koenig Editor
 Ghost's editor is a masterpiece of modern web design:
-- **Distraction-free focus:** A completely clean, minimalist canvas that expands with a simple slash command (\\\`/\\\`).
+- **Distraction-free focus:** A completely clean, minimalist canvas that expands with a simple slash command (\`/\`).
 - **Dynamic Content Cards:** Insert high-resolution image galleries, responsive code blocks with syntax highlighting, Markdown blocks, callouts, and clean ASCII diagrams instantly.
 - **Perfect Markdown support:** For developers and technical writers, the markdown implementation is fast, clean, and fully native.
 

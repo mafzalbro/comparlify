@@ -96,7 +96,7 @@ We map our automated sales pipeline inside Kit's visual canvas:
 ### Step 2: The Visual Code Execution Logic
 We write a simple webhook handler to process Stripe checkout completions, dynamically updating tags via Kit's REST API:
 
-\\\`\\\`\\\`typescript
+\`\`\`typescript
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ success: true });
 }
-\\\`\\\`\\\`
+\`\`\`
 
 Because this runs under a unified visual flowchart, Kit instantly stops sending sales emails to the buyer, preventing "awkward double-pitching" and establishing a highly professional, cohesive customer experience.
 

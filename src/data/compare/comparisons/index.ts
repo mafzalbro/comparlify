@@ -50,6 +50,13 @@ import { cursorVsWindsurf } from "./cursor-vs-windsurf";
 import { discordVsSlack } from "./discord-vs-slack";
 import { patreonVsBuymeacoffee } from "./patreon-vs-buymeacoffee";
 
+// Batch 6 New High-Fidelity Comparisons
+import { kitVsMailerlite } from "./kit-vs-mailerlite";
+import { notionVsJira } from "./notion-vs-jira";
+import { patreonVsKofi } from "./patreon-vs-kofi";
+import { shopifyVsSquarespace } from "./shopify-vs-squarespace";
+import { tallyVsGoogleforms } from "./tally-vs-googleforms";
+
 import { ComparisonData } from "../types";
 
 export const allComparisons: ComparisonData[] = [
@@ -104,4 +111,11 @@ export const allComparisons: ComparisonData[] = [
   cursorVsWindsurf,
   discordVsSlack,
   patreonVsBuymeacoffee,
+
+  // Batch 6 Imports
+  kitVsMailerlite,
+  notionVsJira,
+  patreonVsKofi,
+  shopifyVsSquarespace,
+  tallyVsGoogleforms,
 ];

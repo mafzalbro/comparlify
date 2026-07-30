@@ -88,10 +88,10 @@ We want to build a stunning, modern landing page with a 3D parallax scroll heade
 
 ### Step 1: Laying Out the CSS Grid Canvas
 Using **Framer**, we don't start with arbitrary vector boxes. We create a new section, set its layout to **Grid**, and define our column fractions:
-\\\`\\\`\\\`
+\`\`\`
 Columns: 1fr 1fr 1fr (Three equal responsive fractions)
 Gap: 24px
-\\\`\\\`\\\`
+\`\`\`
 
 Inside each grid cell, we drop a Card frame. We set its width to \`100%\` and height to \`hug-contents\` (replicating CSS \`height: fit-content\`). Because this canvas uses real CSS layout parameters:
 - **Absolute Realignment:** If we add text to Card 1, the other cards natively scale their vertical dimensions to maintain baseline grid alignment, completely avoiding the manual layer resizing common in older vector tools.
@@ -100,19 +100,19 @@ Inside each grid cell, we drop a Card frame. We set its width to \`100%\` and he
 To ensure our design looks gorgeous on smartphones:
 1. We click **Add Breakpoint** and select **Phone (390px)**. Framer automatically generates a parallel mobile layout canvas.
 2. We change the Grid layout on the phone breakpoint to:
-   \\\`\\\`\\\`
+   \`\`\`
    Columns: 1fr (Single column stacking)
    Row Gap: 16px
-   \\\`\\\`\\\`
+   \`\`\`
 Framer's compiler automatically writes the corresponding media queries behind the scenes:
-\\\`\\\`\\\`css
+\`\`\`css
 @media (max-width: 390px) {
   .product-grid {
     grid-template-columns: 1fr;
     row-gap: 16px;
   }
 }
-\\\`\\\`\\\`
+\`\`\`
 This code is 100% production-ready. There is no guessing or translation error. What you see inside the visual editor is exactly what gets rendered on the web.
 
 ### Step 3: Triggering Complex Scroll Animations
@@ -136,7 +136,7 @@ We invite 5 designers, 2 product managers, and 1 developer to the Figma canvas:
 
 ### Step 2: Designing Reusable UI Components
 We create a master button component:
-- **Variant States:** We define multiple variant properties: \\\`Type=Primary/Secondary\\\`, \\\`Size=Default/Large\\\`, \\\`State=Default/Hover/Active\\\`, and \\\`Theme=Light/Dark\\\`.
+- **Variant States:** We define multiple variant properties: \`Type=Primary/Secondary\`, \`Size=Default/Large\`, \`State=Default/Hover/Active\`, and \`Theme=Light/Dark\`.
 - **Component Instances:** We reuse instances of this button across hundreds of pages. If we modify the border-radius on the master button, the change propagates instantly across our entire project, maintaining absolute design cohesion.
 
 ### Step 3: Developer Handoff with Dev Mode

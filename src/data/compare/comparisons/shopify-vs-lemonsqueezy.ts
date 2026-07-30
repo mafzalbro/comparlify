@@ -67,7 +67,7 @@ Let us step inside the operational workflow of a developer launching a new softw
 ### Step 1: Loading the Responsive Checkout overlay
 We use the Lemon Squeezy javascript library to trigger checkout popups dynamically:
 
-\\\`\\\`\\\`typescript
+\`\`\`typescript
 export function triggerSaaSPurchase(variantId: string) {
   if ((window as any).LemonSqueezy) {
     (window as any).LemonSqueezy.Url.Open("https://yourbrand.lemonsqueezy.com/checkout/buy/" + variantId + "?embed=1");
@@ -75,12 +75,12 @@ export function triggerSaaSPurchase(variantId: string) {
     window.location.href = "https://yourbrand.lemonsqueezy.com/checkout/buy/" + variantId;
   }
 }
-\\\`\\\`\\\`
+\`\`\`
 
 ### Step 2: Syncing database status on Webhook Success
 We write a Next.js endpoint that securely verifies and parses Lemon Squeezy's billing webhook:
 
-\\\`\\\`\\\`typescript
+\`\`\`typescript
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import prisma from "@/lib/prisma";
@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ success: true });
 }
-\\\`\\\`\\\`
+\`\`\`
 
 This is **Zero-Overhead Digital Sales.** By connecting directly to your Stripe account, Lemon Squeezy handles the global tax collection and files all VAT, keeping your administrative liability completely clean while paying out directly.
 

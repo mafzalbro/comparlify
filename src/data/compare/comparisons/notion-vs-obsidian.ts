@@ -44,7 +44,7 @@ Notion’s core philosophy is built around **Flexible Centralization.**
 ### Obsidian: The Sovereign Second Brain
 Obsidian’s core philosophy is built around **Data Longevity and Speed.**
 - **Your Files, Your Hard Drive:** Obsidian does not host your data on their servers. It is a visual wrapper that runs on a local folder of plain-text **Markdown files (.md)** on your hard drive. If Obsidian’s company bankrupts tomorrow, your notes will run forever in any basic text editor.
-- **Bidirectional Linking:** Instead of rigid folders, Obsidian uses links (e.g. \\\`[[My Idea]]\\\`) to connect notes dynamically, constructing a highly visualized, interconnected **Knowledge Graph** that mimics human memory.
+- **Bidirectional Linking:** Instead of rigid folders, Obsidian uses links (e.g. \`[[My Idea]]\`) to connect notes dynamically, constructing a highly visualized, interconnected **Knowledge Graph** that mimics human memory.
 - **Sub-Second Local Speeds:** Because files are processed locally in your machine's memory, searching across 10,000 files is instant with zero loading spinners or network latency.
 
 ---
@@ -86,14 +86,14 @@ Let us examine how a systems architect sets up a completely sovereign, offline-f
 
 ### Step 1: Directory Structure (The Vault)
 We create a local folder on our computer called \`Sovereign Vault\`. Under the hood, this directory is structured as a standard file tree:
-\\\`\\\`\\\`
+\`\`\`
 Sovereign Vault/
 ├── .obsidian/               # Custom configuration, hotkeys, and plugins
 ├── 01_Inbox/                # Quick ideas and drafts
 ├── 02_Projects/             # Active projects containing .md note files
 ├── 03_Resources/            # Research logs, custom code blocks, and manuals
 └── 04_Templates/            # Standard templates for new files
-\\\`\\\`\\\`
+\`\`\`
 
 Because this is a standard local folder, you can open and edit these files with any visual editor (VS Code, TextEdit, Sublime) or sync them natively using git, giving you absolute code and file sovereignty.
 
@@ -101,7 +101,7 @@ Because this is a standard local folder, you can open and edit these files with 
 We write a new active project note called \`Database Migration.md\` under \`02_Projects/\`.
 We define our file properties at the very top using **YAML Frontmatter**:
 
-\\\`\\\`\\\`markdown
+\`\`\`markdown
 ---
 type: project
 status: active
@@ -119,7 +119,7 @@ This project handles the structural migration of the academy's subscription data
 - [x] Audit the existing MySQL database client schema.
 - [ ] Spin up local MongoDB test container on Docker.
 - [ ] Refactor the Prisma configuration models.
-\\\`\\\`\\\`
+\`\`\`
 
 Because these fields exist inside the text document, they are fully indexed locally by Obsidian's compiler, allowing for high-speed local search queries.
 
@@ -127,14 +127,14 @@ Because these fields exist inside the text document, they are fully indexed loca
 How do we view a dynamic grid of all active high-priority projects, replicating Notion's relational database views?
 We write a simple, declarative **Dataview query block** natively inside a dashboard note:
 
-\\\`\\\`\\\`markdown
+\`\`\`markdown
 \`\`\`dataview
 TABLE status, client, priority, due_date
 FROM "02_Projects"
 WHERE type = "project" AND priority = "high"
 SORT due_date ASC
 \`\`\`
-\\\`\\\`\\\`
+\`\`\`
 
 When Obsidian compiles this page, it parses all local project text files, extracts their YAML frontmatter, and renders a stunning, sub-second visual table. This is **Local-First Database Engineering.** There are no network requests, no database pool timeouts, and zero loading spinners. Searching across 10,000 notes is instant because all files are loaded directly in your computer's RAM.
 
@@ -150,7 +150,7 @@ Track the database migration status, collaborate on code reviews, assign tasks t
 ### Step 1: Collaborative Database Design
 We create a master "Projects" database in Notion. Each row represents a project.
 - **Relational Columns:** We add a Relation field pointing to our "Team Directory" database, assigning the lead migration architect to the project.
-- **Page Rollups:** We add a Rollup field that automatically counts the percentage of completed checkboxes inside the page's task database, displaying a visual progress bar (e.g. \\\`[████░░░░] 50%\\\`) on our team dashboard.
+- **Page Rollups:** We add a Rollup field that automatically counts the percentage of completed checkboxes inside the page's task database, displaying a visual progress bar (e.g. \`[████░░░░] 50%\`) on our team dashboard.
 
 ### Step 2: Real-Time Multiplayer Collaboration
 When our engineer edits \`Project: Database Migration\` in Notion:

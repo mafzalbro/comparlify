@@ -89,10 +89,10 @@ We want our community members to instantly feel the excitement of the gamificati
 - **Level 5 (Unlocks at 150 Points):** Access to our "Custom Webhook Automation Pipeline" developer course.
 
 We write a simple, automated notification sequence to announce this on our main feed:
-\\\`\\\`\\\`
+\`\`\`
 🚀 Welcome to our new gamified tribe!
 Climb to Level 3 by writing helpful comments and receiving 'Likes' to unlock our Client Checklist course module automatically!
-\\\`\\\`\\\`
+\`\`\`
 
 The gamification loop acts as a self-sustaining engagement engine. Members begin actively asking questions, sharing their wins, and commenting on each other's posts, raising our daily active users (DAU) by 300% in the first week.
 

@@ -71,7 +71,7 @@ Let us step inside the operational workflow of a developer launching a new softw
 
 ### Step 1: Loading the Checkout Overlay via Lemon Squeezy JS
 We inject the Lemon Squeezy script into our React app and trigger the checkout drawer:
-\\\`\\\`\\\`typescript
+\`\`\`typescript
 import { useEffect } from "react";
 
 export function UseLemonSqueezyCheckout() {
@@ -98,13 +98,13 @@ export function UseLemonSqueezyCheckout() {
 
   return { openCheckout };
 }
-\\\`\\\`\\\`
+\`\`\`
 
 Because this runs as a lightweight visual overlay, customers never feel they are leaving your high-performance landing page.
 
 ### Step 2: Processing the Subscription Webhook
 We write a Next.js endpoint that securely verifies and parses Lemon Squeezy's billing webhook:
-\\\`\\\`\\\`typescript
+\`\`\`typescript
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import prisma from "@/lib/prisma";
@@ -137,7 +137,7 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ success: true });
 }
-\\\`\\\`\\\`
+\`\`\`
 
 This is **Developer-First Commerce.** Because Lemon Squeezy operates under a standardized merchant fee (5% + $0.50), you bypass the massive 10% platform tax of older platforms while retaining absolute programmatic control over your dunning and billing loops.
 

@@ -37,7 +37,7 @@ To choose the correct AI code editor, you must identify your team's preferred de
 
 ### Cursor: The Developer's Precision Instrument
 Cursor’s core philosophy is built around **Direct Developer Intent.**
-- **The Composer Interface:** Cursor’s visual centerpiece is its multi-file editor panel (Composer). It allows you to select multiple files across your repo and issue a prompt (e.g. \\\`@api @schema refactor custom webhooks\\\`), compiling the edits across all files with surgical precision.
+- **The Composer Interface:** Cursor’s visual centerpiece is its multi-file editor panel (Composer). It allows you to select multiple files across your repo and issue a prompt (e.g. \`@api @schema refactor custom webhooks\`), compiling the edits across all files with surgical precision.
 - **Semantic Codebase Indexing:** Cursor indexes your entire codebase locally. You can ask deep, structural architectural questions (e.g. *"Where is our billing database token generated, and how does it relate to our user schema?"*) and receive mathematically accurate, contextual explanations.
 - **Developer in the Driver Seat:** You curate the context. You explicitly specify which files, directories, or API document links the LLM should read, ensuring maximum control over code generation quality.
 
@@ -70,7 +70,7 @@ Repo Code ──> Continuous Real-Time Indexing ──> Agentic State Read ─�
 #### Cursor: Deep Semantic Indexing
 Cursor focuses on building a highly optimized vector map of your code:
 - **Local Embeddings:** All codebase indexing is compiled locally on your machine before uploading vector coordinates to their secure cloud, preserving data privacy.
-- **Context Curation:** Effortlessly pass entire directories, specific git diffs, or live website documentation links directly into your chat panel using clean visual tags (e.g. \\\`@Docs\\\`, \\\`@Git diff\\\`).
+- **Context Curation:** Effortlessly pass entire directories, specific git diffs, or live website documentation links directly into your chat panel using clean visual tags (e.g. \`@Docs\`, \`@Git diff\`).
 
 #### Windsurf: Proactive State Tracking
 Windsurf focuses on tracking developer behavior:
@@ -87,13 +87,13 @@ Let us step inside the actual daily workflows of an engineer who manages high-im
 We must write a migration script that reads relational rows, maps foreign keys to Mongo ObjectIDs, serializes ISO timestamps into MongoDB BSON Date structures, and generates API payloads.
 
 ### Step 1: Initial System Audit with Semantic Indexing
-Using **Cursor**, we start by loading the full repository context. We don't guess which files hold our current DB client. We open the Chat console (\\\`Cmd + L\\\`) and type:
-\\\`\\\`\\\`
+Using **Cursor**, we start by loading the full repository context. We don't guess which files hold our current DB client. We open the Chat console (\`Cmd + L\`) and type:
+\`\`\`
 @Codebase locate where our PrismaClient is initialized and explain how the MySQL adapter manages connection pools in serverless Next.js functions.
-\\\`\\\`\\\`
+\`\`\`
 
 Cursor parses the indexed vector database of our project. In less than 1.5 seconds, it returns a precise answer:
-\\\`\\\`\\\`markdown
+\`\`\`markdown
 The PrismaClient is initialized in \`src/lib/prisma.ts\` as a global singleton:
 \`\`\`typescript
 const globalForPrisma = globalThis as unknown as {
@@ -102,21 +102,21 @@ const globalForPrisma = globalThis as unknown as {
 export const prisma = globalForPrisma.prismaGlobal ?? prismaClientSingleton();
 \`\`\`
 In serverless environments, this prevents connection exhaustion during hot-reloads by preserving the instance.
-\\\`\\\`\\\`
+\`\`\`
 
 This initial speed is highly critical. It ensures that before writing a single line of migration code, the developer has verified the existing system's boundary conditions.
 
 ### Step 2: Code Generation with Cursor Composer
-Now, we must write the migration script. We open Cursor's **Composer** (\\\`Cmd + I\\\`) and select our target database configuration file (\\\`prisma/schema/_base.prisma\\\`) and our new migration service file (\\\`src/data/migration.ts\\\`).
+Now, we must write the migration script. We open Cursor's **Composer** (\`Cmd + I\`) and select our target database configuration file (\`prisma/schema/_base.prisma\`) and our new migration service file (\`src/data/migration.ts\`).
 
 We prompt the Composer:
-\\\`\\\`\\\`
+\`\`\`
 Write a complete TypeScript migration class that queries all MySQL users, maps relational fields to MongoDB BSON parameters, serializes 'createdAt' and 'updatedAt' dates, and processes batches of 500 records utilizing Prisma transaction-safe fallbacks. Make sure to export a clean, testable 'runMigration' function.
-\\\`\\\`\\\`
+\`\`\`
 
 Composer analyzes both files. Instead of generating a generic code snippet, it actively compiles code that conforms to our project's exact TypeScript structures:
 
-\\\`\\\`\\\`typescript
+\`\`\`typescript
 import { prisma } from "@/lib/prisma";
 
 export class DatabaseMigrationArchitect {
@@ -161,7 +161,7 @@ export class DatabaseMigrationArchitect {
     }
   }
 }
-\\\`\\\`\\\`
+\`\`\`
 
 Cursor's Composer allows you to visually inspect each file diff side-by-side. You see exactly what lines of code will be added or modified, allowing you to accept or reject the changes with absolute precision. This is **Precision Curation** at its finest.
 
@@ -176,37 +176,37 @@ We want to write the same migration class, but we want the AI to run the compile
 
 ### Step 1: Initiating the Cascade Agent
 We open Windsurf's Cascade console and type:
-\\\`\\\`\\\`
+\`\`\`
 I need to build a database migration pipeline from MySQL to MongoDB. Write the migration script, compile the code, run our tests, and make sure all TypeScript types are fully satisfied. You have permission to open terminals and execute tests.
-\\\`\\\`\\\`
+\`\`\`
 
 ### Step 2: Autonomous Code Compilation and Execution Logs
 Instead of just returning text, Windsurf's Cascade goes to work autonomously. Let's trace the actual terminal execution logs:
 
 1. **Step 1 (File Creation):** Cascade creates the migration file \`src/data/migration.ts\` and writes the initial class.
 2. **Step 2 (Compilation Audit):** Cascade opens a background terminal and runs:
-   \\\`\\\`\\\`bash
+   \`\`\`bash
    npx tsc --noEmit
-   \\\`\\\`\\\`
+   \`\`\`
    The compiler returns an error:
-   \\\`\\\`\\\`
+   \`\`\`
    src/data/migration.ts(35,17): error TS2339: Property 'user' does not exist on type 'PrismaClient'.
-   \\\`\\\`\\\`
+   \`\`\`
 3. **Step 3 (Autonomous Code Modification):** Cascade reads the error log. It realizes that the user database model is defined as lowercase \`user\` inside the schema, but is exported as uppercase \`User\` on the PrismaClient instance under certain relational configurations.
    Cascade automatically edits \`src/data/migration.ts\` and modifies the line to:
-   \\\`\\\`\\\`typescript
+   \`\`\`typescript
    prisma.user.findMany(...)
-   \\\`\\\`\\\`
+   \`\`\`
 4. **Step 4 (Test Execution):** Cascade runs \`pnpm run test:run\` inside the terminal.
    The test returns:
-   \\\`\\\`\\\`
+   \`\`\`
    FAIL  __tests__/unit/lib/migration.test.ts
    Error: DATABASE_URL is not defined in environment variables.
-   \\\`\\\`\\\`
+   \`\`\`
 5. **Step 5 (Config Resolution):** Cascade creates a mock \`.env\` file containing a dummy \`DATABASE_URL\` specifically for the test compiler, runs the test again, and verifies that the output is 100% green:
-   \\\`\\\`\\\`
+   \`\`\`
    ✓ __tests__/unit/lib/migration.test.ts (4 tests passed)
-   \\\`\\\`\\\`
+   \`\`\`
 
 This is **Agentic Autonomy.** The developer does not need to manually run compiler checks, look up file locations, or resolve minor type mismatches. Windsurf's Cascade acts as a tireless junior developer, executing the operational tasks autonomously.
 
