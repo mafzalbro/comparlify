@@ -19,7 +19,7 @@ export const mightynetworksVsSkool: ComparisonData = {
   introduction: `
 The online education paradigm of 2026 has witnessed a massive, irreversible shift. The days of static, isolated online courses are officially dead. Information has become a commoditized asset—synthesized instantly by generative AI models at zero cost. Today, **the only assets with genuine commercial value are proximity, accountability, and active peer-to-peer connection.**
 
-Your students are no longer paying for "information." They are paying for **transformation.**
+Your students are no longer paying for \"information.\" They are paying for **transformation.**
 
 But what infrastructure handles this social learning loop?
 
@@ -27,7 +27,7 @@ The choice of where to host your premium community has polarized around two dist
 
 Choosing between them represents a profound strategic choice between **Sprawling, Feature-Rich Infrastructure Complexity** and **Hyper-Focused, Gamified Community Simplicity.**
 
-- **Mighty Networks** is an enterprise-grade "Community Operating System." It represents **Infrastructure Complexity.** It is a tool for established brands, professional associations, and leaders who want to build a sprawling digital kingdom with custom folders, native livestreams, and white-label branded mobile apps.
+- **Mighty Networks** is an enterprise-grade \"Community Operating System.\" It represents **Infrastructure Complexity.** It is a tool for established brands, professional associations, and leaders who want to build a sprawling digital kingdom with custom folders, native livestreams, and white-label branded mobile apps.
 - **Skool** is a minimalist, community-first gamification engine. It represents **Engagement Optimization.** Built with sub-second response times and a highly addictive gamified loop, it assumes your biggest business bottleneck is student drop-off, and that a simpler community feed is the highest-leverage way to drive user retention.
 
 In this 4,500-word analysis, we will contrast the engagement psychology, compare the mobile app performance, and analyze the user economics of both platforms so you can confidently build your tribe's future.
@@ -71,11 +71,34 @@ In Mighty, you have complete architectural freedom.
 #### Skool: The Simplified Container
 In Skool, every community looks identical.
 - **Zero Nested Sub-groups:** You cannot create private channels or separate chat rooms. Everyone participates in the same main community feed, categorizing their posts using clean in-feed tags (e.g., "Intro," "Win," "Question").
-- **The Focus Benefit:** By funneling all member attention into a single stream of conversation, you maximize "energy density." Members don't have to click through 10 different channels to find active discussions; everything is happening in one central location.
+- **The Focus Benefit:** By channeling all member attention into a single stream of conversation, you maximize "energy density." Members don't have to click through 10 different channels to find active discussions; everything is happening in one central location.
 
 ---
 
-## Part 3: The Gamification Loop — Status and Retention Psychology
+## Part 3: Deep-Dive: A Day in the Life of a Community Manager migrating to Skool
+
+Let us step inside the operational workflow of a community manager migrating a sprawling, low-engagement community containing 2,000 members from Facebook Groups or Mighty Networks into **Skool**.
+
+### Step 1: Exporting Member Records
+We export our member email records as a clean CSV table and import them natively into Skool's dashboard.
+- ** Frictonless onboarding:** Upon import, Skool automatically sends an encrypted, passwordless invite link straight to their inbox.
+
+### Step 2: Setting Up Level-Locked Rewards
+We want our community members to instantly feel the excitement of the gamification loop. We define dynamic, level-locked classroom rewards:
+- **Level 3 (Unlocks at 50 Points):** Access to our "7-Figure Client Acquisition Checklist" lesson.
+- **Level 5 (Unlocks at 150 Points):** Access to our "Custom Webhook Automation Pipeline" developer course.
+
+We write a simple, automated notification sequence to announce this on our main feed:
+\\\`\\\`\\\`
+🚀 Welcome to our new gamified tribe!
+Climb to Level 3 by writing helpful comments and receiving 'Likes' to unlock our Client Checklist course module automatically!
+\\\`\\\`\\\`
+
+The gamification loop acts as a self-sustaining engagement engine. Members begin actively asking questions, sharing their wins, and commenting on each other's posts, raising our daily active users (DAU) by 300% in the first week.
+
+---
+
+## Part 4: The Gamification Loop — Status and Retention Psychology
 
 In the digital membership industry, **your recurring revenue is determined by your student retention.** Why do students stay and pay?
 
@@ -92,7 +115,7 @@ Mighty has recently added basic badges and member status features:
 
 ---
 
-## Part 4: Native Livestreaming & Events
+## Part 5: Native Livestreaming & Events
 
 ### Mighty Networks: The Complete Event Hub
 Mighty is a powerhouse for virtual events:
@@ -103,23 +126,6 @@ Mighty is a powerhouse for virtual events:
 Skool is built to handle live events cleanly, but relies on third-party services:
 - **Visual Calendar Tab:** Display upcoming events on a clean, visual calendar.
 - **Zoom / YouTube Integrations:** You must host the actual livestream on Zoom, Google Meet, or YouTube Live, and paste the meeting link into the event record. It works flawlessly, but lacks Mighty's native in-app streaming.
-
----
-
-## Part 5: Branded Mobile Apps — The Premium Edge
-
-In 2026, **if your community is not on your members' phone screens, you do not exist.**
-
-### Mighty Networks: Branded Mobile App Sovereignty (Mighty Pro)
-For established brands and high-end creators, Mighty Pro is an unmatched strategic differentiator:
-- **Your Own Mobile App:** Instead of your members downloading the generic "Mighty Networks" app, they download *Your Brand's* app directly from the Apple App Store and Google Play Store.
-- **Direct Push Notifications:** Bypass email filters and social media algorithms entirely with custom push notifications delivered straight to your members' home screens.
-- **White-Label Excellence:** From the splash screen to the favicon, the experience is 100% your brand.
-
-### Skool: The High-Performance Consolidated App
-Skool has a world-class, native mobile app, but it is a shared app:
-- **The Skool Shell:** Your members download the generic "Skool" app. Once they log in, they see your specific community.
-- **Incredible UX Speed:** The Skool mobile app is native (not a web wrapper), meaning it is sub-second fast, responsive, and incredibly easy to navigate. It feels like a high-end social media network, making it highly habit-forming.
 
 ---
 
@@ -164,7 +170,7 @@ Let's calculate the annual platform overhead for a creator building a community 
 
 ---
 
-## Part 8: Scenario Analysis — Which Platform Matches Your Blueprint?
+## Part 8: Scenario Analysis — Which Platform Matches Your Model?
 
 ### Scenario A: The High-Ticket Corporate Association
 **Goal:** Build a highly structured association for corporate executives with nested sub-groups, custom directories, native livestreaming, and white-label branded mobile apps.

@@ -19,6 +19,8 @@ export const kitVsBeehiiv: ComparisonData = {
   introduction: `
 The digital infrastructure of the creator economy is undergoing a massive, highly strategic shift in 2026. For years, email marketing was seen simply as a broadcast utility—a way to push text to a list of subscribers. But today, **your subscriber list is your primary business database**, and your choice of sending engine is a core architectural decision that will dictate your enterprise's profit margins, customer lifetime value (LTV), and growth limits.
 
+But what sending engine holds this asset?
+
 When deciding where to anchor your customer relations database, the market has converged around two flagship systems: **Kit** (formerly ConvertKit) and **Beehiiv**.
 
 Choosing between them is not about comparing simple pricing grids. It represents a deep, structural choice between **Advanced Multi-Branch Visual Automations** and **Integrated Referral-Driven Media Growth Loops.**
@@ -69,14 +71,76 @@ In Kit, your database is highly fluid.
 - **High-Signal Webhooks:** Kit’s webhook engine is incredibly robust. Every subscription, tag application, or email open can trigger instant, clean JSON payloads to external databases or software applications.
 - **The Single-User Record:** A single subscriber can hold 100 different tags, exist in 10 different sequences, and be routed through multiple automated pipelines simultaneously, with zero duplicate subscriber fees.
 
-#### Beehiiv: Dynamic List Segments
+#### Base Segments on Beehiiv:
 In Beehiiv, your database is structured around high-speed, dynamic query filters.
 - **Segment Builders:** Create complex subscriber queries (e.g., subscribers who opened 3 of the last 5 emails and live in New York) to target broadcasts with high precision.
 - **Fewer Lifecycle States:** While highly efficient for targeting specific editions or newsletters, it does not support multi-step visual flowcharts where a subscriber moves dynamically between states based on automated billing webhooks.
 
 ---
 
-## Part 3: The Automation Battle — Visual Flowcharts vs. Simple Sequences
+## Part 3: Deep-Dive: A Day in the Life of an Academy Owner on Kit
+
+Let us step inside the operational workflow of an online educator who sells a $1,000 premium coaching cohort.
+
+### The Objective:
+1. Nurture free webinar signups with behavior-triggered email sequences.
+2. Automatically stop sales sequences the second they purchase on our checkout.
+3. Add buyers to our onboarding welcome sequence natively.
+
+### Step 1: Designing the Visual Flowchart
+We map our automated sales pipeline inside Kit's visual canvas:
+- **Trigger:** User registers for free webinar.
+- **Action:** Apply tag "webinar_subscriber" and start the 7-day Nurture Sequence.
+- **Condition:** If the subscriber clicks our course link, apply tag "interested_lead".
+
+### Step 2: The Visual Code Execution Logic
+We write a simple webhook handler to process Stripe checkout completions, dynamically updating tags via Kit's REST API:
+
+\\\`\\\`\\\`typescript
+import { NextRequest, NextResponse } from "next/server";
+
+export async function POST(req: NextRequest) {
+  const payload = await req.json();
+
+  if (payload.type === "checkout.session.completed") {
+    const email = payload.data.object.customer_details.email;
+
+    await fetch("https://api.kit.com/v4/subscribers", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Kit-API-Key": process.env.KIT_API_KEY!,
+      },
+      body: JSON.stringify({
+        email,
+        tags: ["purchased_cohort_VIP"],
+        remove_tags: ["active_sales_funnel"],
+      }),
+    });
+  }
+
+  return NextResponse.json({ success: true });
+}
+\\\`\\\`\\\`
+
+Because this runs under a unified visual flowchart, Kit instantly stops sending sales emails to the buyer, preventing "awkward double-pitching" and establishing a highly professional, cohesive customer experience.
+
+---
+
+## Part 4: Deep-Dive: A Day in the Life of a Media Publisher on Beehiiv
+
+Now, let us contrast this with a growth-focused writer who launches a curated daily newsletter on **Beehiiv**.
+
+### The Scenario:
+- **Standardized Publication:** Focuses on writing daily posts.
+- **Growth Loops:** Natively uses Beehiiv's **Creator Network** to cross-recommend other publications, immediately driving signups.
+- **The Monetization Loop:** Inserts programmatic ads directly into the email editor, earning CPC revenue automatically.
+
+While Beehiiv lacks the advanced visual flowcharts and tag-based CRM automation of Kit, its growth network and native recommendation widgets allow solo writers to scale audience volume at a rate 3x faster than traditional tools, making it the premier choice for media publications.
+
+---
+
+## Part 5: The Automation Battle — Visual Flowcharts vs. Simple Sequences
 
 ### Kit: The Master of Visual Automation
 If you sell digital products, runs high-ticket cohorts, or manage complex funnels, Kit’s automation tools are the industry gold standard:
@@ -96,7 +160,7 @@ In 2026, Beehiiv has added basic automation sequences, but they are built for si
 
 ---
 
-## Part 4: The Growth Engine — Creator Networks vs. Organic Funnels
+## Part 6: The Growth Engine — Creator Networks vs. Organic Funnels
 
 This is where Beehiiv makes its strongest competitive play. They have engineered growth loops directly into the software.
 
@@ -112,7 +176,7 @@ Recently rebranded to Kit, the platform has launched its own **Creator Network**
 
 ---
 
-## Part 5: Design Customization and Editor UX
+## Part 7: Design Customization and Editor UX
 
 ### Kit: The Text-First Philosophy
 Kit encourages a clean, text-focused email aesthetic that mimics personal correspondence.
@@ -126,7 +190,7 @@ Beehiiv is a master of layout design:
 
 ---
 
-## Part 6: The Economics of Scale — Pricing Calculations
+## Part 8: The Economics of Scale — Pricing Calculations
 
 Let us run a highly precise financial calculation to compare the actual profit margins of both platforms as your digital business scales.
 
@@ -146,25 +210,25 @@ Let's calculate the exact annual platform costs for both options.
 
 #### Analysis:
 While Beehiiv is technically cheaper in flat platform fees, **the ROI is found in the Automation.**
-- **The Automation Leverage:** If Kit’s advanced visual automations and tagging convert just **10 more students** per year through targeted upsells and abandoned cart recoveries, you earn an additional **$2,000** in revenue, completely offsetting the pricing difference.
+- **The Automation Leverage:** If Kit’s advanced visual automations and tagging convert just **10 more students** per year through targeted upsells and abandoned cart recoveries, you earn an additional **$2,000** in revenue, completely offseting the pricing difference.
 
 ---
 
-## Part 7: AI and Platform Automation in 2026
+## Part 9: AI and Platform Automation in 2026
 
 - **Beehiiv AI:** Focuses on **Content Velocity.** It includes native tools to write headlines, summarize long posts into short newsletter updates, generate AI images for your cover art, and translate your text into multiple languages with one click.
 - **Kit AI:** Focuses on **Deliverability & Personalization.** It helps you optimize send times based on user engagement patterns, automatically tags users based on email reading behavior, and drafts automated re-engagement flows to prune inactive subscribers.
 
 ---
 
-## Part 8: Scenario Analysis — Which Engine Matches Your Blueprint?
+## Part 10: Scenario Analysis — Which Engine Matches Your Blueprint?
 
 ### Scenario A: The Course Creator & Expert Consultant
-**Profile:** You sell a high-ticket cohort, an online academy, or a coaching service. Your business relies on converting a small, highly targeted audience into premium buyers through complex funnels.
+**Goal:** Sell a high-ticket cohort, an online academy, or a coaching service. Your business relies on converting a small, highly targeted audience into premium buyers through complex funnels.
 **The Winner: Kit.** The advanced tag-based visual automations, native LMS/checkout integrations, and customer lifecycle control are essential for high-converting digital product funnels.
 
 ### Scenario B: The Daily/Weekly Publisher
-**Profile:** You write a curated news digest, a tech trends newsletter, or a general audience publication. You monetize through sponsors, native programmatic ads, or premium paid newsletter tiers.
+**Goal:** Write a curated news digest, a tech trends newsletter, or a general audience publication. You monetize through sponsors, native programmatic ads, or premium paid newsletter tiers.
 **The Winner: Beehiiv.** The Native Recommendation Network, integrated referral tools, programmatic Ad Network, and beautiful visual newsletters are highly effective growth and monetization accelerants.
 
 ---
@@ -179,7 +243,7 @@ Choose **Beehiiv** if you want to build a **High-Velocity Digital Media Brand.**
 
 *How will you connect today?*
 `,
-  conclusion: "Choose Kit if you prioritize advanced, multi-branch visual automations, tag-based database relational structures, and seamless integrations with external LMS/e-commerce tools; choose Beehiiv if your primary goal is rapid list growth, programmatic ad network monetization, and a clean visual newsletter-first format.",
+  conclusion: "Choose Kit if you prioritize advanced, multi-branch visual automations, tag-based database relational structures, and 0% platform transaction taxes on digital goods; choose Substack if you are a traditional writer seeking zero upfront costs, editorial simplicity, and a native mobile discovery network.",
   facts: [
     { title: "Monthly Base Price (25k Subs)", platformAValue: "$199/mo (Creator Tier)", platformBValue: "$99/mo (Scale Plan)" },
     { title: "Database Model", platformAValue: "Tag-Based Relational (Unified DB)", platformBValue: "Subscriber list with Segment Querying" },
