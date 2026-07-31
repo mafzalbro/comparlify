@@ -57,6 +57,13 @@ import { patreonVsKofi } from "./patreon-vs-kofi";
 import { shopifyVsSquarespace } from "./shopify-vs-squarespace";
 import { tallyVsGoogleforms } from "./tally-vs-googleforms";
 
+// Batch 7 New High-Fidelity Comparisons
+import { klaviyoVsMailerlite } from "./klaviyo-vs-mailerlite";
+import { stripeVsPayPal } from "./stripe-vs-paypal";
+import { notionVsEvernote } from "./notion-vs-evernote";
+import { heygenVsRunway } from "./heygen-vs-runway";
+import { wixstudioVsWebflow } from "./wixstudio-vs-webflow";
+
 import { ComparisonData } from "../types";
 
 export const allComparisons: ComparisonData[] = [
@@ -118,4 +125,11 @@ export const allComparisons: ComparisonData[] = [
   patreonVsKofi,
   shopifyVsSquarespace,
   tallyVsGoogleforms,
+
+  // Batch 7 Imports
+  klaviyoVsMailerlite,
+  stripeVsPayPal,
+  notionVsEvernote,
+  heygenVsRunway,
+  wixstudioVsWebflow,
 ];
