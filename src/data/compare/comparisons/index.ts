@@ -64,6 +64,27 @@ import { notionVsEvernote } from "./notion-vs-evernote";
 import { heygenVsRunway } from "./heygen-vs-runway";
 import { wixstudioVsWebflow } from "./wixstudio-vs-webflow";
 
+// Batch 8 New High-Fidelity Comparisons
+import { podiaVsTeachable } from "./podia-vs-teachable";
+import { skoolVsDiscord } from "./skool-vs-discord";
+import { squarespaceVsWebflow } from "./squarespace-vs-webflow";
+import { activecampaignVsHubspot } from "./activecampaign-vs-hubspot";
+import { circleVsMightynetworks } from "./circle-vs-mightynetworks";
+
+// Batch 9 New High-Fidelity Comparisons
+import { ghostVsMedium } from "./ghost-vs-medium";
+import { beehiivVsMailerlite } from "./beehiiv-vs-mailerlite";
+import { tallyVsJotform } from "./tally-vs-jotform";
+import { circleVsSlack } from "./circle-vs-slack";
+import { obsidianVsLogseq } from "./obsidian-vs-logseq";
+
+// Batch 10 New High-Fidelity Comparisons
+import { linearVsTrello } from "./linear-vs-trello";
+import { cursorVsCopilot } from "./cursor-vs-copilot";
+import { mailerliteVsKit } from "./mailerlite-vs-kit";
+import { heygenVsElevenlabs } from "./heygen-vs-elevenlabs";
+import { shopifyVsMagento } from "./shopify-vs-magento";
+
 import { ComparisonData } from "../types";
 
 export const allComparisons: ComparisonData[] = [
@@ -132,4 +153,25 @@ export const allComparisons: ComparisonData[] = [
   notionVsEvernote,
   heygenVsRunway,
   wixstudioVsWebflow,
+
+  // Batch 8 Imports
+  podiaVsTeachable,
+  skoolVsDiscord,
+  squarespaceVsWebflow,
+  activecampaignVsHubspot,
+  circleVsMightynetworks,
+
+  // Batch 9 Imports
+  ghostVsMedium,
+  beehiivVsMailerlite,
+  tallyVsJotform,
+  circleVsSlack,
+  obsidianVsLogseq,
+
+  // Batch 10 Imports
+  linearVsTrello,
+  cursorVsCopilot,
+  mailerliteVsKit,
+  heygenVsElevenlabs,
+  shopifyVsMagento,
 ];
