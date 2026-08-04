@@ -251,6 +251,52 @@ const createMockPrismaClient = (): any => {
     }
   };
 
+  // Mock for platform model
+  mockClient.platform = {
+    findUnique: async (args: any) => {
+      const name = args?.where?.name || args?.where?.id;
+      const plat = allPlatforms.find((p) => p.name === name || p.name.toLowerCase() === String(name).toLowerCase());
+      if (!plat) return null;
+      return {
+        id: `plat_${plat.name.toLowerCase()}`,
+        ...plat,
+      };
+    },
+    findFirst: async (args: any) => {
+      const name = args?.where?.name;
+      const plat = allPlatforms.find((p) => p.name === name);
+      if (!plat) return null;
+      return {
+        id: `plat_${plat.name.toLowerCase()}`,
+        ...plat,
+      };
+    },
+    findMany: async () => {
+      return allPlatforms.map((plat) => ({
+        id: `plat_${plat.name.toLowerCase()}`,
+        ...plat,
+      }));
+    },
+    create: async (args: any) => {
+      return {
+        id: `plat_${args?.data?.name?.toLowerCase() || 'unknown'}`,
+        ...args?.data,
+      };
+    },
+    update: async (args: any) => {
+      return {
+        id: args?.where?.id || 'unknown',
+        ...args?.data,
+      };
+    },
+    upsert: async (args: any) => {
+      return {
+        id: `plat_${args?.create?.name?.toLowerCase() || 'unknown'}`,
+        ...args?.create,
+      };
+    }
+  };
+
   // Mock for user model
   mockClient.user = {
     findUnique: async () => null,
@@ -263,11 +309,20 @@ const createMockPrismaClient = (): any => {
   // Return a proxy that dynamically handles any model accessor to prevent crashes
   return new Proxy(mockClient, {
     get(target, prop) {
-      if (prop === '$disconnect') {
+      const propStr = String(prop);
+      if (propStr === '$disconnect' || propStr === '$connect') {
         return async () => {};
       }
+      if (propStr.startsWith('$')) {
+        return async (...args: any[]) => {
+          console.log(`[Mock Prisma] Intercepted client method: ${propStr}`);
+          if (propStr === '$transaction' && typeof args[0] === 'function') {
+            return await args[0](target);
+          }
+          return {};
+        };
+      }
 
-      const propStr = String(prop);
       if (mockClient[propStr]) {
         return mockClient[propStr];
       }
@@ -290,11 +345,13 @@ const createMockPrismaClient = (): any => {
 
 const getPrismaClient = () => {
   const connectionString = process.env.DATABASE_URL;
+  const isSeeding = process.argv.some(arg => arg.includes('seed')) || process.env.npm_lifecycle_event?.includes('seed');
+  const bypassMock = process.env.MOCK_PRISMA === "false" || process.env.BYPASS_MOCK === "true" || isSeeding;
 
   // Use the Mock Prisma Client if DATABASE_URL is missing, dummy, or explicitly static
   if (
     !connectionString ||
-    connectionString.includes("localhost") ||
+    (!bypassMock && (connectionString.includes("localhost") || connectionString.includes("127.0.0.1"))) ||
     connectionString.includes("example.com") ||
     process.env.BUILD_TYPE === "static"
   ) {
