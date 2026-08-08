@@ -226,14 +226,20 @@ export async function syncComparisonData() {
   for (const comp of allComparisons) {
     console.log(`🆚 Syncing comparison: ${comp.title}`);
 
+    const resolvePlatformName = (name: string): string => {
+      if (name === "GA4") return "Google Analytics 4";
+      if (name === "Wix Studio") return "Wix";
+      return name;
+    };
+
     // Find platform A
     const platA = await prisma.platform.findFirst({
-      where: { name: comp.platformA },
+      where: { name: resolvePlatformName(comp.platformA) },
     });
 
     // Find platform B
     const platB = await prisma.platform.findFirst({
-      where: { name: comp.platformB },
+      where: { name: resolvePlatformName(comp.platformB) },
     });
 
     if (!platA || !platB) {
