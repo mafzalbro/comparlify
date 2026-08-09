@@ -52,3 +52,4 @@ package-lock.json
 # _agent/
 
 .vscode
+pnpm-lock.yaml
