@@ -27,7 +27,7 @@ const getPlatformsTool = ai.defineTool(
         name: true,
       },
     });
-    return platforms.map((p) => p.name);
+    return platforms.map((p: { name: string }) => p.name);
   }
 );
 
@@ -76,7 +76,7 @@ const getPlatformDetailsTool = ai.defineTool(
       name: platform.name,
       description: platform.description,
       website: platform.website,
-      features: platform.features.map((f) => ({
+      features: platform.features.map((f: any) => ({
         name: f.feature.name,
         hasFeature: f.hasFeature,
         details: f.details,
@@ -120,7 +120,7 @@ const searchSiteContent = ai.defineTool(
             select: { title: true, slug: true, description: true }
         });
         
-        return posts.map(p => ({
+        return posts.map((p: { slug: string; title: string; description: string }) => ({
             url: `/blog/${p.slug}`,
             title: p.title,
             snippet: p.description
@@ -146,11 +146,11 @@ const searchSiteContent = ai.defineTool(
     });
     
     const results = [
-        ...posts.map(p => ({ url: `/blog/${p.slug}`, title: p.title, snippet: p.description })),
-        ...comparisons.map(c => ({ url: `/compare/${c.slug}`, title: c.title, snippet: c.summary }))
+        ...posts.map((p: { slug: string; title: string; description: string }) => ({ url: `/blog/${p.slug}`, title: p.title, snippet: p.description })),
+        ...comparisons.map((c: { slug: string; title: string; summary: string }) => ({ url: `/compare/${c.slug}`, title: c.title, snippet: c.summary }))
     ];
 
-    const uniqueResults = Array.from(new Map(results.map(item => [item['url'], item])).values());
+    const uniqueResults = Array.from(new Map(results.map((item: any) => [item['url'], item])).values());
     
     return uniqueResults.slice(0, 10); // Return up to 10 results
   }
@@ -180,7 +180,7 @@ const getTopComparisons = ai.defineTool(
       });
   
       // Calculate average rating for each comparison and sort
-      const ratedComparisons = comparisons.map(c => {
+      const ratedComparisons = comparisons.map((c: any) => {
         const ratingA = c.platformA.rating ?? 0;
         const ratingB = c.platformB.rating ?? 0;
         const averageRating = (ratingA + ratingB) / 2;
@@ -189,7 +189,7 @@ const getTopComparisons = ai.defineTool(
           url: `/compare/${c.slug}`,
           averageRating,
         };
-      }).sort((a, b) => b.averageRating - a.averageRating);
+      }).sort((a: any, b: any) => b.averageRating - a.averageRating);
       
       return ratedComparisons.slice(0, count);
     }

@@ -23,7 +23,7 @@ async function getSiteContent() {
     },
   });
 
-  const groupedContent = content.reduce((acc, item) => {
+  const groupedContent = content.reduce((acc: Record<string, typeof content>, item: any) => {
     if (!acc[item.group]) {
       acc[item.group] = [];
     }

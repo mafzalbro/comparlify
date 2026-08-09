@@ -12,7 +12,7 @@ type ComparisonWithRelations = Comparison & {
 
 export const generateStaticParams = cache(async () => {
     const comparisons = await prisma.comparison.findMany({ where: { published: true } });
-    return comparisons.map((comp) => ({
+    return comparisons.map((comp: { id: string }) => ({
       id: comp.id,
     }));
 });

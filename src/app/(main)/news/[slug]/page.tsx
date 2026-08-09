@@ -57,7 +57,7 @@ export const generateStaticParams = cache(async () => {
   const articles = await prisma.newsArticle.findMany({
     where: { published: true },
   });
-  return articles.map((article) => ({
+  return articles.map((article: { slug: string }) => ({
     slug: article.slug,
   }));
 });
@@ -126,7 +126,7 @@ export default async function NewsArticlePage(props: {
 
               {article.platforms.length > 0 && (
                 <div className="flex flex-wrap items-center justify-center gap-3 mb-10">
-                  {article.platforms.map((platform) => (
+                  {article.platforms.map((platform: any) => (
                     <Badge
                       key={platform.id}
                       variant="outline"
@@ -279,7 +279,7 @@ export default async function NewsArticlePage(props: {
                     <span className="text-primary italic">Comparisons</span>
                   </h3>
                   <div className="space-y-6 relative z-10">
-                    {trendingComparisons.map((comp) => (
+                    {trendingComparisons.map((comp: any) => (
                       <Link
                         key={comp.id}
                         href={`/compare/${comp.slug}`}

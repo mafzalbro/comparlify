@@ -26,7 +26,7 @@ export async function createUserStack(
   }
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       const stack = await tx.userStack.create({
         data: {
           title: data.title,

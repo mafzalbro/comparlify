@@ -190,7 +190,7 @@ export default async function NewsPage() {
                 batchSize={9}
                 gridClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12"
               >
-                {otherArticles.map((article, index) => (
+                {otherArticles.map((article: any, index: number) => (
                   <MotionDiv
                     key={article.slug}
                     initial={{ opacity: 0, y: 30 }}

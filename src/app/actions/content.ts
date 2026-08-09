@@ -44,7 +44,7 @@ export async function updateContentAction(
     where: { key: { in: keys } },
     select: { key: true },
   });
-  const existingKeys = new Set(existing.map((r) => r.key));
+  const existingKeys = new Set(existing.map((r: { key: string }) => r.key));
 
   const missingKeys = keys.filter((k) => !existingKeys.has(k));
 
@@ -90,7 +90,7 @@ export async function getSettingsContent(): Promise<AdminSettings> {
   });
 
   const groupedContent = content.reduce(
-    (acc, item) => {
+    (acc: Record<string, typeof content>, item: any) => {
       const group = item.group;
       if (!acc[group]) {
         acc[group] = [];

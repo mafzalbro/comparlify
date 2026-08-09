@@ -90,7 +90,7 @@ export const generateStaticParams = cache(async () => {
   const comparisons = await prisma.comparison.findMany({
     where: { published: true },
   });
-  return comparisons.map((comp) => ({ slug: comp.slug }));
+  return comparisons.map((comp: { slug: string }) => ({ slug: comp.slug }));
 });
 
 export default async function ComparisonDetailPage(props: {
@@ -180,7 +180,7 @@ export default async function ComparisonDetailPage(props: {
     platform.features.find((f: any) => f.featureId === featureId);
 
   const featureRows = allFeatures
-    .map((feature) => {
+    .map((feature: any) => {
       const pfA = getFeature(platformA, feature.id);
       const pfB = getFeature(platformB, feature.id);
       return {
@@ -192,7 +192,7 @@ export default async function ComparisonDetailPage(props: {
         value2: pfB?.hasFeature ? pfB.details || "Supported" : "Not Included",
       };
     })
-    .filter((row) => row.hasA || row.hasB)
+    .filter((row: any) => row.hasA || row.hasB)
     .slice(0, 10);
 
   // ── Related Content ─────────────────────────────────────
@@ -460,7 +460,7 @@ export default async function ComparisonDetailPage(props: {
                     Keep <span className="text-primary italic">Reading</span>
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                    {relatedPosts.map((post) => (
+                    {relatedPosts.map((post: any) => (
                       <Link
                         key={post.id}
                         href={`/blog/${post.slug}`}
@@ -476,7 +476,7 @@ export default async function ComparisonDetailPage(props: {
                         </Card>
                       </Link>
                     ))}
-                    {relatedNews.map((news) => (
+                    {relatedNews.map((news: any) => (
                       <Link
                         key={news.id}
                         href={`/news/${news.slug}`}

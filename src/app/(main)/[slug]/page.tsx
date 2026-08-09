@@ -26,7 +26,7 @@ export default async function SlugPage({ params }: { params: Promise<{ slug: str
   });
 
   const matchedPlatform = platforms.find(
-    (p) => p.name.toLowerCase().replace(/\s+/g, "-") === slug
+    (p: { id: string; name: string }) => p.name.toLowerCase().replace(/\s+/g, "-") === slug
   );
 
   if (matchedPlatform) {

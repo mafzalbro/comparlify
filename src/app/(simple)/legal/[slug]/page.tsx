@@ -16,7 +16,7 @@ export async function generateStaticParams() {
     where: { group: "Legal Pages" },
     select: { key: true },
   });
-  return docs.map((doc) => ({
+  return docs.map((doc: { key: string }) => ({
     slug: doc.key.replace("legal.", ""),
   }));
 }

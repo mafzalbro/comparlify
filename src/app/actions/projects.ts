@@ -290,7 +290,7 @@ export async function getMatchFeatures() {
         take: 12,
         orderBy: { platforms: { _count: 'desc' } }
     });
-    return features.map(f => ({
+    return features.map((f: any) => ({
         id: f.id,
         name: f.name,
         icon: "✨"

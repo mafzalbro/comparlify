@@ -32,8 +32,8 @@ async function getModerationItems(status: ForumTopicStatus | 'ALL') {
   });
 
   const allItems: ModerationItem[] = [
-    ...topics.map(t => ({ ...t, type: 'TOPIC' as const })),
-    ...posts.map(p => ({ ...p, type: 'POST' as const })),
+    ...topics.map((t: any) => ({ ...t, type: 'TOPIC' as const })),
+    ...posts.map((p: any) => ({ ...p, type: 'POST' as const })),
   ];
   
   return allItems.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());

@@ -41,7 +41,7 @@ const getPlatformBySlug = cache(async (slug: string) => {
   });
 
   return platforms.find(
-    (p) => p.name.toLowerCase().replace(/\s+/g, "-") === slug,
+    (p: any) => p.name.toLowerCase().replace(/\s+/g, "-") === slug,
   );
 });
 
@@ -133,9 +133,9 @@ export default async function DynamicBattlePage(props: {
     include: { category: true },
     take: 15,
   });
-  const featureRows = allFeatures.map((feature) => {
-    const pfA = platformA.features.find((f) => f.featureId === feature.id);
-    const pfB = platformB.features.find((f) => f.featureId === feature.id);
+  const featureRows = allFeatures.map((feature: any) => {
+    const pfA = platformA.features.find((f: any) => f.featureId === feature.id);
+    const pfB = platformB.features.find((f: any) => f.featureId === feature.id);
     return {
       id: feature.id,
       name: feature.name,

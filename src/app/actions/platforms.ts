@@ -65,7 +65,7 @@ export async function createPlatform(
     );
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       const newPlatform = await tx.platform.create({
         data: validatedFields.data,
       });

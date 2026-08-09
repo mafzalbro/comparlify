@@ -54,9 +54,9 @@ export async function generateSeoMetadata({
   const pageDescription = description || defaultConfig.description;
 
   const pageKeywords = Array.isArray(keywords)
-    ? [...defaultConfig.keywords.split(",").map((k) => k.trim()), ...keywords]
+    ? [...defaultConfig.keywords.split(",").map((k: string) => k.trim()), ...keywords]
     : typeof keywords === "string"
-      ? [...defaultConfig.keywords.split(",").map((k) => k.trim()), ...keywords.split(",").map((k) => k.trim())]
+      ? [...defaultConfig.keywords.split(",").map((k: string) => k.trim()), ...keywords.split(",").map((k: string) => k.trim())]
       : defaultConfig.keywords;
 
   const ogImage = image || defaultConfig.ogImage;

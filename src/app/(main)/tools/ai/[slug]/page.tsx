@@ -52,7 +52,7 @@ export async function generateStaticParams() {
   const tools = await prisma.tool.findMany({
     where: { enabled: true },
   });
-  return tools.map((t) => ({ slug: t.slug }));
+  return tools.map((t: { slug: string }) => ({ slug: t.slug }));
 }
 
 export default async function DynamicToolPage(props: {

@@ -35,7 +35,7 @@ export default async function ViewEmailCampaignPage(props: { params: Promise<{ i
         notFound();
     }
 
-    const hasFailedRecipients = campaign.recipients.some(r => r.status === 'FAILED');
+    const hasFailedRecipients = campaign.recipients.some((r: any) => r.status === 'FAILED');
 
     return (
         <div>

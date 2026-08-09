@@ -49,7 +49,7 @@ export default async function AdminEmailsPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {campaigns.map(campaign => (
+                            {campaigns.map((campaign: any) => (
                                 <TableRow key={campaign.id}>
                                     <TableCell className="font-medium">
                                         <Link href={`/admin/emails/view/${campaign.id}`} className="hover:underline">

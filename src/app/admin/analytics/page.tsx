@@ -52,7 +52,7 @@ async function getAnalytics() {
   ]);
 
   const totalClicks = platforms.reduce(
-    (acc, p) => acc + p._count.affiliateClicks,
+    (acc: number, p: any) => acc + p._count.affiliateClicks,
     0,
   );
 
@@ -150,7 +150,7 @@ export default async function AnalyticsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recentClicks.map((click) => (
+                {recentClicks.map((click: any) => (
                   <TableRow
                     key={click.id}
                     className="group hover:bg-primary/5 border-border/10 transition-colors"

@@ -43,49 +43,49 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }),
   ]);
 
-  const postUrls = posts.map((post) => ({
+  const postUrls = posts.map((post: any) => ({
     url: `${siteUrl}/blog/${post.slug}`,
     lastModified: post.updatedAt,
     changeFrequency: "weekly" as const,
     priority: 0.8,
   }));
 
-  const comparisonUrls = comparisons.map((comparison) => ({
+  const comparisonUrls = comparisons.map((comparison: any) => ({
     url: `${siteUrl}/compare/${comparison.slug}`,
     lastModified: comparison.updatedAt,
     changeFrequency: "monthly" as const,
     priority: 0.9,
   }));
 
-  const toolUrls = tools.map((tool) => ({
+  const toolUrls = tools.map((tool: any) => ({
     url: `${siteUrl}/tools?tool=${tool.slug}`,
     lastModified: tool.updatedAt,
     changeFrequency: "monthly" as const,
     priority: 0.6,
   }));
 
-  const newsUrls = news.map((article) => ({
+  const newsUrls = news.map((article: any) => ({
     url: `${siteUrl}/news/${article.slug}`,
     lastModified: article.updatedAt,
     changeFrequency: "daily" as const,
     priority: 0.8,
   }));
 
-  const categoryUrls = forumCategories.map((cat) => ({
+  const categoryUrls = forumCategories.map((cat: any) => ({
     url: `${siteUrl}/community/category/${cat.slug}`,
     lastModified: cat.updatedAt,
     changeFrequency: "weekly" as const,
     priority: 0.5,
   }));
 
-  const topicUrls = forumTopics.map((topic) => ({
+  const topicUrls = forumTopics.map((topic: any) => ({
     url: `${siteUrl}/community/topic/${topic.id}`,
     lastModified: topic.updatedAt,
     changeFrequency: "daily" as const,
     priority: 0.6,
   }));
 
-  const legalUrls = siteContent.map((doc) => ({
+  const legalUrls = siteContent.map((doc: any) => ({
     url: `${siteUrl}/legal/${doc.key.replace("legal.", "")}`,
     lastModified: doc.updatedAt,
     changeFrequency: "yearly" as const,

@@ -62,7 +62,7 @@ export async function syncBlogData() {
         keyTakeaways: data.keyTakeaways as any,
         checklist: data.checklist as any,
         platforms: {
-          set: platforms.map((p) => ({ id: p.id })),
+          set: platforms.map((p: any) => ({ id: p.id })),
         },
       },
       create: {
@@ -83,7 +83,7 @@ export async function syncBlogData() {
         keyTakeaways: data.keyTakeaways as any,
         checklist: data.checklist as any,
         platforms: {
-          connect: platforms.map((p) => ({ id: p.id })),
+          connect: platforms.map((p: any) => ({ id: p.id })),
         },
       },
     });

@@ -42,7 +42,7 @@ import { MotionDiv } from "@/components/motion-wrapper";
 
 export const generateStaticParams = cache(async () => {
   const posts = await prisma.post.findMany({ where: { published: true } });
-  return posts.map((post) => ({
+  return posts.map((post: { slug: string }) => ({
     slug: post.slug,
   }));
 });
@@ -188,7 +188,7 @@ export default async function BlogPostPage(props: {
       ? {
           "@context": "https://schema.org",
           "@type": "FAQPage",
-          mainEntity: post.faqs.map((faq) => ({
+          mainEntity: post.faqs.map((faq: any) => ({
             "@type": "Question",
             name: faq.question,
             acceptedAnswer: {
@@ -509,7 +509,7 @@ export default async function BlogPostPage(props: {
                       </span>
                     </h3>
                     <div className="space-y-4 relative z-10">
-                      {post.platforms.map((platform) => (
+                      {post.platforms.map((platform: any) => (
                         <Link
                           key={platform.id}
                           href={`/platform/${platform.name.toLowerCase().replace(/\s+/g, "-")}`}
@@ -550,7 +550,7 @@ export default async function BlogPostPage(props: {
                       </span>
                     </h3>
                     <div className="space-y-6 relative z-10">
-                      {trendingComparisons.map((comp) => (
+                      {trendingComparisons.map((comp: any) => (
                         <Link
                           key={comp.id}
                           href={`/compare/${comp.slug}`}
@@ -597,7 +597,7 @@ export default async function BlogPostPage(props: {
                       <span className="text-primary italic">Connections</span>
                     </h3>
                     <div className="space-y-12 relative z-10">
-                      {relatedPosts.map((related) => (
+                      {relatedPosts.map((related: any) => (
                         <Link
                           key={related.slug}
                           href={`/blog/${related.slug}`}

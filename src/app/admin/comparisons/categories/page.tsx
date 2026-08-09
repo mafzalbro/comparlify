@@ -57,7 +57,7 @@ export default async function AdminComparisonCategoriesPage() {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {categories.map((category) => (
+                {categories.map((category: any) => (
                 <TableRow key={category.id}>
                     <TableCell className="font-medium">
                         <Link href={`/admin/comparisons/categories/edit/${category.id}`} className="hover:underline">{category.name}</Link>

@@ -56,7 +56,7 @@ export default async function AdminFeatureCategoriesPage() {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {categories.map((category) => (
+                {categories.map((category: any) => (
                 <TableRow key={category.id}>
                     <TableCell className="font-medium">
                         <Link href={`/admin/features/categories/edit/${category.id}`} className="hover:underline">{category.name}</Link>

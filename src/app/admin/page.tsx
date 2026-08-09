@@ -75,9 +75,9 @@ async function getDashboardStats() {
 
   // Combine and sort activities
   const combinedActivities: Activity[] = [
-    ...recentPosts.map((p) => ({ ...p, type: "POST" as const })),
-    ...recentUsers.map((u) => ({ ...u, type: "USER" as const })),
-    ...pendingComments.map((c) => ({ ...c, type: "COMMENT" as const })),
+    ...recentPosts.map((p: any) => ({ ...p, type: "POST" as const })),
+    ...recentUsers.map((u: any) => ({ ...u, type: "USER" as const })),
+    ...pendingComments.map((c: any) => ({ ...c, type: "COMMENT" as const })),
     ...recentClicks.map((c: any) => ({ ...c, type: "AFFILIATE_CLICK" as const })),
   ];
 
@@ -86,7 +86,7 @@ async function getDashboardStats() {
     .slice(0, 5);
 
   const postCountsByDay = postsLast7Days.reduce(
-    (acc, post) => {
+    (acc: Record<string, number>, post: any) => {
       const day = format(post.createdAt, "yyyy-MM-dd");
       acc[day] = (acc[day] || 0) + 1;
       return acc;

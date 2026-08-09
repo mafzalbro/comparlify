@@ -49,8 +49,8 @@ export default async function AdminLegalPage() {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {documents.map((doc) => {
-                    const title = doc.key.replace('legal.', '').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                {documents.map((doc: any) => {
+                    const title = doc.key.replace('legal.', '').replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
                     const slug = doc.key.replace('legal.', '');
                     return (
                         <TableRow key={doc.id}>

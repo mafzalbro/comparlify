@@ -25,7 +25,7 @@ async function getFeatures() {
     ],
   });
 
-  const groupedFeatures = features.reduce((acc, feature) => {
+  const groupedFeatures = features.reduce((acc: Record<string, typeof features>, feature: any) => {
     const categoryName = feature.category.name;
     if (!acc[categoryName]) {
       acc[categoryName] = [];
@@ -78,7 +78,7 @@ export default async function AdminFeaturesPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {groupedFeatures[category].map((feature) => (
+                  {groupedFeatures[category].map((feature: any) => (
                     <TableRow key={feature.id}>
                       <TableCell className="font-medium">
                         <Link href={`/admin/features/edit/${feature.id}`} className="hover:underline">

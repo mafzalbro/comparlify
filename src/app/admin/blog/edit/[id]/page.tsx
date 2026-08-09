@@ -9,7 +9,7 @@ export const revalidate = 0;
 
 export const generateStaticParams = cache(async () => {
     const posts = await prisma.post.findMany({ where: { published: true } });
-    return posts.map((post) => ({
+    return posts.map((post: { id: string }) => ({
         id: post.id,
     }));
 });

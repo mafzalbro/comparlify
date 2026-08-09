@@ -37,7 +37,7 @@ const getPlatformBySlug = cache(async (slug: string) => {
   });
 
   return platforms.find(
-    (p) => p.name.toLowerCase().replace(/\s+/g, "-") === slug
+    (p: any) => p.name.toLowerCase().replace(/\s+/g, "-") === slug
   );
 });
 
@@ -143,7 +143,7 @@ export default async function PlatformDetailPage(props: {
                       { label: "Ease of Use", val: platform.easeOfUse },
                       { label: "Features", val: platform.featuresRating },
                       { label: "Support", val: platform.support },
-                    ].map((s) => (
+                    ].map((s: any) => (
                       <div key={s.label}>
                         <div className="flex justify-between text-xs font-black uppercase tracking-widest mb-3">
                           <span>{s.label}</span>
@@ -168,7 +168,7 @@ export default async function PlatformDetailPage(props: {
                         <CheckCircle2 className="h-4 w-4" /> The Strengths
                       </h4>
                       <ul className="space-y-4">
-                        {platformPros.map((pro, i) => (
+                        {platformPros.map((pro: any, i: number) => (
                           <li key={i} className="text-xs font-bold text-muted-foreground leading-relaxed">
                             {pro}
                           </li>
@@ -195,7 +195,7 @@ export default async function PlatformDetailPage(props: {
                   Pricing <span className="text-primary italic">Architecture.</span>
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {platform.tiers.map((tier) => (
+                  {platform.tiers.map((tier: any) => (
                     <div key={tier.id} className={`p-8 rounded-3xl border ${tier.isPopular ? 'bg-primary/5 border-primary/30 ring-1 ring-primary/20' : 'bg-card border-border/10'}`}>
                       <div className="flex justify-between items-start mb-6">
                         <h4 className="text-xl font-bold">{tier.name}</h4>
@@ -206,7 +206,7 @@ export default async function PlatformDetailPage(props: {
                         <span className="text-muted-foreground font-bold ml-2">/mo</span>
                       </div>
                       <ul className="space-y-3 mb-8">
-                        {(tier.features as string[] || []).map((f, i) => (
+                        {(tier.features as string[] || []).map((f: any, i: number) => (
                           <li key={i} className="flex items-center gap-3 text-sm text-muted-foreground font-medium">
                             <div className="h-1.5 w-1.5 rounded-full bg-primary" />
                             {f}

@@ -242,7 +242,7 @@ export async function sendCampaignAction(
     const isMongo = process.env.DATABASE_URL?.startsWith("mongodb://") || process.env.DATABASE_URL?.startsWith("mongodb+srv://") || process.env.DATABASE_PROVIDER?.toLowerCase().trim() === "mongodb";
     if (isMongo) {
       await prisma.emailRecipient.createMany({
-        data: subscribers.map((sub) => ({
+        data: subscribers.map((sub: { id: string; email: string | null }) => ({
           campaignId: campaignId,
           userId: sub.id,
           status: "PENDING",
@@ -250,7 +250,7 @@ export async function sendCampaignAction(
       });
     } else {
       await (prisma.emailRecipient.createMany as any)({
-        data: subscribers.map((sub) => ({
+        data: subscribers.map((sub: { id: string; email: string | null }) => ({
           campaignId: campaignId,
           userId: sub.id,
           status: "PENDING",
