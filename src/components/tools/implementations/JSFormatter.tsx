@@ -1,0 +1,133 @@
+"use client";
+
+import React, { useState } from "react";
+import { Check, Copy, Trash2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+export function JSFormatter() {
+  const [input, setInput] = useState("");
+  const [output, setOutput] = useState("");
+  const [indent, setIndent] = useState("2");
+  const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
+
+  const formatJS = (code: string, spacing: string) => {
+    let formatted = "";
+    const tabString = spacing === "tab" ? "\t" : " ".repeat(parseInt(spacing, 10));
+    let depth = 0;
+
+    // Clean initial spaces/newlines
+    let cleaned = code
+      .replace(/\s*([\{\};])\s*/g, "$1") // Clean spacing around braces/semicolons
+      .replace(/\s+/g, " ")
+      .trim();
+
+    for (let i = 0; i < cleaned.length; i++) {
+      const char = cleaned[i];
+      if (char === "{") {
+        formatted += " {\n" + tabString.repeat(depth + 1);
+        depth++;
+      } else if (char === "}") {
+        depth = Math.max(0, depth - 1);
+        formatted = formatted.trimEnd() + "\n" + tabString.repeat(depth) + "}\n" + tabString.repeat(depth);
+      } else if (char === ";") {
+        formatted += ";\n" + tabString.repeat(depth);
+      } else {
+        formatted += char;
+      }
+    }
+
+    return formatted.replace(/\n\s*\n/g, "\n").trim();
+  };
+
+  const handleFormat = () => {
+    if (!input.trim()) {
+      setOutput("");
+      return;
+    }
+    const formatted = formatJS(input.trim(), indent);
+    setOutput(formatted);
+  };
+
+  const handleCopy = () => {
+    if (!output) return;
+    navigator.clipboard.writeText(output);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    toast({
+      title: "Copied!",
+      description: "Beautified JavaScript copied.",
+    });
+  };
+
+  const handleClear = () => {
+    setInput("");
+    setOutput("");
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="flex flex-col space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-bold text-foreground">
+              Raw JS/TS Input
+            </label>
+            <div className="flex items-center gap-3">
+              <select
+                value={indent}
+                onChange={(e) => setIndent(e.target.value)}
+                className="text-xs bg-secondary border border-border/40 px-2 py-1 rounded-md focus:outline-none"
+              >
+                <option value="2">2 Spaces</option>
+                <option value="4">4 Spaces</option>
+                <option value="tab">Tabs</option>
+              </select>
+              <button
+                onClick={handleClear}
+                className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1 font-bold"
+              >
+                <Trash2 className="h-3 w-3" /> Clear
+              </button>
+            </div>
+          </div>
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="function hello(){console.log('world');if(true){return;}}"
+            className="w-full h-80 p-4 rounded-xl border border-border/30 bg-secondary/20 font-mono text-xs focus:ring-1 focus:ring-primary focus:outline-none resize-none leading-relaxed"
+          />
+          <button
+            onClick={handleFormat}
+            className="w-full py-2.5 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-bold transition-all hover:scale-[1.01] active:scale-[0.99]"
+          >
+            Format JavaScript
+          </button>
+        </div>
+
+        <div className="flex flex-col space-y-2">
+          <div className="flex items-center justify-between h-7">
+            <label className="text-sm font-bold text-foreground">
+              Formatted Output
+            </label>
+            {output && (
+              <button
+                onClick={handleCopy}
+                className="p-1.5 rounded-md hover:bg-secondary transition-colors text-muted-foreground hover:text-primary"
+                title="Copy JS"
+              >
+                {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+              </button>
+            )}
+          </div>
+          <textarea
+            value={output}
+            readOnly
+            placeholder="Formatted code will appear here..."
+            className="w-full h-80 p-4 rounded-xl border border-border/30 bg-secondary/30 font-mono text-xs text-foreground focus:outline-none resize-none leading-relaxed"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
