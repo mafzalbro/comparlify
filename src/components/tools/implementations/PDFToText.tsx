@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { FileText, AlertCircle, Loader2, Copy, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { PDFSession } from "./PDFSession";
 
 const PDFJS_VERSION = "3.11.174";
 
@@ -20,6 +21,18 @@ export function PDFToText() {
         const v = pdfjsLib.version || PDFJS_VERSION;
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${v}/build/pdf.worker.min.mjs`;
       }).catch((err) => console.error("Could not load pdfjs-dist", err));
+    }
+  }, []);
+
+  // Check for active persistent session on mount
+  useEffect(() => {
+    const session = PDFSession.get();
+    if (session) {
+      setFile(new File([session.data as any], session.name, { type: "application/pdf" }));
+      toast({
+        title: "Working PDF Loaded",
+        description: `Ready to extract text from "${session.name}".`,
+      });
     }
   }, []);
 

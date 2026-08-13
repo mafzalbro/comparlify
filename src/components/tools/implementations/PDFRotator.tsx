@@ -22,16 +22,7 @@ export function PDFRotator() {
     });
 
     const pdfBytes = await newDoc.save();
-    const blob = new Blob([pdfBytes as any], { type: "application/pdf" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "rotated_document.pdf";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    return pdfBytes;
   };
 
   return (
@@ -42,6 +33,7 @@ export function PDFRotator() {
       <PDFWorkspace
         onProcess={handleProcess}
         processButtonLabel="Apply Rotations & Export PDF"
+        toolSlug="rotate"
       />
     </div>
   );

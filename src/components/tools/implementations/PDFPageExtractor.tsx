@@ -27,16 +27,7 @@ export function PDFPageExtractor() {
     });
 
     const pdfBytes = await extractedDoc.save();
-    const blob = new Blob([pdfBytes as any], { type: "application/pdf" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "extracted_pages.pdf";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    return pdfBytes;
   };
 
   return (
@@ -47,6 +38,7 @@ export function PDFPageExtractor() {
       <PDFWorkspace
         onProcess={handleProcess}
         processButtonLabel="Extract & Export Selected Pages"
+        toolSlug="split"
       />
     </div>
   );

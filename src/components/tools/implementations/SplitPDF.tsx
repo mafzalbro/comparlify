@@ -28,16 +28,7 @@ export function SplitPDF() {
     });
 
     const pdfBytes = await splitDoc.save();
-    const blob = new Blob([pdfBytes as any], { type: "application/pdf" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "split_document.pdf";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    return pdfBytes;
   };
 
   return (
@@ -48,6 +39,7 @@ export function SplitPDF() {
       <PDFWorkspace
         onProcess={handleProcess}
         processButtonLabel="Split & Extract Selected Pages"
+        toolSlug="split"
       />
     </div>
   );

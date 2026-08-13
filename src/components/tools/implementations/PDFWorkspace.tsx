@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { FileText, Loader2, RotateCw, Trash2, CheckSquare, Square, Download } from "lucide-react";
+import { FileText, Loader2, RotateCw, Trash2, CheckSquare, Square, Download, Sparkles, ArrowRight, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { PDFDocument, degrees } from "pdf-lib";
+import { PDFDocument } from "pdf-lib";
+import { PDFSession } from "./PDFSession";
+import { useRouter } from "next/navigation";
 
 const PDFJS_VERSION = "3.11.174";
 
@@ -16,24 +18,86 @@ export interface PDFPageItem {
 }
 
 interface PDFWorkspaceProps {
-  onProcess: (pages: PDFPageItem[], pdfDoc: PDFDocument) => Promise<void>;
+  onProcess: (pages: PDFPageItem[], pdfDoc: PDFDocument) => Promise<Uint8Array>;
   processButtonLabel: string;
+  toolSlug: string;
 }
 
-export function PDFWorkspace({ onProcess, processButtonLabel }: PDFWorkspaceProps) {
+export function PDFWorkspace({ onProcess, processButtonLabel, toolSlug }: PDFWorkspaceProps) {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [pages, setPages] = useState<PDFPageItem[]>([]);
   const [pdfDoc, setPdfDoc] = useState<PDFDocument | null>(null);
-  const { toast } = useToast();
 
+  // Results / Success state
+  const [processedBytes, setProcessedBytes] = useState<Uint8Array | null>(null);
+  const [originalSize, setOriginalSize] = useState<number>(0);
+  const [resultSize, setResultSize] = useState<number>(0);
+
+  const { toast } = useToast();
+  const router = useRouter();
+
+  // Load PDF buffer into Workspace
+  const loadPDFBuffer = async (buffer: ArrayBuffer, fileName: string) => {
+    setLoading(true);
+    setPages([]);
+    setProcessedBytes(null);
+
+    try {
+      const doc = await PDFDocument.load(buffer);
+      setPdfDoc(doc);
+
+      const pdfjsLib = await import("pdfjs-dist");
+      const loadingTask = pdfjsLib.getDocument({ data: buffer });
+      const pdf = await loadingTask.promise;
+
+      const extractedPages: PDFPageItem[] = [];
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 0.25 });
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+        if (context) {
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          await page.render({ canvasContext: context, viewport } as any).promise;
+          const thumbnailUrl = canvas.toDataURL("image/jpeg", 0.7);
+
+          extractedPages.push({
+            id: `${i}-${Date.now()}`,
+            originalIndex: i - 1,
+            rotation: 0,
+            selected: true,
+            thumbnailUrl,
+          });
+        }
+      }
+
+      setPages(extractedPages);
+    } catch (err) {
+      console.error(err);
+      toast({
+        variant: "destructive",
+        title: "Error Loading PDF",
+        description: "Failed to render visual page previews. This PDF might be encrypted or corrupted.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Check for active persistent session on mount
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      import("pdfjs-dist").then((pdfjsLib) => {
-        const v = pdfjsLib.version || PDFJS_VERSION;
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${v}/build/pdf.worker.min.mjs`;
-      }).catch((err) => console.error("Could not load pdfjs-dist", err));
+    const session = PDFSession.get();
+    if (session) {
+      setOriginalSize(session.data.byteLength);
+      setFile(new File([session.data as any], session.name, { type: "application/pdf" }));
+      loadPDFBuffer(session.data.buffer as any, session.name);
+      toast({
+        title: "Working PDF Restored",
+        description: `Loaded "${session.name}" from your active PDF session.`,
+      });
     }
   }, []);
 
@@ -41,51 +105,9 @@ export function PDFWorkspace({ onProcess, processButtonLabel }: PDFWorkspaceProp
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
       setFile(selectedFile);
-      setLoading(true);
-      setPages([]);
-
-      try {
-        const fileBuffer = await selectedFile.arrayBuffer();
-        const doc = await PDFDocument.load(fileBuffer);
-        setPdfDoc(doc);
-
-        const pdfjsLib = await import("pdfjs-dist");
-        const loadingTask = pdfjsLib.getDocument({ data: fileBuffer });
-        const pdf = await loadingTask.promise;
-
-        const extractedPages: PDFPageItem[] = [];
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const viewport = page.getViewport({ scale: 0.25 });
-          const canvas = document.createElement("canvas");
-          const context = canvas.getContext("2d");
-          if (context) {
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-            await page.render({ canvasContext: context, viewport } as any).promise;
-            const thumbnailUrl = canvas.toDataURL("image/jpeg", 0.7);
-
-            extractedPages.push({
-              id: `${i}-${Date.now()}`,
-              originalIndex: i - 1,
-              rotation: 0,
-              selected: true,
-              thumbnailUrl,
-            });
-          }
-        }
-
-        setPages(extractedPages);
-      } catch (err) {
-        console.error(err);
-        toast({
-          variant: "destructive",
-          title: "Error Loading PDF",
-          description: "Failed to render visual page previews. This PDF might be encrypted or corrupted.",
-        });
-      } finally {
-        setLoading(false);
-      }
+      setOriginalSize(selectedFile.size);
+      const buffer = await selectedFile.arrayBuffer();
+      loadPDFBuffer(buffer, selectedFile.name);
     }
   };
 
@@ -115,7 +137,19 @@ export function PDFWorkspace({ onProcess, processButtonLabel }: PDFWorkspaceProp
     if (!pdfDoc || pages.length === 0) return;
     setProcessing(true);
     try {
-      await onProcess(pages, pdfDoc);
+      const bytes = await onProcess(pages, pdfDoc);
+      setProcessedBytes(bytes);
+      setResultSize(bytes.byteLength);
+
+      // Save resulting bytes to the persistent session
+      if (file) {
+        PDFSession.save(file.name, bytes);
+      }
+
+      toast({
+        title: "Success!",
+        description: "Your PDF has been processed and saved to your active session.",
+      });
     } catch (err: any) {
       toast({
         variant: "destructive",
@@ -125,6 +159,24 @@ export function PDFWorkspace({ onProcess, processButtonLabel }: PDFWorkspaceProp
     } finally {
       setProcessing(false);
     }
+  };
+
+  const handleDownload = () => {
+    if (!processedBytes || !file) return;
+    const blob = new Blob([processedBytes as any], { type: "application/pdf" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `processed_${file.name}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handlePipelineAction = (targetToolSlug: string) => {
+    // Navigate and let the Session get loaded automatically on that page
+    router.push(`/tools/pdf/${targetToolSlug}`);
   };
 
   return (
@@ -160,10 +212,12 @@ export function PDFWorkspace({ onProcess, processButtonLabel }: PDFWorkspaceProp
               setFile(null);
               setPages([]);
               setPdfDoc(null);
+              setProcessedBytes(null);
+              PDFSession.clear();
             }}
             className="text-xs font-bold text-destructive hover:underline"
           >
-            Choose Another File
+            Clear Working Session
           </button>
         </div>
       )}
@@ -176,8 +230,87 @@ export function PDFWorkspace({ onProcess, processButtonLabel }: PDFWorkspaceProp
         </div>
       )}
 
+      {/* ── SUCCESS PIPELINE STATE (After processing completes) ────────── */}
+      {processedBytes && (
+        <div className="p-6 rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.03] space-y-6 animate-in fade-in zoom-in-95 duration-300">
+          <div className="flex items-center gap-3 text-emerald-500">
+            <CheckCircle2 className="h-6 w-6 shrink-0" />
+            <div>
+              <h3 className="text-base font-bold text-foreground">Operation Completed Successfully!</h3>
+              <p className="text-xs text-muted-foreground font-medium">Your working document is updated and saved in memory.</p>
+            </div>
+          </div>
+
+          {/* Diagnostic Metrics */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-y border-border/10 py-4 font-mono text-xs">
+            <div>
+              <span className="text-[9px] font-bold text-muted-foreground block uppercase">Original Size</span>
+              <span className="text-foreground font-bold">{(originalSize / 1024).toFixed(2)} KB</span>
+            </div>
+            <div>
+              <span className="text-[9px] font-bold text-muted-foreground block uppercase">Result Size</span>
+              <span className="text-foreground font-bold">{(resultSize / 1024).toFixed(2)} KB</span>
+            </div>
+            <div>
+              <span className="text-[9px] font-bold text-muted-foreground block uppercase">Saved Efficiency</span>
+              <span className="text-emerald-500 font-bold">
+                {originalSize > resultSize
+                  ? `${(((originalSize - resultSize) / originalSize) * 100).toFixed(0)}% Smaller`
+                  : "Optimized Structurally"
+                }
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={handleDownload}
+              className="flex-1 py-3 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all hover:scale-[1.01] active:scale-[0.99]"
+            >
+              <Download className="h-4 w-4" /> Download Processed PDF
+            </button>
+            <button
+              onClick={() => setProcessedBytes(null)}
+              className="py-3 px-4 rounded-xl bg-secondary hover:bg-secondary/80 border border-border/40 text-xs font-bold text-muted-foreground transition-all"
+            >
+              Reset Workspace
+            </button>
+          </div>
+
+          {/* Do More Pipeline Actions */}
+          <div className="pt-4 border-t border-border/10 space-y-3">
+            <div className="flex items-center gap-1.5 text-primary text-[10px] font-bold uppercase tracking-widest">
+              <Sparkles className="h-3.5 w-3.5" /> Do more with this PDF
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {["compress", "split", "rotate", "delete-pages", "pdf-to-text"].map((actionSlug) => {
+                // Don't show current tool action
+                if (actionSlug === toolSlug) return null;
+                const labelMap: Record<string, string> = {
+                  compress: "Compress PDF",
+                  split: "Split pages",
+                  rotate: "Rotate pages",
+                  "delete-pages": "Delete pages",
+                  "pdf-to-text": "Extract text",
+                };
+                return (
+                  <button
+                    key={actionSlug}
+                    onClick={() => handlePipelineAction(actionSlug)}
+                    className="p-3 text-left rounded-xl border border-border/20 bg-secondary/15 hover:bg-secondary/30 hover:border-primary/30 transition-all text-xs font-bold text-foreground flex items-center justify-between group"
+                  >
+                    <span>{labelMap[actionSlug]}</span>
+                    <ArrowRight className="h-3.5 w-3.5 opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all text-primary" />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Workspace ────────────────────────────────────────────── */}
-      {pages.length > 0 && (
+      {pages.length > 0 && !processedBytes && (
         <div className="space-y-4 animate-in fade-in duration-300">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/10 pb-3.5">
             <div className="flex items-center gap-2">
