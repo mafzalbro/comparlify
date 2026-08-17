@@ -813,20 +813,17 @@ export function ImageWorkspace({ defaultMode = "compress" }: { defaultMode?: str
   };
 
   return (
-    <div className="space-y-6">
-      {/* Privacy Warning Header */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-card/40 backdrop-blur-3xl p-5 rounded-2xl border border-border/40 shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-emerald-500/10 text-emerald-500 rounded-xl border border-emerald-500/20">
-            <ShieldCheck className="h-5 w-5" />
-          </div>
-          <div>
-            <h2 className="text-sm font-bold text-foreground">Zero-Server Image Sandbox</h2>
-            <p className="text-xs text-muted-foreground font-medium">Processed locally in your device memory. None of your assets leave your machine.</p>
-          </div>
+    <div className="space-y-4">
+      {/* Privacy Warning Header (Compact Pill) */}
+      <div className="flex items-center justify-between gap-3 bg-card/30 backdrop-blur-xl px-4 py-2.5 rounded-xl border border-border/20">
+        <div className="flex items-center gap-2 min-w-0">
+          <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
+          <p className="text-xs font-semibold text-foreground truncate">
+            <span className="font-bold">Zero-Server Sandbox</span> · Processed 100% locally in device memory.
+          </p>
         </div>
-        <div className="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400">
-          RAM Engine v1.0.0
+        <div className="text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0">
+          RAM Engine
         </div>
       </div>
 
@@ -891,16 +888,16 @@ export function ImageWorkspace({ defaultMode = "compress" }: { defaultMode?: str
 
       {/* Single Image Workflow workspace layout */}
       {files.length === 1 && singleImageSrc && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
           {/* LEFT COLUMN: Visual Preview & Before/After slider */}
-          <div className="lg:col-span-7 space-y-6">
+          <div className="lg:col-span-7 space-y-4">
             {/* Visual Workspace Canvas container */}
-            <div className="bg-card/30 rounded-2xl border border-border/30 overflow-hidden shadow-sm">
-              <div className="p-4 border-b border-border/30 bg-card/60 flex items-center justify-between">
+            <div className="bg-card/20 rounded-xl border border-border/20 overflow-hidden">
+              <div className="px-3.5 py-2.5 border-b border-border/20 bg-card/40 flex items-center justify-between">
                 <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
                   <Sparkles className="h-3.5 w-3.5 text-primary" /> Visual Sandbox Canvas
                 </span>
-                <span className="text-xs font-bold text-foreground">
+                <span className="text-xs font-mono font-bold text-foreground">
                   {metadata?.width} × {metadata?.height}px
                 </span>
               </div>
@@ -1080,18 +1077,18 @@ export function ImageWorkspace({ defaultMode = "compress" }: { defaultMode?: str
           </div>
 
           {/* RIGHT COLUMN: Optimization Control Parameters Panel */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="bg-card/40 backdrop-blur-xl border border-border/40 rounded-2xl p-6 shadow-sm">
+          <div className="lg:col-span-5 space-y-4">
+            <div className="bg-card/30 backdrop-blur-xl border border-border/30 rounded-xl p-4">
               {/* Tab Navigation header within Workspace */}
-              <div className="flex border-b border-border/20 pb-3 mb-5 overflow-x-auto gap-2">
+              <div className="flex border-b border-border/20 pb-2.5 mb-4 overflow-x-auto gap-1">
                 {[
                   { id: "compress", label: "Compress", icon: Sparkles },
                   { id: "resize", label: "Resize", icon: Maximize2 },
                   { id: "crop", label: "Crop", icon: Crop },
                   { id: "rotate", label: "Rotate", icon: RotateCw },
                   { id: "presets", label: "Presets", icon: Settings2 },
-                  { id: "responsive", label: "Responsive", icon: Maximize2 },
-                  { id: "seo", label: "SEO Audit", icon: CheckCircle2 },
+                  { id: "responsive", label: "Srcset", icon: Maximize2 },
+                  { id: "seo", label: "SEO", icon: CheckCircle2 },
                   { id: "base64", label: "Base64", icon: FileCode }
                 ].map(t => {
                   const Icon = t.icon;
@@ -1099,13 +1096,13 @@ export function ImageWorkspace({ defaultMode = "compress" }: { defaultMode?: str
                     <button
                       key={t.id}
                       onClick={() => { setActiveTab(t.id); setProcessedResult(null); }}
-                      className={`px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-all shrink-0 ${
+                      className={`px-2.5 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center gap-1 transition-all shrink-0 ${
                         activeTab === t.id
-                          ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
-                          : "text-muted-foreground hover:bg-secondary/40 hover:text-foreground"
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:bg-secondary/30 hover:text-foreground"
                       }`}
                     >
-                      <Icon className="h-3.5 w-3.5" />
+                      <Icon className="h-3 w-3" />
                       {t.label}
                     </button>
                   );
