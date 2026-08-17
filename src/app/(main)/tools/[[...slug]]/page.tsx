@@ -64,6 +64,7 @@ import { PDFToText } from "@/components/tools/implementations/PDFToText";
 import { PDFRotator } from "@/components/tools/implementations/PDFRotator";
 import { PDFPageExtractor } from "@/components/tools/implementations/PDFPageExtractor";
 import { PDFPageDeleter } from "@/components/tools/implementations/PDFPageDeleter";
+import { ImageWorkspace } from "@/components/tools/implementations/ImageWorkspace";
 
 export const revalidate = 0;
 
@@ -251,6 +252,28 @@ function renderToolComponent(tool: ToolDefinition, data: { platforms: any; proje
       return <PDFPageExtractor />;
     case "delete-pages-pdf":
       return <PDFPageDeleter />;
+
+    // ── New Batch 3 (Image Tools) ──
+    case "image-compressor":
+      return <ImageWorkspace defaultMode="compress" />;
+    case "image-resizer":
+      return <ImageWorkspace defaultMode="resize" />;
+    case "image-cropper":
+      return <ImageWorkspace defaultMode="crop" />;
+    case "image-rotator":
+      return <ImageWorkspace defaultMode="rotate" />;
+    case "jpg-to-png":
+      return <ImageWorkspace defaultMode="jpg-to-png" />;
+    case "png-to-jpg":
+      return <ImageWorkspace defaultMode="png-to-jpg" />;
+    case "jpg-to-webp":
+      return <ImageWorkspace defaultMode="jpg-to-webp" />;
+    case "png-to-webp":
+      return <ImageWorkspace defaultMode="png-to-webp" />;
+    case "webp-to-jpg":
+      return <ImageWorkspace defaultMode="webp-to-jpg" />;
+    case "image-to-base64":
+      return <ImageWorkspace defaultMode="base64" />;
 
     default:
       return <div className="text-center p-8 text-muted-foreground">Component coming soon!</div>;

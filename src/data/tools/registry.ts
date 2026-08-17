@@ -37,7 +37,7 @@ export interface ToolDefinition {
   id: string;
   title: string;
   description: string;
-  category: "developer" | "pdf" | "calculators" | "ai";
+  category: "developer" | "pdf" | "image" | "calculators" | "ai";
   subcategory?: string;
   slug: string; // The URL slug segment for the tool
   status?: string;
@@ -68,6 +68,11 @@ export const CATEGORIES = {
   pdf: {
     name: "PDF Tools",
     description: "In-browser, high-fidelity PDF manipulation tools with 100% privacy and Zero-Server storage.",
+    subcategories: {},
+  },
+  image: {
+    name: "Image Tools",
+    description: "In-browser, high-fidelity image manipulation, optimization, and conversion tools with 100% privacy and zero-server storage.",
     subcategories: {},
   },
   calculators: {
@@ -792,6 +797,184 @@ export const TOOLS: ToolDefinition[] = [
     howToUse: "Link nodes representing different system layers.",
     faqs: [],
     legacyComponent: "StackArchitect",
+  },
+
+  // ── IMAGE TOOLS ──
+  // 41. Image Compressor
+  {
+    id: "image-compressor",
+    title: "Image Compressor",
+    description: "Compress, optimize, and shrink JPG, PNG, and WebP images. Set custom target sizes or select balanced quality presets with complete local privacy.",
+    category: "image",
+    slug: "compressor",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Free Image Compressor & Optimizer Online | Comparlify",
+    metaDescription: "Compress and optimize your JPG, PNG, and WebP images instantly in-browser. Minimize size without losing quality using smart compression algorithms.",
+    whatIsIt: "The Image Compressor is a premium client-side utility that structures high-performance image compression using standard HTML5 Canvas rendering logic. It handles large-format graphic payloads securely.",
+    howToUse: "Upload your image, choose your desired quality target (Best Quality, Balanced, Smallest File, or Target Size), preview real-time visual output comparison, and download the compressed file.",
+    faqs: [
+      { question: "Is my image data secure?", answer: "Yes, 100%. All compression routines run entirely in-browser inside your device RAM. Your private photos never touch a remote web server." },
+      { question: "How does Target Size mode work?", answer: "Target Size mode performs an optimized client-side binary search across multiple quality coefficients to automatically yield the highest visual rendering that fits beneath your requested kilobyte target." }
+    ],
+    relatedTools: ["image-resizer", "image-cropper", "jpg-to-png"]
+  },
+  // 42. Image Resizer
+  {
+    id: "image-resizer",
+    title: "Image Resizer",
+    description: "Resize images to exact dimensions in pixels or percentages. Maintain aspect ratios and apply smart presets.",
+    category: "image",
+    slug: "resizer",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Bulk Image Resizer Online - Change Image Dimensions | Comparlify",
+    metaDescription: "Resize your images to custom pixel dimensions or percentages instantly in your browser. Maintain aspect ratio and use crop settings for pixel-perfect results.",
+    whatIsIt: "A versatile dimension controller that updates height and width properties on a canvas object, exporting pristine resized files with bilinear resampling quality.",
+    howToUse: "Drag and drop your images, key in width or height (or toggle absolute aspect locking), and download the resized versions instantly.",
+    faqs: [
+      { question: "Can I resize multiple images at once?", answer: "Yes, our workspace supports bulk operations. You can upload up to 50 images and apply global resizing boundaries simultaneously." }
+    ],
+    relatedTools: ["image-compressor", "image-cropper"]
+  },
+  // 43. Image Cropper
+  {
+    id: "image-cropper",
+    title: "Image Cropper",
+    description: "Crop your images with precision. Choose custom aspect ratios or standard web presets.",
+    category: "image",
+    slug: "cropper",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Interactive Image Cropping Tool Online | Comparlify",
+    metaDescription: "Crop images quickly to any custom dimension or predefined aspect ratios like 16:9, 4:3, or square. 100% browser-based with high-definition rendering.",
+    whatIsIt: "An interactive viewport utility allowing users to clip specific bounds from raw images, outputting clean canvas-cropped graphics without compression noise.",
+    howToUse: "Upload your file, adjust the interactive crop guides, choose an aspect lock if desired, and click Apply Crop.",
+    faqs: [
+      { question: "Can I export my cropped file in a different format?", answer: "Absolutely. Once cropped, you can leverage the conversion tools within the same workspace to export as PNG, WebP, or JPG." }
+    ],
+    relatedTools: ["image-resizer", "image-rotator"]
+  },
+  // 44. Image Rotator
+  {
+    id: "image-rotator",
+    title: "Image Rotator",
+    description: "Rotate images 90, 180, or 270 degrees, or flip them horizontally and vertically.",
+    category: "image",
+    slug: "rotator",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Rotate & Flip Images Online - Correct Orientation | Comparlify",
+    metaDescription: "Rotate images 90, 180, or 270 degrees clockwise or counterclockwise. Flip images vertically and horizontally with instant preview and local download.",
+    whatIsIt: "A lightweight metadata and canvas orientation tuner that applies geometric rotations to uploaded graphics with lossless pixel integrity.",
+    howToUse: "Select your image file, click rotation buttons or flip switches, and export instantly.",
+    faqs: [
+      { question: "Does rotating degrade image quality?", answer: "No, canvas rotation is a lossless matrix operation. The original pixel properties are preserved completely." }
+    ],
+    relatedTools: ["image-cropper", "image-resizer"]
+  },
+  // 45. JPG to PNG Converter
+  {
+    id: "jpg-to-png",
+    title: "JPG to PNG Converter",
+    description: "Convert JPG images to PNG format with high fidelity. Retain complete color depth.",
+    category: "image",
+    slug: "jpg-to-png",
+    status: "Live",
+    metaTitle: "Convert JPG to PNG Online Free | Comparlify",
+    metaDescription: "Convert JPG images to PNG format instantly inside your browser. High-fidelity client-side conversion ensures complete data privacy and zero quality loss.",
+    whatIsIt: "An in-browser image translation filter that converts lossy JPEG images into standard lossless PNG files.",
+    howToUse: "Upload one or more JPG files, configure target options if desired, and download the PNG file or compressed ZIP folder.",
+    faqs: [
+      { question: "Why convert JPG to PNG?", answer: "PNG supports lossless editing and alpha transparency, making it much better for layering in design applications." }
+    ],
+    relatedTools: ["png-to-jpg", "jpg-to-webp"]
+  },
+  // 46. PNG to JPG Converter
+  {
+    id: "png-to-jpg",
+    title: "PNG to JPG Converter",
+    description: "Convert transparent PNG files to optimized flat JPG images with customizable backgrounds.",
+    category: "image",
+    slug: "png-to-jpg",
+    status: "Live",
+    metaTitle: "Convert PNG to JPG Online Free | Comparlify",
+    metaDescription: "Convert PNG files to optimized JPG format instantly in-browser. Customize transparency background colors and download highly-compressed JPEG files.",
+    whatIsIt: "Redraws PNG assets over custom background fills (defaulting to white) and serializes them to standard JPEG formats.",
+    howToUse: "Drag in your PNGs, choose background color overrides for transparent channels, and download.",
+    faqs: [
+      { question: "What happens to my PNG transparency?", answer: "Since the JPEG standard doesn't support alpha transparency, transparent areas are blended onto your chosen flat background color." }
+    ],
+    relatedTools: ["jpg-to-png", "png-to-webp"]
+  },
+  // 47. JPG to WebP Converter
+  {
+    id: "jpg-to-webp",
+    title: "JPG to WebP Converter",
+    description: "Convert standard JPG files into modern, highly-compressed WebP images to boost website page speed.",
+    category: "image",
+    slug: "jpg-to-webp",
+    status: "Live",
+    metaTitle: "Convert JPG to WebP Online - Next-Gen Image Format | Comparlify",
+    metaDescription: "Convert JPG files to Google's next-generation WebP format. Drastically reduce web page loads with high compression efficiency.",
+    whatIsIt: "A modern web-performance utility translating JPEG assets into next-generation WebP files for streamlined web loading times.",
+    howToUse: "Drop your JPG files into the interface and convert instantly. Ideal for WordPress, Shopify, and Next.js assets.",
+    faqs: [
+      { question: "Is WebP universally supported?", answer: "Yes, all modern web browsers (Chrome, Safari, Firefox, Edge) fully support the WebP format." }
+    ],
+    relatedTools: ["jpg-to-png", "webp-to-jpg"]
+  },
+  // 48. PNG to WebP Converter
+  {
+    id: "png-to-webp",
+    title: "PNG to WebP Converter",
+    description: "Convert high-resolution PNGs into optimized transparent WebP images.",
+    category: "image",
+    slug: "png-to-webp",
+    status: "Live",
+    metaTitle: "Convert PNG to WebP Online Free | Comparlify",
+    metaDescription: "Convert PNG files to WebP format while preserving transparency. Reduce PNG file size up to 80% with next-generation web optimization.",
+    whatIsIt: "Exports transparent PNGs into highly compressed transparent WebP packages, preserving alpha layers with modern vector efficiency.",
+    howToUse: "Upload transparent or standard PNG files and save the optimized WebP assets.",
+    faqs: [
+      { question: "Does PNG to WebP preserve transparency?", answer: "Yes, WebP fully supports alpha-channel transparency at significantly reduced file footprints." }
+    ],
+    relatedTools: ["png-to-jpg", "webp-to-jpg"]
+  },
+  // 49. WebP to JPG Converter
+  {
+    id: "webp-to-jpg",
+    title: "WebP to JPG Converter",
+    description: "Convert modern WebP images back into widely compatible standard JPG format.",
+    category: "image",
+    slug: "webp-to-jpg",
+    status: "Live",
+    metaTitle: "Convert WebP to JPG Online Free | Comparlify",
+    metaDescription: "Convert WebP images back to standard JPG format instantly in-browser. Wide compatibility translation for offline editing and legacy programs.",
+    whatIsIt: "Translates WebP files into universally supported JPEG streams to ensure compatibility on legacy devices and software.",
+    howToUse: "Upload WebP files, trigger local translation, and download high-compatibility JPG outputs.",
+    faqs: [
+      { question: "Will WebP to JPG increase file size?", answer: "Yes, because JPEG is less efficient than WebP, the same image in JPG format may have a larger file footprint." }
+    ],
+    relatedTools: ["jpg-to-webp", "png-to-webp"]
+  },
+  // 50. Image to Base64 Encoder
+  {
+    id: "image-to-base64",
+    title: "Image to Base64 Converter",
+    description: "Convert any image file into an ASCII Base64 data URI string for direct embedding in HTML or CSS.",
+    category: "image",
+    slug: "image-to-base64",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Image to Base64 Encoder Online - Embed Images Directly | Comparlify",
+    metaDescription: "Convert JPG, PNG, WebP, SVG, or GIF images into standard Base64 Data URI strings instantly. Perfect for offline embedding in HTML, CSS, or JSON packages.",
+    whatIsIt: "An encoding scanner converting image binaries into standard MIME-typed RFC 4648 data URIs.",
+    howToUse: "Select an image and copy the generated Base64 block as a standard CSS source or raw HTML image embed.",
+    faqs: [
+      { question: "Does Base64 increase file size?", answer: "Yes, encoding binary data into Base64 ASCII characters adds approximately 33% overhead to the file size." }
+    ],
+    relatedTools: ["base64-encoder", "image-compressor"]
   }
 ];
 
