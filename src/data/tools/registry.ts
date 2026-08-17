@@ -37,7 +37,7 @@ export interface ToolDefinition {
   id: string;
   title: string;
   description: string;
-  category: "developer" | "pdf" | "image" | "calculators" | "ai";
+  category: "developer" | "pdf" | "image" | "text" | "calculators" | "ai";
   subcategory?: string;
   slug: string; // The URL slug segment for the tool
   status?: string;
@@ -73,6 +73,11 @@ export const CATEGORIES = {
   image: {
     name: "Image Tools",
     description: "In-browser, high-fidelity image manipulation, optimization, and conversion tools with 100% privacy and zero-server storage.",
+    subcategories: {},
+  },
+  text: {
+    name: "Text Tools",
+    description: "Surgical text manipulators, case converters, diff checkers, deduplicators, and slug generators running 100% in-browser.",
     subcategories: {},
   },
   calculators: {
@@ -975,6 +980,184 @@ export const TOOLS: ToolDefinition[] = [
       { question: "Does Base64 increase file size?", answer: "Yes, encoding binary data into Base64 ASCII characters adds approximately 33% overhead to the file size." }
     ],
     relatedTools: ["base64-encoder", "image-compressor"]
+  },
+
+  // ── TEXT TOOLS ──
+  // 31. Word Counter
+  {
+    id: "word-counter",
+    title: "Word Counter",
+    description: "Count words, characters, sentences, paragraphs, reading time, speaking time, and check social media character limits in real-time.",
+    category: "text",
+    slug: "word-counter",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Free Word & Character Counter Online | Comparlify",
+    metaDescription: "Count words, characters, sentences, and paragraphs in real-time. Inspect social media character limits, reading time, and keyword density.",
+    whatIsIt: "An interactive text metrics analyzer providing instant statistics for content creators, copywriters, and developers.",
+    howToUse: "Paste or type your text into the editor. View live word counts, character limits for Twitter/LinkedIn, and reading time estimates.",
+    faqs: [
+      { question: "Is my text saved or sent to a server?", answer: "No, all text analysis is processed 100% locally in your browser. Nothing is transmitted externally." }
+    ],
+    relatedTools: ["character-counter", "case-converter"]
+  },
+  // 32. Character Counter
+  {
+    id: "character-counter",
+    title: "Character Counter",
+    description: "Count exact characters with and without spaces. Inspect social media limits for X/Twitter, LinkedIn, Meta Title, and Meta Description.",
+    category: "text",
+    slug: "character-counter",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Character Counter Online with Social Media Limits | Comparlify",
+    metaDescription: "Count characters with and without spaces. Live limit indicators for Twitter, LinkedIn, SEO titles, and meta descriptions.",
+    whatIsIt: "A specialized counter that highlights character boundaries and platform constraints instantly.",
+    howToUse: "Input text and monitor the progress bars for Twitter (280 chars), LinkedIn (3,000 chars), Meta Title (60 chars), and Meta Description (160 chars).",
+    faqs: [
+      { question: "Does it count spaces as characters?", answer: "Yes, our tool shows separate tallies for total characters including spaces and characters excluding whitespace." }
+    ],
+    relatedTools: ["word-counter", "case-converter"]
+  },
+  // 33. Case Converter
+  {
+    id: "case-converter",
+    title: "Case Converter",
+    description: "Convert text between camelCase, PascalCase, snake_case, kebab-case, CONSTANT_CASE, Title Case, Sentence case, dot.case, and path/case.",
+    category: "text",
+    slug: "case-converter",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Case Converter Online - camelCase, kebab-case, snake_case | Comparlify",
+    metaDescription: "Convert text between 9 different casing conventions instantly. Perfect for developers, programmers, and technical copywriters.",
+    whatIsIt: "A versatile casing transformation engine converting raw text or identifier strings into developer and publishing conventions.",
+    howToUse: "Enter text and click any case conversion button (camelCase, snake_case, kebab-case, Title Case, etc.) to transform instantly.",
+    faqs: [
+      { question: "Can I convert programming variables?", answer: "Yes, it parses variable names and breaks them into tokens before applying new casing rules." }
+    ],
+    relatedTools: ["word-counter", "slug-generator"]
+  },
+  // 34. Remove Duplicate Lines
+  {
+    id: "remove-duplicate-lines",
+    title: "Remove Duplicate Lines",
+    description: "Remove duplicate lines from lists or text blocks with case-sensitive or case-insensitive matching options.",
+    category: "text",
+    slug: "remove-duplicate-lines",
+    status: "Live",
+    metaTitle: "Remove Duplicate Lines Online | Comparlify",
+    metaDescription: "Deduplicate lines in text or code blocks instantly. Supports case sensitivity filters, whitespace normalization, and occurrence preservation.",
+    whatIsIt: "A line-by-line deduplication utility that eliminates repetitive entries from lists, logs, or dataset exports.",
+    howToUse: "Paste your text block, configure deduplication settings (case sensitive, preserve first/last occurrence), and click Remove Duplicates.",
+    faqs: [
+      { question: "Does it sort the lines automatically?", answer: "You can choose to preserve original line ordering or combine sorting and deduplication in a single step." }
+    ],
+    relatedTools: ["remove-empty-lines", "text-sorter"]
+  },
+  // 35. Remove Empty Lines
+  {
+    id: "remove-empty-lines",
+    title: "Remove Empty Lines",
+    description: "Clean up text by removing blank or whitespace-only lines instantly.",
+    category: "text",
+    slug: "remove-empty-lines",
+    status: "Live",
+    metaTitle: "Remove Empty & Blank Lines Online | Comparlify",
+    metaDescription: "Strip blank lines and whitespace-only lines from text documents, CSV exports, or code snippets instantly in your browser.",
+    whatIsIt: "A text sanitizer that scans line breaks and strips empty or space-only lines from text files.",
+    howToUse: "Paste your text block and click Remove Empty Lines to clean up vertical whitespace.",
+    faqs: [
+      { question: "Does it trim trailing whitespace on remaining lines?", answer: "Yes, you can toggle optional whitespace trimming for clean results." }
+    ],
+    relatedTools: ["remove-duplicate-lines", "text-sorter"]
+  },
+  // 36. Text Sorter
+  {
+    id: "text-sorter",
+    title: "Text Sorter",
+    description: "Sort lines alphabetically, numerically, by line length, or using natural sorting order in ascending or descending order.",
+    category: "text",
+    slug: "text-sorter",
+    status: "Live",
+    metaTitle: "Online Text Sorter - Alphabetical & Numerical Sorting | Comparlify",
+    metaDescription: "Sort lists and lines alphabetically, numerically, or by line length. Supports natural sorting, reverse order, and case filters.",
+    whatIsIt: "A line sorting utility supporting standard ASCII, natural numeric sorting, and character length sorting.",
+    howToUse: "Paste lines of text, pick your sorting mode (Alphabetical, Numeric, Length, Natural), choose Ascending/Descending, and run.",
+    faqs: [
+      { question: "What is Natural Sorting?", answer: "Natural sorting orders numbers logically (e.g. Item 2 comes before Item 10, unlike pure alphabetical sorting)." }
+    ],
+    relatedTools: ["remove-duplicate-lines", "text-reverser"]
+  },
+  // 37. Text Reverser
+  {
+    id: "text-reverser",
+    title: "Text Reverser",
+    description: "Reverse entire text blocks character by character, word by word, or line by line.",
+    category: "text",
+    slug: "text-reverser",
+    status: "Live",
+    metaTitle: "Text Reverser Online - Reverse Words, Lines, Characters | Comparlify",
+    metaDescription: "Reverse text character-by-character, word-by-word, or line-by-line instantly. Free, secure, and 100% browser-based.",
+    whatIsIt: "A text direction manipulator that flips string indexes at character, word, or sentence/line granularities.",
+    howToUse: "Enter text, choose reversing mode (Reverse Characters, Reverse Words, or Reverse Lines), and view output instantly.",
+    faqs: [
+      { question: "Does it handle Unicode and emoji symbols?", answer: "Yes, unicode surrogate pairs and emojis are handled properly so symbols aren't corrupted." }
+    ],
+    relatedTools: ["text-sorter", "case-converter"]
+  },
+  // 38. Text Diff Checker
+  {
+    id: "text-diff-checker",
+    title: "Text Diff Checker",
+    description: "Compare two text blocks side-by-side or inline to spot differences, line additions, deletions, and modifications.",
+    category: "text",
+    slug: "text-diff-checker",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Text Diff Checker Online - Compare Two Text Files | Comparlify",
+    metaDescription: "Compare two text or code files side-by-side. Highlight additions, deletions, and line-by-line differences with 100% browser privacy.",
+    whatIsIt: "A visual comparison engine calculating line-by-line and word-level diffs between an Original and Modified text buffer.",
+    howToUse: "Paste original text on the left, modified text on the right, and review the highlighted diff view.",
+    faqs: [
+      { question: "Is my text uploaded to a server?", answer: "No, diff computation happens strictly in-browser using JavaScript algorithms." }
+    ],
+    relatedTools: ["find-and-replace", "word-counter"]
+  },
+  // 39. Find & Replace
+  {
+    id: "find-and-replace",
+    title: "Find & Replace Tool",
+    description: "Find and replace text using standard search or regular expressions (Regex) with match highlighting and preview.",
+    category: "text",
+    slug: "find-and-replace",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Online Find & Replace Tool with Regex | Comparlify",
+    metaDescription: "Search and replace text strings or regular expressions in real-time. Features case sensitivity, whole-word matching, and live replacement previews.",
+    whatIsIt: "A batch string replacement utility supporting standard substrings and V8 RegExp patterns.",
+    howToUse: "Input target text, enter search term and replacement string, set options (Match Case, Whole Word, Regex), and click Replace All.",
+    faqs: [
+      { question: "Does it support Regular Expressions?", answer: "Yes, you can toggle Regex mode to use powerful patterns like capture groups and character classes." }
+    ],
+    relatedTools: ["text-diff-checker", "case-converter"]
+  },
+  // 40. Slug Generator
+  {
+    id: "slug-generator",
+    title: "Slug Generator",
+    description: "Generate clean, SEO-friendly URL slugs from titles or text. Handles unicode transliteration, stop-word removal, and custom separators.",
+    category: "text",
+    slug: "slug-generator",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "SEO Slug Generator Online - Convert Text to URL Slugs | Comparlify",
+    metaDescription: "Generate clean, SEO-friendly URL slugs from blog titles or headings. Strip stop-words, convert unicode characters, and format custom separators.",
+    whatIsIt: "An SEO utility converting headlines, titles, or strings into URL-safe slug expressions.",
+    howToUse: "Type a title or string, configure options (remove stop-words like 'and', 'the', max length), and copy the generated slug.",
+    faqs: [
+      { question: "What is a URL slug?", answer: "A slug is the human-readable, hyphenated part of a URL that identifies a specific page (e.g. `/blog/how-to-compress-images`)." }
+    ],
+    relatedTools: ["case-converter", "word-counter"]
   }
 ];
 

@@ -65,6 +65,7 @@ import { PDFRotator } from "@/components/tools/implementations/PDFRotator";
 import { PDFPageExtractor } from "@/components/tools/implementations/PDFPageExtractor";
 import { PDFPageDeleter } from "@/components/tools/implementations/PDFPageDeleter";
 import { ImageWorkspace } from "@/components/tools/implementations/ImageWorkspace";
+import { TextWorkspace } from "@/components/tools/implementations/TextWorkspace";
 
 export const revalidate = 0;
 
@@ -274,6 +275,28 @@ function renderToolComponent(tool: ToolDefinition, data: { platforms: any; proje
       return <ImageWorkspace defaultMode="webp-to-jpg" />;
     case "image-to-base64":
       return <ImageWorkspace defaultMode="base64" />;
+
+    // ── New Batch 4 (Text Tools) ──
+    case "word-counter":
+      return <TextWorkspace defaultMode="word-counter" />;
+    case "character-counter":
+      return <TextWorkspace defaultMode="character-counter" />;
+    case "case-converter":
+      return <TextWorkspace defaultMode="case-converter" />;
+    case "remove-duplicate-lines":
+      return <TextWorkspace defaultMode="remove-duplicate-lines" />;
+    case "remove-empty-lines":
+      return <TextWorkspace defaultMode="remove-empty-lines" />;
+    case "text-sorter":
+      return <TextWorkspace defaultMode="text-sorter" />;
+    case "text-reverser":
+      return <TextWorkspace defaultMode="text-reverser" />;
+    case "text-diff-checker":
+      return <TextWorkspace defaultMode="text-diff-checker" />;
+    case "find-and-replace":
+      return <TextWorkspace defaultMode="find-and-replace" />;
+    case "slug-generator":
+      return <TextWorkspace defaultMode="slug-generator" />;
 
     default:
       return <div className="text-center p-8 text-muted-foreground">Component coming soon!</div>;
