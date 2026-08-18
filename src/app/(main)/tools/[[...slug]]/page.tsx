@@ -66,6 +66,7 @@ import { PDFPageExtractor } from "@/components/tools/implementations/PDFPageExtr
 import { PDFPageDeleter } from "@/components/tools/implementations/PDFPageDeleter";
 import { ImageWorkspace } from "@/components/tools/implementations/ImageWorkspace";
 import { TextWorkspace } from "@/components/tools/implementations/TextWorkspace";
+import { CalculatorWorkspace } from "@/components/tools/implementations/CalculatorWorkspace";
 
 export const revalidate = 0;
 
@@ -297,6 +298,19 @@ function renderToolComponent(tool: ToolDefinition, data: { platforms: any; proje
       return <TextWorkspace defaultMode="find-and-replace" />;
     case "slug-generator":
       return <TextWorkspace defaultMode="slug-generator" />;
+
+    // ── New Batch 5 (Calculators & Converters) ──
+    case "percentage-calculator":
+    case "age-calculator":
+    case "date-difference-calculator":
+    case "time-zone-converter":
+    case "unit-converter":
+    case "discount-calculator":
+    case "gst-tax-calculator":
+    case "emi-loan-calculator":
+    case "salary-calculator":
+    case "compound-interest-calculator":
+      return <CalculatorWorkspace activeToolId={tool.id} />;
 
     default:
       return <div className="text-center p-8 text-muted-foreground">Component coming soon!</div>;

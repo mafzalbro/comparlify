@@ -81,9 +81,10 @@ export const CATEGORIES = {
     subcategories: {},
   },
   calculators: {
-    name: "Calculators & Planning",
-    description: "Strategic calculators, planners, and matchmakers built to optimize tech stack overhead.",
+    name: "Calculators & Converters",
+    description: "Interactive financial, mathematical, date, unit, and strategic calculators running 100% in-browser with instant visual breakdowns.",
     subcategories: {
+      general: "General & Finance Calculators",
       strategic: "Strategic Creator Calculators",
     },
   },
@@ -1158,6 +1159,190 @@ export const TOOLS: ToolDefinition[] = [
       { question: "What is a URL slug?", answer: "A slug is the human-readable, hyphenated part of a URL that identifies a specific page (e.g. `/blog/how-to-compress-images`)." }
     ],
     relatedTools: ["case-converter", "word-counter"]
+  },
+
+  // ── CALCULATORS & CONVERTERS (BATCH 5) ──
+  // 51. Percentage Calculator
+  {
+    id: "percentage-calculator",
+    title: "Percentage Calculator",
+    description: "Calculate percentages, percentage increases/decreases, percentage differences, and reverse percentages in real time with step-by-step formula breakdowns.",
+    category: "calculators",
+    slug: "percentage",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Free Online Percentage Calculator - Instant Math & Change Formulas | Comparlify",
+    metaDescription: "Calculate percentage increases, percentage differences, reverse percentages, and fraction conversions instantly. Features step-by-step explanations and What-If scenario modeling.",
+    whatIsIt: "An all-in-one percentage calculation engine that resolves relative proportions, margin adjustments, percentage variance, and growth figures instantly.",
+    howToUse: "Select a calculation mode (e.g. 'X% of Y', 'X is what % of Y', or '% Increase/Decrease'), input your numbers, and instantly view exact results and mathematical formulas.",
+    example: "What is 15% of $250? Answer: $37.50\nWhat is the percentage change from 80 to 120? Answer: +50% Increase",
+    faqs: [
+      { question: "How is percentage difference calculated?", answer: "Percentage difference divides the absolute difference between two values by their average, multiplied by 100." },
+      { question: "Can I calculate reverse percentages?", answer: "Yes! Simply choose the 'Reverse Percentage' mode to find the original value prior to a tax or markup application." }
+    ],
+    relatedTools: ["discount-calculator", "gst-tax-calculator"]
+  },
+  // 52. Age Calculator
+  {
+    id: "age-calculator",
+    title: "Age Calculator",
+    description: "Calculate exact age down to years, months, days, hours, minutes, and seconds. View next birthday countdowns and milestone progress.",
+    category: "calculators",
+    slug: "age",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Exact Age Calculator Online - Years, Months, Days & Next Birthday | Comparlify",
+    metaDescription: "Calculate exact age down to the second. Discover total days lived, day of the week you were born, next birthday countdown, and life milestones.",
+    whatIsIt: "A precise chronological time calculator that evaluates elapsed calendar duration between a birth date and a target date, accounting for leap years and timezones.",
+    howToUse: "Pick your date of birth (and optional target date), and view your exact chronological age breakdown instantly.",
+    faqs: [
+      { question: "Does this tool account for leap years?", answer: "Yes! The calculation engine precisely factors in leap year days (Feb 29) and variable month lengths." }
+    ],
+    relatedTools: ["date-difference-calculator", "time-zone-converter"]
+  },
+  // 53. Date Difference Calculator
+  {
+    id: "date-difference-calculator",
+    title: "Date Difference Calculator",
+    description: "Calculate the exact number of calendar days, working business days (excluding weekends), or add/subtract time offsets from any target date.",
+    category: "calculators",
+    slug: "date-difference",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Date Difference & Business Days Calculator | Comparlify",
+    metaDescription: "Calculate total calendar days, weeks, or business working days between two dates. Add or subtract days, weeks, and months from any date.",
+    whatIsIt: "A flexible calendar interval utility that calculates precise durations or project timeline offsets between starting and ending dates.",
+    howToUse: "Choose 'Duration Between Dates' or 'Add/Subtract Days', select your dates, and toggle whether to exclude weekends or custom holidays.",
+    faqs: [
+      { question: "Can I exclude weekend days from the count?", answer: "Yes, you can toggle business days mode to exclude Saturdays and Sundays automatically." }
+    ],
+    relatedTools: ["age-calculator", "time-zone-converter"]
+  },
+  // 54. Time Zone Converter
+  {
+    id: "time-zone-converter",
+    title: "Time Zone Converter",
+    description: "Convert time across global time zones (UTC, EST, PST, GMT, CET, IST, JST). Plan global meetings with overlapping availability windows.",
+    category: "calculators",
+    slug: "time-zone",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Global Time Zone Converter & Meeting Planner | Comparlify",
+    metaDescription: "Convert times between multiple global time zones instantly. Compare UTC, EST, PST, CET, IST, and JST with interactive visual overlap timelines.",
+    whatIsIt: "A global time zone mapping tool utilizing native `Intl.DateTimeFormat` algorithms to convert dates and times without daylight saving errors.",
+    howToUse: "Select your source time zone and local time, then add target cities/time zones to compare local times side-by-side.",
+    faqs: [
+      { question: "Does it automatically handle Daylight Saving Time (DST)?", answer: "Yes, the converter reads standard IANA time zone rules natively, so DST transitions are calculated automatically." }
+    ],
+    relatedTools: ["unix-timestamp-converter", "date-difference-calculator"]
+  },
+  // 55. Unit Converter
+  {
+    id: "unit-converter",
+    title: "Unit Converter",
+    description: "Convert units across Length, Mass/Weight, Temperature, Area, Volume, Speed, and Digital Data Storage in real time.",
+    category: "calculators",
+    slug: "unit-converter",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Multi-Unit Converter Online - Metric & Imperial Units | Comparlify",
+    metaDescription: "Convert between metric and imperial units across 7 dimensions: Length, Mass, Temperature, Area, Volume, Speed, and Data Storage.",
+    whatIsIt: "A comprehensive metric and imperial dimensional transformation engine providing instant conversions with extreme floating-point precision.",
+    howToUse: "Choose a physical category (e.g. Length or Weight), select source and target units, and key in your magnitude.",
+    faqs: [
+      { question: "Which unit categories are included?", answer: "Length, Mass/Weight, Temperature (°C, °F, K), Area, Volume, Speed, and Data Storage (Bytes, KB, MB, GB, TB)." }
+    ],
+    relatedTools: ["percentage-calculator"]
+  },
+  // 56. Discount Calculator
+  {
+    id: "discount-calculator",
+    title: "Discount Calculator",
+    description: "Calculate final price after discounts, double/stacked sales, and sales tax. View total dollar savings and margin splits.",
+    category: "calculators",
+    slug: "discount",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Discount & Sale Savings Calculator | Comparlify",
+    metaDescription: "Calculate final sale price and total money saved. Handles stacked percentage discounts (e.g. 20% off + extra 10% off) and sales tax.",
+    whatIsIt: "A retail pricing tool that evaluates promotional discounts, stacked percentage deals, and final checkout costs.",
+    howToUse: "Enter original price, primary discount %, optional extra stacked discount %, and sales tax rate to get your exact savings.",
+    faqs: [
+      { question: "How do stacked discounts work?", answer: "Stacked discounts apply the secondary percentage to the already reduced price, not the original sticker price." }
+    ],
+    relatedTools: ["gst-tax-calculator", "percentage-calculator"]
+  },
+  // 57. GST / Tax Calculator
+  {
+    id: "gst-tax-calculator",
+    title: "GST / Tax Calculator",
+    description: "Calculate Goods and Services Tax (GST), Value Added Tax (VAT), or Sales Tax. Switch between Tax-Inclusive and Tax-Exclusive rates.",
+    category: "calculators",
+    slug: "gst-tax",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "GST & Tax Calculator - Add or Remove Tax | Comparlify",
+    metaDescription: "Calculate GST, VAT, and sales tax easily. Find gross total from net price (Tax Exclusive) or extract base price from gross total (Tax Inclusive).",
+    whatIsIt: "A tax utility that computes tax-inclusive prices, tax-exclusive net amounts, and tax amounts across customizable rates.",
+    howToUse: "Select 'Add Tax' or 'Remove Tax', enter base or gross amount, specify tax percentage rate, and view net, tax, and gross outputs.",
+    faqs: [
+      { question: "What is the difference between GST inclusive and exclusive?", answer: "Tax-exclusive adds tax on top of the base cost. Tax-inclusive extracts the tax already embedded in the total price." }
+    ],
+    relatedTools: ["discount-calculator", "percentage-calculator"]
+  },
+  // 58. EMI / Loan Calculator
+  {
+    id: "emi-loan-calculator",
+    title: "EMI / Loan Calculator",
+    description: "Calculate Equal Monthly Installments (EMI), total interest payable, and total payback amount for home, car, or personal loans.",
+    category: "calculators",
+    slug: "emi-loan",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "EMI & Loan Calculator - Amortization Schedule & Chart | Comparlify",
+    metaDescription: "Calculate monthly loan EMI payments, total interest payable, principal splits, and complete yearly amortization schedules.",
+    whatIsIt: "A financial loan engine that calculates exact reducing balance EMI payments, interest totals, and visual principal vs interest splits.",
+    howToUse: "Input loan principal amount, annual interest rate (%), and loan tenure in years or months. Use sliders for What-If scenarios.",
+    faqs: [
+      { question: "What formula is used for EMI calculation?", answer: "EMI = [P x R x (1+R)^N]/[(1+R)^N - 1], where P is Principal, R is monthly interest rate, and N is tenure in months." }
+    ],
+    relatedTools: ["compound-interest-calculator", "salary-calculator"]
+  },
+  // 59. Salary Calculator
+  {
+    id: "salary-calculator",
+    title: "Salary Calculator",
+    description: "Convert hourly pay to annual salary, gross-to-net pay estimates, tax deductions, and pay period breakdowns (Monthly, Bi-weekly, Weekly).",
+    category: "calculators",
+    slug: "salary",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Hourly to Annual Salary & Net Pay Calculator | Comparlify",
+    metaDescription: "Convert hourly wages to annual income, or calculate gross to estimated net salary with tax deductions, bonuses, and pay cycle splits.",
+    whatIsIt: "A compensation planning tool that converts wage rates into annual, monthly, bi-weekly, and hourly breakdowns with tax estimations.",
+    howToUse: "Enter your rate (hourly or annual salary), working hours per week, tax percentage or bracket, and review net take-home pay.",
+    faqs: [
+      { question: "How does it convert hourly rate to annual salary?", answer: "It multiplies hourly wage by weekly hours (standard 40 hrs/week) over 52 weeks (2,080 working hours/year)." }
+    ],
+    relatedTools: ["emi-loan-calculator", "percentage-calculator"]
+  },
+  // 60. Compound Interest Calculator
+  {
+    id: "compound-interest-calculator",
+    title: "Compound Interest Calculator",
+    description: "Calculate future investment growth with compound interest, recurring deposits, variable interest rates, and long-term compounding charts.",
+    category: "calculators",
+    slug: "compound-interest",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Compound Interest Calculator - Investment & Savings Growth | Comparlify",
+    metaDescription: "Calculate compound interest growth over time with monthly or annual contributions. View growth charts and compounding frequency impact.",
+    whatIsIt: "An investment forecasting tool that simulates wealth accumulation over time with compounding frequencies (Daily, Monthly, Quarterly, Annually).",
+    howToUse: "Enter initial investment, monthly contribution, expected annual return %, investment horizon in years, and compounding frequency.",
+    faqs: [
+      { question: "What is the formula for compound interest?", answer: "A = P(1 + r/n)^(nt), where P is principal, r is annual rate, n is compounding frequency, and t is time in years." }
+    ],
+    relatedTools: ["emi-loan-calculator", "salary-calculator"]
   }
 ];
 

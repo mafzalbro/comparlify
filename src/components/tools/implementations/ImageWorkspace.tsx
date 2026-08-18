@@ -123,9 +123,13 @@ export function ImageWorkspace({ defaultMode = "compress" }: { defaultMode?: str
     if (defaultMode.includes("to-")) {
       const parts = defaultMode.split("-to-");
       if (parts.length === 2) {
-        const to = parts[1] as "png" | "jpeg" | "webp";
-        if (["png", "jpeg", "webp"].includes(to)) {
-          setTargetFormat(to === "jpeg" ? "jpeg" : to);
+        const rawTo = parts[1].toLowerCase();
+        if (rawTo === "jpg" || rawTo === "jpeg") {
+          setTargetFormat("jpeg");
+        } else if (rawTo === "png") {
+          setTargetFormat("png");
+        } else if (rawTo === "webp") {
+          setTargetFormat("webp");
         }
       }
       setActiveTab("compress");
@@ -391,15 +395,20 @@ export function ImageWorkspace({ defaultMode = "compress" }: { defaultMode?: str
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("Could not construct 2D context");
 
-    // Geometric alterations
+    // Set target canvas dimensions FIRST before applying matrix transformations
+    if (rotation === 90 || rotation === 270) {
+      canvas.width = height;
+      canvas.height = width;
+    } else {
+      canvas.width = width;
+      canvas.height = height;
+    }
+
     ctx.save();
     if (rotation !== 0) {
       ctx.translate(canvas.width / 2, canvas.height / 2);
       ctx.rotate((rotation * Math.PI) / 180);
-      // Adjust canvas dimension if orientation changed
       if (rotation === 90 || rotation === 270) {
-        canvas.width = height;
-        canvas.height = width;
         ctx.translate(-canvas.height / 2, -canvas.width / 2);
       } else {
         ctx.translate(-canvas.width / 2, -canvas.height / 2);
@@ -503,8 +512,13 @@ export function ImageWorkspace({ defaultMode = "compress" }: { defaultMode?: str
             ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
             ctx.restore();
           } else {
-            canvas.width = width;
-            canvas.height = height;
+            if (rotation === 90 || rotation === 270) {
+              canvas.width = height;
+              canvas.height = width;
+            } else {
+              canvas.width = width;
+              canvas.height = height;
+            }
 
             // Standard render with geometry transformations
             ctx.save();
@@ -512,8 +526,6 @@ export function ImageWorkspace({ defaultMode = "compress" }: { defaultMode?: str
               ctx.translate(canvas.width / 2, canvas.height / 2);
               ctx.rotate((rotation * Math.PI) / 180);
               if (rotation === 90 || rotation === 270) {
-                canvas.width = height;
-                canvas.height = width;
                 ctx.translate(-canvas.height / 2, -canvas.width / 2);
               } else {
                 ctx.translate(-canvas.width / 2, -canvas.height / 2);
