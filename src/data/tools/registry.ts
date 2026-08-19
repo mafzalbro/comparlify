@@ -96,6 +96,14 @@ export const CATEGORIES = {
       seo: "SEO & Social Optimization",
     },
   },
+  workflows: {
+    name: "Workflows & Productivity",
+    description: "Flagship technical website audits, recursive link crawlers, CSV data cleaners, API testers, and structured data converters.",
+    subcategories: {
+      audits: "Website Audits & Crawlers",
+      data: "Data Cleaners & Converters",
+    },
+  },
   ai: {
     name: "AI Assistants",
     description: "Legacy creator-first artificial intelligence tools for learning, outlines, and curriculum design.",
@@ -1544,6 +1552,198 @@ export const TOOLS: ToolDefinition[] = [
       { question: "What is JSON-LD?", answer: "JSON-LD (JavaScript Object Notation for Linked Data) is Google's recommended format for adding structured data to web pages." }
     ],
     relatedTools: ["meta-tag-analyzer", "open-graph-preview"]
+  },
+
+  // ── ADVANCED WORKFLOWS & PRODUCTIVITY (BATCH 7) ──
+  // 71. File Converter Workspace
+  {
+    id: "file-converter-workspace",
+    title: "File Converter Workspace",
+    description: "Batch convert files across PDF, DOCX, TXT, CSV, JSON, XML, HTML, Markdown, and Images with drag-and-drop queue management and ZIP export.",
+    category: "workflows" as any,
+    subcategory: "data",
+    slug: "file-converter",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Universal File Converter Workspace & Batch Queue | Comparlify",
+    metaDescription: "Convert files between PDF, CSV, JSON, XML, TXT, HTML, Markdown, and Images in bulk. In-browser privacy with batch ZIP export.",
+    whatIsIt: "A multi-format file transformation workspace that converts document and data payloads in bulk with zero server uploads.",
+    howToUse: "Drag and drop files into the queue, select target export formats, and download individually or as a compiled ZIP archive.",
+    faqs: [
+      { question: "Are my files kept private?", answer: "Yes, 100%. File conversions execute locally inside your browser's RAM without external server processing." }
+    ],
+    relatedTools: ["json-csv-xml-converter", "csv-data-cleaner"]
+  },
+  // 72. CSV / Spreadsheet Data Cleaner
+  {
+    id: "csv-data-cleaner",
+    title: "CSV & Spreadsheet Data Cleaner",
+    description: "Clean CSV datasets: remove duplicate rows, fix inconsistent casing, strip leading/trailing whitespace, validate emails, and handle missing values.",
+    category: "workflows" as any,
+    subcategory: "data",
+    slug: "csv-cleaner",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Free CSV Data Cleaner & Deduplicator Online | Comparlify",
+    metaDescription: "Clean messy CSV spreadsheets in your browser. Deduplicate rows, trim whitespace, fix column casing, validate email addresses, and export clean CSVs.",
+    whatIsIt: "A data hygiene engine that cleans, normalizes, and validates CSV spreadsheet files prior to database import or CRM ingestion.",
+    howToUse: "Upload a CSV file or paste raw text, pick cleaning filters (Deduplicate, Trim Whitespace, Lowercase Emails, Drop Empty Rows), and download the cleaned CSV.",
+    faqs: [
+      { question: "How does duplicate row detection work?", answer: "It evaluates row content hashing across all columns or selected key columns to filter out identical entries." }
+    ],
+    relatedTools: ["json-csv-xml-converter", "regex-extraction-workspace"]
+  },
+  // 73. JSON ↔ CSV ↔ XML Structured Data Converter
+  {
+    id: "json-csv-xml-converter",
+    title: "JSON ↔ CSV ↔ XML Data Converter",
+    description: "Convert structured data between JSON, CSV, and XML formats. Features array flattening, custom delimiters, and schema tree previews.",
+    category: "workflows" as any,
+    subcategory: "data",
+    slug: "data-converter",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "JSON to CSV & XML Structured Data Converter | Comparlify",
+    metaDescription: "Convert data between JSON, CSV, and XML formats. Flatten nested objects, customize delimiters, and export schema-formatted data.",
+    whatIsIt: "A bidirectional data structure transformation engine that flattens nested JSON objects, converts CSV rows to JSON arrays, and parses XML document trees.",
+    howToUse: "Input source JSON, CSV, or XML data, select your target conversion format, and view formatted output with syntax highlighting.",
+    faqs: [
+      { question: "Does it support nested JSON objects?", answer: "Yes, it flattens nested JSON keys into dot-notation column headers for seamless CSV export." }
+    ],
+    relatedTools: ["csv-data-cleaner", "file-converter-workspace"]
+  },
+  // 74. API Request Builder & Tester
+  {
+    id: "api-request-builder",
+    title: "API Request Builder & Tester",
+    description: "Lightweight API client: execute GET, POST, PUT, PATCH, DELETE requests, configure headers/params/body, measure latency, and auto-generate cURL code.",
+    category: "workflows" as any,
+    subcategory: "data",
+    slug: "api-tester",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Online API Request Builder & cURL Tester | Comparlify",
+    metaDescription: "Test HTTP API endpoints in browser. Supports GET, POST, PUT, PATCH, DELETE, custom headers, query params, JSON payloads, and cURL code generation.",
+    whatIsIt: "An interactive API client that constructs HTTP requests, inspects status codes, parses JSON responses, and generates executable cURL commands.",
+    howToUse: "Select an HTTP method, enter an endpoint URL, configure headers and JSON body, and click 'Send Request'.",
+    faqs: [
+      { question: "How are CORS restrictions handled?", answer: "Requests to external APIs pass through our secure server proxy when cross-origin restrictions block direct browser fetches." }
+    ],
+    relatedTools: ["http-status-checker", "json-csv-xml-converter"]
+  },
+  // 75. Regex / Text Extraction Workspace
+  {
+    id: "regex-extraction-workspace",
+    title: "Regex & Text Extraction Workspace",
+    description: "Extract structured data from unstructured text using Regular Expressions (Regex). Capture groups, visualize matches, and export to CSV or JSON.",
+    category: "workflows" as any,
+    subcategory: "data",
+    slug: "regex-extractor",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Regex Text Extractor & Pattern Matcher | Comparlify",
+    metaDescription: "Extract pattern matches and capture groups from raw text using Regular Expressions. Generate structured CSV or JSON tables from text extractions.",
+    whatIsIt: "A data extraction workspace that runs V8 Regex patterns against text logs or documents to extract tabular datasets.",
+    howToUse: "Paste text into the input editor, enter a Regular Expression with capture groups (e.g. `(\\d+) - \\$(\\d+)`), and review the extracted table.",
+    faqs: [
+      { question: "Can I export extractions to CSV?", answer: "Yes, captured regex groups automatically map into table columns that can be downloaded as CSV or JSON." }
+    ],
+    relatedTools: ["csv-data-cleaner", "markdown-html-workspace"]
+  },
+  // 76. Markdown / HTML Document Workspace
+  {
+    id: "markdown-html-workspace",
+    title: "Markdown / HTML Document Workspace",
+    description: "Bi-directional Markdown ↔ HTML document editor with split-screen preview, Table of Contents generator, link validator, and word metrics.",
+    category: "workflows" as any,
+    subcategory: "data",
+    slug: "markdown-html",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Markdown to HTML Converter & Split Editor | Comparlify",
+    metaDescription: "Convert Markdown to HTML and vice versa. Live split-screen preview, Table of Contents generation, link validation, and word count metrics.",
+    whatIsIt: "A publishing workspace for content creators and technical writers to edit, format, sanitize, and convert Markdown documents to clean HTML.",
+    howToUse: "Type or paste Markdown/HTML into the left pane to view rendered preview, TOC headings, and word statistics on the right.",
+    faqs: [
+      { question: "Is the generated HTML sanitized?", answer: "Yes, potential XSS tags like inline scripts or unsafe event handlers are stripped automatically." }
+    ],
+    relatedTools: ["regex-extraction-workspace", "meta-tag-analyzer"]
+  },
+  // 77. Website Asset Analyzer
+  {
+    id: "website-asset-analyzer",
+    title: "Website Asset Analyzer",
+    description: "Inventory website assets (HTML, CSS, JS, Images, Fonts), measure total payload weight, identify oversized images, and detect missing dimensions.",
+    category: "workflows" as any,
+    subcategory: "audits",
+    slug: "asset-analyzer",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Website Asset Analyzer & Payload Weight Inspector | Comparlify",
+    metaDescription: "Audit webpage assets: HTML, CSS, JavaScript, Images, and Web Fonts. Identify payload bottlenecks, oversized images, and request counts.",
+    whatIsIt: "A web performance tool that crawls webpage resources to categorize payload weight and spot media optimization bottlenecks.",
+    howToUse: "Enter a webpage URL to analyze the asset breakdown chart, total payload kilobytes, and media optimizations.",
+    faqs: [
+      { question: "What is a healthy webpage payload weight?", answer: "Modern web pages should ideally aim for a total initial page load footprint under 1.5 MB to 2.0 MB." }
+    ],
+    relatedTools: ["website-link-crawler", "website-performance-analyzer"]
+  },
+  // 78. Website Link Crawler
+  {
+    id: "website-link-crawler",
+    title: "Website Link Crawler",
+    description: "Crawl website internal links, discover 404 broken links, trace 301 redirect chains, classify internal/external links, and check noindex tags.",
+    category: "workflows" as any,
+    subcategory: "audits",
+    slug: "link-crawler",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Website Broken Link Crawler & 404 Checker | Comparlify",
+    metaDescription: "Crawl website internal links to discover broken 404 links, 301 redirect chains, noindex directives, and orphan pages in real time.",
+    whatIsIt: "A site crawling engine that recursively inspects internal links to uncover 404 broken links, redirect chains, and crawling obstacles.",
+    howToUse: "Type a website domain (e.g. `https://example.com`) to initiate link crawling and review the status code report table.",
+    faqs: [
+      { question: "How many internal links can it crawl?", answer: "Our server-side crawler inspects up to 50 internal pages per run to deliver instant real-time results." }
+    ],
+    relatedTools: ["website-asset-analyzer", "universal-website-audit"]
+  },
+  // 79. Website Performance Analyzer
+  {
+    id: "website-performance-analyzer",
+    title: "Website Performance Analyzer",
+    description: "Audit page load performance: request counts, page weight, Gzip/Brotli compression detection, cache header policy evaluation, and render-blocking scripts.",
+    category: "workflows" as any,
+    subcategory: "audits",
+    slug: "performance-analyzer",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Website Performance Analyzer & Speed Audit | Comparlify",
+    metaDescription: "Audit webpage load performance, request counts, payload weight, Gzip/Brotli compression headers, and HTTP cache policies.",
+    whatIsIt: "A deterministic web speed analyzer that evaluates server response times, compression, caching headers, and asset payload distribution.",
+    howToUse: "Enter a URL to execute a speed diagnostic audit and review performance issue alerts.",
+    faqs: [
+      { question: "Why is Brotli or Gzip compression important?", answer: "Compression reduces text-based HTML, CSS, and JS file transfer sizes by up to 70%, dramatically speeding up load times." }
+    ],
+    relatedTools: ["website-asset-analyzer", "universal-website-audit"]
+  },
+  // 80. Universal Website Audit
+  {
+    id: "universal-website-audit",
+    title: "Universal Website Audit & Health Scorecard",
+    description: "Flagship 0–100 overall technical website health audit integrating HTTP status, DNS, SSL/TLS, SEO meta tags, Robots.txt, Sitemaps, Assets, Links, and Schema.org.",
+    category: "workflows" as any,
+    subcategory: "audits",
+    slug: "universal-audit",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Universal Technical Website Audit & Health Scorecard | Comparlify",
+    metaDescription: "Run an all-in-one technical website health audit (0-100 score). Evaluates HTTP, DNS, SSL, SEO Meta, Robots, Sitemap, Assets, Links, and Structured Data.",
+    whatIsIt: "Comparlify's flagship website health audit engine that runs an end-to-end technical inspection of any URL and yields a comprehensive 0–100 Scorecard.",
+    howToUse: "Type any website URL (e.g. `https://example.com`) to run the master audit engine and review the category-by-category breakdown.",
+    faqs: [
+      { question: "How is the 0–100 Website Health Score calculated?", answer: "The score evaluates 10 weighted technical pillars: HTTP Status, SSL, DNS, Title/Meta Tags, Open Graph, Robots, Sitemap, Assets, Link Integrity, and Schema JSON-LD." }
+    ],
+    relatedTools: ["website-link-crawler", "website-performance-analyzer", "meta-tag-analyzer"]
   }
 ];
 

@@ -68,6 +68,7 @@ import { ImageWorkspace } from "@/components/tools/implementations/ImageWorkspac
 import { TextWorkspace } from "@/components/tools/implementations/TextWorkspace";
 import { CalculatorWorkspace } from "@/components/tools/implementations/CalculatorWorkspace";
 import { WebDiagnosticsWorkspace } from "@/components/tools/implementations/WebDiagnosticsWorkspace";
+import { WorkflowWorkspace } from "@/components/tools/implementations/WorkflowWorkspace";
 
 export const revalidate = 0;
 
@@ -325,6 +326,19 @@ function renderToolComponent(tool: ToolDefinition, data: { platforms: any; proje
     case "open-graph-preview":
     case "schema-markup-generator":
       return <WebDiagnosticsWorkspace activeToolId={tool.id} />;
+
+    // ── New Batch 7 (Advanced Workflows & Productivity) ──
+    case "file-converter-workspace":
+    case "csv-data-cleaner":
+    case "json-csv-xml-converter":
+    case "api-request-builder":
+    case "regex-extraction-workspace":
+    case "markdown-html-workspace":
+    case "website-asset-analyzer":
+    case "website-link-crawler":
+    case "website-performance-analyzer":
+    case "universal-website-audit":
+      return <WorkflowWorkspace activeToolId={tool.id} />;
 
     default:
       return <div className="text-center p-8 text-muted-foreground">Component coming soon!</div>;

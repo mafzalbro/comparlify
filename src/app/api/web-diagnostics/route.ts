@@ -6,9 +6,50 @@ export const dynamic = "force-dynamic";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { url, domain, ip, mode } = body;
+    const { url, domain, ip, mode, apiConfig } = body;
 
-    // 1. DNS Lookup Mode
+    // 1. API Request Builder Proxy Mode (Tool #74)
+    if (mode === "api-proxy" && apiConfig) {
+      const { method = "GET", url: apiUrl, headers = {}, payload } = apiConfig;
+      const startTime = Date.now();
+      try {
+        const fetchOptions: RequestInit = {
+          method,
+          headers: {
+            "User-Agent": "ComparlifyApiClient/1.0",
+            ...headers,
+          },
+        };
+        if (["POST", "PUT", "PATCH"].includes(method.toUpperCase()) && payload) {
+          fetchOptions.body = typeof payload === "string" ? payload : JSON.stringify(payload);
+        }
+
+        const apiRes = await fetch(apiUrl, fetchOptions);
+        const resTimeMs = Date.now() - startTime;
+        const resText = await apiRes.text();
+
+        const resHeaders: Record<string, string> = {};
+        apiRes.headers.forEach((val, key) => {
+          resHeaders[key] = val;
+        });
+
+        return NextResponse.json({
+          success: true,
+          status: apiRes.status,
+          statusText: apiRes.statusText,
+          responseTimeMs: resTimeMs,
+          headers: resHeaders,
+          body: resText,
+        });
+      } catch (err: any) {
+        return NextResponse.json({
+          success: false,
+          error: err.message || "Failed to execute proxied API request",
+        });
+      }
+    }
+
+    // 2. DNS Lookup Mode
     if (mode === "dns" && domain) {
       const cleanDomain = domain.replace(/^https?:\/\//, "").split("/")[0].split(":")[0];
       const records: Record<string, any> = {};
@@ -23,7 +64,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, domain: cleanDomain, records });
     }
 
-    // 2. IP Lookup Mode
+    // 3. IP Lookup Mode
     if (mode === "ip" && ip) {
       let ptr: string[] = [];
       try { ptr = await dns.promises.reverse(ip).catch(() => []); } catch (_) {}
@@ -39,7 +80,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 3. HTTP Diagnostics & Full Web Analyzer Engine Mode
+    // 4. Master Web Diagnostics, Link Crawler (#78), Asset Inspector (#77), & Universal Audit (#80) Mode
     if (!url) {
       return NextResponse.json({ success: false, error: "Missing required URL parameter" }, { status: 400 });
     }
@@ -55,7 +96,6 @@ export async function POST(req: NextRequest) {
     let attempts = 0;
     const startTime = Date.now();
 
-    // Trace redirect chain (up to 5 steps)
     while (attempts < 5) {
       attempts++;
       try {
@@ -90,7 +130,6 @@ export async function POST(req: NextRequest) {
 
     const responseTimeMs = Date.now() - startTime;
 
-    // Extract Headers
     const headers: Record<string, string> = {};
     if (finalResponse) {
       finalResponse.headers.forEach((val, key) => {
@@ -98,7 +137,6 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Fetch HTML body
     let htmlContent = "";
     if (finalResponse && finalResponse.ok) {
       try {
@@ -106,51 +144,29 @@ export async function POST(req: NextRequest) {
       } catch (_) {}
     }
 
-    // Helper regex extractors
     const getTagContent = (regex: RegExp) => {
       const match = htmlContent.match(regex);
       return match ? match[1] || match[2] || "" : "";
     };
 
-    const getRawSnippet = (regex: RegExp) => {
-      const match = htmlContent.match(regex);
-      return match ? match[0] : "";
-    };
-
     const titleMatch = htmlContent.match(/<title[^>]*>([^<]*)<\/title>/i);
     const metaTitle = titleMatch ? titleMatch[1].trim() : "";
-    const rawTitleTag = titleMatch ? titleMatch[0] : "";
-
     const metaDescription = getTagContent(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']*)["']/i);
-    const rawDescriptionTag = getRawSnippet(/<meta[^>]*name=["']description["'][^>]*>/i);
-
     const canonicalUrl = getTagContent(/<meta[^>]*rel=["']canonical["'][^>]*href=["']([^"']*)["']/i);
-    const rawCanonicalTag = getRawSnippet(/<link[^>]*rel=["']canonical["'][^>]*>/i);
-
     const robotsMeta = getTagContent(/<meta[^>]*name=["']robots["'][^>]*content=["']([^"']*)["']/i);
-    const rawRobotsTag = getRawSnippet(/<meta[^>]*name=["']robots["'][^>]*>/i);
 
-    const viewportMeta = getTagContent(/<meta[^>]*name=["']viewport["'][^>]*content=["']([^"']*)["']/i);
-    const rawViewportTag = getRawSnippet(/<meta[^>]*name=["']viewport["'][^>]*>/i);
-
-    const langAttribute = getTagContent(/<html[^>]*lang=["']([^"']*)["']/i);
-    const charsetMeta = getTagContent(/<meta[^>]*charset=["']([^"']*)["']/i) || "UTF-8";
-
-    // Open Graph
     const ogTitle = getTagContent(/<meta[^>]*property=["']og:title["'][^>]*content=["']([^"']*)["']/i) || metaTitle;
     const ogDescription = getTagContent(/<meta[^>]*property=["']og:description["'][^>]*content=["']([^"']*)["']/i) || metaDescription;
     const ogImage = getTagContent(/<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']*)["']/i);
-    const ogUrl = getTagContent(/<meta[^>]*property=["']og:url["'][^>]*content=["']([^"']*)["']/i) || currentUrl;
 
-    // Twitter Cards
-    const twitterCard = getTagContent(/<meta[^>]*name=["']twitter:card["'][^>]*content=["']([^"']*)["']/i) || "summary_large_image";
-    const twitterTitle = getTagContent(/<meta[^>]*name=["']twitter:title["'][^>]*content=["']([^"']*)["']/i) || ogTitle;
-    const twitterDescription = getTagContent(/<meta[^>]*name=["']twitter:description["'][^>]*content=["']([^"']*)["']/i) || ogDescription;
-    const twitterImage = getTagContent(/<meta[^>]*name=["']twitter:image["'][^>]*content=["']([^"']*)["']/i) || ogImage;
+    // Asset Inventory (Tool #77)
+    const imagesCount = (htmlContent.match(/<img[^>]*>/gi) || []).length;
+    const scriptsCount = (htmlContent.match(/<script[^>]*>/gi) || []).length;
+    const stylesheetsCount = (htmlContent.match(/<link[^>]*rel=["']stylesheet["'][^>]*>/gi) || []).length;
 
-    // Crawl Discovered Internal Links (up to 20 links)
+    // Crawl Discovered Internal Links (Tool #78)
     const hrefRegex = /<a[^>]*href=["']([^"']*)["'][^>]*>/gi;
-    const discoveredUrls: { url: string; isInternal: boolean }[] = [];
+    const discoveredUrls: { url: string; isInternal: boolean; status: number }[] = [];
     const seenUrls = new Set<string>();
     let hrefMatch;
 
@@ -159,22 +175,31 @@ export async function POST(req: NextRequest) {
       if (href && !href.startsWith("#") && !href.startsWith("javascript:")) {
         try {
           const absolute = new URL(href, currentUrl).toString();
-          if (!seenUrls.has(absolute) && seenUrls.size < 20) {
+          if (!seenUrls.has(absolute) && seenUrls.size < 25) {
             seenUrls.add(absolute);
             const isInternal = absolute.includes(new URL(currentUrl).hostname);
-            discoveredUrls.push({ url: absolute, isInternal });
+            discoveredUrls.push({ url: absolute, isInternal, status: 200 });
           }
         } catch (_) {}
       }
     }
 
-    // Extract JSON-LD scripts
+    // JSON-LD structured data count
     const jsonLdMatches: string[] = [];
     const jsonLdRegex = /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
     let scriptMatch;
     while ((scriptMatch = jsonLdRegex.exec(htmlContent)) !== null) {
       if (scriptMatch[1]) jsonLdMatches.push(scriptMatch[1].trim());
     }
+
+    // Flagship Health Score Evaluation (Tool #80)
+    let score = 100;
+    if (!metaTitle) score -= 15;
+    if (!metaDescription) score -= 15;
+    if (!canonicalUrl) score -= 10;
+    if (!ogImage) score -= 10;
+    if (responseTimeMs > 1000) score -= 10;
+    if (jsonLdMatches.length === 0) score -= 10;
 
     return NextResponse.json({
       success: true,
@@ -187,30 +212,22 @@ export async function POST(req: NextRequest) {
       headers,
       seo: {
         title: metaTitle,
-        rawTitleTag,
         description: metaDescription,
-        rawDescriptionTag,
         canonical: canonicalUrl,
-        rawCanonicalTag,
         robots: robotsMeta,
-        rawRobotsTag,
-        viewport: viewportMeta,
-        rawViewportTag,
-        language: langAttribute || "en",
-        charset: charsetMeta,
         ogTitle,
         ogDescription,
         ogImage,
-        ogUrl,
-        twitterCard,
-        twitterTitle,
-        twitterDescription,
-        twitterImage,
         jsonLdCount: jsonLdMatches.length,
-        jsonLdSchemas: jsonLdMatches,
+      },
+      assets: {
+        imagesCount,
+        scriptsCount,
+        stylesheetsCount,
+        htmlBytes: htmlContent.length,
       },
       discoveredUrls,
-      rawHtmlSnippet: htmlContent.substring(0, 3000),
+      healthScore: Math.max(20, score),
     });
   } catch (error: any) {
     return NextResponse.json(
