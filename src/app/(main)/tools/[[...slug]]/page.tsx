@@ -67,6 +67,7 @@ import { PDFPageDeleter } from "@/components/tools/implementations/PDFPageDelete
 import { ImageWorkspace } from "@/components/tools/implementations/ImageWorkspace";
 import { TextWorkspace } from "@/components/tools/implementations/TextWorkspace";
 import { CalculatorWorkspace } from "@/components/tools/implementations/CalculatorWorkspace";
+import { WebDiagnosticsWorkspace } from "@/components/tools/implementations/WebDiagnosticsWorkspace";
 
 export const revalidate = 0;
 
@@ -311,6 +312,19 @@ function renderToolComponent(tool: ToolDefinition, data: { platforms: any; proje
     case "salary-calculator":
     case "compound-interest-calculator":
       return <CalculatorWorkspace activeToolId={tool.id} />;
+
+    // ── New Batch 6 (Web & SEO Tools) ──
+    case "url-analyzer":
+    case "http-status-checker":
+    case "dns-lookup":
+    case "ip-lookup":
+    case "user-agent-parser":
+    case "meta-tag-analyzer":
+    case "robots-txt-generator":
+    case "sitemap-generator":
+    case "open-graph-preview":
+    case "schema-markup-generator":
+      return <WebDiagnosticsWorkspace activeToolId={tool.id} />;
 
     default:
       return <div className="text-center p-8 text-muted-foreground">Component coming soon!</div>;

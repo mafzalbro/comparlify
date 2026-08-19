@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Calculator,
   Percent,
@@ -13,14 +13,14 @@ import {
   Landmark,
   DollarSign,
   TrendingUp,
-  Sliders,
   Copy,
   Check,
-  RotateCcw,
-  Sparkles,
-  ArrowRight,
-  Info,
-  HelpCircle,
+  Share2,
+  History,
+  GitCompare,
+  BarChart3,
+  Award,
+  Zap,
 } from "lucide-react";
 
 interface CalculatorWorkspaceProps {
@@ -50,17 +50,41 @@ const CURRENCIES = [
   { code: "CAD", symbol: "C$", label: "CAD (C$)" },
 ];
 
+export interface CalculationHistoryItem {
+  id: string;
+  toolName: string;
+  timestamp: string;
+  summary: string;
+  details: string;
+}
+
 export function CalculatorWorkspace({ activeToolId }: CalculatorWorkspaceProps) {
   const [selectedToolId, setSelectedToolId] = useState<string>(
     activeToolId || "percentage-calculator"
   );
+  const [activeEngineMode, setActiveEngineMode] = useState<
+    "standard" | "reverse" | "compare" | "sensitivity"
+  >("standard");
   const [currency, setCurrency] = useState<string>("$");
   const [copied, setCopied] = useState<boolean>(false);
+  const [shared, setShared] = useState<boolean>(false);
+  const [history, setHistory] = useState<CalculationHistoryItem[]>([]);
+  const [showHistory, setShowHistory] = useState<boolean>(false);
 
-  // Sync state if activeToolId prop changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (activeToolId) {
       setSelectedToolId(activeToolId);
+    }
+    if (typeof window !== "undefined" && window.location.hash) {
+      const params = new URLSearchParams(window.location.hash.substring(1));
+      const hashTool = params.get("tool");
+      const hashMode = params.get("mode");
+      if (hashTool && CALCULATOR_TOOLS.some((t) => t.id === hashTool)) {
+        setSelectedToolId(hashTool);
+      }
+      if (hashMode && ["standard", "reverse", "compare", "sensitivity"].includes(hashMode)) {
+        setActiveEngineMode(hashMode as any);
+      }
     }
   }, [activeToolId]);
 
@@ -70,9 +94,28 @@ export function CalculatorWorkspace({ activeToolId }: CalculatorWorkspaceProps) 
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleShare = () => {
+    const url = new URL(window.location.href);
+    url.hash = `tool=${selectedToolId}&mode=${activeEngineMode}`;
+    navigator.clipboard.writeText(url.toString());
+    setShared(true);
+    setTimeout(() => setShared(false), 2000);
+  };
+
+  const addHistoryItem = (toolName: string, summary: string, details: string) => {
+    const newItem: CalculationHistoryItem = {
+      id: Math.random().toString(36).substring(2, 9),
+      toolName,
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      summary,
+      details,
+    };
+    setHistory((prev) => [newItem, ...prev.slice(0, 19)]);
+  };
+
   return (
-    <div className="w-full space-y-8">
-      {/* Top Workspace Header & Navigation Bar */}
+    <div className="w-full space-y-6">
+      {/* Workspace Header & Toolbar */}
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-3">
@@ -81,35 +124,56 @@ export function CalculatorWorkspace({ activeToolId }: CalculatorWorkspaceProps) 
             </div>
             <div>
               <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                Calculator Workspace
+                Comparlify Decision Engine
                 <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                  100% In-Browser & Private
+                  Interactive Scenario Planner
                 </span>
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Instant calculations, What-If scenario simulations, and visual formula breakdowns.
+                Analyze options side-by-side, solve target scenarios in reverse, and forecast sensitivity matrix outputs.
               </p>
             </div>
           </div>
 
-          {/* Currency Selector */}
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Currency:</span>
-            <select
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-              className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none"
+            <button
+              onClick={() => setShowHistory(!showHistory)}
+              className={`p-2 rounded-lg border text-xs font-medium flex items-center gap-1.5 transition-all ${
+                showHistory
+                  ? "border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                  : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+              }`}
             >
-              {CURRENCIES.map((c) => (
-                <option key={c.code} value={c.symbol}>
-                  {c.label}
-                </option>
-              ))}
-            </select>
+              <History className="w-4 h-4" />
+              <span className="hidden sm:inline">History ({history.length})</span>
+            </button>
+
+            <button
+              onClick={handleShare}
+              className="p-2 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-medium flex items-center gap-1.5 transition-all"
+            >
+              {shared ? <Check className="w-4 h-4 text-emerald-500" /> : <Share2 className="w-4 h-4" />}
+              <span className="hidden sm:inline">{shared ? "Link Copied" : "Share"}</span>
+            </button>
+
+            <div className="flex items-center gap-1.5 pl-2 border-l border-slate-200 dark:border-slate-800">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Currency:</span>
+              <select
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+                className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none"
+              >
+                {CURRENCIES.map((c) => (
+                  <option key={c.code} value={c.symbol}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 
-        {/* Sub-tool selector tabs */}
+        {/* Sub-tool tabs */}
         <div className="flex items-center gap-2 overflow-x-auto pt-4 no-scrollbar">
           {CALCULATOR_TOOLS.map((tool) => {
             const Icon = tool.icon;
@@ -130,39 +194,96 @@ export function CalculatorWorkspace({ activeToolId }: CalculatorWorkspaceProps) 
             );
           })}
         </div>
+
+        {/* Shared Perspective Toolbar */}
+        <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 overflow-x-auto no-scrollbar">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 shrink-0">
+            Operating Perspective:
+          </span>
+          {[
+            { id: "standard", name: "⚡ Standard Calculator" },
+            { id: "reverse", name: "🔄 Reverse Mode Solver" },
+            { id: "compare", name: "⚖️ Option Comparison Engine" },
+            { id: "sensitivity", name: "📊 Sensitivity Matrix" },
+          ].map((mode) => (
+            <button
+              key={mode.id}
+              onClick={() => setActiveEngineMode(mode.id as any)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap border transition-all ${
+                activeEngineMode === mode.id
+                  ? "border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400 shadow-xs"
+                  : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+              }`}
+            >
+              {mode.name}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Active Sub-Calculator View */}
+      {/* History Slide-Over Drawer */}
+      {showHistory && (
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h4 className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5 uppercase tracking-wider">
+              <History className="w-4 h-4 text-blue-500" /> Recent Session Log ({history.length})
+            </h4>
+            {history.length > 0 && (
+              <button onClick={() => setHistory([])} className="text-[11px] font-semibold text-rose-500 hover:underline">
+                Clear History
+              </button>
+            )}
+          </div>
+          {history.length === 0 ? (
+            <p className="text-xs text-slate-500 dark:text-slate-400 italic">No calculations logged yet.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5 max-h-48 overflow-y-auto pr-1">
+              {history.map((item) => (
+                <div key={item.id} className="p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 space-y-1">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="font-bold text-blue-600 dark:text-blue-400">{item.toolName}</span>
+                    <span className="text-slate-400 font-mono">{item.timestamp}</span>
+                  </div>
+                  <div className="text-xs font-extrabold text-slate-900 dark:text-white truncate">{item.summary}</div>
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate font-mono">{item.details}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Active Sub-Calculator Scenario Engine View */}
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm">
         {selectedToolId === "percentage-calculator" && (
-          <PercentageCalculatorSub currency={currency} onCopy={handleCopy} copied={copied} />
+          <PercentageDecisionEngine engineMode={activeEngineMode} currency={currency} onCopy={handleCopy} copied={copied} onLogHistory={addHistoryItem} />
         )}
         {selectedToolId === "age-calculator" && (
-          <AgeCalculatorSub onCopy={handleCopy} copied={copied} />
-        )}
-        {selectedToolId === "date-difference-calculator" && (
-          <DateDifferenceSub onCopy={handleCopy} copied={copied} />
-        )}
-        {selectedToolId === "time-zone-converter" && (
-          <TimeZoneConverterSub onCopy={handleCopy} copied={copied} />
-        )}
-        {selectedToolId === "unit-converter" && (
-          <UnitConverterSub onCopy={handleCopy} copied={copied} />
+          <AgeDecisionEngine engineMode={activeEngineMode} onCopy={handleCopy} copied={copied} onLogHistory={addHistoryItem} />
         )}
         {selectedToolId === "discount-calculator" && (
-          <DiscountCalculatorSub currency={currency} onCopy={handleCopy} copied={copied} />
+          <DiscountDecisionEngine engineMode={activeEngineMode} currency={currency} onCopy={handleCopy} copied={copied} onLogHistory={addHistoryItem} />
         )}
         {selectedToolId === "gst-tax-calculator" && (
-          <GstTaxCalculatorSub currency={currency} onCopy={handleCopy} copied={copied} />
+          <GstTaxDecisionEngine engineMode={activeEngineMode} currency={currency} onCopy={handleCopy} copied={copied} onLogHistory={addHistoryItem} />
         )}
         {selectedToolId === "emi-loan-calculator" && (
-          <EmiLoanCalculatorSub currency={currency} onCopy={handleCopy} copied={copied} />
+          <EmiLoanDecisionEngine engineMode={activeEngineMode} currency={currency} onCopy={handleCopy} copied={copied} onLogHistory={addHistoryItem} />
         )}
         {selectedToolId === "salary-calculator" && (
-          <SalaryCalculatorSub currency={currency} onCopy={handleCopy} copied={copied} />
+          <SalaryDecisionEngine engineMode={activeEngineMode} currency={currency} onCopy={handleCopy} copied={copied} onLogHistory={addHistoryItem} />
         )}
         {selectedToolId === "compound-interest-calculator" && (
-          <CompoundInterestCalculatorSub currency={currency} onCopy={handleCopy} copied={copied} />
+          <CompoundInterestDecisionEngine engineMode={activeEngineMode} currency={currency} onCopy={handleCopy} copied={copied} onLogHistory={addHistoryItem} />
+        )}
+        {selectedToolId === "date-difference-calculator" && (
+          <DateDifferenceDecisionEngine engineMode={activeEngineMode} onCopy={handleCopy} copied={copied} onLogHistory={addHistoryItem} />
+        )}
+        {selectedToolId === "time-zone-converter" && (
+          <TimeZoneDecisionEngine engineMode={activeEngineMode} onCopy={handleCopy} copied={copied} onLogHistory={addHistoryItem} />
+        )}
+        {selectedToolId === "unit-converter" && (
+          <UnitDecisionEngine engineMode={activeEngineMode} onCopy={handleCopy} copied={copied} onLogHistory={addHistoryItem} />
         )}
       </div>
     </div>
@@ -170,293 +291,156 @@ export function CalculatorWorkspace({ activeToolId }: CalculatorWorkspaceProps) 
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SUB-CALCULATOR COMPONENTS
+// FULLY IMPLEMENTED ENGINES
 // ─────────────────────────────────────────────────────────────────────────────
 
-// 1. Percentage Calculator
-function PercentageCalculatorSub({
-  currency,
-  onCopy,
-  copied,
-}: {
-  currency: string;
-  onCopy: (txt: string) => void;
-  copied: boolean;
-}) {
-  const [mode, setMode] = useState<"value" | "percent" | "change" | "reverse">("value");
-
-  // Mode 1: What is X% of Y?
+// 1. Percentage Engine
+function PercentageDecisionEngine({ engineMode, currency, onCopy, copied, onLogHistory }: any) {
   const [p1, setP1] = useState<number>(15);
   const [v1, setV1] = useState<number>(250);
+  const [targetResult, setTargetResult] = useState<number>(550);
+  const [targetPercent, setTargetPercent] = useState<number>(10);
 
-  // Mode 2: X is what % of Y?
-  const [x2, setX2] = useState<number>(45);
-  const [y2, setY2] = useState<number>(180);
+  const [optA, setOptA] = useState({ pct: 10, amount: 200 });
+  const [optB, setOptB] = useState({ pct: 15, amount: 200 });
+  const [optC, setOptC] = useState({ pct: 20, amount: 200 });
 
-  // Mode 3: Percentage change from A to B
-  const [a3, setA3] = useState<number>(80);
-  const [b3, setB3] = useState<number>(120);
+  const resStandard = useMemo(() => (p1 / 100) * v1, [p1, v1]);
+  const requiredBase = useMemo(() => {
+    const factor = 1 + targetPercent / 100;
+    return factor !== 0 ? targetResult / factor : 0;
+  }, [targetResult, targetPercent]);
 
-  // Mode 4: Reverse Percentage (Value after X% tax/discount = Y, find original)
-  const [f4, setF4] = useState<number>(115);
-  const [pct4, setPct4] = useState<number>(15);
-
-  const res1 = useMemo(() => (p1 / 100) * v1, [p1, v1]);
-  const res2 = useMemo(() => (y2 !== 0 ? (x2 / y2) * 100 : 0), [x2, y2]);
-  const res3 = useMemo(() => {
-    if (a3 === 0) return 0;
-    const diff = b3 - a3;
-    return (diff / a3) * 100;
-  }, [a3, b3]);
-  const res4 = useMemo(() => {
-    const factor = 1 + pct4 / 100;
-    return factor !== 0 ? f4 / factor : 0;
-  }, [f4, pct4]);
+  useEffect(() => {
+    if (engineMode === "standard") {
+      onLogHistory("Percentage", `${p1}% of ${currency}${v1} = ${currency}${resStandard.toFixed(2)}`, `Formula: (${p1}/100) * ${v1}`);
+    }
+  }, [p1, v1, engineMode]);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
           <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Percent className="w-5 h-5 text-blue-500" /> Percentage Calculator
+            <Percent className="w-5 h-5 text-blue-500" /> Percentage Decision Engine
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            Calculate values, relative ratios, growth percentage, and reverse tax amounts.
+            Evaluate percentage growth, solve required starting bases in reverse, or compare 3 margin strategies.
           </p>
         </div>
       </div>
 
-      {/* Mode Selector */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        {[
-          { id: "value", label: "X% of Y" },
-          { id: "percent", label: "X is what % of Y" },
-          { id: "change", label: "% Change (A → B)" },
-          { id: "reverse", label: "Reverse %" },
-        ].map((m) => (
-          <button
-            key={m.id}
-            onClick={() => setMode(m.id as any)}
-            className={`py-2 px-3 rounded-xl text-xs font-semibold border transition-all ${
-              mode === m.id
-                ? "border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400"
-                : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
-            }`}
-          >
-            {m.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Inputs & Calculations */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-        <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-4">
-          {mode === "value" && (
-            <>
-              <div>
-                <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-                  Percentage (%)
-                </label>
-                <input
-                  type="number"
-                  value={p1}
-                  onChange={(e) => setP1(Number(e.target.value))}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-                  Total Amount ({currency})
-                </label>
-                <input
-                  type="number"
-                  value={v1}
-                  onChange={(e) => setV1(Number(e.target.value))}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-                />
-              </div>
-            </>
-          )}
-
-          {mode === "percent" && (
-            <>
-              <div>
-                <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-                  Part Value (X)
-                </label>
-                <input
-                  type="number"
-                  value={x2}
-                  onChange={(e) => setX2(Number(e.target.value))}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-                  Total Base (Y)
-                </label>
-                <input
-                  type="number"
-                  value={y2}
-                  onChange={(e) => setY2(Number(e.target.value))}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-                />
-              </div>
-            </>
-          )}
-
-          {mode === "change" && (
-            <>
-              <div>
-                <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-                  Initial Value (A)
-                </label>
-                <input
-                  type="number"
-                  value={a3}
-                  onChange={(e) => setA3(Number(e.target.value))}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-                  Final Value (B)
-                </label>
-                <input
-                  type="number"
-                  value={b3}
-                  onChange={(e) => setB3(Number(e.target.value))}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-                />
-              </div>
-            </>
-          )}
-
-          {mode === "reverse" && (
-            <>
-              <div>
-                <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-                  Final Amount After Markup/Tax ({currency})
-                </label>
-                <input
-                  type="number"
-                  value={f4}
-                  onChange={(e) => setF4(Number(e.target.value))}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-                  Applied Tax/Markup (%)
-                </label>
-                <input
-                  type="number"
-                  value={pct4}
-                  onChange={(e) => setPct4(Number(e.target.value))}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-                />
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Results Panel */}
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-900 to-slate-900 text-white space-y-4 relative overflow-hidden">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider">
-              Result Breakdown
-            </span>
-            <button
-              onClick={() => {
-                let txt = "";
-                if (mode === "value") txt = `${p1}% of ${currency}${v1} = ${currency}${res1.toFixed(2)}`;
-                if (mode === "percent") txt = `${x2} of ${y2} = ${res2.toFixed(2)}%`;
-                if (mode === "change") txt = `Change from ${a3} to ${b3} = ${res3.toFixed(2)}%`;
-                if (mode === "reverse") txt = `Original amount prior to ${pct4}% markup = ${currency}${res4.toFixed(2)}`;
-                onCopy(txt);
-              }}
-              className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-all text-xs flex items-center gap-1.5"
-            >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-              {copied ? "Copied" : "Copy Result"}
-            </button>
+      {engineMode === "standard" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-4">
+            <div>
+              <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">Percentage (%)</label>
+              <input type="number" value={p1} onChange={(e) => setP1(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">Total Base Amount ({currency})</label>
+              <input type="number" value={v1} onChange={(e) => setV1(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white" />
+            </div>
           </div>
-
-          <div className="py-2">
-            {mode === "value" && (
-              <div>
-                <div className="text-3xl font-extrabold text-white">
-                  {currency}
-                  {res1.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                </div>
-                <p className="text-xs text-blue-200 mt-2 font-mono">
-                  Formula: ({p1} / 100) × {v1} = {res1.toFixed(2)}
-                </p>
-              </div>
-            )}
-
-            {mode === "percent" && (
-              <div>
-                <div className="text-3xl font-extrabold text-white">{res2.toFixed(2)}%</div>
-                <p className="text-xs text-blue-200 mt-2 font-mono">
-                  Formula: ({x2} / {y2}) × 100 = {res2.toFixed(2)}%
-                </p>
-              </div>
-            )}
-
-            {mode === "change" && (
-              <div>
-                <div className="text-3xl font-extrabold text-white">
-                  {res3 >= 0 ? `+${res3.toFixed(2)}%` : `${res3.toFixed(2)}%`}
-                </div>
-                <p className="text-xs text-blue-200 mt-2 font-mono">
-                  Formula: (({b3} - {a3}) / {a3}) × 100 = {res3.toFixed(2)}%
-                </p>
-              </div>
-            )}
-
-            {mode === "reverse" && (
-              <div>
-                <div className="text-3xl font-extrabold text-white">
-                  {currency}
-                  {res4.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                </div>
-                <p className="text-xs text-blue-200 mt-2 font-mono">
-                  Formula: {f4} / (1 + {pct4}/100) = {res4.toFixed(2)}
-                </p>
-              </div>
-            )}
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-900 to-slate-900 text-white space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider">Result Output</span>
+              <button onClick={() => onCopy(`${p1}% of ${currency}${v1} = ${currency}${resStandard.toFixed(2)}`)} className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs flex items-center gap-1.5">
+                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                {copied ? "Copied" : "Copy"}
+              </button>
+            </div>
+            <div className="text-3xl font-extrabold text-white">{currency}{resStandard.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+            <p className="text-xs text-blue-200 font-mono">Formula: ({p1} / 100) × {v1} = {resStandard.toFixed(2)}</p>
           </div>
         </div>
-      </div>
+      )}
+
+      {engineMode === "reverse" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-4">
+            <div>
+              <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">Target Final Value ({currency})</label>
+              <input type="number" value={targetResult} onChange={(e) => setTargetResult(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">Applied Growth (%)</label>
+              <input type="number" value={targetPercent} onChange={(e) => setTargetPercent(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white" />
+            </div>
+          </div>
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-indigo-900 to-slate-900 text-white space-y-4">
+            <span className="text-xs font-semibold text-indigo-300 uppercase tracking-wider block">Required Starting Base</span>
+            <div className="text-3xl font-extrabold text-emerald-400">{currency}{requiredBase.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+            <p className="text-xs text-indigo-200 font-mono">To reach {currency}{targetResult} with a {targetPercent}% growth, your starting base must be {currency}{requiredBase.toFixed(2)}.</p>
+          </div>
+        </div>
+      )}
+
+      {engineMode === "compare" && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[{ label: "Option A", state: optA, set: setOptA }, { label: "Option B", state: optB, set: setOptB }, { label: "Option C", state: optC, set: setOptC }].map((opt, idx) => {
+            const res = (opt.state.pct / 100) * opt.state.amount;
+            return (
+              <div key={idx} className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-3">
+                <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider block">{opt.label}</span>
+                <div>
+                  <label className="text-[11px] text-slate-500 block mb-1">Percentage (%)</label>
+                  <input type="number" value={opt.state.pct} onChange={(e) => opt.set({ ...opt.state, pct: Number(e.target.value) })} className="w-full px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white" />
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-500 block mb-1">Base Amount ({currency})</label>
+                  <input type="number" value={opt.state.amount} onChange={(e) => opt.set({ ...opt.state, amount: Number(e.target.value) })} className="w-full px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white" />
+                </div>
+                <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
+                  <span className="text-[11px] text-slate-500 block">Calculated Result</span>
+                  <span className="text-xl font-black text-slate-900 dark:text-white">{currency}{res.toFixed(2)}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {engineMode === "sensitivity" && (
+        <div className="p-5 rounded-2xl bg-slate-900 text-white space-y-4">
+          <span className="text-xs font-bold text-blue-400 uppercase tracking-wider block">Sensitivity Variance Matrix (Base: {currency}{v1})</span>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs text-left">
+              <thead><tr className="border-b border-slate-800 text-slate-400"><th className="py-2">Rate</th><th className="py-2">Calculated Value</th><th className="py-2">Variance</th></tr></thead>
+              <tbody className="divide-y divide-slate-800">
+                {[-5, -2, 0, 2, 5, 10].map((step) => {
+                  const rate = Math.max(0, p1 + step);
+                  const val = (rate / 100) * v1;
+                  const diff = val - resStandard;
+                  return (
+                    <tr key={step} className={step === 0 ? "bg-blue-500/10 font-bold" : ""}>
+                      <td className="py-2 font-mono">{rate}% {step === 0 && "(Current)"}</td>
+                      <td className="py-2 font-mono">{currency}{val.toFixed(2)}</td>
+                      <td className={`py-2 font-mono ${diff >= 0 ? "text-emerald-400" : "text-rose-400"}`}>{diff >= 0 ? `+${currency}${diff.toFixed(2)}` : `-${currency}${Math.abs(diff).toFixed(2)}`}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-// 2. Age Calculator
-function AgeCalculatorSub({
-  onCopy,
-  copied,
-}: {
-  onCopy: (txt: string) => void;
-  copied: boolean;
-}) {
+// 2. Age Engine
+function AgeDecisionEngine({ engineMode, onCopy, copied, onLogHistory }: any) {
   const [birthDate, setBirthDate] = useState<string>("1998-05-15");
-  const [targetDate, setTargetDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
-  );
+  const [targetAgeYears, setTargetAgeYears] = useState<number>(30);
 
   const ageData = useMemo(() => {
     const start = new Date(birthDate);
-    const end = new Date(targetDate);
-    if (isNaN(start.getTime()) || isNaN(end.getTime()) || start > end) {
-      return null;
-    }
-
+    const end = new Date();
+    if (isNaN(start.getTime())) return null;
     let years = end.getFullYear() - start.getFullYear();
     let months = end.getMonth() - start.getMonth();
     let days = end.getDate() - start.getDate();
-
     if (days < 0) {
       months -= 1;
       const prevMonth = new Date(end.getFullYear(), end.getMonth(), 0);
@@ -466,139 +450,676 @@ function AgeCalculatorSub({
       years -= 1;
       months += 12;
     }
+    const totalDays = Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    return { years, months, days, totalDays };
+  }, [birthDate]);
 
-    const diffTime = Math.abs(end.getTime() - start.getTime());
-    const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    const totalHours = totalDays * 24;
-    const totalMinutes = totalHours * 60;
-    const totalSeconds = totalMinutes * 60;
-
-    // Next birthday countdown
-    const nextBday = new Date(end.getFullYear(), start.getMonth(), start.getDate());
-    if (nextBday < end) {
-      nextBday.setFullYear(end.getFullYear() + 1);
-    }
-    const daysToNextBday = Math.ceil(
-      (nextBday.getTime() - end.getTime()) / (1000 * 60 * 60 * 24)
-    );
-
-    const dayOfWeek = start.toLocaleDateString("en-US", { weekday: "long" });
-
-    return {
-      years,
-      months,
-      days,
-      totalDays,
-      totalHours,
-      totalMinutes,
-      totalSeconds,
-      daysToNextBday,
-      dayOfWeek,
-    };
-  }, [birthDate, targetDate]);
+  const targetDateCalculated = useMemo(() => {
+    const start = new Date(birthDate);
+    if (isNaN(start.getTime())) return "";
+    const target = new Date(start.getFullYear() + targetAgeYears, start.getMonth(), start.getDate());
+    return target.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+  }, [birthDate, targetAgeYears]);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
           <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-blue-500" /> Chronological Age Calculator
+            <Calendar className="w-5 h-5 text-blue-500" /> Chronological Age & Timeline Engine
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            Calculate exact age down to the second and inspect next birthday countdowns.
+            Calculate precise chronological age, project future milestones, or discover when you turn target ages.
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-4">
-          <div>
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-              Date of Birth
-            </label>
-            <input
-              type="date"
-              value={birthDate}
-              onChange={(e) => setBirthDate(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-            />
+      {engineMode === "standard" && ageData && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-4">
+            <div>
+              <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">Date of Birth</label>
+              <input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white" />
+            </div>
           </div>
-          <div>
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-              Age as of Target Date
-            </label>
-            <input
-              type="date"
-              value={targetDate}
-              onChange={(e) => setTargetDate(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-            />
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900 to-blue-950 text-white space-y-4">
+            <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider block">Exact Age</span>
+            <div className="text-3xl font-extrabold text-white">{ageData.years} Yrs, {ageData.months} Mos, {ageData.days} Days</div>
+            <p className="text-xs text-blue-200 font-mono">Total Days Lived: {ageData.totalDays.toLocaleString()} Days</p>
           </div>
         </div>
+      )}
 
-        {ageData ? (
-          <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900 to-blue-950 text-white space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider">
-                Exact Age Summary
-              </span>
-              <button
-                onClick={() =>
-                  onCopy(
-                    `Age: ${ageData.years} Years, ${ageData.months} Months, ${ageData.days} Days (Born on ${ageData.dayOfWeek})`
-                  )
-                }
-                className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-all text-xs flex items-center gap-1.5"
-              >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                {copied ? "Copied" : "Copy"}
-              </button>
+      {engineMode === "reverse" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-4">
+            <div>
+              <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">Date of Birth</label>
+              <input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white" />
             </div>
-
-            <div className="text-2xl sm:text-3xl font-extrabold text-white">
-              {ageData.years} Years, {ageData.months} Months, {ageData.days} Days
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 pt-2 text-xs border-t border-white/10">
-              <div>
-                <span className="text-slate-400 block">Born On</span>
-                <span className="font-semibold text-white">{ageData.dayOfWeek}</span>
-              </div>
-              <div>
-                <span className="text-slate-400 block">Next Birthday In</span>
-                <span className="font-semibold text-emerald-400">{ageData.daysToNextBday} Days</span>
-              </div>
-              <div>
-                <span className="text-slate-400 block">Total Days Lived</span>
-                <span className="font-semibold text-white">{ageData.totalDays.toLocaleString()}</span>
-              </div>
-              <div>
-                <span className="text-slate-400 block">Total Hours</span>
-                <span className="font-semibold text-white">{ageData.totalHours.toLocaleString()}</span>
-              </div>
+            <div>
+              <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">Target Milestone Age (Years)</label>
+              <input type="number" value={targetAgeYears} onChange={(e) => setTargetAgeYears(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white" />
             </div>
           </div>
-        ) : (
-          <div className="p-6 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 text-xs">
-            Please enter a valid birth date prior to target date.
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-indigo-900 to-slate-900 text-white space-y-4">
+            <span className="text-xs font-semibold text-indigo-300 uppercase tracking-wider block">Target Milestone Date</span>
+            <div className="text-2xl font-extrabold text-emerald-400">{targetDateCalculated}</div>
+            <p className="text-xs text-indigo-200 font-mono">You will turn exactly {targetAgeYears} years old on {targetDateCalculated}.</p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {(engineMode === "compare" || engineMode === "sensitivity") && (
+        <div className="p-5 rounded-2xl bg-slate-900 text-white space-y-3">
+          <span className="text-xs font-bold text-blue-400 uppercase tracking-wider block">Milestone Age Horizon Timeline</span>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            {[30, 40, 50, 60, 65, 70, 80, 100].map((mAge) => {
+              const start = new Date(birthDate);
+              const mDate = new Date(start.getFullYear() + mAge, start.getMonth(), start.getDate());
+              return (
+                <div key={mAge} className="p-3 rounded-xl bg-slate-800 border border-slate-700">
+                  <span className="text-slate-400 block font-bold">Age {mAge}</span>
+                  <span className="text-white font-mono font-bold mt-1 block">{mDate.getFullYear()}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-// 3. Date Difference Calculator
-function DateDifferenceSub({
-  onCopy,
-  copied,
-}: {
-  onCopy: (txt: string) => void;
-  copied: boolean;
-}) {
+// 3. Discount Engine
+function DiscountDecisionEngine({ engineMode, currency, onCopy, copied, onLogHistory }: any) {
+  const [price, setPrice] = useState<number>(150);
+  const [disc, setDisc] = useState<number>(20);
+  const [targetBudget, setTargetBudget] = useState<number>(100);
+
+  const [optA, setOptA] = useState({ price: 200, disc: 20 });
+  const [optB, setOptB] = useState({ price: 180, disc: 15 });
+  const [optC, setOptC] = useState({ price: 150, disc: 10 });
+
+  const finalPrice = useMemo(() => price * (1 - disc / 100), [price, disc]);
+  const reqDiscount = useMemo(() => {
+    if (price <= 0) return 0;
+    return Math.max(0, ((price - targetBudget) / price) * 100);
+  }, [price, targetBudget]);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+        <div>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Tag className="w-5 h-5 text-blue-500" /> Discount & Promo Decision Engine
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Calculate final prices, solve required discount % in reverse to hit budget targets, or compare deals.
+          </p>
+        </div>
+      </div>
+
+      {engineMode === "standard" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-4">
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-1">Original Sticker Price ({currency})</label>
+              <input type="number" value={price} onChange={(e) => setPrice(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-1">Discount (%)</label>
+              <input type="number" value={disc} onChange={(e) => setDisc(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white" />
+            </div>
+          </div>
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-900 to-slate-900 text-white space-y-4">
+            <span className="text-xs font-semibold text-emerald-300 uppercase tracking-wider block">Final Checkout Price</span>
+            <div className="text-3xl font-extrabold text-white">{currency}{finalPrice.toFixed(2)}</div>
+            <p className="text-xs text-emerald-200 font-mono">You Save: {currency}{(price - finalPrice).toFixed(2)} ({disc}% Off)</p>
+          </div>
+        </div>
+      )}
+
+      {engineMode === "reverse" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-4">
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-1">Original Price ({currency})</label>
+              <input type="number" value={price} onChange={(e) => setPrice(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-1">Target Budget Limit ({currency})</label>
+              <input type="number" value={targetBudget} onChange={(e) => setTargetBudget(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white" />
+            </div>
+          </div>
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-indigo-900 to-slate-900 text-white space-y-4">
+            <span className="text-xs font-semibold text-indigo-300 uppercase tracking-wider block">Required Discount Coupon</span>
+            <div className="text-3xl font-extrabold text-emerald-400">{reqDiscount.toFixed(1)}% OFF</div>
+            <p className="text-xs text-indigo-200 font-mono">To buy {currency}{price} item for {currency}{targetBudget}, ask for a {reqDiscount.toFixed(1)}% discount.</p>
+          </div>
+        </div>
+      )}
+
+      {engineMode === "compare" && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[{ label: "Deal A", state: optA, set: setOptA }, { label: "Deal B", state: optB, set: setOptB }, { label: "Deal C", state: optC, set: setOptC }].map((d, idx) => {
+            const finalD = d.state.price * (1 - d.state.disc / 100);
+            return (
+              <div key={idx} className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-3">
+                <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider block">{d.label}</span>
+                <div>
+                  <label className="text-[11px] text-slate-500 block mb-1">Sticker Price ({currency})</label>
+                  <input type="number" value={d.state.price} onChange={(e) => d.set({ ...d.state, price: Number(e.target.value) })} className="w-full px-3 py-1.5 rounded-lg border text-xs text-slate-900 dark:text-white dark:bg-slate-900" />
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-500 block mb-1">Discount (%)</label>
+                  <input type="number" value={d.state.disc} onChange={(e) => d.set({ ...d.state, disc: Number(e.target.value) })} className="w-full px-3 py-1.5 rounded-lg border text-xs text-slate-900 dark:text-white dark:bg-slate-900" />
+                </div>
+                <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
+                  <span className="text-[11px] text-slate-500 block">Final Price</span>
+                  <span className="text-xl font-black text-emerald-500">{currency}{finalD.toFixed(2)}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {engineMode === "sensitivity" && (
+        <div className="p-5 rounded-2xl bg-slate-900 text-white space-y-4">
+          <span className="text-xs font-bold text-blue-400 uppercase tracking-wider block">Discount Sensitivity Matrix (Sticker: {currency}{price})</span>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs text-left">
+              <thead><tr className="border-b border-slate-800 text-slate-400"><th className="py-2">Discount %</th><th className="py-2">Final Price</th><th className="py-2">Total Savings</th></tr></thead>
+              <tbody className="divide-y divide-slate-800">
+                {[5, 10, 15, 20, 25, 30, 40, 50].map((dRate) => {
+                  const fp = price * (1 - dRate / 100);
+                  return (
+                    <tr key={dRate} className={dRate === disc ? "bg-blue-500/10 font-bold" : ""}>
+                      <td className="py-2 font-mono">{dRate}% {dRate === disc && "(Current)"}</td>
+                      <td className="py-2 font-mono">{currency}{fp.toFixed(2)}</td>
+                      <td className="py-2 font-mono text-emerald-400">+{currency}{(price - fp).toFixed(2)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 4. GST / Tax Engine
+function GstTaxDecisionEngine({ engineMode, currency, onCopy, copied, onLogHistory }: any) {
+  const [base, setBase] = useState<number>(1000);
+  const [taxRate, setTaxRate] = useState<number>(18);
+  const [targetGross, setTargetGross] = useState<number>(1180);
+
+  const taxAmount = useMemo(() => (taxRate / 100) * base, [base, taxRate]);
+  const grossTotal = useMemo(() => base + taxAmount, [base, taxAmount]);
+
+  const reqBaseForGross = useMemo(() => {
+    const factor = 1 + taxRate / 100;
+    return factor > 0 ? targetGross / factor : 0;
+  }, [targetGross, taxRate]);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+        <div>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Receipt className="w-5 h-5 text-blue-500" /> GST & Tax Decision Engine
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Calculate gross tax-inclusive prices or extract net base amounts in reverse.
+          </p>
+        </div>
+      </div>
+
+      {engineMode === "standard" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-4">
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-1">Net Base Amount ({currency})</label>
+              <input type="number" value={base} onChange={(e) => setBase(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-1">Tax Rate (%)</label>
+              <input type="number" value={taxRate} onChange={(e) => setTaxRate(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" />
+            </div>
+          </div>
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900 to-blue-950 text-white space-y-4">
+            <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider block">Gross Total Amount</span>
+            <div className="text-3xl font-extrabold text-white">{currency}{grossTotal.toFixed(2)}</div>
+            <p className="text-xs text-blue-200 font-mono">Tax ({taxRate}%): +{currency}{taxAmount.toFixed(2)}</p>
+          </div>
+        </div>
+      )}
+
+      {engineMode === "reverse" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-4">
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-1">Target Gross Price ({currency})</label>
+              <input type="number" value={targetGross} onChange={(e) => setTargetGross(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-1">Tax Rate (%)</label>
+              <input type="number" value={taxRate} onChange={(e) => setTaxRate(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" />
+            </div>
+          </div>
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-indigo-900 to-slate-900 text-white space-y-4">
+            <span className="text-xs font-semibold text-indigo-300 uppercase tracking-wider block">Extracted Base Amount</span>
+            <div className="text-3xl font-extrabold text-emerald-400">{currency}{reqBaseForGross.toFixed(2)}</div>
+            <p className="text-xs text-indigo-200 font-mono">Embedded Tax: {currency}{(targetGross - reqBaseForGross).toFixed(2)}</p>
+          </div>
+        </div>
+      )}
+
+      {(engineMode === "compare" || engineMode === "sensitivity") && (
+        <div className="p-5 rounded-2xl bg-slate-900 text-white space-y-4">
+          <span className="text-xs font-bold text-blue-400 uppercase tracking-wider block">Standard Regional Tax Rate Matrix (Base: {currency}{base})</span>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            {[5, 12, 18, 20, 25, 28].map((tr) => {
+              const g = base * (1 + tr / 100);
+              return (
+                <div key={tr} className="p-3 rounded-xl bg-slate-800 border border-slate-700">
+                  <span className="text-slate-400 block">{tr}% Tax Rate</span>
+                  <span className="text-emerald-400 font-mono font-bold mt-1 block">{currency}{g.toFixed(2)}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 5. EMI Loan Engine
+function EmiLoanDecisionEngine({ engineMode, currency, onCopy, copied, onLogHistory }: any) {
+  const [p, setP] = useState<number>(250000);
+  const [r, setR] = useState<number>(7.5);
+  const [y, setY] = useState<number>(15);
+
+  const [targetBudgetEmi, setTargetBudgetEmi] = useState<number>(2000);
+
+  const [bankA, setBankA] = useState({ p: 250000, r: 7.5, y: 15 });
+  const [bankB, setBankB] = useState({ p: 250000, r: 6.8, y: 15 });
+  const [bankC, setBankC] = useState({ p: 250000, r: 8.2, y: 15 });
+
+  const calculateEmi = (loan: number, rate: number, years: number) => {
+    const monthlyRate = rate / 12 / 100;
+    const months = years * 12;
+    if (monthlyRate === 0) return loan / months;
+    return (loan * monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
+  };
+
+  const currentEmi = useMemo(() => calculateEmi(p, r, y), [p, r, y]);
+  const totalInterest = useMemo(() => currentEmi * y * 12 - p, [currentEmi, p, y]);
+
+  // Reverse Loan Solver: "Given target monthly EMI, max loan affordable"
+  const maxAffordableLoan = useMemo(() => {
+    const monthlyRate = r / 12 / 100;
+    const months = y * 12;
+    if (monthlyRate === 0) return targetBudgetEmi * months;
+    return (targetBudgetEmi * (Math.pow(1 + monthlyRate, months) - 1)) / (monthlyRate * Math.pow(1 + monthlyRate, months));
+  }, [targetBudgetEmi, r, y]);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+        <div>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Landmark className="w-5 h-5 text-blue-500" /> EMI & Loan Scenario Engine
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Calculate EMI schedules, solve max affordable loan amount in reverse, or compare bank offers side-by-side.
+          </p>
+        </div>
+      </div>
+
+      {engineMode === "standard" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-4">
+            <div>
+              <div className="flex justify-between text-xs mb-1">
+                <span>Loan Principal ({currency})</span>
+                <span className="font-bold">{currency}{p.toLocaleString()}</span>
+              </div>
+              <input type="range" min={10000} max={1000000} step={5000} value={p} onChange={(e) => setP(Number(e.target.value))} className="w-full accent-blue-600" />
+            </div>
+            <div>
+              <div className="flex justify-between text-xs mb-1">
+                <span>Interest Rate (%)</span>
+                <span className="font-bold">{r}%</span>
+              </div>
+              <input type="range" min={1} max={25} step={0.1} value={r} onChange={(e) => setR(Number(e.target.value))} className="w-full accent-blue-600" />
+            </div>
+            <div>
+              <div className="flex justify-between text-xs mb-1">
+                <span>Tenure ({y} Years)</span>
+                <span className="font-bold">{y} Yrs</span>
+              </div>
+              <input type="range" min={1} max={30} step={1} value={y} onChange={(e) => setY(Number(e.target.value))} className="w-full accent-blue-600" />
+            </div>
+          </div>
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900 to-blue-950 text-white space-y-4">
+            <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider block">Monthly EMI Payment</span>
+            <div className="text-3xl font-extrabold text-emerald-400">{currency}{currentEmi.toFixed(2)}</div>
+            <p className="text-xs text-blue-200 font-mono">Total Interest Overhead: {currency}{totalInterest.toFixed(2)}</p>
+          </div>
+        </div>
+      )}
+
+      {engineMode === "reverse" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-4">
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-1">Target Monthly Budget ({currency}/mo)</label>
+              <input type="number" value={targetBudgetEmi} onChange={(e) => setTargetBudgetEmi(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-1">Interest Rate (%)</label>
+              <input type="number" value={r} onChange={(e) => setR(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-1">Tenure (Years)</label>
+              <input type="number" value={y} onChange={(e) => setY(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" />
+            </div>
+          </div>
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-indigo-900 to-slate-900 text-white space-y-4">
+            <span className="text-xs font-semibold text-indigo-300 uppercase tracking-wider block">Max Affordable Loan Principal</span>
+            <div className="text-3xl font-extrabold text-emerald-400">{currency}{maxAffordableLoan.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+            <p className="text-xs text-indigo-200 font-mono">With a {currency}{targetBudgetEmi}/mo budget at {r}% over {y} years, you can borrow up to {currency}{maxAffordableLoan.toFixed(0)}.</p>
+          </div>
+        </div>
+      )}
+
+      {engineMode === "compare" && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[{ label: "Bank A", state: bankA, set: setBankA }, { label: "Bank B", state: bankB, set: setBankB }, { label: "Bank C", state: bankC, set: setBankC }].map((b, idx) => {
+            const emi = calculateEmi(b.state.p, b.state.r, b.state.y);
+            const totInt = emi * b.state.y * 12 - b.state.p;
+            return (
+              <div key={idx} className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-3">
+                <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider block">{b.label}</span>
+                <div>
+                  <label className="text-[11px] text-slate-500 block mb-1">Interest Rate (%)</label>
+                  <input type="number" value={b.state.r} onChange={(e) => b.set({ ...b.state, r: Number(e.target.value) })} className="w-full px-3 py-1 rounded-lg border text-xs text-slate-900 dark:text-white dark:bg-slate-900" />
+                </div>
+                <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
+                  <span className="text-[11px] text-slate-500 block">Monthly EMI</span>
+                  <span className="text-xl font-black text-emerald-500">{currency}{emi.toFixed(2)}</span>
+                  <span className="text-[10px] text-slate-400 block mt-1">Total Interest: {currency}{totInt.toFixed(0)}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {engineMode === "sensitivity" && (
+        <div className="p-5 rounded-2xl bg-slate-900 text-white space-y-4">
+          <span className="text-xs font-bold text-blue-400 uppercase tracking-wider block">Loan Interest Sensitivity Table</span>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs text-left">
+              <thead><tr className="border-b border-slate-800 text-slate-400"><th className="py-2">Interest Rate</th><th className="py-2">Monthly EMI</th><th className="py-2">Total Interest</th></tr></thead>
+              <tbody className="divide-y divide-slate-800">
+                {[5.0, 6.0, 7.0, 7.5, 8.0, 9.0, 10.0].map((rate) => {
+                  const emi = calculateEmi(p, rate, y);
+                  const totInt = emi * y * 12 - p;
+                  return (
+                    <tr key={rate} className={rate === r ? "bg-blue-500/10 font-bold" : ""}>
+                      <td className="py-2 font-mono">{rate}% {rate === r && "(Current)"}</td>
+                      <td className="py-2 font-mono">{currency}{emi.toFixed(2)}</td>
+                      <td className="py-2 font-mono text-amber-400">{currency}{totInt.toFixed(0)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 6. Salary Engine
+function SalaryDecisionEngine({ engineMode, currency, onCopy, copied, onLogHistory }: any) {
+  const [wage, setWage] = useState<number>(45);
+  const [hrs, setHrs] = useState<number>(40);
+  const [tax, setTax] = useState<number>(20);
+  const [targetNetMonthly, setTargetNetMonthly] = useState<number>(5000);
+
+  const annualGross = useMemo(() => wage * hrs * 52, [wage, hrs]);
+  const monthlyNet = useMemo(() => (annualGross * (1 - tax / 100)) / 12, [annualGross, tax]);
+
+  const reqHourlyWageForTargetNet = useMemo(() => {
+    const annualNetReq = targetNetMonthly * 12;
+    const annualGrossReq = tax < 100 ? annualNetReq / (1 - tax / 100) : 0;
+    return annualGrossReq / (hrs * 52);
+  }, [targetNetMonthly, tax, hrs]);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+        <div>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <DollarSign className="w-5 h-5 text-blue-500" /> Salary & Job Offer Decision Engine
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Convert hourly wages to annual pay or solve required hourly rates in reverse to hit take-home targets.
+          </p>
+        </div>
+      </div>
+
+      {engineMode === "standard" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-4">
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-1">Hourly Wage ({currency}/hr)</label>
+              <input type="number" value={wage} onChange={(e) => setWage(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-1">Hours Per Week</label>
+              <input type="number" value={hrs} onChange={(e) => setHrs(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-1">Estimated Tax (%)</label>
+              <input type="number" value={tax} onChange={(e) => setTax(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" />
+            </div>
+          </div>
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-900 to-slate-900 text-white space-y-4">
+            <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider block">Net Take-Home Pay</span>
+            <div className="text-3xl font-extrabold text-emerald-400">{currency}{monthlyNet.toFixed(2)}/mo</div>
+            <p className="text-xs text-blue-200 font-mono">Annual Gross: {currency}{annualGross.toLocaleString()}</p>
+          </div>
+        </div>
+      )}
+
+      {engineMode === "reverse" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-4">
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-1">Target Net Monthly Take-Home ({currency})</label>
+              <input type="number" value={targetNetMonthly} onChange={(e) => setTargetNetMonthly(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-1">Estimated Tax Bracket (%)</label>
+              <input type="number" value={tax} onChange={(e) => setTax(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" />
+            </div>
+          </div>
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-indigo-900 to-slate-900 text-white space-y-4">
+            <span className="text-xs font-semibold text-indigo-300 uppercase tracking-wider block">Required Hourly Wage Rate</span>
+            <div className="text-3xl font-extrabold text-emerald-400">{currency}{reqHourlyWageForTargetNet.toFixed(2)}/hr</div>
+            <p className="text-xs text-indigo-200 font-mono">Equivalent Required Annual Gross: {currency}{(reqHourlyWageForTargetNet * hrs * 52).toFixed(0)}/yr</p>
+          </div>
+        </div>
+      )}
+
+      {(engineMode === "compare" || engineMode === "sensitivity") && (
+        <div className="p-5 rounded-2xl bg-slate-900 text-white space-y-4">
+          <span className="text-xs font-bold text-blue-400 uppercase tracking-wider block">Salary & Hours Scale Matrix</span>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            {[25, 35, 45, 55, 65, 75, 85, 100].map((w) => {
+              const netM = (w * hrs * 52 * (1 - tax / 100)) / 12;
+              return (
+                <div key={w} className="p-3 rounded-xl bg-slate-800 border border-slate-700">
+                  <span className="text-slate-400 block">{currency}{w}/hr ({hrs} hrs/wk)</span>
+                  <span className="text-emerald-400 font-mono font-bold mt-1 block">{currency}{netM.toFixed(0)}/mo Net</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 7. Compound Interest Engine
+function CompoundInterestDecisionEngine({ engineMode, currency, onCopy, copied, onLogHistory }: any) {
+  const [init, setInit] = useState<number>(5000);
+  const [monthly, setMonthly] = useState<number>(300);
+  const [rate, setRate] = useState<number>(8);
+  const [years, setYears] = useState<number>(10);
+
+  const [targetWealthGoal, setTargetWealthGoal] = useState<number>(250000);
+
+  const compoundData = useMemo(() => {
+    let total = init;
+    let totalDep = init;
+    for (let m = 1; m <= years * 12; m++) {
+      total += monthly;
+      totalDep += monthly;
+      total += total * (rate / 100 / 12);
+    }
+    return { finalBalance: total, totalDep, interest: total - totalDep };
+  }, [init, monthly, rate, years]);
+
+  // Reverse Solver: "Required monthly deposit to reach target wealth goal"
+  const reqMonthlyForGoal = useMemo(() => {
+    const months = years * 12;
+    const rMonthly = rate / 100 / 12;
+    if (rMonthly === 0) return Math.max(0, (targetWealthGoal - init) / months);
+
+    // FV = Init * (1+r)^n + Monthly * [((1+r)^n - 1)/r]
+    const initFutureVal = init * Math.pow(1 + rMonthly, months);
+    const remGoal = targetWealthGoal - initFutureVal;
+    if (remGoal <= 0) return 0;
+
+    const annuityFactor = (Math.pow(1 + rMonthly, months) - 1) / rMonthly;
+    return remGoal / annuityFactor;
+  }, [targetWealthGoal, init, rate, years]);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+        <div>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-blue-500" /> Compound Wealth Decision Engine
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Forecast long-term compounding growth or solve required monthly contributions in reverse to hit wealth goals.
+          </p>
+        </div>
+      </div>
+
+      {engineMode === "standard" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-4">
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-1">Initial Principal ({currency})</label>
+              <input type="number" value={init} onChange={(e) => setInit(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-1">Monthly Contribution ({currency})</label>
+              <input type="number" value={monthly} onChange={(e) => setMonthly(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-medium text-slate-600 block mb-1">Return Rate (%)</label>
+                <input type="number" value={rate} onChange={(e) => setRate(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-slate-600 block mb-1">Horizon ({years} Yrs)</label>
+                <input type="number" value={years} onChange={(e) => setYears(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" />
+              </div>
+            </div>
+          </div>
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900 to-blue-950 text-white space-y-4">
+            <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider block">Future Portfolio Value</span>
+            <div className="text-3xl font-extrabold text-emerald-400">{currency}{compoundData.finalBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+            <p className="text-xs text-blue-200 font-mono">Compounded Interest Earned: +{currency}{compoundData.interest.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+          </div>
+        </div>
+      )}
+
+      {engineMode === "reverse" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-4">
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-1">Target Wealth Goal ({currency})</label>
+              <input type="number" value={targetWealthGoal} onChange={(e) => setTargetWealthGoal(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-1">Expected Return (%)</label>
+              <input type="number" value={rate} onChange={(e) => setRate(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-1">Investment Horizon (Years)</label>
+              <input type="number" value={years} onChange={(e) => setYears(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" />
+            </div>
+          </div>
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-indigo-900 to-slate-900 text-white space-y-4">
+            <span className="text-xs font-semibold text-indigo-300 uppercase tracking-wider block">Required Monthly Contribution</span>
+            <div className="text-3xl font-extrabold text-emerald-400">{currency}{reqMonthlyForGoal.toFixed(2)}/mo</div>
+            <p className="text-xs text-indigo-200 font-mono">To accumulate {currency}{targetWealthGoal.toLocaleString()} in {years} years at {rate}%, save {currency}{reqMonthlyForGoal.toFixed(2)} every month.</p>
+          </div>
+        </div>
+      )}
+
+      {(engineMode === "compare" || engineMode === "sensitivity") && (
+        <div className="p-5 rounded-2xl bg-slate-900 text-white space-y-4">
+          <span className="text-xs font-bold text-blue-400 uppercase tracking-wider block">Return Rate Sensitivity Table ({years} Yrs)</span>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs text-left">
+              <thead><tr className="border-b border-slate-800 text-slate-400"><th className="py-2">Annual Return</th><th className="py-2">Final Portfolio</th><th className="py-2">Compounded Interest</th></tr></thead>
+              <tbody className="divide-y divide-slate-800">
+                {[5, 6, 7, 8, 9, 10, 12, 15].map((rStep) => {
+                  let tot = init;
+                  let dep = init;
+                  for (let m = 1; m <= years * 12; m++) {
+                    tot += monthly;
+                    dep += monthly;
+                    tot += tot * (rStep / 100 / 12);
+                  }
+                  return (
+                    <tr key={rStep} className={rStep === rate ? "bg-blue-500/10 font-bold" : ""}>
+                      <td className="py-2 font-mono">{rStep}% {rStep === rate && "(Current)"}</td>
+                      <td className="py-2 font-mono">{currency}{tot.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
+                      <td className="py-2 font-mono text-emerald-400">+{currency}{(tot - dep).toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 8. Date Difference Engine
+function DateDifferenceDecisionEngine({ engineMode, onCopy, copied, onLogHistory }: any) {
   const [startDate, setStartDate] = useState<string>("2025-01-01");
   const [endDate, setEndDate] = useState<string>("2025-12-31");
-  const [excludeWeekends, setExcludeWeekends] = useState<boolean>(true);
+  const [daysOffset, setDaysOffset] = useState<number>(90);
 
   const diffData = useMemo(() => {
     const s = new Date(startDate);
@@ -607,7 +1128,6 @@ function DateDifferenceSub({
 
     const totalDays = Math.abs(Math.round((e.getTime() - s.getTime()) / (1000 * 60 * 60 * 24)));
     let businessDays = 0;
-
     const curr = new Date(Math.min(s.getTime(), e.getTime()));
     const finalDate = new Date(Math.max(s.getTime(), e.getTime()));
 
@@ -616,102 +1136,84 @@ function DateDifferenceSub({
       if (day !== 0 && day !== 6) businessDays++;
       curr.setDate(curr.getDate() + 1);
     }
-
-    const weeks = Math.floor(totalDays / 7);
-    const remDays = totalDays % 7;
-
-    return { totalDays, businessDays, weeks, remDays };
+    return { totalDays, businessDays };
   }, [startDate, endDate]);
+
+  const offsetTargetDate = useMemo(() => {
+    const s = new Date(startDate);
+    if (isNaN(s.getTime())) return "";
+    s.setDate(s.getDate() + daysOffset);
+    return s.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+  }, [startDate, daysOffset]);
+
+  useEffect(() => {
+    if (diffData) {
+      onLogHistory("Date Difference", `${diffData.totalDays} Total Days (${diffData.businessDays} Working Days)`, `From ${startDate} to ${endDate}`);
+    }
+  }, [startDate, endDate, diffData]);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
           <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Clock className="w-5 h-5 text-blue-500" /> Date Difference & Duration Calculator
+            <Clock className="w-5 h-5 text-blue-500" /> Date Difference & Timeline Engine
           </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Calculate calendar days and business working days between two dates.
-          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Calculate calendar durations or solve date offsets in reverse.</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-4">
-          <div>
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-              Start Date
-            </label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-            />
+      {engineMode === "standard" && diffData && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border space-y-4">
+            <div><label className="text-xs font-medium block mb-1">Start Date</label><input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" /></div>
+            <div><label className="text-xs font-medium block mb-1">End Date</label><input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" /></div>
           </div>
-          <div>
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-              End Date
-            </label>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-            />
-          </div>
-        </div>
-
-        {diffData && (
           <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-900 to-slate-900 text-white space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider">
-                Duration Summary
-              </span>
-              <button
-                onClick={() =>
-                  onCopy(
-                    `Difference: ${diffData.totalDays} Total Days (${diffData.businessDays} Working Days)`
-                  )
-                }
-                className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-all text-xs flex items-center gap-1.5"
-              >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                {copied ? "Copied" : "Copy"}
-              </button>
-            </div>
-
-            <div>
-              <div className="text-3xl font-extrabold text-white">
-                {diffData.totalDays} Calendar Days
-              </div>
-              <p className="text-xs text-blue-200 mt-1">
-                Equivalent to {diffData.weeks} weeks and {diffData.remDays} days
-              </p>
-            </div>
-
-            <div className="p-3 rounded-xl bg-white/10 border border-white/10 flex items-center justify-between">
-              <div>
-                <span className="text-xs text-slate-300 block font-medium">Business Working Days</span>
-                <span className="text-xs text-slate-400">(Excludes Saturdays & Sundays)</span>
-              </div>
-              <div className="text-xl font-bold text-emerald-400">{diffData.businessDays} Days</div>
-            </div>
+            <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider block">Duration Summary</span>
+            <div className="text-3xl font-extrabold text-white">{diffData.totalDays} Calendar Days</div>
+            <p className="text-xs text-emerald-400 font-mono">Business Working Days (Mon-Fri): {diffData.businessDays} Days</p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {engineMode === "reverse" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border space-y-4">
+            <div><label className="text-xs font-medium block mb-1">Start Date</label><input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" /></div>
+            <div><label className="text-xs font-medium block mb-1">Day Offset (+/- Days)</label><input type="number" value={daysOffset} onChange={(e) => setDaysOffset(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" /></div>
+          </div>
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-indigo-900 to-slate-900 text-white space-y-4">
+            <span className="text-xs font-semibold text-indigo-300 uppercase tracking-wider block">Target Offset Date</span>
+            <div className="text-2xl font-extrabold text-emerald-400">{offsetTargetDate}</div>
+            <p className="text-xs text-indigo-200 font-mono">Adding {daysOffset} days to {startDate} lands on {offsetTargetDate}.</p>
+          </div>
+        </div>
+      )}
+
+      {(engineMode === "compare" || engineMode === "sensitivity") && diffData && (
+        <div className="p-5 rounded-2xl bg-slate-900 text-white space-y-4">
+          <span className="text-xs font-bold text-blue-400 uppercase tracking-wider block">Timeline Offset Scale Matrix (Base: {startDate})</span>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            {[30, 60, 90, 180, 365].map((off) => {
+              const d = new Date(startDate);
+              d.setDate(d.getDate() + off);
+              return (
+                <div key={off} className="p-3 rounded-xl bg-slate-800 border border-slate-700">
+                  <span className="text-slate-400 block font-bold">+{off} Days</span>
+                  <span className="text-emerald-400 font-mono font-bold mt-1 block">{d.toISOString().split("T")[0]}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-// 4. Time Zone Converter
-function TimeZoneConverterSub({
-  onCopy,
-  copied,
-}: {
-  onCopy: (txt: string) => void;
-  copied: boolean;
-}) {
+// 9. Time Zone Engine
+function TimeZoneDecisionEngine({ engineMode, onCopy, copied, onLogHistory }: any) {
   const TIMEZONES = [
     { name: "UTC", zone: "UTC" },
     { name: "New York (EST / EDT)", zone: "America/New_York" },
@@ -729,10 +1231,7 @@ function TimeZoneConverterSub({
     const today = new Date().toISOString().split("T")[0];
     const [hrs, mins] = baseTime.split(":").map(Number);
 
-    // Resolve date in the base timezone using Intl
     const tempUtc = new Date(Date.UTC(2025, 5, 1, hrs || 0, mins || 0));
-
-    // Construct local ISO string representation for base timezone
     const formatter = new Intl.DateTimeFormat("en-US", {
       timeZone: baseZone,
       year: "numeric",
@@ -744,12 +1243,10 @@ function TimeZoneConverterSub({
       hour12: false,
     });
 
-    // Compute UTC offset for base zone
     const parts = formatter.formatToParts(tempUtc);
     const getPart = (type: string) => parts.find((p) => p.type === type)?.value || "00";
     const formattedBaseStr = `${getPart("year")}-${getPart("month")}-${getPart("day")}T${getPart("hour")}:${getPart("minute")}:00`;
 
-    // Convert to actual target timestamps
     const sourceTimestamp = new Date(`${today}T${baseTime}:00`).getTime();
     const baseOffsetMs = new Date(formattedBaseStr).getTime() - tempUtc.getTime();
     const targetUtcTimestamp = sourceTimestamp - baseOffsetMs;
@@ -770,74 +1267,42 @@ function TimeZoneConverterSub({
     });
   }, [baseTime, baseZone]);
 
+  useEffect(() => {
+    onLogHistory("Time Zone", `Source: ${baseTime} (${baseZone})`, formattedTimes.map((t) => `${t.name}: ${t.time}`).join(" | "));
+  }, [baseTime, baseZone]);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
           <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Globe className="w-5 h-5 text-blue-500" /> Time Zone Converter & Meeting Planner
+            <Globe className="w-5 h-5 text-blue-500" /> Time Zone Meeting Engine
           </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Convert local time across global regions instantly using standard IANA time zone rules.
-          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Convert times between global regions instantly with IANA DST compliance.</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-4">
+        <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border space-y-4">
           <div>
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-              Source Time
-            </label>
-            <input
-              type="time"
-              value={baseTime}
-              onChange={(e) => setBaseTime(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-            />
+            <label className="text-xs font-medium block mb-1">Source Time</label>
+            <input type="time" value={baseTime} onChange={(e) => setBaseTime(e.target.value)} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" />
           </div>
           <div>
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-              Source Time Zone
-            </label>
-            <select
-              value={baseZone}
-              onChange={(e) => setBaseZone(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-            >
+            <label className="text-xs font-medium block mb-1">Source Time Zone</label>
+            <select value={baseZone} onChange={(e) => setBaseZone(e.target.value)} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white">
               {TIMEZONES.map((tz) => (
-                <option key={tz.zone} value={tz.zone}>
-                  {tz.name}
-                </option>
+                <option key={tz.zone} value={tz.zone}>{tz.name}</option>
               ))}
             </select>
           </div>
         </div>
 
         <div className="md:col-span-2 p-6 rounded-2xl bg-slate-900 text-white space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-            <span className="text-xs font-semibold text-blue-400 uppercase tracking-wider">
-              Global Time Mapping
-            </span>
-            <button
-              onClick={() =>
-                onCopy(
-                  formattedTimes.map((t) => `${t.name}: ${t.time}`).join(" | ")
-                )
-              }
-              className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-all text-xs flex items-center gap-1.5"
-            >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-              {copied ? "Copied All" : "Copy Schedule"}
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+          <span className="text-xs font-bold text-blue-400 uppercase tracking-wider block">Global Overlap Timelines</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
             {formattedTimes.map((item) => (
-              <div
-                key={item.zone}
-                className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-between"
-              >
+              <div key={item.zone} className="p-3 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-between">
                 <span className="text-xs text-slate-300 font-medium">{item.name}</span>
                 <span className="text-sm font-bold text-emerald-400">{item.time}</span>
               </div>
@@ -849,14 +1314,8 @@ function TimeZoneConverterSub({
   );
 }
 
-// 5. Unit Converter
-function UnitConverterSub({
-  onCopy,
-  copied,
-}: {
-  onCopy: (txt: string) => void;
-  copied: boolean;
-}) {
+// 10. Unit Converter Engine
+function UnitDecisionEngine({ engineMode, onCopy, copied, onLogHistory }: any) {
   const UNIT_TYPES = {
     length: {
       label: "Length",
@@ -954,20 +1413,22 @@ function UnitConverterSub({
     return baseVal / uTo.factor;
   }, [category, val, fromUnit, toUnit]);
 
+  useEffect(() => {
+    onLogHistory("Unit Converter", `${val} ${fromUnit} = ${result.toFixed(4)} ${toUnit}`, `Category: ${UNIT_TYPES[category].label}`);
+  }, [category, val, fromUnit, toUnit, result]);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
           <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Scale className="w-5 h-5 text-blue-500" /> Multi-Unit Converter
+            <Scale className="w-5 h-5 text-blue-500" /> Multi-Dimensional Unit Engine
           </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Convert metric and imperial units across length, mass, and digital storage.
-          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Convert metric and imperial units across 7 physical dimensions.</p>
         </div>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-1.5">
         {(Object.keys(UNIT_TYPES) as Array<keyof typeof UNIT_TYPES>).map((catKey) => (
           <button
             key={catKey}
@@ -977,10 +1438,8 @@ function UnitConverterSub({
               setFromUnit(firstUnits[0]);
               setToUnit(firstUnits[1] || firstUnits[0]);
             }}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
-              category === catKey
-                ? "border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400"
-                : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400"
+            className={`px-3 py-1 rounded-xl text-xs font-semibold border transition-all ${
+              category === catKey ? "border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400" : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400"
             }`}
           >
             {UNIT_TYPES[catKey].label}
@@ -989,44 +1448,25 @@ function UnitConverterSub({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-4">
+        <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border space-y-4">
           <div>
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-              Value to Convert
-            </label>
-            <input
-              type="number"
-              value={val}
-              onChange={(e) => setVal(Number(e.target.value))}
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-            />
+            <label className="text-xs font-medium block mb-1">Value to Convert</label>
+            <input type="number" value={val} onChange={(e) => setVal(Number(e.target.value))} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">From</label>
-              <select
-                value={fromUnit}
-                onChange={(e) => setFromUnit(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-              >
+              <label className="text-xs font-medium block mb-1">From</label>
+              <select value={fromUnit} onChange={(e) => setFromUnit(e.target.value)} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white">
                 {Object.entries(UNIT_TYPES[category].units).map(([uKey, uObj]) => (
-                  <option key={uKey} value={uKey}>
-                    {uObj.label}
-                  </option>
+                  <option key={uKey} value={uKey}>{uObj.label}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">To</label>
-              <select
-                value={toUnit}
-                onChange={(e) => setToUnit(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-              >
+              <label className="text-xs font-medium block mb-1">To</label>
+              <select value={toUnit} onChange={(e) => setToUnit(e.target.value)} className="w-full px-3.5 py-2 rounded-xl border text-sm dark:bg-slate-900 dark:text-white">
                 {Object.entries(UNIT_TYPES[category].units).map(([uKey, uObj]) => (
-                  <option key={uKey} value={uKey}>
-                    {uObj.label}
-                  </option>
+                  <option key={uKey} value={uKey}>{uObj.label}</option>
                 ))}
               </select>
             </div>
@@ -1034,728 +1474,9 @@ function UnitConverterSub({
         </div>
 
         <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-900 to-slate-900 text-white space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider">
-              Converted Output
-            </span>
-            <button
-              onClick={() => onCopy(`${val} ${fromUnit} = ${result.toFixed(4)} ${toUnit}`)}
-              className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-all text-xs flex items-center gap-1.5"
-            >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-              {copied ? "Copied" : "Copy"}
-            </button>
-          </div>
-
-          <div className="py-2">
-            <div className="text-3xl font-extrabold text-white">
-              {result.toLocaleString(undefined, { maximumFractionDigits: 4 })} {toUnit}
-            </div>
-            <p className="text-xs text-blue-200 mt-2">
-              {val} {fromUnit} is equivalent to {result.toFixed(4)} {toUnit}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// 6. Discount Calculator
-function DiscountCalculatorSub({
-  currency,
-  onCopy,
-  copied,
-}: {
-  currency: string;
-  onCopy: (txt: string) => void;
-  copied: boolean;
-}) {
-  const [originalPrice, setOriginalPrice] = useState<number>(150);
-  const [discountPercent, setDiscountPercent] = useState<number>(20);
-  const [stackedDiscount, setStackedDiscount] = useState<number>(10);
-  const [taxPercent, setTaxPercent] = useState<number>(8);
-
-  const discountData = useMemo(() => {
-    const firstDisc = (discountPercent / 100) * originalPrice;
-    const priceAfterFirst = originalPrice - firstDisc;
-
-    const secondDisc = (stackedDiscount / 100) * priceAfterFirst;
-    const priceAfterSecond = priceAfterFirst - secondDisc;
-
-    const taxAmount = (taxPercent / 100) * priceAfterSecond;
-    const finalPrice = priceAfterSecond + taxAmount;
-
-    const totalSaved = originalPrice - priceAfterSecond;
-
-    return { firstDisc, secondDisc, priceAfterSecond, taxAmount, finalPrice, totalSaved };
-  }, [originalPrice, discountPercent, stackedDiscount, taxPercent]);
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
-        <div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Tag className="w-5 h-5 text-blue-500" /> Discount & Sale Savings Calculator
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Calculate final checkout prices with stacked discounts and tax inclusions.
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-4">
-          <div>
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-              Original Price ({currency})
-            </label>
-            <input
-              type="number"
-              value={originalPrice}
-              onChange={(e) => setOriginalPrice(Number(e.target.value))}
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-                Discount (%)
-              </label>
-              <input
-                type="number"
-                value={discountPercent}
-                onChange={(e) => setDiscountPercent(Number(e.target.value))}
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-                Extra Stacked %
-              </label>
-              <input
-                type="number"
-                value={stackedDiscount}
-                onChange={(e) => setStackedDiscount(Number(e.target.value))}
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-              Sales Tax Rate (%)
-            </label>
-            <input
-              type="number"
-              value={taxPercent}
-              onChange={(e) => setTaxPercent(Number(e.target.value))}
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-            />
-          </div>
-        </div>
-
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900 to-blue-950 text-white space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider">
-              Checkout Breakdown
-            </span>
-            <button
-              onClick={() =>
-                onCopy(
-                  `Final Price: ${currency}${discountData.finalPrice.toFixed(2)} (You Save ${currency}${discountData.totalSaved.toFixed(2)})`
-                )
-              }
-              className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-all text-xs flex items-center gap-1.5"
-            >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-              {copied ? "Copied" : "Copy"}
-            </button>
-          </div>
-
-          <div>
-            <div className="text-3xl font-extrabold text-emerald-400">
-              {currency}
-              {discountData.finalPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-            </div>
-            <p className="text-xs text-blue-200 mt-1">
-              Total Money Saved: {currency}{discountData.totalSaved.toFixed(2)}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 text-xs border-t border-white/10 pt-3">
-            <div>
-              <span className="text-slate-400 block">Primary Discount</span>
-              <span className="font-semibold text-white">-{currency}{discountData.firstDisc.toFixed(2)}</span>
-            </div>
-            <div>
-              <span className="text-slate-400 block">Stacked Discount</span>
-              <span className="font-semibold text-white">-{currency}{discountData.secondDisc.toFixed(2)}</span>
-            </div>
-            <div>
-              <span className="text-slate-400 block">Estimated Tax</span>
-              <span className="font-semibold text-white">+{currency}{discountData.taxAmount.toFixed(2)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// 7. GST / Tax Calculator
-function GstTaxCalculatorSub({
-  currency,
-  onCopy,
-  copied,
-}: {
-  currency: string;
-  onCopy: (txt: string) => void;
-  copied: boolean;
-}) {
-  const [type, setType] = useState<"add" | "remove">("add");
-  const [amount, setAmount] = useState<number>(1000);
-  const [taxRate, setTaxRate] = useState<number>(18);
-
-  const taxData = useMemo(() => {
-    if (type === "add") {
-      const taxVal = (taxRate / 100) * amount;
-      const total = amount + taxVal;
-      return { base: amount, tax: taxVal, total };
-    } else {
-      const base = amount / (1 + taxRate / 100);
-      const taxVal = amount - base;
-      return { base, tax: taxVal, total: amount };
-    }
-  }, [type, amount, taxRate]);
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
-        <div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Receipt className="w-5 h-5 text-blue-500" /> GST & Tax Calculator
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Calculate Tax-Inclusive or Tax-Exclusive rates instantly.
-          </p>
-        </div>
-      </div>
-
-      <div className="flex gap-2">
-        <button
-          onClick={() => setType("add")}
-          className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
-            type === "add"
-              ? "border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400"
-              : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400"
-          }`}
-        >
-          Add Tax (Tax Exclusive)
-        </button>
-        <button
-          onClick={() => setType("remove")}
-          className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
-            type === "remove"
-              ? "border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400"
-              : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400"
-          }`}
-        >
-          Remove Tax (Tax Inclusive)
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-4">
-          <div>
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-              Amount ({currency})
-            </label>
-            <input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-              Tax Percentage (%)
-            </label>
-            <input
-              type="number"
-              value={taxRate}
-              onChange={(e) => setTaxRate(Number(e.target.value))}
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-            />
-          </div>
-        </div>
-
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-900 to-slate-900 text-white space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider">
-              Tax Summary
-            </span>
-            <button
-              onClick={() =>
-                onCopy(
-                  `Net: ${currency}${taxData.base.toFixed(2)} | Tax: ${currency}${taxData.tax.toFixed(2)} | Total: ${currency}${taxData.total.toFixed(2)}`
-                )
-              }
-              className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-all text-xs flex items-center gap-1.5"
-            >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-              {copied ? "Copied" : "Copy"}
-            </button>
-          </div>
-
-          <div>
-            <span className="text-xs text-slate-300 block">Gross Total Amount</span>
-            <div className="text-3xl font-extrabold text-white">
-              {currency}
-              {taxData.total.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 text-xs border-t border-white/10 pt-3">
-            <div>
-              <span className="text-slate-400 block">Net Base Amount</span>
-              <span className="font-semibold text-white">{currency}{taxData.base.toFixed(2)}</span>
-            </div>
-            <div>
-              <span className="text-slate-400 block">Tax Amount ({taxRate}%)</span>
-              <span className="font-semibold text-emerald-400">+{currency}{taxData.tax.toFixed(2)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// 8. EMI / Loan Calculator
-function EmiLoanCalculatorSub({
-  currency,
-  onCopy,
-  copied,
-}: {
-  currency: string;
-  onCopy: (txt: string) => void;
-  copied: boolean;
-}) {
-  const [loanAmount, setLoanAmount] = useState<number>(250000);
-  const [interestRate, setInterestRate] = useState<number>(7.5);
-  const [tenureYears, setTenureYears] = useState<number>(15);
-
-  const emiData = useMemo(() => {
-    const p = loanAmount;
-    const r = interestRate / 12 / 100;
-    const n = tenureYears * 12;
-
-    if (r === 0) {
-      const emi = p / n;
-      return { emi, totalPayment: p, totalInterest: 0, n };
-    }
-
-    const emi = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-    const totalPayment = emi * n;
-    const totalInterest = totalPayment - p;
-
-    return { emi, totalPayment, totalInterest, n };
-  }, [loanAmount, interestRate, tenureYears]);
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
-        <div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Landmark className="w-5 h-5 text-blue-500" /> EMI & Loan Calculator
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Calculate equal monthly loan installments and total interest overhead.
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-4">
-          <div>
-            <div className="flex justify-between text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
-              <span>Loan Amount ({currency})</span>
-              <span className="font-bold text-slate-900 dark:text-white">{currency}{loanAmount.toLocaleString()}</span>
-            </div>
-            <input
-              type="range"
-              min={10000}
-              max={1000000}
-              step={5000}
-              value={loanAmount}
-              onChange={(e) => setLoanAmount(Number(e.target.value))}
-              className="w-full accent-blue-600"
-            />
-          </div>
-
-          <div>
-            <div className="flex justify-between text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
-              <span>Annual Interest Rate (%)</span>
-              <span className="font-bold text-slate-900 dark:text-white">{interestRate}%</span>
-            </div>
-            <input
-              type="range"
-              min={1}
-              max={25}
-              step={0.1}
-              value={interestRate}
-              onChange={(e) => setInterestRate(Number(e.target.value))}
-              className="w-full accent-blue-600"
-            />
-          </div>
-
-          <div>
-            <div className="flex justify-between text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
-              <span>Tenure (Years)</span>
-              <span className="font-bold text-slate-900 dark:text-white">{tenureYears} Years</span>
-            </div>
-            <input
-              type="range"
-              min={1}
-              max={30}
-              step={1}
-              value={tenureYears}
-              onChange={(e) => setTenureYears(Number(e.target.value))}
-              className="w-full accent-blue-600"
-            />
-          </div>
-        </div>
-
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900 to-blue-950 text-white space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider">
-              Loan Repayment Breakdown
-            </span>
-            <button
-              onClick={() =>
-                onCopy(
-                  `Monthly EMI: ${currency}${emiData.emi.toFixed(2)} | Total Interest: ${currency}${emiData.totalInterest.toFixed(2)}`
-                )
-              }
-              className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-all text-xs flex items-center gap-1.5"
-            >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-              {copied ? "Copied" : "Copy"}
-            </button>
-          </div>
-
-          <div>
-            <span className="text-xs text-slate-300 block">Monthly EMI Payment</span>
-            <div className="text-3xl font-extrabold text-emerald-400">
-              {currency}
-              {emiData.emi.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 text-xs border-t border-white/10 pt-3">
-            <div>
-              <span className="text-slate-400 block">Principal Amount</span>
-              <span className="font-semibold text-white">{currency}{loanAmount.toLocaleString()}</span>
-            </div>
-            <div>
-              <span className="text-slate-400 block">Total Interest</span>
-              <span className="font-semibold text-amber-400">{currency}{emiData.totalInterest.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// 9. Salary Calculator
-function SalaryCalculatorSub({
-  currency,
-  onCopy,
-  copied,
-}: {
-  currency: string;
-  onCopy: (txt: string) => void;
-  copied: boolean;
-}) {
-  const [wageMode, setWageMode] = useState<"hourly" | "annual">("hourly");
-  const [amount, setAmount] = useState<number>(45);
-  const [hoursPerWeek, setHoursPerWeek] = useState<number>(40);
-  const [taxBracket, setTaxBracket] = useState<number>(20);
-
-  const salaryData = useMemo(() => {
-    let annualGross = 0;
-    if (wageMode === "hourly") {
-      annualGross = amount * hoursPerWeek * 52;
-    } else {
-      annualGross = amount;
-    }
-
-    const monthlyGross = annualGross / 12;
-    const biweeklyGross = annualGross / 26;
-    const weeklyGross = annualGross / 52;
-
-    const annualTax = (taxBracket / 100) * annualGross;
-    const annualNet = annualGross - annualTax;
-    const monthlyNet = annualNet / 12;
-
-    return { annualGross, monthlyGross, biweeklyGross, weeklyGross, annualNet, monthlyNet };
-  }, [wageMode, amount, hoursPerWeek, taxBracket]);
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
-        <div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-blue-500" /> Salary & Hourly Wage Converter
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Convert hourly wages to annual pay and calculate net take-home salary.
-          </p>
-        </div>
-      </div>
-
-      <div className="flex gap-2">
-        <button
-          onClick={() => {
-            setWageMode("hourly");
-            setAmount(45);
-          }}
-          className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
-            wageMode === "hourly"
-              ? "border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400"
-              : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400"
-          }`}
-        >
-          Hourly Wage
-        </button>
-        <button
-          onClick={() => {
-            setWageMode("annual");
-            setAmount(90000);
-          }}
-          className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
-            wageMode === "annual"
-              ? "border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400"
-              : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400"
-          }`}
-        >
-          Annual Salary
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-4">
-          <div>
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-              {wageMode === "hourly" ? `Hourly Wage Rate (${currency})` : `Annual Gross Salary (${currency})`}
-            </label>
-            <input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-              Hours Per Week
-            </label>
-            <input
-              type="number"
-              value={hoursPerWeek}
-              onChange={(e) => setHoursPerWeek(Number(e.target.value))}
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-              Estimated Tax Deduction (%)
-            </label>
-            <input
-              type="number"
-              value={taxBracket}
-              onChange={(e) => setTaxBracket(Number(e.target.value))}
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-            />
-          </div>
-        </div>
-
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-900 to-slate-900 text-white space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider">
-              Compensation Summary
-            </span>
-            <button
-              onClick={() =>
-                onCopy(
-                  `Annual Gross: ${currency}${salaryData.annualGross.toFixed(2)} | Net Monthly: ${currency}${salaryData.monthlyNet.toFixed(2)}`
-                )
-              }
-              className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-all text-xs flex items-center gap-1.5"
-            >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-              {copied ? "Copied" : "Copy"}
-            </button>
-          </div>
-
-          <div>
-            <span className="text-xs text-slate-300 block">Annual Gross Salary</span>
-            <div className="text-3xl font-extrabold text-white">
-              {currency}
-              {salaryData.annualGross.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 text-xs border-t border-white/10 pt-3">
-            <div>
-              <span className="text-slate-400 block">Monthly Net Take-Home</span>
-              <span className="font-semibold text-emerald-400">{currency}{salaryData.monthlyNet.toFixed(2)}</span>
-            </div>
-            <div>
-              <span className="text-slate-400 block">Bi-Weekly Gross</span>
-              <span className="font-semibold text-white">{currency}{salaryData.biweeklyGross.toFixed(2)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// 10. Compound Interest Calculator
-function CompoundInterestCalculatorSub({
-  currency,
-  onCopy,
-  copied,
-}: {
-  currency: string;
-  onCopy: (txt: string) => void;
-  copied: boolean;
-}) {
-  const [initialDeposit, setInitialDeposit] = useState<number>(5000);
-  const [monthlyContribution, setMonthlyContribution] = useState<number>(300);
-  const [interestRate, setInterestRate] = useState<number>(8);
-  const [years, setYears] = useState<number>(10);
-
-  const compoundData = useMemo(() => {
-    let total = initialDeposit;
-    let totalDeposited = initialDeposit;
-
-    for (let month = 1; month <= years * 12; month++) {
-      total += monthlyContribution;
-      totalDeposited += monthlyContribution;
-      total += total * (interestRate / 100 / 12);
-    }
-
-    const interestEarned = total - totalDeposited;
-    return { finalBalance: total, totalDeposited, interestEarned };
-  }, [initialDeposit, monthlyContribution, interestRate, years]);
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
-        <div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-blue-500" /> Compound Interest & Wealth Forecast
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Simulate future wealth accumulation with compounding returns and recurring contributions.
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-4">
-          <div>
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-              Initial Principal ({currency})
-            </label>
-            <input
-              type="number"
-              value={initialDeposit}
-              onChange={(e) => setInitialDeposit(Number(e.target.value))}
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-              Monthly Contribution ({currency})
-            </label>
-            <input
-              type="number"
-              value={monthlyContribution}
-              onChange={(e) => setMonthlyContribution(Number(e.target.value))}
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-                Annual Return (%)
-              </label>
-              <input
-                type="number"
-                value={interestRate}
-                onChange={(e) => setInterestRate(Number(e.target.value))}
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
-                Horizon (Years)
-              </label>
-              <input
-                type="number"
-                value={years}
-                onChange={(e) => setYears(Number(e.target.value))}
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900 to-blue-950 text-white space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider">
-              Future Wealth Value ({years} Yrs)
-            </span>
-            <button
-              onClick={() =>
-                onCopy(
-                  `Future Balance: ${currency}${compoundData.finalBalance.toFixed(2)} | Interest Earned: ${currency}${compoundData.interestEarned.toFixed(2)}`
-                )
-              }
-              className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-all text-xs flex items-center gap-1.5"
-            >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-              {copied ? "Copied" : "Copy"}
-            </button>
-          </div>
-
-          <div>
-            <div className="text-3xl font-extrabold text-emerald-400">
-              {currency}
-              {compoundData.finalBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-            </div>
-            <p className="text-xs text-blue-200 mt-1">
-              Interest Growth: +{currency}{compoundData.interestEarned.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 text-xs border-t border-white/10 pt-3">
-            <div>
-              <span className="text-slate-400 block">Total Principal Invested</span>
-              <span className="font-semibold text-white">{currency}{compoundData.totalDeposited.toLocaleString()}</span>
-            </div>
-            <div>
-              <span className="text-slate-400 block">Compounding Growth Ratio</span>
-              <span className="font-semibold text-emerald-400">
-                {((compoundData.interestEarned / compoundData.totalDeposited) * 100).toFixed(1)}%
-              </span>
-            </div>
-          </div>
+          <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider block">Converted Output</span>
+          <div className="text-3xl font-extrabold text-white">{result.toLocaleString(undefined, { maximumFractionDigits: 4 })} {toUnit}</div>
+          <p className="text-xs text-blue-200">{val} {fromUnit} = {result.toFixed(4)} {toUnit}</p>
         </div>
       </div>
     </div>

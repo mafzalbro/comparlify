@@ -88,6 +88,14 @@ export const CATEGORIES = {
       strategic: "Strategic Creator Calculators",
     },
   },
+  web: {
+    name: "Web & SEO Tools",
+    description: "Deterministic technical SEO inspectors, HTTP diagnostics, DNS analyzers, Open Graph preview studios, and Schema JSON-LD builders.",
+    subcategories: {
+      diagnostics: "Network & HTTP Diagnostics",
+      seo: "SEO & Social Optimization",
+    },
+  },
   ai: {
     name: "AI Assistants",
     description: "Legacy creator-first artificial intelligence tools for learning, outlines, and curriculum design.",
@@ -1343,6 +1351,199 @@ export const TOOLS: ToolDefinition[] = [
       { question: "What is the formula for compound interest?", answer: "A = P(1 + r/n)^(nt), where P is principal, r is annual rate, n is compounding frequency, and t is time in years." }
     ],
     relatedTools: ["emi-loan-calculator", "salary-calculator"]
+  },
+
+  // ── WEB & SEO TOOLS (BATCH 6) ──
+  // 61. URL Analyzer
+  {
+    id: "url-analyzer",
+    title: "URL Analyzer & Intelligence",
+    description: "Parse URLs into protocols, hostnames, ports, path segments, and query parameters. Normalize URLs, construct UTM links, and detect security parameters.",
+    category: "web" as any,
+    subcategory: "diagnostics",
+    slug: "url-analyzer",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "URL Analyzer & Query Parameter Parser | Comparlify",
+    metaDescription: "Parse web URLs into components, inspect query parameter tables, build UTM parameters, and normalize web addresses in real time.",
+    whatIsIt: "A URL analysis engine that decomposes URLs into RFC 3986 tokens, validates query key-value pairs, builds UTM tracking strings, and generates canonical formats.",
+    howToUse: "Paste any web URL to view a structured breakdown of protocols, hosts, paths, query tables, and canonical variations.",
+    example: "https://example.com/blog/article?utm_source=twitter&ref=123#header -> Host: example.com, Query: { utm_source: 'twitter', ref: '123' }",
+    faqs: [
+      { question: "What is URL normalization?", answer: "URL normalization converts web addresses into a standard canonical format by removing trailing slashes, sorting query params, and lowercasing domain names." }
+    ],
+    relatedTools: ["http-status-checker", "meta-tag-analyzer"]
+  },
+  // 62. HTTP Status Checker
+  {
+    id: "http-status-checker",
+    title: "HTTP Status Checker & Diagnostics",
+    description: "Test HTTP response codes, trace 301/302 redirect chains, measure server latency, and inspect security/cache response headers.",
+    category: "web" as any,
+    subcategory: "diagnostics",
+    slug: "http-status-checker",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "HTTP Status Checker & Redirect Chain Visualizer | Comparlify",
+    metaDescription: "Check HTTP status codes (200, 301, 404, 500), trace multi-step redirect chains, inspect HTTP response headers, and benchmark server latency.",
+    whatIsIt: "A server diagnostic tool that makes HTTP HEAD/GET requests to test status codes, map redirect paths, and evaluate response headers.",
+    howToUse: "Enter a URL to trigger the diagnostic agent. Review the HTTP status code, redirect steps, response headers, and latency timers.",
+    faqs: [
+      { question: "Why are HTTP redirect chains harmful for SEO?", answer: "Multi-step redirects slow down page loading speeds and exhaust search engine crawl budgets." }
+    ],
+    relatedTools: ["dns-lookup", "url-analyzer"]
+  },
+  // 63. DNS Lookup
+  {
+    id: "dns-lookup",
+    title: "DNS Lookup & Analyzer",
+    description: "Query DNS records (A, AAAA, CNAME, MX, TXT, NS, SOA, CAA, SRV, PTR) and inspect SPF, DKIM, and DMARC mail configurations.",
+    category: "web" as any,
+    subcategory: "diagnostics",
+    slug: "dns-lookup",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "DNS Lookup & Record Analyzer Online | Comparlify",
+    metaDescription: "Inspect DNS records for any domain: A, AAAA, MX, TXT, CNAME, NS, CAA, and SOA. Validate email security setups including SPF and DMARC.",
+    whatIsIt: "A DNS query utility that interfaces with authoritative nameservers to resolve domain records and audit email authentication standards.",
+    howToUse: "Type a domain name (e.g. example.com), pick record types or select 'All Records', and execute the lookup.",
+    faqs: [
+      { question: "What are SPF and DMARC records?", answer: "SPF and DMARC are TXT records that verify authorized mail servers to prevent email domain spoofing." }
+    ],
+    relatedTools: ["ip-lookup", "http-status-checker"]
+  },
+  // 64. IP Address Lookup
+  {
+    id: "ip-lookup",
+    title: "IP Address Lookup & CIDR Calculator",
+    description: "Identify IPv4 and IPv6 properties, reverse DNS, network ASN, public/private classification, and calculate CIDR subnet ranges.",
+    category: "web" as any,
+    subcategory: "diagnostics",
+    slug: "ip-lookup",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "IP Address Lookup & Subnet CIDR Calculator | Comparlify",
+    metaDescription: "Lookup IP address details, reverse DNS, ASN information, and calculate CIDR subnets and netmask ranges in real time.",
+    whatIsIt: "A network IP utility providing IP classification, reverse DNS PTR resolution, and CIDR prefix calculations.",
+    howToUse: "Input an IP address (or CIDR string like 192.168.1.0/24) to calculate usable IP ranges and network masks.",
+    faqs: [
+      { question: "What is CIDR notation?", answer: "CIDR (Classless Inter-Domain Routing) defines network subnets by specifying the number of leading routing bits in an IP address." }
+    ],
+    relatedTools: ["dns-lookup", "user-agent-parser"]
+  },
+  // 65. User-Agent Parser
+  {
+    id: "user-agent-parser",
+    title: "User-Agent Parser",
+    description: "Parse raw User-Agent header strings into Browser, Version, OS, Device, Engine, Bot/Crawler detection, and Client Hints JSON.",
+    category: "web" as any,
+    subcategory: "diagnostics",
+    slug: "user-agent-parser",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "User-Agent Parser & Device Inspector | Comparlify",
+    metaDescription: "Parse User-Agent strings to identify browser name, version, operating system, rendering engine, device type, and crawler bot signatures.",
+    whatIsIt: "A deterministic user-agent parser that translates browser request headers into structured JSON metadata.",
+    howToUse: "Paste a User-Agent string (or click 'Use My Current Browser') to inspect detailed client hardware and browser attributes.",
+    faqs: [
+      { question: "Can it detect search engine bots?", answer: "Yes, it recognizes signatures for Googlebot, Bingbot, DuckDuckBot, YandexBot, and common web crawlers." }
+    ],
+    relatedTools: ["url-analyzer", "http-status-checker"]
+  },
+  // 66. Meta Tag Analyzer
+  {
+    id: "meta-tag-analyzer",
+    title: "Meta Tag Analyzer & SEO Inspector",
+    description: "Inspect HTML meta tags (<title>, description, canonical, robots, viewport, language, Open Graph) and view raw HTML snippets.",
+    category: "web" as any,
+    subcategory: "seo",
+    slug: "meta-tag-analyzer",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Meta Tag Analyzer & SEO Inspector | Comparlify",
+    metaDescription: "Audit webpage HTML meta tags, title lengths, descriptions, canonical references, robots rules, and Open Graph tags with health scores.",
+    whatIsIt: "An HTML parser that fetches web pages, extracts head metadata, evaluates title/description lengths, and identifies missing SEO tags.",
+    howToUse: "Enter a URL or paste raw HTML markup to generate a technical SEO health report.",
+    faqs: [
+      { question: "What is the ideal meta title length?", answer: "Meta titles should be between 50 to 60 characters (or under 600 pixels) to avoid truncation in Google search results." }
+    ],
+    relatedTools: ["open-graph-preview", "robots-txt-generator"]
+  },
+  // 67. Robots.txt Generator & Tester
+  {
+    id: "robots-txt-generator",
+    title: "Robots.txt Generator & Playground",
+    description: "Build and test robots.txt files. Validate user-agent rules, disallow/allow precedence, sitemap declarations, and test path URLs.",
+    category: "web" as any,
+    subcategory: "seo",
+    slug: "robots-txt-generator",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Robots.txt Generator & Interactive Tester Playground | Comparlify",
+    metaDescription: "Generate valid robots.txt files and test path accessibility. Validate Allow/Disallow precedence rules for Googlebot and web crawlers.",
+    whatIsIt: "An interactive robots.txt development playground that tests target URLs against custom robots.txt directive blocks.",
+    howToUse: "Add Allow/Disallow rules for different User-Agents, enter a test URL (e.g. `/admin/users`), and see if access is allowed or blocked.",
+    faqs: [
+      { question: "Does Allow take precedence over Disallow?", answer: "In standard Googlebot parsing, if both Allow and Disallow rules match, the longer pattern match takes precedence." }
+    ],
+    relatedTools: ["sitemap-generator", "meta-tag-analyzer"]
+  },
+  // 68. Sitemap Generator & Validator
+  {
+    id: "sitemap-generator",
+    title: "Sitemap Generator & Validator",
+    description: "Crawl web pages, discover internal links, detect broken URLs/noindex tags, and generate standard XML sitemaps or sitemap index files.",
+    category: "web" as any,
+    subcategory: "seo",
+    slug: "sitemap-generator",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "XML Sitemap Generator & Crawler Validator | Comparlify",
+    metaDescription: "Crawl websites to discover URLs, detect broken links and noindex tags, and build compliant XML sitemaps and sitemap index archives.",
+    whatIsIt: "A website crawler and XML sitemap builder that identifies crawlable pages and validates sitemap XML formatting against official schemas.",
+    howToUse: "Type a website domain to initiate link discovery, review URL status codes, and download your `sitemap.xml` file.",
+    faqs: [
+      { question: "How many URLs can a single XML sitemap contain?", answer: "A single XML sitemap file can hold up to 50,000 URLs or 50MB in size before requiring a Sitemap Index file." }
+    ],
+    relatedTools: ["robots-txt-generator", "meta-tag-analyzer"]
+  },
+  // 69. Open Graph Preview Generator
+  {
+    id: "open-graph-preview",
+    title: "Open Graph Preview & Social Studio",
+    description: "Preview social share cards for Facebook, X (Twitter), LinkedIn, and Discord. Edit title, description, and images in real time to generate HTML meta tags.",
+    category: "web" as any,
+    subcategory: "seo",
+    slug: "open-graph-preview",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Open Graph Preview Studio - Facebook, Twitter, LinkedIn | Comparlify",
+    metaDescription: "Preview how your links appear when shared on Facebook, Twitter/X, LinkedIn, and Discord. Edit Open Graph tags live and copy HTML markup.",
+    whatIsIt: "A visual social card studio that renders realistic previews for major social platforms while generating compliant `<meta property=\"og:...\">` tags.",
+    howToUse: "Enter a URL to fetch metadata or type custom titles, descriptions, and image URLs to preview card designs live across platforms.",
+    faqs: [
+      { question: "What are the ideal Open Graph image dimensions?", answer: "The recommended Open Graph image size is 1200 x 630 pixels with a 1.91:1 aspect ratio." }
+    ],
+    relatedTools: ["meta-tag-analyzer", "schema-markup-generator"]
+  },
+  // 70. Schema Markup Generator & Validator
+  {
+    id: "schema-markup-generator",
+    title: "Schema Markup Generator & Validator",
+    description: "Form-driven JSON-LD structured data builder for Article, Product, FAQPage, LocalBusiness, Organization, Person, Event, and Course schemas.",
+    category: "web" as any,
+    subcategory: "seo",
+    slug: "schema-generator",
+    status: "Live",
+    tag: "🔥",
+    metaTitle: "Schema Markup Generator (JSON-LD) & Validator | Comparlify",
+    metaDescription: "Create and validate JSON-LD structured data for Articles, Products, FAQs, Businesses, and Events. Form-driven schema builder with syntax validation.",
+    whatIsIt: "A form-driven JSON-LD schema builder that constructs Schema.org compliant structured data for search engine rich snippets.",
+    howToUse: "Choose a Schema type (e.g. Article or Product), fill in required fields, and copy or download the validated `<script type=\"application/ld+json\">` block.",
+    faqs: [
+      { question: "What is JSON-LD?", answer: "JSON-LD (JavaScript Object Notation for Linked Data) is Google's recommended format for adding structured data to web pages." }
+    ],
+    relatedTools: ["meta-tag-analyzer", "open-graph-preview"]
   }
 ];
 
