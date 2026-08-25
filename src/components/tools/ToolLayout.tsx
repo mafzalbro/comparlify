@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { ArrowRight, HelpCircle, FileText, ChevronDown, Check, Copy } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -8,6 +8,7 @@ import { Breadcrumbs } from "@/components/breadcrumb";
 import { MotionDiv } from "@/components/motion-wrapper";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { ToolDefinition, CATEGORIES } from "@/data/tools/registry";
+import { trackToolEvent } from "@/lib/telemetry";
 
 interface ToolLayoutProps {
   tool: ToolDefinition;
@@ -15,6 +16,13 @@ interface ToolLayoutProps {
 }
 
 export function ToolLayout({ tool, children }: ToolLayoutProps) {
+  useEffect(() => {
+    trackToolEvent({
+      toolId: tool.id,
+      category: tool.category,
+      event: "view",
+    });
+  }, [tool.id, tool.category]);
   const categoryMeta = CATEGORIES[tool.category];
   const subcategories = categoryMeta.subcategories as Record<string, string> | undefined;
   const subcategoryName = tool.subcategory && subcategories ? subcategories[tool.subcategory] : undefined;
@@ -35,8 +43,33 @@ export function ToolLayout({ tool, children }: ToolLayoutProps) {
 
   breadcrumbItems.push({ name: tool.title });
 
+  // Generate WebApplication / SoftwareApplication JSON-LD Schema
+  const schemaJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": tool.title,
+    "description": tool.description,
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "All",
+    "offers": {
+      "@type": "Offer",
+      "price": "0.00",
+      "priceCurrency": "USD",
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "Comparlify",
+      "url": "https://www.comparlify.com"
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Structured Data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJsonLd) }}
+      />
       <Breadcrumbs items={breadcrumbItems} className="mb-6 p-0" />
 
       {/* ── Header ─────────────────────────────────────────────────── */}
