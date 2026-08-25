@@ -54,4 +54,6 @@ package-lock.json
 .vscode
 pnpm-lock.yaml
 bun-lock.json
+bun.lockb
+bun.lock
 package-lock.json
