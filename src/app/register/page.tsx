@@ -83,24 +83,24 @@ export default function RegisterPage() {
 
         {/* Form Side */}
         <MotionDiv
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
           className="flex justify-center"
         >
-          <Card className="w-full max-w-md bg-card/60 backdrop-blur-3xl border-primary/20 shadow-2xl rounded-[2.5rem] overflow-hidden p-6 md:p-10">
-            <CardHeader className="text-center p-0 mb-8">
-              <div className="mx-auto w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-6">
-                <UserPlus className="h-7 w-7" />
+          <Card className="w-full max-w-md bg-card/40 backdrop-blur-md border border-border/40 hover:border-border/60 transition-colors shadow-md rounded-2xl overflow-hidden p-6 md:p-8">
+            <CardHeader className="text-center p-0 mb-6">
+              <div className="mx-auto w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-4 shadow-xs">
+                <UserPlus className="h-6 w-6" />
               </div>
-              <CardTitle className="text-3xl font-black tracking-tight text-foreground mb-4">
+              <CardTitle className="text-2xl font-extrabold tracking-tight text-foreground mb-2">
                 Create <span className="text-primary">Account</span>
               </CardTitle>
-              <CardDescription className="text-sm text-muted-foreground font-medium">
+              <CardDescription className="text-xs text-muted-foreground font-medium">
                 Get started in seconds. It's completely free.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6 p-0">
+            <CardContent className="space-y-4 p-0">
               <Suspense
                 fallback={
                   <div className="h-[200px] flex items-center justify-center">

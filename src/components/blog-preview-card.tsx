@@ -41,7 +41,7 @@ export function BlogPreviewCard({ slug }: { slug: string }) {
 
     return (
         <Link href={`/blog/${slug}`} className="block group">
-           <div className="overflow-hidden rounded-md">
+           <div className="overflow-hidden rounded-2xl bg-card/40 backdrop-blur-md border border-border/40 hover:border-border/60 transition-colors shadow-sm">
                 <div className="relative aspect-video">
                     <ManagedImage
                         src={post.image.replace('400/250', '400/225')}
@@ -51,9 +51,9 @@ export function BlogPreviewCard({ slug }: { slug: string }) {
                         className="object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                 </div>
-                <div className="p-3 bg-card">
-                    <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors">{post.title}</h3>
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{post.description}</p>
+                <div className="p-4">
+                    <h3 className="font-extrabold text-sm line-clamp-2 group-hover:text-primary transition-colors leading-snug">{post.title}</h3>
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2 font-medium">{post.description}</p>
                 </div>
            </div>
         </Link>

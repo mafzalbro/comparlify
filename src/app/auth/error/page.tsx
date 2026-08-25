@@ -29,16 +29,16 @@ export default function AuthErrorPage() {
 
 
   return (
-     <Card className="mx-auto max-w-sm">
-        <CardHeader className="text-center">
-          <div className="mx-auto bg-destructive/10 p-3 rounded-full w-max">
-            <AlertTriangle className="h-8 w-8 text-destructive" />
+     <Card className="mx-auto max-w-sm bg-card/40 backdrop-blur-md border border-border/40 rounded-2xl shadow-md p-4">
+        <CardHeader className="text-center p-2">
+          <div className="mx-auto bg-destructive/10 p-2.5 rounded-full w-max">
+            <AlertTriangle className="h-6 w-6 text-destructive" />
           </div>
-          <CardTitle className="text-2xl font-headline mt-4">{title}</CardTitle>
-          <CardDescription>{message}</CardDescription>
+          <CardTitle className="text-xl font-extrabold mt-3">{title}</CardTitle>
+          <CardDescription className="text-xs font-medium">{message}</CardDescription>
         </CardHeader>
-        <CardFooter>
-            <Button asChild className="w-full">
+        <CardFooter className="p-2 pt-4">
+            <Button asChild className="w-full rounded-xl h-10 font-extrabold uppercase tracking-widest text-xs">
                 <Link href="/login">Back to Login</Link>
             </Button>
         </CardFooter>

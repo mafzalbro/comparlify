@@ -68,12 +68,12 @@ export function InlineROICalculator({
   const loser = savings > 0 ? platformA : platformB;
 
   return (
-    <Card className="p-8 bg-card/40 backdrop-blur-3xl border border-border/10 rounded-[2.5rem] shadow-xl overflow-hidden relative group">
-      <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none transition-transform group-hover:scale-110 duration-700">
-        <Calculator className="h-48 w-48" />
+    <Card className="p-6 bg-card/40 backdrop-blur-md border border-border/40 hover:border-border/60 transition-colors rounded-2xl shadow-md overflow-hidden relative group">
+      <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none transition-transform group-hover:scale-105 duration-500">
+        <Calculator className="h-36 w-36" />
       </div>
 
-      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12">
+      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Left Side: Controls */}
         <div className="space-y-8">
           <div className="flex items-center justify-between mb-4">

@@ -69,33 +69,33 @@ export default function UserSettingsPage() {
   const siteName = content["global.siteName"] || "The Site";
 
   return (
-    <div className="max-w-6xl mx-auto space-y-12 pb-24">
-      <header className="space-y-4 px-4">
-        <h2 className="text-3xl font-black text-foreground tracking-tight uppercase">
+    <div className="max-w-6xl mx-auto space-y-6 pb-16">
+      <header className="space-y-1">
+        <h2 className="text-2xl font-extrabold text-foreground tracking-tight uppercase">
           Account <span className="text-primary italic">Settings</span>
         </h2>
-        <p className="text-sm text-muted-foreground font-medium">
+        <p className="text-xs text-muted-foreground font-medium">
           Manage your profile information and preferences.
         </p>
       </header>
 
-      <div className="grid gap-12 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-8">
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2 space-y-6">
           <form action={formAction}>
-            <Card className="bg-card/40 backdrop-blur-3xl border-border/10 rounded-[2.5rem] overflow-hidden shadow-2xl">
-              <CardHeader className="p-10 border-b border-border/5">
-                <CardTitle className="text-2xl font-black uppercase tracking-tight">
+            <Card className="bg-card/40 backdrop-blur-md border border-border/40 hover:border-border/60 transition-colors rounded-2xl overflow-hidden shadow-md">
+              <CardHeader className="p-6 border-b border-border/20">
+                <CardTitle className="text-xl font-extrabold uppercase tracking-tight">
                   Public <span className="text-primary">Identity</span>
                 </CardTitle>
-                <CardDescription className="text-base">
+                <CardDescription className="text-xs font-medium">
                   This information appears on your profile and comments.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-10 space-y-10">
-                <div className="space-y-3">
+              <CardContent className="p-6 space-y-6">
+                <div className="space-y-2">
                   <Label
                     htmlFor="name"
-                    className="text-xs font-black uppercase tracking-widest text-muted-foreground"
+                    className="text-xs font-extrabold uppercase tracking-widest text-muted-foreground"
                   >
                     Display Name
                   </Label>
@@ -103,18 +103,18 @@ export default function UserSettingsPage() {
                     id="name"
                     name="name"
                     defaultValue={user.name ?? ""}
-                    className="h-14 rounded-2xl border-border/10 bg-background/50 focus:bg-background transition-all"
+                    className="h-10 rounded-xl border-border/30 bg-background/50 focus:bg-background transition-all text-xs font-medium"
                   />
                   {typeof state.error !== "string" && state.error?.name && (
-                    <p className="text-xs font-bold text-destructive uppercase tracking-widest pl-2">
+                    <p className="text-[10px] font-bold text-destructive uppercase tracking-widest pl-1">
                       {state.error.name[0]}
                     </p>
                   )}
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <Label
                     htmlFor="email"
-                    className="text-xs font-black uppercase tracking-widest text-muted-foreground"
+                    className="text-xs font-extrabold uppercase tracking-widest text-muted-foreground"
                   >
                     Email Address
                   </Label>
@@ -123,34 +123,34 @@ export default function UserSettingsPage() {
                     name="email"
                     value={user.email ?? ""}
                     disabled
-                    className="h-14 rounded-2xl border-border/10 bg-muted/20 opacity-50 cursor-not-allowed"
+                    className="h-10 rounded-xl border-border/20 bg-muted/20 opacity-60 cursor-not-allowed text-xs font-medium"
                   />
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-2">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-1">
                     Your email address cannot be changed.
                   </p>
                 </div>
               </CardContent>
 
-              <div className="h-px bg-border/5" />
+              <div className="h-px bg-border/20" />
 
-              <CardHeader className="p-10 pb-4">
-                <CardTitle className="text-2xl font-black uppercase tracking-tight">
+              <CardHeader className="p-6 pb-2">
+                <CardTitle className="text-xl font-extrabold uppercase tracking-tight">
                   Email <span className="text-primary">Preferences</span>
                 </CardTitle>
-                <CardDescription className="text-base">
+                <CardDescription className="text-xs font-medium">
                   Manage your email notification and newsletter settings.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-10 pt-0">
-                <div className="flex items-center justify-between rounded-3xl bg-secondary/5 border border-border/5 p-8 group hover:border-primary/20 transition-all">
-                  <div className="space-y-2">
+              <CardContent className="p-6 pt-2">
+                <div className="flex items-center justify-between rounded-xl bg-background/50 border border-border/20 p-4">
+                  <div className="space-y-1">
                     <Label
                       htmlFor="newsletter"
-                      className="text-lg font-black tracking-tight group-hover:text-primary transition-colors"
+                      className="text-sm font-extrabold tracking-tight"
                     >
                       Newsletter
                     </Label>
-                    <p className="text-sm text-muted-foreground leading-relaxed max-w-md">
+                    <p className="text-xs text-muted-foreground leading-relaxed max-w-md font-medium">
                       Receive updates from {siteName} about new comparisons, tools, and platform insights.
                     </p>
                   </div>
@@ -163,27 +163,26 @@ export default function UserSettingsPage() {
                 </div>
               </CardContent>
 
-              <CardFooter className="p-10 bg-secondary/5 border-t border-border/5 flex justify-end">
+              <CardFooter className="p-6 bg-secondary/10 border-t border-border/20 flex justify-end">
                 <SubmitButton
                   isEditing={true}
                   editingText="Save Changes"
-                  // className="h-14 px-10 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20"
                 />
               </CardFooter>
             </Card>
           </form>
         </div>
 
-        <div className="lg:col-span-1 space-y-8">
-          <Card className="border-destructive/20 bg-destructive/2 backdrop-blur-3xl rounded-[2.5rem] overflow-hidden shadow-2xl group min-h-[200px]">
-            <CardHeader className="p-10 pb-4">
-              <CardTitle className="text-2xl font-black uppercase tracking-tight text-destructive flex items-center gap-3">
-                <Loader2 className="h-6 w-6 group-hover:animate-spin transition-all" />
+        <div className="lg:col-span-1 space-y-6">
+          <Card className="border-destructive/30 bg-card/40 backdrop-blur-md rounded-2xl overflow-hidden shadow-md group">
+            <CardHeader className="p-6 pb-2">
+              <CardTitle className="text-lg font-extrabold uppercase tracking-tight text-destructive flex items-center gap-2">
+                <Loader2 className="h-5 w-5 group-hover:animate-spin transition-all" />
                 Danger Zone
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-10 pt-0 space-y-6">
-              <p className="text-sm text-muted-foreground font-medium leading-relaxed">
+            <CardContent className="p-6 pt-2 space-y-4">
+              <p className="text-xs text-muted-foreground font-medium leading-relaxed">
                 Permanently delete your account and all of your data. This action cannot be undone.
               </p>
               <DeleteAccountDialog />

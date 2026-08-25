@@ -66,29 +66,29 @@ export default async function SearchPage(props: {
   return (
     <div className="bg-background min-h-screen">
       {/* Premium Search Hero */}
-      <section className="relative pt-12 pb-16 overflow-hidden">
+      <section className="relative pt-8 pb-10 overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-30"></div>
         <div className="container mx-auto relative z-10 px-4 md:px-6">
           <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.5 }}
           >
-            <div className="flex flex-col items-center text-center max-w-5xl mx-auto">
+            <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
               <Breadcrumbs
                 items={[{ name: "Home", href: "/" }, { name: "Search" }]}
-                className="mb-8 justify-center"
+                className="mb-4 justify-center"
               />
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary mb-8">
-                <SearchIcon className="h-4 w-4" />
-                <span className="text-sm font-bold uppercase tracking-widest leading-none">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary mb-4">
+                <SearchIcon className="h-3.5 w-3.5" />
+                <span className="text-xs font-bold uppercase tracking-widest leading-none">
                   Intelligence Discovery
                 </span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-black tracking-tight text-foreground leading-none mb-6">
+              <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-foreground leading-tight mb-4">
                 Search <span className="text-primary italic">Results</span>
               </h1>
-              <div className="w-full max-w-2xl mx-auto">
+              <div className="w-full max-w-xl mx-auto">
                 <Suspense>
                   <SearchInput initialQuery={query} />
                 </Suspense>
@@ -98,7 +98,7 @@ export default async function SearchPage(props: {
         </div>
       </section>
 
-      <div className="container mx-auto py-24 px-4 md:px-6 max-w-7xl">
+      <div className="container mx-auto py-10 px-4 md:px-6 max-w-7xl">
         {query ? (
           totalResults > 0 ? (
             <div className="space-y-16">

@@ -55,31 +55,27 @@ export default async function BlogPage(props: {
   return (
     <div className="bg-background min-h-screen">
       {/* --- HERO SECTION --- */}
-      <section className="relative pt-16 pb-12 overflow-hidden border-b border-border/10">
+      <section className="relative pt-10 pb-8 overflow-hidden border-b border-border/20">
         <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-30"></div>
-        <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
-          <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-primary/10 rounded-full blur-[150px]"></div>
-          <div className="absolute bottom-[20%] -right-[10%] w-[40%] h-[40%] bg-blue-500/5 rounded-full blur-[120px]"></div>
-        </div>
 
         <div className="container mx-auto relative z-10 px-4 md:px-6">
           <MotionDiv
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.5 }}
           >
-            <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
+            <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
               <Breadcrumbs
                 items={[{ name: "Home", href: "/" }, { name: "Insights" }]}
-                className="mb-6 justify-center"
+                className="mb-4 justify-center"
               />
-              <h1 className="text-3xl md:text-5xl font-bold text-foreground tracking-tight mb-4">
+              <h1 className="text-2xl md:text-4xl font-extrabold text-foreground tracking-tight mb-2">
                 Creator{" "}
                 <span className="text-amber-500 italic font-semibold">
                   Insights
                 </span>
               </h1>
-              <p className="text-base md:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto font-medium">
+              <p className="text-sm md:text-base text-muted-foreground leading-relaxed max-w-xl mx-auto font-medium">
                 {content["blog.hero.subtitle"] ||
                   "Master the art of course creation with curated deep dives and surgical expert perspectives."}
               </p>
@@ -88,7 +84,7 @@ export default async function BlogPage(props: {
         </div>
       </section>
 
-      <div className="container mx-auto py-12 px-4 md:px-6">
+      <div className="container mx-auto py-8 px-4 md:px-6">
         {/* --- DYNAMIC FILTER SECTION --- */}
         <MotionDiv
           initial={{ opacity: 0, y: 10 }}

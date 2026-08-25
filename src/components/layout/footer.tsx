@@ -98,60 +98,57 @@ export default function Footer({ content, siteName }: FooterProps) {
   }
 
   return (
-    <footer className="relative bg-background/50 backdrop-blur-[2px] pt-32 pb-16 overflow-hidden">
+    <footer className="relative bg-background/50 backdrop-blur-md pt-16 pb-10 overflow-hidden border-t border-border/20">
       {/* Background Visuals */}
       <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-10"></div>
 
       <div className="container mx-auto relative z-10 px-4 md:px-6">
-        {/* Newsletter Callout - High Impact */}
+        {/* Newsletter Callout */}
         <MotionDiv
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mb-24 p-6 md:p-10 rounded-4xl bg-card/40 backdrop-blur-3xl border border-primary/20 shadow-xl relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-8"
+          className="mb-12 p-6 md:p-8 rounded-2xl bg-card/40 backdrop-blur-md border border-border/40 hover:border-border/60 transition-colors shadow-lg relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-6"
         >
-          <div className="absolute top-0 right-0 p-12 text-primary/5 -rotate-12 translate-x-12 -translate-y-12 select-none pointer-events-none">
-            <Sparkles className="h-64 w-64" />
+          <div className="absolute top-0 right-0 p-8 text-primary/5 -rotate-12 translate-x-8 -translate-y-8 select-none pointer-events-none">
+            <Sparkles className="h-48 w-48" />
           </div>
 
-          <div className="max-w-xl text-center lg:text-left space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary">
-              <Mail className="h-4 w-4" />
-              <span className="text-[10px] font-black uppercase tracking-widest">
+          <div className="max-w-xl text-center lg:text-left space-y-2">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-primary">
+              <Mail className="h-3.5 w-3.5" />
+              <span className="text-[10px] font-extrabold uppercase tracking-widest">
                 Intelligence Delivery
               </span>
             </div>
-            <h2 className="text-2xl md:text-3xl font-black tracking-tight text-foreground leading-tight uppercase">
-              Stay Ahead of the <br />
-              <span className="text-primary italic">Curve.</span>
+            <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground leading-tight">
+              Stay Ahead of the <span className="text-primary italic">Curve.</span>
             </h2>
-            <p className="text-base text-muted-foreground font-medium">
-              Weekly deep-dives into creator tech and platform shifts, delivered
-              with surgical precision.
+            <p className="text-sm text-muted-foreground font-medium">
+              Weekly deep-dives into creator tech and platform shifts, delivered with surgical precision.
             </p>
           </div>
 
           <div className="w-full max-w-md">
             <form ref={formRef} action={formAction} className="relative group">
-              <div className="absolute -inset-1 bg-primary/20 rounded-2xl blur-lg opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
-              <div className="relative flex p-1.5 bg-background border border-border/10 rounded-2xl shadow-xl justify-center items-center gap-2">
+              <div className="relative flex p-1 bg-background/80 border border-border/30 rounded-xl shadow-md items-center gap-2">
                 <Input
                   name="email"
                   type="email"
                   placeholder="Enter your email address..."
-                  className="bg-transparent border-none h-12 focus-visible:ring-0! text-sm font-medium px-4 mt-0!"
+                  className="bg-transparent border-none h-10 focus-visible:ring-0! text-xs font-medium px-3 mt-0!"
                   required
                 />
                 <SubmitButton />
               </div>
-              <p className="mt-4 text-[10px] text-muted-foreground/60 text-center font-bold uppercase tracking-widest">
+              <p className="mt-2 text-[10px] text-muted-foreground/60 text-center font-bold uppercase tracking-widest">
                 Join 50,000+ creators today.
               </p>
             </form>
           </div>
         </MotionDiv>
 
-        <div className="grid gap-16 md:grid-cols-2 lg:grid-cols-4 mb-20">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4 mb-12">
           <div className="space-y-8">
             <Logo siteName={siteName} />
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xs font-medium">

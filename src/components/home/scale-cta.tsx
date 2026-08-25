@@ -10,53 +10,49 @@ interface ScaleCTAProps {
 
 export function ScaleCTA({ subtitle, buttonText }: ScaleCTAProps) {
   return (
-    <section className="relative overflow-hidden bg-transparent py-16 md:py-20 mt-16">
+    <section className="relative overflow-hidden bg-transparent py-10 md:py-14 mt-8">
       <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-primary/30 to-transparent"></div>
-      <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-[0.01]"></div>
-      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-primary/3 rounded-full blur-[120px]"></div>
-      </div>
 
       <div className="container mx-auto relative z-10 px-4 md:px-6 text-center">
-        <div className="max-w-4xl mx-auto flex flex-col items-center space-y-6">
+        <div className="max-w-2xl mx-auto flex flex-col items-center space-y-4">
           <MotionDiv
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="w-20 h-20 bg-primary/10 rounded-4xl flex items-center justify-center text-primary shadow-2xl shadow-primary/10 animate-bounce"
+            className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shadow-md shadow-primary/10"
           >
-            <Zap className="h-8 w-8 drop-shadow-lg" />
+            <Zap className="h-6 w-6" />
           </MotionDiv>
-          <div className="space-y-6">
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight leading-[0.9] mb-3">
+          <div className="space-y-2">
+            <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">
               Ready to <span className="text-primary italic">Scale?</span>
             </h2>
-            <p className="text-lg md:text-xl text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed">
+            <p className="text-sm text-muted-foreground font-medium max-w-lg mx-auto leading-relaxed">
               {subtitle ||
                 "Stop guessing. Start building with precise creator intelligence."}
             </p>
           </div>
 
           <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-            className="flex flex-col sm:flex-row gap-4 items-center pt-4"
+            transition={{ delay: 0.2 }}
+            className="flex flex-col sm:flex-row gap-3 items-center pt-2"
           >
             <Button
-              size="lg"
-              className="rounded-full px-10 h-14 text-base font-black uppercase tracking-widest shadow-xl shadow-primary/20 group hover:scale-105 active:scale-95 transition-all"
+              size="default"
+              className="rounded-full px-8 h-11 text-xs font-extrabold uppercase tracking-widest shadow-md shadow-primary/20 group hover:scale-102 active:scale-98 transition-all"
               asChild
             >
               <NextLink href="/register">
                 {buttonText || "Initialize Account"}
-                <ArrowRight className="ml-3 h-5 w-5 transition-transform group-hover:translate-x-3" />
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </NextLink>
             </Button>
             <NextLink
               href="/login"
-              className="text-sm font-black text-muted-foreground hover:text-primary transition-all uppercase tracking-widest"
+              className="text-xs font-bold text-muted-foreground hover:text-primary transition-all uppercase tracking-widest"
             >
               Existing User Access
             </NextLink>

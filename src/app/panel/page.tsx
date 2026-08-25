@@ -47,7 +47,7 @@ export const dynamic = "force-dynamic";
 function PostBookmarkCard({ post }: { post: Post }) {
   const readTime = Math.ceil(post.content.split(/\s+/).length / 200);
   return (
-    <Card className="flex flex-col group bg-card/60 backdrop-blur-lg border-border/20 shadow-md hover:shadow-xl transition-shadow duration-300">
+    <Card className="flex flex-col group bg-card/40 backdrop-blur-md border border-border/40 hover:border-border/60 transition-colors shadow-sm rounded-2xl overflow-hidden">
       <div className="relative overflow-hidden aspect-[16/10]">
         <Link href={`/blog/${post.slug}`} className="block">
           <ManagedImage
@@ -55,38 +55,38 @@ function PostBookmarkCard({ post }: { post: Post }) {
             alt={post.title}
             data-ai-hint={post.dataAiHint ?? ""}
             fill
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         </Link>
       </div>
-      <CardHeader>
-        <CardTitle className="font-headline text-lg line-clamp-2">
+      <CardHeader className="p-4 pb-2">
+        <CardTitle className="text-base font-extrabold line-clamp-2 leading-snug">
           <Link
             href={`/blog/${post.slug}`}
-            className="hover:text-primary transition-colors stretched-link"
+            className="hover:text-primary transition-colors"
           >
             {post.title}
           </Link>
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-1">
-        <p className="text-muted-foreground text-sm line-clamp-2">
+      <CardContent className="px-4 flex-1">
+        <p className="text-muted-foreground text-xs line-clamp-2 font-medium">
           {post.description}
         </p>
       </CardContent>
-      <CardFooter className="flex justify-between items-center bg-secondary/20 py-3 px-6">
-        <div className="text-sm text-muted-foreground">
+      <CardFooter className="flex justify-between items-center bg-secondary/20 py-2.5 px-4 mt-3">
+        <div className="text-xs text-muted-foreground font-medium">
           <span>{readTime} min read</span>
         </div>
         <Button
           asChild
           variant="ghost"
           size="sm"
-          className="group-hover:text-primary -mr-3"
+          className="group-hover:text-primary text-xs font-bold -mr-2"
         >
           <Link href={`/blog/${post.slug}`}>
             Read More{" "}
-            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="ml-1.5 h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
           </Link>
         </Button>
       </CardFooter>
@@ -100,48 +100,48 @@ function ComparisonBookmarkCard({
   comparison: Comparison & { platformA: Platform; platformB: Platform };
 }) {
   return (
-    <Card className="flex flex-col group overflow-hidden transition-all duration-300 hover:shadow-xl h-full">
+    <Card className="flex flex-col group overflow-hidden bg-card/40 backdrop-blur-md border border-border/40 hover:border-border/60 transition-colors shadow-sm rounded-2xl h-full">
       <CardHeader className="p-4">
-        <div className="relative h-16">
+        <div className="relative h-12">
           <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center">
             <ManagedImage
               src={comparison.platformA.logoUrl}
               alt={`${comparison.platformA.name} logo`}
-              width={120}
-              height={35}
-              className="object-contain"
+              width={100}
+              height={30}
+              className="object-contain h-7 w-auto"
             />
           </div>
           <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center">
             <ManagedImage
               src={comparison.platformB.logoUrl}
               alt={`${comparison.platformB.name} logo`}
-              width={120}
-              height={35}
-              className="object-contain"
+              width={100}
+              height={30}
+              className="object-contain h-7 w-auto"
             />
           </div>
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="bg-background text-muted-foreground rounded-full p-1.5 border shadow-inner">
-              <span className="font-mono text-xs">VS</span>
+            <div className="bg-background text-muted-foreground rounded-full p-1 border shadow-xs">
+              <span className="font-mono text-[10px] font-bold">VS</span>
             </div>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="flex-1 px-4 pb-4 space-y-2">
-        <h3 className="font-headline text-lg text-center text-foreground h-12 line-clamp-2">
+      <CardContent className="flex-1 px-4 pb-3 space-y-2">
+        <h3 className="text-sm font-extrabold text-center text-foreground line-clamp-2 leading-snug">
           <Link
             href={`/compare/${comparison.slug}`}
-            className="hover:text-primary transition-colors stretched-link"
+            className="hover:text-primary transition-colors"
           >
             {comparison.title}
           </Link>
         </h3>
       </CardContent>
-      <CardFooter className="p-2 bg-secondary/30">
-        <Button asChild className="w-full" variant="ghost">
+      <CardFooter className="p-2 bg-secondary/20">
+        <Button asChild className="w-full text-xs font-extrabold uppercase tracking-widest" variant="ghost">
           <Link href={`/compare/${comparison.slug}`}>
-            View Comparison <ArrowRight className="ml-2 h-4 w-4" />
+            View Comparison <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
           </Link>
         </Button>
       </CardFooter>
@@ -162,22 +162,22 @@ export default async function UserPanelDashboard(props: {
   const activeTab = searchParams.view || "posts";
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Welcome, {session.user.name}!</h1>
-        <p className="text-muted-foreground">
+    <div className="space-y-6 max-w-6xl mx-auto">
+      <div className="space-y-1">
+        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">Welcome, {session.user.name}!</h1>
+        <p className="text-sm text-muted-foreground font-medium">
           This is your personal dashboard. Here you can find your saved items.
         </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>My Bookmarks</CardTitle>
-          <CardDescription>
+      <Card className="bg-card/40 backdrop-blur-md border border-border/40 hover:border-border/60 transition-colors shadow-md rounded-2xl">
+        <CardHeader className="p-6 pb-3">
+          <CardTitle className="text-xl font-extrabold">My Bookmarks</CardTitle>
+          <CardDescription className="text-xs font-medium">
             All your saved posts and comparisons in one place.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6 pt-0">
           {hasBookmarks ? (
             <Tabs defaultValue={activeTab as string}>
               <TabsList>

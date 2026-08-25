@@ -20,20 +20,20 @@ export function IntelligenceVerdict({
   const winner = isPlatformAWinner ? platformAName : platformBName;
 
   return (
-    <section className="bg-background border-2 border-primary/20 p-1 rounded-[3rem] shadow-2xl relative overflow-hidden group">
-      <div className="bg-primary/5 p-10 md:p-14 rounded-[2.8rem] border border-primary/10 relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-16 text-primary/10 select-none pointer-events-none -rotate-12 translate-x-12 -translate-y-12 transition-transform duration-1000 group-hover:scale-110">
-          <Target className="h-64 w-64" />
+    <section className="bg-card/40 backdrop-blur-md border border-border/40 hover:border-border/60 transition-colors p-6 rounded-2xl shadow-md relative overflow-hidden group">
+      <div className="bg-primary/5 p-6 md:p-8 rounded-xl border border-primary/20 relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-8 text-primary/10 select-none pointer-events-none -rotate-12 translate-x-8 -translate-y-8">
+          <Target className="h-48 w-48" />
         </div>
-        <div className="relative z-10 space-y-10">
-          <div className="flex flex-wrap items-center gap-4">
-            <Badge className="bg-primary px-8 py-3 rounded-full text-primary-foreground text-[11px] font-black uppercase tracking-[0.4em] shadow-2xl border-none">
+        <div className="relative z-10 space-y-6">
+          <div className="flex flex-wrap items-center gap-3">
+            <Badge className="bg-primary px-5 py-2 rounded-full text-primary-foreground text-[10px] font-extrabold uppercase tracking-widest shadow-md border-none">
               Final Verdict
             </Badge>
             {!isCloseCall && (
               <Badge
                 variant="outline"
-                className="px-6 py-2.5 rounded-full border-primary/40 text-primary text-[10px] font-black uppercase tracking-widest backdrop-blur-sm"
+                className="px-4 py-1.5 rounded-full border-primary/40 text-primary text-[10px] font-extrabold uppercase tracking-widest backdrop-blur-xs"
               >
                 Our Pick: {winner}
               </Badge>
@@ -41,15 +41,14 @@ export function IntelligenceVerdict({
             {isCloseCall && (
               <Badge
                 variant="outline"
-                className="px-6 py-2.5 rounded-full border-amber-500/40 text-amber-500 text-[10px] font-black uppercase tracking-widest backdrop-blur-sm"
+                className="px-4 py-1.5 rounded-full border-amber-500/40 text-amber-500 text-[10px] font-extrabold uppercase tracking-widest backdrop-blur-xs"
               >
                 Closely Matched
               </Badge>
             )}
           </div>
-          <h2 className="text-4xl md:text-5xl font-black text-foreground uppercase tracking-tighter leading-[1.1]">
-            The Authoritative <br />
-            <span className="text-primary italic">Verdict.</span>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-foreground tracking-tight leading-tight">
+            The Authoritative <span className="text-primary italic">Verdict.</span>
           </h2>
           <MarkdownContent 
             content={conclusion} 

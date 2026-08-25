@@ -69,13 +69,13 @@ export default async function CategoryPage(props: {
 
   return (
     <div className="bg-background min-h-screen">
-      <header className="relative pt-12 pb-16 overflow-hidden">
+      <header className="relative pt-8 pb-10 overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-30"></div>
         <div className="container mx-auto relative z-10 px-4 md:px-6">
           <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.5 }}
           >
             <Breadcrumbs
               items={[
@@ -83,39 +83,39 @@ export default async function CategoryPage(props: {
                 { name: "Community", href: "/community" },
                 { name: category.name },
               ]}
-              className="mb-8"
+              className="mb-4"
             />
 
-            <div className="flex flex-col md:flex-row justify-between md:items-end gap-8">
-              <div className="max-w-3xl">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary mb-6">
-                  <MessageSquare className="h-4 w-4" />
-                  <span className="text-xs font-black uppercase tracking-widest leading-none">
+            <div className="flex flex-col md:flex-row justify-between md:items-end gap-6">
+              <div className="max-w-2xl">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary mb-4">
+                  <MessageSquare className="h-3.5 w-3.5" />
+                  <span className="text-xs font-bold uppercase tracking-widest leading-none">
                     Forum Category
                   </span>
                 </div>
-                <h1 className="text-4xl md:text-5xl font-black tracking-tight text-foreground leading-tight mb-6">
+                <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-foreground leading-tight mb-3">
                   {category.name}
                 </h1>
-                <p className="text-lg text-muted-foreground leading-relaxed">
+                <p className="text-sm text-muted-foreground leading-relaxed font-medium">
                   {category.description ||
                     "Dive into discussions, share your expertise, and connect with other creators in this dedicated forum space."}
                 </p>
               </div>
 
-              <div className="flex flex-col gap-4 min-w-[200px]">
+              <div className="flex flex-col gap-2 min-w-[180px]">
                 <Button
                   asChild
-                  size="xl"
+                  size="default"
                   disabled={!session?.user}
-                  className="rounded-2xl px-8 h-14 font-black gap-2 shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95"
+                  className="rounded-full px-6 h-11 font-extrabold gap-2 shadow-md shadow-primary/20 transition-all hover:scale-102 active:scale-98 text-xs uppercase tracking-widest"
                 >
                   <Link href={`/community/new-topic?category=${category.id}`}>
-                    <PlusCircle className="h-5 w-5" /> Start Discussion
+                    <PlusCircle className="h-4 w-4" /> Start Discussion
                   </Link>
                 </Button>
                 {!session?.user && (
-                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest text-center md:text-right">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-center md:text-right">
                     Login to Participate
                   </p>
                 )}
@@ -125,26 +125,26 @@ export default async function CategoryPage(props: {
         </div>
       </header>
 
-      <main className="container mx-auto py-12 px-4 md:px-6">
+      <main className="container mx-auto py-8 px-4 md:px-6">
         {/* Category Filters/Sort Bar */}
-        <div className="flex items-center justify-between mb-12 p-6 bg-card/40 backdrop-blur-xl border border-border/10 rounded-4xl shadow-xl">
-          <div className="flex items-center gap-6">
+        <div className="flex items-center justify-between mb-8 p-4 bg-card/40 backdrop-blur-md border border-border/40 hover:border-border/60 transition-colors rounded-2xl shadow-sm">
+          <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 text-primary">
-              <LayoutGrid className="h-5 w-5" />
-              <span className="font-bold tracking-tight">
+              <LayoutGrid className="h-4 w-4" />
+              <span className="font-bold tracking-tight text-sm">
                 Viewing All Topics
               </span>
             </div>
             <div className="h-4 w-px bg-border/20 hidden sm:block"></div>
-            <div className="hidden sm:flex items-center gap-2 text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
-              <Filter className="h-4 w-4" />
-              <span className="text-sm font-bold">Latest First</span>
+            <div className="hidden sm:flex items-center gap-1.5 text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
+              <Filter className="h-3.5 w-3.5" />
+              <span className="text-xs font-bold">Latest First</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Badge
               variant="secondary"
-              className="px-3 py-1 bg-primary/5 text-primary border-primary/10 rounded-lg"
+              className="px-2.5 py-0.5 bg-primary/10 text-primary border-none rounded-full text-xs font-bold"
             >
               {category.topics.length} Discussions
             </Badge>

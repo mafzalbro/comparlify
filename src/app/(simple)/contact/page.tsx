@@ -46,29 +46,29 @@ export default async function ContactPage() {
   return (
     <div className="bg-background min-h-screen">
       {/* Premium Contact Hero */}
-      <section className="relative pt-8 pb-10 overflow-hidden">
+      <section className="relative pt-6 pb-8 overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-30"></div>
         <div className="container mx-auto relative z-10 px-4 md:px-6">
           <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.5 }}
           >
-            <div className="flex flex-col items-center text-center max-w-6xl mx-auto">
+            <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
               <Breadcrumbs
                 items={[{ name: "Home", href: "/" }, { name: "Contact" }]}
-                className="mb-4 justify-center"
+                className="mb-3 justify-center"
               />
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary mb-4">
-                <MessageSquare className="h-4 w-4" />
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary mb-3 shadow-xs">
+                <MessageSquare className="h-3.5 w-3.5" />
                 <span className="text-xs font-bold uppercase tracking-widest leading-none">
                   Support Desk
                 </span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground leading-[1.1] mb-6">
+              <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-foreground leading-tight mb-3">
                 {content["contact.hero.title"]}
               </h1>
-              <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mb-12">
+              <p className="text-sm md:text-base text-muted-foreground leading-relaxed max-w-2xl font-medium mb-6">
                 {content["contact.hero.subtitle"]}
               </p>
             </div>
@@ -76,7 +76,7 @@ export default async function ContactPage() {
         </div>
       </section>
 
-      <div className="container mx-auto py-6 px-4 md:px-8 max-w-screen-2xl">
+      <div className="container mx-auto py-6 px-4 md:px-6 max-w-screen-2xl">
         <div className="grid lg:grid-cols-12 gap-10 items-start">
           {/* Left Column: Contact Methods & Trust Points */}
           <div className="lg:col-span-5 space-y-12">

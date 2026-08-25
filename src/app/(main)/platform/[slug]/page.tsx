@@ -70,70 +70,64 @@ export default async function PlatformDetailPage(props: {
     <div className="bg-background min-h-screen">
       <article className="pb-40">
         {/* --- HERO --- */}
-        <section className="relative pt-32 pb-24 overflow-hidden border-b border-border/10">
+        <section className="relative pt-16 pb-12 overflow-hidden border-b border-border/20">
           <div className="container mx-auto px-4 md:px-6 relative z-10">
-            <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
-              <div className="flex gap-3 mb-12">
-                <Badge className="bg-primary/10 text-primary border-primary/20 px-6 py-2 uppercase tracking-[0.4em] text-[10px] font-black rounded-full shadow-sm">
+            <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
+              <div className="flex gap-2 mb-6 flex-wrap justify-center">
+                <Badge className="bg-primary/10 text-primary border-primary/20 px-4 py-1 uppercase tracking-widest text-[10px] font-extrabold rounded-full shadow-xs">
                   Expert Platform Review
                 </Badge>
                 {platform.rating && platform.rating >= 4.5 && (
-                   <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 px-6 py-2 uppercase tracking-[0.4em] text-[10px] font-black rounded-full shadow-sm">
-                    <Trophy className="h-3 w-3 mr-2" /> Top Rated 2026
+                   <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 px-4 py-1 uppercase tracking-widest text-[10px] font-extrabold rounded-full shadow-xs">
+                    <Trophy className="h-3 w-3 mr-1" /> Top Rated 2026
                   </Badge>
                 )}
                 {platform.easeOfUse && platform.easeOfUse >= 4.7 && (
-                   <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20 px-6 py-2 uppercase tracking-[0.4em] text-[10px] font-black rounded-full shadow-sm">
-                    <Zap className="h-3 w-3 mr-2" /> Easiest to Use
+                   <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20 px-4 py-1 uppercase tracking-widest text-[10px] font-extrabold rounded-full shadow-xs">
+                    <Zap className="h-3 w-3 mr-1" /> Easiest to Use
                   </Badge>
                 )}
               </div>
               <ManagedImage
                 src={platform.logoUrl}
                 alt={platform.name}
-                width={240}
-                height={80}
-                className="h-20 w-auto object-contain mb-12"
+                width={180}
+                height={60}
+                className="h-14 w-auto object-contain mb-6"
               />
-              <h1 className="text-5xl md:text-7xl font-black text-foreground tracking-tighter mb-8 leading-[0.9]">
+              <h1 className="text-3xl md:text-5xl font-extrabold text-foreground tracking-tight mb-4 leading-tight">
                 {platform.name} <br />
                 <span className="text-primary italic">Intelligence Report.</span>
               </h1>
-              <p className="text-xl text-muted-foreground font-medium mb-12 max-w-2xl">
+              <p className="text-base text-muted-foreground font-medium mb-8 max-w-xl">
                 The comprehensive 2026 deep dive into architecture, monetization, and growth potential.
               </p>
 
-              <div className="flex flex-wrap justify-center gap-6">
-                <Button asChild size="lg" className="rounded-full px-10 h-16 font-black uppercase tracking-widest gap-3">
+              <div className="flex flex-wrap justify-center gap-4">
+                <Button asChild size="default" className="rounded-full px-6 h-11 font-extrabold uppercase tracking-widest gap-2">
                   <a href={platform.website} target="_blank" rel="noopener noreferrer">
-                    Visit Website <ExternalLink className="h-5 w-5" />
+                    Visit Website <ExternalLink className="h-4 w-4" />
                   </a>
                 </Button>
                 {platform.affiliateLink && (
-                  <Button asChild variant="outline" size="lg" className="rounded-full px-10 h-16 font-black uppercase tracking-widest border-2">
+                  <Button asChild variant="outline" size="default" className="rounded-full px-6 h-11 font-extrabold uppercase tracking-widest border border-border/40">
                     <a href={platform.affiliateLink} target="_blank" rel="noopener noreferrer">
-                      Claim Discount <Sparkles className="h-5 w-5 text-primary" />
+                      Claim Discount <Sparkles className="h-4 w-4 text-primary" />
                     </a>
                   </Button>
                 )}
               </div>
             </div>
           </div>
-
-          {/* Background Decor */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 opacity-30 pointer-events-none">
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px]" />
-            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px]" />
-          </div>
         </section>
 
-        <div className="container mx-auto px-4 md:px-6 max-w-7xl pt-24">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
+        <div className="container mx-auto px-4 md:px-6 max-w-7xl pt-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* --- SIDEBAR --- */}
             <aside className="hidden lg:block lg:col-span-4">
-              <div className="sticky top-40 space-y-12">
+              <div className="sticky top-24 space-y-6">
                 {/* Stats Card */}
-                <div className="bg-card/40 backdrop-blur-3xl border border-border/10 p-8 rounded-4xl shadow-2xl">
+                <div className="bg-card/40 backdrop-blur-md border border-border/40 hover:border-border/60 transition-colors p-6 rounded-2xl shadow-md">
                   <h3 className="text-2xl font-black mb-8 flex items-center gap-3">
                     <Zap className="h-6 w-6 text-primary" /> Core Metrics
                   </h3>

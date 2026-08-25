@@ -32,58 +32,53 @@ const testimonials = [
 
 export function CreatorOutput() {
   return (
-    <section className="py-32 relative overflow-hidden bg-secondary/0">
-      <div className="absolute inset-0 bg-grid-pattern-light opacity-5 pointer-events-none"></div>
+    <section className="py-12 relative overflow-hidden bg-secondary/0">
       <div className="container mx-auto px-4 md:px-6 relative z-10">
-        <div className="mx-auto max-w-3xl text-center mb-24 space-y-6">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary mb-2 shadow-sm">
-            <Star className="h-4 w-4" />
-            <span className="text-[10px] font-black uppercase tracking-widest">
+        <div className="mx-auto max-w-2xl text-center mb-10 space-y-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary shadow-xs">
+            <Star className="h-3.5 w-3.5" />
+            <span className="text-[10px] font-extrabold uppercase tracking-widest">
               Network Verification
             </span>
           </div>
-          <h2 className="text-4xl md:text-6xl font-black tracking-tight leading-[0.9]">
+          <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">
             Verified <span className="text-primary italic">Creator</span> Output
           </h2>
-          <p className="text-lg text-muted-foreground font-medium max-w-xl mx-auto leading-relaxed">
-            Real results from the world's most innovative course creators using
-            Comparlify Intelligence.
+          <p className="text-sm text-muted-foreground font-medium max-w-lg mx-auto leading-relaxed">
+            Real results from the world's most innovative course creators using Comparlify Intelligence.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
           {testimonials.map((t, i) => (
             <MotionDiv
               key={i}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
+              transition={{ delay: i * 0.08 }}
             >
-              <Card className="h-full bg-card/60 backdrop-blur-3xl border border-border/10 p-8 rounded-4xl shadow-xl relative overflow-hidden border-t-4 border-t-primary/20">
-                <div className="absolute top-0 right-0 p-8 text-primary/5 select-none pointer-events-none translate-x-8 -translate-y-8">
-                  <Sparkles className="h-32 w-32" />
-                </div>
-                <div className="flex flex-col h-full justify-between gap-12 relative z-10">
-                  <div className="space-y-8">
-                    <div className="flex items-center space-x-1 text-amber-500 bg-amber-500/5 w-fit px-3 py-1.5 rounded-full border border-amber-500/10">
+              <Card className="h-full bg-card/40 backdrop-blur-md border border-border/40 hover:border-border/60 transition-colors p-6 rounded-2xl shadow-md relative overflow-hidden">
+                <div className="flex flex-col h-full justify-between gap-6 relative z-10">
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-1 text-amber-500 bg-amber-500/5 w-fit px-2.5 py-1 rounded-full border border-amber-500/10">
                       {[1, 2, 3, 4, 5].map((s) => (
-                        <Star key={s} className="h-3 w-3 fill-current" />
+                        <Star key={s} className="h-2.5 w-2.5 fill-current" />
                       ))}
                     </div>
-                    <blockquote className="text-xl font-medium text-foreground leading-relaxed italic border-l-4 border-primary/20 pl-6 py-2">
+                    <blockquote className="text-sm font-medium text-foreground leading-relaxed italic border-l-2 border-primary/30 pl-4 py-1">
                       "{t.quote}"
                     </blockquote>
                   </div>
-                  <div className="flex items-center space-x-6 pt-8 border-t border-border/10">
-                    <Avatar className="h-14 w-14 ring-4 ring-primary/10 border-2 border-background shadow-xl">
+                  <div className="flex items-center space-x-4 pt-4 border-t border-border/20">
+                    <Avatar className="h-10 w-10 ring-2 ring-primary/10 border border-background">
                       <AvatarImage src={t.avatar} />
                       <AvatarFallback>{t.name[0]}</AvatarFallback>
                     </Avatar>
                     <div>
-                      <div className="font-black text-foreground text-base uppercase tracking-tight">
+                      <div className="font-extrabold text-foreground text-sm tracking-tight">
                         {t.name}
                       </div>
-                      <div className="text-xs font-bold text-primary uppercase tracking-widest mt-1">
+                      <div className="text-[10px] font-bold text-primary uppercase tracking-widest">
                         {t.title}
                       </div>
                     </div>

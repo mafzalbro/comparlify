@@ -15,13 +15,13 @@ export default function SignOutPage() {
   }, []);
 
   return (
-    <Card className="max-w-sm text-center">
+    <Card className="max-w-sm text-center bg-card/40 backdrop-blur-md border border-border/40 rounded-2xl shadow-md p-4">
       <CardHeader>
-        <CardTitle>Signing Out</CardTitle>
-        <CardDescription>Please wait while we securely sign you out.</CardDescription>
+        <CardTitle className="text-xl font-extrabold">Signing Out</CardTitle>
+        <CardDescription className="text-xs font-medium">Please wait while we securely sign you out.</CardDescription>
       </CardHeader>
       <CardContent>
-        <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
+        <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" />
       </CardContent>
     </Card>
   );

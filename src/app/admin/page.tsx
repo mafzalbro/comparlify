@@ -170,24 +170,24 @@ export default async function AdminDashboardPage() {
   ];
 
   return (
-    <div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+    <div className="space-y-6">
+      <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-5">
         {statsCards.map((card) => (
           <Card
             key={card.title}
-            className="group relative overflow-hidden rounded-3xl border border-border/10 bg-card/40 backdrop-blur-xl shadow-sm transition-all duration-500 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1"
+            className="group relative overflow-hidden rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md hover:border-border/60 transition-colors shadow-sm"
           >
             <Link href={card.href}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs font-black uppercase tracking-widest text-muted-foreground group-hover:text-primary transition-colors">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
+                <CardTitle className="text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground group-hover:text-primary transition-colors">
                   {card.title}
                 </CardTitle>
-                <div className="p-2 rounded-lg bg-primary/5 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500">
-                  <card.Icon className="h-4 w-4" />
+                <div className="p-1.5 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+                  <card.Icon className="h-3.5 w-3.5" />
                 </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-black tracking-tighter mb-1">{card.count}</div>
+              <CardContent className="p-4 pt-0">
+                <div className="text-2xl font-black tracking-tight mb-0.5">{card.count}</div>
                 <p className="text-[10px] font-medium text-muted-foreground leading-relaxed">
                   {card.description}
                 </p>
@@ -196,7 +196,7 @@ export default async function AdminDashboardPage() {
           </Card>
         ))}
       </div>
-      <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+      <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-7">
         <div className="lg:col-span-4">
           <PostsChart data={chartData} />
         </div>

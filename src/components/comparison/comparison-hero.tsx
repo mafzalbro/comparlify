@@ -76,9 +76,9 @@ export function ComparisonHero({
         </div>
 
         {/* Platform Showdown Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl bg-card/40 backdrop-blur-3xl p-8 rounded-4xl border border-border/10 shadow-2xl relative mb-24">
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-background border border-border p-5 rounded-full shadow-2xl hidden md:block">
-            <Zap className="h-10 w-10 text-primary animate-pulse" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl bg-card/40 backdrop-blur-md p-6 rounded-2xl border border-border/40 hover:border-border/60 transition-colors shadow-lg relative mb-12">
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-background border border-border/40 p-3.5 rounded-full shadow-lg hidden md:block">
+            <Zap className="h-6 w-6 text-primary animate-pulse" />
           </div>
           {[platformA, platformB].map((platform, i) => {
             const isWinner =
@@ -87,43 +87,43 @@ export function ComparisonHero({
             return (
               <div
                 key={platform.id}
-                className="flex flex-col items-center gap-8 group relative"
+                className="flex flex-col items-center gap-4 group relative"
               >
                 {isWinner && !isCloseCall && (
                   <MotionDiv
                     initial={{ scale: 0, rotate: -45 }}
                     animate={{ scale: 1, rotate: -12 }}
-                    className="absolute -top-4 -right-4 z-30 bg-primary text-white px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-xl ring-4 ring-background"
+                    className="absolute -top-3 -right-3 z-30 bg-primary text-white px-3 py-1 rounded-full text-[9px] font-extrabold uppercase tracking-widest shadow-md"
                   >
                     Top Pick
                   </MotionDiv>
                 )}
-                <div className="relative h-32 w-full max-w-[300px] p-6 bg-muted/50 rounded-3xl border border-border flex items-center justify-center group-hover:bg-primary/5 transition-all">
+                <div className="relative h-24 w-full max-w-[240px] p-4 bg-muted/40 rounded-xl border border-border/30 flex items-center justify-center group-hover:bg-primary/5 transition-all">
                   <ManagedImage
                     src={platform.logoUrl}
                     alt={platform.name}
-                    width={200}
-                    height={80}
-                    className="object-contain filter grayscale group-hover:grayscale-0 transition-all duration-700"
+                    width={160}
+                    height={60}
+                    className="object-contain transition-all duration-300"
                   />
                 </div>
                 <div className="flex flex-col items-center">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-2xl font-black text-foreground uppercase tracking-tighter">
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="text-lg font-extrabold text-foreground tracking-tight">
                       {platform.name}
                     </h3>
                     <PlatformIntelligenceModal platform={platform as any}>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10"
+                        className="h-7 w-7 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10"
                         aria-label={`View ${platform.name} Intelligence Report`}
                       >
-                        <Info className="h-4 w-4" />
+                        <Info className="h-3.5 w-3.5" />
                       </Button>
                     </PlatformIntelligenceModal>
                   </div>
-                  <Badge className="mt-4 bg-secondary/50 text-muted-foreground text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full border-none">
+                  <Badge className="mt-2 bg-secondary/50 text-muted-foreground text-[9px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full border-none">
                     Expert Assessment
                   </Badge>
                 </div>

@@ -130,28 +130,28 @@ export default async function AboutPage() {
           subtitle={content["about.values.subtitle"]}
           centered
         />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
           {values.map((value, idx) => (
             <MotionDiv
               key={value.title}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
+              transition={{ delay: idx * 0.08 }}
             >
-              <Card className="h-full rounded-[2rem] p-8 bg-card/40 backdrop-blur-xl border border-border/10 hover:shadow-2xl transition-all duration-500 group">
+              <Card className="h-full rounded-2xl p-6 bg-card/40 backdrop-blur-md border border-border/40 hover:border-border/60 transition-colors shadow-md group">
                 <div
-                  className={`w-16 h-16 rounded-3xl ${value.bg} flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500`}
+                  className={`w-12 h-12 rounded-xl ${value.bg} flex items-center justify-center mb-6 group-hover:scale-105 transition-transform duration-300`}
                 >
-                  <value.Icon className={`h-8 w-8 ${value.color}`} />
+                  <value.Icon className={`h-6 w-6 ${value.color}`} />
                 </div>
-                <CardHeader className="p-0 mb-6">
-                  <CardTitle className="text-3xl font-bold tracking-tight">
+                <CardHeader className="p-0 mb-3">
+                  <CardTitle className="text-xl font-extrabold tracking-tight">
                     {value.title}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
-                  <p className="text-lg text-muted-foreground leading-relaxed">
+                  <p className="text-sm text-muted-foreground leading-relaxed font-medium">
                     {value.description}
                   </p>
                 </CardContent>

@@ -244,47 +244,42 @@ export default async function BlogPostPage(props: {
       )}
 
       <article className="pb-16">
-        {/* Premium Header - Majestic Scale */}
-        <header className="relative pt-16 pb-12 overflow-hidden border-b border-border/10">
+        {/* Header */}
+        <header className="relative pt-10 pb-8 overflow-hidden border-b border-border/20">
           <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-30"></div>
-          <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
-            <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-primary/15 rounded-full blur-[150px] animate-pulse"></div>
-            <div className="absolute bottom-[20%] -right-[10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px] animate-pulse delay-1000"></div>
-          </div>
 
           <div className="container mx-auto relative z-10 px-4 md:px-6">
             <MotionDiv
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
+              transition={{ duration: 0.5 }}
             >
-              <div className="flex flex-col items-center text-center max-w-5xl mx-auto">
+              <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
                 <Breadcrumbs
                   items={[
                     { name: "Home", href: "/" },
                     { name: "Insights", href: "/blog" },
                     { name: post.title },
                   ]}
-                  className="mb-10 justify-center"
+                  className="mb-4 justify-center"
                 />
 
-                <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.3em] mb-10 shadow-sm">
-                  <BookOpen className="h-4 w-4" />
+                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-extrabold uppercase tracking-widest mb-4 shadow-xs">
+                  <BookOpen className="h-3.5 w-3.5" />
                   {post.category?.name || "Uncategorized Intelligence"}
                 </div>
 
-                <h1 className="text-3xl md:text-5xl font-black tracking-tight text-foreground mb-8 leading-[1.1] uppercase max-w-4xl">
+                <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-foreground mb-4 leading-tight uppercase max-w-3xl">
                   {post.title}
                 </h1>
 
-                <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed mb-12 max-w-3xl font-medium">
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-6 max-w-2xl font-medium">
                   {post.description}
                 </p>
 
-                <div className="flex flex-wrap items-center justify-center gap-8 p-6 rounded-4xl bg-card/60 backdrop-blur-3xl border border-border/10 shadow-2xl relative overflow-hidden group">
-                  <div className="absolute inset-x-0 bottom-0 h-1.5 bg-linear-to-r from-transparent via-primary/30 to-transparent"></div>
-                  <div className="flex items-center gap-5">
-                    <Avatar className="h-14 w-14 ring-4 ring-primary/10 border-2 border-background shadow-2xl transition-transform group-hover:scale-110 duration-500">
+                <div className="flex flex-wrap items-center justify-center gap-6 p-4 rounded-2xl bg-card/40 backdrop-blur-md border border-border/40 hover:border-border/60 transition-colors shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-10 w-10 ring-2 ring-primary/10 border border-background shadow-sm">
                       <AvatarImage
                         src={
                           post.author.image ??
@@ -292,29 +287,29 @@ export default async function BlogPostPage(props: {
                         }
                         alt={post.author.name ?? "Author"}
                       />
-                      <AvatarFallback className="bg-primary text-primary-foreground font-black text-xl">
+                      <AvatarFallback className="bg-primary text-primary-foreground font-extrabold text-sm">
                         {post.author.name?.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="text-left">
-                      <p className="font-black text-foreground text-xl tracking-tight">
+                      <p className="font-extrabold text-foreground text-sm tracking-tight">
                         {post.author.name}
                       </p>
-                      <p className="text-[10px] text-primary font-black uppercase tracking-[0.3em] mt-1">
+                      <p className="text-[10px] text-primary font-extrabold uppercase tracking-widest">
                         Intelligence Specialist
                       </p>
                     </div>
                   </div>
 
-                  <div className="h-12 w-px bg-border/20 hidden sm:block"></div>
+                  <div className="h-8 w-px bg-border/20 hidden sm:block"></div>
 
-                  <div className="flex items-center gap-10 text-[11px] font-black text-muted-foreground uppercase tracking-[0.3em]">
-                    <div className="flex items-center gap-3">
-                      <Clock className="h-4 w-4 text-primary" />
+                  <div className="flex items-center gap-6 text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-3.5 w-3.5 text-primary" />
                       <span>{readTime}M EXTRACT</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Zap className="h-4 w-4 text-primary" />
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-3.5 w-3.5 text-primary" />
                       <span>
                         {format(new Date(post.createdAt), "MMM d, yyyy")}
                       </span>

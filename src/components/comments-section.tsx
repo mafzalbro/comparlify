@@ -68,9 +68,9 @@ export function CommentsSection({
   };
 
   return (
-    <section id="comments" className="space-y-10">
-      <div className="flex items-center justify-between border-b border-border/10 pb-4">
-        <h2 className="text-2xl font-black uppercase tracking-tight">
+    <section id="comments" className="space-y-6">
+      <div className="flex items-center justify-between border-b border-border/20 pb-3">
+        <h2 className="text-xl font-extrabold uppercase tracking-tight">
           Discussion{" "}
           <span className="text-primary italic">({comments.length})</span>
         </h2>
@@ -80,24 +80,23 @@ export function CommentsSection({
         <form
           ref={formRef}
           action={formAction}
-          className="p-6 rounded-4xl bg-card/40 backdrop-blur-3xl border border-border/10 shadow-xl relative overflow-hidden group"
+          className="p-5 rounded-2xl bg-card/40 backdrop-blur-md border border-border/40 hover:border-border/60 transition-colors shadow-md relative overflow-hidden group"
         >
-          <div className="absolute inset-x-0 bottom-0 h-1 bg-linear-to-r from-transparent via-primary/20 to-transparent"></div>
           <input type="hidden" name="postId" value={postId} />
-          <div className="flex items-start gap-6">
-            <Avatar className="h-12 w-12 ring-2 ring-primary/10 shadow-xl shrink-0">
+          <div className="flex items-start gap-4">
+            <Avatar className="h-10 w-10 ring-2 ring-primary/10 shadow-sm shrink-0">
               <AvatarImage src={session.user.image ?? undefined} />
-              <AvatarFallback className="bg-primary text-primary-foreground font-black">
+              <AvatarFallback className="bg-primary text-primary-foreground font-extrabold">
                 {session.user.name?.charAt(0)}
               </AvatarFallback>
             </Avatar>
-            <div className="flex-1 space-y-4">
+            <div className="flex-1 space-y-3">
               <Textarea
                 name="content"
                 placeholder="Write a comment..."
                 rows={3}
                 required
-                className="bg-background/40 border-border/10 rounded-2xl p-4 text-base focus:ring-primary/20 transition-all resize-none shadow-inner"
+                className="bg-background/50 border-border/20 rounded-xl p-3 text-sm focus:ring-primary/20 transition-all resize-none shadow-xs"
               />
               <div className="flex justify-end">
                 <SubmitButton />
@@ -105,14 +104,14 @@ export function CommentsSection({
             </div>
           </div>
           {typeof state.error === "string" && (
-            <p className="text-[10px] font-bold text-destructive mt-4 text-right uppercase tracking-wider">
+            <p className="text-[10px] font-bold text-destructive mt-2 text-right uppercase tracking-wider">
               {state.error.toString()}
             </p>
           )}
           {state.success && (
-            <Alert className="mt-6 bg-primary/5 border-primary/20 rounded-2xl p-4 shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-500">
-              <CheckCircle className="h-5 w-5 text-primary!" />
-              <AlertTitle className="text-sm font-black uppercase tracking-tight mb-1 text-foreground">
+            <Alert className="mt-4 bg-primary/5 border-primary/20 rounded-xl p-3 shadow-sm">
+              <CheckCircle className="h-4 w-4 text-primary!" />
+              <AlertTitle className="text-xs font-extrabold uppercase tracking-tight mb-0.5 text-foreground">
                 Comment Submitted
               </AlertTitle>
               <AlertDescription className="text-xs text-muted-foreground font-medium">
@@ -122,22 +121,21 @@ export function CommentsSection({
           )}
         </form>
       ) : (
-        <div className="p-10 text-center border-2 border-dashed border-border/10 rounded-4xl bg-secondary/5 relative overflow-hidden group">
-          <div className="absolute inset-0 bg-grid-pattern-light opacity-5 group-hover:opacity-10 transition-opacity"></div>
-          <p className="text-muted-foreground text-lg font-medium mb-6 relative z-10">
+        <div className="p-6 text-center border border-dashed border-border/30 rounded-2xl bg-card/20 backdrop-blur-sm">
+          <p className="text-muted-foreground text-sm font-medium mb-4">
             Log in to join the discussion.
           </p>
           <Button
             asChild
-            className="rounded-full px-10 h-12 font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all relative z-10"
+            className="rounded-full px-6 h-10 font-extrabold uppercase tracking-widest text-[10px] shadow-md shadow-primary/20 hover:scale-102 active:scale-98 transition-all"
           >
             <Link href="/login">Initialize Access</Link>
           </Button>
         </div>
       )}
 
-      <div className="space-y-8">
-        {comments.map((comment, index) =>
+      <div className="space-y-4">
+        {comments.map((comment) =>
           editingCommentId === comment.id ? (
             <EditCommentForm
               key={comment.id}
@@ -147,21 +145,21 @@ export function CommentsSection({
           ) : (
             <div
               key={comment.id}
-              className="group relative flex items-start gap-6 p-6 rounded-4xl bg-card/20 backdrop-blur-xl border border-border/10 hover:border-primary/20 hover:bg-card/40 transition-all duration-500 hover:shadow-xl"
+              className="group relative flex items-start gap-4 p-4 rounded-2xl bg-card/40 backdrop-blur-md border border-border/40 hover:border-border/60 transition-all shadow-xs"
             >
-              <Avatar className="h-12 w-12 ring-2 ring-background shadow-lg shrink-0 group-hover:ring-primary/10 transition-all">
+              <Avatar className="h-10 w-10 ring-1 ring-background shadow-xs shrink-0">
                 <AvatarImage src={comment.author.image ?? undefined} />
-                <AvatarFallback className="font-black">
+                <AvatarFallback className="font-extrabold">
                   {comment.author.name?.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <div className="flex items-center justify-between gap-4 mb-2">
-                  <div className="flex items-baseline gap-3">
-                    <p className="text-base font-black text-foreground uppercase tracking-tight">
+                <div className="flex items-center justify-between gap-3 mb-1">
+                  <div className="flex items-baseline gap-2">
+                    <p className="text-sm font-extrabold text-foreground tracking-tight">
                       {comment.author.name}
                     </p>
-                    <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest opacity-60">
+                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">
                       {format(new Date(comment.createdAt), "PP")}
                     </p>
                   </div>
@@ -169,14 +167,14 @@ export function CommentsSection({
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="rounded-full h-8 px-4 font-black uppercase tracking-widest text-[8px] hover:bg-primary/10 hover:text-primary transition-all"
+                      className="rounded-full h-7 px-3 font-extrabold uppercase tracking-widest text-[8px] hover:bg-primary/10 hover:text-primary transition-all"
                       onClick={() => handleEditClick(comment.id)}
                     >
-                      <Edit className="h-3 w-3 mr-1.5" /> Edit
+                      <Edit className="h-3 w-3 mr-1" /> Edit
                     </Button>
                   )}
                 </div>
-                <div className="text-sm font-medium italic text-muted-foreground leading-relaxed">
+                <div className="text-xs font-medium italic text-muted-foreground leading-relaxed">
                   <p className="whitespace-pre-wrap">{comment.content}</p>
                 </div>
               </div>

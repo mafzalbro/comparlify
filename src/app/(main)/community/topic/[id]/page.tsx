@@ -69,13 +69,13 @@ export default async function TopicPage(props: {
 
   return (
     <div className="bg-background min-h-screen">
-      <header className="relative pt-12 pb-16 overflow-hidden">
+      <header className="relative pt-8 pb-10 overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-30"></div>
         <div className="container mx-auto relative z-10 px-4 md:px-6">
           <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.5 }}
           >
             <Breadcrumbs
               items={[
@@ -87,20 +87,20 @@ export default async function TopicPage(props: {
                 },
                 { name: topic.title },
               ]}
-              className="mb-8"
+              className="mb-4"
             />
 
             {topic.status !== "APPROVED" && (
               <Alert
                 variant="destructive"
-                className="mb-8 p-6 rounded-4xl bg-yellow-50/50 backdrop-blur-md border-yellow-200 text-yellow-900 border-2"
+                className="mb-6 p-4 rounded-2xl bg-yellow-50/50 backdrop-blur-md border-yellow-200 text-yellow-900 border"
               >
-                <ShieldAlert className="h-6 w-6 text-yellow-600!" />
-                <div className="ml-4">
-                  <AlertTitle className="text-xl font-black uppercase tracking-widest mb-1">
+                <ShieldAlert className="h-5 w-5 text-yellow-600!" />
+                <div className="ml-3">
+                  <AlertTitle className="text-base font-extrabold uppercase tracking-widest mb-0.5">
                     Under Expert Review
                   </AlertTitle>
-                  <AlertDescription className="text-sm font-medium opacity-80 leading-relaxed">
+                  <AlertDescription className="text-xs font-medium opacity-80 leading-relaxed">
                     This discussion is currently undergoing safety verification.
                     It remains hidden from the global network until cleared.
                   </AlertDescription>
@@ -108,36 +108,36 @@ export default async function TopicPage(props: {
               </Alert>
             )}
 
-            <div className="flex flex-col md:flex-row justify-between md:items-end gap-8">
-              <div className="max-w-4xl">
-                <div className="flex flex-wrap items-center gap-4 mb-6">
-                  <Badge className="px-4 py-1 bg-primary/10 text-primary border-primary/20 text-xs font-black uppercase tracking-widest rounded-lg">
+            <div className="flex flex-col md:flex-row justify-between md:items-end gap-6">
+              <div className="max-w-3xl">
+                <div className="flex flex-wrap items-center gap-3 mb-4">
+                  <Badge className="px-3 py-1 bg-primary/10 text-primary border-primary/20 text-xs font-extrabold uppercase tracking-widest rounded-full">
                     {topic.category.name}
                   </Badge>
-                  <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground uppercase tracking-widest">
                     <Clock className="h-3 w-3" /> Latest Activity Today
                   </div>
                 </div>
-                <h1 className="text-3xl md:text-5xl font-black tracking-tight text-foreground leading-tight">
+                <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-foreground leading-tight">
                   {topic.title}
                 </h1>
               </div>
 
-              <div className="flex items-center gap-4 shrink-0">
+              <div className="flex items-center gap-3 shrink-0">
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-12 w-12 rounded-2x"
+                  className="h-10 w-10 rounded-xl"
                 >
-                  <Share2 className="h-5 w-5" />
+                  <Share2 className="h-4 w-4" />
                 </Button>
                 <Button
                   asChild
-                  size="xl"
-                  className="rounded-2xl h-14 px-8 font-black gap-2"
+                  size="default"
+                  className="rounded-full h-11 px-6 font-extrabold gap-2 uppercase tracking-widest text-xs"
                 >
                   <a href="#reply-section">
-                    <Zap className="h-5 w-5" /> Post Reply
+                    <Zap className="h-4 w-4" /> Post Reply
                   </a>
                 </Button>
               </div>
@@ -146,7 +146,7 @@ export default async function TopicPage(props: {
         </div>
       </header>
 
-      <main className="container mx-auto py-12 px-4 md:px-6 max-w-5xl">
+      <main className="container mx-auto py-8 px-4 md:px-6 max-w-5xl">
         <div className="space-y-12">
           <MotionDiv
             initial={{ opacity: 0, x: -30 }}

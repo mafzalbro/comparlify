@@ -42,7 +42,9 @@ export function ComparisonList({
 
   return (
     <InfiniteScrollGrid batchSize={9} emptyState={emptyState}>
-      {comparisons.map((comp, index) => (
+      {comparisons.map((comp, index) => {
+        if (!comp.platformA || !comp.platformB) return null;
+        return (
         <MotionDiv
           key={comp.id}
           initial={{ opacity: 0, y: 20 }}
@@ -55,8 +57,8 @@ export function ComparisonList({
               <div className="h-44 bg-linear-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center relative px-8 overflow-hidden border-b border-border/10">
                 <div className="absolute inset-0 bg-grid-pattern-light opacity-5"></div>
                 {(() => {
-                  const ratingA = comp.platformA.rating || 0;
-                  const ratingB = comp.platformB.rating || 0;
+                  const ratingA = comp.platformA?.rating || 0;
+                  const ratingB = comp.platformB?.rating || 0;
                   const diff = Math.abs(ratingA - ratingB);
                   if (diff >= 1.0) {
                     return (
@@ -144,7 +146,8 @@ export function ComparisonList({
             </CardFooter>
           </Card>
         </MotionDiv>
-      ))}
+        );
+      })}
     </InfiniteScrollGrid>
   );
 }

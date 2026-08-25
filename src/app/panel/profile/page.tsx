@@ -23,38 +23,39 @@ export default async function ProfilePage() {
   const { user } = session;
 
   return (
-    <div className="container mx-auto py-16 md:py-24">
+    <div className="max-w-4xl mx-auto space-y-6">
       <Breadcrumbs
         items={[{ name: "Home", href: "/" }, { name: "Profile" }]}
-        className="mb-8"
+        className="mb-4"
       />
-      <Card className="mx-auto max-w-2xl">
-        <CardHeader>
-          <div className="flex items-center gap-6">
-            <Avatar className="h-20 w-20">
+      <Card className="max-w-2xl mx-auto bg-card/40 backdrop-blur-md border border-border/40 hover:border-border/60 transition-colors shadow-md rounded-2xl">
+        <CardHeader className="p-6">
+          <div className="flex items-center gap-4">
+            <Avatar className="h-16 w-16 border-2 border-primary/20">
               <AvatarImage src={user.image ?? ""} alt={user.name ?? ""} />
-              <AvatarFallback className="text-2xl">
+              <AvatarFallback className="text-xl font-extrabold">
                 {user.name?.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="space-y-1">
-              <CardTitle className="text-3xl font-headline">
+              <CardTitle className="text-2xl font-extrabold">
                 {user.name}
               </CardTitle>
-              <CardDescription>{user.email}</CardDescription>
+              <CardDescription className="text-xs font-medium">{user.email}</CardDescription>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <h3 className="font-semibold">User Information</h3>
-          <div className="text-sm text-muted-foreground space-y-2">
+        <CardContent className="p-6 pt-0 space-y-4">
+          <h3 className="font-extrabold text-sm uppercase tracking-wider text-muted-foreground">User Information</h3>
+          <div className="text-xs text-muted-foreground space-y-2 font-medium">
             <p>
-              <strong>ID:</strong> {user.id}
+              <strong className="text-foreground">ID:</strong> {user.id}
             </p>
             <p className="flex items-center gap-2">
-              <strong>Role:</strong>{" "}
+              <strong className="text-foreground">Role:</strong>{" "}
               <Badge
                 variant={user.role === "ADMIN" ? "destructive" : "secondary"}
+                className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5"
               >
                 {user.role}
               </Badge>

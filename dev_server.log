@@ -7,179 +7,260 @@
 - Network:       http://192.168.0.2:3000
 
 ✓ Starting...
-✓ Ready in 1828ms
-○ Compiling /compare/[slug] ...
-ℹ️ [Mock Prisma] Activating Proxy-based Mock Prisma Client...
-ℹ️ [Mock Prisma] Activating Proxy-based Mock Prisma Client...
-[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
-    at assertConfig (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_3850efa1._.js:513:16)
-    at Auth (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_3850efa1._.js:12726:289)
-    at runNextTicks (node:internal/process/task_queues:64:5)
-    at listOnTimeout (node:internal/timers:547:9)
-    at process.processTimers (node:internal/timers:521:7)
-[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
-    at assertConfig (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_3850efa1._.js:513:16)
-    at Auth (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_3850efa1._.js:12726:289)
-    at runNextTicks (node:internal/process/task_queues:64:5)
-    at listOnTimeout (node:internal/timers:547:9)
-    at process.processTimers (node:internal/timers:521:7)
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-The width(-1) and height(-1) of chart should be greater than 0,
-       please check the style of container, or the props width(100%) and height(100%),
-       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
-       height and width.
- GET /compare/stripe-vs-paypal 200 in 23.6s (compile: 19.0s, proxy.ts: 223ms, generate-params: 1312ms, render: 4.4s)
-[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
-    at assertConfig (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_3850efa1._.js:513:16)
-    at Auth (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_3850efa1._.js:12726:289)
-    at runNextTicks (node:internal/process/task_queues:64:5)
-    at listOnTimeout (node:internal/timers:547:9)
-    at process.processTimers (node:internal/timers:521:7)
-[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
-    at assertConfig (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_3850efa1._.js:513:16)
-    at Auth (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_3850efa1._.js:12726:289)
-    at runNextTicks (node:internal/process/task_queues:64:5)
-    at listOnTimeout (node:internal/timers:547:9)
-    at process.processTimers (node:internal/timers:521:7)
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-The width(-1) and height(-1) of chart should be greater than 0,
-       please check the style of container, or the props width(100%) and height(100%),
-       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
-       height and width.
-ℹ️ [Mock Prisma] Activating Proxy-based Mock Prisma Client...
- GET /compare/stripe-vs-paypal 200 in 1444ms (compile: 116ms, proxy.ts: 18ms, generate-params: 69ms, render: 1309ms)
-[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
-    at assertConfig (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_3850efa1._.js:513:16)
-    at Auth (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_3850efa1._.js:12726:289)
-    at runNextTicks (node:internal/process/task_queues:64:5)
-    at listOnTimeout (node:internal/timers:547:9)
-    at process.processTimers (node:internal/timers:521:7)
-[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
-    at assertConfig (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_3850efa1._.js:513:16)
-    at Auth (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_3850efa1._.js:12726:289)
-    at runNextTicks (node:internal/process/task_queues:64:5)
-    at listOnTimeout (node:internal/timers:547:9)
-    at process.processTimers (node:internal/timers:521:7)
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-The width(-1) and height(-1) of chart should be greater than 0,
-       please check the style of container, or the props width(100%) and height(100%),
-       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
-       height and width.
-ℹ️ [Mock Prisma] Activating Proxy-based Mock Prisma Client...
- GET /compare/stripe-vs-paypal 200 in 1454ms (compile: 87ms, proxy.ts: 7ms, generate-params: 66ms, render: 1359ms)
-[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
-    at assertConfig (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_3850efa1._.js:513:16)
-    at Auth (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_3850efa1._.js:12726:289)
-    at runNextTicks (node:internal/process/task_queues:64:5)
-    at listOnTimeout (node:internal/timers:547:9)
-    at process.processTimers (node:internal/timers:521:7)
-[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
-    at assertConfig (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_3850efa1._.js:513:16)
-    at Auth (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_3850efa1._.js:12726:289)
-    at runNextTicks (node:internal/process/task_queues:64:5)
-    at listOnTimeout (node:internal/timers:547:9)
-    at process.processTimers (node:internal/timers:521:7)
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-The width(-1) and height(-1) of chart should be greater than 0,
-       please check the style of container, or the props width(100%) and height(100%),
-       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
-       height and width.
- GET /compare/stripe-vs-paypal 200 in 1191ms (compile: 85ms, proxy.ts: 7ms, generate-params: 63ms, render: 1099ms)
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+✓ Ready in 2.3s
+○ Compiling / ...
 ℹ️ [Mock Prisma] Activating Proxy-based Mock Prisma Client...
 [31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
-    at assertConfig (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_3850efa1._.js:513:16)
-    at Auth (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_3850efa1._.js:12726:289)
+    at assertConfig (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_79abbb16._.js:513:16)
+    at Auth (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_79abbb16._.js:12245:289)
     at runNextTicks (node:internal/process/task_queues:64:5)
     at listOnTimeout (node:internal/timers:547:9)
     at process.processTimers (node:internal/timers:521:7)
 [31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
-    at assertConfig (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_3850efa1._.js:513:16)
-    at Auth (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_3850efa1._.js:12726:289)
+    at assertConfig (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_79abbb16._.js:513:16)
+    at Auth (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_79abbb16._.js:12245:289)
     at runNextTicks (node:internal/process/task_queues:64:5)
     at listOnTimeout (node:internal/timers:547:9)
     at process.processTimers (node:internal/timers:521:7)
 [Mock Prisma Fallback] Intercepted advertisement.findFirst
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-The width(-1) and height(-1) of chart should be greater than 0,
-       please check the style of container, or the props width(100%) and height(100%),
-       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
-       height and width.
-ℹ️ [Mock Prisma] Activating Proxy-based Mock Prisma Client...
- GET /compare/stripe-vs-paypal 200 in 2.7s (compile: 102ms, proxy.ts: 8ms, generate-params: 63ms, render: 2.6s)
+⨯ TypeError: Cannot read properties of undefined (reading 'logoUrl')
+    at <unknown> (src/components/home/featured-reports.tsx:70:49)
+    at Array.map (<anonymous>)
+    at FeaturedReports (src/components/home/featured-reports.tsx:54:24)
+  68 |                           <ManagedImage
+  69 |                             fill
+> 70 |                             src={comp.platformA.logoUrl}
+     |                                                 ^
+  71 |                             alt={comp.platformA.name}
+  72 |                             className="object-cover"
+  73 |                           /> {
+  digest: '234190557'
+}
+ GET / 200 in 25.1s (compile: 19.1s, proxy.ts: 382ms, render: 5.6s)
 ○ Compiling /api/auth/[...nextauth] ...
- GET /uploads/paypal_logo.png 404 in 2.9s (compile: 2.7s, proxy.ts: 28ms, render: 123ms)
-⨯ The requested resource isn't a valid image for /uploads/paypal_logo.png received null
+✓ Finished writing to filesystem cache in 11.1s
 ℹ️ [Mock Prisma] Activating Proxy-based Mock Prisma Client...
 [31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
     at assertConfig (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:513:16)
     at Auth (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:5344:291)
     at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
-    at async AppRouteRouteModule.do (/app/node_modules/.pnpm/next@16.1.6_@babel+core@7.29.0_@opentelemetry+api@1.9.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:37866)
- GET /api/auth/session 500 in 5.3s (compile: 5.2s, proxy.ts: 6ms, render: 27ms)
+    at async AppRouteRouteModule.do (/app/node_modules/.pnpm/next@16.1.6_@babel+core@7.29.7_@opentelemetry+api@1.9.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:37866)
+ GET /api/auth/session 500 in 8.1s (compile: 8.0s, proxy.ts: 23ms, render: 49ms)
 [31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
     at assertConfig (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:513:16)
     at Auth (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:5344:291)
-    at async AppRouteRouteModule.do (/app/node_modules/.pnpm/next@16.1.6_@babel+core@7.29.0_@opentelemetry+api@1.9.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:37866)
- GET /api/auth/session 500 in 99ms (compile: 85ms, proxy.ts: 6ms, render: 8ms)
+    at async AppRouteRouteModule.do (/app/node_modules/.pnpm/next@16.1.6_@babel+core@7.29.7_@opentelemetry+api@1.9.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:37866)
+ GET /api/auth/session 500 in 140ms (compile: 110ms, proxy.ts: 14ms, render: 16ms)
 ℹ️ [Mock Prisma] Activating Proxy-based Mock Prisma Client...
-✓ Finished filesystem cache database compaction in 16.1s
-✓ Compiled in 6.5s
-✓ Compiled in 3.7s
-✓ Compiled in 190ms
+[Mock Prisma Fallback] Intercepted comparisonCategory.findMany
 [31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
-    at assertConfig (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_3850efa1._.js:513:16)
-    at Auth (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_3850efa1._.js:12726:289)
+    at assertConfig (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_79abbb16._.js:513:16)
+    at Auth (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_79abbb16._.js:12245:289)
+    at runNextTicks (node:internal/process/task_queues:64:5)
+    at listOnTimeout (node:internal/timers:547:9)
+    at process.processTimers (node:internal/timers:521:7)
+[Mock Prisma Fallback] Intercepted advertisement.findFirst
+⨯ TypeError: Cannot read properties of undefined (reading 'rating')
+    at <unknown> (src/components/compare/comparison-list.tsx:58:50)
+    at <unknown> (src/components/compare/comparison-list.tsx:69:18)
+    at Array.map (<anonymous>)
+    at ComparisonList (src/components/compare/comparison-list.tsx:45:20)
+  56 |                 <div className="absolute inset-0 bg-grid-pattern-light opacity-5"></div>
+  57 |                 {(() => {
+> 58 |                   const ratingA = comp.platformA.rating || 0;
+     |                                                  ^
+  59 |                   const ratingB = comp.platformB.rating || 0;
+  60 |                   const diff = Math.abs(ratingA - ratingB);
+  61 |                   if (diff >= 1.0) { {
+  digest: '2618795747'
+}
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:513:16)
+    at Auth (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:5344:291)
+    at async AppRouteRouteModule.do (/app/node_modules/.pnpm/next@16.1.6_@babel+core@7.29.7_@opentelemetry+api@1.9.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:37866)
+ GET /api/auth/session 500 in 122ms (compile: 103ms, proxy.ts: 12ms, render: 7ms)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:513:16)
+    at Auth (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:5344:291)
+    at async AppRouteRouteModule.do (/app/node_modules/.pnpm/next@16.1.6_@babel+core@7.29.7_@opentelemetry+api@1.9.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:37866)
+ GET /api/auth/session 500 in 44ms (compile: 29ms, proxy.ts: 6ms, render: 9ms)
+ GET /compare 200 in 8.3s (compile: 7.1s, proxy.ts: 8ms, render: 1165ms)
+ℹ️ [Mock Prisma] Activating Proxy-based Mock Prisma Client...
+[Mock Prisma Fallback] Intercepted postCategory.findMany
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_79abbb16._.js:513:16)
+    at Auth (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_79abbb16._.js:12245:289)
+    at runNextTicks (node:internal/process/task_queues:64:5)
+    at listOnTimeout (node:internal/timers:547:9)
+    at process.processTimers (node:internal/timers:521:7)
+[Mock Prisma Fallback] Intercepted advertisement.findFirst
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:513:16)
+    at Auth (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:5344:291)
+    at async AppRouteRouteModule.do (/app/node_modules/.pnpm/next@16.1.6_@babel+core@7.29.7_@opentelemetry+api@1.9.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:37866)
+ GET /api/auth/session 500 in 124ms (compile: 96ms, proxy.ts: 21ms, render: 7ms)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:513:16)
+    at Auth (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:5344:291)
+    at async AppRouteRouteModule.do (/app/node_modules/.pnpm/next@16.1.6_@babel+core@7.29.7_@opentelemetry+api@1.9.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:37866)
+ GET /api/auth/session 500 in 41ms (compile: 16ms, proxy.ts: 12ms, render: 13ms)
+[Mock Prisma Fallback] Intercepted postCategory.findMany
+[Mock Prisma Fallback] Intercepted postCategory.findMany
+ℹ️ [Mock Prisma] Activating Proxy-based Mock Prisma Client...
+ GET /blog 200 in 7.1s (compile: 2.6s, proxy.ts: 6ms, render: 4.5s)
+ GET /blog?page=1 200 in 1969ms (compile: 21ms, proxy.ts: 13ms, render: 1935ms)
+ GET /blog?page=1 200 in 1811ms (compile: 28ms, proxy.ts: 779ms, render: 1004ms)
+[Mock Prisma Fallback] Intercepted forumCategory.upsert
+[Mock Prisma Fallback] Intercepted forumCategory.upsert
+[Mock Prisma Fallback] Intercepted forumCategory.upsert
+[Mock Prisma Fallback] Intercepted forumCategory.upsert
+[Mock Prisma Fallback] Intercepted forumCategory.upsert
+[Mock Prisma Fallback] Intercepted forumCategory.findMany
+⨯ TypeError: {imported module ./src/lib/prisma.ts}.default.user.count is not a function
+    at getCommunityStats (src/lib/community.ts:5:17)
+    at CommunityPage (src/app/(main)/community/page.tsx:44:22)
+  3 | export async function getCommunityStats() {
+  4 |   const [totalUsers, totalTopics, totalPosts] = await Promise.all([
+> 5 |     prisma.user.count(),
+    |                 ^
+  6 |     prisma.forumTopic.count({ where: { status: "APPROVED" } }),
+  7 |     prisma.forumPost.count({ where: { status: "APPROVED" } }),
+  8 |   ]); {
+  digest: '3527819730'
+}
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_79abbb16._.js:513:16)
+    at Auth (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_79abbb16._.js:12245:289)
+    at runNextTicks (node:internal/process/task_queues:64:5)
+    at listOnTimeout (node:internal/timers:547:9)
+    at process.processTimers (node:internal/timers:521:7)
+[Mock Prisma Fallback] Intercepted advertisement.findFirst
+ GET /community 200 in 2.8s (compile: 2.4s, proxy.ts: 7ms, render: 429ms)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:513:16)
+    at Auth (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:5344:291)
+    at async AppRouteRouteModule.do (/app/node_modules/.pnpm/next@16.1.6_@babel+core@7.29.7_@opentelemetry+api@1.9.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:37866)
+ GET /api/auth/session 500 in 198ms (compile: 169ms, proxy.ts: 23ms, render: 6ms)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:513:16)
+    at Auth (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:5344:291)
+    at async AppRouteRouteModule.do (/app/node_modules/.pnpm/next@16.1.6_@babel+core@7.29.7_@opentelemetry+api@1.9.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:37866)
+ GET /api/auth/session 500 in 42ms (compile: 20ms, proxy.ts: 12ms, render: 10ms)
+ℹ️ [Mock Prisma] Activating Proxy-based Mock Prisma Client...
+✓ Compiled in 188ms
+✓ Compiled in 156ms
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_79abbb16._.js:513:16)
+    at Auth (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_79abbb16._.js:12245:289)
     at runNextTicks (node:internal/process/task_queues:64:5)
     at listOnTimeout (node:internal/timers:547:9)
     at process.processTimers (node:internal/timers:521:7)
 [31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
-    at assertConfig (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_3850efa1._.js:513:16)
-    at Auth (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_3850efa1._.js:12726:289)
+    at assertConfig (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_79abbb16._.js:513:16)
+    at Auth (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_79abbb16._.js:12245:289)
     at runNextTicks (node:internal/process/task_queues:64:5)
     at listOnTimeout (node:internal/timers:547:9)
     at process.processTimers (node:internal/timers:521:7)
-ℹ️ [Mock Prisma] Activating Proxy-based Mock Prisma Client...
 [Mock Prisma Fallback] Intercepted advertisement.findFirst
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-[Mock Prisma Fallback] Intercepted advertisement.findFirst
-The width(-1) and height(-1) of chart should be greater than 0,
-       please check the style of container, or the props width(100%) and height(100%),
-       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
-       height and width.
- GET /compare/stripe-vs-paypal 200 in 10.4s (compile: 3.9s, proxy.ts: 136ms, generate-params: 370ms, render: 6.4s)
 [31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
     at assertConfig (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:513:16)
     at Auth (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:5344:291)
-    at async AppRouteRouteModule.do (/app/node_modules/.pnpm/next@16.1.6_@babel+core@7.29.0_@opentelemetry+api@1.9.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:37866)
- GET /api/auth/session 500 in 1872ms (compile: 1849ms, proxy.ts: 7ms, render: 16ms)
- GET /uploads/paypal_logo.png 404 in 1415ms (compile: 758ms, proxy.ts: 15ms, render: 643ms)
-⨯ The requested resource isn't a valid image for /uploads/paypal_logo.png received null
-ℹ️ [Mock Prisma] Activating Proxy-based Mock Prisma Client...
+    at async AppRouteRouteModule.do (/app/node_modules/.pnpm/next@16.1.6_@babel+core@7.29.7_@opentelemetry+api@1.9.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:37866)
+ GET /api/auth/session 500 in 115ms (compile: 99ms, proxy.ts: 4ms, render: 12ms)
 [31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
     at assertConfig (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:513:16)
     at Auth (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:5344:291)
-    at async AppRouteRouteModule.do (/app/node_modules/.pnpm/next@16.1.6_@babel+core@7.29.0_@opentelemetry+api@1.9.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:37866)
- GET /api/auth/session 500 in 117ms (compile: 91ms, proxy.ts: 13ms, render: 14ms)
+    at async AppRouteRouteModule.do (/app/node_modules/.pnpm/next@16.1.6_@babel+core@7.29.7_@opentelemetry+api@1.9.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:37866)
+ GET /api/auth/session 500 in 85ms (compile: 32ms, proxy.ts: 41ms, render: 12ms)
+ GET / 200 in 3.8s (compile: 397ms, proxy.ts: 10ms, render: 3.4s)
 ℹ️ [Mock Prisma] Activating Proxy-based Mock Prisma Client...
-✓ Compiled in 155ms
+[Mock Prisma Fallback] Intercepted comparisonCategory.findMany
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_79abbb16._.js:513:16)
+    at Auth (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_79abbb16._.js:12245:289)
+    at runNextTicks (node:internal/process/task_queues:64:5)
+    at listOnTimeout (node:internal/timers:547:9)
+    at process.processTimers (node:internal/timers:521:7)
+[Mock Prisma Fallback] Intercepted advertisement.findFirst
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:513:16)
+    at Auth (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:5344:291)
+    at async AppRouteRouteModule.do (/app/node_modules/.pnpm/next@16.1.6_@babel+core@7.29.7_@opentelemetry+api@1.9.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:37866)
+ GET /api/auth/session 500 in 239ms (compile: 206ms, proxy.ts: 26ms, render: 6ms)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:513:16)
+    at Auth (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:5344:291)
+    at async AppRouteRouteModule.do (/app/node_modules/.pnpm/next@16.1.6_@babel+core@7.29.7_@opentelemetry+api@1.9.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:37866)
+ GET /api/auth/session 500 in 63ms (compile: 45ms, proxy.ts: 12ms, render: 6ms)
+ GET /compare 200 in 1773ms (compile: 377ms, proxy.ts: 5ms, render: 1390ms)
+[Mock Prisma Fallback] Intercepted comparisonCategory.findMany
+[Mock Prisma Fallback] Intercepted comparisonCategory.findMany
+ GET /compare?page=1 200 in 257ms (compile: 30ms, proxy.ts: 5ms, render: 222ms)
+ GET /compare?page=1 200 in 178ms (compile: 16ms, proxy.ts: 36ms, render: 126ms)
+ℹ️ [Mock Prisma] Activating Proxy-based Mock Prisma Client...
+[Mock Prisma Fallback] Intercepted postCategory.findMany
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_79abbb16._.js:513:16)
+    at Auth (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_79abbb16._.js:12245:289)
+    at runNextTicks (node:internal/process/task_queues:64:5)
+    at listOnTimeout (node:internal/timers:547:9)
+    at process.processTimers (node:internal/timers:521:7)
+[Mock Prisma Fallback] Intercepted advertisement.findFirst
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:513:16)
+    at Auth (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:5344:291)
+    at async AppRouteRouteModule.do (/app/node_modules/.pnpm/next@16.1.6_@babel+core@7.29.7_@opentelemetry+api@1.9.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:37866)
+ GET /api/auth/session 500 in 162ms (compile: 138ms, proxy.ts: 13ms, render: 11ms)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:513:16)
+    at Auth (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:5344:291)
+    at async AppRouteRouteModule.do (/app/node_modules/.pnpm/next@16.1.6_@babel+core@7.29.7_@opentelemetry+api@1.9.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:37866)
+ GET /api/auth/session 500 in 23ms (compile: 6ms, proxy.ts: 11ms, render: 6ms)
+ GET /blog 200 in 2.6s (compile: 28ms, proxy.ts: 9ms, render: 2.5s)
+[Mock Prisma Fallback] Intercepted postCategory.findMany
+[Mock Prisma Fallback] Intercepted postCategory.findMany
+ℹ️ [Mock Prisma] Activating Proxy-based Mock Prisma Client...
+ GET /blog?page=1 200 in 1721ms (compile: 34ms, proxy.ts: 7ms, render: 1680ms)
+ GET /blog?page=1 200 in 1550ms (compile: 35ms, proxy.ts: 601ms, render: 914ms)
+[Mock Prisma Fallback] Intercepted forumCategory.upsert
+[Mock Prisma Fallback] Intercepted forumCategory.upsert
+[Mock Prisma Fallback] Intercepted forumCategory.upsert
+[Mock Prisma Fallback] Intercepted forumCategory.upsert
+[Mock Prisma Fallback] Intercepted forumCategory.upsert
+[Mock Prisma Fallback] Intercepted forumCategory.findMany
+⨯ TypeError: {imported module ./src/lib/prisma.ts}.default.user.count is not a function
+    at getCommunityStats (src/lib/community.ts:5:17)
+    at CommunityPage (src/app/(main)/community/page.tsx:44:22)
+  3 | export async function getCommunityStats() {
+  4 |   const [totalUsers, totalTopics, totalPosts] = await Promise.all([
+> 5 |     prisma.user.count(),
+    |                 ^
+  6 |     prisma.forumTopic.count({ where: { status: "APPROVED" } }),
+  7 |     prisma.forumPost.count({ where: { status: "APPROVED" } }),
+  8 |   ]); {
+  digest: '3527819730'
+}
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_79abbb16._.js:513:16)
+    at Auth (/app/.next/dev/server/chunks/ssr/node_modules__pnpm_79abbb16._.js:12245:289)
+    at runNextTicks (node:internal/process/task_queues:64:5)
+    at listOnTimeout (node:internal/timers:547:9)
+    at process.processTimers (node:internal/timers:521:7)
+[Mock Prisma Fallback] Intercepted advertisement.findFirst
+ GET /community 200 in 394ms (compile: 25ms, proxy.ts: 5ms, render: 364ms)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:513:16)
+    at Auth (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:5344:291)
+    at async AppRouteRouteModule.do (/app/node_modules/.pnpm/next@16.1.6_@babel+core@7.29.7_@opentelemetry+api@1.9.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:37866)
+ GET /api/auth/session 500 in 181ms (compile: 160ms, proxy.ts: 15ms, render: 6ms)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:513:16)
+    at Auth (/app/.next/dev/server/chunks/53b5f_@auth_core_f868f99c._.js:5344:291)
+    at async AppRouteRouteModule.do (/app/node_modules/.pnpm/next@16.1.6_@babel+core@7.29.7_@opentelemetry+api@1.9.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js:5:37866)
+ GET /api/auth/session 500 in 38ms (compile: 7ms, proxy.ts: 22ms, render: 9ms)
+ℹ️ [Mock Prisma] Activating Proxy-based Mock Prisma Client...

@@ -37,11 +37,11 @@ function UnsubscribeComponent() {
 
   if (state.success) {
     return (
-      <Card className="max-w-md mx-auto text-center rounded-3xl bg-card/60 backdrop-blur-xl border-border/10 shadow-2xl p-6">
+      <Card className="max-w-md mx-auto text-center rounded-2xl bg-card/40 backdrop-blur-md border border-border/40 shadow-md p-6">
         <CardHeader>
-          <MailCheck className="h-12 w-12 mx-auto text-green-500" />
-          <CardTitle className="mt-4">Successfully Unsubscribed</CardTitle>
-          <CardDescription>
+          <MailCheck className="h-10 w-10 mx-auto text-emerald-500" />
+          <CardTitle className="mt-2 text-xl font-extrabold">Successfully Unsubscribed</CardTitle>
+          <CardDescription className="text-xs font-medium">
             You have been unsubscribed from our mailing list. You will no longer
             receive marketing emails from us.
           </CardDescription>
@@ -49,7 +49,7 @@ function UnsubscribeComponent() {
         <CardFooter>
           <Button
             asChild
-            className="w-full h-12 rounded-xl font-bold shadow-md shadow-primary/10"
+            className="w-full h-10 rounded-xl font-extrabold shadow-sm text-xs uppercase tracking-widest"
           >
             <Link href="/">Return to Homepage</Link>
           </Button>
@@ -68,11 +68,11 @@ function UnsubscribeComponent() {
   }
 
   return (
-    <Card className="max-w-md mx-auto text-center rounded-3xl bg-card/60 backdrop-blur-xl border-border/10 shadow-2xl p-6">
+    <Card className="max-w-md mx-auto text-center rounded-2xl bg-card/40 backdrop-blur-md border border-border/40 shadow-md p-6">
       <form action={formAction}>
         <CardHeader>
-          <CardTitle>Confirm Unsubscription</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-xl font-extrabold">Confirm Unsubscription</CardTitle>
+          <CardDescription className="text-xs font-medium">
             Are you sure you want to unsubscribe from our newsletter? You'll
             miss out on updates, new tools, and exclusive content.
           </CardDescription>
@@ -81,7 +81,7 @@ function UnsubscribeComponent() {
           <Button
             type="submit"
             variant="destructive"
-            className="w-full h-12 rounded-xl font-bold shadow-md shadow-destructive/20"
+            className="w-full h-10 rounded-xl font-extrabold text-xs uppercase tracking-widest shadow-sm"
             disabled={isPending}
           >
             {isPending ? (

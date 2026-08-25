@@ -84,16 +84,16 @@ export default async function PanelLayout({
         </SidebarFooter>
       </Sidebar>
       <SidebarInset className="bg-background">
-        <header className="sticky top-0 z-40 flex h-16 items-center justify-between px-6 bg-background/80 backdrop-blur-md border-b border-border/50">
-          <div className="flex items-center gap-4">
-            <SidebarTrigger className="hover:bg-primary/10 transition-colors" />
-            <div className="h-4 w-px bg-border/50 mx-1 hidden md:block" />
-            <h1 className="text-xl font-headline tracking-tight font-black opacity-90">
+        <header className="sticky top-0 z-40 flex h-14 items-center justify-between px-4 md:px-6 bg-card/60 backdrop-blur-md border-b border-border/40 shadow-xs">
+          <div className="flex items-center gap-3">
+            <SidebarTrigger className="hover:bg-primary/10 transition-colors h-9 w-9" />
+            <div className="h-4 w-px bg-border/40 mx-1 hidden md:block" />
+            <h1 className="text-lg font-extrabold tracking-tight opacity-90">
               User Panel
             </h1>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-2 mr-2">
+          <div className="flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-1.5 mr-1">
               <ThemeToggle />
               <NotificationBell
                 notifications={notifications}
@@ -103,7 +103,7 @@ export default async function PanelLayout({
             {user && <UserNav user={user} />}
           </div>
         </header>
-        <main className="p-6 md:p-8 animate-fade-in-up">{children}</main>
+        <main className="p-4 md:p-6 animate-fade-in-up">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );

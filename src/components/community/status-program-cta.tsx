@@ -5,34 +5,32 @@ import { Star } from "lucide-react";
 
 export function StatusProgramCTA() {
   return (
-    <section className="container max-w-6xl py-32">
+    <section className="container max-w-5xl py-12">
       <MotionDiv
-        initial={{ opacity: 0, scale: 0.95 }}
+        initial={{ opacity: 0, scale: 0.98 }}
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true }}
-        className="relative group p-1.5 rounded-[3rem] bg-linear-to-br from-primary/20 via-transparent to-primary/20 border border-primary/10"
+        className="relative group p-1 rounded-2xl bg-card/40 backdrop-blur-md border border-border/40 hover:border-border/60 transition-colors shadow-md"
       >
-        <div className="p-12 md:p-20 rounded-[2.8rem] bg-card/60 backdrop-blur-3xl border border-primary/10 shadow-3xl overflow-hidden flex flex-col items-center text-center">
-          <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-10"></div>
-          <div className="relative z-10 max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary mb-8 shadow-xl ring-8 ring-primary/5">
-              <Star className="h-5 w-5 fill-current" />
-              <span className="text-[10px] font-black uppercase tracking-[0.4em]">
+        <div className="p-8 md:p-12 rounded-xl bg-card/60 backdrop-blur-md border border-primary/20 overflow-hidden flex flex-col items-center text-center">
+          <div className="relative z-10 max-w-2xl">
+            <div className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary mb-4 shadow-sm">
+              <Star className="h-4 w-4 fill-current" />
+              <span className="text-[10px] font-extrabold uppercase tracking-widest">
                 Contributor Program
               </span>
             </div>
-            <h3 className="text-4xl md:text-6xl font-black tracking-tight mb-8 leading-none">
-              Earn <span className="text-primary italic">Recognition</span> Through
-              Contributions
+            <h3 className="text-2xl md:text-4xl font-extrabold tracking-tight mb-4 leading-tight">
+              Earn <span className="text-primary italic">Recognition</span> Through Contributions
             </h3>
-            <p className="text-xl text-muted-foreground mb-12 leading-relaxed font-medium">
+            <p className="text-sm text-muted-foreground mb-8 leading-relaxed font-medium">
               Share your expertise. Active contributors get early access to new tools,
               exclusive comparisons, and a verified creator badge.
             </p>
             <Button
               asChild
-              size="xl"
-              className="rounded-full px-12 h-16 font-black uppercase tracking-[0.3em] text-sm shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+              size="default"
+              className="rounded-full px-8 h-11 font-extrabold uppercase tracking-widest text-xs shadow-md shadow-primary/20 hover:scale-102 active:scale-98 transition-all"
             >
               <NextLink href="#categories">View All Categories</NextLink>
             </Button>

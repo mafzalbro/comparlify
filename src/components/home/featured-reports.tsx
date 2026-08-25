@@ -20,53 +20,53 @@ export function FeaturedReports({ comparisons }: FeaturedReportsProps) {
   if (comparisons.length === 0) return null;
 
   return (
-    <section className="py-16 bg-secondary/0 relative overflow-hidden">
+    <section className="py-10 bg-secondary/0 relative overflow-hidden">
       <div className="absolute inset-0 bg-grid-pattern-light opacity-5 pointer-events-none"></div>
       <div className="container mx-auto px-4 md:px-6 relative z-10">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-500 mb-6 shadow-sm">
-              <Zap className="h-4 w-4" />
-              <span className="text-[10px] uppercase tracking-widest text-orange-500 font-black">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+          <div className="max-w-2xl space-y-1">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-500 shadow-xs">
+              <Zap className="h-3.5 w-3.5" />
+              <span className="text-[10px] uppercase tracking-widest text-orange-500 font-extrabold">
                 Live Assessments
               </span>
             </div>
-            <h2 className="text-2xl md:text-4xl font-black tracking-tight mb-4">
-              Latest <span className="text-primary italic">Intelligence</span>{" "}
-              Reports
+            <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">
+              Latest <span className="text-primary italic">Intelligence</span> Reports
             </h2>
-            <p className="text-lg text-muted-foreground font-medium leading-relaxed">
-              Raw data. Side-by-side breakdowns. Zero fluff. Find the perfect
-              fit for your business.
+            <p className="text-sm text-muted-foreground font-medium leading-relaxed">
+              Raw data. Side-by-side breakdowns. Zero fluff. Find the perfect fit for your business.
             </p>
           </div>
           <Button
             asChild
             variant="ghost"
-            className="group h-12 px-6 rounded-xl hover:bg-primary/10 text-primary font-black uppercase tracking-widest text-[10px] transition-all"
+            className="group h-10 px-4 rounded-xl hover:bg-primary/10 text-primary font-extrabold uppercase tracking-widest text-[10px] transition-all"
           >
             <NextLink href="/compare">
               View Extensive Reports{" "}
-              <ArrowRight className="ml-3 h-4 w-4 transition-transform group-hover:translate-x-2" />
+              <ArrowRight className="ml-2 h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
             </NextLink>
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {comparisons.map((comp, idx) => (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          {comparisons.map((comp, idx) => {
+            if (!comp.platformA || !comp.platformB) return null;
+            return (
             <MotionDiv
               key={comp.id}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: idx * 0.1 }}
+              transition={{ duration: 0.5, delay: idx * 0.08 }}
             >
-              <Card className="group overflow-hidden rounded-[2.5rem] border border-border/10 bg-card/20 backdrop-blur-xl shadow-lg transition-all duration-700 hover:shadow-xl hover:shadow-primary/5 h-full flex flex-col sm:flex-row">
-                <div className="flex-1 p-6 flex flex-col justify-between">
-                  <div className="space-y-8">
-                    <div className="flex items-center space-x-3 mb-4 p-2 bg-background/50 rounded-2xl border border-border/10 w-fit">
-                      <div className="flex -space-x-3">
-                        <div className="w-10 h-10 rounded-full border-2 border-background overflow-hidden relative shadow-lg">
+              <Card className="group overflow-hidden rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md hover:border-border/60 transition-colors shadow-md h-full flex flex-col sm:flex-row">
+                <div className="flex-1 p-5 flex flex-col justify-between">
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2 p-1.5 bg-background/50 rounded-xl border border-border/20 w-fit">
+                      <div className="flex -space-x-2">
+                        <div className="w-7 h-7 rounded-full border border-background overflow-hidden relative shadow-sm">
                           <ManagedImage
                             fill
                             src={comp.platformA.logoUrl}
@@ -74,7 +74,7 @@ export function FeaturedReports({ comparisons }: FeaturedReportsProps) {
                             className="object-cover"
                           />
                         </div>
-                        <div className="w-10 h-10 rounded-full border-2 border-background overflow-hidden relative shadow-lg">
+                        <div className="w-7 h-7 rounded-full border border-background overflow-hidden relative shadow-sm">
                           <ManagedImage
                             fill
                             src={comp.platformB.logoUrl}
@@ -83,27 +83,27 @@ export function FeaturedReports({ comparisons }: FeaturedReportsProps) {
                           />
                         </div>
                       </div>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-2">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-1.5">
                         Comparison
                       </span>
                     </div>
                     <NextLink href={`/compare/${comp.slug}`}>
-                      <h3 className="text-2xl font-black tracking-tight group-hover:text-primary transition-colors leading-[1.1] mb-6">
+                      <h3 className="text-lg font-extrabold tracking-tight group-hover:text-primary transition-colors leading-snug">
                         {comp.title}
                       </h3>
                     </NextLink>
-                    <p className="text-muted-foreground font-medium leading-relaxed text-sm line-clamp-2">
+                    <p className="text-muted-foreground font-medium leading-relaxed text-xs line-clamp-2">
                       {comp.summary}
                     </p>
                   </div>
                   <NextLink
                     href={`/compare/${comp.slug}`}
-                    className="mt-12 flex items-center text-[10px] font-black text-primary uppercase tracking-[0.3em] group-hover:translate-x-3 transition-transform duration-500"
+                    className="mt-6 flex items-center text-[10px] font-extrabold text-primary uppercase tracking-widest group-hover:translate-x-2 transition-transform duration-300"
                   >
-                    The Full Breakdown <ArrowRight className="ml-3 h-4 w-4" />
+                    The Full Breakdown <ArrowRight className="ml-2 h-3.5 w-3.5" />
                   </NextLink>
                 </div>
-                <div className="w-full sm:w-[180px] bg-primary/5 p-6 flex flex-col justify-center items-center gap-6 border-l border-border/10">
+                <div className="w-full sm:w-[150px] bg-primary/5 p-4 flex flex-col justify-center items-center gap-4 border-l border-border/20">
                   {(() => {
                     const avgScore = calculateComparisonAverageScore(
                       comp.platformA,
@@ -113,36 +113,37 @@ export function FeaturedReports({ comparisons }: FeaturedReportsProps) {
                     return (
                       <>
                         <div className="text-center group/score">
-                          <div className="text-[8px] font-black uppercase tracking-[0.3em] text-muted-foreground mb-4">
+                          <div className="text-[8px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
                             Rating
                           </div>
-                          <div className="text-5xl text-primary italic drop-shadow-sm font-black">
+                          <div className="text-3xl text-primary italic drop-shadow-xs font-black">
                             {avgScore}
                           </div>
                         </div>
-                        <div className="w-full bg-primary/10 h-1.5 rounded-full overflow-hidden shadow-inner">
+                        <div className="w-full bg-primary/10 h-1.5 rounded-full overflow-hidden">
                           <MotionDiv
                             initial={{ width: 0 }}
                             whileInView={{ width: progressWidth }}
-                            transition={{ duration: 1.5, delay: 0.5 }}
-                            className="bg-primary h-full shadow-[0_0_15px_rgba(234,179,8,0.5)]"
+                            transition={{ duration: 1, delay: 0.3 }}
+                            className="bg-primary h-full"
                           />
                         </div>
                       </>
                     );
                   })()}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     {[1, 2, 3, 4, 5].map((s) => (
                       <Star
                         key={s}
-                        className="h-3 w-3 text-amber-500 fill-current"
+                        className="h-2.5 w-2.5 text-amber-500 fill-current"
                       />
                     ))}
                   </div>
                 </div>
               </Card>
             </MotionDiv>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

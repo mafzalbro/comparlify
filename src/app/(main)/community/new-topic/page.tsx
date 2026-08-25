@@ -14,17 +14,17 @@ export default async function NewTopicPage() {
   });
 
   return (
-    <div className="bg-background min-h-screen pt-32 pb-24 relative overflow-hidden">
+    <div className="bg-background min-h-screen pt-16 pb-16 relative overflow-hidden">
       {/* Background Visuals */}
       <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-30"></div>
 
       <div className="container mx-auto relative z-10 px-4 md:px-6">
         <MotionDiv
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="max-w-4xl mx-auto mb-16"
+          className="max-w-4xl mx-auto mb-8"
         >
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
               <Breadcrumbs
                 items={[
@@ -32,16 +32,16 @@ export default async function NewTopicPage() {
                   { name: "Community", href: "/community" },
                   { name: "New Topic" },
                 ]}
-                className="mb-8"
+                className="mb-4"
               />
-              <h1 className="text-4xl md:text-6xl font-black tracking-tight leading-[0.9]">
+              <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight leading-tight">
                 Initialize <span className="text-primary italic">Dispatch</span>
               </h1>
             </div>
             <Button
               asChild
               variant="ghost"
-              className="h-14 px-8 rounded-2xl gap-2 font-black uppercase tracking-widest text-xs hover:bg-primary/10 text-primary self-start md:self-auto"
+              className="h-10 px-6 rounded-xl gap-2 font-extrabold uppercase tracking-widest text-xs hover:bg-primary/10 text-primary self-start md:self-auto"
             >
               <Link href="/community">
                 <ChevronLeft className="h-4 w-4" /> Back to Collective

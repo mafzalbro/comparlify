@@ -62,34 +62,30 @@ export default async function NewsPage() {
   return (
     <div className="bg-background min-h-screen">
       {/* --- PREMIUM NEWS HERO --- */}
-      <section className="relative pt-8 pb-10 overflow-hidden">
+      <section className="relative pt-6 pb-8 overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-30"></div>
-        <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
-          <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse"></div>
-          <div className="absolute bottom-[20%] -right-[10%] w-[30%] h-[30%] bg-primary/5 rounded-full blur-[100px] animate-pulse delay-1000"></div>
-        </div>
 
         <div className="container mx-auto relative z-10 px-4 md:px-6">
           <MotionDiv
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.5 }}
           >
-            <div className="flex flex-col items-center text-center max-w-6xl mx-auto">
+            <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
               <Breadcrumbs
                 items={[{ name: "Home", href: "/" }, { name: "News" }]}
-                className="mb-8 justify-center"
+                className="mb-4 justify-center"
               />
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary mb-8 shadow-sm">
-                <Newspaper className="h-4 w-4" />
-                <span className="text-[10px] font-black uppercase tracking-[0.3em]">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary mb-4 shadow-xs">
+                <Newspaper className="h-3.5 w-3.5" />
+                <span className="text-[10px] font-extrabold uppercase tracking-widest">
                   Newsroom
                 </span>
               </div>
-              <h1 className="text-3xl md:text-5xl font-black text-foreground tracking-tight leading-none mb-6">
+              <h1 className="text-2xl md:text-4xl font-extrabold text-foreground tracking-tight leading-tight mb-2">
                 Latest <span className="text-primary italic">News</span>
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+              <p className="text-sm md:text-base text-muted-foreground leading-relaxed max-w-xl mx-auto font-medium">
                 Product updates, announcements, and news from our team.
               </p>
             </div>
@@ -97,7 +93,7 @@ export default async function NewsPage() {
         </div>
       </section>
 
-      <div className="container mx-auto py-8 px-4 md:px-6">
+      <div className="container mx-auto py-6 px-4 md:px-6">
         {articles.length === 0 ? (
           <MotionDiv
             initial={{ opacity: 0, scale: 0.95 }}

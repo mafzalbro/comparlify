@@ -26,30 +26,25 @@ export function ExpertIntelligence({
   if (posts.length === 0) return null;
 
   return (
-    <section className="py-16 md:py-24 relative overflow-hidden bg-transparent">
-      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-[20%] -right-[5%] w-[35%] h-[35%] bg-primary/5 rounded-full blur-[100px] animate-pulse"></div>
-        <div className="absolute bottom-[10%] -left-[5%] w-[30%] h-[30%] bg-blue-500/5 rounded-full blur-[120px] animate-pulse delay-700"></div>
-      </div>
-
+    <section className="py-10 md:py-16 relative overflow-hidden bg-transparent">
       <div className="container mx-auto px-4 md:px-6 relative z-10">
-        <div className="flex flex-col md:flex-row items-end justify-between mb-12 gap-6">
+        <div className="flex flex-col md:flex-row items-end justify-between mb-8 gap-4">
           <MotionDiv
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: -15 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="max-w-2xl text-left"
+            className="max-w-2xl text-left space-y-1"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary mb-6 shadow-sm">
-              <BookOpen className="h-4 w-4" />
-              <span className="text-[10px] uppercase tracking-widest text-primary font-black">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary shadow-xs">
+              <BookOpen className="h-3.5 w-3.5" />
+              <span className="text-[10px] uppercase tracking-widest text-primary font-extrabold">
                 Latest Articles
               </span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-4">
+            <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">
               Expert <span className="text-primary italic">Insights</span>
             </h2>
-            <p className="text-lg text-muted-foreground font-medium leading-relaxed max-w-xl">
+            <p className="text-sm text-muted-foreground font-medium leading-relaxed max-w-xl">
               {description ||
                 "Actionable advice and growth strategies for the modern course creator. Stay ahead with expert tips."}
             </p>
@@ -57,25 +52,25 @@ export function ExpertIntelligence({
           <Button
             asChild
             variant="ghost"
-            className="group h-12 px-6 rounded-xl hover:bg-primary/10 text-primary font-black uppercase tracking-widest text-[10px] transition-all"
+            className="group h-10 px-4 rounded-xl hover:bg-primary/10 text-primary font-extrabold uppercase tracking-widest text-[10px] transition-all"
           >
             <NextLink href="/blog">
               View Blog{" "}
-              <ArrowRight className="ml-3 h-4 w-4 transition-transform group-hover:translate-x-2" />
+              <ArrowRight className="ml-2 h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
             </NextLink>
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {posts.map((post, index) => (
             <MotionDiv
               key={post.slug}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
+              transition={{ duration: 0.5, delay: index * 0.08 }}
             >
-              <Card className="flex flex-col h-full group overflow-hidden rounded-4xl border border-border/10 bg-card/20 backdrop-blur-xl shadow-lg transition-all duration-500 hover:shadow-xl hover:-translate-y-2">
+              <Card className="flex flex-col h-full group overflow-hidden rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md hover:border-border/60 transition-colors shadow-md">
                 <div className="relative overflow-hidden aspect-16/10">
                   <NextLink
                     href={`/blog/${post.slug}`}
@@ -85,24 +80,19 @@ export function ExpertIntelligence({
                       src={post.image}
                       alt={post.title}
                       fill
-                      className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end p-8">
-                      <span className="text-white font-black uppercase tracking-widest text-[10px] flex items-center gap-2">
-                        The Full Breakdown <ArrowRight className="h-4 w-4" />
-                      </span>
-                    </div>
                   </NextLink>
                 </div>
-                <CardHeader className="p-6 pb-3">
-                  <div className="flex items-center gap-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-4">
+                <CardHeader className="p-5 pb-2">
+                  <div className="flex items-center gap-3 text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">
                     <span className="text-primary">{post.author.name}</span>
-                    <span className="w-4 h-px bg-border/20"></span>
-                    <span className="flex items-center gap-2 font-black uppercase tracking-widest">
+                    <span className="w-3 h-px bg-border/40"></span>
+                    <span className="flex items-center gap-1">
                       <Clock className="h-3 w-3" /> 5 min read
                     </span>
                   </div>
-                  <CardTitle className="text-xl font-black leading-[1.1] group-hover:text-primary transition-colors duration-500 mb-4 line-clamp-2">
+                  <CardTitle className="text-base font-extrabold leading-snug group-hover:text-primary transition-colors duration-300 line-clamp-2">
                     <NextLink
                       href={`/blog/${post.slug}`}
                       className="after:absolute after:inset-0"
@@ -111,13 +101,13 @@ export function ExpertIntelligence({
                     </NextLink>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="px-6 flex-1">
-                  <p className="text-muted-foreground text-sm line-clamp-2 leading-relaxed font-medium mb-4">
+                <CardContent className="px-5 flex-1">
+                  <p className="text-muted-foreground text-xs line-clamp-2 leading-relaxed font-medium">
                     {post.description}
                   </p>
                 </CardContent>
-                <CardFooter className="p-6 pt-0">
-                  <div className="flex items-center gap-3 text-primary font-black uppercase tracking-[0.2em] text-[10px] group/btn group-hover:translate-x-2 transition-transform duration-500">
+                <CardFooter className="p-5 pt-3">
+                  <div className="flex items-center gap-2 text-primary font-extrabold uppercase tracking-widest text-[10px] group/btn group-hover:translate-x-1.5 transition-transform duration-300">
                     Read Article <ArrowRight className="h-3 w-3" />
                   </div>
                 </CardFooter>
