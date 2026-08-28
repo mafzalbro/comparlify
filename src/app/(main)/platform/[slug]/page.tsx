@@ -25,6 +25,7 @@ import { auth } from "@/lib/auth";
 import { ManagedImage } from "@/components/managed-image";
 import { PlatformScorecardCard } from "@/components/platform-scorecard-card";
 import { PlatformChangeTracker } from "@/components/platform-change-tracker";
+import { PersonalizedMatchCard } from "@/components/personalized-match-card";
 
 export const revalidate = 3600; // ISR
 
@@ -184,6 +185,7 @@ export default async function PlatformDetailPage(props: {
               {/* Creator Intelligence Scorecard & Change Tracker */}
               <div className="space-y-12">
                 <PlatformScorecardCard platform={platform} />
+                <PersonalizedMatchCard platform={platform} />
                 <PlatformChangeTracker
                   platformName={platform.name}
                   lastVerifiedAt={platform.lastVerifiedAt}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { calculatePlatformScore } from "@/lib/score-engine";
+import { calculatePlatformScore, calculatePersonalMatchScore } from "@/lib/score-engine";
 
 describe("Platform Scorecard Engine", () => {
   it("calculates weighted overall score correctly", () => {
@@ -34,5 +34,31 @@ describe("Platform Scorecard Engine", () => {
     expect(scorecard.overallScore).toBeGreaterThan(0);
     expect(scorecard.overallScore).toBeLessThanOrEqual(100);
     expect(scorecard.pillars).toHaveLength(5);
+    expect(scorecard.creatorFits).toHaveLength(5);
+  });
+
+  it("calculates personalized match score based on user slider weights", () => {
+    const mockPlatform = {
+      name: "Ghost",
+      rating: 4.8,
+      easeOfUse: 4.2,
+      featuresRating: 4.7,
+      support: 4.5,
+      valueRating: 4.9,
+      sovereigntyRating: 5.0,
+      integrationsRating: 4.6,
+    };
+
+    // Creator prioritizes sovereignty and value heavily
+    const userWeights = {
+      featuresWeight: 10,
+      valueWeight: 100,
+      sovereigntyWeight: 100,
+      uxWeight: 20,
+      integrationsWeight: 20,
+    };
+
+    const personalScore = calculatePersonalMatchScore(mockPlatform, userWeights);
+    expect(personalScore).toBeGreaterThanOrEqual(90);
   });
 });
