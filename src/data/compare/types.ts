@@ -23,6 +23,15 @@ export interface AnalystAudit {
   verificationLevel: "BASIC" | "VERIFIED" | "INDUSTRIAL";
 }
 
+export interface PlatformChangeLogData {
+  id?: string;
+  date: string; // ISO string or Date string like "2026-02-15"
+  title: string;
+  description: string;
+  type: "PRICING" | "FEATURE" | "FEE_UPDATE" | "SECURITY" | "INTEGRATION";
+  sourceUrl?: string;
+}
+
 export interface PlatformData {
   name: string;
   website: string;
@@ -41,6 +50,15 @@ export interface PlatformData {
   features: PlatformFeatureData[];
   lastVerifiedAt: string; // ISO string
   sourceUrl: string;
+
+  // Phase 3 Creator Intelligence 5-Pillar Scores (0-5 scale)
+  valueRating?: number;
+  sovereigntyRating?: number;
+  integrationsRating?: number;
+  category?: string;
+
+  // Change History Log
+  changeLogs?: PlatformChangeLogData[];
 
   // Industrial Trust Layer
   audit?: AnalystAudit;

@@ -23,6 +23,8 @@ import Link from "next/link";
 import { cache } from "react";
 import { auth } from "@/lib/auth";
 import { ManagedImage } from "@/components/managed-image";
+import { PlatformScorecardCard } from "@/components/platform-scorecard-card";
+import { PlatformChangeTracker } from "@/components/platform-change-tracker";
 
 export const revalidate = 3600; // ISR
 
@@ -178,7 +180,17 @@ export default async function PlatformDetailPage(props: {
             </aside>
 
             {/* --- MAIN CONTENT --- */}
-            <main className="lg:col-span-8 space-y-24">
+            <main className="lg:col-span-8 space-y-16">
+              {/* Creator Intelligence Scorecard & Change Tracker */}
+              <div className="space-y-12">
+                <PlatformScorecardCard platform={platform} />
+                <PlatformChangeTracker
+                  platformName={platform.name}
+                  lastVerifiedAt={platform.lastVerifiedAt}
+                  changeLogs={(platform as any).changeLogs || []}
+                />
+              </div>
+
               <section className="prose prose-invert prose-lg max-w-none">
                 <MarkdownContent content={platform.description} />
               </section>

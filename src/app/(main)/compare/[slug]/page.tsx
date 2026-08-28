@@ -33,6 +33,8 @@ import { IntelligentAnalysis } from "@/components/comparison/intelligent-analysi
 import { PlatformVisitCards } from "@/components/comparison/platform-visit-cards";
 import { InlineROICalculator } from "@/components/comparison/inline-roi-calculator";
 import { PlatformPicker } from "@/components/tool/PlatformPicker";
+import { PlatformScorecardCard } from "@/components/platform-scorecard-card";
+import { PlatformChangeTracker } from "@/components/platform-change-tracker";
 
 const ComparisonChart = dynamic(
   () =>
@@ -251,6 +253,14 @@ export default async function ComparisonDetailPage(props: {
           platformAName={platformA.name}
           platformBName={platformB.name}
         />
+
+        {/* ── SIDE-BY-SIDE SCORECARDS ────────────────── */}
+        <section className="container mx-auto px-4 md:px-6 max-w-7xl pt-8 pb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <PlatformScorecardCard platform={platformA} />
+            <PlatformScorecardCard platform={platformB} />
+          </div>
+        </section>
 
         {/* ── PLATFORM PICKER (Decision Engine) ────────────────── */}
         <section className="py-24 overflow-hidden">
