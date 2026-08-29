@@ -61,4 +61,28 @@ describe("Platform Scorecard Engine", () => {
     const personalScore = calculatePersonalMatchScore(mockPlatform, userWeights);
     expect(personalScore).toBeGreaterThanOrEqual(90);
   });
+
+  it("verifies 5-pillar weighting sum invariant equals exactly 100%", () => {
+    const mockPlatform = { name: "Test Platform", rating: 4.0 };
+    const scorecard = calculatePlatformScore(mockPlatform);
+
+    const sumWeights = scorecard.pillars.reduce((acc, p) => acc + p.weight, 0);
+    expect(Number(sumWeights.toFixed(2))).toBe(1.00); // 1.00 = 100%
+  });
+
+  it("calculates deterministic confidence levels based on freshness and evidence", () => {
+    const freshPlatform = {
+      name: "Fresh Platform",
+      rating: 4.8,
+      lastVerifiedAt: new Date().toISOString(),
+      features: [{ featureName: "F1", categoryName: "C", hasFeature: true }, { featureName: "F2", categoryName: "C", hasFeature: true }, { featureName: "F3", categoryName: "C", hasFeature: true }, { featureName: "F4", categoryName: "C", hasFeature: true }],
+      tiers: [{ name: "T1", monthlyPrice: 10 }],
+      changeLogs: [{ date: new Date().toISOString(), title: "Update", description: "Desc", type: "FEATURE" }],
+      sourceUrl: "https://example.com"
+    };
+
+    const scorecard = calculatePlatformScore(freshPlatform as any);
+    expect(scorecard.confidence).toBe("HIGH");
+    expect(scorecard.evidenceDetails.lastVerifiedDaysAgo).toBeLessThan(90);
+  });
 });

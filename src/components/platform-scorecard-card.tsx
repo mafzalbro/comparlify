@@ -47,13 +47,35 @@ export function PlatformScorecardCard({ platform, title, className = "", showDet
                 <HelpCircle className="w-3 h-3 text-muted-foreground/60 hover:text-primary" />
               </Link>
             </div>
-            <div className="text-xs font-extrabold text-primary">Grade {scorecard.grade}</div>
+            <div className="flex items-center justify-end gap-1.5">
+              <span className="text-xs font-extrabold text-primary">Grade {scorecard.grade}</span>
+              <Badge variant="outline" className={`text-[9px] uppercase font-bold px-1.5 py-0 rounded ${
+                scorecard.confidence === "HIGH" ? "border-emerald-500/30 text-emerald-500 bg-emerald-500/10" :
+                scorecard.confidence === "MODERATE" ? "border-amber-500/30 text-amber-500 bg-amber-500/10" :
+                "border-zinc-500/30 text-zinc-400 bg-zinc-500/10"
+              }`}>
+                {scorecard.confidence} Confidence
+              </Badge>
+            </div>
           </div>
           <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-primary text-primary-foreground font-black text-2xl shadow-md">
             {scorecard.overallScore}
           </div>
         </div>
       </div>
+
+      {/* SCORE DELTA EXPLANATION */}
+      {scorecard.scoreTrend?.deltaExplanation && (
+        <div className="p-3.5 rounded-xl bg-primary/5 border border-primary/20 text-xs font-medium space-y-1">
+          <div className="flex items-center justify-between text-[11px] font-extrabold text-primary uppercase tracking-wider">
+            <span className="flex items-center gap-1">
+              <TrendingUp className="w-3.5 h-3.5" /> Score Change ({scorecard.scoreTrend.deltaExplanation.date})
+            </span>
+            <span>+{scorecard.scoreTrend.deltaExplanation.changeAmount} pts</span>
+          </div>
+          <p className="text-muted-foreground">{scorecard.scoreTrend.deltaExplanation.summary}</p>
+        </div>
+      )}
 
       <p className="text-xs md:text-sm font-medium text-muted-foreground bg-secondary/20 p-4 rounded-xl border border-border/20">
         <Sparkles className="w-4 h-4 text-primary inline mr-2" />

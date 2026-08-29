@@ -35,6 +35,7 @@ import { InlineROICalculator } from "@/components/comparison/inline-roi-calculat
 import { PlatformPicker } from "@/components/tool/PlatformPicker";
 import { PlatformScorecardCard } from "@/components/platform-scorecard-card";
 import { PlatformChangeTracker } from "@/components/platform-change-tracker";
+import { InteractiveComparisonMatcher } from "@/components/comparison/interactive-comparison-matcher";
 
 const ComparisonChart = dynamic(
   () =>
@@ -254,8 +255,9 @@ export default async function ComparisonDetailPage(props: {
           platformBName={platformB.name}
         />
 
-        {/* ── SIDE-BY-SIDE SCORECARDS ────────────────── */}
-        <section className="container mx-auto px-4 md:px-6 max-w-7xl pt-8 pb-4">
+        {/* ── SIDE-BY-SIDE SCORECARDS & INTERACTIVE MATCHER ────────────────── */}
+        <section className="container mx-auto px-4 md:px-6 max-w-7xl pt-8 pb-4 space-y-12">
+          <InteractiveComparisonMatcher platformA={platformA} platformB={platformB} />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <PlatformScorecardCard platform={platformA} />
             <PlatformScorecardCard platform={platformB} />
