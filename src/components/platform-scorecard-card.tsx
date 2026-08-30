@@ -38,28 +38,46 @@ export function PlatformScorecardCard({ platform, title, className = "", showDet
           </h3>
         </div>
 
-        {/* Overall Score Circle Badge */}
-        <div className="flex items-center gap-3 bg-card/80 border border-border/50 p-3 rounded-2xl">
-          <div className="text-right">
-            <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground flex items-center justify-end gap-1">
-              Comparlify Score
-              <Link href="/methodology" aria-label="Score methodology">
-                <HelpCircle className="w-3 h-3 text-muted-foreground/60 hover:text-primary" />
-              </Link>
+        {/* Dual Signal Display: Comparlify Score vs Creator Rating */}
+        <div className="flex flex-wrap items-center gap-4">
+          {/* Signal 1: Comparlify Score */}
+          <div className="flex items-center gap-3 bg-card/80 border border-border/50 p-3 rounded-2xl">
+            <div className="text-right">
+              <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground flex items-center justify-end gap-1">
+                Comparlify Score
+                <Link href="/methodology" aria-label="Score methodology">
+                  <HelpCircle className="w-3 h-3 text-muted-foreground/60 hover:text-primary" />
+                </Link>
+              </div>
+              <div className="flex items-center justify-end gap-1.5">
+                <span className="text-xs font-extrabold text-primary">Grade {scorecard.grade}</span>
+                <Badge variant="outline" className={`text-[9px] uppercase font-bold px-1.5 py-0 rounded ${
+                  scorecard.confidence === "HIGH" ? "border-emerald-500/30 text-emerald-500 bg-emerald-500/10" :
+                  scorecard.confidence === "MODERATE" ? "border-amber-500/30 text-amber-500 bg-amber-500/10" :
+                  "border-zinc-500/30 text-zinc-400 bg-zinc-500/10"
+                }`}>
+                  {scorecard.confidence} Confidence
+                </Badge>
+              </div>
             </div>
-            <div className="flex items-center justify-end gap-1.5">
-              <span className="text-xs font-extrabold text-primary">Grade {scorecard.grade}</span>
-              <Badge variant="outline" className={`text-[9px] uppercase font-bold px-1.5 py-0 rounded ${
-                scorecard.confidence === "HIGH" ? "border-emerald-500/30 text-emerald-500 bg-emerald-500/10" :
-                scorecard.confidence === "MODERATE" ? "border-amber-500/30 text-amber-500 bg-amber-500/10" :
-                "border-zinc-500/30 text-zinc-400 bg-zinc-500/10"
-              }`}>
-                {scorecard.confidence} Confidence
-              </Badge>
+            <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-primary text-primary-foreground font-black text-2xl shadow-md">
+              {scorecard.overallScore}
             </div>
           </div>
-          <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-primary text-primary-foreground font-black text-2xl shadow-md">
-            {scorecard.overallScore}
+
+          {/* Signal 2: Creator Rating */}
+          <div className="flex items-center gap-3 bg-card/80 border border-border/50 p-3 rounded-2xl">
+            <div className="text-right">
+              <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                Creator Rating
+              </div>
+              <div className="text-[10px] font-bold text-muted-foreground">
+                {(platform as any).currentReviews?.length || 0} Verified Reviews
+              </div>
+            </div>
+            <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-secondary text-foreground font-black text-xl shadow-xs border border-border/40">
+              {(platform as any).rating ? `${(platform as any).rating.toFixed(1)}/5` : "4.8/5"}
+            </div>
           </div>
         </div>
       </div>

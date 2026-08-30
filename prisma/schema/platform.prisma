@@ -36,6 +36,8 @@ model Platform {
   forumTopics           ForumTopic[]
   affiliateClicks       AffiliateClick[]
   stackPlatforms        StackPlatform[]
+  currentReviews        CreatorReview[]   @relation("CurrentPlatformReviews")
+  previousReviews       CreatorReview[]   @relation("PreviousPlatformReviews")
 
   // Deprecated fields (keeping for migration safety, will remove later)
   transactionFeePercent Float?
