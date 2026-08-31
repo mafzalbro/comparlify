@@ -13,6 +13,15 @@ enum VerificationStatus {
   VERIFIED
 }
 
+enum SourceType {
+  FIRST_PARTY
+  OFFICIAL_API
+  PARTNER
+  PUBLIC_PAGE
+  MANUAL_RESEARCH
+  SEED
+}
+
 model CreatorReview {
   id                    String                   @id @default(cuid())
   creatorName           String?
@@ -34,6 +43,7 @@ model CreatorReview {
 
   status                ReviewStatus             @default(PENDING)
   verificationStatus    VerificationStatus       @default(COMMUNITY)
+  sourceType            SourceType               @default(FIRST_PARTY)
 
   revisions             CreatorReviewRevision[]
   moderationEvents      ReviewModerationEvent[]

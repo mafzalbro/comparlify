@@ -1608,6 +1608,7 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
         recommendationScore: 4.8,
         status: "PUBLISHED" as const,
         verificationStatus: "VERIFIED" as const,
+        sourceType: "SEED" as const,
       },
       ...(kajabiPlat ? [{
         creatorName: "Academy Founder",
@@ -1623,6 +1624,7 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
         recommendationScore: 4.6,
         status: "PUBLISHED" as const,
         verificationStatus: "VERIFIED" as const,
+        sourceType: "SEED" as const,
       }] : [])
     ];
 

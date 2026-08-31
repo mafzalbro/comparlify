@@ -26,6 +26,7 @@ import { ManagedImage } from "@/components/managed-image";
 import { PlatformScorecardCard } from "@/components/platform-scorecard-card";
 import { PlatformChangeTracker } from "@/components/platform-change-tracker";
 import { PersonalizedMatchCard } from "@/components/personalized-match-card";
+import { ReviewAcquisitionWidget } from "@/components/review-acquisition-widget";
 
 export const revalidate = 3600; // ISR
 
@@ -190,6 +191,10 @@ export default async function PlatformDetailPage(props: {
                   platformName={platform.name}
                   lastVerifiedAt={platform.lastVerifiedAt}
                   changeLogs={(platform as any).changeLogs || []}
+                />
+                <ReviewAcquisitionWidget
+                  platformId={platform.id}
+                  platformName={platform.name}
                 />
               </div>
 

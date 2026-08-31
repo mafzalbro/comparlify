@@ -16,6 +16,7 @@ export interface SubmitReviewInput {
   selectionReason: string;
   bottleneck: string;
   recommendationScore: number;
+  sourceType?: "FIRST_PARTY" | "OFFICIAL_API" | "PARTNER" | "PUBLIC_PAGE" | "MANUAL_RESEARCH" | "SEED";
 }
 
 export async function submitCreatorReviewAction(input: SubmitReviewInput) {
@@ -39,6 +40,7 @@ export async function submitCreatorReviewAction(input: SubmitReviewInput) {
         recommendationScore: Number(input.recommendationScore),
         status: "PENDING",
         verificationStatus: "COMMUNITY",
+        sourceType: input.sourceType || "FIRST_PARTY",
         revisions: {
           create: {
             revisionNumber: 1,
