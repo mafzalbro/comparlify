@@ -36,6 +36,7 @@ import { PlatformPicker } from "@/components/tool/PlatformPicker";
 import { PlatformScorecardCard } from "@/components/platform-scorecard-card";
 import { PlatformChangeTracker } from "@/components/platform-change-tracker";
 import { InteractiveComparisonMatcher } from "@/components/comparison/interactive-comparison-matcher";
+import { ReviewAcquisitionWidget } from "@/components/review-acquisition-widget";
 
 const ComparisonChart = dynamic(
   () =>
@@ -262,6 +263,7 @@ export default async function ComparisonDetailPage(props: {
             <PlatformScorecardCard platform={platformA} />
             <PlatformScorecardCard platform={platformB} />
           </div>
+          <ReviewAcquisitionWidget platformId={platformA.id} platformName={platformA.name} />
         </section>
 
         {/* ── PLATFORM PICKER (Decision Engine) ────────────────── */}

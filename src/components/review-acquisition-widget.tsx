@@ -21,6 +21,7 @@ export function ReviewAcquisitionWidget({
   platformName,
   className = ""
 }: ReviewAcquisitionWidgetProps) {
+  const [step, setStep] = useState<1 | 2>(1);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -109,123 +110,151 @@ export function ReviewAcquisitionWidget({
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-1.5">
-            <label className="font-extrabold text-foreground">Your Name or Pseudonym</label>
-            <Input
-              placeholder="e.g. Alex (Newsletter Founder)"
-              value={creatorName}
-              onChange={(e) => setCreatorName(e.target.value)}
-              className="rounded-xl h-10 text-xs bg-secondary/20"
-            />
-          </div>
+        {/* STEP 1: LOW FRICTION QUICK RATING & METRICS */}
+        {step === 1 && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="space-y-1.5">
+                <label className="font-extrabold text-foreground">Creator Segment</label>
+                <Select value={creatorSegment} onValueChange={setCreatorSegment}>
+                  <SelectTrigger className="rounded-xl h-10 text-xs bg-secondary/20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Course Creator">Course Creator</SelectItem>
+                    <SelectItem value="Newsletter Writer">Newsletter Writer</SelectItem>
+                    <SelectItem value="Community Builder">Community Builder</SelectItem>
+                    <SelectItem value="Solopreneur">Lean Solopreneur</SelectItem>
+                    <SelectItem value="Enterprise">Enterprise Studio</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-          <div className="space-y-1.5">
-            <label className="font-extrabold text-foreground">Email (For Admin Verification Badge)</label>
-            <Input
-              type="email"
-              placeholder="alex@creator.com"
-              value={creatorEmail}
-              onChange={(e) => setCreatorEmail(e.target.value)}
-              className="rounded-xl h-10 text-xs bg-secondary/20"
-            />
-          </div>
-        </div>
+              <div className="space-y-1.5">
+                <label className="font-extrabold text-foreground">Audience Size</label>
+                <Select value={audienceRange} onValueChange={setAudienceRange}>
+                  <SelectTrigger className="rounded-xl h-10 text-xs bg-secondary/20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0-1K">0 – 1K subscribers</SelectItem>
+                    <SelectItem value="1K-10K">1K – 10K subscribers</SelectItem>
+                    <SelectItem value="10K-50K">10K – 50K subscribers</SelectItem>
+                    <SelectItem value="50K-100K">50K – 100K subscribers</SelectItem>
+                    <SelectItem value="100K+">100K+ subscribers</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="space-y-1.5">
-            <label className="font-extrabold text-foreground">Creator Segment</label>
-            <Select value={creatorSegment} onValueChange={setCreatorSegment}>
-              <SelectTrigger className="rounded-xl h-10 text-xs bg-secondary/20">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Course Creator">Course Creator</SelectItem>
-                <SelectItem value="Newsletter Writer">Newsletter Writer</SelectItem>
-                <SelectItem value="Community Builder">Community Builder</SelectItem>
-                <SelectItem value="Solopreneur">Lean Solopreneur</SelectItem>
-                <SelectItem value="Enterprise">Enterprise Studio</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+              <div className="space-y-1.5">
+                <label className="font-extrabold text-foreground">Monthly Spend</label>
+                <Select value={spendRange} onValueChange={setSpendRange}>
+                  <SelectTrigger className="rounded-xl h-10 text-xs bg-secondary/20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="$0-$50/mo">$0 – $50 / mo</SelectItem>
+                    <SelectItem value="$50-$200/mo">$50 – $200 / mo</SelectItem>
+                    <SelectItem value="$200-$500/mo">$200 – $500 / mo</SelectItem>
+                    <SelectItem value="$500+/mo">$500+ / mo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
-          <div className="space-y-1.5">
-            <label className="font-extrabold text-foreground">Audience Size</label>
-            <Select value={audienceRange} onValueChange={setAudienceRange}>
-              <SelectTrigger className="rounded-xl h-10 text-xs bg-secondary/20">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="0-1K">0 – 1K subscribers</SelectItem>
-                <SelectItem value="1K-10K">1K – 10K subscribers</SelectItem>
-                <SelectItem value="10K-50K">10K – 50K subscribers</SelectItem>
-                <SelectItem value="50K-100K">50K – 100K subscribers</SelectItem>
-                <SelectItem value="100K+">100K+ subscribers</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2">
+              <div className="space-y-1">
+                <label className="font-extrabold text-foreground block">Overall Rating</label>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      type="button"
+                      key={star}
+                      onClick={() => setRecommendationScore(star)}
+                      className={`w-8 h-8 rounded-lg font-black text-xs transition-all ${
+                        recommendationScore >= star ? "bg-primary text-primary-foreground shadow-xs" : "bg-secondary/40 text-muted-foreground"
+                      }`}
+                    >
+                      {star}★
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-          <div className="space-y-1.5">
-            <label className="font-extrabold text-foreground">Monthly Software Spend</label>
-            <Select value={spendRange} onValueChange={setSpendRange}>
-              <SelectTrigger className="rounded-xl h-10 text-xs bg-secondary/20">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="$0-$50/mo">$0 – $50 / mo</SelectItem>
-                <SelectItem value="$50-$200/mo">$50 – $200 / mo</SelectItem>
-                <SelectItem value="$200-$500/mo">$200 – $500 / mo</SelectItem>
-                <SelectItem value="$500+/mo">$500+ / mo</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <div className="space-y-1.5">
-          <label className="font-extrabold text-foreground">Why did you choose {platformName}?</label>
-          <Textarea
-            rows={2}
-            placeholder={`What made ${platformName} stand out? (e.g. 0% take fees, ease of use, custom design sovereignty)`}
-            value={selectionReason}
-            onChange={(e) => setSelectionReason(e.target.value)}
-            className="rounded-xl text-xs bg-secondary/20"
-          />
-        </div>
-
-        <div className="space-y-1.5">
-          <label className="font-extrabold text-foreground">What is your biggest bottleneck with {platformName}?</label>
-          <Textarea
-            rows={2}
-            placeholder={`Where does ${platformName} fall short or feel friction? (e.g. video upload limits, automation rules)`}
-            value={bottleneck}
-            onChange={(e) => setBottleneck(e.target.value)}
-            className="rounded-xl text-xs bg-secondary/20"
-          />
-        </div>
-
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2">
-          <div className="space-y-1">
-            <label className="font-extrabold text-foreground block">Overall Recommendation Rating</label>
-            <div className="flex gap-2">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  type="button"
-                  key={star}
-                  onClick={() => setRecommendationScore(star)}
-                  className={`w-8 h-8 rounded-lg font-black text-xs transition-all ${
-                    recommendationScore >= star ? "bg-primary text-primary-foreground shadow-xs" : "bg-secondary/40 text-muted-foreground"
-                  }`}
-                >
-                  {star}★
-                </button>
-              ))}
+              <Button
+                type="button"
+                onClick={() => setStep(2)}
+                className="rounded-xl px-6 h-11 font-extrabold text-xs uppercase tracking-wider"
+              >
+                Next: Add Review Context →
+              </Button>
             </div>
           </div>
+        )}
 
-          <Button type="submit" disabled={loading} className="rounded-xl px-6 h-11 font-extrabold text-xs uppercase tracking-wider">
-            {loading ? "Submitting..." : "Submit Experience Review"} <Send className="w-3.5 h-3.5 ml-2" />
-          </Button>
-        </div>
+        {/* STEP 2: DETAILED SELECTION REASON & BOTTLENECK */}
+        {step === 2 && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="font-extrabold text-foreground">Your Name or Pseudonym</label>
+                <Input
+                  placeholder="e.g. Alex (Newsletter Founder)"
+                  value={creatorName}
+                  onChange={(e) => setCreatorName(e.target.value)}
+                  className="rounded-xl h-10 text-xs bg-secondary/20"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-extrabold text-foreground">Email (For Verification Badge)</label>
+                <Input
+                  type="email"
+                  placeholder="alex@creator.com"
+                  value={creatorEmail}
+                  onChange={(e) => setCreatorEmail(e.target.value)}
+                  className="rounded-xl h-10 text-xs bg-secondary/20"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="font-extrabold text-foreground">Why did you choose {platformName}?</label>
+              <Textarea
+                rows={2}
+                placeholder={`What made ${platformName} stand out? (e.g. 0% take fees, ease of use, custom design sovereignty)`}
+                value={selectionReason}
+                onChange={(e) => setSelectionReason(e.target.value)}
+                className="rounded-xl text-xs bg-secondary/20"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="font-extrabold text-foreground">What is your biggest bottleneck with {platformName}?</label>
+              <Textarea
+                rows={2}
+                placeholder={`Where does ${platformName} fall short or feel friction? (e.g. video upload limits, automation rules)`}
+                value={bottleneck}
+                onChange={(e) => setBottleneck(e.target.value)}
+                className="rounded-xl text-xs bg-secondary/20"
+              />
+            </div>
+
+            <div className="flex justify-between items-center pt-2">
+              <button
+                type="button"
+                onClick={() => setStep(1)}
+                className="text-xs font-bold text-muted-foreground hover:text-foreground"
+              >
+                ← Back to Step 1
+              </button>
+
+              <Button type="submit" disabled={loading} className="rounded-xl px-6 h-11 font-extrabold text-xs uppercase tracking-wider">
+                {loading ? "Submitting..." : "Submit Experience Review"} <Send className="w-3.5 h-3.5 ml-2" />
+              </Button>
+            </div>
+          </div>
+        )}
       </form>
     </Card>
   );

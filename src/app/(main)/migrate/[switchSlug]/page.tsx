@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ManagedImage } from "@/components/managed-image";
 import { calculateMigrationAnalysis } from "@/lib/migration-engine";
+import { ReviewAcquisitionWidget } from "@/components/review-acquisition-widget";
 import Link from "next/link";
 import {
   ShieldCheck,
@@ -229,6 +230,11 @@ export default async function MigrationPlaybookPage(props: {
               ))}
             </ul>
           </Card>
+        </section>
+
+        {/* REVIEW ACQUISITION WIDGET FOR MIGRATORS */}
+        <section className="pt-4">
+          <ReviewAcquisitionWidget platformId={targetPlatform.id} platformName={targetPlatform.name} />
         </section>
 
         {/* STEP-BY-STEP PLAYBOOK */}
