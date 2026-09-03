@@ -37,8 +37,11 @@ async function run() {
 
   for (const r of routes) {
     try {
-      await desktopPage.goto(`${baseUrl}${r.path}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-      await desktopPage.waitForTimeout(1000);
+      const res = await desktopPage.goto(`${baseUrl}${r.path}`, { waitUntil: 'networkidle', timeout: 30000 });
+      if (res && res.status() >= 400) {
+        console.error(`Warning: Desktop ${r.name} returned HTTP ${res.status()}`);
+      }
+      await desktopPage.waitForTimeout(1500);
       await desktopPage.screenshot({ path: `screenshots/desktop_dark/${r.name}.png`, fullPage: false });
       console.log(`Saved desktop dark: ${r.name}`);
     } catch (err) {
@@ -57,8 +60,11 @@ async function run() {
 
   for (const r of routes) {
     try {
-      await mobilePage.goto(`${baseUrl}${r.path}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-      await mobilePage.waitForTimeout(1000);
+      const res = await mobilePage.goto(`${baseUrl}${r.path}`, { waitUntil: 'networkidle', timeout: 30000 });
+      if (res && res.status() >= 400) {
+        console.error(`Warning: Mobile ${r.name} returned HTTP ${res.status()}`);
+      }
+      await mobilePage.waitForTimeout(1500);
       await mobilePage.screenshot({ path: `screenshots/mobile_dark/${r.name}.png`, fullPage: false });
       console.log(`Saved mobile dark: ${r.name}`);
     } catch (err) {
@@ -69,8 +75,8 @@ async function run() {
   // Also store top-level copies in screenshots/ for easy access
   for (const r of routes) {
     try {
-      await mobilePage.goto(`${baseUrl}${r.path}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-      await mobilePage.waitForTimeout(1000);
+      await mobilePage.goto(`${baseUrl}${r.path}`, { waitUntil: 'networkidle', timeout: 30000 });
+      await mobilePage.waitForTimeout(1500);
       await mobilePage.screenshot({ path: `screenshots/mobile_${r.name}.png`, fullPage: false });
       console.log(`Saved top-level mobile copy: ${r.name}`);
     } catch (err) {

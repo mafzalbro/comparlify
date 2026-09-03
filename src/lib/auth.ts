@@ -8,6 +8,10 @@ import { Role } from "@prisma/client";
 import { createNotification } from "./notifications";
 
 export const authOptions: NextAuthConfig = {
+  secret:
+    process.env.AUTH_SECRET ||
+    process.env.NEXTAUTH_SECRET ||
+    "comparlify-development-auth-secret-key-minimum-32-bytes",
   adapter: PrismaAdapter(prisma) as any,
   session: { strategy: "jwt" },
   providers: [

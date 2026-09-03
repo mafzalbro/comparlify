@@ -108,6 +108,12 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
     restDelta: 0.001,
   });
 
+  const scrollIndicatorHeight = useTransform(
+    smoothScrollProgress,
+    [0.15, 0.85],
+    ["0%", "100%"],
+  );
+
   useEffect(() => {
     if (isMobile || features.length === 0) return;
 
@@ -328,11 +334,7 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
                     <motion.div
                       className="w-full bg-primary shadow-[0_0_20px_rgba(234,179,8,0.6)]"
                       style={{
-                        height: useTransform(
-                          smoothScrollProgress,
-                          [0.15, 0.85],
-                          ["0%", "100%"],
-                        ),
+                        height: scrollIndicatorHeight,
                       }}
                     />
                   </div>
