@@ -22,6 +22,13 @@ model Platform {
   dealDescription       String?
   videoHostingIncluded  Boolean?
   
+  // Phase 3 Creator Intelligence metrics
+  valueRating           Float?            // Value / Pricing Pillar (0-5)
+  sovereigntyRating     Float?            // Data / Platform Sovereignty Pillar (0-5)
+  integrationsRating    Float?            // Ecosystem & Integrations Pillar (0-5)
+  category              String?           // Category e.g. "Newsletter", "E-commerce", "Community", "LMS", "Workspace"
+  changeLogs            PlatformChangeLog[]
+
   // Relations
   tiers                 PricingTier[]
   newsArticles          NewsArticle[]
@@ -29,6 +36,8 @@ model Platform {
   forumTopics           ForumTopic[]
   affiliateClicks       AffiliateClick[]
   stackPlatforms        StackPlatform[]
+  currentReviews        CreatorReview[]   @relation("CurrentPlatformReviews")
+  previousReviews       CreatorReview[]   @relation("PreviousPlatformReviews")
 
   // Deprecated fields (keeping for migration safety, will remove later)
   transactionFeePercent Float?
@@ -82,4 +91,17 @@ model PlatformFeature {
 
   @@unique([platformId, featureId])
   @@index([featureId])
+}
+
+model PlatformChangeLog {
+  id          String   @id @default(cuid())
+  platformId  String
+  platform    Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+  date        DateTime @default(now())
+  title       String
+  description String   @db.Text
+  type        String   // "PRICING" | "FEATURE" | "FEE_UPDATE" | "SECURITY" | "INTEGRATION"
+  sourceUrl   String?  @db.VarChar(1024)
+
+  @@index([platformId])
 }

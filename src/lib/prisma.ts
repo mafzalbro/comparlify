@@ -299,7 +299,30 @@ const createMockPrismaClient = (): any => {
 
   // Mock for user model
   mockClient.user = {
-    findUnique: async () => null,
+    findUnique: async (args: any) => {
+      return {
+        id: args?.where?.id || "admin_user_id",
+        name: "Muhammad Afzal",
+        email: args?.where?.email || "mafzalbro@gmail.com",
+        role: "ADMIN",
+        onboarded: true,
+        newsletter: false,
+        suspended: false,
+        image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
+      };
+    },
+    findFirst: async () => {
+      return {
+        id: "admin_user_id",
+        name: "Muhammad Afzal",
+        email: "mafzalbro@gmail.com",
+        role: "ADMIN",
+        onboarded: true,
+        newsletter: false,
+        suspended: false,
+        image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
+      };
+    },
     findMany: async () => []
   };
 

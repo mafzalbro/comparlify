@@ -72,6 +72,26 @@ Ghost is the "Power Tool" of the professional publishing world. It offers more f
   easeOfUse: 4.2,
   featuresRating: 4.7,
   support: 4.5,
+  valueRating: 4.9,
+  sovereigntyRating: 5.0,
+  integrationsRating: 4.6,
+  category: "Newsletter & Media Stack",
+  changeLogs: [
+    {
+      date: "2026-03-10",
+      title: "ActivityPub & Fediverse Federation Launch",
+      description: "Ghost natively introduced ActivityPub support across all Ghost(Pro) sites, allowing subscribers on Mastodon and Threads to follow publications natively.",
+      type: "FEATURE",
+      sourceUrl: "https://ghost.org/changelog"
+    },
+    {
+      date: "2026-01-15",
+      title: "Zero Revenue Share Guarantee Audit 2026",
+      description: "Ghost Foundation re-verified its non-profit pledge guaranteeing 0% fee take on all reader paid memberships via Stripe indefinitely.",
+      type: "PRICING",
+      sourceUrl: "https://ghost.org/pricing"
+    }
+  ],
   pros: [
     "Zero transaction fees (keep 100% revenue)",
     "Incredible SEO and lightning-fast performance",

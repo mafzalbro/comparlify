@@ -1,0 +1,83 @@
+// review.prisma
+
+enum ReviewStatus {
+  PENDING
+  PUBLISHED
+  REJECTED
+  ARCHIVED
+}
+
+enum VerificationStatus {
+  COMMUNITY
+  EXPERIENCED
+  VERIFIED
+}
+
+enum SourceType {
+  FIRST_PARTY
+  OFFICIAL_API
+  PARTNER
+  PUBLIC_PAGE
+  MANUAL_RESEARCH
+  SEED
+}
+
+model CreatorReview {
+  id                    String                   @id @default(cuid())
+  creatorName           String?
+  creatorEmail          String?
+  creatorSegment        String                   // "Course Creator", "Newsletter Writer", "Community Builder", "Solopreneur", "Enterprise"
+  audienceRange         String                   // "0-1K", "1K-10K", "10K-50K", "50K-100K", "100K+"
+  usageDurationMonths   Int
+  spendRange            String                   // "$0-$50/mo", "$50-$200/mo", "$200-$500/mo", "$500+/mo"
+
+  currentPlatformId     String
+  currentPlatform       Platform                 @relation("CurrentPlatformReviews", fields: [currentPlatformId], references: [id], onDelete: Cascade)
+
+  previousPlatformId    String?
+  previousPlatform      Platform?                @relation("PreviousPlatformReviews", fields: [previousPlatformId], references: [id], onDelete: SetNull)
+
+  selectionReason       String                   @db.Text
+  bottleneck            String                   @db.Text
+  recommendationScore   Float                    // 1.0 to 5.0 scale
+
+  status                ReviewStatus             @default(PENDING)
+  verificationStatus    VerificationStatus       @default(COMMUNITY)
+  sourceType            SourceType               @default(FIRST_PARTY)
+
+  revisions             CreatorReviewRevision[]
+  moderationEvents      ReviewModerationEvent[]
+
+  createdAt             DateTime                 @default(now())
+  updatedAt             DateTime                 @updatedAt
+
+  @@index([currentPlatformId])
+  @@index([previousPlatformId])
+  @@index([status])
+  @@index([verificationStatus])
+}
+
+model CreatorReviewRevision {
+  id                    String        @id @default(cuid())
+  reviewId              String
+  review                CreatorReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  revisionNumber        Int
+  recommendationScore   Float
+  selectionReason       String        @db.Text
+  bottleneck            String        @db.Text
+  createdAt             DateTime      @default(now())
+
+  @@index([reviewId])
+}
+
+model ReviewModerationEvent {
+  id          String        @id @default(cuid())
+  reviewId    String
+  review      CreatorReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  action      String        // "SUBMITTED", "APPROVED", "REJECTED", "VERIFICATION_CHANGED", "ARCHIVED"
+  actor       String?       // Admin email or "SYSTEM"
+  notes       String?       @db.Text
+  createdAt   DateTime      @default(now())
+
+  @@index([reviewId])
+}

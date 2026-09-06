@@ -1585,6 +1585,59 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
     }
   }
 
+  // --- 16. Seed Initial Basic Creator Reviews ---
+  console.log("\n📝 Seeding Initial Basic Creator Reviews...");
+  const ghostPlat = await prisma.platform.findFirst({ where: { name: "Ghost" } });
+  const substackPlat = await prisma.platform.findFirst({ where: { name: "Substack" } });
+  const kajabiPlat = await prisma.platform.findFirst({ where: { name: "Kajabi" } });
+  const teachablePlat = await prisma.platform.findFirst({ where: { name: "Teachable" } });
+
+  if (ghostPlat) {
+    const initialReviews = [
+      {
+        creatorName: "Independent Publisher",
+        creatorEmail: "publisher@example.com",
+        creatorSegment: "Newsletter Writer",
+        audienceRange: "10K-50K",
+        usageDurationMonths: 14,
+        spendRange: "$50-$200/mo",
+        currentPlatformId: ghostPlat.id,
+        previousPlatformId: substackPlat?.id || null,
+        selectionReason: "Eliminated the 10% Substack platform take fee and gained full HTML/CSS design sovereignty.",
+        bottleneck: "Requires custom setup for complex multi-tier automated email sequences.",
+        recommendationScore: 4.8,
+        status: "PUBLISHED" as const,
+        verificationStatus: "VERIFIED" as const,
+        sourceType: "SEED" as const,
+      },
+      ...(kajabiPlat ? [{
+        creatorName: "Academy Founder",
+        creatorEmail: "academy@example.com",
+        creatorSegment: "Course Creator",
+        audienceRange: "10K-50K",
+        usageDurationMonths: 24,
+        spendRange: "$200-$500/mo",
+        currentPlatformId: kajabiPlat.id,
+        previousPlatformId: teachablePlat?.id || null,
+        selectionReason: "Unified course hosting, email marketing, and landing pages into a single pipeline.",
+        bottleneck: "Higher base tier monthly cost compared to individual specialized plugins.",
+        recommendationScore: 4.6,
+        status: "PUBLISHED" as const,
+        verificationStatus: "VERIFIED" as const,
+        sourceType: "SEED" as const,
+      }] : [])
+    ];
+
+    for (const rev of initialReviews) {
+      const existing = await prisma.creatorReview.findFirst({
+        where: { currentPlatformId: rev.currentPlatformId, creatorName: rev.creatorName }
+      });
+      if (!existing) {
+        await safeCreate("CreatorReview", rev);
+      }
+    }
+  }
+
   console.log("\n🔄 Starting industrial data sync (Platforms, Comparisons, Blogs)...");
   await syncComparisonData();
   await syncBlogData();
