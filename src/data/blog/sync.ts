@@ -5,6 +5,15 @@ export async function syncBlogData() {
   console.log("🔄 Starting blog data sync...");
 
   for (const data of allPosts) {
+    const existingPost = await prisma.post.findUnique({
+      where: { slug: data.slug },
+      select: { id: true },
+    });
+    if (existingPost) {
+      console.log(`⏩ Blog post already seeded, skipping: ${data.title}`);
+      continue;
+    }
+
     console.log(`📝 Syncing blog post: ${data.title}`);
 
     // 1. Find the author
@@ -41,52 +50,64 @@ export async function syncBlogData() {
         })
       : [];
 
-    // 4. Upsert Post
-    const post = await prisma.post.upsert({
-      where: { slug: data.slug },
-      update: {
-        title: data.title,
-        description: data.description,
-        content: data.content,
-        image: data.image,
-        dataAiHint: data.dataAiHint,
-        published: data.published ?? false,
-        categoryId: category.id,
-        authorId: author.id,
-        metaTitle: data.metaTitle,
-        metaDescription: data.metaDescription,
-        keywords: data.keywords ? data.keywords.join(", ") : null,
-        authorRole: data.authorRole,
-        authorBio: data.authorBio,
-        authorCredentials: data.authorCredentials,
-        keyTakeaways: data.keyTakeaways as any,
-        checklist: data.checklist as any,
-        platforms: {
-          set: platforms.map((p: any) => ({ id: p.id })),
+    // 4. Create Post safely
+    let post: any;
+    const isMongo = process.env.DATABASE_URL?.startsWith("mongodb://") || process.env.DATABASE_URL?.startsWith("mongodb+srv://") || process.env.DATABASE_PROVIDER === "mongodb";
+
+    const postData: any = {
+      title: data.title,
+      slug: data.slug,
+      description: data.description,
+      content: data.content,
+      image: data.image,
+      dataAiHint: data.dataAiHint,
+      published: data.published ?? false,
+      categoryId: category.id,
+      authorId: author.id,
+      metaTitle: data.metaTitle,
+      metaDescription: data.metaDescription,
+      authorRole: data.authorRole,
+      authorBio: data.authorBio,
+      authorCredentials: data.authorCredentials,
+      keyTakeaways: data.keyTakeaways as any,
+      checklist: data.checklist as any,
+    };
+
+    if (isMongo) {
+      const doc = {
+        _id: `c${Math.random().toString(36).substring(2, 15)}${Date.now().toString(36)}`,
+        ...postData,
+        createdAt: { $date: new Date().toISOString() },
+        updatedAt: { $date: new Date().toISOString() },
+      };
+      await (prisma as any).$runCommandRaw({
+        insert: "Post",
+        documents: [doc],
+      });
+      post = { id: doc._id, ...doc };
+      if (platforms.length > 0) {
+        for (const p of platforms) {
+          await (prisma as any).$runCommandRaw({
+            update: "Post",
+            updates: [
+              {
+                q: { _id: post.id },
+                u: { $addToSet: { platformIds: p.id } }
+              }
+            ]
+          });
+        }
+      }
+    } else {
+      post = await prisma.post.create({
+        data: {
+          ...postData,
+          platforms: {
+            connect: platforms.map((p: any) => ({ id: p.id })),
+          },
         },
-      },
-      create: {
-        title: data.title,
-        slug: data.slug,
-        description: data.description,
-        content: data.content,
-        image: data.image,
-        dataAiHint: data.dataAiHint,
-        published: data.published ?? false,
-        categoryId: category.id,
-        authorId: author.id,
-        metaTitle: data.metaTitle,
-        metaDescription: data.metaDescription,
-        authorRole: data.authorRole,
-        authorBio: data.authorBio,
-        authorCredentials: data.authorCredentials,
-        keyTakeaways: data.keyTakeaways as any,
-        checklist: data.checklist as any,
-        platforms: {
-          connect: platforms.map((p: any) => ({ id: p.id })),
-        },
-      },
-    });
+      });
+    }
 
     // 5. Sync Facts
     await prisma.postFact.deleteMany({

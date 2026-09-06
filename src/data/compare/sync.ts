@@ -8,6 +8,14 @@ export async function syncComparisonData() {
   const isMongo = process.env.DATABASE_URL?.startsWith("mongodb://") || process.env.DATABASE_URL?.startsWith("mongodb+srv://") || process.env.DATABASE_PROVIDER === "mongodb";
 
   for (const data of allPlatforms) {
+    const platformExists = await prisma.platform.findUnique({
+      where: { name: data.name },
+    });
+    if (platformExists) {
+      console.log(`⏩ Platform already seeded, skipping: ${data.name}`);
+      continue;
+    }
+
     console.log(`📍 Syncing platform: ${data.name}`);
 
     // 1. Upsert Platform
@@ -224,6 +232,14 @@ export async function syncComparisonData() {
   // ── 5. Sync High-Fidelity Comparisons ──
   console.log("🆚 Syncing comparisons from comparisons directory...");
   for (const comp of allComparisons) {
+    const existingComp = await prisma.comparison.findUnique({
+      where: { slug: comp.slug },
+    });
+    if (existingComp) {
+      console.log(`⏩ Comparison already seeded, skipping: ${comp.title}`);
+      continue;
+    }
+
     console.log(`🆚 Syncing comparison: ${comp.title}`);
 
     const resolvePlatformName = (name: string): string => {

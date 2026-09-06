@@ -119,7 +119,7 @@ export async function cleanupDatabase() {
   console.log("✅ Database cleanup complete.");
 }
 
-async function main(skipCleanup = false) {
+async function main(skipCleanup = true) {
   console.log("🌱 Starting database seeding...");
 
   if (!skipCleanup) {
@@ -270,7 +270,10 @@ async function main(skipCleanup = false) {
   ];
 
   for (const u of usersData) {
-    await safeCreate("User", u);
+    const existing = await prisma.user.findUnique({ where: { email: u.email } });
+    if (!existing) {
+      await safeCreate("User", u);
+    }
   }
 
   const adminUser = await prisma.user.findUnique({
@@ -288,6 +291,14 @@ async function main(skipCleanup = false) {
   // --- 2.1 Seed High-Fidelity Platforms (36 Entities) ---
   console.log("📍 Seeding 36 high-fidelity platforms...");
   for (const data of allPlatforms) {
+    const platExists = await prisma.platform.findUnique({
+      where: { name: data.name },
+    });
+    if (platExists) {
+      console.log(`   ⏩ Platform '${data.name}' already seeded, skipping.`);
+      continue;
+    }
+
     let platform: any;
     if (isMongo) {
       const existing = await prisma.platform.findUnique({
@@ -482,7 +493,12 @@ async function main(skipCleanup = false) {
     { name: "Marketing", slug: "marketing" },
     { name: "Tech Trends", slug: "tech-trends" },
   ];
-  await safeCreateMany("PostCategory", postCategoryData);
+  for (const cat of postCategoryData) {
+    const existing = await prisma.postCategory.findFirst({ where: { slug: cat.slug } });
+    if (!existing) {
+      await safeCreate("PostCategory", cat);
+    }
+  }
   const postCategories = await prisma.postCategory.findMany();
   console.log(`   ✓ Seeded ${postCategories.length} post categories.`);
   const postCategoryMap = new Map(postCategories.map((c) => [c.name, c.id]));
@@ -545,6 +561,12 @@ async function main(skipCleanup = false) {
 
   let previousPostId: string | null = null;
   for (let i = 0; i < postsData.length; i++) {
+    const existingPost = await prisma.post.findUnique({ where: { slug: postsData[i].slug } });
+    if (existingPost) {
+      console.log(`   ⏩ Post '${postsData[i].title}' already seeded, skipping.`);
+      previousPostId = existingPost.id;
+      continue;
+    }
     const { categoryName, authorId, ...rest } = postsData[i];
     const categoryId = postCategoryMap.get(categoryName);
     if (!categoryId) {
@@ -560,7 +582,6 @@ async function main(skipCleanup = false) {
         ...rest,
         authorId,
         categoryId,
-        previousId: previousPostId || undefined,
       }) as Post;
     } else {
       createdPost = await prisma.post.create({
@@ -568,9 +589,6 @@ async function main(skipCleanup = false) {
           ...rest,
           author: { connect: { id: authorId } },
           category: { connect: { id: categoryId } },
-          previous: previousPostId
-            ? { connect: { id: previousPostId } }
-            : undefined,
         },
       });
     }
@@ -623,13 +641,13 @@ async function main(skipCleanup = false) {
     {
       content:
         "These are fantastic ideas for engagement. I'm definitely going to try adding more interactive quizzes.",
-      postId: post2.id,
+      postId: post2?.id,
       authorId: comparlifyAdmin.id,
       status: CommentStatus.APPROVED,
     },
     {
       content: "I don't agree with point #3.",
-      postId: post2.id,
+      postId: post2?.id,
       authorId: adminUser.id,
       status: CommentStatus.REJECTED,
     },
@@ -644,70 +662,78 @@ async function main(skipCleanup = false) {
   // --- 11. Seed AI Tools ---
   console.log("\n🤖 Seeding AI Tools...");
   const toolsData = [
-      {
-        slug: "title-generator",
-        title: "AI Title Generator",
-        description: "Craft catchy, SEO-friendly titles for your course.",
-        Icon: "Lightbulb",
-        category: "Marketing",
-        enabled: true,
-        inputTopicLabel: "Course Description",
-        inputContextLabel: "",
-        prompt:
-          "You are an expert in creating engaging and effective course titles. Based on the provided course description, generate a title that will attract more students and increase enrollment.\n\nCourse Description: {{{topic}}}",
-      },
-      {
-        slug: "course-outliner",
-        title: "AI Course Outliner",
-        description:
-          "Generate a comprehensive, structured outline for your course.",
-        Icon: "FileText",
-        category: "CurriculumDesign",
-        enabled: true,
-        inputTopicLabel: "Course Description",
-        inputContextLabel: "Existing Outline (optional)",
-        prompt:
-          "You are an expert curriculum designer. Based on the provided course description, create a comprehensive and well-structured course outline. Use headings for modules and nested lists for lessons within each module. Each lesson should have a brief, one-sentence description.\n\nCourse Description: {{{topic}}}\n{{#if context}}\n\nExisting Outline:\n{{{context}}}\n\nContinue From There:{{/if}}",
-      },
-      {
-        slug: "video-scripter",
-        title: "AI Video Script Assistant",
-        description: "Create engaging scripts for your video lessons.",
-        Icon: "Video",
-        category: "ContentCreation",
-        enabled: true,
-        inputTopicLabel: "Lesson Topic",
-        inputContextLabel: "Existing Script (optional)",
-        prompt:
-          'You are an expert scriptwriter for educational videos. Based on the lesson topic, write a complete, word-for-word video script. Include cues for the presenter\'s tone (e.g., "[enthusiastically]") and suggestions for on-screen visuals (e.g., "[Show B-roll of...]").\n\nLesson Topic: {{{topic}}}\n{{#if context}}\n\nExisting Script:\n{{{context}}}\n\nContinue writing from here:{{/if}}',
-      },
-      {
-        slug: "lesson-summarizer",
-        title: "AI Lesson Summarizer",
-        description: "Automatically generate key takeaways for your lessons.",
-        Icon: "BookOpen",
-        category: "Productivity",
-        enabled: true,
-        inputTopicLabel: "Lesson Content",
-        inputContextLabel: "Existing Summary (optional)",
-        prompt:
-          "You are an expert at distilling information. Based on the lesson content, create a concise summary. It should be a short paragraph followed by the 3-5 most important key takeaways as a bulleted list.\n\nLesson Content: {{{topic}}}\n{{#if context}}\n\nExisting Summary:\n{{{context}}}\n\nContinue From There:{{/if}}",
-      },
-      {
-        slug: "blog-post-idea-generator",
-        title: "Blog Post Idea Generator",
-        description:
-          "Generate a list of blog post ideas to attract your target audience.",
-        Icon: "FilePenLine",
-        category: "SEO",
-        enabled: true,
-        inputTopicLabel: "Course Topic",
-        inputContextLabel: "Target Audience (optional)",
-        prompt:
-          "You are a content marketing strategist. Generate a list of 5-7 blog post ideas that are relevant to the given course topic and target audience. The ideas should be engaging and designed to attract potential students.\n\nCourse Topic: {{{topic}}}\n{{#if context}}Target Audience: {{{context}}}{{/if}}",
-      },
-    ];
-  await safeCreateMany("Tool", toolsData);
+    {
+      slug: "title-generator",
+      title: "AI Title Generator",
+      description: "Craft catchy, SEO-friendly titles for your course.",
+      Icon: "Lightbulb",
+      category: "Marketing",
+      enabled: true,
+      inputTopicLabel: "Course Description",
+      inputContextLabel: "",
+      prompt:
+        "You are an expert in creating engaging and effective course titles. Based on the provided course description, generate a title that will attract more students and increase enrollment.\n\nCourse Description: {{{topic}}}",
+    },
+    {
+      slug: "course-outliner",
+      title: "AI Course Outliner",
+      description:
+        "Generate a comprehensive, structured outline for your course.",
+      Icon: "FileText",
+      category: "CurriculumDesign",
+      enabled: true,
+      inputTopicLabel: "Course Description",
+      inputContextLabel: "Existing Outline (optional)",
+      prompt:
+        "You are an expert curriculum designer. Based on the provided course description, create a comprehensive and well-structured course outline. Use headings for modules and nested lists for lessons within each module. Each lesson should have a brief, one-sentence description.\n\nCourse Description: {{{topic}}}\n{{#if context}}\n\nExisting Outline:\n{{{context}}}\n\nContinue From There:{{/if}}",
+    },
+    {
+      slug: "video-scripter",
+      title: "AI Video Script Assistant",
+      description: "Create engaging scripts for your video lessons.",
+      Icon: "Video",
+      category: "ContentCreation",
+      enabled: true,
+      inputTopicLabel: "Lesson Topic",
+      inputContextLabel: "Existing Script (optional)",
+      prompt:
+        'You are an expert scriptwriter for educational videos. Based on the lesson topic, write a complete, word-for-word video script. Include cues for the presenter\'s tone (e.g., "[enthusiastically]") and suggestions for on-screen visuals (e.g., "[Show B-roll of...]").\n\nLesson Topic: {{{topic}}}\n{{#if context}}\n\nExisting Script:\n{{{context}}}\n\nContinue writing from here:{{/if}}',
+    },
+    {
+      slug: "lesson-summarizer",
+      title: "AI Lesson Summarizer",
+      description: "Automatically generate key takeaways for your lessons.",
+      Icon: "BookOpen",
+      category: "Productivity",
+      enabled: true,
+      inputTopicLabel: "Lesson Content",
+      inputContextLabel: "Existing Summary (optional)",
+      prompt:
+        "You are an expert at distilling information. Based on the lesson content, create a concise summary. It should be a short paragraph followed by the 3-5 most important key takeaways as a bulleted list.\n\nLesson Content: {{{topic}}}\n{{#if context}}\n\nExisting Summary:\n{{{context}}}\n\nContinue From There:{{/if}}",
+    },
+    {
+      slug: "blog-post-idea-generator",
+      title: "Blog Post Idea Generator",
+      description:
+        "Generate a list of blog post ideas to attract your target audience.",
+      Icon: "FilePenLine",
+      category: "SEO",
+      enabled: true,
+      inputTopicLabel: "Course Topic",
+      inputContextLabel: "Target Audience (optional)",
+      prompt:
+        "You are a content marketing strategist. Generate a list of 5-7 blog post ideas that are relevant to the given course topic and target audience. The ideas should be engaging and designed to attract potential students.\n\nCourse Topic: {{{topic}}}\n{{#if context}}Target Audience: {{{context}}}{{/if}}",
+    },
+  ];
+  for (const tool of toolsData) {
+    const existing = await prisma.tool.findUnique({
+      where: { slug: tool.slug },
+      select: { id: true },
+    });
+    if (!existing) {
+      await safeCreate("Tool", tool);
+    }
+  }
   console.log(`   ✓ Seeded ${toolsData.length} AI tools.`);
 
   // --- 12. Seed Site Content ---
@@ -1402,20 +1428,17 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
   ];
   for (const content of siteContent) {
     try {
+      const existing = await prisma.siteContent.findUnique({
+        where: { key: content.key },
+      });
+      if (existing) {
+        continue;
+      }
       if (isMongo) {
-        const existing = await prisma.siteContent.findUnique({
-          where: { key: content.key },
-        });
-        if (existing) {
-          await safeUpdate("SiteContent", existing.id, content);
-        } else {
-          await safeCreate("SiteContent", content);
-        }
+        await safeCreate("SiteContent", content);
       } else {
-        await prisma.siteContent.upsert({
-          where: { key: content.key },
-          update: content as any,
-          create: content as any,
+        await prisma.siteContent.create({
+          data: content as any,
         });
       }
     } catch (e: any) {
@@ -1437,91 +1460,109 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
     dataAiHint: "technology launch announcement",
     published: true,
   };
-  if (isMongo) {
-    await safeCreate("NewsArticle", { ...newsData, authorId: adminUser.id });
+  const existingNews = await prisma.newsArticle.findUnique({ where: { slug: newsData.slug } });
+  if (!existingNews) {
+    if (isMongo) {
+      await safeCreate("NewsArticle", { ...newsData, authorId: adminUser.id });
+    } else {
+      await prisma.newsArticle.create({ data: { ...newsData, authorId: adminUser.id } });
+    }
+    console.log(`   ✓ Seeded 1 news article.`);
   } else {
-    await prisma.newsArticle.create({ data: { ...newsData, authorId: adminUser.id } });
+    console.log(`   ⏩ News article already seeded, skipping.`);
   }
-  console.log(`   ✓ Seeded 1 news article.`);
 
   // --- 14. Seed Community ---
   console.log("\n💬 Seeding Community Forums...");
-  let generalCategory: any;
-  if (isMongo) {
-    generalCategory = await safeCreate("ForumCategory", {
-      name: "General Discussion",
-      slug: "general-discussion",
-      description: "Talk about anything related to course creation.",
-    });
-  } else {
-    generalCategory = await prisma.forumCategory.create({
-      data: {
+  let generalCategory: any = await prisma.forumCategory.findUnique({
+    where: { slug: "general-discussion" },
+  });
+  if (!generalCategory) {
+    if (isMongo) {
+      generalCategory = await safeCreate("ForumCategory", {
         name: "General Discussion",
         slug: "general-discussion",
         description: "Talk about anything related to course creation.",
-      },
-    });
-  }
-  console.log(`   ✓ Seeded 1 forum category.`);
-
-  let introductionsTopic: any;
-  if (isMongo) {
-    introductionsTopic = await safeCreate("ForumTopic", {
-      title: "Welcome! Introduce Yourself",
-      content:
-        "Welcome to the community! Take a moment to introduce yourself and tell us what you're working on.",
-      authorId: adminUser.id,
-      categoryId: generalCategory.id,
-      status: "APPROVED",
-    });
+      });
+    } else {
+      generalCategory = await prisma.forumCategory.create({
+        data: {
+          name: "General Discussion",
+          slug: "general-discussion",
+          description: "Talk about anything related to course creation.",
+        },
+      });
+    }
+    console.log(`   ✓ Seeded 1 forum category.`);
   } else {
-    introductionsTopic = await prisma.forumTopic.create({
-      data: {
+    console.log(`   ⏩ Forum category already seeded, skipping.`);
+  }
+
+  let introductionsTopic: any = await prisma.forumTopic.findFirst({
+    where: { title: "Welcome! Introduce Yourself" },
+  });
+
+  if (!introductionsTopic) {
+    if (isMongo) {
+      introductionsTopic = await safeCreate("ForumTopic", {
         title: "Welcome! Introduce Yourself",
         content:
           "Welcome to the community! Take a moment to introduce yourself and tell us what you're working on.",
         authorId: adminUser.id,
         categoryId: generalCategory.id,
         status: "APPROVED",
-      },
-    });
-  }
-  console.log(`   ✓ Seeded 1 forum topic.`);
-
-  if (isMongo) {
-    await safeCreate("ForumPost", {
-      content:
-        "Hey everyone! I'm Comparlify Admin, and I'm building a course on woodworking for beginners. Excited to learn from you all!",
-      authorId: comparlifyAdmin.id,
-      topicId: introductionsTopic.id,
-      status: "APPROVED",
-    });
-    await safeCreate("ForumPost", {
-      content: "Welcome, Admin! Glad to have you here.",
-      authorId: adminUser.id,
-      topicId: introductionsTopic.id,
-      status: "APPROVED",
-    });
-  } else {
-    await prisma.forumPost.createMany({
-      data: [
-        {
+      });
+    } else {
+      introductionsTopic = await prisma.forumTopic.create({
+        data: {
+          title: "Welcome! Introduce Yourself",
           content:
-            "Hey everyone! I'm Comparlify Admin, and I'm building a course on woodworking for beginners. Excited to learn from you all!",
-          authorId: comparlifyAdmin.id,
-          topicId: introductionsTopic.id,
-          status: "APPROVED",
-        },
-        {
-          content: "Welcome, Admin! Glad to have you here.",
+            "Welcome to the community! Take a moment to introduce yourself and tell us what you're working on.",
           authorId: adminUser.id,
-          topicId: introductionsTopic.id,
+          categoryId: generalCategory.id,
           status: "APPROVED",
         },
-      ],
-    });
+      });
+    }
+    console.log(`   ✓ Seeded 1 forum topic.`);
+
+    if (isMongo) {
+      await safeCreate("ForumPost", {
+        content:
+          "Hey everyone! I'm Comparlify Admin, and I'm building a course on woodworking for beginners. Excited to learn from you all!",
+        authorId: comparlifyAdmin.id,
+        topicId: introductionsTopic.id,
+        status: "APPROVED",
+      });
+      await safeCreate("ForumPost", {
+        content: "Welcome, Admin! Glad to have you here.",
+        authorId: adminUser.id,
+        topicId: introductionsTopic.id,
+        status: "APPROVED",
+      });
+    } else {
+      await prisma.forumPost.createMany({
+        data: [
+          {
+            content:
+              "Hey everyone! I'm Comparlify Admin, and I'm building a course on woodworking for beginners. Excited to learn from you all!",
+            authorId: comparlifyAdmin.id,
+            topicId: introductionsTopic.id,
+            status: "APPROVED",
+          },
+          {
+            content: "Welcome, Admin! Glad to have you here.",
+            authorId: adminUser.id,
+            topicId: introductionsTopic.id,
+            status: "APPROVED",
+          },
+        ],
+      });
+    }
+    console.log(`   ✓ Seeded 2 forum posts.`);
+  } else {
+    console.log(`   ⏩ Forum topic and posts already seeded, skipping.`);
   }
-  console.log(`   ✓ Seeded 2 forum posts.`);
 
   // --- 15. Seed Images from /public/uploads ---
   console.log("\n🖼️ Seeding existing images from public/uploads...");
@@ -1645,7 +1686,7 @@ At Comparlify, our mission is to provide clear, unbiased, and valuable informati
   console.log("\n🎉 Seeding finished successfully!");
 }
 
-export const seed = async (skipCleanup = false) => {
+export const seed = async (skipCleanup = true) => {
   try {
     await main(skipCleanup);
   } catch (e) {
