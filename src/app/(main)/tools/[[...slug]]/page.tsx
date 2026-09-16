@@ -4,22 +4,14 @@ import { Metadata } from "next";
 import { generateSeoMetadata } from "@/lib/seo";
 import prisma from "@/lib/prisma";
 import { getUserProjects } from "@/app/actions/projects";
-import { MotionDiv } from "@/components/motion-wrapper";
 import { ToolLayout } from "@/components/tools/ToolLayout";
 import { Card } from "@/components/ui/card";
+import { ToolHubSearch } from "@/components/tools/ToolHubSearch";
 import Link from "next/link";
 import {
   ArrowRight,
-  HelpCircle,
-  Settings,
-  Wand2,
-  Calculator,
-  FileText,
-  Search,
-  Code,
   ShieldCheck,
-  ChevronRight,
-  Database
+  ChevronRight
 } from "lucide-react";
 import { TOOLS, CATEGORIES, getToolBySlug, ToolDefinition } from "@/data/tools/registry";
 
@@ -90,7 +82,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   // Check if matches category
-  const [first, second, third] = slug;
+  const [first, second] = slug;
   if (slug.length === 1 && CATEGORIES[first as keyof typeof CATEGORIES]) {
     const cat = CATEGORIES[first as keyof typeof CATEGORIES];
     return generateSeoMetadata({
@@ -354,7 +346,7 @@ export default async function ToolsControllerPage({ params }: PageProps) {
     return <ToolsDashboardView />;
   }
 
-  const [first, second, third] = slug;
+  const [first, second] = slug;
 
   // Validate Category
   const isCategory = CATEGORIES[first as keyof typeof CATEGORIES];
@@ -405,7 +397,7 @@ export default async function ToolsControllerPage({ params }: PageProps) {
 function ToolsDashboardView() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="text-center mb-16">
+      <div className="text-center mb-12">
         <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/25 text-primary mb-4 text-xs font-semibold">
           <ShieldCheck className="h-4 w-4" />
           <span>Centralized Utility Ecosystem</span>
@@ -414,58 +406,11 @@ function ToolsDashboardView() {
           Comparlify <span className="text-primary italic font-semibold">Tool</span> Hub
         </h1>
         <p className="text-base text-muted-foreground max-w-2xl mx-auto font-medium leading-relaxed">
-          Surgical-grade code formatters, interactive in-browser PDF utilities, and strategic planning calculators.
+          Surgical-grade code formatters, interactive in-browser PDF utilities, technical SEO inspectors, and strategic planning calculators.
         </p>
       </div>
 
-      <div className="space-y-16">
-        {Object.entries(CATEGORIES).map(([catId, cat]) => {
-          const catTools = TOOLS.filter(t => t.category === catId);
-          return (
-            <div key={catId} className="space-y-6">
-              <div className="border-b border-border/10 pb-4">
-                <Link href={`/tools/${catId}`} className="group inline-flex items-center gap-2">
-                  <h2 className="text-2xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors">
-                    {cat.name}
-                  </h2>
-                  <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-transform group-hover:translate-x-1" />
-                </Link>
-                <p className="text-sm text-muted-foreground font-medium mt-1">
-                  {cat.description}
-                </p>
-              </div>
-
-              {/* Subcategories (if any) or Grid of tools directly */}
-              {Object.keys(cat.subcategories || {}).length > 0 ? (
-                <div className="space-y-8">
-                  {Object.entries(cat.subcategories).map(([subId, subName]) => {
-                    const subTools = catTools.filter(t => t.subcategory === subId);
-                    if (subTools.length === 0) return null;
-                    return (
-                      <div key={subId} className="space-y-4">
-                        <h3 className="text-sm font-extrabold uppercase tracking-wider text-primary/75">
-                          {subName}
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                          {subTools.map(tool => (
-                            <ToolCard key={tool.id} tool={tool} />
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {catTools.map(tool => (
-                    <ToolCard key={tool.id} tool={tool} />
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+      <ToolHubSearch tools={TOOLS} categories={CATEGORIES} />
     </div>
   );
 }
