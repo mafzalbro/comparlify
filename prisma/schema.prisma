@@ -587,24 +587,14 @@ model PlatformFeature {
 }
 
 model PlatformChangeLog {
-<<<<<<< HEAD
-  id String @id @default(cuid()) @map("_id")
-=======
   id          String   @id @default(cuid())
->>>>>>> origin/feature-phase3-creator-intelligence-11800545386596857537
   platformId  String
   platform    Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
   date        DateTime @default(now())
   title       String
-<<<<<<< HEAD
-  description String   
-  type        String   // "PRICING" | "FEATURE" | "FEE_UPDATE" | "SECURITY" | "INTEGRATION"
-  sourceUrl   String?  
-=======
   description String   @db.Text
   type        String   // "PRICING" | "FEATURE" | "FEE_UPDATE" | "SECURITY" | "INTEGRATION"
   sourceUrl   String?  @db.VarChar(1024)
->>>>>>> origin/feature-phase3-creator-intelligence-11800545386596857537
 
   @@index([platformId])
 }
@@ -678,11 +668,7 @@ enum SourceType {
 }
 
 model CreatorReview {
-<<<<<<< HEAD
-  id String @id @default(cuid()) @map("_id")
-=======
   id                    String                   @id @default(cuid())
->>>>>>> origin/feature-phase3-creator-intelligence-11800545386596857537
   creatorName           String?
   creatorEmail          String?
   creatorSegment        String                   // "Course Creator", "Newsletter Writer", "Community Builder", "Solopreneur", "Enterprise"
@@ -696,13 +682,8 @@ model CreatorReview {
   previousPlatformId    String?
   previousPlatform      Platform?                @relation("PreviousPlatformReviews", fields: [previousPlatformId], references: [id], onDelete: SetNull)
 
-<<<<<<< HEAD
-  selectionReason       String                   
-  bottleneck            String                   
-=======
   selectionReason       String                   @db.Text
   bottleneck            String                   @db.Text
->>>>>>> origin/feature-phase3-creator-intelligence-11800545386596857537
   recommendationScore   Float                    // 1.0 to 5.0 scale
 
   status                ReviewStatus             @default(PENDING)
@@ -722,42 +703,25 @@ model CreatorReview {
 }
 
 model CreatorReviewRevision {
-<<<<<<< HEAD
-  id String @id @default(cuid()) @map("_id")
-=======
   id                    String        @id @default(cuid())
->>>>>>> origin/feature-phase3-creator-intelligence-11800545386596857537
   reviewId              String
   review                CreatorReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
   revisionNumber        Int
   recommendationScore   Float
-<<<<<<< HEAD
-  selectionReason       String        
-  bottleneck            String        
-=======
   selectionReason       String        @db.Text
   bottleneck            String        @db.Text
->>>>>>> origin/feature-phase3-creator-intelligence-11800545386596857537
   createdAt             DateTime      @default(now())
 
   @@index([reviewId])
 }
 
 model ReviewModerationEvent {
-<<<<<<< HEAD
-  id String @id @default(cuid()) @map("_id")
-=======
   id          String        @id @default(cuid())
->>>>>>> origin/feature-phase3-creator-intelligence-11800545386596857537
   reviewId    String
   review      CreatorReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
   action      String        // "SUBMITTED", "APPROVED", "REJECTED", "VERIFICATION_CHANGED", "ARCHIVED"
   actor       String?       // Admin email or "SYSTEM"
-<<<<<<< HEAD
-  notes       String?       
-=======
   notes       String?       @db.Text
->>>>>>> origin/feature-phase3-creator-intelligence-11800545386596857537
   createdAt   DateTime      @default(now())
 
   @@index([reviewId])
