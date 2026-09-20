@@ -5,7 +5,7 @@ model Tool {
   title               String
   description         String       @db.Text
   Icon                String
-  category            ToolCategory
+  category            ToolCategory?
   enabled             Boolean      @default(true)
   prompt              String       @db.LongText
   inputTopicLabel     String?
