@@ -57,3 +57,5 @@ bun-lock.json
 bun.lockb
 bun.lock
 package-lock.json
+
+diff.txt

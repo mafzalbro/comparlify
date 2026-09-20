@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Search, X, ChevronRight, ArrowRight, Sparkles, Filter, Layers } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ToolDefinition } from "@/data/tools/registry";
+import { useScroll, useMotionValueEvent } from "framer-motion";
 
 interface CategoryMeta {
   name: string;
@@ -20,6 +21,20 @@ interface ToolHubSearchProps {
 export function ToolHubSearch({ tools, categories }: ToolHubSearchProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  
+  const { scrollY } = useScroll();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isHeaderHidden, setIsHeaderHidden] = useState(false);
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    setIsScrolled(latest > 50);
+    const previous = scrollY.getPrevious() ?? 0;
+    if (latest > previous && latest > 10) {
+      setIsHeaderHidden(true);
+    } else {
+      setIsHeaderHidden(false);
+    }
+  });
 
   // Category Filter Pills
   const categoryOptions = useMemo(() => {
@@ -59,59 +74,73 @@ export function ToolHubSearch({ tools, categories }: ToolHubSearchProps) {
 
   return (
     <div className="space-y-10">
-      {/* Search Bar & Category Filter Bar */}
-      <div className="bg-card/40 border border-border/40 backdrop-blur-md rounded-2xl p-4 sm:p-6 shadow-xl space-y-4">
-        {/* Search Input Box */}
-        <div className="relative flex items-center">
-          <Search className="absolute left-4 h-5 w-5 text-muted-foreground pointer-events-none" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search 80+ tools (e.g., 'JSON', 'PDF', 'ROI', 'SEO', 'Compressor', 'Salary')..."
-            className="w-full pl-11 pr-11 py-3.5 bg-background/60 border border-border/50 rounded-xl text-sm font-medium text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all shadow-inner"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery("")}
-              className="absolute right-3.5 p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-              title="Clear search"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-
-        {/* Category Filter Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 scrollbar-none">
-          <div className="flex items-center text-xs font-bold text-muted-foreground uppercase tracking-wider pr-2 border-r border-border/30 shrink-0">
-            <Filter className="h-3.5 w-3.5 mr-1 text-primary" /> Filter:
-          </div>
-          {categoryOptions.map((cat) => {
-            const isActive = selectedCategory === cat.id;
-            return (
+      {/* Sticky Search Bar & Category Filter Bar */}
+      <div
+        className={`sticky z-40 transition-all duration-300 ${
+          isHeaderHidden ? "top-3" : "top-20"
+        }`}
+      >
+        <div
+          className={`bg-card/70 border border-border/50 backdrop-blur-xl rounded-2xl shadow-xl transition-all duration-300 ${
+            isScrolled ? "p-3 sm:p-4 shadow-2xl ring-1 ring-primary/20 space-y-2.5" : "p-4 sm:p-6 space-y-4"
+          }`}
+        >
+          {/* Search Input Box */}
+          <div className="relative flex items-center">
+            <Search className={`absolute left-4 text-muted-foreground pointer-events-none transition-all ${isScrolled ? "h-4 w-4 left-3.5" : "h-5 w-5"}`} />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search 80+ tools (e.g., 'JSON', 'PDF', 'ROI', 'SEO', 'Compressor', 'Salary')..."
+              className={`w-full bg-background/70 border border-border/50 rounded-xl text-sm font-medium text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all shadow-inner ${
+                isScrolled ? "pl-9 pr-9 py-2 text-xs sm:text-sm" : "pl-11 pr-11 py-3.5 text-sm"
+              }`}
+            />
+            {searchQuery && (
               <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 border ${
-                  isActive
-                    ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                    : "bg-background/40 hover:bg-secondary text-muted-foreground hover:text-foreground border-border/30"
-                }`}
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3.5 p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                title="Clear search"
               >
-                <span>{cat.label}</span>
-                <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Category Filter Pills */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-0.5 pt-0.5 scrollbar-none">
+            <div className="flex items-center text-xs font-bold text-muted-foreground uppercase tracking-wider pr-2 border-r border-border/30 shrink-0">
+              <Filter className="h-3.5 w-3.5 mr-1 text-primary" /> Filter:
+            </div>
+            {categoryOptions.map((cat) => {
+              const isActive = selectedCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`rounded-lg font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 border ${
+                    isScrolled ? "px-2.5 py-1 text-[11px]" : "px-3 py-1.5 text-xs"
+                  } ${
                     isActive
-                      ? "bg-primary-foreground/20 text-primary-foreground"
-                      : "bg-muted/60 text-muted-foreground"
+                      ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                      : "bg-background/40 hover:bg-secondary text-muted-foreground hover:text-foreground border-border/30"
                   }`}
                 >
-                  {cat.count}
-                </span>
-              </button>
-            );
-          })}
+                  <span>{cat.label}</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                      isActive
+                        ? "bg-primary-foreground/20 text-primary-foreground"
+                        : "bg-muted/60 text-muted-foreground"
+                    }`}
+                  >
+                    {cat.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 

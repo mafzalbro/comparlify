@@ -39,7 +39,7 @@ export default function Header({ navLinks = [], siteName }: HeaderProps) {
   useMotionValueEvent(scrollY, "change", (latest) => {
     setScrolled(latest > 10);
     const previous = scrollY.getPrevious() ?? 0;
-    if (latest > previous && latest > 300) {
+    if (latest > previous && latest > 10) {
       setHidden(true);
     } else {
       setHidden(false);
