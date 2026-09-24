@@ -108,7 +108,7 @@ export function ToolForm({ tool }: ToolFormProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
-              <Select name="category" defaultValue={tool?.category}>
+              <Select name="category" defaultValue={tool?.category ?? undefined}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>

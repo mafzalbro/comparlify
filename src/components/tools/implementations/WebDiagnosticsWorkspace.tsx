@@ -171,7 +171,7 @@ export function WebDiagnosticsWorkspace({ activeToolId }: WebDiagnosticsWorkspac
       </div>
 
       {/* Active Sub-Tool Component Rendering */}
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3.5 sm:p-6 shadow-sm">
         {selectedToolId === "url-analyzer" && <UrlAnalyzerSub targetUrl={targetUrlInput} onCopy={handleCopy} copied={copied} />}
         {selectedToolId === "http-status-checker" && <HttpStatusSub targetUrl={targetUrlInput} auditData={auditData} onCopy={handleCopy} copied={copied} />}
         {selectedToolId === "dns-lookup" && <DnsLookupSub targetUrl={targetUrlInput} onCopy={handleCopy} copied={copied} />}

@@ -562,14 +562,26 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
 
         {/* EDITOR AREA (Single Buffer vs Diff Double Buffer) */}
         {activeTab === "diff" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
             <div>
-              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block mb-1.5">Original Text</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Original Text</label>
+                <button
+                  onClick={() => {
+                    setOriginalText("Comparlify provides platform comparison tools for digital creators, educators, and developers.");
+                    setModifiedText("Comparlify offers platform comparison utilities for online creators, course builders, and software engineers.");
+                    toast({ title: "Sample Diff Loaded", description: "Loaded sample texts for comparison." });
+                  }}
+                  className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1"
+                >
+                  <Sparkles className="h-3 w-3" /> Load Sample Diff
+                </button>
+              </div>
               <textarea
                 value={originalText}
                 onChange={e => setOriginalText(e.target.value)}
                 placeholder="Paste original text here..."
-                className="w-full h-44 p-3 bg-muted/40 border border-border/30 rounded-xl text-xs font-mono outline-none resize-none"
+                className="w-full h-36 sm:h-44 p-3 bg-muted/40 border border-border/30 rounded-xl text-xs font-mono outline-none resize-none text-foreground"
               />
             </div>
             <div>
@@ -578,7 +590,7 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
                 value={modifiedText}
                 onChange={e => setModifiedText(e.target.value)}
                 placeholder="Paste modified text here..."
-                className="w-full h-44 p-3 bg-muted/40 border border-border/30 rounded-xl text-xs font-mono outline-none resize-none"
+                className="w-full h-36 sm:h-44 p-3 bg-muted/40 border border-border/30 rounded-xl text-xs font-mono outline-none resize-none text-foreground"
               />
             </div>
           </div>
@@ -586,12 +598,21 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Text Input Editor Buffer</label>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => {
+                    setText("Comparlify is an all-in-one platform intelligence engine and developer utility suite. It helps creators evaluate software options, analyze migration costs, and compute expected ROI across platforms like Teachable, Skool, Mighty Networks, and Kajabi.");
+                    toast({ title: "Sample Text Loaded", description: "Sample paragraph loaded into buffer." });
+                  }}
+                  className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1"
+                >
+                  <Sparkles className="h-3 w-3" /> Load Sample
+                </button>
                 <button
                   onClick={() => setText("")}
                   className="text-[10px] font-bold text-rose-500 hover:underline flex items-center gap-1"
                 >
-                  <Trash2 className="h-3 w-3" /> Clear Buffer
+                  <Trash2 className="h-3 w-3" /> Clear
                 </button>
               </div>
             </div>
@@ -599,7 +620,7 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
               value={text}
               onChange={e => setText(e.target.value)}
               placeholder="Paste or type text to process..."
-              className="w-full h-48 p-3 bg-muted/40 border border-border/30 rounded-xl text-xs font-mono outline-none resize-none"
+              className="w-full h-36 sm:h-48 p-3 bg-muted/40 border border-border/30 rounded-xl text-xs font-mono outline-none resize-none text-foreground"
             />
           </div>
         )}

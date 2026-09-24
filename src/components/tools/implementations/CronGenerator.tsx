@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import { Check, Copy, RefreshCw, Calendar, Terminal } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+import { ShieldCheck, Sparkles } from "lucide-react";
+
 export function CronGenerator() {
   const [minute, setMinute] = useState("*");
   const [hour, setHour] = useState("*");
@@ -88,7 +90,35 @@ export function CronGenerator() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-6">
+      {/* Studio Header Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-2.5 bg-card/30 backdrop-blur-xl px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-border/20">
+        <div className="flex items-center gap-2 min-w-0">
+          <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
+          <span className="text-xs font-bold text-foreground truncate flex items-center gap-1.5">
+            <Calendar className="h-3.5 w-3.5 text-primary" /> Cron Expression Studio
+          </span>
+          <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live Client
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => { setMinute("0"); setHour("0"); setDayOfMonth("*"); setMonth("*"); setDayOfWeek("*"); }}
+            className="px-2 py-1 rounded bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 text-[10px] font-bold"
+          >
+            Daily Midnight
+          </button>
+          <button
+            onClick={() => { setMinute("*/15"); setHour("*"); setDayOfMonth("*"); setMonth("*"); setDayOfWeek("*"); }}
+            className="px-2 py-1 rounded bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 text-[10px] font-bold"
+          >
+            Every 15m
+          </button>
+        </div>
+      </div>
+
       {/* ── Generator ────────────────────────────────────────────────── */}
       <div className="space-y-4">
         <h3 className="text-sm font-bold text-foreground flex items-center gap-2">

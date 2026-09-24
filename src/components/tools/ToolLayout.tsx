@@ -64,54 +64,54 @@ export function ToolLayout({ tool, children }: ToolLayoutProps) {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-6xl mx-auto px-1 sm:px-6 lg:px-8 py-2 sm:py-8">
       {/* Structured Data for SEO */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJsonLd) }}
       />
-      <Breadcrumbs items={breadcrumbItems} className="mb-6 p-0" />
+      <Breadcrumbs items={breadcrumbItems} className="mb-2 sm:mb-6 p-0 text-xs px-1 sm:px-0" />
 
       {/* ── Header ─────────────────────────────────────────────────── */}
       <MotionDiv
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
+        className="mb-3 sm:mb-8 px-1 sm:px-0"
       >
-        <div className="flex flex-wrap items-center gap-2 mb-3">
-          <span className="text-[10px] font-bold uppercase tracking-wider bg-primary/10 border border-primary/20 text-primary px-2.5 py-0.5 rounded-full">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+          <span className="text-[10px] font-bold uppercase tracking-wider bg-primary/10 border border-primary/20 text-primary px-2 sm:px-2.5 py-0.5 rounded-full">
             {categoryMeta.name}
           </span>
           {subcategoryName && (
-            <span className="text-[10px] font-bold uppercase tracking-wider bg-secondary border border-border/40 text-muted-foreground px-2.5 py-0.5 rounded-full">
+            <span className="text-[10px] font-bold uppercase tracking-wider bg-secondary border border-border/40 text-muted-foreground px-2 sm:px-2.5 py-0.5 rounded-full">
               {subcategoryName}
             </span>
           )}
           {tool.tag && (
-            <span className="text-[10px] font-bold bg-amber-500/10 border border-amber-500/30 text-amber-500 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+            <span className="text-[10px] font-bold bg-amber-500/10 border border-amber-500/30 text-amber-500 px-2 sm:px-2.5 py-0.5 rounded-full flex items-center gap-1">
               {tool.tag} Priority
             </span>
           )}
         </div>
 
-        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-3 text-foreground">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-2 sm:mb-3 text-foreground">
           {tool.title}
         </h1>
-        <p className="text-sm md:text-base text-muted-foreground max-w-3xl leading-relaxed font-medium">
+        <p className="text-xs sm:text-sm md:text-base text-muted-foreground max-w-3xl leading-relaxed font-medium">
           {tool.description}
         </p>
       </MotionDiv>
 
       {/* ── Interactive Workspace (Mounted children) ─────────────────── */}
-      <div className="mb-12">
-        <Card className="p-4 md:p-6 bg-card/40 border border-border/40 hover:border-border/60 transition-colors backdrop-blur-md rounded-2xl">
+      <div className="mb-6 sm:mb-12">
+        <Card className="p-1.5 sm:p-5 md:p-6 bg-card/40 border border-border/40 hover:border-border/60 transition-colors backdrop-blur-md rounded-xl sm:rounded-2xl">
           {children}
         </Card>
       </div>
 
       {/* ── Educational Content ────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-8 border-t border-border/10">
-        <div className="lg:col-span-2 space-y-10">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-8 pt-5 sm:pt-8 border-t border-border/10">
+        <div className="lg:col-span-2 space-y-6 sm:space-y-10">
           {/* What is X? */}
           <section className="space-y-3">
             <h2 className="text-xl md:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">

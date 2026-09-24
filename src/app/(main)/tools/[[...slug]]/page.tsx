@@ -396,16 +396,16 @@ export default async function ToolsControllerPage({ params }: PageProps) {
 // A. Master Tools Dashboard (/tools)
 function ToolsDashboardView() {
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="text-center mb-12">
-        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/25 text-primary mb-4 text-xs font-semibold">
+    <div className="max-w-6xl mx-auto px-2.5 sm:px-6 lg:px-8 py-5 sm:py-10">
+      <div className="text-center mb-6 sm:mb-12">
+        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/25 text-primary mb-3 sm:mb-4 text-xs font-semibold">
           <ShieldCheck className="h-4 w-4" />
           <span>Centralized Utility Ecosystem</span>
         </div>
-        <h1 className="text-3xl md:text-5xl font-extrabold mb-4 tracking-tight">
+        <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold mb-3 sm:mb-4 tracking-tight">
           Comparlify <span className="text-primary italic font-semibold">Tool</span> Hub
         </h1>
-        <p className="text-base text-muted-foreground max-w-2xl mx-auto font-medium leading-relaxed">
+        <p className="text-xs sm:text-sm md:text-base text-muted-foreground max-w-2xl mx-auto font-medium leading-relaxed">
           Surgical-grade code formatters, interactive in-browser PDF utilities, technical SEO inspectors, and strategic planning calculators.
         </p>
       </div>
@@ -421,33 +421,33 @@ function CategoryView({ categoryId }: { categoryId: string }) {
   const catTools = TOOLS.filter(t => t.category === categoryId);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="mb-10">
-        <Link href="/tools" className="text-xs text-primary font-bold uppercase tracking-wider hover:underline flex items-center gap-1.5 mb-3">
+    <div className="max-w-6xl mx-auto px-2.5 sm:px-6 lg:px-8 py-5 sm:py-10">
+      <div className="mb-6 sm:mb-10">
+        <Link href="/tools" className="text-xs text-primary font-bold uppercase tracking-wider hover:underline flex items-center gap-1.5 mb-2 sm:mb-3">
           ← Back to Tool Hub
         </Link>
-        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-2">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-2">
           {cat.name}
         </h1>
-        <p className="text-muted-foreground text-sm font-medium leading-relaxed max-w-2xl">
+        <p className="text-muted-foreground text-xs sm:text-sm font-medium leading-relaxed max-w-2xl">
           {cat.description}
         </p>
       </div>
 
       {Object.keys(cat.subcategories || {}).length > 0 ? (
-        <div className="space-y-12">
+        <div className="space-y-8 sm:space-y-12">
           {Object.entries(cat.subcategories).map(([subId, subName]) => {
             const subTools = catTools.filter(t => t.subcategory === subId);
             if (subTools.length === 0) return null;
             return (
-              <div key={subId} className="space-y-4">
+              <div key={subId} className="space-y-3 sm:space-y-4">
                 <Link href={`/tools/${categoryId}/${subId}`} className="group inline-flex items-center gap-1.5">
-                  <h3 className="text-lg font-bold tracking-tight text-foreground group-hover:text-primary transition-colors">
+                  <h3 className="text-base sm:text-lg font-bold tracking-tight text-foreground group-hover:text-primary transition-colors">
                     {subName}
                   </h3>
                   <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-transform group-hover:translate-x-0.5" />
                 </Link>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
                   {subTools.map(tool => (
                     <ToolCard key={tool.id} tool={tool} />
                   ))}
@@ -457,7 +457,7 @@ function CategoryView({ categoryId }: { categoryId: string }) {
           })}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
           {catTools.map(tool => (
             <ToolCard key={tool.id} tool={tool} />
           ))}
@@ -474,20 +474,20 @@ function SubcategoryView({ categoryId, subcategoryId }: { categoryId: string, su
   const subTools = TOOLS.filter(t => t.category === categoryId && t.subcategory === subcategoryId);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="mb-10">
-        <Link href={`/tools/${categoryId}`} className="text-xs text-primary font-bold uppercase tracking-wider hover:underline flex items-center gap-1.5 mb-3">
+    <div className="max-w-6xl mx-auto px-2.5 sm:px-6 lg:px-8 py-5 sm:py-10">
+      <div className="mb-6 sm:mb-10">
+        <Link href={`/tools/${categoryId}`} className="text-xs text-primary font-bold uppercase tracking-wider hover:underline flex items-center gap-1.5 mb-2 sm:mb-3">
           ← Back to {cat.name}
         </Link>
-        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-2">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-2">
           {subName}
         </h1>
-        <p className="text-muted-foreground text-sm font-medium leading-relaxed">
+        <p className="text-muted-foreground text-xs sm:text-sm font-medium leading-relaxed">
           High-performance in-browser utility modules for {subName}.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
         {subTools.map(tool => (
           <ToolCard key={tool.id} tool={tool} />
         ))}
@@ -504,7 +504,7 @@ function ToolCard({ tool }: { tool: ToolDefinition }) {
 
   return (
     <Link href={href} className="group block h-full">
-      <Card className="p-5 h-full bg-card/20 hover:bg-card/40 border border-border/40 hover:border-primary/30 transition-all duration-300 rounded-xl flex flex-col justify-between">
+      <Card className="p-3.5 sm:p-5 h-full bg-card/20 hover:bg-card/40 border border-border/40 hover:border-primary/30 transition-all duration-300 rounded-xl flex flex-col justify-between">
         <div>
           <div className="flex items-center justify-between mb-3.5">
             <h4 className="text-base font-bold text-foreground group-hover:text-primary transition-colors flex items-center gap-1.5">

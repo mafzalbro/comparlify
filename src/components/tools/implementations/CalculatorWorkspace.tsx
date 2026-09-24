@@ -254,7 +254,7 @@ export function CalculatorWorkspace({ activeToolId }: CalculatorWorkspaceProps) 
       )}
 
       {/* Active Sub-Calculator Scenario Engine View */}
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3.5 sm:p-6 shadow-sm">
         {selectedToolId === "percentage-calculator" && (
           <PercentageDecisionEngine engineMode={activeEngineMode} currency={currency} onCopy={handleCopy} copied={copied} onLogHistory={addHistoryItem} />
         )}

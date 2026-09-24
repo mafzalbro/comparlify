@@ -16,6 +16,8 @@ interface MergableFile {
   rotation: number; // 0, 90, 180, 270
 }
 
+import { ShieldCheck, Sparkles } from "lucide-react";
+
 export function MergePDF() {
   const [files, setFiles] = useState<MergableFile[]>([]);
   const [merging, setMerging] = useState(false);
@@ -134,13 +136,35 @@ export function MergePDF() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col space-y-3">
-        <label className="text-sm font-bold text-foreground">
+    <div className="space-y-4 sm:space-y-5">
+      {/* Studio Header Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-2.5 bg-card/30 backdrop-blur-xl px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-border/20">
+        <div className="flex items-center gap-2 min-w-0">
+          <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
+          <span className="text-xs font-bold text-foreground truncate flex items-center gap-1.5">
+            <FileText className="h-3.5 w-3.5 text-primary" /> PDF Merge Studio
+          </span>
+          <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live Client
+          </span>
+        </div>
+
+        {files.length > 0 && (
+          <button
+            onClick={() => setFiles([])}
+            className="px-2.5 py-1 rounded-lg bg-secondary hover:bg-destructive/10 hover:text-destructive border border-border/30 text-xs font-bold flex items-center gap-1 transition-all"
+          >
+            <Trash2 className="h-3 w-3" /> Clear Queue
+          </button>
+        )}
+      </div>
+
+      <div className="flex flex-col space-y-2">
+        <label className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground">
           Upload PDF files to merge
         </label>
 
-        <div className="border-2 border-dashed border-border/40 hover:border-primary/45 rounded-2xl p-8 text-center cursor-pointer relative bg-secondary/10 transition-colors">
+        <div className="border-2 border-dashed border-border/40 hover:border-primary/45 rounded-2xl p-5 sm:p-8 text-center cursor-pointer relative bg-muted/20 transition-colors">
           <input
             type="file"
             multiple

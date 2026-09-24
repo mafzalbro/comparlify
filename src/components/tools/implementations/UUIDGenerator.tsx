@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { Check, Copy, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+import { ShieldCheck, Fingerprint } from "lucide-react";
+
 export function UUIDGenerator() {
   const [quantity, setQuantity] = useState(5);
   const [uppercase, setUppercase] = useState(false);
@@ -56,8 +58,28 @@ export function UUIDGenerator() {
   }, [quantity, uppercase, hyphens]);
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+    <div className="space-y-4 sm:space-y-5">
+      {/* Studio Header Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-2.5 bg-card/30 backdrop-blur-xl px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-border/20">
+        <div className="flex items-center gap-2 min-w-0">
+          <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
+          <span className="text-xs font-bold text-foreground truncate flex items-center gap-1.5">
+            <Fingerprint className="h-3.5 w-3.5 text-primary" /> UUID v4 Generator
+          </span>
+          <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> RFC 4122
+          </span>
+        </div>
+
+        <button
+          onClick={handleGenerate}
+          className="px-3 py-1 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold flex items-center gap-1 transition-all"
+        >
+          <RefreshCw className="h-3 w-3" /> Regenerate
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 items-end">
         {/* Quantity */}
         <div className="flex flex-col space-y-2">
           <label className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground">

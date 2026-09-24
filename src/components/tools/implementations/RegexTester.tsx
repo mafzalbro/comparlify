@@ -3,12 +3,33 @@
 import React, { useState, useEffect } from "react";
 import { AlertCircle, CheckCircle2, List } from "lucide-react";
 
+import { ShieldCheck, Sparkles, Wand2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
 export function RegexTester() {
   const [pattern, setPattern] = useState("\\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}\\b");
   const [flags, setFlags] = useState("g");
   const [testText, setTestText] = useState("Contact us at support@comparlify.com or info@domain.org for help!");
   const [matches, setMatches] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const handlePreset = (presetType: "email" | "url" | "phone" | "ip") => {
+    if (presetType === "email") {
+      setPattern("\\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}\\b");
+      setTestText("Reach out to admin@comparlify.com or contact@hello.co");
+    } else if (presetType === "url") {
+      setPattern("https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)");
+      setTestText("Visit https://www.comparlify.com or http://sub.domain.org/path?q=123");
+    } else if (presetType === "phone") {
+      setPattern("\\+?\\d{1,4}?[-.\\s]?\\(?\\d{1,3}?\\)?[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,9}");
+      setTestText("Call us at +1-800-555-0199 or 415-555-2671 now!");
+    } else if (presetType === "ip") {
+      setPattern("\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b");
+      setTestText("Server IP is 192.168.1.1 and gateway is 10.0.0.254");
+    }
+    toast({ title: "Preset Applied", description: `Loaded ${presetType.toUpperCase()} pattern sample.` });
+  };
 
   useEffect(() => {
     if (!pattern) {
@@ -56,8 +77,34 @@ export function RegexTester() {
   }, [pattern, flags, testText]);
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="space-y-4 sm:space-y-5">
+      {/* Studio Header Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-2.5 bg-card/30 backdrop-blur-xl px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-border/20">
+        <div className="flex items-center gap-2 min-w-0">
+          <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
+          <span className="text-xs font-bold text-foreground truncate">
+            Regex Studio & Inspector
+          </span>
+          <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live Client
+          </span>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-[10px] font-bold text-muted-foreground mr-1 hidden sm:inline">Presets:</span>
+          {(["email", "url", "phone", "ip"] as const).map(p => (
+            <button
+              key={p}
+              onClick={() => handlePreset(p)}
+              className="px-2 py-0.5 rounded bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 text-[10px] font-bold transition-all uppercase"
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Left column: Regex input */}
         <div className="lg:col-span-1 space-y-4">
           <div className="flex flex-col space-y-2">
