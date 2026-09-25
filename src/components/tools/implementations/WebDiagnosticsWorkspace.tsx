@@ -423,6 +423,10 @@ function UrlAnalyzerSub({ targetUrl, onCopy, copied }: any) {
 
 // 2. HTTP Status Diagnostics (#62)
 function HttpStatusSub({ targetUrl, auditData }: any) {
+  const isOk = auditData && !auditData.isUnreachable && auditData.status >= 200 && auditData.status < 400;
+  const statusDisplay = auditData ? (auditData.status === 0 ? "0" : auditData.status) : "---";
+  const statusTextDisplay = auditData ? (auditData.statusText || (isOk ? "OK" : "Error / Unreachable")) : "Analyzing...";
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between pb-3 border-b border-border/20">
@@ -436,16 +440,25 @@ function HttpStatusSub({ targetUrl, auditData }: any) {
 
       {auditData ? (
         <div className="space-y-4">
-          <div className="p-4 rounded-xl bg-card border border-border/30 flex items-center justify-between">
+          <div className={`p-4 rounded-xl border flex items-center justify-between ${isOk ? "bg-card border-border/30" : "bg-destructive/10 border-destructive/30"}`}>
             <div>
               <span className="text-[11px] text-muted-foreground uppercase block font-semibold">Response Status</span>
-              <span className="text-2xl font-extrabold text-emerald-400">{auditData.status || 200} {auditData.statusText || "OK"}</span>
+              <span className={`text-2xl font-extrabold flex items-center gap-2 ${isOk ? "text-emerald-400" : "text-destructive"}`}>
+                {!isOk && <AlertTriangle className="w-5 h-5 text-destructive shrink-0" />}
+                {statusDisplay} {statusTextDisplay}
+              </span>
             </div>
             <div className="text-right">
               <span className="text-[11px] text-muted-foreground block font-semibold">Server Response Time</span>
-              <span className="text-lg font-bold font-mono text-primary">{auditData.responseTimeMs || 142} ms</span>
+              <span className="text-lg font-bold font-mono text-primary">{auditData.responseTimeMs || 0} ms</span>
             </div>
           </div>
+
+          {auditData.error && (
+            <div className="p-3.5 rounded-xl bg-destructive/10 border border-destructive/20 text-xs text-destructive font-mono">
+              <strong>Diagnostics Warning:</strong> {auditData.error}
+            </div>
+          )}
 
           {auditData.redirectChain?.length > 0 && (
             <div className="p-4 rounded-xl bg-card border border-border/30 space-y-2">

@@ -96,21 +96,28 @@ export async function POST(req: NextRequest) {
     let attempts = 0;
     const startTime = Date.now();
 
+    let fetchErrorMsg: string | null = null;
+
     while (attempts < 5) {
       attempts++;
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+
         const res = await fetch(currentUrl, {
           method: "GET",
           redirect: "manual",
+          signal: controller.signal,
           headers: {
             "User-Agent": "ComparlifyWebDiagnosticsBot/1.0 (+https://comparlify.com)",
           },
         });
+        clearTimeout(timeoutId);
 
         redirectChain.push({
           url: currentUrl,
           status: res.status,
-          statusText: res.statusText,
+          statusText: res.statusText || (res.status === 200 ? "OK" : "Status Code " + res.status),
         });
 
         if (res.status >= 300 && res.status < 400) {
@@ -124,6 +131,7 @@ export async function POST(req: NextRequest) {
         finalResponse = res;
         break;
       } catch (e: any) {
+        fetchErrorMsg = e.name === "AbortError" ? "Connection Timed Out (8s limit)" : e.message || "Host Unreachable / DNS Failed";
         break;
       }
     }
@@ -144,6 +152,12 @@ export async function POST(req: NextRequest) {
       } catch (_) {}
     }
 
+    const isUnreachable = !finalResponse || fetchErrorMsg !== null;
+    const finalStatus = finalResponse ? finalResponse.status : 0;
+    const finalStatusText = finalResponse
+      ? finalResponse.statusText || (finalResponse.status === 200 ? "OK" : `HTTP ${finalResponse.status}`)
+      : fetchErrorMsg || "Host Unreachable / DNS Resolution Failed";
+
     const getTagContent = (regex: RegExp) => {
       const match = htmlContent.match(regex);
       return match ? match[1] || match[2] || "" : "";
@@ -159,12 +173,12 @@ export async function POST(req: NextRequest) {
     const ogDescription = getTagContent(/<meta[^>]*property=["']og:description["'][^>]*content=["']([^"']*)["']/i) || metaDescription;
     const ogImage = getTagContent(/<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']*)["']/i);
 
-    // Asset Inventory (Tool #77)
+    // Asset Inventory
     const imagesCount = (htmlContent.match(/<img[^>]*>/gi) || []).length;
     const scriptsCount = (htmlContent.match(/<script[^>]*>/gi) || []).length;
     const stylesheetsCount = (htmlContent.match(/<link[^>]*rel=["']stylesheet["'][^>]*>/gi) || []).length;
 
-    // Crawl Discovered Internal Links (Tool #78)
+    // Crawl Discovered Internal Links
     const hrefRegex = /<a[^>]*href=["']([^"']*)["'][^>]*>/gi;
     const discoveredUrls: { url: string; isInternal: boolean; status: number }[] = [];
     const seenUrls = new Set<string>();
@@ -192,22 +206,28 @@ export async function POST(req: NextRequest) {
       if (scriptMatch[1]) jsonLdMatches.push(scriptMatch[1].trim());
     }
 
-    // Flagship Health Score Evaluation (Tool #80)
+    // Flagship Health Score Evaluation
     let score = 100;
-    if (!metaTitle) score -= 15;
-    if (!metaDescription) score -= 15;
-    if (!canonicalUrl) score -= 10;
-    if (!ogImage) score -= 10;
-    if (responseTimeMs > 1000) score -= 10;
-    if (jsonLdMatches.length === 0) score -= 10;
+    if (isUnreachable) {
+      score = 0;
+    } else {
+      if (!metaTitle) score -= 15;
+      if (!metaDescription) score -= 15;
+      if (!canonicalUrl) score -= 10;
+      if (!ogImage) score -= 10;
+      if (responseTimeMs > 1000) score -= 10;
+      if (jsonLdMatches.length === 0) score -= 10;
+    }
 
     return NextResponse.json({
-      success: true,
+      success: !isUnreachable && finalStatus >= 200 && finalStatus < 400,
+      isUnreachable,
+      error: fetchErrorMsg,
       url: targetUrl,
       finalUrl: currentUrl,
-      status: finalResponse?.status || 200,
-      statusText: finalResponse?.statusText || "OK",
-      responseTimeMs,
+      status: finalStatus,
+      statusText: finalStatusText,
+      responseTimeMs: isUnreachable ? 0 : responseTimeMs,
       redirectChain,
       headers,
       seo: {
@@ -227,11 +247,11 @@ export async function POST(req: NextRequest) {
         htmlBytes: htmlContent.length,
       },
       discoveredUrls,
-      healthScore: Math.max(20, score),
+      healthScore: Math.max(0, score),
     });
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, error: error.message || "Failed to execute web diagnostics." },
+      { success: false, isUnreachable: true, status: 0, statusText: "Diagnostics Exception", error: error.message || "Failed to execute web diagnostics." },
       { status: 500 }
     );
   }
