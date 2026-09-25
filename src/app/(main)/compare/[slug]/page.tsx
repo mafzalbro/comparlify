@@ -18,6 +18,7 @@ import {
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { cache } from "react";
+import { cn } from "@/lib/utils";
 import { auth } from "@/lib/auth";
 import dynamic from "next/dynamic";
 
@@ -35,6 +36,8 @@ import { InlineROICalculator } from "@/components/comparison/inline-roi-calculat
 import { PlatformPicker } from "@/components/tool/PlatformPicker";
 import { PlatformScorecardCard } from "@/components/platform-scorecard-card";
 import { PlatformChangeTracker } from "@/components/platform-change-tracker";
+import { DETAIL_CONTAINER, GLASS_CARD, GLASS_CARD_SM, MICRO_LABEL } from "@/lib/design-tokens";
+import { SectionHeader } from "@/components/layout/section-header";
 import { InteractiveComparisonMatcher } from "@/components/comparison/interactive-comparison-matcher";
 import { ReviewAcquisitionWidget } from "@/components/review-acquisition-widget";
 
@@ -257,7 +260,7 @@ export default async function ComparisonDetailPage(props: {
         />
 
         {/* ── SIDE-BY-SIDE SCORECARDS & INTERACTIVE MATCHER ────────────────── */}
-        <section className="container mx-auto px-4 md:px-6 max-w-7xl pt-8 pb-4 space-y-12">
+        <section className={DETAIL_CONTAINER + " pt-8 pb-4 space-y-12"}>
           <InteractiveComparisonMatcher platformA={platformA} platformB={platformB} />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <PlatformScorecardCard platform={platformA} />
@@ -283,13 +286,13 @@ export default async function ComparisonDetailPage(props: {
         </section>
 
         {/* ── MAIN CONTENT GRID ────────────── */}
-        <section className="container mx-auto px-4 md:px-6 max-w-7xl">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
+        <section className={DETAIL_CONTAINER}>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
             {/* ── SIDEBAR ──────────────────── */}
             <aside className="hidden lg:block lg:col-span-4">
-              <div className="sticky top-40 space-y-16">
+              <div className="sticky top-24 space-y-10">
                 {/* Radar Chart */}
-                <section className="bg-card/40 backdrop-blur-3xl border border-border/10 p-8 rounded-4xl shadow-2xl relative overflow-hidden group">
+                <section className={cn(GLASS_CARD, "p-6 sm:p-8 relative overflow-hidden group")}>
                   <div className="absolute top-0 right-0 p-8 text-primary/5 select-none pointer-events-none -rotate-12 translate-x-8 -translate-y-8">
                     <Sparkles className="h-32 w-32" />
                   </div>
@@ -309,9 +312,9 @@ export default async function ComparisonDetailPage(props: {
                 <AdPlacement placement="SIDEBAR" />
 
                 {/* Newsletter */}
-                <section className="bg-card/60 backdrop-blur-3xl border border-border/10 p-8 rounded-4xl shadow-2xl text-center relative overflow-hidden group">
+                <section className={cn(GLASS_CARD, "p-6 sm:p-8 text-center relative overflow-hidden group")}>
                   <div className="absolute inset-0 bg-linear-to-b from-primary/5 to-transparent" />
-                  <Badge className="bg-primary/20 text-primary border-primary/30 px-6 py-2 uppercase tracking-[0.4em] text-[10px] font-black rounded-full mb-8 shadow-sm relative z-10">
+                  <Badge className="bg-primary/20 text-primary border-primary/30 px-6 py-2 uppercase tracking-widest text-[10px] font-bold rounded-full mb-8 shadow-sm relative z-10">
                     Stay Updated
                   </Badge>
                   <h3 className="text-3xl font-black text-foreground mb-6 leading-[1.1] relative z-10">
@@ -328,8 +331,8 @@ export default async function ComparisonDetailPage(props: {
 
                 {/* ── COLLECTIVE PULSE ─────────────── */}
                 {(content["module.community.enabled"] !== "false" || content["module.news.enabled"] !== "false") && (
-                  <section className="bg-primary/5 border border-primary/20 p-8 rounded-[3rem] space-y-8">
-                    <Badge className="bg-primary/20 text-primary border-primary/30 uppercase tracking-widest text-[9px] font-black">
+                  <section className="bg-primary/5 border border-primary/20 p-6 sm:p-8 rounded-4xl space-y-8">
+                    <Badge className="bg-primary/20 text-primary border-primary/30 uppercase tracking-widest text-[9px] font-bold">
                       Community Pulse
                     </Badge>
                     <h4 className="text-2xl font-black leading-none uppercase">
@@ -388,10 +391,7 @@ export default async function ComparisonDetailPage(props: {
 
               {/* Introduction */}
               <section className="space-y-16">
-                <div className="inline-flex items-center gap-3 text-primary font-black uppercase tracking-[0.4em] text-[11px]">
-                  <div className="w-12 h-px bg-primary/30" />
-                  Analysis Overview
-                </div>
+                <SectionHeader label="Analysis Overview" />
                 <MarkdownContent content={comparison.introduction} />
               </section>
 
@@ -399,10 +399,7 @@ export default async function ComparisonDetailPage(props: {
 
               {/* ROI Calculator */}
               <section className="space-y-8">
-                <div className="inline-flex items-center gap-3 text-primary font-black uppercase tracking-[0.4em] text-[11px]">
-                  <div className="w-12 h-px bg-primary/30" />
-                  Cost & ROI Analysis
-                </div>
+                <SectionHeader label="Cost & ROI Analysis" />
                 <InlineROICalculator
                   platformA={platformA}
                   platformB={platformB}
@@ -412,10 +409,7 @@ export default async function ComparisonDetailPage(props: {
               {/* Detailed Content Analysis */}
               {comparison.content && (
                 <section className="space-y-16">
-                  <div className="inline-flex items-center gap-3 text-primary font-black uppercase tracking-[0.4em] text-[11px]">
-                    <div className="w-12 h-px bg-primary/30" />
-                    Comparison Deep Dive
-                  </div>
+                  <SectionHeader label="Comparison Deep Dive" />
                   <MarkdownContent content={comparison.content} />
                 </section>
               )}
@@ -466,10 +460,7 @@ export default async function ComparisonDetailPage(props: {
               {/* Related Content */}
               {(relatedPosts.length > 0 || relatedNews.length > 0) && (
                 <section className="pt-32 border-t border-border/10">
-                  <div className="flex items-center gap-3 text-primary font-black uppercase tracking-[0.4em] text-[11px] mb-12">
-                    <div className="w-12 h-px bg-primary/30" />
-                    Related Intelligence
-                  </div>
+                  <SectionHeader label="Related Intelligence" className="mb-12" />
                   <h2 className="text-4xl font-black uppercase tracking-tighter mb-16">
                     Keep <span className="text-primary italic">Reading</span>
                   </h2>
@@ -480,8 +471,8 @@ export default async function ComparisonDetailPage(props: {
                         href={`/blog/${post.slug}`}
                         className="group"
                       >
-                        <Card className="bg-card/40 border-border/10 p-6 rounded-4xl hover:bg-primary/5 transition-all h-full">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-primary mb-4 flex items-center gap-2">
+                        <Card className={cn(GLASS_CARD_SM, "p-6 hover:bg-primary/5 transition-all h-full")}>
+                          <span className={cn(MICRO_LABEL, "text-primary mb-4 flex items-center gap-2")}>
                             <BookOpen className="h-3 w-3" /> Blog Article
                           </span>
                           <h4 className="text-xl font-bold group-hover:text-primary transition-colors">
@@ -496,8 +487,8 @@ export default async function ComparisonDetailPage(props: {
                         href={`/news/${news.slug}`}
                         className="group"
                       >
-                        <Card className="bg-card/40 border-border/10 p-6 rounded-4xl hover:bg-blue-500/5 transition-all h-full">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-4 block">
+                        <Card className={cn(GLASS_CARD_SM, "p-6 hover:bg-blue-500/5 transition-all h-full")}>
+                          <span className={cn(MICRO_LABEL, "text-blue-500 mb-4 block")}>
                             Market News
                           </span>
                           <h4 className="text-xl font-bold group-hover:text-blue-500 transition-colors">

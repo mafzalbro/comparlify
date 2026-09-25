@@ -14,6 +14,8 @@ import {
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { cache } from "react";
+import { cn } from "@/lib/utils";
+import { DETAIL_CONTAINER, GLASS_CARD, GLASS_CARD_SM, MICRO_LABEL } from "@/lib/design-tokens";
 import { auth } from "@/lib/auth";
 import dynamic from "next/dynamic";
 
@@ -170,10 +172,10 @@ export default async function DynamicBattlePage(props: {
           stats={stats} platformAName={platformA.name} platformBName={platformB.name}
         />
 
-        <section className="container mx-auto px-4 md:px-6 max-w-7xl">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
+        <section className={DETAIL_CONTAINER}>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
             <aside className="lg:col-span-4 space-y-6 lg:sticky lg:top-24 h-fit z-30">
-              <div className="bg-card/40 backdrop-blur-3xl border border-border/10 p-5 rounded-3xl shadow-2xl relative overflow-hidden">
+              <div className={cn(GLASS_CARD, "p-6 sm:p-8 relative overflow-hidden")}>
                 <h3 className="text-lg font-black mb-6 flex items-center gap-2">
                   <Zap className="h-4 w-4 text-primary" /> Feature Radar
                 </h3>
@@ -186,8 +188,8 @@ export default async function DynamicBattlePage(props: {
               </div>
 
               {/* Connected Intelligence Widget */}
-              <div className="bg-primary/5 border border-primary/20 p-6 rounded-[2rem] space-y-5">
-                <Badge className="bg-primary/20 text-primary border-primary/30 uppercase tracking-widest text-[8px] font-black">
+              <div className="bg-primary/5 border border-primary/20 p-6 sm:p-8 rounded-4xl space-y-5">
+                <Badge className="bg-primary/20 text-primary border-primary/30 uppercase tracking-widest text-[9px] font-bold">
                   Community Pulse
                 </Badge>
                 <h4 className="text-xl font-black leading-none">
@@ -228,7 +230,7 @@ export default async function DynamicBattlePage(props: {
                 <Button
                   asChild
                   variant="outline"
-                  className="w-full rounded-xl h-10 font-black uppercase tracking-widest text-[9px]"
+                  className="w-full rounded-xl h-10 font-bold uppercase tracking-widest text-[10px]"
                 >
                   <Link href="/community">Join Discussion</Link>
                 </Button>
@@ -236,7 +238,7 @@ export default async function DynamicBattlePage(props: {
             </aside>
 
             <main className="lg:col-span-8 space-y-16">
-              <div className="p-10 rounded-[3rem] bg-secondary/30 border border-border/10">
+              <div className={cn(GLASS_CARD_SM, "p-6 sm:p-8 bg-secondary/30")}>
                 <h3 className="text-xl font-black mb-6 uppercase tracking-tight flex items-center gap-3">
                   <Sparkles className="h-5 w-5 text-primary" /> Expert Insights
                 </h3>
@@ -253,7 +255,7 @@ export default async function DynamicBattlePage(props: {
                 features={featureRows} platformAName={platformA.name} platformBName={platformB.name}
               />
 
-              <div className="bg-card p-12 rounded-[3.5rem] border border-border/10">
+              <div className={cn(GLASS_CARD, "p-6 sm:p-8")}>
                 <div className="flex flex-col md:flex-row items-center gap-12">
                   <div className="flex-1 space-y-6">
                     <h3 className="text-3xl font-black uppercase leading-none">

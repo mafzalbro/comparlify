@@ -9,6 +9,9 @@ import { MotionDiv } from "@/components/motion-wrapper";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { ToolDefinition, CATEGORIES } from "@/data/tools/registry";
 import { trackToolEvent } from "@/lib/telemetry";
+import { cn } from "@/lib/utils";
+import { DETAIL_CONTAINER, GLASS_CARD_SM, MICRO_LABEL } from "@/lib/design-tokens";
+import { Button } from "@/components/ui/button";
 
 interface ToolLayoutProps {
   tool: ToolDefinition;
@@ -64,37 +67,37 @@ export function ToolLayout({ tool, children }: ToolLayoutProps) {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-1 sm:px-6 lg:px-8 py-2 sm:py-8">
+    <div className={cn(DETAIL_CONTAINER, "py-6 sm:py-10")}>
       {/* Structured Data for SEO */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJsonLd) }}
       />
-      <Breadcrumbs items={breadcrumbItems} className="mb-2 sm:mb-6 p-0 text-xs px-1 sm:px-0" />
+      <Breadcrumbs items={breadcrumbItems} className="mb-2 sm:mb-6 px-0" />
 
       {/* ── Header ─────────────────────────────────────────────────── */}
       <MotionDiv
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-3 sm:mb-8 px-1 sm:px-0"
+        className="mb-3 sm:mb-8"
       >
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
-          <span className="text-[10px] font-bold uppercase tracking-wider bg-primary/10 border border-primary/20 text-primary px-2 sm:px-2.5 py-0.5 rounded-full">
+          <span className={cn(MICRO_LABEL, "bg-primary/10 border border-primary/20 text-primary px-2.5 py-0.5 rounded-full")}>
             {categoryMeta.name}
           </span>
           {subcategoryName && (
-            <span className="text-[10px] font-bold uppercase tracking-wider bg-secondary border border-border/40 text-muted-foreground px-2 sm:px-2.5 py-0.5 rounded-full">
+            <span className={cn(MICRO_LABEL, "bg-secondary border border-border/40 text-muted-foreground px-2.5 py-0.5 rounded-full")}>
               {subcategoryName}
             </span>
           )}
           {tool.tag && (
-            <span className="text-[10px] font-bold bg-amber-500/10 border border-amber-500/30 text-amber-500 px-2 sm:px-2.5 py-0.5 rounded-full flex items-center gap-1">
+            <span className={cn(MICRO_LABEL, "bg-amber-500/10 border border-amber-500/30 text-amber-500 px-2.5 py-0.5 rounded-full flex items-center gap-1")}>
               {tool.tag} Priority
             </span>
           )}
         </div>
 
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-2 sm:mb-3 text-foreground">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight mb-2 sm:mb-3 text-foreground">
           {tool.title}
         </h1>
         <p className="text-xs sm:text-sm md:text-base text-muted-foreground max-w-3xl leading-relaxed font-medium">
@@ -104,7 +107,7 @@ export function ToolLayout({ tool, children }: ToolLayoutProps) {
 
       {/* ── Interactive Workspace (Mounted children) ─────────────────── */}
       <div className="mb-6 sm:mb-12">
-        <Card className="p-1.5 sm:p-5 md:p-6 bg-card/40 border border-border/40 hover:border-border/60 transition-colors backdrop-blur-md rounded-xl sm:rounded-2xl">
+        <Card className="bg-card border border-border/60 rounded-4xl shadow-card p-4 sm:p-6 overflow-hidden">
           {children}
         </Card>
       </div>
@@ -158,7 +161,7 @@ export function ToolLayout({ tool, children }: ToolLayoutProps) {
                   <AccordionItem
                     key={idx}
                     value={`faq-${idx}`}
-                    className="border border-border/10 bg-card/10 rounded-xl px-4 overflow-hidden"
+                    className="border border-border/30 bg-card/40 rounded-2xl px-4 overflow-hidden"
                   >
                     <AccordionTrigger className="text-sm font-bold py-3.5 hover:no-underline hover:text-primary transition-colors text-left">
                       {faq.question}
@@ -175,8 +178,8 @@ export function ToolLayout({ tool, children }: ToolLayoutProps) {
 
         {/* Sidebar / Extra info */}
         <div className="space-y-6">
-          <Card className="p-5 bg-secondary/20 border border-border/30 rounded-2xl">
-            <h4 className="text-xs font-extrabold uppercase tracking-wider text-primary mb-3">
+          <Card className={cn(GLASS_CARD_SM, "p-5 bg-secondary/20")}>
+            <h4 className={cn(MICRO_LABEL, "text-primary mb-3")}>
               Security & Privacy Guaranteed
             </h4>
             <p className="text-xs text-muted-foreground font-medium leading-relaxed mb-3">
@@ -189,19 +192,18 @@ export function ToolLayout({ tool, children }: ToolLayoutProps) {
             </div>
           </Card>
 
-          <Card className="p-5 bg-card/25 border border-border/20 rounded-2xl">
-            <h4 className="text-xs font-extrabold uppercase tracking-wider text-foreground mb-3">
+          <Card className={cn(GLASS_CARD_SM, "p-5")}>
+            <h4 className={cn(MICRO_LABEL, "text-foreground mb-3")}>
               Need to Switch Platforms?
             </h4>
             <p className="text-xs text-muted-foreground font-medium leading-relaxed mb-4">
               Switching from Kajabi to Skool, or Teachable to Mighty Networks? Calculate your potential fee savings.
             </p>
-            <Link
-              href="/tools/calculators/pricing"
-              className="inline-flex w-full items-center justify-center py-2.5 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-bold transition-all hover:scale-102 active:scale-98"
-            >
-              Analyze Your Savings <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
-            </Link>
+            <Button asChild className="w-full text-xs font-bold">
+              <Link href="/tools/calculators/pricing">
+                Analyze Your Savings <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
+              </Link>
+            </Button>
           </Card>
         </div>
       </div>

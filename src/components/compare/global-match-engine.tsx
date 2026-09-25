@@ -180,9 +180,9 @@ export function GlobalMatchEngine({ allPlatforms, allComparisons }: GlobalMatchE
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-4xl p-0 overflow-hidden border-none bg-transparent shadow-none sm:rounded-[3rem]">
+      <DialogContent className="max-w-4xl p-0 overflow-hidden border-none bg-transparent shadow-none sm:rounded-4xl">
         <DialogTitle className="sr-only">Platform Match Engine</DialogTitle>
-        <Card className="relative overflow-hidden bg-card/95 backdrop-blur-xl border border-primary/20 rounded-[3rem] shadow-2xl p-6 md:p-10 w-full">
+        <Card className="relative overflow-hidden bg-card/95 backdrop-blur-xl border border-primary/20 rounded-4xl shadow-2xl p-6 md:p-8 w-full">
           <div className="absolute top-0 right-0 p-8 text-primary/5 select-none pointer-events-none -rotate-12 translate-x-8 -translate-y-8">
             <BrainCircuit className="h-40 w-40" />
           </div>
@@ -198,7 +198,7 @@ export function GlobalMatchEngine({ allPlatforms, allComparisons }: GlobalMatchE
             className="space-y-8 relative z-10"
           >
             <div className="space-y-3">
-              <Badge className="bg-primary/5 text-primary border-primary/20 hover:bg-primary/10 uppercase tracking-[0.4em] text-[10px] font-black px-4 py-1.5 rounded-full">
+              <Badge className="bg-primary/5 text-primary border-primary/20 hover:bg-primary/10 uppercase tracking-widest text-[10px] font-bold px-4 py-1.5 rounded-full">
                 <Target className="h-3 w-3 mr-2" /> Match Engine
               </Badge>
               <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter leading-[1]">
@@ -234,7 +234,7 @@ export function GlobalMatchEngine({ allPlatforms, allComparisons }: GlobalMatchE
             className="relative z-10 space-y-12"
           >
              <div className="space-y-4 text-center">
-                <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 uppercase tracking-[0.4em] text-[10px] font-black px-4 py-1.5 rounded-full shadow-lg">
+                <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 uppercase tracking-widest text-[10px] font-bold px-4 py-1.5 rounded-full shadow-lg">
                   <Sparkles className="h-4 w-4 mr-2" /> Match Found
                 </Badge>
                 <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-[1]">

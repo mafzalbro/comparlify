@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { MotionDiv } from "@/components/motion-wrapper";
 import { PlatformIntelligenceModal } from "./platform-intelligence-modal";
 import { Scale, Zap, ShieldCheck, Info } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { MICRO_LABEL, GLASS_CARD_SM } from "@/lib/design-tokens";
 import type { Platform } from "@prisma/client";
 import type { Session } from "next-auth";
 
@@ -57,18 +59,18 @@ export function ComparisonHero({
             { name: "Comparisons", href: "/compare" },
             { name: title },
           ]}
-          className="mb-12 justify-center"
+          className="mb-8 justify-center"
         />
 
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-16">
-          <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.4em] shadow-sm ring-1 ring-primary/20">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-10">
+          <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold uppercase tracking-widest shadow-sm ring-1 ring-primary/20">
             <Scale className="h-4 w-4" />
             In-Depth Comparison Analysis
           </div>
 
           {(platformA as any).lastVerifiedAt ||
           (platformB as any).lastVerifiedAt ? (
-            <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-black uppercase tracking-[0.4em] shadow-sm ring-1 ring-emerald-500/20">
+            <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-bold uppercase tracking-widest shadow-sm ring-1 ring-emerald-500/20">
               <ShieldCheck className="h-4 w-4" />
               Live Truth Verified
             </div>
@@ -76,7 +78,7 @@ export function ComparisonHero({
         </div>
 
         {/* Platform Showdown Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl bg-card/40 backdrop-blur-md p-6 rounded-2xl border border-border/40 hover:border-border/60 transition-colors shadow-lg relative mb-12">
+        <div className={cn(GLASS_CARD_SM, "grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl p-5 sm:p-6 relative mb-10")}>
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-background border border-border/40 p-3.5 rounded-full shadow-lg hidden md:block">
             <Zap className="h-6 w-6 text-primary animate-pulse" />
           </div>

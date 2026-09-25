@@ -13,6 +13,8 @@ import {
 import { GitCompareArrows, Zap, ShieldCheck } from "lucide-react";
 import type { Platform } from "@prisma/client";
 import { MotionDiv } from "@/components/motion-wrapper";
+import { cn } from "@/lib/utils";
+import { GLASS_CARD, MICRO_LABEL } from "@/lib/design-tokens";
 
 export function BattleSelector({ platforms }: { platforms: Platform[] }) {
   const router = useRouter();
@@ -38,7 +40,7 @@ export function BattleSelector({ platforms }: { platforms: Platform[] }) {
     <MotionDiv
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="p-8 md:p-10 rounded-3xl bg-card/40 backdrop-blur-md border border-border/40 shadow-sm relative overflow-hidden group mb-14"
+      className={cn(GLASS_CARD, "p-5 sm:p-8 relative overflow-hidden group mb-14")}
     >
       <div className="absolute top-0 right-0 p-8 text-primary/5 -rotate-12 translate-x-6 -translate-y-6 group-hover:text-primary/10 transition-colors pointer-events-none">
         <GitCompareArrows className="h-32 w-32" />
@@ -101,7 +103,7 @@ export function BattleSelector({ platforms }: { platforms: Platform[] }) {
         </div>
       </div>
 
-      <div className="mt-6 flex items-center justify-center lg:justify-start gap-5 text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 border-t border-border/20 pt-4">
+      <div className={cn(MICRO_LABEL, "text-[9px] text-muted-foreground/60 mt-6 flex items-center justify-center lg:justify-start gap-5 border-t border-border/20 pt-4")}>
         <div className="flex items-center gap-1.5">
           <ShieldCheck className="h-3.5 w-3.5 text-primary/40" /> Real-time Data
         </div>

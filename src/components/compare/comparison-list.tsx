@@ -3,6 +3,8 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Star, Zap } from "lucide-react";
 import NextLink from "next/link";
+import { cn } from "@/lib/utils";
+import { GLASS_CARD_SM, MICRO_LABEL } from "@/lib/design-tokens";
 import { ManagedImage } from "@/components/managed-image";
 import type { Comparison, Platform } from "@prisma/client";
 
@@ -52,7 +54,7 @@ export function ComparisonList({
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.5, delay: (index % 3) * 0.05 }}
         >
-          <Card className="flex flex-col h-full group overflow-hidden rounded-3xl border border-border/40 bg-card/20 hover:bg-card/30 backdrop-blur-md shadow-sm transition-all duration-500 hover:shadow-md hover:border-primary/20">
+          <Card className={cn(GLASS_CARD_SM, "flex flex-col h-full group overflow-hidden hover:bg-card/50 transition-all duration-500 hover:shadow-lg hover:border-primary/20")}>
             <NextLink href={`/compare/${comp.slug}`} className="block relative">
               <div className="h-44 bg-linear-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center relative px-8 overflow-hidden border-b border-border/10">
                 <div className="absolute inset-0 bg-grid-pattern-light opacity-5"></div>
@@ -95,7 +97,7 @@ export function ComparisonList({
                 </div>
               </div>
             </NextLink>
-            <CardContent className="flex-1 p-6 text-center bg-transparent">
+            <CardContent className="flex-1 p-5 sm:p-6 text-center bg-transparent">
               <h2 className="text-lg font-bold mb-3 leading-tight group-hover:text-primary transition-colors duration-300">
                 <NextLink
                   href={`/compare/${comp.slug}`}
@@ -114,7 +116,7 @@ export function ComparisonList({
                     <Star className="w-4 h-4 fill-current" />
                     {comp.platformA.rating?.toFixed(1) || "N/A"}
                   </div>
-                  <span className="text-[9px] uppercase tracking-wider font-bold text-muted-foreground/60 line-clamp-1 truncate w-full px-1.5">
+                  <span className={cn(MICRO_LABEL, "text-[9px] text-muted-foreground/60 line-clamp-1 truncate w-full px-1.5")}>
                     {comp.platformA.name}
                   </span>
                 </div>
@@ -123,7 +125,7 @@ export function ComparisonList({
                     <Star className="w-4 h-4 fill-current" />
                     {comp.platformB.rating?.toFixed(1) || "N/A"}
                   </div>
-                  <span className="text-[9px] uppercase tracking-wider font-bold text-muted-foreground/60 line-clamp-1 truncate w-full px-1.5">
+                  <span className={cn(MICRO_LABEL, "text-[9px] text-muted-foreground/60 line-clamp-1 truncate w-full px-1.5")}>
                     {comp.platformB.name}
                   </span>
                 </div>

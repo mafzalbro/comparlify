@@ -3,11 +3,13 @@ import type { Metadata } from "next";
 import { generateSeoMetadata } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import { Suspense, cache } from "react";
+import { cn } from "@/lib/utils";
 import type { SearchParams } from "@/types/next";
 import { getContent } from "@/lib/content";
 import { SchemaScript } from "@/components/schema-script";
 import { MotionDiv } from "@/components/motion-wrapper";
 import { Zap } from "lucide-react";
+import { PAGE_CONTAINER, GLASS_CARD } from "@/lib/design-tokens";
 
 // Components
 import { FilterControls } from "./_components/filter-controls";
@@ -81,7 +83,7 @@ export default async function ComparePage(props: {
       {/* ── HERO ─────────────────────────── */}
       <CompareHero subtitle={content["compare.hero.subtitle"]} />
 
-      <div className="container mx-auto py-12 px-4 md:px-6">
+      <div className={PAGE_CONTAINER + " py-12"}>
         {/* ── MATCH ENGINE WIZARD ──────────── */}
         <div className="mb-10">
           <GlobalMatchEngine allPlatforms={allPlatforms} allComparisons={allComps} />
@@ -99,7 +101,7 @@ export default async function ComparePage(props: {
           transition={{ delay: 0.1 }}
           className="mb-12 max-w-5xl mx-auto"
         >
-          <div className="bg-card/40 backdrop-blur-md border border-border/40 p-6 rounded-3xl shadow-sm">
+          <div className={cn(GLASS_CARD, "p-5 sm:p-6")}>
             <FilterControls
               allPlatforms={allPlatforms}
               categories={categories}

@@ -1,11 +1,13 @@
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
+import { MICRO_LABEL } from "@/lib/design-tokens";
 
 interface PageHeroProps {
   title: ReactNode;
   subtitle?: string;
   supertitle?: string;
   children?: ReactNode;
+  breadcrumbs?: ReactNode;
   className?: string;
 }
 
@@ -14,12 +16,13 @@ export function PageHero({
   subtitle,
   supertitle,
   children,
+  breadcrumbs,
   className,
 }: PageHeroProps) {
   return (
     <section
       className={cn(
-        "relative w-full overflow-hidden pt-16 pb-12 flex flex-col items-center text-center px-4",
+        "relative w-full overflow-hidden pt-10 pb-8 md:pt-16 md:pb-12 flex flex-col items-center text-center px-4",
         className,
       )}
     >
@@ -32,8 +35,10 @@ export function PageHero({
       </div>
 
       <div className="max-w-5xl mx-auto w-full flex flex-col items-center gap-6">
+        {breadcrumbs && <div className="mb-1">{breadcrumbs}</div>}
+
         {supertitle && (
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/80">
+          <p className={cn(MICRO_LABEL, "text-primary/80")}>
             {supertitle}
           </p>
         )}
