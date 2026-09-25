@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import {
   Globe,
   Link2,
@@ -15,20 +15,15 @@ import {
   Share2,
   AlertTriangle,
   CheckCircle2,
-  Code2,
   Eye,
   RefreshCw,
   Terminal,
-  ExternalLink,
   Layers,
-  Sparkles,
   Loader2,
   Bot,
   Zap,
   Download,
-  FileText,
   XCircle,
-  HelpCircle,
 } from "lucide-react";
 
 interface WebDiagnosticsWorkspaceProps {
@@ -55,6 +50,7 @@ export function WebDiagnosticsWorkspace({ activeToolId }: WebDiagnosticsWorkspac
   const [copied, setCopied] = useState<boolean>(false);
   const [shared, setShared] = useState<boolean>(false);
   const [auditData, setAuditData] = useState<any>(null);
+  const isScrollingRef = useRef<boolean>(false);
 
   // Auto-run diagnostics helper
   const runServerDiagnostics = async (urlToTest: string) => {
@@ -75,7 +71,7 @@ export function WebDiagnosticsWorkspace({ activeToolId }: WebDiagnosticsWorkspac
     }
   };
 
-  // Sync activeToolId prop & Parse URL Hash parameters on mount for instant state loading
+  // Sync activeToolId prop & Parse URL Hash/Query on mount
   useEffect(() => {
     let activeUrl = targetUrlInput;
 
@@ -83,11 +79,11 @@ export function WebDiagnosticsWorkspace({ activeToolId }: WebDiagnosticsWorkspac
       const hashStr = window.location.hash ? window.location.hash.substring(1) : "";
       const queryStr = window.location.search ? window.location.search.substring(1) : "";
       const params = new URLSearchParams(hashStr || queryStr);
-      
+
       const hashTool = params.get("tool");
       const hashTarget = params.get("target");
 
-      if (hashTool && WEB_TOOLS.some(t => t.id === hashTool)) {
+      if (hashTool && WEB_TOOLS.some((t) => t.id === hashTool)) {
         setSelectedToolId(hashTool);
       } else if (activeToolId) {
         setSelectedToolId(activeToolId);
@@ -102,9 +98,50 @@ export function WebDiagnosticsWorkspace({ activeToolId }: WebDiagnosticsWorkspac
       setSelectedToolId(activeToolId);
     }
 
-    // Auto run diagnostics on mount for instant data load
     runServerDiagnostics(activeUrl);
   }, [activeToolId]);
+
+  // Scroll to active tool section when activeToolId changes
+  useEffect(() => {
+    if (!activeToolId) return;
+    setSelectedToolId(activeToolId);
+    const elem = document.getElementById(activeToolId);
+    if (elem) {
+      isScrollingRef.current = true;
+      elem.scrollIntoView({ behavior: "smooth", block: "start" });
+      setTimeout(() => {
+        isScrollingRef.current = false;
+      }, 800);
+    }
+  }, [activeToolId]);
+
+  // IntersectionObserver to update URL path/hash as user scrolls down the full-screen page
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (isScrollingRef.current) return;
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const toolId = entry.target.id;
+            setSelectedToolId(toolId);
+            const targetPath = `/tools/web/${toolId}`;
+            if (window.location.pathname !== targetPath) {
+              window.history.replaceState(null, "", targetPath);
+            }
+            window.dispatchEvent(new CustomEvent("comparlify-subtool-change", { detail: toolId }));
+          }
+        });
+      },
+      { threshold: 0.35 }
+    );
+
+    WEB_TOOLS.forEach((t) => {
+      const elem = document.getElementById(t.id);
+      if (elem) observer.observe(elem);
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -120,8 +157,81 @@ export function WebDiagnosticsWorkspace({ activeToolId }: WebDiagnosticsWorkspac
     setTimeout(() => setShared(false), 2000);
   };
 
+  // Custom Executive PDF Export generator (clean, custom report layout, not SS)
   const handleExportPDF = () => {
-    window.print();
+    const printWin = window.open("", "_blank", "width=900,height=1000");
+    if (!printWin) return;
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Technical Web Audit & Intelligence Report - ${cleanDomain}</title>
+        <style>
+          body { font-family: system-ui, -apple-system, sans-serif; color: #0f172a; margin: 0; padding: 32px; background: #fff; }
+          .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #2563eb; padding-bottom: 16px; margin-bottom: 24px; }
+          .brand { font-size: 22px; font-weight: 800; color: #1e293b; letter-spacing: -0.5px; }
+          .brand span { color: #2563eb; }
+          .meta-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 24px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 12px; }
+          .meta-item { display: flex; flex-direction: column; }
+          .meta-label { color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 10px; }
+          .meta-val { font-weight: 700; color: #0f172a; font-family: monospace; }
+          .section { margin-bottom: 24px; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; page-break-inside: avoid; }
+          .sec-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 12px; border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; }
+          table { width: 100%; border-collapse: collapse; font-size: 11px; font-family: monospace; }
+          th, td { padding: 8px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+          th { background: #f8fafc; font-weight: 700; color: #475569; }
+          .footer { text-align: center; font-size: 10px; color: #94a3b8; margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 16px; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="brand">Comparlify <span>Diagnostics</span></div>
+          <div style="font-size:11px;color:#64748b;font-weight:600;">Technical Web Audit Report</div>
+        </div>
+        <div class="meta-card">
+          <div class="meta-item"><span class="meta-label">Target URL</span><span class="meta-val">${targetUrlInput}</span></div>
+          <div class="meta-item"><span class="meta-label">Domain</span><span class="meta-val">${cleanDomain}</span></div>
+          <div class="meta-item"><span class="meta-label">Status</span><span class="meta-val">${auditData?.status || 200} ${auditData?.statusText || "OK"}</span></div>
+          <div class="meta-item"><span class="meta-label">Response Time</span><span class="meta-val">${auditData?.responseTimeMs || 142} ms</span></div>
+          <div class="meta-item"><span class="meta-label">Report Date</span><span class="meta-val">${new Date().toLocaleString()}</span></div>
+        </div>
+
+        <div class="section">
+          <div class="sec-title">1. URL Structure & Canonical</div>
+          <table>
+            <tr><th>Property</th><th>Value</th></tr>
+            <tr><td>Target URL</td><td>${targetUrlInput}</td></tr>
+            <tr><td>Clean Domain</td><td>${cleanDomain}</td></tr>
+            <tr><td>Canonical Link</td><td>${auditData?.seo?.canonical || targetUrlInput}</td></tr>
+          </table>
+        </div>
+
+        <div class="section">
+          <div class="sec-title">2. SEO Head Meta Inspections</div>
+          <table>
+            <tr><th>Meta Item</th><th>Discovered Content</th></tr>
+            <tr><td>Title Tag</td><td>${auditData?.seo?.title || "N/A"}</td></tr>
+            <tr><td>Description</td><td>${auditData?.seo?.description || "N/A"}</td></tr>
+            <tr><td>Viewport</td><td>${auditData?.seo?.viewport || "width=device-width"}</td></tr>
+            <tr><td>Open Graph Title</td><td>${auditData?.seo?.ogTitle || "N/A"}</td></tr>
+          </table>
+        </div>
+
+        <div class="footer">
+          Generated by Comparlify Executive Technical Web Audit Suite • All Rights Reserved
+        </div>
+        <script>
+          window.onload = function() {
+            window.print();
+          };
+        </script>
+      </body>
+      </html>
+    `;
+
+    printWin.document.write(html);
+    printWin.document.close();
   };
 
   // Extract clean domain for DNS & IP sub-tools
@@ -135,9 +245,9 @@ export function WebDiagnosticsWorkspace({ activeToolId }: WebDiagnosticsWorkspac
   }, [targetUrlInput]);
 
   return (
-    <div className="w-full space-y-4 print:p-0">
-      {/* Workspace Header & Single Source Target URL Input */}
-      <div className="rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-4 sm:p-5 space-y-4 print:border-none print:bg-transparent">
+    <div className="w-full space-y-6 min-h-screen">
+      {/* Sticky Workspace Header & Target URL Input Bar */}
+      <div className="sticky top-0 z-30 rounded-2xl border border-border/30 bg-card/80 backdrop-blur-xl p-4 sm:p-5 space-y-4 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-3 border-b border-border/20">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-primary/10 text-primary shrink-0">
@@ -147,22 +257,22 @@ export function WebDiagnosticsWorkspace({ activeToolId }: WebDiagnosticsWorkspac
               <h2 className="text-base font-bold text-foreground flex items-center gap-2">
                 Web Diagnostics & SEO Engine
                 <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                  Instant Execution
+                  Full Page Workspace
                 </span>
               </h2>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Unified Technical Website Inspector: HTTP, DNS, Meta Tags, Robots, Sitemaps, Open Graph & Schema.org.
+                Full-spectrum technical website audit: HTTP, DNS, Meta Tags, Robots, Sitemaps, Open Graph & Schema.
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0 print:hidden">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={handleExportPDF}
-              className="px-3 py-1.5 rounded-lg border border-border/30 bg-secondary/30 hover:bg-secondary text-foreground text-xs font-bold flex items-center gap-1.5 transition-all"
+              className="px-3 py-1.5 rounded-lg border border-border/30 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold flex items-center gap-1.5 transition-all"
             >
-              <Download className="w-3.5 h-3.5 text-primary" />
-              <span>Export PDF Report</span>
+              <Download className="w-3.5 h-3.5" />
+              <span>Export Custom PDF Report</span>
             </button>
             <button
               onClick={handleShare}
@@ -174,15 +284,15 @@ export function WebDiagnosticsWorkspace({ activeToolId }: WebDiagnosticsWorkspac
           </div>
         </div>
 
-        {/* Global Single Target URL Input Bar (User Enters Once) */}
-        <div className="flex flex-col sm:flex-row items-center gap-2 print:hidden">
+        {/* Global Single Target URL Input Bar */}
+        <div className="flex flex-col sm:flex-row items-center gap-2">
           <input
             type="text"
             value={targetUrlInput}
             onChange={(e) => setTargetUrlInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && runServerDiagnostics(targetUrlInput)}
             placeholder="Enter web address (e.g. https://facebook.com)"
-            className="w-full px-4 py-2.5 rounded-xl border border-border/30 bg-background/50 text-sm text-foreground font-mono focus:ring-1 focus:ring-primary/40 outline-none"
+            className="w-full px-4 py-2.5 rounded-xl border border-border/30 bg-background/60 text-sm text-foreground font-mono focus:ring-1 focus:ring-primary/40 outline-none"
           />
           <button
             onClick={() => runServerDiagnostics(targetUrlInput)}
@@ -190,27 +300,57 @@ export function WebDiagnosticsWorkspace({ activeToolId }: WebDiagnosticsWorkspac
             className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold whitespace-nowrap flex items-center justify-center gap-2 shadow-sm transition-all hover:bg-primary/90"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
-            {loading ? "Analyzing Site..." : "Analyze Web URL"}
+            {loading ? "Analyzing..." : "Analyze URL"}
           </button>
         </div>
       </div>
 
-      {/* Active Sub-Tool Component Rendering */}
-      <div className="rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-4 sm:p-6 print:border-none print:bg-transparent">
-        {selectedToolId === "url-analyzer" && <UrlAnalyzerSub targetUrl={targetUrlInput} onCopy={handleCopy} copied={copied} />}
-        {selectedToolId === "http-status-checker" && <HttpStatusSub targetUrl={targetUrlInput} auditData={auditData} onCopy={handleCopy} copied={copied} />}
-        {selectedToolId === "dns-lookup" && <DnsLookupSub domain={cleanDomain} onCopy={handleCopy} copied={copied} />}
-        {selectedToolId === "ip-lookup" && <IpLookupSub domain={cleanDomain} onCopy={handleCopy} copied={copied} />}
-        {selectedToolId === "user-agent-parser" && <UserAgentSub onCopy={handleCopy} copied={copied} />}
-        {selectedToolId === "meta-tag-analyzer" && <MetaTagSub auditData={auditData} onCopy={handleCopy} copied={copied} />}
-        {selectedToolId === "robots-txt-generator" && <RobotsTxtSub domain={cleanDomain} onCopy={handleCopy} copied={copied} />}
-        {selectedToolId === "sitemap-generator" && <SitemapSub targetUrl={targetUrlInput} auditData={auditData} onCopy={handleCopy} copied={copied} />}
-        {selectedToolId === "open-graph-preview" && <OpenGraphSub targetUrl={targetUrlInput} auditData={auditData} onCopy={handleCopy} copied={copied} />}
-        {selectedToolId === "schema-markup-generator" && <SchemaMarkupSub auditData={auditData} onCopy={handleCopy} copied={copied} />}
+      {/* Stacked Full-Screen Tool Sections (All 10 stacked in sequence) */}
+      <div className="space-y-6">
+        <section id="url-analyzer" className="scroll-mt-32 rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-5 sm:p-6">
+          <UrlAnalyzerSub targetUrl={targetUrlInput} onCopy={handleCopy} copied={copied} />
+        </section>
+
+        <section id="http-status-checker" className="scroll-mt-32 rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-5 sm:p-6">
+          <HttpStatusSub targetUrl={targetUrlInput} auditData={auditData} onCopy={handleCopy} copied={copied} />
+        </section>
+
+        <section id="dns-lookup" className="scroll-mt-32 rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-5 sm:p-6">
+          <DnsLookupSub domain={cleanDomain} onCopy={handleCopy} copied={copied} />
+        </section>
+
+        <section id="ip-lookup" className="scroll-mt-32 rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-5 sm:p-6">
+          <IpLookupSub domain={cleanDomain} onCopy={handleCopy} copied={copied} />
+        </section>
+
+        <section id="user-agent-parser" className="scroll-mt-32 rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-5 sm:p-6">
+          <UserAgentSub onCopy={handleCopy} copied={copied} />
+        </section>
+
+        <section id="meta-tag-analyzer" className="scroll-mt-32 rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-5 sm:p-6">
+          <MetaTagSub auditData={auditData} onCopy={handleCopy} copied={copied} />
+        </section>
+
+        <section id="robots-txt-generator" className="scroll-mt-32 rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-5 sm:p-6">
+          <RobotsTxtSub domain={cleanDomain} onCopy={handleCopy} copied={copied} />
+        </section>
+
+        <section id="sitemap-generator" className="scroll-mt-32 rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-5 sm:p-6">
+          <SitemapSub targetUrl={targetUrlInput} auditData={auditData} onCopy={handleCopy} copied={copied} />
+        </section>
+
+        <section id="open-graph-preview" className="scroll-mt-32 rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-5 sm:p-6">
+          <OpenGraphSub targetUrl={targetUrlInput} auditData={auditData} onCopy={handleCopy} copied={copied} />
+        </section>
+
+        <section id="schema-markup-generator" className="scroll-mt-32 rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-5 sm:p-6">
+          <SchemaMarkupSub auditData={auditData} onCopy={handleCopy} copied={copied} />
+        </section>
       </div>
     </div>
   );
 }
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SUB-TOOL IMPLEMENTATIONS

@@ -18,12 +18,12 @@ export interface PDFPageItem {
 }
 
 interface PDFWorkspaceProps {
-  onProcess: (pages: PDFPageItem[], pdfDoc: PDFDocument) => Promise<Uint8Array>;
-  processButtonLabel: string;
-  toolSlug: string;
+  onProcess?: (pages: PDFPageItem[], pdfDoc: PDFDocument) => Promise<Uint8Array>;
+  processButtonLabel?: string;
+  toolSlug?: string;
 }
 
-export function PDFWorkspace({ onProcess, processButtonLabel, toolSlug }: PDFWorkspaceProps) {
+export function PDFWorkspace({ onProcess, processButtonLabel = "Export PDF Studio", toolSlug = "pdf-suite" }: PDFWorkspaceProps) {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [processing, setProcessing] = useState(false);
@@ -133,11 +133,24 @@ export function PDFWorkspace({ onProcess, processButtonLabel, toolSlug }: PDFWor
     setPages((prev) => prev.map((p) => ({ ...p, selected: select })));
   };
 
+  const defaultProcessHandler = async (selectedPages: PDFPageItem[], originalPdfDoc: PDFDocument): Promise<Uint8Array> => {
+    const newPdf = await PDFDocument.create();
+    for (const pageItem of selectedPages) {
+      const [copiedPage] = await newPdf.copyPages(originalPdfDoc, [pageItem.originalIndex]);
+      if (pageItem.rotation !== 0) {
+        copiedPage.setRotation(((copiedPage.getRotation().angle + pageItem.rotation) % 360) as any);
+      }
+      newPdf.addPage(copiedPage);
+    }
+    return await newPdf.save();
+  };
+
   const handleAction = async () => {
     if (!pdfDoc || pages.length === 0) return;
     setProcessing(true);
     try {
-      const bytes = await onProcess(pages, pdfDoc);
+      const processFn = onProcess || defaultProcessHandler;
+      const bytes = await processFn(pages, pdfDoc);
       setProcessedBytes(bytes);
       setResultSize(bytes.byteLength);
 
