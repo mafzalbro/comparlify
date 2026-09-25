@@ -78,6 +78,12 @@ export function ToolSidebarInteractive({
     if (window.location.pathname !== targetPath) {
       window.history.pushState(null, "", targetPath);
     }
+
+    // Scroll directly to target tool element if present on page
+    const targetElem = document.getElementById(toolId);
+    if (targetElem) {
+      targetElem.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   };
 
   const selectCategoryWithUrlSync = (cat: string) => {

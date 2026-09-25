@@ -272,16 +272,10 @@ export function ToolHubSearch({ tools, categories, initialSlug }: ToolHubSearchP
               </span>
             </h2>
           </div>
-
-          <div className="flex items-center gap-2">
-            <div className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-              SSR Engine Enabled
-            </div>
-          </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-2 sm:p-4 h-full">
-          <div className="bg-card/30 rounded-xl border border-border/30 p-3 sm:p-5 shadow-sm backdrop-blur-xl h-full flex flex-col justify-start">
+        <div className="flex-1 overflow-y-auto scroll-smooth p-2 sm:p-4 h-full scrollbar-thin scrollbar-thumb-border">
+          <div className="bg-card/30 rounded-xl border border-border/30 p-3 sm:p-5 shadow-sm backdrop-blur-xl min-h-full flex flex-col justify-start">
             {renderActiveToolComponent()}
           </div>
         </div>

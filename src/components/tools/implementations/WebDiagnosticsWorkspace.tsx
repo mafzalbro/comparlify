@@ -256,9 +256,6 @@ export function WebDiagnosticsWorkspace({ activeToolId }: WebDiagnosticsWorkspac
             <div>
               <h2 className="text-base font-bold text-foreground flex items-center gap-2">
                 Web Diagnostics & SEO Engine
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                  Full Page Workspace
-                </span>
               </h2>
               <p className="text-xs text-muted-foreground mt-0.5">
                 Full-spectrum technical website audit: HTTP, DNS, Meta Tags, Robots, Sitemaps, Open Graph & Schema.
@@ -487,7 +484,7 @@ function DnsLookupSub({ domain, onCopy, copied }: any) {
       });
       const data = await res.json();
       setRecords(data.records);
-    } catch (_) {}
+    } catch (_) { }
     setLoading(false);
   };
 
