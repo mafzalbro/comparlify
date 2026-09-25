@@ -7,7 +7,6 @@ import {
   X,
   ArrowRight,
   Sparkles,
-  Filter,
   Layers,
   Image as ImageIcon,
   FileText,
@@ -15,20 +14,20 @@ import {
   Code2,
   Cpu,
   LayoutGrid,
-  Maximize2,
-  Minimize2,
   Sliders,
   Wand2,
   Terminal,
   ShieldCheck,
-  RefreshCw,
   Zap,
-  Activity,
-  CheckCircle2
+  Globe,
+  Home,
+  ChevronRight,
+  Heart,
+  Smile,
+  Star
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ToolDefinition } from "@/data/tools/registry";
-import { useScroll, useMotionValueEvent } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { GLASS_CARD_SM } from "@/lib/design-tokens";
 
@@ -38,6 +37,7 @@ import { PDFWorkspace, PDFPageItem } from "./implementations/PDFWorkspace";
 import { CalculatorWorkspace } from "./implementations/CalculatorWorkspace";
 import { WorkflowWorkspace } from "./implementations/WorkflowWorkspace";
 import { TextWorkspace } from "./implementations/TextWorkspace";
+import { WebDiagnosticsWorkspace } from "./implementations/WebDiagnosticsWorkspace";
 import { PDFDocument } from "pdf-lib";
 
 // Developer Tools
@@ -79,108 +79,90 @@ interface ToolHubSearchProps {
   categories: Record<string, CategoryMeta>;
 }
 
-type WorkspaceCategory = "developer" | "pdf" | "image" | "calculators" | "ai" | "text" | "all";
+type WorkspaceCategory = "developer" | "pdf" | "image" | "calculators" | "ai" | "text" | "web" | "all";
 
 export function ToolHubSearch({ tools, categories }: ToolHubSearchProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<WorkspaceCategory>("developer");
   const [viewMode, setViewMode] = useState<"workspace" | "grid">("workspace");
-  const [isFullscreenUniverse, setIsFullscreenUniverse] = useState(false);
   
   // Active sub-tool within category workspace
   const [activeSubTool, setActiveSubTool] = useState<string>("json-formatter");
 
-  const { scrollY } = useScroll();
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    setIsScrolled(latest > 50);
-  });
-
-  // Handle ESC key to exit fullscreen universe
+  // Lock body scroll for standalone desktop workspace suite
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isFullscreenUniverse) {
-        setIsFullscreenUniverse(false);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isFullscreenUniverse]);
-
-  // Lock body scroll when in Fullscreen Universe mode
-  useEffect(() => {
-    if (isFullscreenUniverse) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [isFullscreenUniverse]);
+  }, []);
 
-  // Workspace Nav Options
+  // Sidebar Workspace Tabs List (Cute, charmingly formatted)
   const workspaceTabs = useMemo(() => [
-    { id: "developer", label: "Developer IDE Suite", icon: Code2, count: tools.filter(t => t.category === "developer").length, badge: "Surgical IDE" },
-    { id: "pdf", label: "PDF Suite Workspace", icon: FileText, count: tools.filter(t => t.category === "pdf").length, badge: "Client Engine" },
-    { id: "image", label: "Image Studio Workspace", icon: ImageIcon, count: tools.filter(t => t.category === "image").length, badge: "Live Studio" },
-    { id: "calculators", label: "Calculators & ROI", icon: CalcIcon, count: tools.filter(t => t.category === "calculators").length, badge: "Financial Engine" },
-    { id: "ai", label: "AI & Creator Studio", icon: Cpu, count: tools.filter(t => t.category === "ai").length, badge: "AI Powered" },
-    { id: "text", label: "Text & Data Utility", icon: Terminal, count: tools.filter(t => t.category === "text").length, badge: "Data Studio" },
-    { id: "all", label: "All Utilities Directory", icon: LayoutGrid, count: tools.length, badge: "Master Catalog" },
+    { id: "developer", label: "Developer Studio ✨", icon: Code2, count: tools.filter(t => t.category === "developer").length, color: "text-cyan-400 bg-cyan-500/10 border-cyan-500/30", emoji: "💻" },
+    { id: "pdf", label: "PDF Suite Magic 📄", icon: FileText, count: tools.filter(t => t.category === "pdf").length, color: "text-rose-400 bg-rose-500/10 border-rose-500/30", emoji: "📄" },
+    { id: "image", label: "Image Creative Studio 🎨", icon: ImageIcon, count: tools.filter(t => t.category === "image").length, color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30", emoji: "🎨" },
+    { id: "calculators", label: "Calculators & ROI 💰", icon: CalcIcon, count: tools.filter(t => t.category === "calculators").length, color: "text-amber-400 bg-amber-500/10 border-amber-500/30", emoji: "🧮" },
+    { id: "ai", label: "AI Creator Hub 🔮", icon: Cpu, count: tools.filter(t => t.category === "ai").length, color: "text-purple-400 bg-purple-500/10 border-purple-500/30", emoji: "🤖" },
+    { id: "text", label: "Text & Data Tools 🪄", icon: Terminal, count: tools.filter(t => t.category === "text").length, color: "text-blue-400 bg-blue-500/10 border-blue-500/30", emoji: "📝" },
+    { id: "web", label: "Web SEO Inspector 🚀", icon: Globe, count: tools.filter(t => t.category === "developer" || t.category === "text").length, color: "text-teal-400 bg-teal-500/10 border-teal-500/30", emoji: "🌐" },
+    { id: "all", label: "Master Catalog 🌟", icon: LayoutGrid, count: tools.length, color: "text-pink-400 bg-pink-500/10 border-pink-500/30", emoji: "🔲" },
   ], [tools]);
 
-  // Sub-tool switcher definitions per category
+  // Sub-tool switcher options per category
   const subToolOptions = useMemo(() => {
     switch (selectedCategory) {
       case "developer":
         return [
-          { id: "json-formatter", label: "JSON Formatter" },
-          { id: "json-validator", label: "JSON Validator" },
-          { id: "json-minifier", label: "JSON Minifier" },
-          { id: "base64-encoder", label: "Base64 Encoder" },
-          { id: "base64-decoder", label: "Base64 Decoder" },
-          { id: "jwt-decoder", label: "JWT Decoder" },
-          { id: "uuid-generator", label: "UUID Generator" },
-          { id: "password-generator", label: "Password Gen" },
-          { id: "regex-tester", label: "Regex Tester" },
-          { id: "sql-formatter", label: "SQL Formatter" },
-          { id: "cron-generator", label: "Cron Generator" },
-          { id: "text-studio", label: "Text Workspace" },
+          { id: "json-formatter", label: "✨ JSON Formatter" },
+          { id: "json-validator", label: "🔍 JSON Validator" },
+          { id: "json-minifier", label: "⚡ JSON Minifier" },
+          { id: "base64-encoder", label: "🔐 Base64 Encoder" },
+          { id: "base64-decoder", label: "🔓 Base64 Decoder" },
+          { id: "jwt-decoder", label: "🔑 JWT Decoder" },
+          { id: "uuid-generator", label: "🎲 UUID Generator" },
+          { id: "password-generator", label: "🛡️ Password Gen" },
+          { id: "regex-tester", label: "🎯 Regex Tester" },
+          { id: "sql-formatter", label: "🗄️ SQL Formatter" },
+          { id: "cron-generator", label: "⏰ Cron Generator" },
+          { id: "text-studio", label: "📝 Text Workspace" },
         ];
       case "pdf":
         return [
-          { id: "pdf-workspace", label: "PDF Studio Canvas" },
-          { id: "merge-pdf", label: "Merge PDF" },
-          { id: "split-pdf", label: "Split PDF" },
-          { id: "compress-pdf", label: "Compress PDF" },
-          { id: "jpg-to-pdf", label: "JPG to PDF" },
-          { id: "pdf-to-text", label: "PDF to Text" },
-          { id: "pdf-rotator", label: "PDF Rotator" },
+          { id: "pdf-workspace", label: "💖 PDF Studio Canvas" },
+          { id: "merge-pdf", label: "🔗 Merge PDF" },
+          { id: "split-pdf", label: "✂️ Split PDF" },
+          { id: "compress-pdf", label: "🗜️ Compress PDF" },
+          { id: "jpg-to-pdf", label: "🖼️ JPG to PDF" },
+          { id: "pdf-to-text", label: "📜 PDF to Text" },
+          { id: "pdf-rotator", label: "🔄 PDF Rotator" },
         ];
       case "calculators":
         return [
-          { id: "general-calculators", label: "Calculator Suite" },
-          { id: "pricing-calculator", label: "Pricing Calculator" },
-          { id: "stack-optimizer", label: "Stack Optimizer" },
-          { id: "churn-forecaster", label: "Churn Forecaster" },
-          { id: "ad-profit", label: "Ad Profit Predictor" },
-          { id: "platform-finder", label: "Creator Match" },
+          { id: "general-calculators", label: "🧮 Calculator Suite" },
+          { id: "pricing-calculator", label: "💵 Pricing Calculator" },
+          { id: "stack-optimizer", label: "🚀 Stack Optimizer" },
+          { id: "churn-forecaster", label: "📈 Churn Forecaster" },
+          { id: "ad-profit", label: "📊 Ad Profit Predictor" },
+          { id: "platform-finder", label: "🤝 Creator Match" },
         ];
       case "ai":
         return [
-          { id: "platform-finder", label: "Creator Match AI" },
-          { id: "stack-optimizer", label: "Stack Optimizer AI" },
-          { id: "workflow-studio", label: "Workflow Studio" },
+          { id: "platform-finder", label: "🔮 Creator Match AI" },
+          { id: "stack-optimizer", label: "🧠 Stack Optimizer AI" },
+          { id: "workflow-studio", label: "⚡ Workflow Studio" },
         ];
       case "image":
         return [
-          { id: "image-studio", label: "Image Studio Canvas" },
+          { id: "image-studio", label: "🎨 Image Studio Canvas" },
         ];
       case "text":
         return [
-          { id: "text-studio", label: "Text Utilities Canvas" },
+          { id: "text-studio", label: "🪄 Text Utilities Canvas" },
+        ];
+      case "web":
+        return [
+          { id: "web-diagnostics", label: "🌐 Web Diagnostics Studio" },
         ];
       default:
         return [];
@@ -228,7 +210,7 @@ export function ToolHubSearch({ tools, categories }: ToolHubSearchProps) {
     return await newPdf.save();
   };
 
-  // Render main active interactive studio canvas component
+  // Render main active interactive tool component inside workspace canvas
   const renderActiveToolComponent = () => {
     switch (activeSubTool) {
       // ── DEVELOPER TOOLS ──
@@ -265,6 +247,9 @@ export function ToolHubSearch({ tools, categories }: ToolHubSearchProps) {
       // ── AI & WORKFLOW ──
       case "workflow-studio": return <WorkflowWorkspace activeToolId="api-request-builder" />;
 
+      // ── WEB DIAGNOSTICS ──
+      case "web-diagnostics": return <WebDiagnosticsWorkspace activeToolId="url-analyzer" />;
+
       // ── IMAGE & TEXT CANVASES ──
       case "image-studio": return <ImageWorkspace defaultMode="compress" />;
       case "text-studio": return <TextWorkspace defaultMode="count" />;
@@ -274,6 +259,7 @@ export function ToolHubSearch({ tools, categories }: ToolHubSearchProps) {
         if (selectedCategory === "pdf") return <PDFWorkspace onProcess={handlePdfProcess} processButtonLabel="Export PDF Studio" toolSlug="pdf-suite" />;
         if (selectedCategory === "calculators") return <CalculatorWorkspace activeToolId="percentage-calculator" />;
         if (selectedCategory === "text") return <TextWorkspace defaultMode="count" />;
+        if (selectedCategory === "web") return <WebDiagnosticsWorkspace activeToolId="url-analyzer" />;
         return <JSONFormatter />;
     }
   };
@@ -283,7 +269,8 @@ export function ToolHubSearch({ tools, categories }: ToolHubSearchProps) {
       <div className="flex items-center justify-between border-b border-border/20 pb-4">
         <div className="flex items-center gap-2">
           <Layers className="h-4 w-4 text-primary" />
-          <h2 className="text-lg font-bold tracking-tight text-foreground">
+          <h2 className="text-lg font-bold tracking-tight text-foreground flex items-center gap-2">
+            <span>✨</span>
             {selectedCategory === "all" ? "Master Tool Catalog" : `${categories[selectedCategory]?.name || selectedCategory} Utilities`}
           </h2>
           <span className="text-xs font-semibold text-muted-foreground bg-secondary px-2.5 py-0.5 rounded-full border border-border/30">
@@ -310,20 +297,20 @@ export function ToolHubSearch({ tools, categories }: ToolHubSearchProps) {
           ))}
         </div>
       ) : (
-        <div className="text-center py-16 bg-card/20 border border-dashed border-border/40 rounded-2xl p-8 space-y-4">
-          <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto">
-            <Search className="h-6 w-6" />
+        <div className="text-center py-16 bg-card/20 border border-dashed border-border/40 rounded-3xl p-8 space-y-4">
+          <div className="h-12 w-12 rounded-full bg-pink-500/10 text-pink-400 flex items-center justify-center mx-auto shadow-inner">
+            <Sparkles className="h-6 w-6" />
           </div>
-          <h3 className="text-lg font-bold text-foreground">No tools matched your query</h3>
+          <h3 className="text-lg font-bold text-foreground">No matching tools found ✨</h3>
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            We couldn&apos;t find any tools matching &quot;{searchQuery}&quot;. Try adjusting your search term.
+            We couldn&apos;t find any tools matching &quot;{searchQuery}&quot;. Try adjusting your search query!
           </p>
           <button
             onClick={() => {
               setSearchQuery("");
               setSelectedCategory("all");
             }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs font-bold hover:brightness-110 transition-all shadow-md"
           >
             Clear Search & View All
           </button>
@@ -332,69 +319,147 @@ export function ToolHubSearch({ tools, categories }: ToolHubSearchProps) {
     </div>
   );
 
-  const containerClasses = isFullscreenUniverse
-    ? "fixed inset-0 z-[999] bg-background text-foreground w-screen h-screen overflow-hidden flex flex-col p-3 sm:p-6"
-    : "space-y-6";
+  const activeTabMeta = workspaceTabs.find(t => t.id === selectedCategory) || workspaceTabs[0];
 
   return (
-    <div className={containerClasses}>
-      {/* PROFESSIONAL STUDIO HEADER TOOLBAR */}
-      <div className="bg-card/70 border border-border/50 rounded-2xl p-3 sm:p-4 backdrop-blur-2xl shadow-2xl shrink-0 space-y-3 ring-1 ring-primary/10">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-          {/* Active Studio Branding & Privacy Telemetry */}
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/40 flex items-center justify-center text-primary shrink-0 shadow-inner">
-              <Sliders className="h-5 w-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-extrabold tracking-tight text-foreground flex items-center gap-2">
-                  Comparlify Studio Universe
-                </h1>
-                <span className="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 shadow-sm">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  Live Engine
+    <div className="fixed inset-0 z-[100] bg-background text-foreground h-screen w-screen flex flex-col md:flex-row overflow-hidden font-sans">
+      
+      {/* ── LEFT DEDICATED WORKSPACE SIDEBAR ────────────────────────────────────── */}
+      <aside className="w-full md:w-72 bg-card/70 border-b md:border-b-0 md:border-r border-border/40 backdrop-blur-2xl flex flex-col justify-between p-4 shrink-0 h-auto md:h-full z-20">
+        <div className="space-y-5">
+          {/* Logo & Platform Telemetry */}
+          <div className="flex items-center justify-between px-1 pt-1">
+            <div className="flex items-center gap-2.5">
+              <div className="h-9 w-9 rounded-2xl bg-gradient-to-tr from-pink-500 via-purple-500 to-indigo-500 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-pink-500/20">
+                ✨
+              </div>
+              <div>
+                <span className="font-black text-sm tracking-tight text-foreground block leading-none flex items-center gap-1">
+                  Comparlify <Heart className="h-3 w-3 text-pink-500 fill-pink-500 animate-pulse inline" />
                 </span>
-                <span className="hidden lg:inline-flex items-center gap-1 text-[10px] font-semibold text-muted-foreground bg-secondary px-2 py-0.5 rounded-full border border-border/20">
-                  <ShieldCheck className="h-3 w-3 text-emerald-400" />
-                  100% Client-Side Private
+                <span className="text-[10px] font-bold text-pink-400 tracking-widest uppercase">
+                  Cute Studio Workspaces
                 </span>
               </div>
+            </div>
+            <span className="text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 shadow-sm">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Live Studio
+            </span>
+          </div>
+
+          <div className="h-px bg-gradient-to-r from-transparent via-border/30 to-transparent" />
+
+          {/* Workspaces List Navigation */}
+          <div className="space-y-1.5">
+            <div className="px-2 text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground/80 mb-2 flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <Sliders className="h-3 w-3 text-pink-400" /> Select Workspace:
+              </span>
+              <span className="text-pink-400">💖</span>
+            </div>
+            {workspaceTabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = selectedCategory === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    setSelectedCategory(tab.id as WorkspaceCategory);
+                    if (tab.id !== "all" && viewMode === "grid") {
+                      setViewMode("workspace");
+                    }
+                  }}
+                  className={`w-full px-3.5 py-2.5 rounded-2xl font-bold text-xs transition-all flex items-center justify-between border ${
+                    isActive
+                      ? "bg-gradient-to-r from-pink-500/90 via-purple-600/90 to-indigo-600/90 text-white border-pink-400/50 shadow-md shadow-pink-500/15 ring-2 ring-pink-500/20 scale-[1.02]"
+                      : "bg-background/40 hover:bg-secondary/70 text-muted-foreground hover:text-foreground border-border/20 hover:scale-[1.01]"
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className="text-sm shrink-0">{tab.emoji}</span>
+                    <span className="truncate font-semibold">{tab.label}</span>
+                  </div>
+                  <span
+                    className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold shrink-0 ${
+                      isActive
+                        ? "bg-white/20 text-white"
+                        : "bg-muted/60 text-muted-foreground"
+                    }`}
+                  >
+                    {tab.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Sidebar Footer */}
+        <div className="pt-4 border-t border-border/20 space-y-3 mt-4 md:mt-0">
+          <div className="flex items-center gap-2 text-[11px] font-semibold text-muted-foreground/80 px-1">
+            <ShieldCheck className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+            <span>100% Client-Side Private • Fast</span>
+          </div>
+          <Link
+            href="/"
+            className="w-full flex items-center justify-between px-3.5 py-2 rounded-2xl bg-background/50 hover:bg-secondary text-xs font-bold text-muted-foreground hover:text-foreground border border-border/25 transition-all group shadow-sm hover:scale-[1.01]"
+          >
+            <span className="flex items-center gap-2">
+              <Home className="h-3.5 w-3.5 text-pink-400" /> Return to Main Site
+            </span>
+            <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 text-pink-400" />
+          </Link>
+        </div>
+      </aside>
+
+      {/* ── MAIN CONTENT CANVAS PANEL ────────────────────────────────────────── */}
+      <main className="flex-1 flex flex-col h-full overflow-hidden bg-background/50">
+        
+        {/* Top App Header */}
+        <header className="bg-card/50 border-b border-border/30 px-4 sm:px-6 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0 backdrop-blur-xl">
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-2xl border ${activeTabMeta.color} shadow-sm`}>
+              <activeTabMeta.icon className="h-4 w-4" />
+            </div>
+            <div>
+              <h2 className="text-base font-black tracking-tight text-foreground flex items-center gap-2">
+                <span>{activeTabMeta.emoji}</span> {activeTabMeta.label}
+              </h2>
               <p className="text-xs text-muted-foreground font-medium">
-                High-performance surgical web utilities & financial engines
+                {categories[selectedCategory]?.description || "Charming, high-performance browser studio"}
               </p>
             </div>
           </div>
 
-          {/* Quick Search & Workspace Mode Switcher */}
-          <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
-            {/* Search Box */}
-            <div className="relative flex-1 min-w-[220px]">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <div className="flex items-center gap-2.5">
+            {/* Quick Search */}
+            <div className="relative min-w-[200px] sm:min-w-[240px]">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search tools (e.g. 'JSON', 'PDF', 'ROI', 'Base64')..."
-                className="w-full bg-background/80 border border-border/60 rounded-xl pl-9 pr-8 py-2 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all shadow-inner"
+                placeholder="Search tools (e.g. 'JSON', 'PDF')..."
+                className="w-full bg-background/80 border border-border/60 rounded-2xl pl-9 pr-7 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-pink-500/30 transition-all shadow-inner"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-muted-foreground hover:text-foreground"
                 >
-                  <X className="h-3.5 w-3.5" />
+                  <X className="h-3 w-3" />
                 </button>
               )}
             </div>
 
-            {/* Mode Switcher */}
-            <div className="flex items-center gap-1 bg-background/80 border border-border/50 p-1 rounded-xl shrink-0">
+            {/* View Mode Switcher */}
+            <div className="flex items-center gap-1 bg-background/80 border border-border/50 p-1 rounded-2xl shrink-0">
               <button
                 onClick={() => setViewMode("workspace")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                   viewMode === "workspace"
-                    ? "bg-primary text-primary-foreground shadow-sm"
+                    ? "bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -403,9 +468,9 @@ export function ToolHubSearch({ tools, categories }: ToolHubSearchProps) {
               </button>
               <button
                 onClick={() => setViewMode("grid")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                   viewMode === "grid"
-                    ? "bg-primary text-primary-foreground shadow-sm"
+                    ? "bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -413,69 +478,14 @@ export function ToolHubSearch({ tools, categories }: ToolHubSearchProps) {
                 <span>Catalog Grid</span>
               </button>
             </div>
-
-            {/* Fullscreen Universe Button */}
-            <button
-              onClick={() => setIsFullscreenUniverse(!isFullscreenUniverse)}
-              className="p-2 rounded-xl bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 transition-all shrink-0 flex items-center gap-1.5 text-xs font-bold"
-              title={isFullscreenUniverse ? "Exit Fullscreen Workspace (Esc)" : "Expand to Fullscreen Separate Universe"}
-            >
-              {isFullscreenUniverse ? (
-                <>
-                  <Minimize2 className="h-4 w-4" />
-                  <span className="hidden sm:inline">Exit Universe</span>
-                </>
-              ) : (
-                <>
-                  <Maximize2 className="h-4 w-4" />
-                  <span className="hidden sm:inline">Fullscreen Universe</span>
-                </>
-              )}
-            </button>
           </div>
-        </div>
+        </header>
 
-        {/* WORKSPACE SIDEBAR HORIZONTAL CATEGORY SWITCHER */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 scrollbar-none border-t border-border/20">
-          {workspaceTabs.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = selectedCategory === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => {
-                  setSelectedCategory(tab.id as WorkspaceCategory);
-                  if (tab.id !== "all" && viewMode === "grid") {
-                    setViewMode("workspace");
-                  }
-                }}
-                className={`px-3.5 py-2 rounded-xl font-extrabold text-xs whitespace-nowrap transition-all flex items-center gap-2 border shrink-0 ${
-                  isActive
-                    ? "bg-gradient-to-r from-primary to-primary/90 text-primary-foreground border-primary shadow-md ring-2 ring-primary/20 scale-[1.02]"
-                    : "bg-background/40 hover:bg-secondary text-muted-foreground hover:text-foreground border-border/30"
-                }`}
-              >
-                <Icon className={`h-4 w-4 ${isActive ? "text-primary-foreground" : "text-primary"}`} />
-                <span>{tab.label}</span>
-                <span
-                  className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${
-                    isActive
-                      ? "bg-primary-foreground/20 text-primary-foreground"
-                      : "bg-muted/60 text-muted-foreground"
-                  }`}
-                >
-                  {tab.count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* SUB-TOOL INTERACTIVE TOOLBAR (When in Studio View and Category has Sub-Tools) */}
+        {/* Sub-Tool Switcher Bar (Cute Pills) */}
         {viewMode === "workspace" && subToolOptions.length > 0 && selectedCategory !== "all" && (
-          <div className="pt-2 border-t border-border/15 flex items-center gap-1.5 overflow-x-auto scrollbar-none">
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mr-1 shrink-0 flex items-center gap-1">
-              <Zap className="h-3 w-3 text-primary" /> Active Tool:
+          <div className="bg-background/60 border-b border-border/20 px-4 sm:px-6 py-2.5 flex items-center gap-2 overflow-x-auto shrink-0 scrollbar-none backdrop-blur-md">
+            <span className="text-[11px] font-extrabold text-pink-400 uppercase tracking-widest mr-1 shrink-0 flex items-center gap-1">
+              <Zap className="h-3 w-3 text-pink-400" /> Active Tool:
             </span>
             {subToolOptions.map((sub) => {
               const isActive = activeSubTool === sub.id;
@@ -483,10 +493,10 @@ export function ToolHubSearch({ tools, categories }: ToolHubSearchProps) {
                 <button
                   key={sub.id}
                   onClick={() => setActiveSubTool(sub.id)}
-                  className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border shrink-0 ${
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border shrink-0 ${
                     isActive
-                      ? "bg-primary/20 text-primary border-primary/40 font-bold shadow-sm"
-                      : "bg-background/50 hover:bg-secondary/70 text-muted-foreground hover:text-foreground border-border/20"
+                      ? "bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-indigo-500/20 text-pink-300 border-pink-500/40 shadow-sm ring-1 ring-pink-500/20 scale-[1.02]"
+                      : "bg-card/40 hover:bg-secondary/70 text-muted-foreground hover:text-foreground border-border/20 hover:scale-[1.01]"
                   }`}
                 >
                   {sub.label}
@@ -495,18 +505,19 @@ export function ToolHubSearch({ tools, categories }: ToolHubSearchProps) {
             })}
           </div>
         )}
-      </div>
 
-      {/* MAIN WORKSPACE STUDIO CANVAS */}
-      <div className={isFullscreenUniverse ? "flex-1 overflow-y-auto mt-3 pr-1 scrollbar-none" : "min-h-[550px]"}>
-        {viewMode === "workspace" && !isSearching ? (
-          <div className="bg-card/40 rounded-2xl border border-border/40 p-4 sm:p-6 shadow-2xl backdrop-blur-xl ring-1 ring-white/5">
-            {renderActiveToolComponent()}
-          </div>
-        ) : (
-          renderGridDirectory()
-        )}
-      </div>
+        {/* Interactive Workspace Studio Canvas */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+          {viewMode === "workspace" && !isSearching ? (
+            <div className="bg-card/40 rounded-3xl border border-border/40 p-4 sm:p-6 shadow-2xl backdrop-blur-xl ring-1 ring-white/5 min-h-[500px]">
+              {renderActiveToolComponent()}
+            </div>
+          ) : (
+            renderGridDirectory()
+          )}
+        </div>
+
+      </main>
     </div>
   );
 }
@@ -519,13 +530,13 @@ function ToolCard({ tool }: { tool: ToolDefinition }) {
 
   return (
     <Link href={href} className="group block h-full">
-      <Card className={cn(GLASS_CARD_SM, "p-4 sm:p-5 h-full hover:bg-card/60 hover:border-primary/40 transition-all duration-300 flex flex-col justify-between shadow-md hover:shadow-xl hover:-translate-y-0.5")}>
+      <Card className={cn(GLASS_CARD_SM, "p-4 sm:p-5 h-full hover:bg-card/60 hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between shadow-md hover:shadow-xl hover:-translate-y-1 rounded-3xl")}>
         <div>
           <div className="flex items-center justify-between mb-3.5">
-            <h4 className="text-base font-bold text-foreground group-hover:text-primary transition-colors flex items-center gap-1.5">
-              {tool.title}
+            <h4 className="text-base font-bold text-foreground group-hover:text-pink-400 transition-colors flex items-center gap-1.5">
+              <span>✨</span> {tool.title}
               {tool.tag === "🔥" && (
-                <span className="text-[9px] font-bold bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full shadow-sm">
+                <span className="text-[9px] font-bold bg-pink-500 text-white px-2 py-0.5 rounded-full shadow-sm">
                   New
                 </span>
               )}
@@ -540,9 +551,9 @@ function ToolCard({ tool }: { tool: ToolDefinition }) {
             {tool.description}
           </p>
         </div>
-        <div className="mt-5 pt-3.5 border-t border-border/10 flex items-center justify-between text-[10px] font-bold text-primary uppercase tracking-widest">
+        <div className="mt-5 pt-3.5 border-t border-border/10 flex items-center justify-between text-[10px] font-bold text-pink-400 uppercase tracking-widest">
           <span className="flex items-center gap-1">
-            <Sparkles className="h-3 w-3 text-primary" /> Launch Utility
+            <Sparkles className="h-3 w-3 text-pink-400" /> Launch Tool
           </span>
           <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
         </div>

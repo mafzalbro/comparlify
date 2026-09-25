@@ -1,10 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, Copy, Trash2 } from "lucide-react";
+import { Check, Copy, Trash2, Sparkles, Wand2, ShieldCheck, Binary } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-import { Sparkles, Wand2, ShieldCheck, Binary } from "lucide-react";
 
 export function Base64Encoder() {
   const [input, setInput] = useState("");
@@ -29,7 +27,6 @@ export function Base64Encoder() {
       return;
     }
     try {
-      // Safe UTF-8 Base64 encoding in browser
       const encoded = window.btoa(unescape(encodeURIComponent(input)));
       setOutput(encoded);
     } catch (err) {
@@ -54,82 +51,87 @@ export function Base64Encoder() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-5">
+    <div className="space-y-4">
       {/* Studio Header Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 bg-card/30 backdrop-blur-xl px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-border/20">
-        <div className="flex items-center gap-2 min-w-0">
-          <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
-          <span className="text-xs font-bold text-foreground truncate">
-            Base64 Studio Encoder
-          </span>
-          <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live Client
-          </span>
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-card/50 backdrop-blur-xl px-4 py-3 rounded-2xl border border-border/40 shadow-sm">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+            <ShieldCheck className="h-4 w-4" />
+          </div>
+          <div>
+            <span className="text-xs font-bold text-foreground block leading-tight">
+              Base64 Encoder Studio
+            </span>
+            <span className="text-[10px] text-muted-foreground font-medium">
+              UTF-8 Compatible Browser Encoding Engine
+            </span>
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={handleLoadSample}
-            className="px-2.5 py-1 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 text-xs font-bold flex items-center gap-1 transition-all"
+            className="px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm"
           >
-            <Sparkles className="h-3 w-3" /> Load Sample
+            <Sparkles className="h-3.5 w-3.5" /> Sample
           </button>
           <button
             onClick={handleClear}
-            className="px-2.5 py-1 rounded-lg bg-secondary hover:bg-destructive/10 hover:text-destructive border border-border/30 text-xs font-bold flex items-center gap-1 transition-all"
+            className="px-3 py-1.5 rounded-xl bg-secondary/80 hover:bg-destructive/10 hover:text-destructive border border-border/30 text-xs font-bold flex items-center gap-1.5 transition-all"
           >
-            <Trash2 className="h-3 w-3" /> Clear
+            <Trash2 className="h-3.5 w-3.5" /> Clear
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Input Panel */}
         <div className="flex flex-col space-y-2">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between px-1">
             <label className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-              <Binary className="h-3.5 w-3.5 text-primary" />
-              Plaintext Input
+              <Binary className="h-3.5 w-3.5 text-primary" /> Plaintext Input
             </label>
-            <span className="text-[10px] font-mono text-muted-foreground">
-              {input ? `${input.length} chars` : "Empty"}
+            <span className="text-[10px] font-mono text-muted-foreground font-semibold">
+              {input ? `${input.length} chars` : "0 chars"}
             </span>
           </div>
 
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Enter standard plaintext or code here..."
-            className="w-full h-44 sm:h-80 p-3 sm:p-4 rounded-xl border border-border/30 bg-muted/40 font-mono text-xs focus:ring-1 focus:ring-primary focus:outline-none resize-none leading-relaxed text-foreground"
+            placeholder="Enter standard text or code to encode..."
+            className="w-full h-64 sm:h-96 p-4 rounded-2xl border border-border/50 bg-background/80 dark:bg-slate-950/70 font-mono text-xs focus:ring-2 focus:ring-primary/30 focus:border-primary/60 focus:outline-none resize-none leading-relaxed text-foreground placeholder:text-muted-foreground/50 shadow-inner transition-all selection:bg-primary/30"
           />
 
           <button
             onClick={handleEncode}
-            className="w-full py-2 sm:py-2.5 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-black uppercase tracking-wider transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-1.5 shadow-sm"
+            className="w-full py-2.5 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-bold transition-all hover:bg-primary/90 active:scale-[0.99] flex items-center justify-center gap-2 shadow-md shadow-primary/10"
           >
-            <Wand2 className="h-3.5 w-3.5" /> Encode to Base64
+            <Wand2 className="h-4 w-4" /> Encode to Base64
           </button>
         </div>
 
+        {/* Output Panel */}
         <div className="flex flex-col space-y-2">
-          <div className="flex items-center justify-between h-6">
+          <div className="flex items-center justify-between px-1 h-6">
             <label className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground">
               Base64 Encoded Output
             </label>
             {output ? (
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
+                <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
                   {output.length} chars
                 </span>
                 <button
                   onClick={handleCopy}
-                  className="p-1 rounded-md bg-secondary hover:bg-primary/20 transition-colors text-foreground"
+                  className="p-1.5 rounded-lg bg-secondary hover:bg-primary/20 border border-border/30 transition-all text-foreground"
                   title="Copy Base64"
                 >
-                  {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
+                  {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
                 </button>
               </div>
             ) : (
-              <span className="text-[10px] text-muted-foreground font-mono">Awaiting encoding</span>
+              <span className="text-[10px] text-muted-foreground font-mono font-medium">Awaiting Input</span>
             )}
           </div>
 
@@ -137,7 +139,7 @@ export function Base64Encoder() {
             value={output}
             readOnly
             placeholder="Encoded string will appear here..."
-            className="w-full h-44 sm:h-80 p-3 sm:p-4 rounded-xl border border-border/30 bg-slate-950 font-mono text-xs text-emerald-400 focus:outline-none resize-none leading-relaxed break-all"
+            className="w-full h-64 sm:h-96 p-4 rounded-2xl border border-border/50 bg-slate-950/90 font-mono text-xs text-emerald-400 focus:outline-none resize-none leading-relaxed break-all shadow-inner selection:bg-emerald-500/30"
           />
         </div>
       </div>
