@@ -1,41 +1,24 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
 import {
-  Search,
-  X,
   ArrowRight,
-  Sparkles,
-  Layers,
   Image as ImageIcon,
   FileText,
   Calculator as CalcIcon,
-  Code2,
-  Cpu,
-  Sliders,
-  Wand2,
   Terminal,
-  ShieldCheck,
   Zap,
   Globe,
   Home,
   ChevronRight,
-  KeyRound,
-  Hash,
-  Binary
 } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { ToolDefinition, getToolBySlug } from "@/data/tools/registry";
-import { cn } from "@/lib/utils";
-import { GLASS_CARD_SM } from "@/lib/design-tokens";
+import { ToolDefinition } from "@/data/tools/registry";
 
 // ── IMPORT ALL SURGICAL-GRADE TOOL ENGINES ─────────────────────────────────────
 import { ImageWorkspace } from "./implementations/ImageWorkspace";
 import { PDFWorkspace, PDFPageItem } from "./implementations/PDFWorkspace";
 import { CalculatorWorkspace } from "./implementations/CalculatorWorkspace";
-import { WorkflowWorkspace } from "./implementations/WorkflowWorkspace";
 import { TextWorkspace } from "./implementations/TextWorkspace";
 import { WebDiagnosticsWorkspace } from "./implementations/WebDiagnosticsWorkspace";
 import { PDFDocument } from "pdf-lib";
@@ -83,8 +66,6 @@ interface ToolHubSearchProps {
 type WorkspaceCategory = "text" | "pdf" | "image" | "calculators" | "web" | "developer";
 
 export function ToolHubSearch({ tools, categories, initialSlug }: ToolHubSearchProps) {
-  const router = useRouter();
-  const pathname = usePathname();
 
   const [selectedCategory, setSelectedCategory] = useState<WorkspaceCategory>("text");
   const [activeSubTool, setActiveSubTool] = useState<string>("text-studio");
@@ -319,7 +300,7 @@ export function ToolHubSearch({ tools, categories, initialSlug }: ToolHubSearchP
 
   return (
     <div className="fixed inset-0 z-[100] bg-background text-foreground h-screen w-screen flex flex-col md:flex-row overflow-hidden font-sans">
-      
+
       {/* ── COMPACTED LEFT SIDEBAR WITH DYNAMIC ANIMATED SUB-TOOL SWITCHER ─────── */}
       <aside className="w-full md:w-56 bg-card/40 border-b md:border-b-0 md:border-r border-border/30 backdrop-blur-xl flex flex-col justify-between p-3 shrink-0 h-auto md:h-full z-20">
         <div className="space-y-3">
@@ -361,11 +342,10 @@ export function ToolHubSearch({ tools, categories, initialSlug }: ToolHubSearchP
                     <button
                       key={sub.id}
                       onClick={() => selectSubToolWithUrlSync(sub.id)}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-lg font-semibold text-xs transition-all flex items-center justify-between border ${
-                        isActive
-                          ? "bg-primary text-primary-foreground border-primary shadow-sm font-bold"
-                          : "bg-background/20 hover:bg-secondary/70 text-muted-foreground hover:text-foreground border-border/15"
-                      }`}
+                      className={`w-full text-left px-2.5 py-1.5 rounded-lg font-semibold text-xs transition-all flex items-center justify-between border ${isActive
+                        ? "bg-primary text-primary-foreground border-primary shadow-sm font-bold"
+                        : "bg-background/20 hover:bg-secondary/70 text-muted-foreground hover:text-foreground border-border/15"
+                        }`}
                     >
                       <span className="truncate">{sub.label}</span>
                       {isActive && <Zap className="h-3 w-3 shrink-0 ml-1 fill-primary-foreground" />}
@@ -386,22 +366,20 @@ export function ToolHubSearch({ tools, categories, initialSlug }: ToolHubSearchP
                   <button
                     key={tab.id}
                     onClick={() => selectCategoryWithUrlSync(tab.id as WorkspaceCategory)}
-                    className={`w-full px-2.5 py-1.5 rounded-lg font-semibold text-xs transition-all flex items-center justify-between border ${
-                      isActive
-                        ? "bg-primary text-primary-foreground border-primary shadow-sm font-bold"
-                        : "bg-background/20 hover:bg-secondary/70 text-muted-foreground hover:text-foreground border-border/15"
-                    }`}
+                    className={`w-full px-2.5 py-1.5 rounded-lg font-semibold text-xs transition-all flex items-center justify-between border ${isActive
+                      ? "bg-primary text-primary-foreground border-primary shadow-sm font-bold"
+                      : "bg-background/20 hover:bg-secondary/70 text-muted-foreground hover:text-foreground border-border/15"
+                      }`}
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       <Icon className="h-3.5 w-3.5 shrink-0" />
                       <span className="truncate">{tab.label}</span>
                     </div>
                     <span
-                      className={`text-[9px] px-1.5 py-0.2 rounded-full font-mono font-bold shrink-0 ${
-                        isActive
-                          ? "bg-primary-foreground/20 text-primary-foreground"
-                          : "bg-muted/60 text-muted-foreground"
-                      }`}
+                      className={`text-[9px] px-1.5 py-0.2 rounded-full font-mono font-bold shrink-0 ${isActive
+                        ? "bg-primary-foreground/20 text-primary-foreground"
+                        : "bg-muted/60 text-muted-foreground"
+                        }`}
                     >
                       {tab.count}
                     </span>
@@ -428,7 +406,7 @@ export function ToolHubSearch({ tools, categories, initialSlug }: ToolHubSearchP
 
       {/* ── MAIN CONTENT CANVAS PANEL (CLEAN & SIMPLE TOP BAR) ────────────────── */}
       <main className="flex-1 flex flex-col h-full overflow-hidden bg-background">
-        
+
         {/* Simple & Clean Top App Header */}
         <header className="bg-card/40 border-b border-border/20 px-4 py-2 flex items-center justify-between gap-3 shrink-0 backdrop-blur-xl">
           <div className="flex items-center gap-2.5">
@@ -439,7 +417,7 @@ export function ToolHubSearch({ tools, categories, initialSlug }: ToolHubSearchP
               <span className="text-primary font-mono">{subToolOptions.find(o => o.id === activeSubTool)?.label || activeSubTool}</span>
             </h2>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <div className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
               Browser Engine
