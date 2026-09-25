@@ -462,102 +462,75 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
     return { rows, similarity, addedChars, removedChars };
   }, [originalText, modifiedText, activeTab]);
 
+  const [showFullAnalytics, setShowFullAnalytics] = useState<boolean>(false);
+
   return (
     <div className="space-y-4">
-      {/* Zero-Server Privacy Pill */}
-      <div className="flex items-center justify-between gap-3 bg-card/30 backdrop-blur-xl px-4 py-2.5 rounded-xl border border-border/20">
+      {/* Zero-Server Privacy Banner */}
+      <div className="flex items-center justify-between gap-3 bg-card/40 backdrop-blur-md px-4 py-2.5 rounded-xl border border-border/30">
         <div className="flex items-center gap-2 min-w-0">
           <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
           <p className="text-xs font-semibold text-foreground truncate">
-            <span className="font-bold">Zero-Server Text Intelligence Editor</span> · 100% in-browser private computation.
+            <span className="font-bold">Zero-Server Text Engine</span> · 100% in-browser instant execution.
           </p>
         </div>
         <div className="text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0">
-          RAM Engine
+          Browser RAM
         </div>
       </div>
 
-      {/* Top Real-time Metrics Bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
-        {[
-          { label: "Words", value: stats.words },
-          { label: "Characters", value: stats.charsTotal },
-          { label: "No Spaces", value: stats.charsNoSpaces },
-          { label: "Lines", value: stats.lines },
-          { label: "Sentences", value: stats.sentences },
-          { label: "Read Time", value: stats.readTimeMinutes },
-          { label: "Speak Time", value: stats.speakTimeMinutes }
-        ].map((item, i) => (
-          <div key={i} className="bg-card/20 rounded-xl border border-border/20 p-2.5 text-center">
-            <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block">{item.label}</span>
-            <span className="text-sm font-mono font-black text-foreground mt-0.5 block">{item.value}</span>
+      {/* Main Text Area (AT THE VERY TOP) */}
+      <div className="bg-card/40 backdrop-blur-md border border-border/30 rounded-xl p-4 space-y-3">
+        {/* Header & Tools Bar */}
+        <div className="flex items-center justify-between gap-2">
+          {/* Workspace Tab Header */}
+          <div className="flex border-b border-border/20 pb-2 overflow-x-auto gap-1 scrollbar-none">
+            {[
+              { id: "count", label: "Analyze", icon: Hash },
+              { id: "case", label: "Case", icon: Type },
+              { id: "clean", label: "Clean", icon: Filter },
+              { id: "sort", label: "Sort", icon: ArrowDownUp },
+              { id: "diff", label: "Diff", icon: GitCompare },
+              { id: "replace", label: "Replace", icon: Search },
+              { id: "slug", label: "Slug", icon: Link2 },
+              { id: "struct", label: "Data Format", icon: Code2 },
+              { id: "pipeline", label: "Pipeline", icon: Workflow }
+            ].map(t => {
+              const Icon = t.icon;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setActiveTab(t.id)}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all shrink-0 ${
+                    activeTab === t.id
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:bg-secondary/40 hover:text-foreground"
+                  }`}
+                >
+                  <Icon className="h-3 w-3" />
+                  {t.label}
+                </button>
+              );
+            })}
           </div>
-        ))}
-      </div>
 
-      {/* Social Limits Bar */}
-      <div className="bg-card/20 rounded-xl border border-border/20 p-3 space-y-2">
-        <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block">Live Social & SEO Constraints</span>
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
-          {[
-            { name: "Twitter / X", max: 280, current: stats.charsTotal },
-            { name: "LinkedIn Post", max: 3000, current: stats.charsTotal },
-            { name: "SEO Meta Title", max: 60, current: stats.charsTotal },
-            { name: "SEO Meta Desc", max: 160, current: stats.charsTotal }
-          ].map((platform, idx) => {
-            const pct = Math.min(Math.round((platform.current / platform.max) * 100), 100);
-            const isExceeded = platform.current > platform.max;
-            return (
-              <div key={idx} className="space-y-1">
-                <div className="flex justify-between text-[10px] font-semibold">
-                  <span className="text-muted-foreground">{platform.name}</span>
-                  <span className={isExceeded ? "text-rose-500 font-bold" : "text-foreground font-mono"}>
-                    {platform.current}/{platform.max}
-                  </span>
-                </div>
-                <div className="w-full h-1 bg-border/20 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all duration-300 ${isExceeded ? "bg-rose-500" : "bg-primary"}`}
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Main Workspace Layout */}
-      <div className="bg-card/30 backdrop-blur-xl border border-border/30 rounded-xl p-4 space-y-4">
-        {/* Workspace Tab Header */}
-        <div className="flex border-b border-border/20 pb-2.5 overflow-x-auto gap-1">
-          {[
-            { id: "count", label: "Analyze", icon: Hash },
-            { id: "case", label: "Case", icon: Type },
-            { id: "clean", label: "Deduplicate", icon: Filter },
-            { id: "sort", label: "Sort/Reverse", icon: ArrowDownUp },
-            { id: "diff", label: "Smart Diff", icon: GitCompare },
-            { id: "replace", label: "Find/Replace", icon: Search },
-            { id: "slug", label: "Slug", icon: Link2 },
-            { id: "struct", label: "Structured Data", icon: Code2 },
-            { id: "pipeline", label: "Pipeline", icon: Workflow }
-          ].map(t => {
-            const Icon = t.icon;
-            return (
-              <button
-                key={t.id}
-                onClick={() => setActiveTab(t.id)}
-                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all shrink-0 ${
-                  activeTab === t.id
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:bg-secondary/30 hover:text-foreground"
-                }`}
-              >
-                <Icon className="h-3 w-3" />
-                {t.label}
-              </button>
-            );
-          })}
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => {
+                setText("Comparlify is an all-in-one platform intelligence engine and developer utility suite. It helps creators evaluate software options, analyze migration costs, and compute expected ROI across platforms like Teachable, Skool, Mighty Networks, and Kajabi.");
+                toast({ title: "Sample Text Loaded", description: "Sample paragraph loaded into buffer." });
+              }}
+              className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1"
+            >
+              <Sparkles className="h-3 w-3" /> Sample
+            </button>
+            <button
+              onClick={() => setText("")}
+              className="text-[10px] font-bold text-rose-500 hover:underline flex items-center gap-1"
+            >
+              <Trash2 className="h-3 w-3" /> Clear
+            </button>
+          </div>
         </div>
 
         {/* EDITOR AREA (Single Buffer vs Diff Double Buffer) */}
@@ -581,7 +554,7 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
                 value={originalText}
                 onChange={e => setOriginalText(e.target.value)}
                 placeholder="Paste original text here..."
-                className="w-full h-36 sm:h-44 p-3 bg-muted/40 border border-border/30 rounded-xl text-xs font-mono outline-none resize-none text-foreground"
+                className="w-full h-36 sm:h-44 p-3 bg-background/50 border border-border/30 rounded-xl text-xs font-mono outline-none resize-none text-foreground focus:ring-1 focus:ring-primary/40"
               />
             </div>
             <div>
@@ -590,87 +563,142 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
                 value={modifiedText}
                 onChange={e => setModifiedText(e.target.value)}
                 placeholder="Paste modified text here..."
-                className="w-full h-36 sm:h-44 p-3 bg-muted/40 border border-border/30 rounded-xl text-xs font-mono outline-none resize-none text-foreground"
+                className="w-full h-36 sm:h-44 p-3 bg-background/50 border border-border/30 rounded-xl text-xs font-mono outline-none resize-none text-foreground focus:ring-1 focus:ring-primary/40"
               />
             </div>
           </div>
         ) : (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Text Input Editor Buffer</label>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => {
-                    setText("Comparlify is an all-in-one platform intelligence engine and developer utility suite. It helps creators evaluate software options, analyze migration costs, and compute expected ROI across platforms like Teachable, Skool, Mighty Networks, and Kajabi.");
-                    toast({ title: "Sample Text Loaded", description: "Sample paragraph loaded into buffer." });
-                  }}
-                  className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1"
-                >
-                  <Sparkles className="h-3 w-3" /> Load Sample
-                </button>
-                <button
-                  onClick={() => setText("")}
-                  className="text-[10px] font-bold text-rose-500 hover:underline flex items-center gap-1"
-                >
-                  <Trash2 className="h-3 w-3" /> Clear
-                </button>
-              </div>
-            </div>
-            <textarea
-              value={text}
-              onChange={e => setText(e.target.value)}
-              placeholder="Paste or type text to process..."
-              className="w-full h-36 sm:h-48 p-3 bg-muted/40 border border-border/30 rounded-xl text-xs font-mono outline-none resize-none text-foreground"
-            />
-          </div>
+          <textarea
+            value={text}
+            onChange={e => setText(e.target.value)}
+            placeholder="Paste or type your text here to transform, clean, format or analyze..."
+            className="w-full h-44 sm:h-56 p-3.5 bg-background/50 border border-border/30 rounded-xl text-xs font-mono outline-none resize-none text-foreground focus:ring-1 focus:ring-primary/40"
+          />
         )}
 
-        {/* TAB SPECIFIC OPERATION CONTROLS */}
+        {/* Minimal Compact Stats Bar & Action Strip */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border/20">
+          <div className="flex items-center gap-4 text-xs font-mono font-bold text-foreground">
+            <span>Words: <strong className="text-primary">{stats.words}</strong></span>
+            <span className="text-muted-foreground">•</span>
+            <span>Chars: <strong>{stats.charsTotal}</strong></span>
+            <span className="text-muted-foreground">•</span>
+            <span>Lines: <strong>{stats.lines}</strong></span>
+            <span className="text-muted-foreground">•</span>
+            <span>Read: <strong>{stats.readTimeMinutes}</strong></span>
+          </div>
 
-        {/* TAB 1: ANALYZE & READABILITY SCORE */}
-        {activeTab === "count" && (
-          <div className="space-y-4 pt-2 border-t border-border/10 animate-in fade-in duration-300">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Readability Box */}
-              <div className="p-3.5 bg-secondary/10 rounded-xl border border-border/20 space-y-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-1.5">
-                  <BarChart3 className="h-3.5 w-3.5" /> Flesch Readability Analysis
-                </span>
-                <div className="flex items-center justify-between pt-1">
-                  <div>
-                    <span className="text-2xl font-black text-foreground">{stats.fleschScore} / 100</span>
-                    <span className="text-[10px] text-muted-foreground block font-semibold">{stats.fleschGrade}</span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowFullAnalytics(!showFullAnalytics)}
+              className="px-3 py-1.5 rounded-lg border border-border/30 bg-secondary/30 hover:bg-secondary/60 text-[11px] font-bold text-foreground transition-all flex items-center gap-1.5"
+            >
+              <BarChart3 className="h-3.5 w-3.5 text-primary" />
+              {showFullAnalytics ? "Hide Full Analytics" : "View Full Analytics"}
+            </button>
+            <button
+              onClick={() => handleCopy()}
+              disabled={!text}
+              className="px-3.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5 disabled:opacity-50"
+            >
+              {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+              {copied ? "Copied" : "Copy"}
+            </button>
+            <button
+              onClick={() => handleDownload()}
+              disabled={!text}
+              className="px-3 py-1.5 rounded-lg bg-secondary hover:bg-secondary/80 border border-border/30 text-foreground text-[11px] font-bold flex items-center gap-1.5 disabled:opacity-50"
+            >
+              <Download className="h-3.5 w-3.5" /> Download
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Expandable Full Detailed Analytics Section */}
+      {showFullAnalytics && (
+        <div className="bg-card/40 backdrop-blur-md border border-border/30 rounded-xl p-4 space-y-4 animate-in fade-in duration-200">
+          <h4 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" /> Full Text Analytics & Readability Metrics
+          </h4>
+
+          {/* Social Constraints Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+            {[
+              { name: "Twitter / X", max: 280, current: stats.charsTotal },
+              { name: "LinkedIn Post", max: 3000, current: stats.charsTotal },
+              { name: "SEO Meta Title", max: 60, current: stats.charsTotal },
+              { name: "SEO Meta Desc", max: 160, current: stats.charsTotal }
+            ].map((platform, idx) => {
+              const pct = Math.min(Math.round((platform.current / platform.max) * 100), 100);
+              const isExceeded = platform.current > platform.max;
+              return (
+                <div key={idx} className="bg-background/40 p-2.5 rounded-lg border border-border/20 space-y-1">
+                  <div className="flex justify-between text-[10px] font-semibold">
+                    <span className="text-muted-foreground">{platform.name}</span>
+                    <span className={isExceeded ? "text-rose-500 font-bold" : "text-foreground font-mono"}>
+                      {platform.current}/{platform.max}
+                    </span>
                   </div>
-                  <div className="text-right font-mono text-[10px] text-muted-foreground space-y-0.5">
-                    <div>Avg sentence: <span className="font-bold text-foreground">{stats.avgSentenceWords} words</span></div>
-                    <div>Max sentence: <span className="font-bold text-foreground">{stats.longestSentenceWords} words</span></div>
+                  <div className="w-full h-1 bg-border/20 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${isExceeded ? "bg-rose-500" : "bg-primary"}`}
+                      style={{ width: `${pct}%` }}
+                    />
                   </div>
                 </div>
-              </div>
+              );
+            })}
+          </div>
 
-              {/* Keyword Density Table */}
-              <div className="p-3.5 bg-secondary/10 rounded-xl border border-border/20 space-y-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-primary block">Top Keyword Frequency</span>
-                <div className="space-y-1">
-                  {stats.topKeywords.length === 0 ? (
-                    <span className="text-[10px] text-muted-foreground">Type text above to analyze top keyword density.</span>
-                  ) : (
-                    stats.topKeywords.map((kw, i) => (
-                      <div key={i} className="flex items-center justify-between text-xs font-mono">
-                        <span className="text-foreground font-bold">{kw.word}</span>
-                        <span className="text-muted-foreground text-[10px]">{kw.count}× ({kw.pct}%)</span>
-                      </div>
-                    ))
-                  )}
+          {/* Detailed Readability & Keyword Breakdown */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="p-3.5 bg-background/40 rounded-xl border border-border/20 space-y-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-primary block">Flesch Reading Ease</span>
+              <div className="flex items-center justify-between pt-1">
+                <div>
+                  <span className="text-2xl font-black text-foreground">{stats.fleschScore} / 100</span>
+                  <span className="text-[10px] text-muted-foreground block font-semibold">{stats.fleschGrade}</span>
+                </div>
+                <div className="text-right font-mono text-[10px] text-muted-foreground space-y-0.5">
+                  <div>Avg sentence: <span className="font-bold text-foreground">{stats.avgSentenceWords} words</span></div>
+                  <div>Max sentence: <span className="font-bold text-foreground">{stats.longestSentenceWords} words</span></div>
                 </div>
               </div>
             </div>
+
+            <div className="p-3.5 bg-background/40 rounded-xl border border-border/20 space-y-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-primary block">Top Keyword Frequency</span>
+              <div className="space-y-1">
+                {stats.topKeywords.length === 0 ? (
+                  <span className="text-[10px] text-muted-foreground">Type text to compute keyword density.</span>
+                ) : (
+                  stats.topKeywords.map((kw, i) => (
+                    <div key={i} className="flex items-center justify-between text-xs font-mono">
+                      <span className="text-foreground font-bold">{kw.word}</span>
+                      <span className="text-muted-foreground text-[10px]">{kw.count}× ({kw.pct}%)</span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sub-Tool Operations Panel */}
+      <div className="bg-card/40 backdrop-blur-md border border-border/30 rounded-xl p-4">
+        {/* TAB 1: ANALYZE */}
+        {activeTab === "count" && (
+          <div className="space-y-2 text-xs text-muted-foreground">
+            <p className="font-semibold text-foreground">Live Text Analysis Active</p>
+            <p>Your text is being analyzed dynamically in memory. Use the <strong className="text-primary">"View Full Analytics"</strong> button above for comprehensive readability and density reports.</p>
           </div>
         )}
 
         {/* TAB 2: CASE CONVERTER */}
         {activeTab === "case" && (
-          <div className="space-y-3 pt-2 border-t border-border/10 animate-in fade-in duration-300">
+          <div className="space-y-3">
             <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Apply Case Transformation</label>
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
               {[
@@ -687,7 +715,7 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
                 <button
                   key={c.id}
                   onClick={() => applyCasing(c.id)}
-                  className="py-2 px-3 rounded-xl border border-border/20 hover:border-primary/40 hover:bg-primary/5 text-xs font-black transition-all"
+                  className="py-2 px-3 rounded-xl border border-border/30 bg-background/40 hover:border-primary/40 hover:bg-primary/10 text-xs font-black transition-all text-foreground"
                 >
                   {c.label}
                 </button>
@@ -698,7 +726,7 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
 
         {/* TAB 3: CLEAN & DEDUPLICATE */}
         {activeTab === "clean" && (
-          <div className="space-y-3 pt-2 border-t border-border/10 animate-in fade-in duration-300">
+          <div className="space-y-3">
             <div className="flex flex-wrap gap-4 items-center justify-between">
               <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
                 <input
@@ -730,77 +758,75 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
 
         {/* TAB 4: SORT & REVERSE */}
         {activeTab === "sort" && (
-          <div className="space-y-4 pt-2 border-t border-border/10 animate-in fade-in duration-300">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2 p-3 bg-secondary/10 rounded-xl border border-border/20">
-                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Sort Lines</label>
-                <div className="grid grid-cols-2 gap-1.5">
-                  {(["alpha", "numeric", "length", "natural"] as const).map(mode => (
-                    <button
-                      key={mode}
-                      onClick={() => setSortMode(mode)}
-                      className={`py-1.5 px-2 rounded-lg text-[10px] font-black uppercase ${
-                        sortMode === mode ? "bg-primary text-primary-foreground" : "bg-muted/40 text-muted-foreground"
-                      }`}
-                    >
-                      {mode}
-                    </button>
-                  ))}
-                </div>
-                <div className="flex gap-2 pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2 p-3 bg-background/40 rounded-xl border border-border/20">
+              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Sort Lines</label>
+              <div className="grid grid-cols-2 gap-1.5">
+                {(["alpha", "numeric", "length", "natural"] as const).map(mode => (
                   <button
-                    onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-                    className="flex-1 py-1.5 rounded-lg border border-border/20 text-[10px] font-bold uppercase"
+                    key={mode}
+                    onClick={() => setSortMode(mode)}
+                    className={`py-1.5 px-2 rounded-lg text-[10px] font-black uppercase ${
+                      sortMode === mode ? "bg-primary text-primary-foreground" : "bg-secondary/40 text-muted-foreground"
+                    }`}
                   >
-                    Order: {sortOrder.toUpperCase()}
+                    {mode}
                   </button>
-                  <button
-                    onClick={runSort}
-                    className="px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-[10px] font-black uppercase"
-                  >
-                    Apply Sort
-                  </button>
-                </div>
+                ))}
               </div>
-
-              <div className="space-y-2 p-3 bg-secondary/10 rounded-xl border border-border/20">
-                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Reverse Text</label>
-                <div className="grid grid-cols-3 gap-1.5">
-                  {(["chars", "words", "lines"] as const).map(m => (
-                    <button
-                      key={m}
-                      onClick={() => setReverseMode(m)}
-                      className={`py-1.5 px-2 rounded-lg text-[10px] font-black uppercase ${
-                        reverseMode === m ? "bg-primary text-primary-foreground" : "bg-muted/40 text-muted-foreground"
-                      }`}
-                    >
-                      {m}
-                    </button>
-                  ))}
-                </div>
+              <div className="flex gap-2 pt-2">
                 <button
-                  onClick={runReverse}
-                  className="w-full mt-2 py-1.5 rounded-lg bg-primary text-primary-foreground text-[10px] font-black uppercase"
+                  onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+                  className="flex-1 py-1.5 rounded-lg border border-border/20 text-[10px] font-bold uppercase text-foreground"
                 >
-                  Reverse Now
+                  Order: {sortOrder.toUpperCase()}
+                </button>
+                <button
+                  onClick={runSort}
+                  className="px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-[10px] font-black uppercase"
+                >
+                  Apply Sort
                 </button>
               </div>
+            </div>
+
+            <div className="space-y-2 p-3 bg-background/40 rounded-xl border border-border/20">
+              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Reverse Text</label>
+              <div className="grid grid-cols-3 gap-1.5">
+                {(["chars", "words", "lines"] as const).map(m => (
+                  <button
+                    key={m}
+                    onClick={() => setReverseMode(m)}
+                    className={`py-1.5 px-2 rounded-lg text-[10px] font-black uppercase ${
+                      reverseMode === m ? "bg-primary text-primary-foreground" : "bg-secondary/40 text-muted-foreground"
+                    }`}
+                  >
+                    {m}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={runReverse}
+                className="w-full mt-2 py-1.5 rounded-lg bg-primary text-primary-foreground text-[10px] font-black uppercase"
+              >
+                Reverse Now
+              </button>
             </div>
           </div>
         )}
 
-        {/* TAB 5: TEXT DIFF CHECKER VIEW */}
+        {/* TAB 5: DIFF VIEW */}
         {activeTab === "diff" && (
-          <div className="space-y-3 pt-2 border-t border-border/10 animate-in fade-in duration-300">
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Unified Visual Diff Analysis</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Unified Visual Diff</label>
               <div className="flex gap-3 text-xs font-mono font-bold">
                 <span className="text-primary">Similarity: {diffResult.similarity}%</span>
                 <span className="text-emerald-500">+{diffResult.addedChars} chars</span>
                 <span className="text-rose-500">-{diffResult.removedChars} chars</span>
               </div>
             </div>
-            <div className="p-3 bg-slate-950 rounded-xl border border-border/30 font-mono text-[11px] max-h-52 overflow-y-auto space-y-1">
+            <div className="p-3 bg-background/60 rounded-xl border border-border/30 font-mono text-[11px] max-h-52 overflow-y-auto space-y-1">
               {diffResult.rows.length === 0 ? (
                 <span className="text-muted-foreground">Enter original and modified text above to compute diff.</span>
               ) : (
@@ -817,7 +843,7 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
                       </div>
                     );
                   }
-                  return <div key={idx} className="text-slate-400 px-2 py-0.5">{row.orig}</div>;
+                  return <div key={idx} className="text-muted-foreground px-2 py-0.5">{row.orig}</div>;
                 })
               )}
             </div>
@@ -826,21 +852,21 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
 
         {/* TAB 6: FIND & REPLACE */}
         {activeTab === "replace" && (
-          <div className="space-y-3 pt-2 border-t border-border/10 animate-in fade-in duration-300">
+          <div className="space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <input
                 type="text"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
                 placeholder="Find text or pattern..."
-                className="h-10 px-3 bg-muted/40 border border-border/30 rounded-xl text-xs font-mono font-bold"
+                className="h-10 px-3 bg-background/50 border border-border/30 rounded-xl text-xs font-mono font-bold text-foreground"
               />
               <input
                 type="text"
                 value={replaceTerm}
                 onChange={e => setReplaceTerm(e.target.value)}
                 placeholder="Replace with..."
-                className="h-10 px-3 bg-muted/40 border border-border/30 rounded-xl text-xs font-mono font-bold"
+                className="h-10 px-3 bg-background/50 border border-border/30 rounded-xl text-xs font-mono font-bold text-foreground"
               />
             </div>
 
@@ -869,25 +895,23 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
 
         {/* TAB 7: SLUG GENERATOR */}
         {activeTab === "slug" && (
-          <div className="space-y-4 pt-2 border-t border-border/10 animate-in fade-in duration-300">
-            <div className="p-3.5 bg-secondary/15 rounded-xl border border-border/20 space-y-2">
-              <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground block">Generated SEO Slug</span>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-sm font-mono font-bold text-primary break-all">{generatedSlug || "your-slug-will-appear-here"}</span>
-                <button
-                  onClick={() => handleCopy(generatedSlug)}
-                  className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-bold shrink-0 flex items-center gap-1"
-                >
-                  <Copy className="h-3 w-3" /> Copy Slug
-                </button>
-              </div>
+          <div className="p-3.5 bg-background/40 rounded-xl border border-border/20 space-y-2">
+            <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground block">Generated SEO Slug</span>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-sm font-mono font-bold text-primary break-all">{generatedSlug || "your-slug-will-appear-here"}</span>
+              <button
+                onClick={() => handleCopy(generatedSlug)}
+                className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-bold shrink-0 flex items-center gap-1"
+              >
+                <Copy className="h-3 w-3" /> Copy Slug
+              </button>
             </div>
           </div>
         )}
 
         {/* TAB 8: TEXT TO STRUCTURED DATA */}
         {activeTab === "struct" && (
-          <div className="space-y-3 pt-2 border-t border-border/10 animate-in fade-in duration-300">
+          <div className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex gap-2">
                 {(["json", "csv", "markdown", "sql"] as const).map(fmt => (
@@ -906,7 +930,7 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
                 onClick={() => handleCopy(structuredDataOutput)}
                 className="px-4 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold flex items-center gap-1"
               >
-                <Copy className="h-3 w-3" /> Copy Structured Output
+                <Copy className="h-3 w-3" /> Copy Output
               </button>
             </div>
 
@@ -914,18 +938,18 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
               readOnly
               value={structuredDataOutput}
               placeholder="Structured output will render here..."
-              className="w-full h-36 p-3 bg-slate-950 border border-border/30 rounded-xl text-xs font-mono text-emerald-400 outline-none resize-none"
+              className="w-full h-36 p-3 bg-background/60 border border-border/30 rounded-xl text-xs font-mono text-foreground outline-none resize-none"
             />
           </div>
         )}
 
-        {/* TAB 9: PIPELINE MODE CHAINER */}
+        {/* TAB 9: PIPELINE CHAINER */}
         {activeTab === "pipeline" && (
-          <div className="space-y-3 pt-2 border-t border-border/10 animate-in fade-in duration-300">
+          <div className="space-y-3">
             <span className="text-[10px] font-black uppercase tracking-widest text-primary block">Sequential Transformation Chain</span>
             <div className="flex flex-wrap gap-2 items-center text-xs font-mono">
               {pipelineChain.map((step, idx) => (
-                <div key={idx} className="flex items-center gap-1 bg-secondary/30 px-2.5 py-1 rounded-lg border border-border/20">
+                <div key={idx} className="flex items-center gap-1 bg-background/40 px-2.5 py-1 rounded-lg border border-border/20">
                   <span className="text-foreground font-bold">{idx + 1}. {step}</span>
                 </div>
               ))}
@@ -938,28 +962,8 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
             </button>
           </div>
         )}
-
-        {/* FOOTER ACTIONS */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-border/20">
-          <div className="flex gap-2">
-            <button
-              onClick={() => handleCopy()}
-              disabled={!text}
-              className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-black uppercase tracking-wider flex items-center gap-1.5 disabled:opacity-50"
-            >
-              {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-              {copied ? "Copied" : "Copy Output"}
-            </button>
-            <button
-              onClick={() => handleDownload()}
-              disabled={!text}
-              className="px-4 py-2 rounded-xl bg-secondary hover:bg-secondary/80 border border-border/30 text-foreground text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
-            >
-              <Download className="h-3.5 w-3.5" /> Download .txt
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );
 }
+

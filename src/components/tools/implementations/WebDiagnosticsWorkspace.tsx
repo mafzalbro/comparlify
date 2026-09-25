@@ -98,20 +98,20 @@ export function WebDiagnosticsWorkspace({ activeToolId }: WebDiagnosticsWorkspac
   return (
     <div className="w-full space-y-6">
       {/* Workspace Header & URL Input */}
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 shadow-sm space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+      <div className="rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-4 sm:p-6 space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-border/20">
           <div className="flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+            <div className="p-3 rounded-xl bg-primary/10 text-primary">
               <Globe className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
                 Comparlify Web Diagnostics Engine
-                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-primary/10 text-primary">
                   Deterministic & Local
                 </span>
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 Full technical website analysis: HTTP, DNS, SEO Meta Tags, Robots.txt, Sitemaps, Open Graph, and Schema.org.
               </p>
             </div>
@@ -120,7 +120,7 @@ export function WebDiagnosticsWorkspace({ activeToolId }: WebDiagnosticsWorkspac
           <div className="flex items-center gap-2">
             <button
               onClick={handleShare}
-              className="p-2 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-medium flex items-center gap-1.5 transition-all"
+              className="p-2 rounded-lg border border-border/30 text-muted-foreground hover:bg-secondary/40 hover:text-foreground text-xs font-medium flex items-center gap-1.5 transition-all"
             >
               {shared ? <Check className="w-4 h-4 text-emerald-500" /> : <Share2 className="w-4 h-4" />}
               <span className="hidden sm:inline">{shared ? "Link Copied" : "Share"}</span>
@@ -135,12 +135,12 @@ export function WebDiagnosticsWorkspace({ activeToolId }: WebDiagnosticsWorkspac
             value={targetUrlInput}
             onChange={(e) => setTargetUrlInput(e.target.value)}
             placeholder="Enter web address (e.g. https://example.com)"
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white font-mono"
+            className="w-full px-4 py-2.5 rounded-xl border border-border/30 bg-background/50 text-sm text-foreground font-mono focus:ring-1 focus:ring-primary/40 outline-none"
           />
           <button
             onClick={runServerDiagnostics}
             disabled={loading}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold whitespace-nowrap flex items-center justify-center gap-2 shadow-sm transition-all"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold whitespace-nowrap flex items-center justify-center gap-2 shadow-sm transition-all hover:bg-primary/90"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
             {loading ? "Analyzing Site..." : "Run Web Diagnostics"}
@@ -148,7 +148,7 @@ export function WebDiagnosticsWorkspace({ activeToolId }: WebDiagnosticsWorkspac
         </div>
 
         {/* Tool Navigation Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto pt-2 no-scrollbar">
+        <div className="flex items-center gap-2 overflow-x-auto pt-2 scrollbar-none">
           {WEB_TOOLS.map((tool) => {
             const Icon = tool.icon;
             const isActive = selectedToolId === tool.id;
@@ -158,8 +158,8 @@ export function WebDiagnosticsWorkspace({ activeToolId }: WebDiagnosticsWorkspac
                 onClick={() => setSelectedToolId(tool.id)}
                 className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${
                   isActive
-                    ? "bg-blue-600 text-white shadow-sm"
-                    : "bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "bg-background/40 text-muted-foreground hover:text-foreground border border-border/20"
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -171,7 +171,7 @@ export function WebDiagnosticsWorkspace({ activeToolId }: WebDiagnosticsWorkspac
       </div>
 
       {/* Active Sub-Tool Component Rendering */}
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3.5 sm:p-6 shadow-sm">
+      <div className="rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-3.5 sm:p-6">
         {selectedToolId === "url-analyzer" && <UrlAnalyzerSub targetUrl={targetUrlInput} onCopy={handleCopy} copied={copied} />}
         {selectedToolId === "http-status-checker" && <HttpStatusSub targetUrl={targetUrlInput} auditData={auditData} onCopy={handleCopy} copied={copied} />}
         {selectedToolId === "dns-lookup" && <DnsLookupSub targetUrl={targetUrlInput} onCopy={handleCopy} copied={copied} />}

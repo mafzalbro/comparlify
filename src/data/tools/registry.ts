@@ -1748,20 +1748,43 @@ export const TOOLS: ToolDefinition[] = [
 ];
 
 export function getToolBySlug(slugPath: string[]): ToolDefinition | undefined {
+  if (!slugPath || slugPath.length === 0) return undefined;
+
+  // Single slug e.g. /tools/word-counter or /tools/text-studio
   if (slugPath.length === 1) {
     const [slug] = slugPath;
-    return TOOLS.find(t => t.slug === slug && !t.subcategory);
-  } else if (slugPath.length === 2) {
+    if (slug === "text-studio") {
+      return TOOLS.find(t => t.id === "word-counter") || TOOLS[0];
+    }
+    return TOOLS.find(t => t.slug === slug);
+  }
+
+  // Double slug e.g. /tools/text/text-studio or /tools/text/word-counter or /tools/calculators/percentage
+  if (slugPath.length === 2) {
     const [categoryOrSub, slug] = slugPath;
-    // Try category/tool
-    let found = TOOLS.find(t => t.category === categoryOrSub && t.slug === slug && !t.subcategory);
+
+    if (slug === "text-studio") {
+      return TOOLS.find(t => t.id === "word-counter") || TOOLS[0];
+    }
+
+    // Try finding by exact tool slug first
+    let found = TOOLS.find(t => t.slug === slug);
     if (found) return found;
-    // Try subcategory/tool
-    found = TOOLS.find(t => t.subcategory === categoryOrSub && t.slug === slug);
-    return found;
-  } else if (slugPath.length === 3) {
+
+    // Fallback: match by category/subcategory + slug
+    found = TOOLS.find(t => (t.category === categoryOrSub || t.subcategory === categoryOrSub) && t.slug === slug);
+    if (found) return found;
+  }
+
+  // Triple slug e.g. /tools/developer/json/json-formatter
+  if (slugPath.length === 3) {
     const [category, subcategory, slug] = slugPath;
+    let found = TOOLS.find(t => t.slug === slug);
+    if (found) return found;
     return TOOLS.find(t => t.category === category && t.subcategory === subcategory && t.slug === slug);
   }
-  return undefined;
+
+  // Ultimate fallback: check if last segment matches any tool slug
+  const lastSegment = slugPath[slugPath.length - 1];
+  return TOOLS.find(t => t.slug === lastSegment);
 }

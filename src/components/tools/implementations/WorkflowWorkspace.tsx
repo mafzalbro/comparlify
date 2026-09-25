@@ -98,7 +98,7 @@ export function WorkflowWorkspace({ activeToolId }: WorkflowWorkspaceProps) {
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 shadow-sm space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+            <div className="p-3 rounded-xl bg-primary/10 text-primary">
               <Award className="w-6 h-6" />
             </div>
             <div>
@@ -137,7 +137,7 @@ export function WorkflowWorkspace({ activeToolId }: WorkflowWorkspaceProps) {
           <button
             onClick={runMasterAudit}
             disabled={loading}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold whitespace-nowrap flex items-center justify-center gap-2 shadow-sm transition-all"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold whitespace-nowrap flex items-center justify-center gap-2 shadow-sm transition-all hover:bg-primary/90"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
             {loading ? "Crawling Site..." : "Execute Universal Audit"}
@@ -155,8 +155,8 @@ export function WorkflowWorkspace({ activeToolId }: WorkflowWorkspaceProps) {
                 onClick={() => setSelectedToolId(tool.id)}
                 className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${
                   isActive
-                    ? "bg-blue-600 text-white shadow-sm"
-                    : "bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "bg-background/40 text-muted-foreground hover:text-foreground border border-border/20"
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -195,17 +195,17 @@ function UniversalAuditSub({ auditData, onCopy }: any) {
       <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
           <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Award className="w-5 h-5 text-blue-500" /> Universal Technical Website Audit
+            <Award className="w-5 h-5 text-primary" /> Universal Technical Website Audit
           </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">All-in-one technical scorecard evaluating HTTP, DNS, SEO Meta Tags, Assets, Links, and Structured Data.</p>
+          <p className="text-xs text-muted-foreground">All-in-one technical scorecard evaluating HTTP, DNS, SEO Meta Tags, Assets, Links, and Structured Data.</p>
         </div>
       </div>
 
       {auditData ? (
         <div className="space-y-6">
-          <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900 to-blue-950 text-white flex items-center justify-between">
+          <div className="p-6 rounded-2xl bg-card border border-border/30 text-foreground flex items-center justify-between">
             <div>
-              <span className="text-xs text-blue-300 font-bold uppercase tracking-wider block">Website Technical Health Score</span>
+              <span className="text-xs text-primary font-bold uppercase tracking-wider block">Website Technical Health Score</span>
               <span className="text-4xl font-black text-emerald-400">{auditData.healthScore} / 100</span>
             </div>
             <div className="text-right text-xs font-mono">
@@ -224,8 +224,8 @@ function UniversalAuditSub({ auditData, onCopy }: any) {
               <span className="font-bold text-emerald-500 block truncate">{auditData.seo?.canonical || "Missing"}</span>
             </div>
             <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border">
-              <span className="text-slate-500 block">Discovered Links</span>
-              <span className="font-bold text-blue-500 block">{auditData.discoveredUrls?.length || 0} Links</span>
+              <span className="text-muted-foreground block">Discovered Links</span>
+              <span className="font-bold text-primary block">{auditData.discoveredUrls?.length || 0} Links</span>
             </div>
           </div>
         </div>
@@ -243,7 +243,7 @@ function LinkCrawlerSub({ auditData, onCopy, copied }: any) {
       <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
           <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Layers className="w-5 h-5 text-blue-500" /> Website Link Crawler & Broken Link Detector
+            <Layers className="w-5 h-5 text-primary" /> Website Link Crawler & Broken Link Detector
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400">Discover internal links, trace 301 redirect chains, and uncover 404 broken links.</p>
         </div>

@@ -116,20 +116,20 @@ export function CalculatorWorkspace({ activeToolId }: CalculatorWorkspaceProps) 
   return (
     <div className="w-full space-y-6">
       {/* Workspace Header & Toolbar */}
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
+      <div className="rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-4 sm:p-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-border/20">
           <div className="flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+            <div className="p-3 rounded-xl bg-primary/10 text-primary">
               <Calculator className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
                 Comparlify Decision Engine
                 <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                   Interactive Scenario Planner
                 </span>
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 Analyze options side-by-side, solve target scenarios in reverse, and forecast sensitivity matrix outputs.
               </p>
             </div>
@@ -140,8 +140,8 @@ export function CalculatorWorkspace({ activeToolId }: CalculatorWorkspaceProps) 
               onClick={() => setShowHistory(!showHistory)}
               className={`p-2 rounded-lg border text-xs font-medium flex items-center gap-1.5 transition-all ${
                 showHistory
-                  ? "border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400"
-                  : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border/30 text-muted-foreground hover:bg-secondary/40"
               }`}
             >
               <History className="w-4 h-4" />
@@ -150,18 +150,18 @@ export function CalculatorWorkspace({ activeToolId }: CalculatorWorkspaceProps) 
 
             <button
               onClick={handleShare}
-              className="p-2 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-medium flex items-center gap-1.5 transition-all"
+              className="p-2 rounded-lg border border-border/30 text-muted-foreground hover:bg-secondary/40 hover:text-foreground text-xs font-medium flex items-center gap-1.5 transition-all"
             >
               {shared ? <Check className="w-4 h-4 text-emerald-500" /> : <Share2 className="w-4 h-4" />}
               <span className="hidden sm:inline">{shared ? "Link Copied" : "Share"}</span>
             </button>
 
-            <div className="flex items-center gap-1.5 pl-2 border-l border-slate-200 dark:border-slate-800">
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Currency:</span>
+            <div className="flex items-center gap-1.5 pl-2 border-l border-border/20">
+              <span className="text-xs font-medium text-muted-foreground">Currency:</span>
               <select
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none"
+                className="px-2.5 py-1 rounded-lg border border-border/30 bg-background/50 text-xs font-semibold text-foreground focus:outline-none"
               >
                 {CURRENCIES.map((c) => (
                   <option key={c.code} value={c.symbol}>
@@ -174,7 +174,7 @@ export function CalculatorWorkspace({ activeToolId }: CalculatorWorkspaceProps) 
         </div>
 
         {/* Sub-tool tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto pt-4 no-scrollbar">
+        <div className="flex items-center gap-2 overflow-x-auto pt-4 scrollbar-none">
           {CALCULATOR_TOOLS.map((tool) => {
             const Icon = tool.icon;
             const isActive = selectedToolId === tool.id;
@@ -184,8 +184,8 @@ export function CalculatorWorkspace({ activeToolId }: CalculatorWorkspaceProps) 
                 onClick={() => setSelectedToolId(tool.id)}
                 className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${
                   isActive
-                    ? "bg-blue-600 text-white shadow-sm"
-                    : "bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "bg-background/40 text-muted-foreground hover:text-foreground border border-border/20"
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -211,8 +211,8 @@ export function CalculatorWorkspace({ activeToolId }: CalculatorWorkspaceProps) 
               onClick={() => setActiveEngineMode(mode.id as any)}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap border transition-all ${
                 activeEngineMode === mode.id
-                  ? "border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400 shadow-xs"
-                  : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                  ? "border-primary bg-primary/10 text-primary shadow-xs"
+                  : "border-border/30 text-muted-foreground hover:bg-secondary"
               }`}
             >
               {mode.name}

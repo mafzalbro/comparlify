@@ -345,54 +345,58 @@ function renderToolComponent(tool: ToolDefinition, data: { platforms: any; proje
 export default async function ToolsControllerPage({ params }: PageProps) {
   const { slug } = await params;
 
-  // 1. Root /tools (Tools Directory Dashboard)
-  if (!slug || slug.length === 0) {
-    return <ToolsDashboardView />;
-  }
+  // // 1. Root /tools (Tools Directory Dashboard)
+  // if (!slug || slug.length === 0) {
+  //   return <ToolsDashboardView />;
+  // }
 
-  const [first, second] = slug;
+  // const [first, second] = slug;
 
-  // Validate Category
-  const isCategory = CATEGORIES[first as keyof typeof CATEGORIES];
-  if (!isCategory) {
-    notFound();
-  }
+  // // Validate Category
+  // const isCategory = CATEGORIES[first as keyof typeof CATEGORIES];
+  // if (!isCategory) {
+  //   notFound();
+  // }
 
-  // 2. Category Landing Page (e.g. /tools/developer)
-  if (slug.length === 1) {
-    return <CategoryView categoryId={first} />;
-  }
+  // // 2. Category Landing Page (e.g. /tools/developer)
+  // if (slug.length === 1) {
+  //   return <CategoryView categoryId={first} />;
+  // }
 
-  // Check if matches subcategory or tool
-  const cat = CATEGORIES[first as keyof typeof CATEGORIES];
-  const isSubcategory = cat.subcategories?.[second as keyof typeof cat.subcategories];
+  // // Check if matches subcategory or tool
+  // const cat = CATEGORIES[first as keyof typeof CATEGORIES];
+  // const isSubcategory = cat.subcategories?.[second as keyof typeof cat.subcategories];
 
-  // 3. Subcategory Page (e.g. /tools/developer/json)
-  if (slug.length === 2 && isSubcategory) {
-    return <SubcategoryView categoryId={first} subcategoryId={second} />;
-  }
+  // // 3. Subcategory Page (e.g. /tools/developer/json)
+  // if (slug.length === 2 && isSubcategory) {
+  //   return <SubcategoryView categoryId={first} subcategoryId={second} />;
+  // }
 
-  // 4. Individual Tool View (either /tools/pdf/merge or /tools/developer/json/formatter)
-  const tool = getToolBySlug(slug);
-  if (!tool) {
-    notFound();
-  }
+  // // 4. Individual Tool View (either /tools/pdf/merge or /tools/developer/json/formatter)
+  // const tool = getToolBySlug(slug);
+  // if (!tool) {
+  //   notFound();
+  // }
 
-  // Fetch db dependencies for legacy tools if needed
-  let platforms: any[] = [];
-  let projects: any[] = [];
-  if (tool.legacyComponent) {
-    platforms = await getPlatforms();
-    try {
-      projects = await getUserProjects();
-    } catch (_) {}
-  }
+  // // Fetch db dependencies for legacy tools if needed
+  // let platforms: any[] = [];
+  // let projects: any[] = [];
+  // if (tool.legacyComponent) {
+  //   platforms = await getPlatforms();
+  //   try {
+  //     projects = await getUserProjects();
+  //   } catch (_) { }
+  // }
 
-  return (
-    <ToolLayout tool={tool}>
-      {renderToolComponent(tool, { platforms, projects })}
-    </ToolLayout>
-  );
+  // return (
+  //   <ToolLayout tool={tool}>
+  //     {renderToolComponent(tool, { platforms, projects })}
+  //   </ToolLayout>
+  // );
+
+  // Single unified interactive workspace page for all /tools links & reloads
+  return <ToolHubSearch tools={TOOLS} categories={CATEGORIES} initialSlug={slug} />;
+
 }
 
 // ── SUB-COMPONENTS FOR RENDERING VIEWS ────────────────────────────────────────
