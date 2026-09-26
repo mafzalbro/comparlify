@@ -1,3 +1,4 @@
+import React from "react";
 import { ToolDefinition } from "@/data/tools/registry";
 import { ToolSidebarInteractive } from "./ToolSidebarInteractive";
 
@@ -58,7 +59,7 @@ interface ToolHubSearchProps {
 
 type WorkspaceCategory = "text" | "pdf" | "image" | "calculators" | "web" | "developer";
 
-// ── SERVER-SIDE RENDERED MAIN TOOL HUB CONTAINER ────────────────────────────
+// ── SERVER-SIDE RENDERED MAIN TOOL HUB COMPONENT ─────────────────────────────
 export function ToolHubSearch({ tools, categories, initialSlug }: ToolHubSearchProps) {
   let selectedCategory: WorkspaceCategory = "text";
   let activeSubTool = "text-studio";
@@ -96,7 +97,17 @@ export function ToolHubSearch({ tools, categories, initialSlug }: ToolHubSearchP
     case "text":
     case "developer":
       subToolOptions = [
+        // General Text Tools (Top)
         { id: "text-studio", label: "Text Workspace", slug: "text-studio" },
+        { id: "word-counter", label: "Word Counter", slug: "word-counter" },
+        { id: "case-converter", label: "Case Converter", slug: "case-converter" },
+        { id: "clean-lines", label: "Remove Duplicates", slug: "remove-duplicate-lines" },
+        { id: "text-sorter", label: "Text Sorter", slug: "text-sorter" },
+        { id: "text-diff-checker", label: "Text Diff Checker", slug: "text-diff-checker" },
+        { id: "find-replace", label: "Find & Replace", slug: "find-and-replace" },
+        { id: "slug-generator", label: "Slug Generator", slug: "slug-generator" },
+
+        // Developer Tools (Below)
         { id: "json-formatter", label: "JSON Formatter", slug: "json-formatter" },
         { id: "json-validator", label: "JSON Validator", slug: "json-validator" },
         { id: "json-minifier", label: "JSON Minifier", slug: "json-minifier" },
@@ -164,8 +175,19 @@ export function ToolHubSearch({ tools, categories, initialSlug }: ToolHubSearchP
 
   const renderActiveToolComponent = () => {
     switch (activeSubTool) {
-      // ── TEXT & DEVELOPER UTILITIES ──
+      // ── GENERAL TEXT UTILITIES (TOP) ──
       case "text-studio": return <TextWorkspace defaultMode="count" />;
+      case "word-counter": return <TextWorkspace defaultMode="count" />;
+      case "case-converter": return <TextWorkspace defaultMode="case" />;
+      case "clean-lines":
+      case "remove-duplicate-lines": return <TextWorkspace defaultMode="clean" />;
+      case "text-sorter": return <TextWorkspace defaultMode="sort" />;
+      case "text-diff-checker": return <TextWorkspace defaultMode="diff" />;
+      case "find-replace":
+      case "find-and-replace": return <TextWorkspace defaultMode="replace" />;
+      case "slug-generator": return <TextWorkspace defaultMode="slug" />;
+
+      // ── DEVELOPER UTILITIES (BELOW) ──
       case "json-formatter": return <JSONFormatter />;
       case "json-validator": return <JSONValidator />;
       case "json-minifier": return <JSONMinifier />;
@@ -180,13 +202,18 @@ export function ToolHubSearch({ tools, categories, initialSlug }: ToolHubSearchP
 
       // ── PDF TOOLS ──
       case "pdf-workspace":
+      case "pdf-suite":
         return <PDFWorkspace processButtonLabel="Export PDF Studio" toolSlug="pdf-suite" />;
-      case "merge-pdf": return <MergePDF />;
-      case "split-pdf": return <SplitPDF />;
-      case "compress-pdf": return <CompressPDF />;
+      case "merge-pdf":
+      case "merge": return <MergePDF />;
+      case "split-pdf":
+      case "split": return <SplitPDF />;
+      case "compress-pdf":
+      case "compress": return <CompressPDF />;
       case "jpg-to-pdf": return <JPGToPDF />;
       case "pdf-to-text": return <PDFToText />;
-      case "pdf-rotator": return <PDFRotator />;
+      case "pdf-rotator":
+      case "rotate": return <PDFRotator />;
 
       // ── CALCULATOR & FINANCIAL TOOLS ──
       case "general-calculators":
@@ -240,26 +267,26 @@ export function ToolHubSearch({ tools, categories, initialSlug }: ToolHubSearchP
     selectedCategory === "text" || selectedCategory === "developer"
       ? Terminal
       : selectedCategory === "pdf"
-        ? FileText
-        : selectedCategory === "image"
-          ? ImageIcon
-          : selectedCategory === "calculators"
-            ? CalcIcon
-            : Globe;
+      ? FileText
+      : selectedCategory === "image"
+      ? ImageIcon
+      : selectedCategory === "calculators"
+      ? CalcIcon
+      : Globe;
 
   return (
     <div className="fixed inset-0 z-[100] bg-background text-foreground h-screen w-screen flex flex-col md:flex-row overflow-hidden font-sans">
-      {/* Tiny Interactive Client Sidebar Delegate */}
+      {/* Interactive Client Sidebar */}
       <ToolSidebarInteractive
         workspaceTabs={workspaceTabs}
         subToolOptions={subToolOptions}
-        initialCategory={selectedCategory}
-        initialSubTool={activeSubTool}
+        selectedCategory={selectedCategory}
+        activeSubTool={activeSubTool}
         activeCategoryLabel={activeTabMeta.label}
         activeCategoryIconName={activeTabMeta.iconName}
       />
 
-      {/* Main Content Canvas Panel - Pre-rendered on Server */}
+      {/* Server Rendered Main Content Canvas Panel */}
       <main className="flex-1 flex flex-col h-full overflow-hidden bg-background">
         <header className="bg-card/40 border-b border-border/20 px-4 py-2 flex items-center justify-between gap-3 shrink-0 backdrop-blur-xl">
           <div className="flex items-center gap-2.5">
@@ -268,7 +295,7 @@ export function ToolHubSearch({ tools, categories, initialSlug }: ToolHubSearchP
               <span>{activeTabMeta.label}</span>
               <span className="text-muted-foreground font-normal">•</span>
               <span className="text-primary font-mono">
-                {subToolOptions.find((o) => o.id === activeSubTool)?.label || activeSubTool}
+                {subToolOptions.find((o) => o.id === activeSubTool || o.slug === activeSubTool)?.label || activeSubTool}
               </span>
             </h2>
           </div>

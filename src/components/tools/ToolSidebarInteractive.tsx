@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   Zap,
@@ -30,8 +31,8 @@ interface WorkspaceTab {
 interface ToolSidebarInteractiveProps {
   workspaceTabs: WorkspaceTab[];
   subToolOptions: SubToolOption[];
-  initialCategory: string;
-  initialSubTool: string;
+  selectedCategory: string;
+  activeSubTool: string;
   activeCategoryLabel: string;
   activeCategoryIconName: string;
 }
@@ -47,63 +48,37 @@ const ICON_MAP: Record<string, any> = {
 export function ToolSidebarInteractive({
   workspaceTabs,
   subToolOptions,
-  initialCategory,
-  initialSubTool,
+  selectedCategory,
+  activeSubTool,
   activeCategoryLabel,
   activeCategoryIconName,
 }: ToolSidebarInteractiveProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
-  const [activeSubTool, setActiveSubTool] = useState<string>(initialSubTool);
+  const router = useRouter();
   const [inSubNavView, setInSubNavView] = useState<boolean>(true);
 
-  // Listen for scroll-sync events from full-page workspaces like WebDiagnostics Workspace
-  useEffect(() => {
-    const handleScrollSubtoolChange = (e: Event) => {
-      const customEvent = e as CustomEvent<string>;
-      if (customEvent.detail) {
-        setActiveSubTool(customEvent.detail);
-      }
-    };
-    window.addEventListener("comparlify-subtool-change", handleScrollSubtoolChange);
-    return () => {
-      window.removeEventListener("comparlify-subtool-change", handleScrollSubtoolChange);
-    };
-  }, []);
+  const hasMultipleSubTools = subToolOptions.length > 1;
+  const ActiveIcon = ICON_MAP[activeCategoryIconName] || Globe;
 
-  const selectSubToolWithUrlSync = (toolId: string) => {
-    setActiveSubTool(toolId);
-    const subOption = subToolOptions.find((opt) => opt.id === toolId);
-    const slug = subOption?.slug || toolId;
-    const targetPath = `/tools/${selectedCategory}/${slug}`;
-    if (window.location.pathname !== targetPath) {
-      window.history.pushState(null, "", targetPath);
-    }
+  const handleSubToolClick = (sub: SubToolOption) => {
+    const targetPath = `/tools/${selectedCategory}/${sub.slug}`;
+    router.push(targetPath);
 
-    // Scroll directly to target tool element if present on page
-    const targetElem = document.getElementById(toolId);
+    // If scrolling on a full page view (e.g. Web Diagnostics)
+    const targetElem = document.getElementById(sub.id);
     if (targetElem) {
       targetElem.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
-  const selectCategoryWithUrlSync = (cat: string) => {
-    setSelectedCategory(cat);
-    if (cat === "image") {
-      setInSubNavView(false);
-    } else {
-      setInSubNavView(true);
-    }
+  const handleCategoryClick = (catId: string) => {
+    let defaultSub = "text-studio";
+    if (catId === "pdf") defaultSub = "pdf-suite";
+    else if (catId === "image") defaultSub = "image-studio";
+    else if (catId === "calculators") defaultSub = "percentage-calculator";
+    else if (catId === "web") defaultSub = "url-analyzer";
 
-    const targetPath = `/tools/${cat}`;
-    if (window.location.pathname !== targetPath) {
-      window.history.pushState(null, "", targetPath);
-    }
-    // Hard navigate if category changes so SSR layout updates cleanly
-    window.location.href = targetPath;
+    router.push(`/tools/${catId}/${defaultSub}`);
   };
-
-  const hasMultipleSubTools = subToolOptions.length > 1;
-  const ActiveIcon = ICON_MAP[activeCategoryIconName] || Globe;
 
   return (
     <aside className="w-full md:w-56 bg-card/40 border-b md:border-b-0 md:border-r border-border/30 backdrop-blur-xl flex flex-col justify-between p-3 shrink-0 h-auto md:h-full z-20">
@@ -140,11 +115,11 @@ export function ToolSidebarInteractive({
 
             <div className="space-y-1 max-h-[calc(100vh-220px)] overflow-y-auto scrollbar-none pr-0.5">
               {subToolOptions.map((sub) => {
-                const isActive = activeSubTool === sub.id;
+                const isActive = activeSubTool === sub.id || activeSubTool === sub.slug;
                 return (
                   <button
                     key={sub.id}
-                    onClick={() => selectSubToolWithUrlSync(sub.id)}
+                    onClick={() => handleSubToolClick(sub)}
                     className={`w-full text-left px-2.5 py-1.5 rounded-lg font-semibold text-xs transition-all flex items-center justify-between border ${
                       isActive
                         ? "bg-primary text-primary-foreground border-primary shadow-sm font-bold"
@@ -169,7 +144,7 @@ export function ToolSidebarInteractive({
               return (
                 <button
                   key={tab.id}
-                  onClick={() => selectCategoryWithUrlSync(tab.id)}
+                  onClick={() => handleCategoryClick(tab.id)}
                   className={`w-full px-2.5 py-1.5 rounded-lg font-semibold text-xs transition-all flex items-center justify-between border ${
                     isActive
                       ? "bg-primary text-primary-foreground border-primary shadow-sm font-bold"
