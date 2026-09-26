@@ -466,19 +466,6 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
 
   return (
     <div className="space-y-4">
-      {/* Zero-Server Privacy Banner */}
-      <div className="flex items-center justify-between gap-3 bg-card/40 backdrop-blur-md px-4 py-2.5 rounded-xl border border-border/30">
-        <div className="flex items-center gap-2 min-w-0">
-          <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
-          <p className="text-xs font-semibold text-foreground truncate">
-            <span className="font-bold">Zero-Server Text Engine</span> · 100% in-browser instant execution.
-          </p>
-        </div>
-        <div className="text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0">
-          Browser RAM
-        </div>
-      </div>
-
       {/* Main Text Area (AT THE VERY TOP) */}
       <div className="bg-card/40 backdrop-blur-md border border-border/30 rounded-xl p-4 space-y-3">
         {/* Header & Tools Bar */}
@@ -535,45 +522,120 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
 
         {/* EDITOR AREA (Single Buffer vs Diff Double Buffer) */}
         {activeTab === "diff" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Original Text</label>
-                <button
-                  onClick={() => {
-                    setOriginalText("Comparlify provides platform comparison tools for digital creators, educators, and developers.");
-                    setModifiedText("Comparlify offers platform comparison utilities for online creators, course builders, and software engineers.");
-                    toast({ title: "Sample Diff Loaded", description: "Loaded sample texts for comparison." });
-                  }}
-                  className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1"
-                >
-                  <Sparkles className="h-3 w-3" /> Load Sample Diff
-                </button>
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Original Text</label>
+                  <button
+                    onClick={() => {
+                      setOriginalText("Comparlify provides platform comparison tools for digital creators, educators, and developers.");
+                      setModifiedText("Comparlify offers platform comparison utilities for online creators, course builders, and software engineers.");
+                      toast({ title: "Sample Diff Loaded", description: "Loaded sample texts for comparison." });
+                    }}
+                    className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1"
+                  >
+                    <Sparkles className="h-3 w-3" /> Load Sample Diff
+                  </button>
+                </div>
+                <textarea
+                  value={originalText}
+                  onChange={e => setOriginalText(e.target.value)}
+                  placeholder="Paste original text here..."
+                  className="w-full h-36 sm:h-44 p-3 bg-background/50 border border-border/30 rounded-xl text-xs font-mono outline-none resize-none text-foreground focus:ring-1 focus:ring-primary/40"
+                />
               </div>
-              <textarea
-                value={originalText}
-                onChange={e => setOriginalText(e.target.value)}
-                placeholder="Paste original text here..."
-                className="w-full h-36 sm:h-44 p-3 bg-background/50 border border-border/30 rounded-xl text-xs font-mono outline-none resize-none text-foreground focus:ring-1 focus:ring-primary/40"
-              />
+              <div>
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block mb-1.5">Modified Text</label>
+                <textarea
+                  value={modifiedText}
+                  onChange={e => setModifiedText(e.target.value)}
+                  placeholder="Paste modified text here..."
+                  className="w-full h-36 sm:h-44 p-3 bg-background/50 border border-border/30 rounded-xl text-xs font-mono outline-none resize-none text-foreground focus:ring-1 focus:ring-primary/40"
+                />
+              </div>
             </div>
-            <div>
-              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block mb-1.5">Modified Text</label>
-              <textarea
-                value={modifiedText}
-                onChange={e => setModifiedText(e.target.value)}
-                placeholder="Paste modified text here..."
-                className="w-full h-36 sm:h-44 p-3 bg-background/50 border border-border/30 rounded-xl text-xs font-mono outline-none resize-none text-foreground focus:ring-1 focus:ring-primary/40"
-              />
+
+            {/* UNIFIED VISUAL DIFF (EXACTLY AFTER EDITORS) */}
+            <div className="p-4 bg-card/60 backdrop-blur-md border border-border/30 rounded-xl space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-1.5">
+                  <GitCompare className="h-3.5 w-3.5" /> Unified Visual Diff
+                </label>
+                <div className="flex gap-3 text-xs font-mono font-bold">
+                  <span className="text-primary">Similarity: {diffResult.similarity}%</span>
+                  <span className="text-emerald-500">+{diffResult.addedChars} chars</span>
+                  <span className="text-rose-500">-{diffResult.removedChars} chars</span>
+                </div>
+              </div>
+              <div className="p-3 bg-background/60 rounded-xl border border-border/30 font-mono text-[11px] max-h-60 overflow-y-auto space-y-1">
+                {diffResult.rows.length === 0 ? (
+                  <span className="text-muted-foreground">Enter original and modified text above to compute diff.</span>
+                ) : (
+                  diffResult.rows.map((row, idx) => {
+                    if (row.type === "added") {
+                      return <div key={idx} className="bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded">+ {row.mod}</div>;
+                    } else if (row.type === "removed") {
+                      return <div key={idx} className="bg-rose-500/15 text-rose-400 px-2 py-0.5 rounded">- {row.orig}</div>;
+                    } else if (row.type === "modified") {
+                      return (
+                        <div key={idx} className="space-y-0.5">
+                          <div className="bg-rose-500/15 text-rose-400 px-2 py-0.5 rounded">- {row.orig}</div>
+                          <div className="bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded">+ {row.mod}</div>
+                        </div>
+                      );
+                    }
+                    return <div key={idx} className="text-muted-foreground px-2 py-0.5">{row.orig}</div>;
+                  })
+                )}
+              </div>
             </div>
           </div>
         ) : (
-          <textarea
-            value={text}
-            onChange={e => setText(e.target.value)}
-            placeholder="Paste or type your text here to transform, clean, format or analyze..."
-            className="w-full h-44 sm:h-56 p-3.5 bg-background/50 border border-border/30 rounded-xl text-xs font-mono outline-none resize-none text-foreground focus:ring-1 focus:ring-primary/40"
-          />
+          <div className="space-y-3">
+            <textarea
+              value={text}
+              onChange={e => setText(e.target.value)}
+              placeholder="Paste or type your text here to transform, clean, format or analyze..."
+              className="w-full h-44 sm:h-56 p-3.5 bg-background/50 border border-border/30 rounded-xl text-xs font-mono outline-none resize-none text-foreground focus:ring-1 focus:ring-primary/40"
+            />
+
+            {/* TAB-SPECIFIC RESULT OUTPUTS DIRECTLY AFTER EDITOR */}
+            {activeTab === "slug" && (
+              <div className="p-3.5 bg-card/60 backdrop-blur-md border border-border/30 rounded-xl space-y-2">
+                <span className="text-[10px] font-black uppercase tracking-widest text-primary block">Generated SEO Slug Output</span>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-mono font-bold text-primary break-all">{generatedSlug || "your-slug-will-appear-here"}</span>
+                  <button
+                    onClick={() => handleCopy(generatedSlug)}
+                    className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-bold shrink-0 flex items-center gap-1"
+                  >
+                    <Copy className="h-3 w-3" /> Copy Slug
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {activeTab === "struct" && (
+              <div className="p-3.5 bg-card/60 backdrop-blur-md border border-border/30 rounded-xl space-y-2">
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-primary block">Structured Data Output ({structFormat.toUpperCase()})</span>
+                  <button
+                    onClick={() => handleCopy(structuredDataOutput)}
+                    className="px-3 py-1 rounded-lg bg-primary text-primary-foreground text-[10px] font-bold flex items-center gap-1"
+                  >
+                    <Copy className="h-3 w-3" /> Copy Output
+                  </button>
+                </div>
+                <textarea
+                  readOnly
+                  value={structuredDataOutput}
+                  placeholder="Structured output will render here..."
+                  className="w-full h-36 p-3 bg-background/60 border border-border/30 rounded-xl text-xs font-mono text-foreground outline-none resize-none"
+                />
+              </div>
+            )}
+          </div>
         )}
 
         {/* Minimal Compact Stats Bar & Action Strip */}
@@ -589,13 +651,6 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowFullAnalytics(!showFullAnalytics)}
-              className="px-3 py-1.5 rounded-lg border border-border/30 bg-secondary/30 hover:bg-secondary/60 text-[11px] font-bold text-foreground transition-all flex items-center gap-1.5"
-            >
-              <BarChart3 className="h-3.5 w-3.5 text-primary" />
-              {showFullAnalytics ? "Hide Full Analytics" : "View Full Analytics"}
-            </button>
             <button
               onClick={() => handleCopy()}
               disabled={!text}
@@ -615,76 +670,74 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
         </div>
       </div>
 
-      {/* Expandable Full Detailed Analytics Section */}
-      {showFullAnalytics && (
-        <div className="bg-card/40 backdrop-blur-md border border-border/30 rounded-xl p-4 space-y-4 animate-in fade-in duration-200">
-          <h4 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" /> Full Text Analytics & Readability Metrics
-          </h4>
+      {/* Full Detailed Analytics Section (Visible directly below main editor block) */}
+      <div className="bg-card/40 backdrop-blur-md border border-border/30 rounded-xl p-4 space-y-4">
+        <h4 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
+          <BarChart3 className="h-4 w-4" /> Full Text Analytics & Readability Metrics
+        </h4>
 
-          {/* Social Constraints Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
-            {[
-              { name: "Twitter / X", max: 280, current: stats.charsTotal },
-              { name: "LinkedIn Post", max: 3000, current: stats.charsTotal },
-              { name: "SEO Meta Title", max: 60, current: stats.charsTotal },
-              { name: "SEO Meta Desc", max: 160, current: stats.charsTotal }
-            ].map((platform, idx) => {
-              const pct = Math.min(Math.round((platform.current / platform.max) * 100), 100);
-              const isExceeded = platform.current > platform.max;
-              return (
-                <div key={idx} className="bg-background/40 p-2.5 rounded-lg border border-border/20 space-y-1">
-                  <div className="flex justify-between text-[10px] font-semibold">
-                    <span className="text-muted-foreground">{platform.name}</span>
-                    <span className={isExceeded ? "text-rose-500 font-bold" : "text-foreground font-mono"}>
-                      {platform.current}/{platform.max}
-                    </span>
-                  </div>
-                  <div className="w-full h-1 bg-border/20 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-300 ${isExceeded ? "bg-rose-500" : "bg-primary"}`}
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
+        {/* Social Constraints Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+          {[
+            { name: "Twitter / X", max: 280, current: stats.charsTotal },
+            { name: "LinkedIn Post", max: 3000, current: stats.charsTotal },
+            { name: "SEO Meta Title", max: 60, current: stats.charsTotal },
+            { name: "SEO Meta Desc", max: 160, current: stats.charsTotal }
+          ].map((platform, idx) => {
+            const pct = Math.min(Math.round((platform.current / platform.max) * 100), 100);
+            const isExceeded = platform.current > platform.max;
+            return (
+              <div key={idx} className="bg-background/40 p-2.5 rounded-lg border border-border/20 space-y-1">
+                <div className="flex justify-between text-[10px] font-semibold">
+                  <span className="text-muted-foreground">{platform.name}</span>
+                  <span className={isExceeded ? "text-rose-500 font-bold" : "text-foreground font-mono"}>
+                    {platform.current}/{platform.max}
+                  </span>
                 </div>
-              );
-            })}
-          </div>
+                <div className="w-full h-1 bg-border/20 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-300 ${isExceeded ? "bg-rose-500" : "bg-primary"}`}
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
 
-          {/* Detailed Readability & Keyword Breakdown */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-3.5 bg-background/40 rounded-xl border border-border/20 space-y-2">
-              <span className="text-[10px] font-black uppercase tracking-widest text-primary block">Flesch Reading Ease</span>
-              <div className="flex items-center justify-between pt-1">
-                <div>
-                  <span className="text-2xl font-black text-foreground">{stats.fleschScore} / 100</span>
-                  <span className="text-[10px] text-muted-foreground block font-semibold">{stats.fleschGrade}</span>
-                </div>
-                <div className="text-right font-mono text-[10px] text-muted-foreground space-y-0.5">
-                  <div>Avg sentence: <span className="font-bold text-foreground">{stats.avgSentenceWords} words</span></div>
-                  <div>Max sentence: <span className="font-bold text-foreground">{stats.longestSentenceWords} words</span></div>
-                </div>
+        {/* Detailed Readability & Keyword Breakdown */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="p-3.5 bg-background/40 rounded-xl border border-border/20 space-y-2">
+            <span className="text-[10px] font-black uppercase tracking-widest text-primary block">Flesch Reading Ease</span>
+            <div className="flex items-center justify-between pt-1">
+              <div>
+                <span className="text-2xl font-black text-foreground">{stats.fleschScore} / 100</span>
+                <span className="text-[10px] text-muted-foreground block font-semibold">{stats.fleschGrade}</span>
+              </div>
+              <div className="text-right font-mono text-[10px] text-muted-foreground space-y-0.5">
+                <div>Avg sentence: <span className="font-bold text-foreground">{stats.avgSentenceWords} words</span></div>
+                <div>Max sentence: <span className="font-bold text-foreground">{stats.longestSentenceWords} words</span></div>
               </div>
             </div>
+          </div>
 
-            <div className="p-3.5 bg-background/40 rounded-xl border border-border/20 space-y-2">
-              <span className="text-[10px] font-black uppercase tracking-widest text-primary block">Top Keyword Frequency</span>
-              <div className="space-y-1">
-                {stats.topKeywords.length === 0 ? (
-                  <span className="text-[10px] text-muted-foreground">Type text to compute keyword density.</span>
-                ) : (
-                  stats.topKeywords.map((kw, i) => (
-                    <div key={i} className="flex items-center justify-between text-xs font-mono">
-                      <span className="text-foreground font-bold">{kw.word}</span>
-                      <span className="text-muted-foreground text-[10px]">{kw.count}× ({kw.pct}%)</span>
-                    </div>
-                  ))
-                )}
-              </div>
+          <div className="p-3.5 bg-background/40 rounded-xl border border-border/20 space-y-2">
+            <span className="text-[10px] font-black uppercase tracking-widest text-primary block">Top Keyword Frequency</span>
+            <div className="space-y-1">
+              {stats.topKeywords.length === 0 ? (
+                <span className="text-[10px] text-muted-foreground">Type text to compute keyword density.</span>
+              ) : (
+                stats.topKeywords.map((kw, i) => (
+                  <div key={i} className="flex items-center justify-between text-xs font-mono">
+                    <span className="text-foreground font-bold">{kw.word}</span>
+                    <span className="text-muted-foreground text-[10px]">{kw.count}× ({kw.pct}%)</span>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
-      )}
+      </div>
 
       {/* Sub-Tool Operations Panel */}
       <div className="bg-card/40 backdrop-blur-md border border-border/30 rounded-xl p-4">
@@ -692,7 +745,7 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
         {activeTab === "count" && (
           <div className="space-y-2 text-xs text-muted-foreground">
             <p className="font-semibold text-foreground">Live Text Analysis Active</p>
-            <p>Your text is being analyzed dynamically in memory. Use the <strong className="text-primary">"View Full Analytics"</strong> button above for comprehensive readability and density reports.</p>
+            <p>Your text is analyzed dynamically in real-time with full readability metrics and social length bounds displayed above.</p>
           </div>
         )}
 
@@ -817,36 +870,8 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
 
         {/* TAB 5: DIFF VIEW */}
         {activeTab === "diff" && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Unified Visual Diff</label>
-              <div className="flex gap-3 text-xs font-mono font-bold">
-                <span className="text-primary">Similarity: {diffResult.similarity}%</span>
-                <span className="text-emerald-500">+{diffResult.addedChars} chars</span>
-                <span className="text-rose-500">-{diffResult.removedChars} chars</span>
-              </div>
-            </div>
-            <div className="p-3 bg-background/60 rounded-xl border border-border/30 font-mono text-[11px] max-h-52 overflow-y-auto space-y-1">
-              {diffResult.rows.length === 0 ? (
-                <span className="text-muted-foreground">Enter original and modified text above to compute diff.</span>
-              ) : (
-                diffResult.rows.map((row, idx) => {
-                  if (row.type === "added") {
-                    return <div key={idx} className="bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded">+ {row.mod}</div>;
-                  } else if (row.type === "removed") {
-                    return <div key={idx} className="bg-rose-500/15 text-rose-400 px-2 py-0.5 rounded">- {row.orig}</div>;
-                  } else if (row.type === "modified") {
-                    return (
-                      <div key={idx} className="space-y-0.5">
-                        <div className="bg-rose-500/15 text-rose-400 px-2 py-0.5 rounded">- {row.orig}</div>
-                        <div className="bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded">+ {row.mod}</div>
-                      </div>
-                    );
-                  }
-                  return <div key={idx} className="text-muted-foreground px-2 py-0.5">{row.orig}</div>;
-                })
-              )}
-            </div>
+          <div className="text-xs text-muted-foreground italic">
+            Live visual diff and similarity analysis are displayed directly after the text input boxes above.
           </div>
         )}
 
@@ -895,17 +920,8 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
 
         {/* TAB 7: SLUG GENERATOR */}
         {activeTab === "slug" && (
-          <div className="p-3.5 bg-background/40 rounded-xl border border-border/20 space-y-2">
-            <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground block">Generated SEO Slug</span>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-sm font-mono font-bold text-primary break-all">{generatedSlug || "your-slug-will-appear-here"}</span>
-              <button
-                onClick={() => handleCopy(generatedSlug)}
-                className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-bold shrink-0 flex items-center gap-1"
-              >
-                <Copy className="h-3 w-3" /> Copy Slug
-              </button>
-            </div>
+          <div className="text-xs text-muted-foreground italic">
+            Generated SEO slug is rendered directly after the text editor above.
           </div>
         )}
 
@@ -926,20 +942,10 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
                   </button>
                 ))}
               </div>
-              <button
-                onClick={() => handleCopy(structuredDataOutput)}
-                className="px-4 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold flex items-center gap-1"
-              >
-                <Copy className="h-3 w-3" /> Copy Output
-              </button>
             </div>
-
-            <textarea
-              readOnly
-              value={structuredDataOutput}
-              placeholder="Structured output will render here..."
-              className="w-full h-36 p-3 bg-background/60 border border-border/30 rounded-xl text-xs font-mono text-foreground outline-none resize-none"
-            />
+            <div className="text-xs text-muted-foreground italic">
+              Structured data output is rendered directly after the text editor above.
+            </div>
           </div>
         )}
 
@@ -962,6 +968,19 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
             </button>
           </div>
         )}
+      </div>
+
+      {/* Compact Zero-Server Privacy Footer */}
+      <div className="flex items-center justify-between gap-3 bg-card/20 backdrop-blur-md px-3.5 py-2 rounded-xl border border-border/20 text-muted-foreground">
+        <div className="flex items-center gap-2 min-w-0">
+          <ShieldCheck className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+          <p className="text-[11px] font-medium truncate">
+            <span className="font-bold text-foreground">Zero-Server Text Engine</span> · 100% in-browser execution.
+          </p>
+        </div>
+        <div className="text-[9px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0">
+          Browser RAM
+        </div>
       </div>
     </div>
   );

@@ -288,7 +288,7 @@ export function ToolHubSearch({ tools, categories, initialSlug }: ToolHubSearchP
 
       {/* Server Rendered Main Content Canvas Panel */}
       <main className="flex-1 flex flex-col h-full overflow-hidden bg-background">
-        <header className="bg-card/40 border-b border-border/20 px-4 py-2 flex items-center justify-between gap-3 shrink-0 backdrop-blur-xl">
+        <header className="bg-card/40 border-b border-border/20 px-5 py-3.5 flex items-center justify-between gap-3 shrink-0 backdrop-blur-xl">
           <div className="flex items-center gap-2.5">
             <IconComp className="h-4 w-4 text-primary shrink-0" />
             <h2 className="text-xs font-bold tracking-tight text-foreground flex items-center gap-2">
