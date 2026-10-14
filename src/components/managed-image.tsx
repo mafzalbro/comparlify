@@ -2,14 +2,14 @@
 
 import { useState } from 'react';
 import Image, { type ImageProps } from 'next/image';
-import { Sparkles } from 'lucide-react';
+import { Layers } from 'lucide-react';
 
 export function ManagedImage(props: ImageProps) {
   const [error, setError] = useState(false);
 
   const isExternal = typeof props.src === 'string' && props.src.startsWith('http');
 
-  if (error) {
+  if (error || !props.src) {
     const isFill = !!props.fill;
     const fallbackStyle: React.CSSProperties = isFill
       ? {
@@ -23,20 +23,31 @@ export function ManagedImage(props: ImageProps) {
         }
       : {
           width: props.width ? `${props.width}px` : '100%',
-          height: props.height ? `${props.height}px` : '250px',
+          height: props.height ? `${props.height}px` : '100%',
         };
+
+    const initial = props.alt ? props.alt.trim().charAt(0).toUpperCase() : '';
 
     return (
       <div
-        className="flex flex-col items-center justify-center bg-accent-surface dark:bg-white/5 border border-border/30 rounded-2xl p-4 text-center select-none"
+        className="flex flex-col items-center justify-center bg-linear-to-br from-primary/10 via-background to-secondary/20 border border-border/40 rounded-xl p-2 text-center select-none overflow-hidden"
         style={{ ...fallbackStyle, ...props.style }}
+        title={props.alt || 'Platform'}
       >
-        <div className="p-3 rounded-full bg-primary/10 dark:bg-primary/25 text-primary mb-2">
-          <Sparkles className="h-5 w-5" />
-        </div>
-        <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/80">
-          Comparlify Premium
-        </span>
+        {initial ? (
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/15 border border-primary/25 text-primary font-black text-sm tracking-wider shadow-xs">
+            {initial}
+          </div>
+        ) : (
+          <div className="p-2 rounded-lg bg-primary/10 text-primary">
+            <Layers className="h-4 w-4" />
+          </div>
+        )}
+        {props.alt && !isFill && (
+          <span className="text-[10px] font-bold text-muted-foreground mt-1.5 truncate max-w-[90%]">
+            {props.alt}
+          </span>
+        )}
       </div>
     );
   }
