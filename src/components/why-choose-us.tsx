@@ -45,11 +45,11 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
     {
       id: "comparisons",
       title:
-        content["homepage.whyus.comparisons.title"] || "Battleground Analytics",
+        content["homepage.whyus.comparisons.title"] || "Side-by-Side Analytics",
       Icon: BarChart,
       description:
         content["homepage.whyus.comparisons.description"] ||
-        "Deep-dive side-by-side comparisons of the world's leading platforms.",
+        "Deep-dive side-by-side platform comparisons across usability, fee tiers, and features.",
       image:
         "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=800&fit=crop",
       dataAiHint: "data chart graph analytics",
@@ -58,30 +58,29 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
       accent: "from-blue-600/30 to-cyan-500/10",
     },
     {
-      id: "ai-tools",
-      title: content["homepage.whyus.aitools.title"] || "AI Tools",
-      Icon: BrainCircuit,
+      id: "feature-matrix",
+      title: "Interactive Comparison Matrix",
+      Icon: LayoutPanelLeft,
       description:
-        content["homepage.whyus.aitools.description"] ||
-        "Harness generative AI to build your content strategy in seconds.",
+        "Filter and inspect real-time pricing plans, transaction fee percentages, and direct software specs.",
       image:
-        "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=800&fit=crop",
-      dataAiHint: "abstract technology AI brain circuit",
-      href: "/tools",
-      enabled: content["module.tools.enabled"] !== "false",
+        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=800&fit=crop",
+      dataAiHint: "software feature table comparison",
+      href: "/table",
+      enabled: true,
       accent: "from-purple-600/30 to-pink-500/10",
     },
     {
       id: "strategies",
       title:
-        content["homepage.whyus.strategies.title"] || "Growth Strategies",
+        content["homepage.whyus.strategies.title"] || "Migration & Selection Guides",
       Icon: Scaling,
       description:
         content["homepage.whyus.strategies.description"] ||
-        "Proven growth frameworks for the modern digital entrepreneur.",
+        "Independent reviews, switching checklists, and breakdowns to help you avoid lock-in.",
       image:
-        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=800&fit=crop",
-      dataAiHint: "business growth chart upward trend",
+        "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=1200&h=800&fit=crop",
+      dataAiHint: "business strategy playbook",
       href: "/blog",
       enabled: content["module.blog.enabled"] !== "false",
       accent: "from-orange-600/30 to-amber-500/10",

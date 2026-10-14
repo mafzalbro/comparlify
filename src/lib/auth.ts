@@ -7,6 +7,15 @@ import prisma from "./prisma";
 import { Role } from "@prisma/client";
 import { createNotification } from "./notifications";
 
+function generateDefaultUsername(email?: string | null, name?: string | null) {
+  const base = (email ? email.split("@")[0] : name || "user")
+    .toLowerCase()
+    .replace(/[^a-z0-9_]/g, "_")
+    .slice(0, 15);
+  const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+  return `${base}_${randomSuffix}`;
+}
+
 export const authOptions: NextAuthConfig = {
   secret:
     process.env.AUTH_SECRET ||
@@ -24,6 +33,7 @@ export const authOptions: NextAuthConfig = {
           id: profile.sub || profile.id,
           email: profile.email,
           name: profile.name,
+          username: generateDefaultUsername(profile.email, profile.name),
           image: profile.picture,
           role: "USER" as Role,
           onboarded: false,
@@ -41,6 +51,7 @@ export const authOptions: NextAuthConfig = {
           id: `${profile.id}`,
           email: profile.email,
           name: profile.name,
+          username: generateDefaultUsername(profile.email, profile.name),
           image: profile.avatar_url,
           role: "USER" as Role,
           onboarded: false,

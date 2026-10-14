@@ -18,6 +18,14 @@ import { ExpertIntelligence } from "@/components/home/expert-intelligence";
 import { CreatorOutput } from "@/components/home/creator-output";
 import { ScaleCTA } from "@/components/home/scale-cta";
 
+import { BattleSelector } from "@/app/(main)/compare/_components/battle-selector";
+
+const getAllPlatforms = cache(async () => {
+  return prisma.platform.findMany({
+    orderBy: { name: "asc" },
+  });
+});
+
 const getRecentPosts = cache(async () => {
   return prisma.post.findMany({
     where: { published: true },
@@ -31,13 +39,15 @@ const getFeaturedComparisons = cache(async () => {
   return prisma.comparison.findMany({
     where: { published: true },
     orderBy: { createdAt: "desc" },
-    take: 4,
+    take: 6,
     include: { platformA: true, platformB: true },
   });
 });
 
 export async function generateMetadata(): Promise<Metadata> {
   return generateSeoMetadata({
+    title: "Compare Creator Platforms & Software Side-by-Side",
+    description: "Compare online course, community, and creator platforms with verified side-by-side matrices, fee calculators, and deep-dive comparisons.",
     path: "/",
   });
 }
@@ -45,11 +55,12 @@ export async function generateMetadata(): Promise<Metadata> {
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [session, recentPosts, featuredComparisons, content] =
+  const [session, recentPosts, featuredComparisons, allPlatforms, content] =
     await Promise.all([
       auth(),
       getRecentPosts(),
       getFeaturedComparisons(),
+      getAllPlatforms(),
       getContent(),
     ]);
 
@@ -69,7 +80,7 @@ export default async function Home() {
           url: "https://comparlify.com",
           logo: "https://comparlify.com/logo.png",
           description:
-            "Premium AI-powered platform for course creators and educators to compare tools and automate content workflows.",
+            "Independent platform for course creators and digital entrepreneurs to compare platforms side-by-side with transparent data.",
         }}
       />
 
@@ -88,13 +99,18 @@ export default async function Home() {
         toolsHref={toolsHref}
       />
 
-      {/* ── DISCOVERY HUB ────────────────── */}
-      <DiscoveryHub />
+      {/* ── INTERACTIVE INSTANT BATTLE SELECTOR ── */}
+      <section className="container mx-auto px-4 md:px-6 -mt-4 mb-4 relative z-20">
+        <BattleSelector platforms={allPlatforms} />
+      </section>
 
       {/* ── FEATURED COMPARISONS ─────────── */}
       {isCompareEnabled && (
         <FeaturedReports comparisons={featuredComparisons} />
       )}
+
+      {/* ── DISCOVERY HUB ────────────────── */}
+      <DiscoveryHub />
 
       {/* ── WHY CHOOSE US ────────────────── */}
       <WhyChooseUs

@@ -18,20 +18,20 @@ interface CoreCategory {
 
 const coreCategories: CoreCategory[] = [
   {
-    title: "Course Platforms",
-    description: "Compare Kajabi, Teachable, Thinkific and more.",
+    title: "Side-by-Side Battles",
+    description: "Compare Kajabi, Skool, Teachable, Circle, and 60+ platforms side-by-side.",
     icon: Zap,
     href: "/compare",
   },
   {
-    title: "AI Creation Tools",
-    description: "Generate outlines, scripts, and catchy titles.",
+    title: "Feature Comparison Table",
+    description: "Filter and audit software tiers, pricing fees, and transaction rates.",
     icon: BrainCircuit,
-    href: "/tools",
+    href: "/table",
   },
   {
-    title: "Expert Guides",
-    description: "In-depth tutorials on growing your online business.",
+    title: "Deep-Dive Matchups",
+    description: "In-depth breakdowns on migration, features, and platform pros & cons.",
     icon: FileText,
     href: "/blog",
   },

@@ -15,22 +15,22 @@ interface HomeHeroProps {
 }
 
 export function HomeHero({
-  supertitle = "The Future of Comparisons",
-  title = "Compare Tools with AI Precision",
-  subtitle = "Stop wasting time on research. Use AI to find the perfect platform for your online business.",
-  primaryCta = "Get Started",
-  secondaryCta = "View Comparisons",
+  supertitle = "Independent Platform Intelligence",
+  title = "Compare Creator Platforms with Absolute Precision",
+  subtitle = "Zero sponsored bias. In-depth feature matrices, verified pricing breakdowns, and side-by-side analysis to pick your winning stack.",
+  primaryCta = "Explore Comparisons",
+  secondaryCta = "Quick Platform Match",
   isToolsEnabled = true,
   isCompareEnabled = true,
   toolsHref,
 }: HomeHeroProps) {
   return (
-    <section className="relative w-full min-h-[55vh] flex items-center justify-center pt-16 pb-8 overflow-hidden">
+    <section className="relative w-full min-h-[50vh] flex items-center justify-center pt-16 pb-8 overflow-hidden">
       {/* Visual Background Elements */}
       <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-30"></div>
       <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/15 rounded-full blur-[100px] animate-pulse"></div>
-        <div className="absolute bottom-[20%] -right-[10%] w-[30%] h-[30%] bg-blue-500/10 rounded-full blur-[80px] animate-pulse delay-1000"></div>
+        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[90px]"></div>
+        <div className="absolute bottom-[20%] -right-[10%] w-[30%] h-[30%] bg-blue-500/10 rounded-full blur-[80px]"></div>
       </div>
 
       <div className="container mx-auto relative z-10 px-4 md:px-6">
@@ -39,10 +39,10 @@ export function HomeHero({
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary mb-6"
+            className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary mb-6"
           >
             <Zap className="h-3.5 w-3.5" />
-            <span className="text-xs font-semibold tracking-wide uppercase">
+            <span className="text-xs font-bold tracking-wider uppercase">
               {supertitle}
             </span>
           </MotionDiv>
@@ -51,7 +51,7 @@ export function HomeHero({
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-2xl md:text-4xl font-extrabold tracking-tight leading-tight mb-4 bg-linear-to-b from-foreground to-foreground/80 bg-clip-text text-transparent"
+            className="text-3xl md:text-5xl font-black tracking-tight leading-[1.15] mb-4 bg-linear-to-b from-foreground to-foreground/80 bg-clip-text text-transparent"
           >
             {title}
           </MotionH2>
@@ -71,28 +71,24 @@ export function HomeHero({
             transition={{ duration: 0.6, delay: 0.3 }}
             className="flex flex-wrap items-center justify-center gap-4"
           >
-            {isToolsEnabled && (
-              <Button
-                asChild
-                size="default"
-                className="rounded-full px-6 h-11 text-sm font-bold shadow-md shadow-primary/20 group hover:scale-102 active:scale-98 transition-all"
-              >
-                <NextLink href={toolsHref}>
-                  {primaryCta}
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </NextLink>
-              </Button>
-            )}
-            {isCompareEnabled && (
-              <Button
-                asChild
-                size="default"
-                variant="outline"
-                className="rounded-full px-6 h-11 text-sm font-bold border-border/40 hover:bg-secondary/50 backdrop-blur-sm transition-all hover:scale-102 active:scale-98"
-              >
-                <NextLink href="/compare">{secondaryCta}</NextLink>
-              </Button>
-            )}
+            <Button
+              asChild
+              size="default"
+              className="rounded-full px-7 h-11 text-sm font-bold shadow-md shadow-primary/20 group hover:scale-102 active:scale-98 transition-all"
+            >
+              <NextLink href="/compare">
+                {primaryCta}
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </NextLink>
+            </Button>
+            <Button
+              asChild
+              size="default"
+              variant="outline"
+              className="rounded-full px-7 h-11 text-sm font-bold border-border/60 hover:bg-secondary/50 backdrop-blur-sm transition-all hover:scale-102 active:scale-98"
+            >
+              <NextLink href="/table">Feature Matrix Table</NextLink>
+            </Button>
           </MotionDiv>
 
           {/* Feature Tags */}
@@ -103,17 +99,17 @@ export function HomeHero({
             className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-6 border-t border-border/20 w-full max-w-2xl"
           >
             {[
-              { label: "AI Powered", icon: CheckCircle2 },
-              { label: "Verified Data", icon: CheckCircle2 },
-              { label: "Expert Chosen", icon: CheckCircle2 },
-              { label: "Instant Access", icon: CheckCircle2 },
+              { label: "Side-by-Side Matrix", icon: CheckCircle2 },
+              { label: "Fee & Pricing Audits", icon: CheckCircle2 },
+              { label: "Unbiased Assessments", icon: CheckCircle2 },
+              { label: "Direct Platform Slugs", icon: CheckCircle2 },
             ].map((f, i) => (
               <div
                 key={i}
                 className="flex items-center space-x-1.5 text-muted-foreground/80 justify-center"
               >
                 <f.icon className="h-3.5 w-3.5 text-primary" />
-                <span className="text-xs font-medium">{f.label}</span>
+                <span className="text-xs font-semibold">{f.label}</span>
               </div>
             ))}
           </MotionDiv>

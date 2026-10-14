@@ -10,7 +10,7 @@ const testimonials = [
     avatar:
       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
     quote:
-      "Comparlify's AI tools cut my course planning time by 70%. The platform comparisons are the most detailed I've found online.",
+      "Comparlify's side-by-side fee breakdowns saved us over $4,000/yr before switching from Kajabi. The platform comparisons are the most thorough online.",
   },
   {
     name: "Michael R.",
@@ -18,15 +18,15 @@ const testimonials = [
     avatar:
       "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop",
     quote:
-      "Finally, a site that actually understands the nuances between LMS platforms. No more superficial feature lists—this is real data.",
+      "Finally, a site that actually understands the nuances between LMS platforms. No more superficial marketing sheets—this is transparent, actionable data.",
   },
   {
     name: "Elena G.",
-    title: "Content Strategist",
+    title: "Community Builder",
     avatar:
       "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop",
     quote:
-      "I use the AI Title Generator for every single blog post now. It consistently out-performs my manual attempts in SEO and CTR.",
+      "Comparing Skool vs Circle with Comparlify gave us complete clarity on member limits, native video support, and checkout fees before we launched.",
   },
 ];
 
