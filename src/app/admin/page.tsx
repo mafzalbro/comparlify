@@ -1,12 +1,10 @@
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import {
-  PenSquare,
   Table,
   Users,
   MessageCircle,
@@ -44,7 +42,7 @@ async function getDashboardStats() {
     (await prisma.feature)?.count() ?? Promise.resolve(0),
     (await prisma.user)?.count() ?? Promise.resolve(0),
     (await prisma.comment)?.count({ where: { status: "PENDING" } }) ??
-      Promise.resolve(0),
+    Promise.resolve(0),
     (await prisma.comparison)?.count() ?? Promise.resolve(0),
     (await prisma.post)?.findMany({
       take: 5,
