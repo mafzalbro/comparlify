@@ -22,6 +22,15 @@ interface BlogPostsListProps {
 
 const blogPostsCache = new Map<string, { data: PostWithAuthorAndCategory[]; timestamp: number }>();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes in ms
+const MAX_CACHE_SIZE = 100;
+
+function setWithEviction<K, V>(map: Map<K, V>, key: K, value: V, maxSize: number) {
+  if (map.size >= maxSize) {
+    const oldestKey = map.keys().next().value;
+    if (oldestKey !== undefined) map.delete(oldestKey);
+  }
+  map.set(key, value);
+}
 
 async function getBlogPosts({
   search,
@@ -75,7 +84,7 @@ async function getBlogPosts({
     orderBy,
   });
 
-  blogPostsCache.set(cacheKey, { data: posts, timestamp: now });
+  setWithEviction(blogPostsCache, cacheKey, { data: posts, timestamp: now }, MAX_CACHE_SIZE);
   return posts;
 }
 

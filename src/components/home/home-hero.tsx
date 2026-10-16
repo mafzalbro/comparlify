@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import NextLink from "next/link";
 import { ArrowRight, CheckCircle2, Zap, Wrench } from "lucide-react";
-import { MotionDiv, MotionH2, MotionP } from "@/components/motion-wrapper";
 
 interface HomeHeroProps {
   supertitle?: string;
@@ -35,42 +34,22 @@ export function HomeHero({
 
       <div className="container mx-auto relative z-10 px-4 md:px-6">
         <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
-          <MotionDiv
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary mb-6"
-          >
+          <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary mb-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <Zap className="h-3.5 w-3.5" />
             <span className="text-xs font-bold tracking-wider uppercase">
               {supertitle}
             </span>
-          </MotionDiv>
+          </div>
 
-          <MotionH2
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-3xl md:text-5xl font-black tracking-tight leading-[1.15] mb-4 bg-linear-to-b from-foreground to-foreground/80 bg-clip-text text-transparent"
-          >
+          <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-[1.15] mb-4 bg-linear-to-b from-foreground to-foreground/80 bg-clip-text text-transparent animate-in fade-in slide-in-from-bottom-3 duration-500 delay-100">
             {title}
-          </MotionH2>
+          </h1>
 
-          <MotionP
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-sm md:text-base text-muted-foreground max-w-xl mb-8 leading-relaxed font-medium"
-          >
+          <p className="text-sm md:text-base text-muted-foreground max-w-xl mb-8 leading-relaxed font-medium animate-in fade-in slide-in-from-bottom-3 duration-500 delay-200">
             {subtitle}
-          </MotionP>
+          </p>
 
-          <MotionDiv
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-wrap items-center justify-center gap-4"
-          >
+          <div className="flex flex-wrap items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
             <Button
               asChild
               size="default"
@@ -95,14 +74,11 @@ export function HomeHero({
                 <span>Explore Tools</span>
               </NextLink>
             </Button>
-          </MotionDiv>
+          </div>
 
           {/* Feature Tags */}
-          <MotionDiv
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-6 border-t border-border/20 w-full max-w-2xl"
+          <div
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-6 border-t border-border/20 w-full max-w-2xl animate-in fade-in duration-700 delay-500"
           >
             {[
               { label: "Side-by-Side Matrix", icon: CheckCircle2 },
@@ -118,7 +94,7 @@ export function HomeHero({
                 <span className="text-xs font-semibold">{f.label}</span>
               </div>
             ))}
-          </MotionDiv>
+          </div>
         </div>
       </div>
     </section>

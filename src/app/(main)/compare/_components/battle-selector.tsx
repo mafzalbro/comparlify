@@ -16,7 +16,12 @@ import { MotionDiv } from "@/components/motion-wrapper";
 import { cn } from "@/lib/utils";
 import { GLASS_CARD, MICRO_LABEL } from "@/lib/design-tokens";
 
-export function BattleSelector({ platforms }: { platforms: Platform[] }) {
+export interface BattleSelectorPlatform {
+  id: string;
+  name: string;
+}
+
+export function BattleSelector({ platforms }: { platforms: BattleSelectorPlatform[] }) {
   const router = useRouter();
   const [a, setA] = useState<string>(() => (platforms.length > 0 ? platforms[0].id : ""));
   const [b, setB] = useState<string>(() => (platforms.length > 1 ? platforms[1].id : ""));

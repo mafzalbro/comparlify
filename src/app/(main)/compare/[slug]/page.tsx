@@ -36,7 +36,12 @@ import { InlineROICalculator } from "@/components/comparison/inline-roi-calculat
 import { PlatformPicker } from "@/components/tool/PlatformPicker";
 import { PlatformScorecardCard } from "@/components/platform-scorecard-card";
 import { PlatformChangeTracker } from "@/components/platform-change-tracker";
-import { DETAIL_CONTAINER, GLASS_CARD, GLASS_CARD_SM, MICRO_LABEL } from "@/lib/design-tokens";
+import {
+  DETAIL_CONTAINER,
+  GLASS_CARD,
+  GLASS_CARD_SM,
+  MICRO_LABEL,
+} from "@/lib/design-tokens";
 import { SectionHeader } from "@/components/layout/section-header";
 import { InteractiveComparisonMatcher } from "@/components/comparison/interactive-comparison-matcher";
 import { ReviewAcquisitionWidget } from "@/components/review-acquisition-widget";
@@ -104,11 +109,23 @@ export default async function ComparisonDetailPage(props: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await props.params;
-  const [session, comparison, content] = await Promise.all([
-    auth(),
-    getComparisonBySlug(slug),
-    getContent(),
-  ]);
+  const [session, comparison, content, relatedPosts, relatedNews] =
+    await Promise.all([
+      auth(),
+      getComparisonBySlug(slug),
+      getContent(),
+      prisma.post.findMany({
+        where: { published: true },
+        take: 2,
+        orderBy: { createdAt: "desc" },
+        include: { author: true },
+      }),
+      prisma.newsArticle.findMany({
+        where: { published: true },
+        take: 2,
+        orderBy: { createdAt: "desc" },
+      }),
+    ]);
 
   if (!comparison) notFound();
 
@@ -202,21 +219,6 @@ export default async function ComparisonDetailPage(props: {
     .filter((row: any) => row.hasA || row.hasB)
     .slice(0, 10);
 
-  // ── Related Content ─────────────────────────────────────
-  const [relatedPosts, relatedNews] = await Promise.all([
-    prisma.post.findMany({
-      where: { published: true },
-      take: 2,
-      orderBy: { createdAt: "desc" },
-      include: { author: true },
-    }),
-    prisma.newsArticle.findMany({
-      where: { published: true },
-      take: 2,
-      orderBy: { createdAt: "desc" },
-    }),
-  ]);
-
   // ── Schema.org (Rich Snippets) ───────────────────────────
   const comparisonJsonLd = {
     "@context": "https://schema.org",
@@ -261,12 +263,18 @@ export default async function ComparisonDetailPage(props: {
 
         {/* ── SIDE-BY-SIDE SCORECARDS & INTERACTIVE MATCHER ────────────────── */}
         <section className={DETAIL_CONTAINER + " pt-8 pb-4 space-y-12"}>
-          <InteractiveComparisonMatcher platformA={platformA} platformB={platformB} />
+          <InteractiveComparisonMatcher
+            platformA={platformA}
+            platformB={platformB}
+          />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <PlatformScorecardCard platform={platformA} />
             <PlatformScorecardCard platform={platformB} />
           </div>
-          <ReviewAcquisitionWidget platformId={platformA.id} platformName={platformA.name} />
+          <ReviewAcquisitionWidget
+            platformId={platformA.id}
+            platformName={platformA.name}
+          />
         </section>
 
         {/* ── PLATFORM PICKER (Decision Engine) ────────────────── */}
@@ -292,7 +300,12 @@ export default async function ComparisonDetailPage(props: {
             <aside className="hidden lg:block lg:col-span-4">
               <div className="sticky top-24 space-y-10">
                 {/* Radar Chart */}
-                <section className={cn(GLASS_CARD, "p-6 sm:p-8 relative overflow-hidden group")}>
+                <section
+                  className={cn(
+                    GLASS_CARD,
+                    "p-6 sm:p-8 relative overflow-hidden group",
+                  )}
+                >
                   <div className="absolute top-0 right-0 p-8 text-primary/5 select-none pointer-events-none -rotate-12 translate-x-8 -translate-y-8">
                     <Sparkles className="h-32 w-32" />
                   </div>
@@ -312,7 +325,12 @@ export default async function ComparisonDetailPage(props: {
                 <AdPlacement placement="SIDEBAR" />
 
                 {/* Newsletter */}
-                <section className={cn(GLASS_CARD, "p-6 sm:p-8 text-center relative overflow-hidden group")}>
+                <section
+                  className={cn(
+                    GLASS_CARD,
+                    "p-6 sm:p-8 text-center relative overflow-hidden group",
+                  )}
+                >
                   <div className="absolute inset-0 bg-linear-to-b from-primary/5 to-transparent" />
                   <Badge className="bg-primary/20 text-primary border-primary/30 px-6 py-2 uppercase tracking-widest text-[10px] font-bold rounded-full mb-8 shadow-sm relative z-10">
                     Stay Updated
@@ -330,7 +348,8 @@ export default async function ComparisonDetailPage(props: {
                 </section>
 
                 {/* ── COLLECTIVE PULSE ─────────────── */}
-                {(content["module.community.enabled"] !== "false" || content["module.news.enabled"] !== "false") && (
+                {(content["module.community.enabled"] !== "false" ||
+                  content["module.news.enabled"] !== "false") && (
                   <section className="bg-primary/5 border border-primary/20 p-6 sm:p-8 rounded-4xl space-y-8">
                     <Badge className="bg-primary/20 text-primary border-primary/30 uppercase tracking-widest text-[9px] font-bold">
                       Community Pulse
@@ -341,34 +360,36 @@ export default async function ComparisonDetailPage(props: {
                     </h4>
 
                     <div className="space-y-6">
-                      {content["module.community.enabled"] !== "false" && [...platformA.forumTopics, ...platformB.forumTopics]
-                        .slice(0, 3)
-                        .map((topic) => (
-                          <Link
-                            key={topic.id}
-                            href={`/community/topic/${topic.id}`}
-                            className="flex items-start gap-4 p-4 rounded-3xl bg-background hover:bg-primary/5 transition-all group"
-                          >
-                            <MessageSquare className="h-5 w-5 text-muted-foreground mt-1 group-hover:text-primary" />
-                            <p className="text-xs font-bold leading-snug group-hover:text-primary transition-colors">
-                              {topic.title}
-                            </p>
-                          </Link>
-                        ))}
-                      {content["module.news.enabled"] !== "false" && [...platformA.newsArticles, ...platformB.newsArticles]
-                        .slice(0, 2)
-                        .map((news) => (
-                          <Link
-                            key={news.id}
-                            href={`/news/${news.slug}`}
-                            className="flex items-start gap-4 p-4 rounded-3xl bg-background hover:bg-blue-500/5 transition-all group border border-blue-500/10"
-                          >
-                            <Newspaper className="h-5 w-5 text-blue-500 mt-1" />
-                            <p className="text-xs font-bold leading-snug group-hover:text-blue-500 transition-colors">
-                              {news.title}
-                            </p>
-                          </Link>
-                        ))}
+                      {content["module.community.enabled"] !== "false" &&
+                        [...platformA.forumTopics, ...platformB.forumTopics]
+                          .slice(0, 3)
+                          .map((topic) => (
+                            <Link
+                              key={topic.id}
+                              href={`/community/topic/${topic.id}`}
+                              className="flex items-start gap-4 p-4 rounded-3xl bg-background hover:bg-primary/5 transition-all group"
+                            >
+                              <MessageSquare className="h-5 w-5 text-muted-foreground mt-1 group-hover:text-primary" />
+                              <p className="text-xs font-bold leading-snug group-hover:text-primary transition-colors">
+                                {topic.title}
+                              </p>
+                            </Link>
+                          ))}
+                      {content["module.news.enabled"] !== "false" &&
+                        [...platformA.newsArticles, ...platformB.newsArticles]
+                          .slice(0, 2)
+                          .map((news) => (
+                            <Link
+                              key={news.id}
+                              href={`/news/${news.slug}`}
+                              className="flex items-start gap-4 p-4 rounded-3xl bg-background hover:bg-blue-500/5 transition-all group border border-blue-500/10"
+                            >
+                              <Newspaper className="h-5 w-5 text-blue-500 mt-1" />
+                              <p className="text-xs font-bold leading-snug group-hover:text-blue-500 transition-colors">
+                                {news.title}
+                              </p>
+                            </Link>
+                          ))}
                     </div>
 
                     {content["module.community.enabled"] !== "false" && (
@@ -460,7 +481,10 @@ export default async function ComparisonDetailPage(props: {
               {/* Related Content */}
               {(relatedPosts.length > 0 || relatedNews.length > 0) && (
                 <section className="pt-32 border-t border-border/10">
-                  <SectionHeader label="Related Intelligence" className="mb-12" />
+                  <SectionHeader
+                    label="Related Intelligence"
+                    className="mb-12"
+                  />
                   <h2 className="text-4xl font-black uppercase tracking-tighter mb-16">
                     Keep <span className="text-primary italic">Reading</span>
                   </h2>
@@ -471,8 +495,18 @@ export default async function ComparisonDetailPage(props: {
                         href={`/blog/${post.slug}`}
                         className="group"
                       >
-                        <Card className={cn(GLASS_CARD_SM, "p-6 hover:bg-primary/5 transition-all h-full")}>
-                          <span className={cn(MICRO_LABEL, "text-primary mb-4 flex items-center gap-2")}>
+                        <Card
+                          className={cn(
+                            GLASS_CARD_SM,
+                            "p-6 hover:bg-primary/5 transition-all h-full",
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              MICRO_LABEL,
+                              "text-primary mb-4 flex items-center gap-2",
+                            )}
+                          >
                             <BookOpen className="h-3 w-3" /> Blog Article
                           </span>
                           <h4 className="text-xl font-bold group-hover:text-primary transition-colors">
@@ -487,8 +521,18 @@ export default async function ComparisonDetailPage(props: {
                         href={`/news/${news.slug}`}
                         className="group"
                       >
-                        <Card className={cn(GLASS_CARD_SM, "p-6 hover:bg-blue-500/5 transition-all h-full")}>
-                          <span className={cn(MICRO_LABEL, "text-blue-500 mb-4 block")}>
+                        <Card
+                          className={cn(
+                            GLASS_CARD_SM,
+                            "p-6 hover:bg-blue-500/5 transition-all h-full",
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              MICRO_LABEL,
+                              "text-blue-500 mb-4 block",
+                            )}
+                          >
                             Market News
                           </span>
                           <h4 className="text-xl font-bold group-hover:text-blue-500 transition-colors">

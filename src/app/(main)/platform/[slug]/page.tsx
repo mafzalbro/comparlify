@@ -31,18 +31,38 @@ import { ReviewAcquisitionWidget } from "@/components/review-acquisition-widget"
 export const revalidate = 3600; // ISR
 
 const getPlatformBySlug = cache(async (slug: string) => {
-  // Assuming name is used as slug for now, or we can add a slug field.
-  // For the purpose of this task, let's look by name case-insensitive or similar.
-  const platforms = await prisma.platform.findMany({
+  const platformNameClean = slug.replace(/-/g, " ");
+  const platform = await prisma.platform.findFirst({
+    where: {
+      OR: [
+        { id: slug },
+        { name: { equals: platformNameClean, mode: "insensitive" } },
+        { name: { equals: slug, mode: "insensitive" } },
+      ],
+    },
     include: {
       tiers: { orderBy: { monthlyPrice: "asc" } },
       features: { include: { feature: { include: { category: true } } } },
     },
   });
 
-  return platforms.find(
-    (p: any) => p.name.toLowerCase().replace(/\s+/g, "-") === slug
+  if (platform) return platform;
+
+  const platforms = await prisma.platform.findMany({
+    select: { id: true, name: true },
+  });
+  const matched = platforms.find(
+    (p: any) => p.name.toLowerCase().replace(/\s+/g, "-") === slug,
   );
+  if (!matched) return null;
+
+  return prisma.platform.findUnique({
+    where: { id: matched.id },
+    include: {
+      tiers: { orderBy: { monthlyPrice: "asc" } },
+      features: { include: { feature: { include: { category: true } } } },
+    },
+  });
 });
 
 export async function generateMetadata(props: {
@@ -57,6 +77,15 @@ export async function generateMetadata(props: {
     description: platform.description.substring(0, 160),
     path: `/platform/${slug}`,
   });
+}
+
+export async function generateStaticParams() {
+  const platforms = await prisma.platform.findMany({
+    select: { name: true },
+  });
+  return platforms.map((p: { name: string }) => ({
+    slug: p.name.toLowerCase().replace(/\s+/g, "-"),
+  }));
 }
 
 export default async function PlatformDetailPage(props: {

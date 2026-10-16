@@ -13,8 +13,7 @@ export default async function MainLayout({
 }: {
   children: React.ReactNode;
 }) {
-  let session = await auth();
-  const content = await getContent();
+  const [session, content] = await Promise.all([auth(), getContent()]);
   const footerContent = {
     "footer.tagline": content["footer.tagline"],
     "footer.newsletter.title": content["footer.newsletter.title"],

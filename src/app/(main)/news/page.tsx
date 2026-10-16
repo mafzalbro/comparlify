@@ -29,6 +29,8 @@ import { Badge } from "@/components/ui/badge";
 import { PremiumNewsletterForm } from "@/components/premium-newsletter-form";
 import { InfiniteScrollGrid } from "@/components/infinite-scroll-grid";
 
+export const revalidate = 3600;
+
 export async function generateMetadata(): Promise<Metadata> {
   return generateSeoMetadata({
     title: "News & Announcements",

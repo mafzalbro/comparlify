@@ -22,6 +22,7 @@ import { BattleSelector } from "@/app/(main)/compare/_components/battle-selector
 
 const getAllPlatforms = cache(async () => {
   return prisma.platform.findMany({
+    select: { id: true, name: true },
     orderBy: { name: "asc" },
   });
 });
@@ -31,7 +32,17 @@ const getRecentPosts = cache(async () => {
     where: { published: true },
     orderBy: { createdAt: "desc" },
     take: 3,
-    include: { author: true },
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      description: true,
+      image: true,
+      createdAt: true,
+      author: {
+        select: { name: true, image: true },
+      },
+    },
   });
 });
 
@@ -40,7 +51,18 @@ const getFeaturedComparisons = cache(async () => {
     where: { published: true },
     orderBy: { createdAt: "desc" },
     take: 6,
-    include: { platformA: true, platformB: true },
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      summary: true,
+      platformA: {
+        select: { id: true, name: true, logoUrl: true, rating: true },
+      },
+      platformB: {
+        select: { id: true, name: true, logoUrl: true, rating: true },
+      },
+    },
   });
 });
 
@@ -53,7 +75,7 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300; // Cache home page for 5 minutes, revalidate in background
 
 export default async function Home() {
   const [session, recentPosts, featuredComparisons, allPlatforms, content] =

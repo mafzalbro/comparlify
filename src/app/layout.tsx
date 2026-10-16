@@ -16,9 +16,8 @@ const font = Outfit({
   preload: true,
   variable: "--font-outfit",
   subsets: ["latin"],
+  display: "swap",
 });
-
-export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = await generateSeoMetadata({
   path: "/",

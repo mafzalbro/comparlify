@@ -49,25 +49,18 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    optimizePackageImports: ["lucide-react", "date-fns", "recharts", "framer-motion", "@radix-ui/react-icons"],
+  },
   async headers() {
     return [
       {
-        source: "/(.*)",
+        // One year caching for static assets (fonts, images, media)
+        source: "/:all*(svg|jpg|jpeg|png|gif|ico|woff2|webp)",
         headers: [
           {
             key: "Cache-Control",
-            value: "public, max-age=0, s-maxage=0, must-revalidate",
-          },
-        ],
-      },
-      {
-        // This will apply to all routes in the app
-        source: "/:all*(svg|jpg|jpeg|png|gif|ico|woff2)",
-        headers: [
-          {
-            key: "Cache-Control",
-            // One year caching for static assets
-            value: "public, max-age=31536000, must-revalidate",
+            value: "public, max-age=31536000, immutable",
           },
         ],
       },

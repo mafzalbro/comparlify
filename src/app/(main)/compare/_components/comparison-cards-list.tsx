@@ -15,6 +15,15 @@ interface ComparisonCardsListProps {
 
 const comparisonsCache = new Map<string, { data: ComparisonWithPlatforms[]; timestamp: number }>();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes in ms
+const MAX_CACHE_SIZE = 100;
+
+function setWithEviction<K, V>(map: Map<K, V>, key: K, value: V, maxSize: number) {
+  if (map.size >= maxSize) {
+    const oldestKey = map.keys().next().value;
+    if (oldestKey !== undefined) map.delete(oldestKey);
+  }
+  map.set(key, value);
+}
 
 async function getComparisons({
   search,
@@ -78,7 +87,7 @@ async function getComparisons({
     orderBy,
   });
 
-  comparisonsCache.set(cacheKey, { data: result, timestamp: now });
+  setWithEviction(comparisonsCache, cacheKey, { data: result, timestamp: now }, MAX_CACHE_SIZE);
   return result;
 }
 

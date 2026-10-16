@@ -33,7 +33,16 @@ const ComparisonChart = dynamic(
 );
 
 const getPlatformBySlug = cache(async (slug: string) => {
-  const platforms = await prisma.platform.findMany({
+  // Query only the matching platform record directly
+  const platformNameClean = slug.replace(/-/g, " ");
+  const platform = await prisma.platform.findFirst({
+    where: {
+      OR: [
+        { id: slug },
+        { name: { equals: platformNameClean, mode: "insensitive" } },
+        { name: { equals: slug, mode: "insensitive" } },
+      ],
+    },
     include: {
       features: { include: { feature: { include: { category: true } } } },
       posts: { take: 2, where: { published: true } },
@@ -42,9 +51,26 @@ const getPlatformBySlug = cache(async (slug: string) => {
     },
   });
 
-  return platforms.find(
+  if (platform) return platform;
+
+  // Fallback to searching names in case of hyphen variations
+  const platforms = await prisma.platform.findMany({
+    select: { id: true, name: true },
+  });
+  const matched = platforms.find(
     (p: any) => p.name.toLowerCase().replace(/\s+/g, "-") === slug,
   );
+  if (!matched) return null;
+
+  return prisma.platform.findUnique({
+    where: { id: matched.id },
+    include: {
+      features: { include: { feature: { include: { category: true } } } },
+      posts: { take: 2, where: { published: true } },
+      newsArticles: { take: 2, where: { published: true } },
+      forumTopics: { take: 2, where: { status: "APPROVED" } },
+    },
+  });
 });
 
 export async function generateMetadata(props: {
