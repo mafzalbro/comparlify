@@ -27,7 +27,7 @@ async function getTools(): Promise<Tool[]> {
 
 export default async function AIToolsDashboard() {
   const content = await getContent();
-  if (content["module.tools.enabled"] === "false") {
+  if (content["module.tools.enabled"] === "false" || content["module.ai.enabled"] !== "true") {
     notFound();
   }
 

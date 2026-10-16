@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import NextLink from "next/link";
-import { ArrowRight, CheckCircle2, Zap } from "lucide-react";
+import { ArrowRight, CheckCircle2, Zap, Wrench } from "lucide-react";
 import { MotionDiv, MotionH2, MotionP } from "@/components/motion-wrapper";
 
 interface HomeHeroProps {
@@ -29,8 +29,8 @@ export function HomeHero({
       {/* Visual Background Elements */}
       <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-30"></div>
       <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[90px]"></div>
-        <div className="absolute bottom-[20%] -right-[10%] w-[30%] h-[30%] bg-blue-500/10 rounded-full blur-[80px]"></div>
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[90px]"></div>
+        <div className="absolute bottom-[20%] right-[-10%] w-[30%] h-[30%] bg-blue-500/10 rounded-full blur-[80px]"></div>
       </div>
 
       <div className="container mx-auto relative z-10 px-4 md:px-6">
@@ -85,9 +85,15 @@ export function HomeHero({
               asChild
               size="default"
               variant="outline"
-              className="rounded-full px-7 h-11 text-sm font-bold border-border/60 hover:bg-secondary/50 backdrop-blur-sm transition-all hover:scale-102 active:scale-98"
+              className="rounded-full px-7 h-11 text-sm font-bold border-border/60 hover:bg-secondary/50 backdrop-blur-sm transition-all hover:scale-102 active:scale-98 group"
             >
-              <NextLink href="/table">Feature Matrix Table</NextLink>
+              <NextLink
+                href={toolsHref || "/tools"}
+                className="flex items-center gap-2"
+              >
+                <Wrench className="h-4 w-4 text-primary transition-transform group-hover:rotate-12" />
+                <span>Explore Tools</span>
+              </NextLink>
             </Button>
           </MotionDiv>
 

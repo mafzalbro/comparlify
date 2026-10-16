@@ -21,12 +21,21 @@ export default async function SimplePagesLayout({
   };
 
   const siteName = content["global.siteName"] || "Comparlify";
-  let navLinks = [];
+  let navLinks: { href: string; label: string }[] = [];
   try {
     navLinks = JSON.parse(content["header.navLinks"] || "[]");
   } catch (e) {
     console.error("Failed to parse header.navLinks", e);
   }
+
+  const isCommunityEnabled = content["module.community.enabled"] === "true";
+  const isAiEnabled = content["module.ai.enabled"] === "true";
+
+  navLinks = navLinks.filter((link) => {
+    if (link.href.startsWith("/community") && !isCommunityEnabled) return false;
+    if (link.href.startsWith("/tools/ai") && !isAiEnabled) return false;
+    return true;
+  });
 
   const bannerSettings = {
     enabled: content["global.banner.enabled"] === "true",
@@ -42,7 +51,7 @@ export default async function SimplePagesLayout({
       <main className="flex-1 flex flex-col min-h-[60vh]">
         {children}
       </main>
-      {session?.user && <Chatbot />}
+      {session?.user && isAiEnabled && <Chatbot />}
       <Footer content={footerContent} siteName={siteName} />
     </>
   );

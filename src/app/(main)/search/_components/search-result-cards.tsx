@@ -97,7 +97,7 @@ export function ComparisonResultCard({
     >
       <Card className="group relative overflow-hidden bg-card/40 backdrop-blur-xl border-border/10 hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 rounded-[2.5rem]">
         <Link
-          href={`/compare/${comparison.slug}`}
+          href={`/${comparison.slug}`}
           className="grid grid-cols-1 md:grid-cols-4 gap-8 p-8"
         >
           <div className="relative flex items-center justify-center bg-secondary/30 rounded-2xl p-6 overflow-hidden min-h-[160px]">

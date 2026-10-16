@@ -45,7 +45,7 @@ export default async function CommunityPage() {
     getContent(),
   ]);
 
-  if (content["module.community.enabled"] === "false") {
+  if (content["module.community.enabled"] !== "true") {
     notFound();
   }
 

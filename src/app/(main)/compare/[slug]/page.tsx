@@ -89,7 +89,7 @@ export async function generateMetadata(props: {
   return generateSeoMetadata({
     title: professionalTitle,
     description: comparison.summary,
-    path: `/compare/${comparison.slug}`,
+    path: `/${comparison.slug}`,
   });
 }
 

@@ -51,7 +51,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const comparisonUrls = comparisons.map((comparison: any) => ({
-    url: `${siteUrl}/compare/${comparison.slug}`,
+    url: `${siteUrl}/${comparison.slug}`,
     lastModified: comparison.updatedAt,
     changeFrequency: "monthly" as const,
     priority: 0.9,

@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { markUserAsOnboarded } from "@/app/actions/user";
 import {
   BarChart,
-  BrainCircuit,
+  Wrench,
   BookText,
   Loader2,
   ArrowRight,
@@ -28,22 +28,22 @@ interface WelcomeOnboardingProps {
 
 const features = [
   {
-    Icon: BrainCircuit,
-    title: "Explore AI Tools",
+    Icon: BarChart,
+    title: "Platform Comparisons",
     description:
-      "Generate titles, outlines, scripts, and more with our powerful suite of AI assistants.",
+      "Get unbiased, side-by-side comparisons of the top creator and course platforms.",
   },
   {
-    Icon: BarChart,
-    title: "Compare Platforms",
+    Icon: Wrench,
+    title: "Explore Tools",
     description:
-      "Get unbiased, side-by-side comparisons of the top course creation platforms.",
+      "Calculate pricing, forecast churn, predict ROI, and leverage fast utility tools.",
   },
   {
     Icon: BookText,
     title: "Read the Blog",
     description:
-      "Find expert tips and growth strategies to scale your online course business.",
+      "Find expert tips and growth strategies to scale your digital business.",
   },
 ];
 

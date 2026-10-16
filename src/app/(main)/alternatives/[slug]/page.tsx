@@ -279,7 +279,7 @@ export default async function AlternativeDetailPage(props: {
                       </Button>
 
                       <Button asChild size="sm" className="rounded-xl font-extrabold text-xs">
-                        <Link href={`/compare/${compSlug}`}>
+                        <Link href={`/${compSlug}`}>
                           {targetPlatform.name} vs {altPlatform.name} <ArrowRight className="w-3.5 h-3.5 ml-1" />
                         </Link>
                       </Button>

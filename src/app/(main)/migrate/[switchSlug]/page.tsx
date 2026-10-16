@@ -261,7 +261,7 @@ export default async function MigrationPlaybookPage(props: {
         {/* CTA TO COMPARE & ALTERNATIVES */}
         <div className="flex flex-wrap justify-center gap-4 pt-8">
           <Button asChild size="lg" className="rounded-full px-8 h-12 font-extrabold text-sm uppercase tracking-wider">
-            <Link href={`/compare/${sourcePlatform.name.toLowerCase().replace(/\s+/g, "-")}-vs-${targetPlatform.name.toLowerCase().replace(/\s+/g, "-")}`}>
+            <Link href={`/${sourcePlatform.name.toLowerCase().replace(/\s+/g, "-")}-vs-${targetPlatform.name.toLowerCase().replace(/\s+/g, "-")}`}>
               Compare {sourcePlatform.name} vs {targetPlatform.name} <ArrowRight className="w-4 h-4 ml-2" />
             </Link>
           </Button>

@@ -548,7 +548,7 @@ export default async function BlogPostPage(props: {
                       {trendingComparisons.map((comp: any) => (
                         <Link
                           key={comp.id}
-                          href={`/compare/${comp.slug}`}
+                          href={`/${comp.slug}`}
                           className="flex items-center gap-4 p-4 rounded-2xl bg-background/60 hover:bg-background transition-all group/item border border-border/5"
                         >
                           <div className="flex -space-x-2">

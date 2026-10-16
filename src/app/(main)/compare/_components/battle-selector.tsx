@@ -18,21 +18,26 @@ import { GLASS_CARD, MICRO_LABEL } from "@/lib/design-tokens";
 
 export function BattleSelector({ platforms }: { platforms: Platform[] }) {
   const router = useRouter();
-  const [a, setA] = useState<string>("");
-  const [b, setB] = useState<string>("");
+  const [a, setA] = useState<string>(() => (platforms.length > 0 ? platforms[0].id : ""));
+  const [b, setB] = useState<string>(() => (platforms.length > 1 ? platforms[1].id : ""));
 
   const handleBattle = () => {
-    if (a && b && a !== b) {
-      // Find slugs for selected IDs
+    const selectedA = a || (platforms[0]?.id ?? "");
+    const selectedB = b || (platforms[1]?.id ?? "");
+
+    if (selectedA && selectedB && selectedA !== selectedB) {
       const slugA = platforms
-        .find((p) => p.id === a)
+        .find((p) => p.id === selectedA)
         ?.name.toLowerCase()
         .replace(/\s+/g, "-");
       const slugB = platforms
-        .find((p) => p.id === b)
+        .find((p) => p.id === selectedB)
         ?.name.toLowerCase()
         .replace(/\s+/g, "-");
-      router.push(`/compare/vs/${slugA}-vs-${slugB}`);
+
+      if (slugA && slugB) {
+        router.push(`/${slugA}-vs-${slugB}`);
+      }
     }
   };
 
@@ -94,9 +99,9 @@ export function BattleSelector({ platforms }: { platforms: Platform[] }) {
 
           <Button
             onClick={handleBattle}
-            disabled={!a || !b || a === b}
+            disabled={(!a && platforms.length < 2) || (!b && platforms.length < 2) || a === b}
             size="lg"
-            className="w-full sm:w-auto h-11 px-8 rounded-full font-bold gap-2 shadow-none transition-all hover:scale-[1.02] active:scale-[0.98] shrink-0 text-xs uppercase tracking-wider bg-primary text-primary-foreground hover:bg-primary/90"
+            className="w-full sm:w-auto h-11 px-8 rounded-full font-bold gap-2 shadow-none transition-all hover:scale-[1.02] active:scale-[0.98] shrink-0 text-xs uppercase tracking-wider bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
           >
             <Zap className="h-4 w-4" /> Compare Now
           </Button>

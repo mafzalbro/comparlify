@@ -87,7 +87,7 @@ export function FeaturedReports({ comparisons }: FeaturedReportsProps) {
                         Comparison
                       </span>
                     </div>
-                    <NextLink href={`/compare/${comp.slug}`}>
+                    <NextLink href={`/${comp.slug}`}>
                       <h3 className="text-lg font-extrabold tracking-tight group-hover:text-primary transition-colors leading-snug">
                         {comp.title}
                       </h3>
@@ -97,7 +97,7 @@ export function FeaturedReports({ comparisons }: FeaturedReportsProps) {
                     </p>
                   </div>
                   <NextLink
-                    href={`/compare/${comp.slug}`}
+                    href={`/${comp.slug}`}
                     className="mt-6 flex items-center text-[10px] font-extrabold text-primary uppercase tracking-widest group-hover:translate-x-2 transition-transform duration-300"
                   >
                     The Full Breakdown <ArrowRight className="ml-2 h-3.5 w-3.5" />

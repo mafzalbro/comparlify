@@ -25,11 +25,37 @@ export default async function MainLayout({
 
   const siteName = content["global.siteName"] || "Comparlify";
 
-  let navLinks = [];
+  let navLinks: { href: string; label: string }[] = [];
   try {
     navLinks = JSON.parse(content["header.navLinks"] || "[]");
   } catch (e) {
     console.error("Failed to parse header.navLinks", e);
+  }
+
+  // Filter out disabled modules (community, AI, etc.) dynamically
+  const isCommunityEnabled = content["module.community.enabled"] === "true";
+  const isAiEnabled = content["module.ai.enabled"] === "true";
+
+  navLinks = navLinks.filter((link) => {
+    if (link.href.startsWith("/community") && !isCommunityEnabled) return false;
+    if (link.href.startsWith("/tools/ai") && !isAiEnabled) return false;
+    return true;
+  });
+
+  // Filter footer navigate links
+  try {
+    if (footerContent["footer.navLinks.navigate"]) {
+      const parsed = JSON.parse(footerContent["footer.navLinks.navigate"]);
+      footerContent["footer.navLinks.navigate"] = JSON.stringify(
+        parsed.filter((link: { href: string }) => {
+          if (link.href.startsWith("/community") && !isCommunityEnabled) return false;
+          if (link.href.startsWith("/tools/ai") && !isAiEnabled) return false;
+          return true;
+        })
+      );
+    }
+  } catch (e) {
+    // ignore
   }
 
   const bannerSettings = {
@@ -46,7 +72,7 @@ export default async function MainLayout({
       <Header navLinks={navLinks} siteName={siteName} />
       <AdPlacement placement="HEADER" className="container mx-auto" />
       <main className="flex-1 flex flex-col">{children}</main>
-      {session?.user && <Chatbot />}
+      {session?.user && isAiEnabled && <Chatbot />}
       <Footer content={footerContent} siteName={siteName} />
     </>
   );

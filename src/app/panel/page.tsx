@@ -131,7 +131,7 @@ function ComparisonBookmarkCard({
       <CardContent className="flex-1 px-4 pb-3 space-y-2">
         <h3 className="text-sm font-extrabold text-center text-foreground line-clamp-2 leading-snug">
           <Link
-            href={`/compare/${comparison.slug}`}
+            href={`/${comparison.slug}`}
             className="hover:text-primary transition-colors"
           >
             {comparison.title}
@@ -140,7 +140,7 @@ function ComparisonBookmarkCard({
       </CardContent>
       <CardFooter className="p-2 bg-secondary/20">
         <Button asChild className="w-full text-xs font-extrabold uppercase tracking-widest" variant="ghost">
-          <Link href={`/compare/${comparison.slug}`}>
+          <Link href={`/${comparison.slug}`}>
             View Comparison <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
           </Link>
         </Button>

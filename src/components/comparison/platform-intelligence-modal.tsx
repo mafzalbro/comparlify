@@ -23,11 +23,11 @@ export function PlatformIntelligenceModal({
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col p-0">
-        <DialogHeader className="p-8 pb-4 border-b">
+      <DialogContent className="max-w-4xl max-h-[90vh] h-[90vh] overflow-hidden flex flex-col p-0 rounded-3xl">
+        <DialogHeader className="p-6 sm:p-8 pb-4 border-b shrink-0">
           <div className="flex items-center justify-between">
             <div>
-              <DialogTitle className="text-3xl font-black uppercase tracking-tighter">
+              <DialogTitle className="text-2xl sm:text-3xl font-black uppercase tracking-tighter">
                 {platform.name} Intelligence Report
               </DialogTitle>
               <div className="flex gap-2 mt-2">
@@ -42,7 +42,7 @@ export function PlatformIntelligenceModal({
           </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 p-8">
+        <div className="flex-1 min-h-0 overflow-y-auto p-6 sm:p-8">
           <div className="prose prose-invert max-w-none">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 not-prose">
               <div className="p-6 rounded-3xl bg-emerald-500/5 border border-emerald-500/10">
@@ -135,7 +135,7 @@ export function PlatformIntelligenceModal({
               </div>
             </div>
           </div>
-        </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );

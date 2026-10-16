@@ -6,7 +6,7 @@ import { auth } from "@/lib/auth";
 import { cache } from "react";
 import { getContent } from "@/lib/content";
 
-import { GeometricBackground } from "@/components/geometric-background";
+// import { GeometricBackground } from "@/components/geometric-background";
 import { HomePageClient } from "@/components/home-page-client";
 import { WhyChooseUs } from "@/components/why-choose-us";
 
@@ -47,7 +47,8 @@ const getFeaturedComparisons = cache(async () => {
 export async function generateMetadata(): Promise<Metadata> {
   return generateSeoMetadata({
     title: "Compare Creator Platforms & Software Side-by-Side",
-    description: "Compare online course, community, and creator platforms with verified side-by-side matrices, fee calculators, and deep-dive comparisons.",
+    description:
+      "Compare online course, community, and creator platforms with verified side-by-side matrices, fee calculators, and deep-dive comparisons.",
     path: "/",
   });
 }
@@ -92,7 +93,11 @@ export default async function Home() {
         supertitle={content["homepage.hero.supertitle"]}
         title={content["homepage.hero.title"]}
         subtitle={content["homepage.hero.subtitle"]}
-        primaryCta={content["homepage.cta.primary"]}
+        primaryCta={
+          content["homepage.cta.primary"] === "Explore AI Tools"
+            ? "Explore Comparisons"
+            : content["homepage.cta.primary"] || "Explore Comparisons"
+        }
         secondaryCta={content["homepage.cta.secondary"]}
         isToolsEnabled={isToolsEnabled}
         isCompareEnabled={isCompareEnabled}

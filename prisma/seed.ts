@@ -896,9 +896,10 @@ async function main(skipCleanup = true) {
     {
       key: "module.community.enabled",
       group: "Module Visibility",
-      value: "true",
+      value: "false",
     },
     { key: "module.tools.enabled", group: "Module Visibility", value: "true" },
+    { key: "module.ai.enabled", group: "Module Visibility", value: "false" },
 
     // Homepage
     {
@@ -920,12 +921,12 @@ async function main(skipCleanup = true) {
     {
       key: "homepage.cta.primary",
       group: "Homepage",
-      value: "Explore AI Tools",
+      value: "Explore Comparisons",
     },
     {
       key: "homepage.cta.secondary",
       group: "Homepage",
-      value: "Compare Platforms",
+      value: "Explore Tools",
     },
     {
       key: "homepage.whyus.title",

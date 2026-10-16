@@ -278,7 +278,7 @@ export function GlobalMatchEngine({ allPlatforms, allComparisons }: GlobalMatchE
                      </h3>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {relatedComps.map(comp => (
-                          <Link href={`/compare/vs/${comp.slug}`} key={comp.id} className="p-5 rounded-3xl bg-background border border-border hover:border-primary/50 transition-colors group relative overflow-hidden flex flex-col justify-between h-32">
+                          <Link href={`/${comp.slug}`} key={comp.id} className="p-5 rounded-3xl bg-background border border-border hover:border-primary/50 transition-colors group relative overflow-hidden flex flex-col justify-between h-32">
                               <div>
                               <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-2 opacity-80">Battle Details</p>
                               <h4 className="font-black leading-tight text-lg group-hover:text-primary transition-colors line-clamp-2">{comp.title}</h4>

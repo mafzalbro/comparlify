@@ -55,7 +55,7 @@ export function ComparisonList({
           transition={{ duration: 0.5, delay: (index % 3) * 0.05 }}
         >
           <Card className={cn(GLASS_CARD_SM, "flex flex-col h-full group overflow-hidden hover:bg-card/50 transition-all duration-500 hover:shadow-lg hover:border-primary/20")}>
-            <NextLink href={`/compare/${comp.slug}`} className="block relative">
+            <NextLink href={`/${comp.slug}`} className="block relative">
               <div className="h-44 bg-linear-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center relative px-8 overflow-hidden border-b border-border/10">
                 <div className="absolute inset-0 bg-grid-pattern-light opacity-5"></div>
                 {(() => {
@@ -100,7 +100,7 @@ export function ComparisonList({
             <CardContent className="flex-1 p-5 sm:p-6 text-center bg-transparent">
               <h2 className="text-lg font-bold mb-3 leading-tight group-hover:text-primary transition-colors duration-300">
                 <NextLink
-                  href={`/compare/${comp.slug}`}
+                  href={`/${comp.slug}`}
                   className="line-clamp-2 after:absolute after:inset-0"
                 >
                   {comp.title}
@@ -138,7 +138,7 @@ export function ComparisonList({
                 className="w-[90%] h-11 rounded-xl group/btn hover:bg-primary/10 text-primary font-bold uppercase tracking-wider text-xs transition-all"
               >
                 <NextLink
-                  href={`/compare/${comp.slug}`}
+                  href={`/${comp.slug}`}
                   className="flex items-center justify-center"
                 >
                   The Full Breakdown

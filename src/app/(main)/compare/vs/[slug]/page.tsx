@@ -57,7 +57,7 @@ export async function generateMetadata(props: {
   return generateSeoMetadata({
     title: `${parts[0].toUpperCase()} vs ${parts[1].toUpperCase()} | Platform Matchup`,
     description: `Detailed comparison between ${parts[0]} and ${parts[1]}. Find the winner with expert insights.`,
-    path: `/compare/vs/${slug}`,
+    path: `/${slug}`,
   });
 }
 

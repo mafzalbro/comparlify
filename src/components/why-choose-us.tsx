@@ -58,15 +58,15 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
       accent: "from-blue-600/30 to-cyan-500/10",
     },
     {
-      id: "feature-matrix",
-      title: "Interactive Comparison Matrix",
+      id: "tools",
+      title: "Creator & Developer Tools",
       Icon: LayoutPanelLeft,
       description:
-        "Filter and inspect real-time pricing plans, transaction fee percentages, and direct software specs.",
+        "Access instant ROI calculators, revenue estimators, stack builders, and high-performance utility tools.",
       image:
         "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=800&fit=crop",
       dataAiHint: "software feature table comparison",
-      href: "/table",
+      href: "/tools",
       enabled: true,
       accent: "from-purple-600/30 to-pink-500/10",
     },

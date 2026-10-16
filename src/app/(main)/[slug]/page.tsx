@@ -1,39 +1,83 @@
-import { redirect, notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import { cache } from "react";
+import ComparisonDetailPage, {
+  generateMetadata as generateComparisonMetadata,
+} from "@/app/(main)/compare/[slug]/page";
+import ComparisonVsPage, {
+  generateMetadata as generateVsMetadata,
+} from "@/app/(main)/compare/vs/[slug]/page";
+import PlatformDetailPage, {
+  generateMetadata as generatePlatformMetadata,
+} from "@/app/(main)/platform/[slug]/page";
 
-export default async function SlugPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
+export const revalidate = 3600;
 
-  // 1. Check if the slug contains "-vs-" (e.g., "kajabi-vs-skool")
-  if (slug.includes("-vs-")) {
-    // First, check if it exists in our curated comparisons
-    const comparison = await prisma.comparison.findUnique({
-      where: { slug }
-    });
-
-    if (comparison) {
-      redirect(`/compare/${slug}`);
-    } else {
-      // Fallback to the live comparison engine
-      redirect(`/compare/vs/${slug}`);
-    }
-  }
-
-  // 2. Check if the slug matches a single platform (e.g., "kajabi")
-  // We match by name converted to slug format
-  const platforms = await prisma.platform.findMany({
-    select: { id: true, name: true }
+const getComparison = cache(async (slug: string) => {
+  return prisma.comparison.findFirst({
+    where: { slug, published: true },
+    select: { id: true, slug: true },
   });
+});
 
-  const matchedPlatform = platforms.find(
-    (p: { id: string; name: string }) => p.name.toLowerCase().replace(/\s+/g, "-") === slug
+const getPlatform = cache(async (slug: string) => {
+  const platforms = await prisma.platform.findMany({
+    select: { id: true, name: true },
+  });
+  return platforms.find(
+    (p: { id: string; name: string }) =>
+      p.name.toLowerCase().replace(/\s+/g, "-") === slug
   );
+});
 
-  if (matchedPlatform) {
-    redirect(`/platform/${slug}`);
+export async function generateMetadata(props: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await props.params;
+
+  // 1. Is it a curated comparison?
+  const comparison = await getComparison(slug);
+  if (comparison) {
+    return generateComparisonMetadata(props);
   }
 
-  // 3. If it's not a comparison or a platform, return 404
-  // (Blog posts, news, etc. are handled by their own routes like /blog/[slug])
+  // 2. Is it a dynamic vs comparison?
+  if (slug.includes("-vs-")) {
+    return generateVsMetadata(props);
+  }
+
+  // 3. Is it a platform review?
+  const platform = await getPlatform(slug);
+  if (platform) {
+    return generatePlatformMetadata(props);
+  }
+
+  return {};
+}
+
+export default async function DynamicSlugPage(props: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await props.params;
+
+  // 1. Curated Comparison
+  const comparison = await getComparison(slug);
+  if (comparison) {
+    return <ComparisonDetailPage {...props} />;
+  }
+
+  // 2. Dynamic Live Battle / Comparison fallback
+  if (slug.includes("-vs-")) {
+    return <ComparisonVsPage {...props} />;
+  }
+
+  // 3. Platform Review
+  const platform = await getPlatform(slug);
+  if (platform) {
+    return <PlatformDetailPage {...props} />;
+  }
+
+  // If none matched and no static sibling exists, return 404
   notFound();
 }

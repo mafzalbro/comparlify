@@ -4,7 +4,7 @@ import {
   Search,
   Zap,
   FileText,
-  BrainCircuit,
+  Wrench,
   LucideIcon,
 } from "lucide-react";
 import { MotionDiv } from "@/components/motion-wrapper";
@@ -24,10 +24,10 @@ const coreCategories: CoreCategory[] = [
     href: "/compare",
   },
   {
-    title: "Feature Comparison Table",
-    description: "Filter and audit software tiers, pricing fees, and transaction rates.",
-    icon: BrainCircuit,
-    href: "/table",
+    title: "Creator & Dev Tools",
+    description: "Interactive calculators, ROI estimators, and high-performance creator utilities.",
+    icon: Wrench,
+    href: "/tools",
   },
   {
     title: "Deep-Dive Matchups",

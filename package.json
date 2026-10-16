@@ -19,7 +19,8 @@
     "prisma:cat": "node scripts/prisma-switch.js",
     "prisma:migrate:dev": "pnpm run prisma:cat && prisma migrate dev",
     "generate": "prisma generate",
-    "db:switch": "node scripts/prisma-switch.js && prisma generate"
+    "db:switch": "node scripts/prisma-switch.js && prisma generate",
+    "diff": "git diff > diff.txt"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
