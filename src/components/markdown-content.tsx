@@ -33,10 +33,23 @@ export const MarkdownContent = React.memo(function MarkdownContent({
   }, [content]);
 
   return (
-    <div className={cn("premium-prose underline-offset-4", className)}>
+    <div className={cn("premium-prose underline-offset-4 max-w-full overflow-hidden", className)}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw]}
+        components={{
+          table: ({ node, ...props }) => (
+            <div className="w-full my-6 overflow-x-auto rounded-2xl border border-border/40 bg-card/40 shadow-xs overscroll-contain">
+              <table className="w-full text-left text-xs sm:text-sm border-collapse min-w-[500px]" {...props} />
+            </div>
+          ),
+          th: ({ node, ...props }) => (
+            <th className="bg-secondary/40 px-3.5 py-3 font-extrabold text-foreground border-b border-border/40 whitespace-nowrap text-xs uppercase tracking-wider" {...props} />
+          ),
+          td: ({ node, ...props }) => (
+            <td className="px-3.5 py-3 border-b border-border/20 text-muted-foreground font-medium whitespace-nowrap" {...props} />
+          ),
+        }}
       >
         {displayContent}
       </ReactMarkdown>

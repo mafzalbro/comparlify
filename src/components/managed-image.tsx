@@ -30,21 +30,21 @@ export function ManagedImage(props: ImageProps) {
 
     return (
       <div
-        className="flex flex-col items-center justify-center bg-linear-to-br from-primary/10 via-background to-secondary/20 border border-border/40 rounded-xl p-2 text-center select-none overflow-hidden"
-        style={{ ...fallbackStyle, ...props.style }}
+        className="flex items-center justify-center gap-2.5 bg-secondary/30 border border-border/40 rounded-xl px-4 py-2 text-center select-none min-h-[44px]"
+        style={props.style}
         title={props.alt || 'Platform'}
       >
         {initial ? (
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/15 border border-primary/25 text-primary font-black text-sm tracking-wider shadow-xs">
+          <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary text-primary-foreground font-black text-sm tracking-wider shadow-xs shrink-0">
             {initial}
           </div>
         ) : (
-          <div className="p-2 rounded-lg bg-primary/10 text-primary">
+          <div className="p-1.5 rounded-lg bg-primary/10 text-primary shrink-0">
             <Layers className="h-4 w-4" />
           </div>
         )}
-        {props.alt && !isFill && (
-          <span className="text-[10px] font-bold text-muted-foreground mt-1.5 truncate max-w-[90%]">
+        {props.alt && (
+          <span className="text-xs sm:text-sm font-bold text-foreground tracking-tight whitespace-nowrap">
             {props.alt}
           </span>
         )}

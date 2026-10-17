@@ -297,22 +297,22 @@ export default async function ComparisonDetailPage(props: {
         <section className={DETAIL_CONTAINER}>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
             {/* ── SIDEBAR ──────────────────── */}
-            <aside className="hidden lg:block lg:col-span-4">
-              <div className="sticky top-24 space-y-10">
+            <aside className="hidden lg:block lg:col-span-4 sticky top-5 self-start">
+              <div className="max-h-[calc(100vh-2rem)] overflow-y-auto pr-2 pb-12 space-y-6 custom-scrollbar overscroll-contain">
                 {/* Radar Chart */}
                 <section
                   className={cn(
                     GLASS_CARD,
-                    "p-6 sm:p-8 relative overflow-hidden group",
+                    "p-6 sm:p-7 relative overflow-hidden group rounded-3xl",
                   )}
                 >
                   <div className="absolute top-0 right-0 p-8 text-primary/5 select-none pointer-events-none -rotate-12 translate-x-8 -translate-y-8">
                     <Sparkles className="h-32 w-32" />
                   </div>
-                  <h3 className="text-2xl font-black text-foreground mb-10 flex items-center gap-3">
-                    <Zap className="h-6 w-6 text-primary" /> Expert Overview
+                  <h3 className="text-xl font-black text-foreground mb-6 flex items-center gap-2.5">
+                    <Zap className="h-5 w-5 text-primary" /> Expert Overview
                   </h3>
-                  <div className="h-[300px]">
+                  <div className="h-[280px]">
                     <ComparisonChart
                       chartConfig={chartConfig}
                       chartData={chartData}
@@ -325,27 +325,22 @@ export default async function ComparisonDetailPage(props: {
                 <AdPlacement placement="SIDEBAR" />
 
                 {/* Newsletter */}
-                <section
-                  className={cn(
-                    GLASS_CARD,
-                    "p-6 sm:p-8 text-center relative overflow-hidden group",
-                  )}
-                >
-                  <div className="absolute inset-0 bg-linear-to-b from-primary/5 to-transparent" />
-                  <Badge className="bg-primary/20 text-primary border-primary/30 px-6 py-2 uppercase tracking-widest text-[10px] font-bold rounded-full mb-8 shadow-sm relative z-10">
-                    Stay Updated
-                  </Badge>
-                  <h3 className="text-3xl font-black text-foreground mb-6 leading-[1.1] relative z-10">
-                    Get the <br />
-                    <span className="text-primary italic">Expert Scoop.</span>
-                  </h3>
-                  <div className="relative z-10 space-y-8">
-                    <PremiumNewsletterForm
-                      buttonText="Subscribe Free"
-                      containerClassName="bg-background/50 border-white/5 p-4 rounded-3xl"
-                    />
+                <div className="bg-card/40 border border-border/40 p-5 rounded-2xl space-y-4">
+                  <div className="space-y-1">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                      <Zap className="w-3.5 h-3.5 text-primary" /> Stay Informed
+                    </h4>
+                    <p className="text-xs text-muted-foreground/80 font-medium leading-relaxed">
+                      Get platform audits &amp; pricing changes direct to your inbox.
+                    </p>
                   </div>
-                </section>
+                  <PremiumNewsletterForm
+                    containerClassName="!flex-col !gap-3 !p-0 !bg-transparent !border-0 !shadow-none"
+                    inputClassName="w-full h-11 px-4 text-xs font-semibold bg-background/80 border border-border/60 text-foreground placeholder:text-muted-foreground/60 rounded-xl focus:border-primary/60 focus:ring-1 focus:ring-primary/20"
+                    buttonClassName="w-full h-11 px-4 text-xs font-black tracking-wider uppercase rounded-xl"
+                    buttonText="Subscribe Free"
+                  />
+                </div>
 
                 {/* ── COLLECTIVE PULSE ─────────────── */}
                 {(content["module.community.enabled"] !== "false" ||

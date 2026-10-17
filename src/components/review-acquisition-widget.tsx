@@ -84,22 +84,22 @@ export function ReviewAcquisitionWidget({
   }
 
   return (
-    <Card className={`bg-card/40 backdrop-blur-md border border-border/40 p-6 md:p-8 rounded-3xl space-y-6 shadow-xl ${className}`}>
+    <Card className={`bg-card/40 backdrop-blur-md border border-border/40 p-5 sm:p-6 md:p-8 rounded-3xl space-y-6 shadow-xl max-w-full overflow-hidden ${className}`}>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-border/20">
         <div>
           <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px] uppercase font-black tracking-widest px-3 py-1 rounded-full mb-1">
             First-Party Creator Intelligence
           </Badge>
-          <h3 className="text-xl md:text-2xl font-black text-foreground flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-primary" /> Have You Used {platformName}?
+          <h3 className="text-lg sm:text-xl md:text-2xl font-black text-foreground flex items-center gap-2">
+            <MessageSquare className="w-5 h-5 text-primary shrink-0" /> Have You Used {platformName}?
           </h3>
           <p className="text-xs text-muted-foreground font-semibold mt-1">
             Share your structured experience in 60 seconds to help build Comparlify's proprietary creator benchmark dataset.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 text-xs font-bold text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl shrink-0">
-          <ShieldCheck className="w-4 h-4" /> 100% Verified Community Signal
+        <div className="flex items-center gap-2 text-xs font-bold text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl shrink-0 self-start sm:self-auto">
+          <ShieldCheck className="w-4 h-4 shrink-0" /> 100% Verified Community Signal
         </div>
       </div>
 

@@ -33,26 +33,26 @@ export function PersonalizedMatchCard({ platform, className = "" }: Personalized
   ];
 
   return (
-    <div className={`bg-card/40 backdrop-blur-md border border-border/40 p-6 md:p-8 rounded-3xl shadow-lg space-y-6 ${className}`}>
+    <div className={`bg-card/40 backdrop-blur-md border border-border/40 p-5 sm:p-6 md:p-8 rounded-3xl shadow-lg space-y-6 max-w-full overflow-hidden ${className}`}>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-border/20">
         <div>
           <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px] uppercase font-black tracking-widest px-3 py-1 rounded-full mb-1">
             Personalized Decision Engine
           </Badge>
-          <h3 className="text-xl md:text-2xl font-black text-foreground flex items-center gap-2">
-            <Sliders className="w-5 h-5 text-primary" /> Personal Match Score for {platform.name}
+          <h3 className="text-lg sm:text-xl md:text-2xl font-black text-foreground flex items-center gap-2">
+            <Sliders className="w-5 h-5 text-primary shrink-0" /> Personal Match Score for {platform.name}
           </h3>
           <p className="text-xs text-muted-foreground font-semibold mt-1">
             Objective Comparlify Score ({objectiveScorecard.overallScore}) vs. Personalized Match for YOUR workflow.
           </p>
         </div>
 
-        <div className="flex items-center gap-3 bg-primary/10 border border-primary/20 p-3 rounded-2xl">
+        <div className="flex items-center gap-3 bg-primary/10 border border-primary/20 p-2.5 sm:p-3 rounded-2xl self-start sm:self-auto shrink-0">
           <div className="text-right">
             <div className="text-[10px] font-black uppercase text-muted-foreground">Your Match</div>
             <div className="text-xs font-extrabold text-primary">Personal Fit</div>
           </div>
-          <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-primary text-primary-foreground font-black text-2xl shadow-md">
+          <div className="flex items-center justify-center w-12 sm:w-14 h-12 sm:h-14 rounded-xl bg-primary text-primary-foreground font-black text-xl sm:text-2xl shadow-md">
             {personalMatchScore}%
           </div>
         </div>

@@ -697,4 +697,27 @@ table:not(.no-smooth) tbody td {
   animation: 550ms cubic-bezier(0.16, 1, 0.3, 1) both studio-,
              550ms cubic-bezier(0.16, 1, 0.3, 1) both studio-pop-in;
   transform-origin: center center;
-} */
+/* Prevent Radix UI Dialog / Select scroll-lock layout shifts */
+body[data-scroll-locked] {
+  overflow: hidden !important;
+  overscroll-behavior: contain;
+}
+
+/* Slim elegant scrollbar utility for scrollable sidebars & panels */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.2);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.4);
+}
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--muted-foreground) / 0.2) transparent;
+}

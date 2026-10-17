@@ -38,7 +38,7 @@ export function PlatformChangeTracker({
   };
 
   return (
-    <div className={`bg-card/40 backdrop-blur-md border border-border/40 p-6 md:p-8 rounded-3xl shadow-lg ${className}`}>
+    <div className={`bg-card/40 backdrop-blur-md border border-border/40 p-5 sm:p-6 md:p-8 rounded-3xl shadow-lg max-w-full overflow-hidden ${className}`}>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-6 border-b border-border/20">
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -46,14 +46,14 @@ export function PlatformChangeTracker({
               <CheckCircle2 className="w-3 h-3" /> Real-Time Audit
             </Badge>
           </div>
-          <h3 className="text-xl md:text-2xl font-black tracking-tight text-foreground flex items-center gap-2">
-            <History className="w-6 h-6 text-primary" /> Platform Change Tracker
+          <h3 className="text-lg sm:text-xl md:text-2xl font-black tracking-tight text-foreground flex items-center gap-2">
+            <History className="w-5 sm:w-6 h-5 sm:h-6 text-primary shrink-0" /> Platform Change Tracker
           </h3>
         </div>
 
-        <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground bg-secondary/30 px-3.5 py-2 rounded-xl border border-border/30">
-          <Clock className="w-4 h-4 text-primary" />
-          <span>Pricing last verified: <strong className="text-foreground">{verifiedDateStr}</strong></span>
+        <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground bg-secondary/30 px-3 py-2 rounded-xl border border-border/30 max-w-full">
+          <Clock className="w-4 h-4 text-primary shrink-0" />
+          <span className="truncate sm:whitespace-normal">Pricing verified: <strong className="text-foreground">{verifiedDateStr}</strong></span>
         </div>
       </div>
 

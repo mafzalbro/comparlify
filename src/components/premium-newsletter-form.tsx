@@ -87,7 +87,7 @@ export function PremiumNewsletterForm({
       ref={formRef}
       action={formAction}
       className={cn(
-        "flex flex-col sm:flex-row gap-3 max-w-2xl mx-auto bg-card/60 backdrop-blur-3xl p-2 rounded-2xl border border-border/10 shadow-xl transition-all group",
+        "flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full max-w-2xl mx-auto bg-card/60 backdrop-blur-3xl p-2 rounded-2xl border border-border/10 shadow-xl transition-all group overflow-hidden",
         ringColor,
         containerClassName,
       )}
@@ -98,11 +98,11 @@ export function PremiumNewsletterForm({
         required
         placeholder="your@email.com"
         className={cn(
-          "h-12 px-6 rounded-xl bg-background/20 border-none flex-1 focus:outline-none text-base font-medium placeholder:text-muted-foreground/40 transition-all",
+          "h-11 px-4 rounded-xl bg-background/20 border-none flex-1 min-w-0 focus:outline-none text-sm font-medium placeholder:text-muted-foreground/40 transition-all",
           inputClassName,
         )}
       />
-      <SubmitButton className={buttonClassName} text={buttonText} />
+      <SubmitButton className={cn("shrink-0", buttonClassName)} text={buttonText} />
     </form>
   );
 }

@@ -21,53 +21,53 @@ export function PlatformScorecardCard({ platform, title, className = "", showDet
   return (
     <div className={`bg-card/40 backdrop-blur-md border border-border/40 p-6 md:p-8 rounded-3xl shadow-lg space-y-6 ${className}`}>
       {/* HEADER */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-border/20">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-5 border-b border-border/20">
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="inline-flex items-center text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
               Verified Scorecard
-            </Badge>
+            </span>
             {scorecard.scoreTrend && (
-              <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full flex items-center gap-1">
+              <span className="inline-flex items-center gap-1 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
                 <TrendingUp className="w-3 h-3" /> +{scorecard.scoreTrend.change6Months} pts (6 mo)
-              </Badge>
+              </span>
             )}
           </div>
-          <h3 className="text-xl md:text-2xl font-black tracking-tight text-foreground flex items-center gap-2">
+          <h3 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
             {title || `${platform.name} Scorecard`}
           </h3>
         </div>
 
         {/* Dual Signal Display: Comparlify Score vs Creator Rating */}
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full sm:w-auto">
           {/* Signal 1: Comparlify Score */}
-          <div className="flex items-center gap-3 bg-card/80 border border-border/50 p-3 rounded-2xl">
-            <div className="text-right">
-              <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground flex items-center justify-end gap-1">
+          <div className="flex items-center justify-between gap-3 bg-card/90 border border-border/50 p-3.5 rounded-2xl shadow-xs">
+            <div className="space-y-1">
+              <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1">
                 Comparlify Score
                 <Link href="/methodology" aria-label="Score methodology">
                   <HelpCircle className="w-3 h-3 text-muted-foreground/60 hover:text-primary" />
                 </Link>
               </div>
-              <div className="flex items-center justify-end gap-1.5">
-                <span className="text-xs font-extrabold text-primary">Grade {scorecard.grade}</span>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-xs font-black text-primary">Grade {scorecard.grade}</span>
                 <Badge variant="outline" className={`text-[9px] uppercase font-bold px-1.5 py-0 rounded ${
                   scorecard.confidence === "HIGH" ? "border-emerald-500/30 text-emerald-500 bg-emerald-500/10" :
                   scorecard.confidence === "MODERATE" ? "border-amber-500/30 text-amber-500 bg-amber-500/10" :
                   "border-zinc-500/30 text-zinc-400 bg-zinc-500/10"
                 }`}>
-                  {scorecard.confidence} Confidence
+                  {scorecard.confidence}
                 </Badge>
               </div>
             </div>
-            <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-primary text-primary-foreground font-black text-2xl shadow-md">
+            <div className="flex items-center justify-center w-12 sm:w-13 h-12 sm:h-13 rounded-xl bg-primary text-primary-foreground font-black text-xl shadow-md shrink-0">
               {scorecard.overallScore}
             </div>
           </div>
 
           {/* Signal 2: Creator Rating */}
-          <div className="flex items-center gap-3 bg-card/80 border border-border/50 p-3 rounded-2xl">
-            <div className="text-right">
+          <div className="flex items-center justify-between gap-3 bg-card/90 border border-border/50 p-3.5 rounded-2xl shadow-xs">
+            <div className="space-y-1">
               <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
                 Creator Rating
               </div>
@@ -75,7 +75,7 @@ export function PlatformScorecardCard({ platform, title, className = "", showDet
                 {(platform as any).currentReviews?.length || 0} Verified Reviews
               </div>
             </div>
-            <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-secondary text-foreground font-black text-xl shadow-xs border border-border/40">
+            <div className="flex items-center justify-center w-12 sm:w-13 h-12 sm:h-13 rounded-xl bg-secondary text-foreground font-black text-lg shadow-xs border border-border/40 shrink-0">
               {(platform as any).rating ? `${(platform as any).rating.toFixed(1)}/5` : "4.8/5"}
             </div>
           </div>
