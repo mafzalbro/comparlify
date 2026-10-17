@@ -80,10 +80,16 @@ export function ManagedImage(props: ImageProps) {
         }
       : {};
 
+    const fetchPriority = priority ? ("high" as const) : undefined;
+    const loading = priority ? ("eager" as const) : ("lazy" as const);
+
     return (
       <img
         {...imgDomProps}
         src={props.src as string}
+        loading={loading}
+        decoding="async"
+        fetchPriority={fetchPriority}
         onError={() => {
           if (!error) {
             setError(true);
@@ -93,7 +99,7 @@ export function ManagedImage(props: ImageProps) {
           width: !fill && width ? `${width}px` : undefined,
           height: !fill && height ? `${height}px` : undefined,
           ...fillStyle,
-          ...style as any,
+          ...(style as any),
         }}
       />
     );

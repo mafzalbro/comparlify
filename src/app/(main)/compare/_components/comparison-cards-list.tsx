@@ -80,15 +80,37 @@ async function getComparisons({
 
   const result = await prisma.comparison.findMany({
     where,
-    include: {
-      platformA: true,
-      platformB: true,
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      summary: true,
+      platformAId: true,
+      platformBId: true,
+      categoryId: true,
+      createdAt: true,
+      platformA: {
+        select: {
+          id: true,
+          name: true,
+          logoUrl: true,
+          rating: true,
+        },
+      },
+      platformB: {
+        select: {
+          id: true,
+          name: true,
+          logoUrl: true,
+          rating: true,
+        },
+      },
     },
     orderBy,
   });
 
-  setWithEviction(comparisonsCache, cacheKey, { data: result, timestamp: now }, MAX_CACHE_SIZE);
-  return result;
+  setWithEviction(comparisonsCache, cacheKey, { data: result as any, timestamp: now }, MAX_CACHE_SIZE);
+  return result as any;
 }
 
 export async function ComparisonCardsList({ searchParams, content }: ComparisonCardsListProps) {

@@ -106,6 +106,7 @@ export function ComparisonHero({
                     alt={platform.name}
                     width={160}
                     height={60}
+                    priority={true}
                     className="object-contain transition-all duration-300"
                   />
                 </div>

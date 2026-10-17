@@ -78,6 +78,7 @@ export function ComparisonList({
                       src={comp.platformA.logoUrl}
                       alt={comp.platformA.name}
                       fill
+                      priority={index < 2}
                       className="object-contain p-1.5"
                     />
                   </div>
@@ -91,6 +92,7 @@ export function ComparisonList({
                       src={comp.platformB.logoUrl}
                       alt={comp.platformB.name}
                       fill
+                      priority={index < 2}
                       className="object-contain p-1.5"
                     />
                   </div>

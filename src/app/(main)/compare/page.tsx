@@ -31,18 +31,54 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const getAllPlatforms = cache(async () => {
-  return prisma.platform.findMany({ orderBy: { name: "asc" } });
+  return prisma.platform.findMany({
+    select: {
+      id: true,
+      name: true,
+      logoUrl: true,
+      rating: true,
+    },
+    orderBy: { name: "asc" },
+  });
 });
 
 const getAllComparisonsList = cache(async () => {
   return prisma.comparison.findMany({
     where: { published: true },
-    include: { platformA: true, platformB: true },
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      summary: true,
+      platformAId: true,
+      platformBId: true,
+      categoryId: true,
+      createdAt: true,
+      platformA: {
+        select: {
+          id: true,
+          name: true,
+          logoUrl: true,
+          rating: true,
+        },
+      },
+      platformB: {
+        select: {
+          id: true,
+          name: true,
+          logoUrl: true,
+          rating: true,
+        },
+      },
+    },
   });
 });
 
 const getComparisonCategories = cache(async () => {
-  return prisma.comparisonCategory.findMany({ orderBy: { name: "asc" } });
+  return prisma.comparisonCategory.findMany({
+    select: { id: true, name: true, slug: true },
+    orderBy: { name: "asc" },
+  });
 });
 
 export default async function ComparePage(props: {

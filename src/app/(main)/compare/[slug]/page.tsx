@@ -312,7 +312,7 @@ export default async function ComparisonDetailPage(props: {
                   <h3 className="text-xl font-black text-foreground mb-6 flex items-center gap-2.5">
                     <Zap className="h-5 w-5 text-primary" /> Expert Overview
                   </h3>
-                  <div className="h-[280px]">
+                  <div className="h-70">
                     <ComparisonChart
                       chartConfig={chartConfig}
                       chartData={chartData}
@@ -331,7 +331,8 @@ export default async function ComparisonDetailPage(props: {
                       <Zap className="w-3.5 h-3.5 text-primary" /> Stay Informed
                     </h4>
                     <p className="text-xs text-muted-foreground/80 font-medium leading-relaxed">
-                      Get platform audits &amp; pricing changes direct to your inbox.
+                      Get platform audits &amp; pricing changes direct to your
+                      inbox.
                     </p>
                   </div>
                   <PremiumNewsletterForm

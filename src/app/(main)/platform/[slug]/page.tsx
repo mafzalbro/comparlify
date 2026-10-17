@@ -170,6 +170,7 @@ export default async function PlatformDetailPage(props: {
                   alt={platform.name}
                   width={160}
                   height={50}
+                  priority={true}
                   className="h-10 sm:h-12 w-auto object-contain max-w-50"
                 />
               </div>

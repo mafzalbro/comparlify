@@ -47,6 +47,18 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "linear.app",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "**.linear.app",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
   experimental: {
