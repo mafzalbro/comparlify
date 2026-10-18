@@ -1,0 +1,9 @@
+# Comparlify - AI-Ready Platform Architecture & Discovery Manifest
+
+> Comparlify is an independent, high-velocity comparison engine and intelligence database for digital creator platforms, SaaS infrastructure, developer tools, and online business platforms.
+
+## Core Resources
+- [Compare Platforms Directory](https://comparlify.vercel.app/compare) - Side-by-side technical benchmarks and feature audits.
+- [Linear vs Trello](https://comparlify.vercel.app/linear-vs-trello) - High-performance sprint tracker vs casual visual Kanban deep dive.
+- [Tools & Stack Recommendation](https://comparlify.vercel.app/tools) - Interactive ROI calculators and creator software matchers.
+- [Blog & Intelligence](https://comparlify.vercel.app/blog) - In-depth architectural analysis and creator monetization guides.

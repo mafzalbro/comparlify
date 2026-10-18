@@ -32,10 +32,15 @@ const createMockPrismaClient = (): any => {
         if (found) return found;
 
         // Return beautiful dynamic mock platform
+        const lower = name.toLowerCase();
+        const logo = lower === "trello"
+          ? "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Trello-logo-blue.svg/512px-Trello-logo-blue.svg.png"
+          : `/uploads/${lower}_logo.png`;
+
         return {
           name: name,
-          website: `https://www.${name.toLowerCase()}.com`,
-          logoUrl: `/uploads/${name.toLowerCase()}_logo.png`,
+          website: `https://www.${lower}.com`,
+          logoUrl: logo,
           description: `A premier digital infrastructure provider for professional ${name} workflows in 2026.`,
           rating: 4.5,
           easeOfUse: 4.3,

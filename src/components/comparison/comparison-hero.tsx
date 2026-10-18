@@ -21,7 +21,7 @@ interface ComparisonHeroProps {
   platformB: Platform;
   scoreA: string;
   scoreB: string;
-  session: Session | null;
+  session?: Session | null;
 }
 
 export function ComparisonHero({
@@ -32,7 +32,6 @@ export function ComparisonHero({
   platformB,
   scoreA,
   scoreB,
-  session,
 }: ComparisonHeroProps) {
   const isPlatformAWinner = parseFloat(scoreA) > parseFloat(scoreB);
   const isPlatformBWinner = parseFloat(scoreB) > parseFloat(scoreA);
@@ -137,15 +136,13 @@ export function ComparisonHero({
 
         {/* Action Buttons */}
         <div className="fixed bottom-6 right-6 lg:top-32 lg:bottom-auto z-[100] flex flex-col items-center gap-4 hidden sm:flex">
-          {session?.user && (
-            <div className="group flex flex-col items-center">
-              <BookmarkButton
-                comparisonId={comparisonId}
-                className="h-14 w-14 rounded-full shadow-2xl bg-card border border-border/50 hover:scale-110 transition-all duration-300 p-0 flex items-center justify-center text-muted-foreground hover:text-primary"
-                showText={false}
-              />
-            </div>
-          )}
+          <div className="group flex flex-col items-center">
+            <BookmarkButton
+              comparisonId={comparisonId}
+              className="h-14 w-14 rounded-full shadow-2xl bg-card border border-border/50 hover:scale-110 transition-all duration-300 p-0 flex items-center justify-center text-muted-foreground hover:text-primary"
+              showText={false}
+            />
+          </div>
           <div className="group flex flex-col items-center">
             <ShareButton className="h-14 w-14 rounded-full shadow-2xl bg-card border border-border/50 hover:scale-110 transition-all duration-300 flex items-center justify-center text-muted-foreground hover:text-primary" />
           </div>

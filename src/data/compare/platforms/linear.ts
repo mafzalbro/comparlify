@@ -3,7 +3,7 @@ import { PlatformData } from "../types";
 export const linear: PlatformData = {
   name: "Linear",
   website: "https://linear.app",
-  logoUrl: "https://linear.app/static/images/logos/linear-logo-white.png",
+  logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Linear_logo.svg/512px-Linear_logo.svg.png",
   description: `
 # Linear: The High-Performance Engine for Modern Product Organizations (2026 Analysis)
 

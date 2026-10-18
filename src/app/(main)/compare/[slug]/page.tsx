@@ -19,7 +19,6 @@ import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { cache } from "react";
 import { cn } from "@/lib/utils";
-import { auth } from "@/lib/auth";
 import dynamic from "next/dynamic";
 
 import { calculatePlatformScore } from "@/lib/scoring";
@@ -28,12 +27,8 @@ import { getContent } from "@/lib/content";
 import { ComparisonStats } from "@/components/comparison/comparison-stats";
 import { ComparisonFeatureMatrix } from "@/components/comparison/comparison-feature-matrix";
 import { IntelligenceVerdict } from "@/components/comparison/intelligence-verdict";
-import { ComparisonFaqs } from "@/components/comparison/comparison-faqs";
 import { AuthorSection } from "@/components/comparison/author-section";
-import { IntelligentAnalysis } from "@/components/comparison/intelligent-analysis";
 import { PlatformVisitCards } from "@/components/comparison/platform-visit-cards";
-import { InlineROICalculator } from "@/components/comparison/inline-roi-calculator";
-import { PlatformPicker } from "@/components/tool/PlatformPicker";
 import { PlatformScorecardCard } from "@/components/platform-scorecard-card";
 import { PlatformChangeTracker } from "@/components/platform-change-tracker";
 import {
@@ -43,13 +38,95 @@ import {
   MICRO_LABEL,
 } from "@/lib/design-tokens";
 import { SectionHeader } from "@/components/layout/section-header";
-import { InteractiveComparisonMatcher } from "@/components/comparison/interactive-comparison-matcher";
-import { ReviewAcquisitionWidget } from "@/components/review-acquisition-widget";
 
 const ComparisonChart = dynamic(
   () =>
     import("@/components/comparison-chart").then((mod) => mod.ComparisonChart),
-  { ssr: true },
+  {
+    loading: () => (
+      <div className="h-70 w-full animate-pulse rounded-2xl bg-secondary/20 flex items-center justify-center">
+        <span className="text-xs text-muted-foreground/50">Loading visualization...</span>
+      </div>
+    ),
+  },
+);
+
+const InteractiveComparisonMatcher = dynamic(
+  () =>
+    import("@/components/comparison/interactive-comparison-matcher").then(
+      (mod) => mod.InteractiveComparisonMatcher,
+    ),
+  {
+    loading: () => (
+      <div className="w-full min-h-[420px] rounded-3xl bg-card/20 border border-border/20 animate-pulse flex items-center justify-center">
+        <span className="text-xs text-muted-foreground/40 font-mono">Loading Match Matrix...</span>
+      </div>
+    ),
+  },
+);
+
+const PlatformPicker = dynamic(
+  () =>
+    import("@/components/tool/PlatformPicker").then((mod) => mod.PlatformPicker),
+  {
+    loading: () => (
+      <div className="w-full min-h-[480px] rounded-[3.4rem] bg-card/20 border border-border/20 animate-pulse flex items-center justify-center">
+        <span className="text-xs text-muted-foreground/40 font-mono">Loading Decision Engine...</span>
+      </div>
+    ),
+  },
+);
+
+const ReviewAcquisitionWidget = dynamic(
+  () =>
+    import("@/components/review-acquisition-widget").then(
+      (mod) => mod.ReviewAcquisitionWidget,
+    ),
+  {
+    loading: () => (
+      <div className="w-full min-h-[220px] rounded-3xl bg-card/20 border border-border/20 animate-pulse flex items-center justify-center">
+        <span className="text-xs text-muted-foreground/40 font-mono">Loading Verification Signal...</span>
+      </div>
+    ),
+  },
+);
+
+const InlineROICalculator = dynamic(
+  () =>
+    import("@/components/comparison/inline-roi-calculator").then(
+      (mod) => mod.InlineROICalculator,
+    ),
+  {
+    loading: () => (
+      <div className="w-full min-h-[300px] rounded-2xl bg-card/20 border border-border/20 animate-pulse flex items-center justify-center">
+        <span className="text-xs text-muted-foreground/40 font-mono">Loading ROI Calculator...</span>
+      </div>
+    ),
+  },
+);
+
+const IntelligentAnalysis = dynamic(
+  () =>
+    import("@/components/comparison/intelligent-analysis").then(
+      (mod) => mod.IntelligentAnalysis,
+    ),
+  {
+    loading: () => (
+      <div className="w-full min-h-[360px] rounded-4xl bg-card/20 border border-border/20 animate-pulse" />
+    ),
+  },
+);
+
+const ComparisonFaqs = dynamic(
+  () =>
+    import("@/components/comparison/comparison-faqs").then(
+      (mod) => mod.ComparisonFaqs,
+    ),
+  {
+    loading: () => (
+      <div className="w-full min-h-[280px] rounded-2xl bg-card/20 border border-border/20 animate-pulse" />
+    ),
+  },
 );
 
 export const revalidate = 3600; // ISR for comparison pages
@@ -109,9 +186,8 @@ export default async function ComparisonDetailPage(props: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await props.params;
-  const [session, comparison, content, relatedPosts, relatedNews] =
+  const [comparison, content, relatedPosts, relatedNews] =
     await Promise.all([
-      auth(),
       getComparisonBySlug(slug),
       getContent(),
       prisma.post.findMany({
@@ -251,7 +327,6 @@ export default async function ComparisonDetailPage(props: {
           platformB={platformB}
           scoreA={scoreA}
           scoreB={scoreB}
-          session={session}
         />
 
         {/* ── STAT CARDS ───────────────────── */}

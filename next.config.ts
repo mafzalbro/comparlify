@@ -55,14 +55,26 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "**.linear.app",
+        hostname: "upload.wikimedia.org",
         port: "",
         pathname: "/**",
       },
     ],
   },
   experimental: {
-    optimizePackageImports: ["lucide-react", "date-fns", "recharts", "framer-motion", "@radix-ui/react-icons"],
+    optimizePackageImports: [
+      "lucide-react",
+      "date-fns",
+      "recharts",
+      "framer-motion",
+      "@radix-ui/react-icons",
+      "@radix-ui/react-accordion",
+      "@radix-ui/react-dialog",
+      "@radix-ui/react-select",
+      "@radix-ui/react-slider",
+      "@radix-ui/react-progress",
+      "react-icons",
+    ],
   },
   async headers() {
     return [

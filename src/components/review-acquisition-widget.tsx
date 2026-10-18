@@ -115,9 +115,9 @@ export function ReviewAcquisitionWidget({
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-1.5">
-                <label className="font-extrabold text-foreground">Creator Segment</label>
+                <label id="creator-segment-label" className="font-extrabold text-foreground">Creator Segment</label>
                 <Select value={creatorSegment} onValueChange={setCreatorSegment}>
-                  <SelectTrigger className="rounded-xl h-10 text-xs bg-secondary/20">
+                  <SelectTrigger aria-labelledby="creator-segment-label" aria-label="Creator Segment" className="rounded-xl h-10 text-xs bg-secondary/20">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -131,9 +131,9 @@ export function ReviewAcquisitionWidget({
               </div>
 
               <div className="space-y-1.5">
-                <label className="font-extrabold text-foreground">Audience Size</label>
+                <label id="audience-size-label" className="font-extrabold text-foreground">Audience Size</label>
                 <Select value={audienceRange} onValueChange={setAudienceRange}>
-                  <SelectTrigger className="rounded-xl h-10 text-xs bg-secondary/20">
+                  <SelectTrigger aria-labelledby="audience-size-label" aria-label="Audience Size" className="rounded-xl h-10 text-xs bg-secondary/20">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -147,9 +147,9 @@ export function ReviewAcquisitionWidget({
               </div>
 
               <div className="space-y-1.5">
-                <label className="font-extrabold text-foreground">Monthly Spend</label>
+                <label id="monthly-spend-label" className="font-extrabold text-foreground">Monthly Spend</label>
                 <Select value={spendRange} onValueChange={setSpendRange}>
-                  <SelectTrigger className="rounded-xl h-10 text-xs bg-secondary/20">
+                  <SelectTrigger aria-labelledby="monthly-spend-label" aria-label="Monthly Spend" className="rounded-xl h-10 text-xs bg-secondary/20">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

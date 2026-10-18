@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useTransition, useCallback } from "react";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Bookmark as BookmarkIcon, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -26,6 +27,7 @@ export const BookmarkButton = React.memo(function BookmarkButton({
   className,
   showText = true,
 }: BookmarkButtonProps) {
+  const { data: session } = useSession();
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [isLoading, setIsLoading] = useState(true);
@@ -33,12 +35,20 @@ export const BookmarkButton = React.memo(function BookmarkButton({
   const path = usePathname();
 
   useEffect(() => {
+    if (!session?.user) {
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     isBookmarkedAction({ postId, comparisonId }).then((result) => {
       setIsBookmarked(result);
       setIsLoading(false);
     });
-  }, [postId, comparisonId]);
+  }, [postId, comparisonId, session]);
+
+  if (!session?.user) {
+    return null;
+  }
 
   const handleClick = useCallback(
     (e: React.MouseEvent) => {

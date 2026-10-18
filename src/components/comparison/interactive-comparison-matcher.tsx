@@ -73,31 +73,39 @@ export function InteractiveComparisonMatcher({
     );
   }
 
-  // ---- Compute scores with full error isolation ----
-  let objA: ReturnType<typeof calculatePlatformScore> | null = null;
-  let objB: ReturnType<typeof calculatePlatformScore> | null = null;
-  let matchA = 0;
-  let matchB = 0;
+  // ---- Compute scores with full error isolation & memoization ----
+  const { objA, objB, matchA, matchB } = useMemo(() => {
+    let aObj: ReturnType<typeof calculatePlatformScore> | null = null;
+    let bObj: ReturnType<typeof calculatePlatformScore> | null = null;
+    let aMatch = 0;
+    let bMatch = 0;
 
-  try {
-    objA = calculatePlatformScore(normalizedA);
-    matchA = calculatePersonalMatchScore(normalizedA, userWeights);
-  } catch (err) {
-    console.error(
-      "[InteractiveComparisonMatcher] Failed to score platform A:",
-      err,
-    );
-  }
+    if (normalizedA) {
+      try {
+        aObj = calculatePlatformScore(normalizedA);
+        aMatch = calculatePersonalMatchScore(normalizedA, userWeights);
+      } catch (err) {
+        console.error(
+          "[InteractiveComparisonMatcher] Failed to score platform A:",
+          err,
+        );
+      }
+    }
 
-  try {
-    objB = calculatePlatformScore(normalizedB);
-    matchB = calculatePersonalMatchScore(normalizedB, userWeights);
-  } catch (err) {
-    console.error(
-      "[InteractiveComparisonMatcher] Failed to score platform B:",
-      err,
-    );
-  }
+    if (normalizedB) {
+      try {
+        bObj = calculatePlatformScore(normalizedB);
+        bMatch = calculatePersonalMatchScore(normalizedB, userWeights);
+      } catch (err) {
+        console.error(
+          "[InteractiveComparisonMatcher] Failed to score platform B:",
+          err,
+        );
+      }
+    }
+
+    return { objA: aObj, objB: bObj, matchA: aMatch, matchB: bMatch };
+  }, [normalizedA, normalizedB, userWeights]);
 
   if (!objA || !objB) {
     return (
@@ -148,7 +156,9 @@ export function InteractiveComparisonMatcher({
 
   const handleSliderChange = (key: keyof UserPillarWeights, value: number) => {
     const safeValue = Number.isFinite(value) ? value : 50;
-    setUserWeights((prev) => ({ ...prev, [key]: safeValue }));
+    React.startTransition(() => {
+      setUserWeights((prev) => ({ ...prev, [key]: safeValue }));
+    });
   };
 
   return (
@@ -308,6 +318,7 @@ export function InteractiveComparisonMatcher({
                 min={0}
                 max={100}
                 step={5}
+                aria-label={`${s.label} priority weight`}
                 onValueChange={(val) =>
                   handleSliderChange(s.key, val?.[0] ?? 50)
                 }

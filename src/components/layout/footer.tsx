@@ -157,13 +157,14 @@ export default function Footer({ content, siteName }: FooterProps) {
             </p>
             <div className="flex space-x-4">
               {[
-                { icon: Twitter, href: "#" },
-                { icon: Github, href: "#" },
-                { icon: Linkedin, href: "#" },
+                { name: "Twitter", icon: Twitter, href: "#" },
+                { name: "GitHub", icon: Github, href: "#" },
+                { name: "LinkedIn", icon: Linkedin, href: "#" },
               ].map((social, i) => (
                 <Link
                   key={i}
                   href={social.href}
+                  aria-label={`Comparlify on ${social.name}`}
                   className="w-10 h-10 rounded-xl bg-secondary/50 border border-border/10 flex items-center justify-center text-muted-foreground hover:bg-primary/10 hover:text-primary hover:border-primary/20 transition-all"
                 >
                   <social.icon className="h-5 w-5" />

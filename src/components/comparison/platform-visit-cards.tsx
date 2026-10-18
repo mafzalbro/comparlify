@@ -98,6 +98,7 @@ export function PlatformVisitCards({
                 href={`/api/out/${platform.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label={`Claim exclusive deal for ${platform.name}`}
               >
                 Claim Exclusive Deal <ArrowRight className="h-4 w-4" />
               </a>
