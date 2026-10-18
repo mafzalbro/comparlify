@@ -33,7 +33,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PlusCircle, Edit, Trash2, Loader2 } from "lucide-react";
+import {
+  PlusCircle,
+  Edit,
+  Trash2,
+  Loader2,
+  X,
+  Globe,
+  Info,
+} from "lucide-react";
 import {
   createAdvertisement,
   deleteAdvertisement,
@@ -42,6 +50,7 @@ import {
 } from "../actions";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 const PLACEMENTS: AdPlacementType[] = [
   "HEADER",
@@ -51,6 +60,180 @@ const PLACEMENTS: AdPlacementType[] = [
   "COMPARISON_BETWEEN",
   "MOBILE_FIXED_BOTTOM",
 ];
+
+const PRESET_PATHS: { value: string; label: string }[] = [
+  { value: "*", label: "All Pages" },
+  { value: "/", label: "Home" },
+  { value: "/blog/*", label: "Blog" },
+  { value: "/news/*", label: "News" },
+  { value: "/compare/*", label: "Comparisons" },
+  { value: "/platform/*", label: "Platforms" },
+  { value: "/community/*", label: "Community" },
+  { value: "/tools/*", label: "Tools" },
+  { value: "/migrate/*", label: "Migrations" },
+  { value: "/alternatives/*", label: "Alternatives" },
+];
+
+/** Auto-prefix a leading slash for custom entries, but preserve wildcards. */
+function normalizePath(input: string): string {
+  const t = input.trim();
+  if (!t) return "";
+  if (t.startsWith("/") || t.startsWith("*")) return t;
+  return "/" + t;
+}
+
+function TargetPagesInput({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const [custom, setCustom] = useState("");
+  const paths = value
+    .split(",")
+    .map((p) => p.trim())
+    .filter(Boolean);
+  const hasAllPages = paths.includes("*");
+
+  const togglePreset = (p: string) => {
+    if (p === "*") {
+      // Toggling "All Pages" clears everything else
+      onChange(hasAllPages ? "" : "*");
+      return;
+    }
+    // Selecting a specific page removes the "*" wildcard
+    const base = hasAllPages ? [] : [...paths];
+    const next = base.includes(p) ? base.filter((x) => x !== p) : [...base, p];
+    onChange(next.join(","));
+  };
+
+  const addCustom = () => {
+    // Support pasting comma-separated values in one go
+    const tokens = custom
+      .split(",")
+      .map((s) => normalizePath(s))
+      .filter(Boolean);
+    if (tokens.length === 0) {
+      setCustom("");
+      return;
+    }
+    const base = hasAllPages ? [] : [...paths];
+    for (const t of tokens) {
+      if (!base.includes(t)) base.push(t);
+    }
+    onChange(base.join(","));
+    setCustom("");
+  };
+
+  const remove = (p: string) => {
+    onChange(paths.filter((x) => x !== p).join(","));
+  };
+
+  return (
+    <div className="space-y-3">
+      {/* Preset buttons */}
+      <div className="flex flex-wrap gap-1.5">
+        {PRESET_PATHS.map((p) => {
+          const active = paths.includes(p.value);
+          return (
+            <button
+              key={p.value}
+              type="button"
+              onClick={() => togglePreset(p.value)}
+              className={cn(
+                "px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border transition-all",
+                active
+                  ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                  : "bg-background border-border/40 text-muted-foreground hover:border-primary/40 hover:text-foreground",
+              )}
+            >
+              {p.value === "*" ? (
+                <span className="inline-flex items-center gap-1">
+                  <Globe className="h-3 w-3" /> {p.label}
+                </span>
+              ) : (
+                p.label
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Custom path input */}
+      <div className="flex gap-2">
+        <Input
+          value={custom}
+          onChange={(e) => setCustom(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              addCustom();
+            }
+          }}
+          placeholder="e.g. /checkout/* or /heygen-vs-elevenlabs"
+          className="font-mono text-xs h-9"
+        />
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          onClick={addCustom}
+          disabled={!custom.trim()}
+          className="h-9"
+        >
+          Add
+        </Button>
+      </div>
+
+      {/* Selected chips */}
+      <div
+        className={cn(
+          "flex flex-wrap gap-1.5 min-h-9 p-2 rounded-lg border border-dashed transition-colors",
+          paths.length === 0
+            ? "border-amber-500/40 bg-amber-500/5"
+            : "border-border/30 bg-muted/10",
+        )}
+      >
+        {paths.length === 0 ? (
+          <span className="text-[11px] text-amber-600 dark:text-amber-500 font-medium italic self-center px-1 flex items-center gap-1.5">
+            <Info className="h-3 w-3 shrink-0" />
+            No target pages selected — this ad will not show anywhere.
+          </span>
+        ) : (
+          paths.map((p) => (
+            <span
+              key={p}
+              className={cn(
+                "inline-flex items-center gap-1 pl-2 pr-1 py-0.5 rounded-md text-[10px] font-bold font-mono uppercase",
+                p === "*"
+                  ? "bg-primary/10 text-primary border border-primary/30"
+                  : "bg-secondary/60 text-foreground border border-border/30",
+              )}
+            >
+              {p === "*" ? "ALL PAGES" : p}
+              <button
+                type="button"
+                onClick={() => remove(p)}
+                className="ml-0.5 rounded-sm hover:bg-destructive/10 hover:text-destructive transition-colors p-0.5"
+                aria-label={`Remove ${p}`}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </span>
+          ))
+        )}
+      </div>
+
+      {/* Advanced hint */}
+      <p className="text-[10px] text-muted-foreground/60 font-medium leading-relaxed">
+        Use <code className="font-mono text-primary/80">*</code> for wildcards.
+        Comma-separated values are supported. Paths must start with{" "}
+        <code className="font-mono text-primary/80">/</code> (auto-added).
+      </p>
+    </div>
+  );
+}
 
 export function AdvertisementsTable({
   initialAds,
@@ -64,9 +247,8 @@ export function AdvertisementsTable({
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  // Form State - matching your Prisma Schema
   const [formData, setFormData] = useState({
-    content: "", // Acts as the name/script content
+    content: "",
     type: "IMAGE" as AdvertisementType,
     placement: "SIDEBAR" as AdPlacementType,
     allowedPages: "*",
@@ -109,7 +291,7 @@ export function AdvertisementsTable({
         content: formData.content,
         type: formData.type,
         placement: formData.placement,
-        allowedPages: formData.allowedPages,
+        allowedPages: formData.allowedPages || "*",
         active: formData.active,
         imageUrl: formData.imageUrl,
         linkUrl: formData.linkUrl,
@@ -218,21 +400,17 @@ export function AdvertisementsTable({
                 </div>
               </div>
 
+              {/* ENHANCED TARGET PAGES INPUT */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  Target Pages (Regex/Path)
-                </label>
-                <Input
-                  required
+                <label className="text-sm font-medium">Target Pages</label>
+                <TargetPagesInput
                   value={formData.allowedPages}
-                  onChange={(e) =>
-                    setFormData({ ...formData, allowedPages: e.target.value })
+                  onChange={(v) =>
+                    setFormData({ ...formData, allowedPages: v })
                   }
-                  placeholder="e.g. *, /compare/*, /blog/*"
                 />
               </div>
 
-              {/* CONTENT FIELD - Since your schema doesn't have 'name' or 'scriptContent' */}
               <div className="space-y-2 p-4 border rounded-lg bg-muted/20">
                 <label className="text-sm font-medium">
                   {formData.type === "SCRIPT"
@@ -350,8 +528,14 @@ export function AdvertisementsTable({
                     {ad.placement.replace(/_/g, " ")}
                   </Badge>
                 </TableCell>
-                <TableCell className="font-mono text-xs text-muted-foreground">
-                  {ad.allowedPages}
+                <TableCell className="font-mono text-xs text-muted-foreground max-w-55 truncate">
+                  {ad.allowedPages === "*" ? (
+                    <span className="inline-flex items-center gap-1 text-primary font-bold">
+                      <Globe className="h-3 w-3" /> All Pages
+                    </span>
+                  ) : (
+                    ad.allowedPages
+                  )}
                 </TableCell>
                 <TableCell>
                   <Badge variant="secondary" className="text-[10px] uppercase">
