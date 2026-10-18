@@ -273,6 +273,11 @@ async function main(skipCleanup = true) {
     const existing = await prisma.user.findUnique({ where: { email: u.email } });
     if (!existing) {
       await safeCreate("User", u);
+    } else {
+      await prisma.user.update({
+        where: { email: u.email },
+        data: { role: u.role },
+      });
     }
   }
 

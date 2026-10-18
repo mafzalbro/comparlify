@@ -26,8 +26,8 @@ export interface MigrationAnalysis {
  * Independent Migration Engine calculating multi-dimensional switching effort, cost, subscriber churn risk, and overall migration risk.
  */
 export function calculateMigrationAnalysis(
-  sourcePlatform: Partial<PlatformData> & { name: string },
-  targetPlatform: Partial<PlatformData> & { name: string }
+  sourcePlatform: { name: string; [key: string]: any },
+  targetPlatform: { name: string; [key: string]: any }
 ): MigrationAnalysis {
   const sourceName = sourcePlatform.name;
   const targetName = targetPlatform.name;

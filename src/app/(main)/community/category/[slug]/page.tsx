@@ -52,18 +52,22 @@ export async function generateMetadata(props: {
   });
 }
 
+import { getContent } from "@/lib/content";
+import { isModuleEnabled } from "@/lib/module-navigation";
+
 export default async function CategoryPage(props: {
   params: Promise<{ slug: string }>;
 }) {
   const params = await props.params;
   const { slug } = params;
-  const [category, stats, session] = await Promise.all([
+  const [category, stats, session, content] = await Promise.all([
     getCategory(slug),
     getCommunityStats(),
     auth(),
+    getContent(),
   ]);
 
-  if (!category) {
+  if (!isModuleEnabled("community", content) || !category) {
     notFound();
   }
 

@@ -208,20 +208,27 @@ export default async function ComparisonDetailPage(props: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await props.params;
-  const [comparison, content, relatedPosts, relatedNews] = await Promise.all([
+  const content = await getContent();
+  const isBlogEnabled = content["module.blog.enabled"] !== "false";
+  const isNewsEnabled = content["module.news.enabled"] !== "false";
+
+  const [comparison, relatedPosts, relatedNews] = await Promise.all([
     getComparisonBySlug(slug),
-    getContent(),
-    prisma.post.findMany({
-      where: { published: true },
-      take: 2,
-      orderBy: { createdAt: "desc" },
-      include: { author: true },
-    }),
-    prisma.newsArticle.findMany({
-      where: { published: true },
-      take: 2,
-      orderBy: { createdAt: "desc" },
-    }),
+    isBlogEnabled
+      ? prisma.post.findMany({
+          where: { published: true },
+          take: 2,
+          orderBy: { createdAt: "desc" },
+          include: { author: true },
+        })
+      : Promise.resolve([]),
+    isNewsEnabled
+      ? prisma.newsArticle.findMany({
+          where: { published: true },
+          take: 2,
+          orderBy: { createdAt: "desc" },
+        })
+      : Promise.resolve([]),
   ]);
 
   if (!comparison) notFound();
@@ -360,12 +367,12 @@ export default async function ComparisonDetailPage(props: {
         {/* ── SIDE-BY-SIDE SCORECARDS & INTERACTIVE MATCHER ────────────────── */}
         <section className={DETAIL_CONTAINER + " pt-8 pb-4 space-y-12"}>
           <InteractiveComparisonMatcher
-            platformA={platformA}
-            platformB={platformB}
+            platformA={platformA as any}
+            platformB={platformB as any}
           />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <PlatformScorecardCard platform={platformA} />
-            <PlatformScorecardCard platform={platformB} />
+            <PlatformScorecardCard platform={platformA as any} />
+            <PlatformScorecardCard platform={platformB as any} />
           </div>
           <ReviewAcquisitionWidget
             platformId={platformA.id}

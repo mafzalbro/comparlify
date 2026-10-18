@@ -12,8 +12,19 @@ export const metadata: Metadata = await generateSeoMetadata({
   path: "/community/verified-stacks",
 });
 
+import { getContent } from "@/lib/content";
+import { isModuleEnabled } from "@/lib/module-navigation";
+import { notFound } from "next/navigation";
+
 export default async function VerifiedStacksPage() {
-  const stacks = await getVerifiedStacks();
+  const [content, stacks] = await Promise.all([
+    getContent(),
+    getVerifiedStacks(),
+  ]);
+
+  if (!isModuleEnabled("community", content)) {
+    notFound();
+  }
 
   return (
     <div className="min-h-screen bg-background pb-20">

@@ -74,6 +74,9 @@ const getPostData = cache(async (slug: string, isPreview = false) => {
     return { post: null, relatedPosts: [], nextPost: null, prevPost: null };
   }
 
+  const content = await getContent();
+  const isCompareEnabled = content["module.compare.enabled"] !== "false";
+
   const [relatedPosts, nextPost, prevPost, trendingComparisons] =
     await Promise.all([
       prisma.post.findMany({
@@ -103,12 +106,14 @@ const getPostData = cache(async (slug: string, isPreview = false) => {
             select: { slug: true, title: true },
           })
         : Promise.resolve(null),
-      prisma.comparison.findMany({
-        where: { published: true },
-        take: 2,
-        orderBy: { createdAt: "desc" },
-        include: { platformA: true, platformB: true },
-      }),
+      isCompareEnabled
+        ? prisma.comparison.findMany({
+            where: { published: true },
+            take: 2,
+            orderBy: { createdAt: "desc" },
+            include: { platformA: true, platformB: true },
+          })
+        : Promise.resolve([]),
     ]);
 
   return { post, relatedPosts, nextPost, prevPost, trendingComparisons };

@@ -20,6 +20,7 @@ import dynamic from "next/dynamic";
 
 export const revalidate = 3600; // Cache pages with ISR so already visited pages don't regenerate
 
+import { getContent } from "@/lib/content";
 import { calculatePlatformScore } from "@/lib/scoring";
 import { ComparisonHero } from "@/components/comparison/comparison-hero";
 import { ComparisonStats } from "@/components/comparison/comparison-stats";
@@ -96,9 +97,10 @@ export default async function DynamicBattlePage(props: {
 
   if (parts.length !== 2) notFound();
 
-  const [platformA, platformB] = await Promise.all([
+  const [platformA, platformB, content] = await Promise.all([
     getPlatformBySlug(parts[0]),
     getPlatformBySlug(parts[1]),
+    getContent(),
   ]);
 
   if (!platformA || !platformB) notFound();
@@ -213,53 +215,60 @@ export default async function DynamicBattlePage(props: {
               </div>
 
               {/* Connected Intelligence Widget */}
-              <div className="bg-primary/5 border border-primary/20 p-6 sm:p-8 rounded-4xl space-y-5">
-                <Badge className="bg-primary/20 text-primary border-primary/30 uppercase tracking-widest text-[9px] font-bold">
-                  Community Pulse
-                </Badge>
-                <h4 className="text-xl font-black leading-none">
-                  Expert <span className="text-primary italic">Highlights</span>
-                </h4>
+              {(content["module.community.enabled"] !== "false" ||
+                content["module.news.enabled"] !== "false") && (
+                <div className="bg-primary/5 border border-primary/20 p-6 sm:p-8 rounded-4xl space-y-5">
+                  <Badge className="bg-primary/20 text-primary border-primary/30 uppercase tracking-widest text-[9px] font-bold">
+                    Community Pulse
+                  </Badge>
+                  <h4 className="text-xl font-black leading-none">
+                    Expert <span className="text-primary italic">Highlights</span>
+                  </h4>
 
-                <div className="space-y-3">
-                  {[...platformA.forumTopics, ...platformB.forumTopics]
-                    .slice(0, 3)
-                    .map((topic) => (
-                      <Link
-                        key={topic.id}
-                        href={`/community/topic/${topic.id}`}
-                        className="flex items-start gap-3 p-3 rounded-xl bg-background hover:bg-primary/5 transition-all group"
-                      >
-                        <MessageSquare className="h-4 w-4 text-muted-foreground mt-1 group-hover:text-primary shrink-0" />
-                        <p className="text-xs font-bold leading-snug group-hover:text-primary transition-colors line-clamp-2">
-                          {topic.title}
-                        </p>
-                      </Link>
-                    ))}
-                  {[...platformA.newsArticles, ...platformB.newsArticles]
-                    .slice(0, 2)
-                    .map((news) => (
-                      <Link
-                        key={news.id}
-                        href={`/news/${news.slug}`}
-                        className="flex items-start gap-3 p-3 rounded-xl bg-background hover:bg-blue-500/5 transition-all group border border-blue-500/10"
-                      >
-                        <Newspaper className="h-4 w-4 text-blue-500 mt-1 shrink-0" />
-                        <p className="text-xs font-bold leading-snug group-hover:text-blue-500 transition-colors line-clamp-2">
-                          {news.title}
-                        </p>
-                      </Link>
-                    ))}
+                  <div className="space-y-3">
+                    {content["module.community.enabled"] !== "false" &&
+                      [...platformA.forumTopics, ...platformB.forumTopics]
+                        .slice(0, 3)
+                        .map((topic) => (
+                          <Link
+                            key={topic.id}
+                            href={`/community/topic/${topic.id}`}
+                            className="flex items-start gap-3 p-3 rounded-xl bg-background hover:bg-primary/5 transition-all group"
+                          >
+                            <MessageSquare className="h-4 w-4 text-muted-foreground mt-1 group-hover:text-primary shrink-0" />
+                            <p className="text-xs font-bold leading-snug group-hover:text-primary transition-colors line-clamp-2">
+                              {topic.title}
+                            </p>
+                          </Link>
+                        ))}
+                    {content["module.news.enabled"] !== "false" &&
+                      [...platformA.newsArticles, ...platformB.newsArticles]
+                        .slice(0, 2)
+                        .map((news) => (
+                          <Link
+                            key={news.id}
+                            href={`/news/${news.slug}`}
+                            className="flex items-start gap-3 p-3 rounded-xl bg-background hover:bg-blue-500/5 transition-all group border border-blue-500/10"
+                          >
+                            <Newspaper className="h-4 w-4 text-blue-500 mt-1 shrink-0" />
+                            <p className="text-xs font-bold leading-snug group-hover:text-blue-500 transition-colors line-clamp-2">
+                              {news.title}
+                            </p>
+                          </Link>
+                        ))}
+                  </div>
+
+                  {content["module.community.enabled"] !== "false" && (
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="w-full rounded-xl h-10 font-bold uppercase tracking-widest text-[10px]"
+                    >
+                      <Link href="/community">Join Discussion</Link>
+                    </Button>
+                  )}
                 </div>
-
-                <Button
-                  asChild
-                  variant="outline"
-                  className="w-full rounded-xl h-10 font-bold uppercase tracking-widest text-[10px]"
-                >
-                  <Link href="/community">Join Discussion</Link>
-                </Button>
-              </div>
+              )}
             </aside>
 
             <main className="lg:col-span-8 space-y-16">

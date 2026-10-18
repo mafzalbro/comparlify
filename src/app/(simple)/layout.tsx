@@ -5,6 +5,12 @@ import { getContent } from "@/lib/content";
 import { auth } from "@/lib/auth";
 import { PromoBanner } from "@/components/layout/promo-banner";
 
+import {
+  filterNavigation,
+  isModuleEnabled,
+  parseNavigation,
+} from "@/lib/module-navigation";
+
 export default async function SimplePagesLayout({
   children,
 }: {
@@ -12,30 +18,26 @@ export default async function SimplePagesLayout({
 }) {
   const [session, content] = await Promise.all([auth(), getContent()]);
 
+  const navLinks = filterNavigation(
+    parseNavigation(content["header.navLinks"]),
+    content,
+  );
+
   const footerContent = {
     "footer.tagline": content["footer.tagline"],
     "footer.newsletter.title": content["footer.newsletter.title"],
     "footer.newsletter.subtitle": content["footer.newsletter.subtitle"],
-    "footer.navLinks.navigate": content["footer.navLinks.navigate"],
+    "footer.navLinks.navigate": JSON.stringify(
+      filterNavigation(
+        parseNavigation(content["footer.navLinks.navigate"]),
+        content,
+      ),
+    ),
     "footer.navLinks.company": content["footer.navLinks.company"],
   };
 
   const siteName = content["global.siteName"] || "Comparlify";
-  let navLinks: { href: string; label: string }[] = [];
-  try {
-    navLinks = JSON.parse(content["header.navLinks"] || "[]");
-  } catch (e) {
-    console.error("Failed to parse header.navLinks", e);
-  }
-
-  const isCommunityEnabled = content["module.community.enabled"] === "true";
-  const isAiEnabled = content["module.ai.enabled"] === "true";
-
-  navLinks = navLinks.filter((link) => {
-    if (link.href.startsWith("/community") && !isCommunityEnabled) return false;
-    if (link.href.startsWith("/tools/ai") && !isAiEnabled) return false;
-    return true;
-  });
+  const isAiEnabled = isModuleEnabled("ai", content);
 
   const bannerSettings = {
     enabled: content["global.banner.enabled"] === "true",

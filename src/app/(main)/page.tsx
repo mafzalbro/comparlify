@@ -31,16 +31,8 @@ const getRecentPosts = cache(async () => {
     where: { published: true },
     orderBy: { createdAt: "desc" },
     take: 3,
-    select: {
-      id: true,
-      slug: true,
-      title: true,
-      description: true,
-      image: true,
-      createdAt: true,
-      author: {
-        select: { name: true, image: true },
-      },
+    include: {
+      author: true,
     },
   });
 });
@@ -50,17 +42,9 @@ const getFeaturedComparisons = cache(async () => {
     where: { published: true },
     orderBy: { createdAt: "desc" },
     take: 6,
-    select: {
-      id: true,
-      slug: true,
-      title: true,
-      summary: true,
-      platformA: {
-        select: { id: true, name: true, logoUrl: true, rating: true },
-      },
-      platformB: {
-        select: { id: true, name: true, logoUrl: true, rating: true },
-      },
+    include: {
+      platformA: true,
+      platformB: true,
     },
   });
 });

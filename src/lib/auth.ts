@@ -135,10 +135,15 @@ export const authOptions: NextAuthConfig = {
   events: {
     async createUser({ user }) {
       if (user.email) {
+        const ADMIN_EMAILS = [
+          "comparlify@gmail.com",
+          "mafzalbro@gmail.com",
+          "admin@comparlify.com",
+        ];
         await prisma.user.update({
           where: { id: user.id },
           data: {
-            role: user.email === "comparlify@gmail.com" ? "ADMIN" : "USER",
+            role: ADMIN_EMAILS.includes(user.email.toLowerCase()) ? "ADMIN" : "USER",
           },
         });
       }

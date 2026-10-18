@@ -95,7 +95,7 @@ export default async function AlternativeDetailPage(props: {
   if (!data) notFound();
 
   const { targetPlatform, alternatives } = data;
-  const targetScorecard = calculatePlatformScore(targetPlatform);
+  const targetScorecard = calculatePlatformScore(targetPlatform as any);
 
   const targetPros = Array.isArray(targetPlatform.pros) ? (targetPlatform.pros as string[]) : [];
   const targetCons = Array.isArray(targetPlatform.cons) ? (targetPlatform.cons as string[]) : [];
@@ -142,7 +142,7 @@ export default async function AlternativeDetailPage(props: {
         {/* TARGET PLATFORM SCORECARD SUMMARY */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           <div className="lg:col-span-5 space-y-6">
-            <PlatformScorecardCard platform={targetPlatform} title={`${targetPlatform.name} Benchmark`} />
+            <PlatformScorecardCard platform={targetPlatform as any} title={`${targetPlatform.name} Benchmark`} />
           </div>
 
           <div className="lg:col-span-7 bg-card/40 backdrop-blur-md border border-border/40 p-8 rounded-3xl space-y-6">

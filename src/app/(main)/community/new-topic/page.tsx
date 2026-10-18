@@ -7,11 +7,22 @@ import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
+import { getContent } from "@/lib/content";
+import { isModuleEnabled } from "@/lib/module-navigation";
+import { notFound } from "next/navigation";
+
 export default async function NewTopicPage() {
-  const categories = await prisma.forumCategory.findMany({
-    select: { id: true, name: true },
-    orderBy: { name: "asc" },
-  });
+  const [content, categories] = await Promise.all([
+    getContent(),
+    prisma.forumCategory.findMany({
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+  ]);
+
+  if (!isModuleEnabled("community", content)) {
+    notFound();
+  }
 
   return (
     <div className="bg-background min-h-screen pt-16 pb-16 relative overflow-hidden">

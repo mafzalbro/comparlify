@@ -51,14 +51,21 @@ export async function generateMetadata(props: {
   });
 }
 
+import { getContent } from "@/lib/content";
+import { isModuleEnabled } from "@/lib/module-navigation";
+
 export default async function TopicPage(props: {
   params: Promise<{ id: string }>;
 }) {
   const params = await props.params;
   const { id } = params;
-  const [topic, session] = await Promise.all([getTopic(id), auth()]);
+  const [topic, session, content] = await Promise.all([
+    getTopic(id),
+    auth(),
+    getContent(),
+  ]);
 
-  if (!topic) notFound();
+  if (!isModuleEnabled("community", content) || !topic) notFound();
 
   const canView =
     topic.status === "APPROVED" ||

@@ -17,7 +17,14 @@ const font = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"],
   display: "swap",
-  fallback: ["system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+  fallback: [
+    "system-ui",
+    "-apple-system",
+    "BlinkMacSystemFont",
+    "Segoe UI",
+    "Roboto",
+    "sans-serif",
+  ],
 });
 
 export const metadata: Metadata = await generateSeoMetadata({

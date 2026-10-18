@@ -408,4 +408,4 @@ if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prismaGlobal = prisma;
 }
 
-export default prisma;
+export default prisma as PrismaClient;

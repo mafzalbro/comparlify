@@ -67,15 +67,23 @@ export default async function NewsArticlePage(props: {
 }) {
   const params = await props.params;
   const { slug } = params;
-  const [article, content, trendingComparisons] = await Promise.all([
+  const content = await getContent();
+
+  if (content["module.news.enabled"] === "false") {
+    notFound();
+  }
+
+  const isCompareEnabled = content["module.compare.enabled"] !== "false";
+  const [article, trendingComparisons] = await Promise.all([
     getArticleBySlug(slug),
-    getContent(),
-    prisma.comparison.findMany({
-      where: { published: true },
-      take: 2,
-      orderBy: { createdAt: "desc" },
-      include: { platformA: true, platformB: true },
-    }),
+    isCompareEnabled
+      ? prisma.comparison.findMany({
+          where: { published: true },
+          take: 2,
+          orderBy: { createdAt: "desc" },
+          include: { platformA: true, platformB: true },
+        })
+      : Promise.resolve([]),
   ]);
 
   if (!article) {
@@ -319,18 +327,19 @@ export default async function NewsArticlePage(props: {
                   Related News
                 </h4>
                 <div className="space-y-6">
-                  {/* Placeholder for real related news if available, otherwise generic links */}
-                  <div className="group cursor-pointer">
-                    <p className="text-[10px] font-bold text-primary mb-1 uppercase tracking-widest">
-                      Creator Economy
-                    </p>
-                    <Link
-                      href="/blog"
-                      className="font-bold leading-tight group-hover:text-primary transition-colors block"
-                    >
-                      Mastering the AI Creator Economy
-                    </Link>
-                  </div>
+                  {content["module.blog.enabled"] !== "false" && (
+                    <div className="group cursor-pointer">
+                      <p className="text-[10px] font-bold text-primary mb-1 uppercase tracking-widest">
+                        Creator Economy
+                      </p>
+                      <Link
+                        href="/blog"
+                        className="font-bold leading-tight group-hover:text-primary transition-colors block"
+                      >
+                        Mastering the AI Creator Economy
+                      </Link>
+                    </div>
+                  )}
                   <div className="group cursor-pointer">
                     <p className="text-[10px] font-bold text-primary mb-1 uppercase tracking-widest">
                       E-Learning Updates

@@ -1,10 +1,19 @@
 import { MetadataRoute } from "next";
 import prisma from "@/lib/prisma";
+import { getContent } from "@/lib/content";
+import { isModuleEnabled, isRouteEnabled } from "@/lib/module-navigation";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = "https://www.comparlify.com";
+  const content = await getContent();
 
-  // Get dynamic routes
+  const isBlogOn = isModuleEnabled("blog", content);
+  const isCompareOn = isModuleEnabled("compare", content);
+  const isToolsOn = isModuleEnabled("tools", content);
+  const isNewsOn = isModuleEnabled("news", content);
+  const isCommunityOn = isModuleEnabled("community", content);
+
+  // Fetch only data for enabled modules
   const [
     posts,
     comparisons,
@@ -14,29 +23,41 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     forumTopics,
     siteContent,
   ] = await Promise.all([
-    prisma.post.findMany({
-      where: { published: true },
-      select: { slug: true, updatedAt: true },
-    }),
-    prisma.comparison.findMany({
-      where: { published: true },
-      select: { slug: true, updatedAt: true },
-    }),
-    prisma.tool.findMany({
-      where: { enabled: true },
-      select: { slug: true, updatedAt: true },
-    }),
-    prisma.newsArticle.findMany({
-      where: { published: true },
-      select: { slug: true, updatedAt: true },
-    }),
-    prisma.forumCategory.findMany({
-      select: { slug: true, updatedAt: true },
-    }),
-    prisma.forumTopic.findMany({
-      where: { status: "APPROVED" },
-      select: { id: true, updatedAt: true },
-    }),
+    isBlogOn
+      ? prisma.post.findMany({
+          where: { published: true },
+          select: { slug: true, updatedAt: true },
+        })
+      : Promise.resolve([]),
+    isCompareOn
+      ? prisma.comparison.findMany({
+          where: { published: true },
+          select: { slug: true, updatedAt: true },
+        })
+      : Promise.resolve([]),
+    isToolsOn
+      ? prisma.tool.findMany({
+          where: { enabled: true },
+          select: { slug: true, updatedAt: true },
+        })
+      : Promise.resolve([]),
+    isNewsOn
+      ? prisma.newsArticle.findMany({
+          where: { published: true },
+          select: { slug: true, updatedAt: true },
+        })
+      : Promise.resolve([]),
+    isCommunityOn
+      ? prisma.forumCategory.findMany({
+          select: { slug: true, updatedAt: true },
+        })
+      : Promise.resolve([]),
+    isCommunityOn
+      ? prisma.forumTopic.findMany({
+          where: { status: "APPROVED" },
+          select: { id: true, updatedAt: true },
+        })
+      : Promise.resolve([]),
     prisma.siteContent.findMany({
       where: { group: "Legal Pages" },
       select: { key: true, updatedAt: true },
@@ -92,8 +113,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.3,
   }));
 
-  // Define static routes
-  const staticRoutes = [
+  // Define static routes and filter by route module enablement
+  const allStaticRoutes = [
     "/",
     "/blog",
     "/compare",
@@ -101,6 +122,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/news",
     "/community",
   ];
+
+  const staticRoutes = allStaticRoutes.filter((route) =>
+    route === "/" ? true : isRouteEnabled(route, content),
+  );
 
   const staticUrls = staticRoutes.map((route) => ({
     url: `${siteUrl}${route}`,
