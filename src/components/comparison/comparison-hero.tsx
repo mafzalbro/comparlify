@@ -9,7 +9,7 @@ import { MotionDiv } from "@/components/motion-wrapper";
 import { PlatformIntelligenceModal } from "./platform-intelligence-modal";
 import { Scale, Zap, ShieldCheck, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { MICRO_LABEL, GLASS_CARD_SM } from "@/lib/design-tokens";
+import { GLASS_CARD_SM } from "@/lib/design-tokens";
 import type { Platform } from "@prisma/client";
 import type { Session } from "next-auth";
 
@@ -77,14 +77,18 @@ export function ComparisonHero({
         </div>
 
         {/* Platform Showdown Cards */}
-        <div className={cn(GLASS_CARD_SM, "grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl p-5 sm:p-6 relative mb-10")}>
+        <div
+          className={cn(
+            GLASS_CARD_SM,
+            "grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl p-5 sm:p-6 relative mb-10",
+          )}
+        >
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-background border border-border/40 p-3.5 rounded-full shadow-lg hidden md:block">
             <Zap className="h-6 w-6 text-primary animate-pulse" />
           </div>
           {[platformA, platformB].map((platform, i) => {
             const isWinner =
-              (i === 0 && isPlatformAWinner) ||
-              (i === 1 && isPlatformBWinner);
+              (i === 0 && isPlatformAWinner) || (i === 1 && isPlatformBWinner);
             return (
               <div
                 key={platform.id}

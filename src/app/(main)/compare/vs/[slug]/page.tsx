@@ -16,8 +16,9 @@ import Link from "next/link";
 import { cache } from "react";
 import { cn } from "@/lib/utils";
 import { DETAIL_CONTAINER, GLASS_CARD, GLASS_CARD_SM, MICRO_LABEL } from "@/lib/design-tokens";
-import { auth } from "@/lib/auth";
 import dynamic from "next/dynamic";
+
+export const revalidate = 3600; // Cache pages with ISR so already visited pages don't regenerate
 
 import { calculatePlatformScore } from "@/lib/scoring";
 import { ComparisonHero } from "@/components/comparison/comparison-hero";
@@ -91,7 +92,6 @@ export default async function DynamicBattlePage(props: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await props.params;
-  const session = await auth();
   const parts = slug.split("-vs-");
 
   if (parts.length !== 2) notFound();
@@ -191,7 +191,6 @@ export default async function DynamicBattlePage(props: {
           platformB={platformB as any}
           scoreA={scoreA}
           scoreB={scoreB}
-          session={session}
         />
 
         <ComparisonStats

@@ -12,7 +12,8 @@ import PlatformDetailPage, {
   generateMetadata as generatePlatformMetadata,
 } from "@/app/(main)/platform/[slug]/page";
 
-export const revalidate = 3600;
+export const revalidate = 3600; // Cache for 1 hour (ISR); once generated, subsequent visits serve from cache
+export const dynamicParams = true; // Generate on-demand if not pre-built, then cache forever until revalidation
 
 const getComparison = cache(async (slug: string) => {
   try {
