@@ -41,11 +41,11 @@ export function HomeHero({
             </span>
           </div>
 
-          <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-[1.15] mb-4 bg-linear-to-b from-foreground to-foreground/80 bg-clip-text text-transparent animate-in fade-in slide-in-from-bottom-3 duration-500 delay-100">
+          <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-[1.15] mb-4 text-foreground">
             {title}
           </h1>
 
-          <p className="text-sm md:text-base text-muted-foreground max-w-xl mb-8 leading-relaxed font-medium animate-in fade-in slide-in-from-bottom-3 duration-500 delay-200">
+          <p className="text-sm md:text-base text-muted-foreground max-w-xl mb-8 leading-relaxed font-medium">
             {subtitle}
           </p>
 

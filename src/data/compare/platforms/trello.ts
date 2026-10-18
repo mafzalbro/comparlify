@@ -24,6 +24,36 @@ Trello remains the quintessential visual collaboration tool, offering clean drag
     "Large complex projects become cluttered across wide boards",
     "Power-Up dependencies can increase subscription costs quickly"
   ],
+  tiers: [
+    {
+      name: "Free",
+      monthlyPrice: 0,
+      annualPriceMonthlyEquivalent: 0,
+      features: ["Unlimited cards", "Up to 10 boards per Workspace", "Unlimited Power-Ups", "250 Workspace automation runs"],
+      isPopular: true
+    },
+    {
+      name: "Standard",
+      monthlyPrice: 6,
+      annualPriceMonthlyEquivalent: 5,
+      features: ["Unlimited boards", "Advanced checklists", "Custom fields", "1,000 Workspace command runs"],
+      isPopular: false
+    },
+    {
+      name: "Premium",
+      monthlyPrice: 12.5,
+      annualPriceMonthlyEquivalent: 10,
+      features: ["Dashboard, Timeline, Table, Calendar views", "Unlimited Workspace command runs", "Admin and security features"],
+      isPopular: false
+    }
+  ],
+  features: [
+    { featureName: "Kanban Boards", categoryName: "Task Management", hasFeature: true },
+    { featureName: "Butler Automation", categoryName: "Workflow", hasFeature: true },
+    { featureName: "Power-Ups", categoryName: "Extensibility", hasFeature: true },
+    { featureName: "Calendar View", categoryName: "Visualization", hasFeature: true }
+  ],
+  sourceUrl: "https://trello.com/pricing",
   affiliateLink: "https://trello.com",
   dealDescription: "Get started free on Trello's visual collaboration system.",
   videoHostingIncluded: false,

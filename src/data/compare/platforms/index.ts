@@ -35,6 +35,7 @@ import { wix } from "./wix";
 import { squarespace } from "./squarespace";
 import { klaviyo } from "./klaviyo";
 import { trello } from "./trello";
+import { magento } from "./magento";
 
 export const allPlatforms = [
   beehiiv,
@@ -74,4 +75,5 @@ export const allPlatforms = [
   squarespace,
   klaviyo,
   trello,
+  magento,
 ];

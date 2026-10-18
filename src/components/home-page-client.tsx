@@ -1,14 +1,11 @@
 "use client";
 
-import type { Session } from "next-auth";
+import { useSession } from "next-auth/react";
 import { WelcomeOnboarding } from "@/components/welcome-onboarding";
 
-interface HomePageClientProps {
-  session: Session | null;
-}
-
-export function HomePageClient({ session }: HomePageClientProps) {
-  const showOnboarding = session?.user && !session.user.onboarded;
+export function HomePageClient() {
+  const { data: session } = useSession();
+  const showOnboarding = session?.user && !(session.user as any).onboarded;
 
   if (!showOnboarding) {
     return null;

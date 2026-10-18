@@ -2,7 +2,6 @@ import prisma from "@/lib/prisma";
 import type { Metadata } from "next";
 import { generateSeoMetadata } from "@/lib/seo";
 import { SchemaScript } from "@/components/schema-script";
-import { auth } from "@/lib/auth";
 import { cache } from "react";
 import { getContent } from "@/lib/content";
 
@@ -75,12 +74,11 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export const revalidate = 300; // Cache home page for 5 minutes, revalidate in background
+export const revalidate = 3600; // Cache home page for 1 hour, revalidate in background
 
 export default async function Home() {
-  const [session, recentPosts, featuredComparisons, allPlatforms, content] =
+  const [recentPosts, featuredComparisons, allPlatforms, content] =
     await Promise.all([
-      auth(),
       getRecentPosts(),
       getFeaturedComparisons(),
       getAllPlatforms(),
@@ -90,8 +88,6 @@ export default async function Home() {
   const isToolsEnabled = content["module.tools.enabled"] !== "false";
   const isCompareEnabled = content["module.compare.enabled"] !== "false";
   const isBlogEnabled = content["module.blog.enabled"] !== "false";
-
-  const toolsHref = session ? "/tools" : "/register";
 
   return (
     <div className="flex flex-col w-full relative">
@@ -108,7 +104,7 @@ export default async function Home() {
       />
 
       {/* <GeometricBackground /> */}
-      <HomePageClient session={session} />
+      <HomePageClient />
 
       {/* ── HERO ─────────────────────────── */}
       <HomeHero
@@ -123,7 +119,7 @@ export default async function Home() {
         secondaryCta={content["homepage.cta.secondary"]}
         isToolsEnabled={isToolsEnabled}
         isCompareEnabled={isCompareEnabled}
-        toolsHref={toolsHref}
+        toolsHref="/tools"
       />
 
       {/* ── INTERACTIVE INSTANT BATTLE SELECTOR ── */}

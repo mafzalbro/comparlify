@@ -31,11 +31,13 @@ const createMockPrismaClient = (): any => {
         const found = allPlatforms.find((p) => p.name.toLowerCase() === name.toLowerCase());
         if (found) return found;
 
-        // Return beautiful dynamic mock platform
         const lower = name.toLowerCase();
-        const logo = lower === "trello"
-          ? "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Trello-logo-blue.svg/512px-Trello-logo-blue.svg.png"
-          : `/uploads/${lower}_logo.png`;
+        let logo = `/uploads/${lower}_logo.png`;
+        if (lower === "trello") {
+          logo = "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Trello-logo-blue.svg/512px-Trello-logo-blue.svg.png";
+        } else if (lower === "magento") {
+          logo = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Magento_Logo.svg/512px-Magento_Logo.svg.png";
+        }
 
         return {
           name: name,

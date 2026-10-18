@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { X } from 'lucide-react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 
+import { useState, useEffect } from 'react';
+
 interface PromoBannerProps {
   settings?: {
     enabled?: boolean;
@@ -15,8 +17,13 @@ interface PromoBannerProps {
 
 export function PromoBanner({ settings }: PromoBannerProps) {
     const [dismissed, setDismissed] = useLocalStorage('promoBannerDismissed', false);
+    const [isMounted, setIsMounted] = useState(false);
 
-    if (!settings) {
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    if (!isMounted || !settings) {
         return null;
     }
 

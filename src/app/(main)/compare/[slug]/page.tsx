@@ -29,14 +29,25 @@ import { ComparisonFeatureMatrix } from "@/components/comparison/comparison-feat
 import { IntelligenceVerdict } from "@/components/comparison/intelligence-verdict";
 import { AuthorSection } from "@/components/comparison/author-section";
 import { PlatformVisitCards } from "@/components/comparison/platform-visit-cards";
-import { PlatformScorecardCard } from "@/components/platform-scorecard-card";
+import { SectionHeader } from "@/components/layout/section-header";
 import {
   DETAIL_CONTAINER,
   GLASS_CARD,
   GLASS_CARD_SM,
   MICRO_LABEL,
 } from "@/lib/design-tokens";
-import { SectionHeader } from "@/components/layout/section-header";
+
+const PlatformScorecardCard = dynamic(
+  () =>
+    import("@/components/platform-scorecard-card").then(
+      (mod) => mod.PlatformScorecardCard,
+    ),
+  {
+    loading: () => (
+      <div className="w-full min-h-80 rounded-3xl bg-card/20 border border-border/20 animate-pulse" />
+    ),
+  },
+);
 
 const ComparisonChart = dynamic(
   () =>
