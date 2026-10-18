@@ -16,7 +16,7 @@ const font = Outfit({
   preload: true,
   variable: "--font-outfit",
   subsets: ["latin"],
-  display: "optional",
+  display: "swap",
   fallback: ["system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
 });
 

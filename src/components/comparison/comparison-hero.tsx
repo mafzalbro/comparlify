@@ -111,9 +111,9 @@ export function ComparisonHero({
                 </div>
                 <div className="flex flex-col items-center">
                   <div className="flex items-center gap-1.5">
-                    <h3 className="text-lg font-extrabold text-foreground tracking-tight">
+                    <h2 className="text-lg font-extrabold text-foreground tracking-tight">
                       {platform.name}
-                    </h3>
+                    </h2>
                     <PlatformIntelligenceModal platform={platform as any}>
                       <Button
                         variant="ghost"

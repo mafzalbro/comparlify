@@ -30,7 +30,6 @@ import { IntelligenceVerdict } from "@/components/comparison/intelligence-verdic
 import { AuthorSection } from "@/components/comparison/author-section";
 import { PlatformVisitCards } from "@/components/comparison/platform-visit-cards";
 import { PlatformScorecardCard } from "@/components/platform-scorecard-card";
-import { PlatformChangeTracker } from "@/components/platform-change-tracker";
 import {
   DETAIL_CONTAINER,
   GLASS_CARD,
@@ -45,7 +44,9 @@ const ComparisonChart = dynamic(
   {
     loading: () => (
       <div className="h-70 w-full animate-pulse rounded-2xl bg-secondary/20 flex items-center justify-center">
-        <span className="text-xs text-muted-foreground/50">Loading visualization...</span>
+        <span className="text-xs text-muted-foreground/50">
+          Loading visualization...
+        </span>
       </div>
     ),
   },
@@ -58,8 +59,10 @@ const InteractiveComparisonMatcher = dynamic(
     ),
   {
     loading: () => (
-      <div className="w-full min-h-[420px] rounded-3xl bg-card/20 border border-border/20 animate-pulse flex items-center justify-center">
-        <span className="text-xs text-muted-foreground/40 font-mono">Loading Match Matrix...</span>
+      <div className="w-full min-h-105 rounded-3xl bg-card/20 border border-border/20 animate-pulse flex items-center justify-center">
+        <span className="text-xs text-muted-foreground/40 font-mono">
+          Loading Match Matrix...
+        </span>
       </div>
     ),
   },
@@ -67,11 +70,15 @@ const InteractiveComparisonMatcher = dynamic(
 
 const PlatformPicker = dynamic(
   () =>
-    import("@/components/tool/PlatformPicker").then((mod) => mod.PlatformPicker),
+    import("@/components/tool/PlatformPicker").then(
+      (mod) => mod.PlatformPicker,
+    ),
   {
     loading: () => (
-      <div className="w-full min-h-[480px] rounded-[3.4rem] bg-card/20 border border-border/20 animate-pulse flex items-center justify-center">
-        <span className="text-xs text-muted-foreground/40 font-mono">Loading Decision Engine...</span>
+      <div className="w-full min-h-120 rounded-[3.4rem] bg-card/20 border border-border/20 animate-pulse flex items-center justify-center">
+        <span className="text-xs text-muted-foreground/40 font-mono">
+          Loading Decision Engine...
+        </span>
       </div>
     ),
   },
@@ -84,8 +91,10 @@ const ReviewAcquisitionWidget = dynamic(
     ),
   {
     loading: () => (
-      <div className="w-full min-h-[220px] rounded-3xl bg-card/20 border border-border/20 animate-pulse flex items-center justify-center">
-        <span className="text-xs text-muted-foreground/40 font-mono">Loading Verification Signal...</span>
+      <div className="w-full min-h-55 rounded-3xl bg-card/20 border border-border/20 animate-pulse flex items-center justify-center">
+        <span className="text-xs text-muted-foreground/40 font-mono">
+          Loading Verification Signal...
+        </span>
       </div>
     ),
   },
@@ -98,8 +107,10 @@ const InlineROICalculator = dynamic(
     ),
   {
     loading: () => (
-      <div className="w-full min-h-[300px] rounded-2xl bg-card/20 border border-border/20 animate-pulse flex items-center justify-center">
-        <span className="text-xs text-muted-foreground/40 font-mono">Loading ROI Calculator...</span>
+      <div className="w-full min-h-75 rounded-2xl bg-card/20 border border-border/20 animate-pulse flex items-center justify-center">
+        <span className="text-xs text-muted-foreground/40 font-mono">
+          Loading ROI Calculator...
+        </span>
       </div>
     ),
   },
@@ -112,7 +123,7 @@ const IntelligentAnalysis = dynamic(
     ),
   {
     loading: () => (
-      <div className="w-full min-h-[360px] rounded-4xl bg-card/20 border border-border/20 animate-pulse" />
+      <div className="w-full min-h-90 rounded-4xl bg-card/20 border border-border/20 animate-pulse" />
     ),
   },
 );
@@ -124,7 +135,7 @@ const ComparisonFaqs = dynamic(
     ),
   {
     loading: () => (
-      <div className="w-full min-h-[280px] rounded-2xl bg-card/20 border border-border/20 animate-pulse" />
+      <div className="w-full min-h-70 rounded-2xl bg-card/20 border border-border/20 animate-pulse" />
     ),
   },
 );
@@ -186,22 +197,21 @@ export default async function ComparisonDetailPage(props: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await props.params;
-  const [comparison, content, relatedPosts, relatedNews] =
-    await Promise.all([
-      getComparisonBySlug(slug),
-      getContent(),
-      prisma.post.findMany({
-        where: { published: true },
-        take: 2,
-        orderBy: { createdAt: "desc" },
-        include: { author: true },
-      }),
-      prisma.newsArticle.findMany({
-        where: { published: true },
-        take: 2,
-        orderBy: { createdAt: "desc" },
-      }),
-    ]);
+  const [comparison, content, relatedPosts, relatedNews] = await Promise.all([
+    getComparisonBySlug(slug),
+    getContent(),
+    prisma.post.findMany({
+      where: { published: true },
+      take: 2,
+      orderBy: { createdAt: "desc" },
+      include: { author: true },
+    }),
+    prisma.newsArticle.findMany({
+      where: { published: true },
+      take: 2,
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
 
   if (!comparison) notFound();
 
@@ -580,9 +590,9 @@ export default async function ComparisonDetailPage(props: {
                           >
                             <BookOpen className="h-3 w-3" /> Blog Article
                           </span>
-                          <h4 className="text-xl font-bold group-hover:text-primary transition-colors">
+                          <h3 className="text-xl font-bold group-hover:text-primary transition-colors">
                             {post.title}
-                          </h4>
+                          </h3>
                         </Card>
                       </Link>
                     ))}
@@ -606,9 +616,9 @@ export default async function ComparisonDetailPage(props: {
                           >
                             Market News
                           </span>
-                          <h4 className="text-xl font-bold group-hover:text-blue-500 transition-colors">
+                          <h3 className="text-xl font-bold group-hover:text-blue-500 transition-colors">
                             {news.title}
-                          </h4>
+                          </h3>
                         </Card>
                       </Link>
                     ))}

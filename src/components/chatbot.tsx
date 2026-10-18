@@ -23,6 +23,8 @@ import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 
 
+import { useSession } from 'next-auth/react';
+
 type Message = {
   id: string;
   role: 'user' | 'assistant';
@@ -35,6 +37,7 @@ type HistoryMessage = {
 }
 
 export function Chatbot() {
+  const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -43,6 +46,10 @@ export function Chatbot() {
       content: "Hello! I'm the Comparlify AI assistant. How can I help you today?",
     },
   ]);
+
+  if (!session?.user) {
+    return null;
+  }
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
