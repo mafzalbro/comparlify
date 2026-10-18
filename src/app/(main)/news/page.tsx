@@ -121,8 +121,8 @@ export default async function NewsPage() {
                   href={`/news/${featuredArticle.slug}`}
                   className="block group"
                 >
-                  <div className="relative grid grid-cols-1 lg:grid-cols-12 overflow-hidden rounded-[2.5rem] border border-border/10 glass dark:glass-dark shadow-[0_50px_100px_-30px_rgba(0,0,0,0.2)] hover:shadow-blue-500/5 transition-all duration-700 h-full lg:min-h-[400px]">
-                    <div className="lg:col-span-7 relative h-[250px] lg:h-auto overflow-hidden">
+                  <div className="relative grid grid-cols-1 lg:grid-cols-12 overflow-hidden rounded-[2.5rem] border border-border/10 glass dark:glass-dark shadow-[0_50px_100px_-30px_rgba(0,0,0,0.2)] hover:shadow-blue-500/5 transition-all duration-700 h-full lg:min-h-100">
+                    <div className="lg:col-span-7 relative h-62.5 lg:h-auto overflow-hidden">
                       <ManagedImage
                         src={featuredArticle.image.replace(
                           "400/250",
@@ -285,7 +285,7 @@ export default async function NewsPage() {
           <div className="absolute inset-0 bg-primary/2 pointer-events-none"></div>
           <div className="relative p-12 md:p-24 overflow-hidden text-center">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-12 text-primary/5 select-none pointer-events-none -rotate-12">
-              <Newspaper className="h-[500px] w-[500px]" />
+              <Newspaper className="h-125 w-125" />
             </div>
 
             <div className="relative z-10 max-w-5xl mx-auto">

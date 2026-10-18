@@ -333,7 +333,7 @@ export default async function BlogPostPage(props: {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1.2, delay: 0.4 }}
           >
-            <div className="relative aspect-[3/1] rounded-[2rem] overflow-hidden shadow-[0_40px_80px_-20px_rgba(0,0,0,0.4)] group border-8 border-background ring-1 ring-border/10">
+            <div className="relative aspect-3/1 rounded-4xl overflow-hidden shadow-[0_40px_80px_-20px_rgba(0,0,0,0.4)] group border-8 border-background ring-1 ring-border/10">
               <ManagedImage
                 src={post.image.replace("400/250", "1920/1080")}
                 alt={post.title}
@@ -385,17 +385,13 @@ export default async function BlogPostPage(props: {
                 transition={{ delay: 0.6 }}
               >
                 {post.keyTakeaways && (
-                  <BlogQuickLook
-                    keyTakeaways={post.keyTakeaways as string[]}
-                  />
+                  <BlogQuickLook keyTakeaways={post.keyTakeaways as string[]} />
                 )}
 
                 <BlogIntelligentLayout content={post.content} />
 
                 {post.checklist && (
-                  <BlogActionableSteps
-                    steps={post.checklist as any[]}
-                  />
+                  <BlogActionableSteps steps={post.checklist as any[]} />
                 )}
 
                 <BlogAuthorSection

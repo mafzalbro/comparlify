@@ -193,7 +193,7 @@ export default async function NewsArticlePage(props: {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 0.2 }}
         >
-          <div className="relative aspect-[3/1] rounded-4xl overflow-hidden shadow-2xl group border-8 border-background ring-1 ring-border/10">
+          <div className="relative aspect-3/1 rounded-4xl overflow-hidden shadow-2xl group border-8 border-background ring-1 ring-border/10">
             <ManagedImage
               src={article.image.replace("400/250", "1920/1080")}
               alt={article.title}

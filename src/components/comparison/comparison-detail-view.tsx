@@ -63,21 +63,21 @@ const ComparisonChart = dynamic(
   },
 );
 
-const InteractiveComparisonMatcher = dynamic(
-  () =>
-    import("@/components/comparison/interactive-comparison-matcher").then(
-      (mod) => mod.InteractiveComparisonMatcher,
-    ),
-  {
-    loading: () => (
-      <div className="w-full min-h-105 rounded-3xl bg-card/20 border border-border/20 animate-pulse flex items-center justify-center">
-        <span className="text-xs text-muted-foreground/40 font-mono">
-          Loading Match Matrix...
-        </span>
-      </div>
-    ),
-  },
-);
+// const InteractiveComparisonMatcher = dynamic(
+//   () =>
+//     import("@/components/comparison/interactive-comparison-matcher").then(
+//       (mod) => mod.InteractiveComparisonMatcher,
+//     ),
+//   {
+//     loading: () => (
+//       <div className="w-full min-h-105 rounded-3xl bg-card/20 border border-border/20 animate-pulse flex items-center justify-center">
+//         <span className="text-xs text-muted-foreground/40 font-mono">
+//           Loading Match Matrix...
+//         </span>
+//       </div>
+//     ),
+//   },
+// );
 
 const PlatformPicker = dynamic(
   () =>
@@ -151,8 +151,6 @@ const ComparisonFaqs = dynamic(
   },
 );
 
-export const revalidate = 3600; // ISR for comparison pages
-
 const getComparisonBySlug = cache(async (slug: string) => {
   return prisma.comparison.findFirst({
     where: { slug, published: true },
@@ -197,11 +195,23 @@ export async function generateMetadata(props: {
   });
 }
 
+export const revalidate = 3600; // Cache for 1 hour (ISR)
+export const dynamicParams = true; // On-demand generation for newly added comparisons without rebuild
+
 export const generateStaticParams = cache(async () => {
-  const comparisons = await prisma.comparison.findMany({
-    where: { published: true },
-  });
-  return comparisons.map((comp: { slug: string }) => ({ slug: comp.slug }));
+  try {
+    const comparisons = await prisma.comparison.findMany({
+      where: { published: true },
+      select: { slug: true },
+    });
+    return comparisons.map((comp: { slug: string }) => ({ slug: comp.slug }));
+  } catch (err) {
+    console.warn(
+      "[generateStaticParams] compare/[slug] DB unreachable during build:",
+      err,
+    );
+    return [];
+  }
 });
 
 export default async function ComparisonDetailPage(props: {
@@ -366,10 +376,10 @@ export default async function ComparisonDetailPage(props: {
 
         {/* ── SIDE-BY-SIDE SCORECARDS & INTERACTIVE MATCHER ────────────────── */}
         <section className={DETAIL_CONTAINER + " pt-8 pb-4 space-y-12"}>
-          <InteractiveComparisonMatcher
+          {/* <InteractiveComparisonMatcher
             platformA={platformA as any}
             platformB={platformB as any}
-          />
+          /> */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <PlatformScorecardCard platform={platformA as any} />
             <PlatformScorecardCard platform={platformB as any} />

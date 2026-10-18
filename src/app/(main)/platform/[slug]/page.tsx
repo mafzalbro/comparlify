@@ -35,8 +35,6 @@ import { PlatformChangeTracker } from "@/components/platform-change-tracker";
 import { PersonalizedMatchCard } from "@/components/personalized-match-card";
 import { ReviewAcquisitionWidget } from "@/components/review-acquisition-widget";
 
-export const revalidate = 3600; // ISR
-
 const getPlatformBySlug = cache(async (slug: string) => {
   const platformNameClean = slug.replace(/-/g, " ");
   const platform = await prisma.platform.findFirst({
@@ -100,13 +98,24 @@ export async function generateMetadata(props: {
   });
 }
 
+export const revalidate = 3600; // Cache for 1 hour (ISR)
+export const dynamicParams = true; // On-demand generation for newly added platforms without rebuild
+
 export async function generateStaticParams() {
-  const platforms = await prisma.platform.findMany({
-    select: { name: true },
-  });
-  return platforms.map((p: { name: string }) => ({
-    slug: p.name.toLowerCase().replace(/\s+/g, "-"),
-  }));
+  try {
+    const platforms = await prisma.platform.findMany({
+      select: { name: true },
+    });
+    return platforms.map((p: { name: string }) => ({
+      slug: p.name.toLowerCase().replace(/\s+/g, "-"),
+    }));
+  } catch (err) {
+    console.warn(
+      "[generateStaticParams] platform/[slug] DB unreachable during build:",
+      err,
+    );
+    return [];
+  }
 }
 
 export default async function PlatformDetailPage(props: {
@@ -176,7 +185,7 @@ export default async function PlatformDetailPage(props: {
               </div>
 
               {/* Headline */}
-              <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-foreground tracking-tight mb-3 leading-tight break-words">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-foreground tracking-tight mb-3 leading-tight wrap-break-word">
                 {platform.name} Review &amp; Analysis
               </h1>
               <p className="text-sm sm:text-base md:text-lg text-muted-foreground font-medium mb-6 max-w-2xl leading-relaxed px-2">
@@ -728,7 +737,7 @@ export default async function PlatformDetailPage(props: {
                   <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px] uppercase font-black tracking-widest px-3 py-1 rounded-full">
                     Next Step
                   </Badge>
-                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground tracking-tight break-words">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground tracking-tight wrap-break-word">
                     Ready to evaluate {platform.name}?
                   </h2>
                   <p className="text-sm sm:text-base text-muted-foreground font-medium max-w-xl mx-auto leading-relaxed">

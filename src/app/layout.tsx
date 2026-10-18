@@ -113,7 +113,7 @@ export default async function RootLayout({
         <NextTopLoader color="hsl(var(--primary))" showSpinner={false} />
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >

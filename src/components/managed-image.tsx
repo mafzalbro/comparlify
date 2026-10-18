@@ -1,38 +1,39 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Image, { type ImageProps } from 'next/image';
-import { Layers } from 'lucide-react';
+import { useState } from "react";
+import Image, { type ImageProps } from "next/image";
+import { Layers } from "lucide-react";
 
 export function ManagedImage(props: ImageProps) {
   const [error, setError] = useState(false);
 
-  const isExternal = typeof props.src === 'string' && props.src.startsWith('http');
+  const isExternal =
+    typeof props.src === "string" && props.src.startsWith("http");
 
   if (error || !props.src) {
     const isFill = !!props.fill;
     const fallbackStyle: React.CSSProperties = isFill
       ? {
-          position: 'absolute',
-          height: '100%',
-          width: '100%',
+          position: "absolute",
+          height: "100%",
+          width: "100%",
           left: 0,
           top: 0,
           right: 0,
           bottom: 0,
         }
       : {
-          width: props.width ? `${props.width}px` : '100%',
-          height: props.height ? `${props.height}px` : '100%',
+          width: props.width ? `${props.width}px` : "100%",
+          height: props.height ? `${props.height}px` : "100%",
         };
 
-    const initial = props.alt ? props.alt.trim().charAt(0).toUpperCase() : '';
+    const initial = props.alt ? props.alt.trim().charAt(0).toUpperCase() : "";
 
     return (
       <div
-        className="flex items-center justify-center gap-2.5 bg-secondary/30 border border-border/40 rounded-xl px-4 py-2 text-center select-none min-h-[44px]"
+        className="flex items-center justify-center gap-2.5 bg-secondary/30 border border-border/40 rounded-xl px-4 py-2 text-center select-none min-h-11"
         style={props.style}
-        title={props.alt || 'Platform'}
+        title={props.alt || "Platform"}
       >
         {initial ? (
           <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary text-primary-foreground font-black text-sm tracking-wider shadow-xs shrink-0">
@@ -69,14 +70,14 @@ export function ManagedImage(props: ImageProps) {
 
     const fillStyle: React.CSSProperties = fill
       ? {
-          position: 'absolute',
-          height: '100%',
-          width: '100%',
+          position: "absolute",
+          height: "100%",
+          width: "100%",
           left: 0,
           top: 0,
           right: 0,
           bottom: 0,
-          objectFit: 'contain',
+          objectFit: "contain",
         }
       : {};
 
@@ -110,7 +111,8 @@ export function ManagedImage(props: ImageProps) {
       {...props}
       src={props.src}
       onError={() => {
-        if (!error) { // Prevent infinite loop if fallback also fails
+        if (!error) {
+          // Prevent infinite loop if fallback also fails
           setError(true);
         }
       }}

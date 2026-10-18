@@ -25,13 +25,19 @@ import {
   Clock,
   Compass,
   MapPin,
+  Zap,
 } from "lucide-react";
 import { ManagedImage } from "@/components/managed-image";
 import { formatDistanceToNow } from "date-fns";
-import { Zap } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 async function getAnalytics() {
-  const [platforms, recentClicks] = await Promise.all([
+  // Calculate the date 7 days ago
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+  sevenDaysAgo.setHours(0, 0, 0, 0);
+
+  const [platforms, recentClicks, weeklyClicks] = await Promise.all([
     prisma.platform.findMany({
       include: {
         _count: {
@@ -49,6 +55,13 @@ async function getAnalytics() {
       orderBy: { createdAt: "desc" },
       include: { platform: true },
     }),
+    // Fetch clicks from the last 7 days for the chart
+    prisma.affiliateClick.findMany({
+      where: {
+        createdAt: { gte: sevenDaysAgo },
+      },
+      select: { createdAt: true },
+    }),
   ]);
 
   const totalClicks = platforms.reduce(
@@ -56,11 +69,34 @@ async function getAnalytics() {
     0,
   );
 
-  return { platforms, totalClicks, recentClicks };
+  // ── Process Weekly Data for Chart ──
+  // Create an array of the last 7 days (including today)
+  const dailyData = Array.from({ length: 7 }).map((_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    return {
+      dateStr: d.toISOString().split("T")[0],
+      label: d.toLocaleDateString("en-US", { weekday: "short" }),
+      count: 0,
+    };
+  });
+
+  // Aggregate the weekly clicks into the daily array
+  weeklyClicks.forEach((click) => {
+    const clickDate = click.createdAt.toISOString().split("T")[0];
+    const dayData = dailyData.find((d) => d.dateStr === clickDate);
+    if (dayData) dayData.count += 1;
+  });
+
+  // Find the highest click count to scale the chart properly
+  const maxClicks = Math.max(...dailyData.map((d) => d.count), 1);
+
+  return { platforms, totalClicks, recentClicks, dailyData, maxClicks };
 }
 
 export default async function AnalyticsPage() {
-  const { platforms, totalClicks, recentClicks } = await getAnalytics();
+  const { platforms, totalClicks, recentClicks, dailyData, maxClicks } =
+    await getAnalytics();
 
   return (
     <div className="space-y-8">
@@ -101,14 +137,38 @@ export default async function AnalyticsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[120px] w-full bg-primary/5 rounded-xl border border-primary/10 flex items-end gap-2 p-4">
-              {[45, 67, 89, 120, 95, 140, 180].map((h, i) => (
-                <div
+            {/* REAL DYNAMIC CHART */}
+            <div className="h-[120px] w-full bg-primary/5 rounded-xl border border-primary/10 flex items-end gap-2 p-4 pt-8">
+              {dailyData.map((d, i) => {
+                // Calculate height percentage (minimum 2% so the bar is always visible)
+                const heightPercent = Math.max((d.count / maxClicks) * 100, 2);
+                return (
+                  <div
+                    key={i}
+                    className="flex-1 flex flex-col items-center group relative h-full justify-end"
+                  >
+                    {/* Hover Tooltip */}
+                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground text-[10px] font-bold px-2 py-1 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none whitespace-nowrap">
+                      {d.count} clicks
+                    </div>
+                    {/* Bar */}
+                    <div
+                      className="w-full bg-primary rounded-t-md transition-all duration-1000 group-hover:bg-primary/80 cursor-pointer"
+                      style={{ height: `${heightPercent}%` }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+            {/* X-Axis Labels */}
+            <div className="flex justify-between mt-2 px-4">
+              {dailyData.map((d, i) => (
+                <span
                   key={i}
-                  className="flex-1 bg-primary rounded-t-md transition-all duration-1000"
-                  style={{ height: `${(h / 180) * 100}%` }}
-                  title={`${h} clicks`}
-                />
+                  className="text-[9px] text-muted-foreground uppercase font-bold tracking-wider flex-1 text-center"
+                >
+                  {d.label}
+                </span>
               ))}
             </div>
           </CardContent>
@@ -203,16 +263,23 @@ export default async function AnalyticsPage() {
                           {click.country || "Unknown"}
                         </div>
                         <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-black flex items-center gap-1">
-                          <MapPin className="h-3 w-3" /> {click.city || "Unknown"}
+                          <MapPin className="h-3 w-3" />{" "}
+                          {click.city || "Unknown"}
                         </div>
                       </div>
                     </TableCell>
                     <TableCell className="border-r border-border/10 p-4">
                       <div className="flex flex-col gap-1.5">
-                        <div className="text-xs font-mono font-medium truncate max-w-[180px]" title={click.ip}>
+                        <div
+                          className="text-xs font-mono font-medium truncate max-w-[180px]"
+                          title={click.ip}
+                        >
                           IP: {click.ip}
                         </div>
-                        <div className="text-[10px] text-muted-foreground flex items-center gap-1.5 truncate max-w-[180px]" title={click.referrer}>
+                        <div
+                          className="text-[10px] text-muted-foreground flex items-center gap-1.5 truncate max-w-[180px]"
+                          title={click.referrer}
+                        >
                           <Compass className="h-3 w-3" /> {click.referrer}
                         </div>
                       </div>
@@ -220,7 +287,9 @@ export default async function AnalyticsPage() {
                     <TableCell className="text-right px-6 p-4">
                       <div className="flex flex-col items-end gap-1">
                         <span className="text-sm font-black text-foreground">
-                          {formatDistanceToNow(click.createdAt, { addSuffix: true })}
+                          {formatDistanceToNow(click.createdAt, {
+                            addSuffix: true,
+                          })}
                         </span>
                         <div className="flex items-center gap-1 text-[9px] text-muted-foreground uppercase tracking-widest font-bold">
                           <Clock className="h-3 w-3" /> Logged

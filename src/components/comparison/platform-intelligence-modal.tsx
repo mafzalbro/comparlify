@@ -27,11 +27,14 @@ export function PlatformIntelligenceModal({
         <DialogHeader className="p-4 sm:p-6 md:p-8 pb-3 sm:pb-4 border-b shrink-0 pr-12">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <DialogTitle className="text-lg sm:text-2xl md:text-3xl font-black uppercase tracking-tight break-words">
+              <DialogTitle className="text-lg sm:text-2xl md:text-3xl font-black uppercase tracking-tight wrap-break-word">
                 {platform.name} Intelligence Report
               </DialogTitle>
               <div className="flex flex-wrap gap-2 pt-1">
-                <Badge variant="outline" className="text-[9px] sm:text-[10px] font-bold uppercase">
+                <Badge
+                  variant="outline"
+                  className="text-[9px] sm:text-[10px] font-bold uppercase"
+                >
                   Verified 2026
                 </Badge>
                 <Badge className="bg-primary/10 text-primary border-none text-[9px] sm:text-[10px] font-bold uppercase">
@@ -53,8 +56,8 @@ export function PlatformIntelligenceModal({
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm font-medium text-foreground/90 leading-relaxed">
-                  High-intent creators looking for stable, scalable infrastructure with
-                  robust automation.
+                  High-intent creators looking for stable, scalable
+                  infrastructure with robust automation.
                 </p>
               </div>
 
@@ -66,8 +69,8 @@ export function PlatformIntelligenceModal({
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm font-medium text-foreground/90 leading-relaxed">
-                  Requires higher initial investment and may have a steeper learning
-                  curve for non-technical users.
+                  Requires higher initial investment and may have a steeper
+                  learning curve for non-technical users.
                 </p>
               </div>
             </div>
@@ -76,27 +79,33 @@ export function PlatformIntelligenceModal({
               components={{
                 h1: ({ ...props }) => (
                   <h1
-                    className="text-lg sm:text-2xl font-black tracking-tight mt-6 sm:mt-10 mb-4 text-foreground break-words"
+                    className="text-lg sm:text-2xl font-black tracking-tight mt-6 sm:mt-10 mb-4 text-foreground wrap-break-word"
                     {...props}
                   />
                 ),
                 h2: ({ ...props }) => (
                   <h2
-                    className="text-base sm:text-xl font-black uppercase tracking-tight mt-8 sm:mt-12 mb-4 sm:mb-6 text-primary flex items-center gap-2 sm:gap-3 break-words"
+                    className="text-base sm:text-xl font-black uppercase tracking-tight mt-8 sm:mt-12 mb-4 sm:mb-6 text-primary flex items-center gap-2 sm:gap-3 wrap-break-word"
                     {...props}
                   />
                 ),
                 h3: ({ ...props }) => (
                   <h3
-                    className="text-sm sm:text-lg font-bold uppercase tracking-tight mt-6 sm:mt-8 mb-3 text-foreground break-words"
+                    className="text-sm sm:text-lg font-bold uppercase tracking-tight mt-6 sm:mt-8 mb-3 text-foreground wrap-break-word"
                     {...props}
                   />
                 ),
                 p: ({ ...props }) => (
-                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mb-4 sm:mb-6" {...props} />
+                  <p
+                    className="text-xs sm:text-sm text-muted-foreground leading-relaxed mb-4 sm:mb-6"
+                    {...props}
+                  />
                 ),
                 li: ({ ...props }) => (
-                  <li className="text-xs sm:text-sm text-muted-foreground mb-2 leading-relaxed" {...props} />
+                  <li
+                    className="text-xs sm:text-sm text-muted-foreground mb-2 leading-relaxed"
+                    {...props}
+                  />
                 ),
                 blockquote: ({ ...props }) => (
                   <blockquote
@@ -106,14 +115,23 @@ export function PlatformIntelligenceModal({
                 ),
                 table: ({ ...props }) => (
                   <div className="w-full my-6 overflow-x-auto rounded-2xl border border-border/40 bg-card/40 shadow-xs overscroll-contain">
-                    <table className="w-full text-left text-xs border-collapse min-w-[400px]" {...props} />
+                    <table
+                      className="w-full text-left text-xs border-collapse min-w-100"
+                      {...props}
+                    />
                   </div>
                 ),
                 th: ({ ...props }) => (
-                  <th className="bg-secondary/40 px-3 py-2.5 font-bold text-foreground border-b border-border/40 whitespace-nowrap text-[11px] uppercase tracking-wider" {...props} />
+                  <th
+                    className="bg-secondary/40 px-3 py-2.5 font-bold text-foreground border-b border-border/40 whitespace-nowrap text-[11px] uppercase tracking-wider"
+                    {...props}
+                  />
                 ),
                 td: ({ ...props }) => (
-                  <td className="px-3 py-2.5 border-b border-border/20 text-muted-foreground whitespace-nowrap text-xs" {...props} />
+                  <td
+                    className="px-3 py-2.5 border-b border-border/20 text-muted-foreground whitespace-nowrap text-xs"
+                    {...props}
+                  />
                 ),
               }}
             >
@@ -144,8 +162,8 @@ export function PlatformIntelligenceModal({
                       ROI Potential
                     </span>
                     <span className="text-xs text-muted-foreground leading-relaxed">
-                      High LTV extraction capabilities through advanced checkout and
-                      automation funnels.
+                      High LTV extraction capabilities through advanced checkout
+                      and automation funnels.
                     </span>
                   </div>
                 </div>

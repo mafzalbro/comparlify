@@ -11,8 +11,7 @@ import {
   TrendingDown,
   ArrowRight,
   ShieldCheck,
-  CreditCard,
-  Target,
+  Users,
 } from "lucide-react";
 import { calculateROI, GATEWAYS, type PricingTier } from "@/lib/roi-engine";
 import { Button } from "../ui/button";
@@ -33,39 +32,69 @@ export function InlineROICalculator({
   platformA,
   platformB,
 }: InlineROICalculatorProps) {
+  // State for controls
   const [revenue, setRevenue] = useState(5000);
-  const [salesCount, setSalesCount] = useState(50);
+  const [salesCount, setSalesCount] = useState(50); // Now controlled by a slider
   const [billingInterval, setBillingInterval] = useState<
     "monthly" | "annually"
   >("monthly");
   const [gatewayId, setGatewayId] = useState("stripe");
 
-  // Pick the most popular or first tier by default
+  // Safe access in case tiers array is empty/missing
   const tierA =
-    platformA.tiers.find((t) => (t as any).isPopular) || platformA.tiers[0];
+    platformA?.tiers?.find((t) => (t as any).isPopular) ||
+    platformA?.tiers?.[0];
   const tierB =
-    platformB.tiers.find((t) => (t as any).isPopular) || platformB.tiers[0];
+    platformB?.tiers?.find((t) => (t as any).isPopular) ||
+    platformB?.tiers?.[0];
 
-  const gateway = GATEWAYS[gatewayId];
+  // Safe fallback for gateway
+  const gateway = GATEWAYS[gatewayId] || Object.values(GATEWAYS)[0];
 
+  // Safe Math: Wrapped in try/catch to prevent crashes if data is malformed
   const statsA = useMemo(() => {
-    if (!tierA) return null;
-    return calculateROI(revenue, salesCount, tierA, gateway, billingInterval);
+    if (!tierA || !gateway) return null;
+    try {
+      return calculateROI(revenue, salesCount, tierA, gateway, billingInterval);
+    } catch (e) {
+      console.error("ROI Calc Error A:", e);
+      return null;
+    }
   }, [revenue, salesCount, tierA, gateway, billingInterval]);
 
   const statsB = useMemo(() => {
-    if (!tierB) return null;
-    return calculateROI(revenue, salesCount, tierB, gateway, billingInterval);
+    if (!tierB || !gateway) return null;
+    try {
+      return calculateROI(revenue, salesCount, tierB, gateway, billingInterval);
+    } catch (e) {
+      console.error("ROI Calc Error B:", e);
+      return null;
+    }
   }, [revenue, salesCount, tierB, gateway, billingInterval]);
 
-  if (!statsA || !statsB) return null;
+  // Graceful Fallback: Prevents blank sections if data is missing
+  if (!statsA || !statsB) {
+    return (
+      <Card className="p-10 min-h-75 flex flex-col items-center justify-center text-center bg-card/20 border border-border/40 rounded-3xl">
+        <Calculator className="h-10 w-10 text-muted-foreground/30 mb-4" />
+        <h3 className="text-lg font-black uppercase tracking-tight text-muted-foreground">
+          Calculator Unavailable
+        </h3>
+        <p className="text-sm font-medium text-muted-foreground/70 mt-2 max-w-md">
+          We couldn't find active pricing tier data for one or both platforms in
+          the database to run this ROI calculation.
+        </p>
+      </Card>
+    );
+  }
 
+  // Calculations for UI presentation
+  const orderValue = salesCount > 0 ? revenue / salesCount : 0;
   const savings = statsA.monthlyTotalCost - statsB.monthlyTotalCost;
   const absSavings = Math.abs(savings);
   const yearlySavings = absSavings * 12;
 
   const winner = savings > 0 ? platformB : platformA;
-  const loser = savings > 0 ? platformA : platformB;
 
   return (
     <Card className="p-6 bg-card/40 backdrop-blur-md border border-border/40 hover:border-border/60 transition-colors rounded-2xl shadow-md overflow-hidden relative group">
@@ -73,10 +102,10 @@ export function InlineROICalculator({
         <Calculator className="h-36 w-36" />
       </div>
 
-      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Left Side: Controls */}
-        <div className="space-y-8">
-          <div className="flex items-center justify-between mb-4">
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+        {/* ── Left Side: Controls ── */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between mb-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest leading-none">
               <TrendingDown className="h-3 w-3" /> Cost Comparison
             </div>
@@ -102,18 +131,19 @@ export function InlineROICalculator({
             </Tabs>
           </div>
 
-          <h3 className="text-3xl font-black tracking-tight mb-2">
+          <h3 className="text-3xl font-black tracking-tight mb-4">
             The <span className="text-primary italic">Math</span> of Switching
           </h3>
 
-          <div className="space-y-6">
-            <div className="p-6 rounded-3xl bg-background/50 border border-border/10">
+          <div className="space-y-4">
+            {/* Revenue Slider */}
+            <div className="p-5 rounded-3xl bg-background/50 border border-border/10">
               <div className="flex justify-between items-end mb-4">
                 <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                   <DollarSign className="h-3 w-3 text-primary" /> Monthly
                   Revenue
                 </label>
-                <span className="text-2xl font-black italic tracking-tighter tabular-nums">
+                <span className="text-xl font-black italic tracking-tighter tabular-nums">
                   ${revenue.toLocaleString()}
                 </span>
               </div>
@@ -126,6 +156,27 @@ export function InlineROICalculator({
               />
             </div>
 
+            {/* Transactions Slider (NEW) */}
+            <div className="p-5 rounded-3xl bg-background/50 border border-border/10">
+              <div className="flex justify-between items-end mb-4">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                  <Users className="h-3 w-3 text-primary" /> Monthly
+                  Transactions
+                </label>
+                <span className="text-xl font-black italic tracking-tighter tabular-nums">
+                  {salesCount.toLocaleString()}
+                </span>
+              </div>
+              <Slider
+                value={[salesCount]}
+                onValueChange={(val) => setSalesCount(val[0])}
+                max={1000}
+                step={10}
+                className="py-2"
+              />
+            </div>
+
+            {/* Gateway & Order Value */}
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-background/30 border border-border/10 rounded-2xl p-4">
                 <label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground block mb-2">
@@ -145,33 +196,37 @@ export function InlineROICalculator({
               </div>
               <div className="bg-background/30 border border-border/10 rounded-2xl p-4">
                 <label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground block mb-2">
-                  Order Value
+                  Avg Order Value
                 </label>
                 <div className="text-xs font-bold">
-                  ${salesCount > 0 ? (revenue / salesCount).toFixed(0) : 0}
+                  ${orderValue.toFixed(2)}
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Right Side: Results */}
+        {/* ── Right Side: Results ── */}
         <div className="flex flex-col justify-center space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div
-              className={`p-5 rounded-3xl border transition-all ${savings > 0 ? "bg-muted/30 border-border/10 opacity-70" : "bg-primary/5 border-primary/20 ring-1 ring-primary/10 shadow-lg shadow-primary/5"}`}
+              className={`p-5 rounded-3xl border transition-all ${
+                savings > 0
+                  ? "bg-muted/30 border-border/10 opacity-70"
+                  : "bg-primary/5 border-primary/20 ring-1 ring-primary/10 shadow-lg shadow-primary/5"
+              }`}
             >
               <div className="flex justify-between items-start mb-1">
-                <p className="text-[9px] font-black uppercase tracking-widest opacity-60">
+                <p className="text-[9px] font-black uppercase tracking-widest opacity-60 line-clamp-1">
                   {platformA.name}
                 </p>
                 {platformA.lastVerifiedAt && (
-                  <ShieldCheck className="h-3 w-3 text-primary opacity-50" />
+                  <ShieldCheck className="h-3 w-3 text-primary opacity-50 shrink-0" />
                 )}
               </div>
               <p className="text-2xl font-black tracking-tighter tabular-nums">
                 ${statsA.monthlyTotalCost.toFixed(0)}
-                <span className="text-xs opacity-50">/mo</span>
+                <span className="text-xs opacity-50 font-medium">/mo</span>
               </p>
               <p className="text-[8px] font-bold uppercase tracking-tight text-muted-foreground mt-1 line-clamp-1">
                 {tierA?.name} Tier
@@ -179,19 +234,23 @@ export function InlineROICalculator({
             </div>
 
             <div
-              className={`p-5 rounded-3xl border transition-all ${savings < 0 ? "bg-muted/30 border-border/10 opacity-70" : "bg-primary/5 border-primary/20 ring-1 ring-primary/10 shadow-lg shadow-primary/5"}`}
+              className={`p-5 rounded-3xl border transition-all ${
+                savings < 0
+                  ? "bg-muted/30 border-border/10 opacity-70"
+                  : "bg-primary/5 border-primary/20 ring-1 ring-primary/10 shadow-lg shadow-primary/5"
+              }`}
             >
               <div className="flex justify-between items-start mb-1">
-                <p className="text-[9px] font-black uppercase tracking-widest opacity-60">
+                <p className="text-[9px] font-black uppercase tracking-widest opacity-60 line-clamp-1">
                   {platformB.name}
                 </p>
                 {platformB.lastVerifiedAt && (
-                  <ShieldCheck className="h-3 w-3 text-primary opacity-50" />
+                  <ShieldCheck className="h-3 w-3 text-primary opacity-50 shrink-0" />
                 )}
               </div>
               <p className="text-2xl font-black tracking-tighter tabular-nums">
                 ${statsB.monthlyTotalCost.toFixed(0)}
-                <span className="text-xs opacity-50">/mo</span>
+                <span className="text-xs opacity-50 font-medium">/mo</span>
               </p>
               <p className="text-[8px] font-bold uppercase tracking-tight text-muted-foreground mt-1 line-clamp-1">
                 {tierB?.name} Tier
@@ -249,7 +308,7 @@ export function InlineROICalculator({
             </MotionDiv>
           ) : (
             <div className="p-8 rounded-[2.5rem] bg-muted/30 border border-border/10 flex items-center gap-6">
-              <ShieldCheck className="h-10 w-10 text-muted-foreground opacity-30" />
+              <ShieldCheck className="h-10 w-10 text-muted-foreground opacity-30 shrink-0" />
               <p className="text-xs font-bold leading-relaxed text-muted-foreground italic">
                 Infrastructure parity detected. Both systems present identical
                 economic footprints at this revenue scale.

@@ -1,6 +1,12 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { ArrowRight, BookOpen, Clock, Sparkles } from "lucide-react";
 import prisma from "@/lib/prisma";
 import type { User, Post, PostCategory } from "@prisma/client";
@@ -20,11 +26,19 @@ interface BlogPostsListProps {
   content: Record<string, string>;
 }
 
-const blogPostsCache = new Map<string, { data: PostWithAuthorAndCategory[]; timestamp: number }>();
+const blogPostsCache = new Map<
+  string,
+  { data: PostWithAuthorAndCategory[]; timestamp: number }
+>();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes in ms
 const MAX_CACHE_SIZE = 100;
 
-function setWithEviction<K, V>(map: Map<K, V>, key: K, value: V, maxSize: number) {
+function setWithEviction<K, V>(
+  map: Map<K, V>,
+  key: K,
+  value: V,
+  maxSize: number,
+) {
   if (map.size >= maxSize) {
     const oldestKey = map.keys().next().value;
     if (oldestKey !== undefined) map.delete(oldestKey);
@@ -84,11 +98,19 @@ async function getBlogPosts({
     orderBy,
   });
 
-  setWithEviction(blogPostsCache, cacheKey, { data: posts, timestamp: now }, MAX_CACHE_SIZE);
+  setWithEviction(
+    blogPostsCache,
+    cacheKey,
+    { data: posts, timestamp: now },
+    MAX_CACHE_SIZE,
+  );
   return posts;
 }
 
-export async function BlogPostsList({ searchParams, content }: BlogPostsListProps) {
+export async function BlogPostsList({
+  searchParams,
+  content,
+}: BlogPostsListProps) {
   const { search, sort, author, category } = searchParams;
   const blogPosts = await getBlogPosts({
     search: String(search ?? ""),
@@ -130,8 +152,8 @@ export async function BlogPostsList({ searchParams, content }: BlogPostsListProp
           transition={{ duration: 0.6 }}
         >
           <Link href={`/blog/${featuredPost.slug}`} className="block group">
-            <div className="relative grid grid-cols-1 lg:grid-cols-12 overflow-hidden rounded-3xl border border-border/40 bg-card/20 shadow-md hover:shadow-lg hover:border-primary/20 transition-all duration-500 h-full lg:min-h-[380px]">
-              <div className="lg:col-span-7 relative h-[240px] lg:h-auto overflow-hidden">
+            <div className="relative grid grid-cols-1 lg:grid-cols-12 overflow-hidden rounded-3xl border border-border/40 bg-card/20 shadow-md hover:shadow-lg hover:border-primary/20 transition-all duration-500 h-full lg:min-h-95">
+              <div className="lg:col-span-7 relative h-60 lg:h-auto overflow-hidden">
                 <ManagedImage
                   src={featuredPost.image}
                   alt={featuredPost.title}
@@ -140,7 +162,7 @@ export async function BlogPostsList({ searchParams, content }: BlogPostsListProp
                   className="object-cover transition-transform duration-700 group-hover:scale-103"
                   priority
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent"></div>
+                <div className="absolute inset-0 bg-linear-to-r from-black/50 via-transparent to-transparent"></div>
                 <div className="absolute top-6 left-6">
                   <Badge className="bg-primary/90 text-primary-foreground text-[10px] font-bold uppercase tracking-wider px-3.5 py-1 rounded-full shadow-md">
                     Featured Insight
@@ -151,10 +173,13 @@ export async function BlogPostsList({ searchParams, content }: BlogPostsListProp
                 <div className="flex items-center gap-4 text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-4">
                   <span className="flex items-center gap-1.5">
                     <Clock className="h-3.5 w-3.5 text-primary" />{" "}
-                    {Math.ceil(featuredPost.content.split(/\s+/).length / 200)}m read
+                    {Math.ceil(featuredPost.content.split(/\s+/).length / 200)}m
+                    read
                   </span>
                   <span className="w-4 h-px bg-border/40"></span>
-                  <span className="text-primary">{featuredPost.author.name}</span>
+                  <span className="text-primary">
+                    {featuredPost.author.name}
+                  </span>
                 </div>
                 <h2 className="text-xl md:text-3xl font-bold text-foreground mb-4 leading-tight group-hover:text-primary transition-colors duration-300">
                   {featuredPost.title}
@@ -220,10 +245,15 @@ export async function BlogPostsList({ searchParams, content }: BlogPostsListProp
                     {Math.ceil(post.content.split(/\s+/).length / 200)}m
                   </span>
                   <span className="w-3 h-px bg-border/40"></span>
-                  <span className="text-primary font-bold">{post.author.name}</span>
+                  <span className="text-primary font-bold">
+                    {post.author.name}
+                  </span>
                 </div>
                 <CardTitle className="text-lg font-bold leading-tight group-hover:text-primary transition-colors duration-300 mb-2 line-clamp-2">
-                  <Link href={`/blog/${post.slug}`} className="after:absolute after:inset-0">
+                  <Link
+                    href={`/blog/${post.slug}`}
+                    className="after:absolute after:inset-0"
+                  >
                     {post.title}
                   </Link>
                 </CardTitle>

@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 // cp -r .next/static .next/standalone/.next/
 // cp -r public .next/standalone/
+// rm -r ..\standalone\
+// cp -r .\.next\standalone\ ..\..\Desktop\
 
 const nextConfig: NextConfig = {
   /* config options here */

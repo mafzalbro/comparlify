@@ -115,7 +115,7 @@ export default function Header({ navLinks = [], siteName }: HeaderProps) {
             </nav>
           </div>
           <div className="hidden lg:flex items-center gap-2">
-            {/* <ThemeToggle /> */}
+            <ThemeToggle />
             {status === "loading" ? (
               <div className="h-9 w-20 animate-pulse rounded-md bg-muted" />
             ) : session ? (

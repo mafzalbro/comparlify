@@ -4,13 +4,14 @@ import type { Metadata } from "next";
 import { cache } from "react";
 import ComparisonDetailPage, {
   generateMetadata as generateComparisonMetadata,
-} from "@/app/(main)/compare/[slug]/page";
+} from "@/components/comparison/comparison-detail-view";
 import ComparisonVsPage, {
   generateMetadata as generateVsMetadata,
-} from "@/app/(main)/compare/vs/[slug]/page";
+} from "@/components/comparison/comparison-vs-view";
 import PlatformDetailPage, {
   generateMetadata as generatePlatformMetadata,
 } from "@/app/(main)/platform/[slug]/page";
+import { allPlatforms } from "@/data/compare/platforms";
 
 export const revalidate = 3600; // Cache for 1 hour (ISR); once generated, subsequent visits serve from cache
 export const dynamicParams = true; // Generate on-demand if not pre-built, then cache forever until revalidation
@@ -95,6 +96,13 @@ export async function generateMetadata(props: {
 }
 
 export async function generateStaticParams() {
+  const staticPlatformSlugs = allPlatforms.map((p) => ({
+    slug:
+      (p as any).slug ||
+      (p as any).id ||
+      p.name.toLowerCase().replace(/\s+/g, "-"),
+  }));
+
   try {
     const [comparisons, platforms] = await Promise.all([
       prisma.comparison.findMany({
@@ -109,14 +117,25 @@ export async function generateStaticParams() {
     const compSlugs = comparisons.map((c: { slug: string }) => ({
       slug: c.slug,
     }));
-    const platSlugs = platforms.map((p: { name: string }) => ({
+    const dbPlatSlugs = platforms.map((p: { name: string }) => ({
       slug: p.name.toLowerCase().replace(/\s+/g, "-"),
     }));
 
-    return [...compSlugs, ...platSlugs];
+    // Deduplicate all slugs
+    const slugMap = new Map<string, { slug: string }>();
+    for (const item of [...staticPlatformSlugs, ...compSlugs, ...dbPlatSlugs]) {
+      if (item.slug) {
+        slugMap.set(item.slug.toLowerCase(), item);
+      }
+    }
+
+    return Array.from(slugMap.values());
   } catch (err) {
-    console.error("[generateStaticParams] [slug] error:", err);
-    return [];
+    console.warn(
+      "[generateStaticParams] [slug] DB unreachable during build, using static platform fallbacks:",
+      err,
+    );
+    return staticPlatformSlugs;
   }
 }
 

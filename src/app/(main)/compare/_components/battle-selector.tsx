@@ -21,10 +21,18 @@ export interface BattleSelectorPlatform {
   name: string;
 }
 
-export function BattleSelector({ platforms }: { platforms: BattleSelectorPlatform[] }) {
+export function BattleSelector({
+  platforms,
+}: {
+  platforms: BattleSelectorPlatform[];
+}) {
   const router = useRouter();
-  const [a, setA] = useState<string>(() => (platforms.length > 0 ? platforms[0].id : ""));
-  const [b, setB] = useState<string>(() => (platforms.length > 1 ? platforms[1].id : ""));
+  const [a, setA] = useState<string>(() =>
+    platforms.length > 0 ? platforms[0].id : "",
+  );
+  const [b, setB] = useState<string>(() =>
+    platforms.length > 1 ? platforms[1].id : "",
+  );
 
   const handleBattle = () => {
     const selectedA = a || (platforms[0]?.id ?? "");
@@ -50,7 +58,10 @@ export function BattleSelector({ platforms }: { platforms: BattleSelectorPlatfor
     <MotionDiv
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
-      className={cn(GLASS_CARD, "p-5 sm:p-8 relative overflow-hidden group mb-14")}
+      className={cn(
+        GLASS_CARD,
+        "p-5 sm:p-8 relative overflow-hidden group mb-14",
+      )}
     >
       <div className="absolute top-0 right-0 p-8 text-primary/5 -rotate-12 translate-x-6 -translate-y-6 group-hover:text-primary/10 transition-colors pointer-events-none">
         <GitCompareArrows className="h-32 w-32" />
@@ -68,14 +79,19 @@ export function BattleSelector({ platforms }: { platforms: BattleSelectorPlatfor
         </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-3.5 w-full lg:w-auto">
-          <div className="w-full sm:w-[220px]">
+          <div className="w-full sm:w-55">
             <Select value={a} onValueChange={setA}>
               <SelectTrigger className="w-full h-11 rounded-full bg-accent-surface dark:bg-white/5 border border-border/40 focus:ring-primary shadow-none text-xs font-semibold px-5 text-foreground">
                 <SelectValue placeholder="First Platform" />
               </SelectTrigger>
-              <SelectContent className="rounded-2xl border border-border/40 bg-background max-h-[300px]">
+              <SelectContent className="rounded-2xl border border-border/40 bg-background max-h-75">
                 {platforms.map((p) => (
-                  <SelectItem key={p.id} value={p.id} disabled={p.id === b} className="text-xs font-semibold">
+                  <SelectItem
+                    key={p.id}
+                    value={p.id}
+                    disabled={p.id === b}
+                    className="text-xs font-semibold"
+                  >
                     {p.name}
                   </SelectItem>
                 ))}
@@ -87,14 +103,19 @@ export function BattleSelector({ platforms }: { platforms: BattleSelectorPlatfor
             VS
           </div>
 
-          <div className="w-full sm:w-[220px]">
+          <div className="w-full sm:w-55">
             <Select value={b} onValueChange={setB}>
               <SelectTrigger className="w-full h-11 rounded-full bg-accent-surface dark:bg-white/5 border border-border/40 focus:ring-primary shadow-none text-xs font-semibold px-5 text-foreground">
                 <SelectValue placeholder="Second Platform" />
               </SelectTrigger>
-              <SelectContent className="rounded-2xl border border-border/40 bg-background max-h-[300px]">
+              <SelectContent className="rounded-2xl border border-border/40 bg-background max-h-75">
                 {platforms.map((p) => (
-                  <SelectItem key={p.id} value={p.id} disabled={p.id === a} className="text-xs font-semibold">
+                  <SelectItem
+                    key={p.id}
+                    value={p.id}
+                    disabled={p.id === a}
+                    className="text-xs font-semibold"
+                  >
                     {p.name}
                   </SelectItem>
                 ))}
@@ -104,7 +125,11 @@ export function BattleSelector({ platforms }: { platforms: BattleSelectorPlatfor
 
           <Button
             onClick={handleBattle}
-            disabled={(!a && platforms.length < 2) || (!b && platforms.length < 2) || a === b}
+            disabled={
+              (!a && platforms.length < 2) ||
+              (!b && platforms.length < 2) ||
+              a === b
+            }
             size="lg"
             className="w-full sm:w-auto h-11 px-8 rounded-full font-bold gap-2 shadow-none transition-all hover:scale-[1.02] active:scale-[0.98] shrink-0 text-xs uppercase tracking-wider bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
           >
@@ -113,12 +138,18 @@ export function BattleSelector({ platforms }: { platforms: BattleSelectorPlatfor
         </div>
       </div>
 
-      <div className={cn(MICRO_LABEL, "text-[9px] text-muted-foreground/60 mt-6 flex items-center justify-center lg:justify-start gap-5 border-t border-border/20 pt-4")}>
+      <div
+        className={cn(
+          MICRO_LABEL,
+          "text-[9px] text-muted-foreground/60 mt-6 flex items-center justify-center lg:justify-start gap-5 border-t border-border/20 pt-4",
+        )}
+      >
         <div className="flex items-center gap-1.5">
           <ShieldCheck className="h-3.5 w-3.5 text-primary/40" /> Real-time Data
         </div>
         <div className="flex items-center gap-1.5">
-          <ShieldCheck className="h-3.5 w-3.5 text-primary/40" /> Feature Matrix Audit
+          <ShieldCheck className="h-3.5 w-3.5 text-primary/40" /> Feature Matrix
+          Audit
         </div>
       </div>
     </MotionDiv>

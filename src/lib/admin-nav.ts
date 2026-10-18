@@ -17,6 +17,7 @@ import {
   Wand2,
   Sparkles,
   Zap,
+  Megaphone
 } from "lucide-react";
 import { type Role } from "@prisma/client";
 
@@ -142,6 +143,12 @@ export const navConfig: NavGroup[] = [
   {
     group: "Administration",
     items: [
+       {
+        label: "Advertisements",
+        href: "/admin/advertisements",
+        Icon: Megaphone,
+        roles: ["ADMIN"],
+      },
       { href: "/admin/users", label: "Users", Icon: Users, roles: ["ADMIN"] },
       {
         href: "/admin/settings",
