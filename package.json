@@ -26,7 +26,6 @@
     "@auth/prisma-adapter": "^2.11.1",
     "@genkit-ai/google-genai": "^1.16.1",
     "@hookform/resolvers": "^5.2.2",
-    "@img/sharp-win32-x64": "^0.35.5",
     "@prisma/adapter-mariadb": "^6.19.3",
     "@prisma/client": "^6.19.3",
     "@radix-ui/react-accordion": "^1.2.12",
