@@ -6,7 +6,7 @@
     "imageUrl": null,
     "linkUrl": null,
     "placement": "SIDEBAR",
-    "active": false,
+    "active": true,
     "allowedPages": "*",
     "createdAt": "2026-10-18T17:58:35.384Z",
     "updatedAt": "2026-10-19T00:46:38.224Z"
