@@ -1,9 +1,13 @@
 import { Metadata } from "next";
+import { Suspense } from "react";
 import { generateSeoMetadata } from "@/lib/seo";
 import { ToolHubSearch } from "@/components/tools/ToolHubSearch";
 import { TOOLS, CATEGORIES, getToolBySlug } from "@/data/tools/registry";
+import prisma from "@/lib/prisma";
 
-export const revalidate = 0;
+// ── ISR: build once at build time, reject unknown paths ──
+export const revalidate = false;
+export const dynamicParams = false;
 
 interface PageProps {
   params: Promise<{
@@ -11,19 +15,22 @@ interface PageProps {
   }>;
 }
 
-// ── METADATA GENERATOR ────────────────────────────────────────────────────────
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+// ── METADATA GENERATOR ───────────────────────────────────
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { slug } = await params;
   if (!slug || slug.length === 0) {
     return generateSeoMetadata({
       title: "All Creator & Developer Tools | Comparlify",
-      description: "Access our high-fidelity suite of developer utilities, PDF tools, profit calculators, and growth engines.",
+      description:
+        "Access our high-fidelity suite of developer utilities, PDF tools, profit calculators, and growth engines.",
       path: "/tools",
     });
   }
 
-  // Check if matches category
   const [first, second] = slug;
+
   if (slug.length === 1 && CATEGORIES[first as keyof typeof CATEGORIES]) {
     const cat = CATEGORIES[first as keyof typeof CATEGORIES];
     return generateSeoMetadata({
@@ -33,10 +40,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     });
   }
 
-  // Check if matches subcategory
   if (slug.length === 2 && CATEGORIES[first as keyof typeof CATEGORIES]) {
     const cat = CATEGORIES[first as keyof typeof CATEGORIES];
-    const subcatName = cat.subcategories?.[second as keyof typeof cat.subcategories];
+    const subcatName =
+      cat.subcategories?.[second as keyof typeof cat.subcategories];
     if (subcatName) {
       return generateSeoMetadata({
         title: `${subcatName} - ${cat.name} | Comparlify`,
@@ -46,7 +53,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
 
-  // Resolve Tool Definition
   const tool = getToolBySlug(slug);
   if (tool) {
     return generateSeoMetadata({
@@ -62,7 +68,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
 }
 
-// ── STATIC PARAMS GENERATOR ───────────────────────────────────────────────────
+// ── STATIC PARAMS GENERATOR ──────────────────────────────
 export async function generateStaticParams() {
   const params: { slug?: string[] }[] = [];
 
@@ -72,30 +78,67 @@ export async function generateStaticParams() {
   // Categories & Subcategories
   for (const cat of Object.keys(CATEGORIES)) {
     params.push({ slug: [cat] });
-    const subcats = Object.keys(CATEGORIES[cat as keyof typeof CATEGORIES].subcategories || {});
+    const subcats = Object.keys(
+      CATEGORIES[cat as keyof typeof CATEGORIES].subcategories || {},
+    );
     for (const sub of subcats) {
       params.push({ slug: [cat, sub] });
     }
   }
 
-  // Tools
+  // Tools — register ALL forms the router supports (including 1-segment alias)
   for (const tool of TOOLS) {
+    // /tools/roi-calculator, /tools/ad-profit-predictor, etc.
+    params.push({ slug: [tool.slug] });
+
     if (tool.subcategory) {
       params.push({ slug: [tool.category, tool.subcategory, tool.slug] });
+      params.push({ slug: [tool.category, tool.slug] });
     } else {
       params.push({ slug: [tool.category, tool.slug] });
     }
   }
 
-  return params;
+  // Register AI tool paths from Prisma (DB-backed, not in TOOLS registry)
+  try {
+    const aiTools = await prisma.tool.findMany({
+      where: { enabled: true },
+      select: { slug: true },
+    });
+    for (const t of aiTools) {
+      params.push({ slug: ["ai", t.slug] });
+    }
+  } catch (err) {
+    console.warn("[generateStaticParams] tools DB unreachable:", err);
+  }
+
+  // Deduplicate
+  const seen = new Set<string>();
+  return params.filter((p) => {
+    const key = (p.slug ?? []).join("/");
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
-// ── MAIN ROUTING CONTROLLER ──────────────────────────────────────────────────
+// ── FALLBACK SKELETON ────────────────────────────────────
+function ToolHubSkeleton() {
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 space-y-8">
+      <div className="h-12 w-64 rounded-2xl bg-card/40 animate-pulse" />
+      <div className="h-14 w-full max-w-2xl rounded-2xl bg-card/40 animate-pulse" />
+    </div>
+  );
+}
+
+// ── MAIN ROUTING CONTROLLER ─────────────────────────────
 export default async function ToolsControllerPage({ params }: PageProps) {
   const { slug } = await params;
 
-  // Single unified interactive workspace page for all /tools links & reloads
-  return <ToolHubSearch tools={TOOLS} categories={CATEGORIES} initialSlug={slug} />;
-
+  return (
+    <Suspense fallback={<ToolHubSkeleton />}>
+      <ToolHubSearch tools={TOOLS} categories={CATEGORIES} initialSlug={slug} />
+    </Suspense>
+  );
 }
-

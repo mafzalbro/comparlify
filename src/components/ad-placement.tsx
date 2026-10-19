@@ -1,7 +1,5 @@
-// src/components/ad-placement.tsx
 import { cache } from "react";
 import prisma from "@/lib/prisma";
-import { headers } from "next/headers";
 import { AdRenderer } from "./ad-renderer";
 
 export type AdPlacementSlot =
@@ -15,9 +13,14 @@ export type AdPlacementSlot =
 interface AdPlacementProps {
   placement: AdPlacementSlot;
   className?: string;
+  /**
+   * Optional. When omitted, no page-level filtering is applied
+   * (equivalent to allowedPages="*"). Pass the concrete pathname
+   * from the page so filtering happens server-side.
+   */
+  pathname?: string;
 }
 
-// Dedupe DB hits per-request (4 AdPlacements on one page = 1 query per slot)
 const getAd = cache(async (placement: AdPlacementSlot) => {
   try {
     return await prisma.advertisement.findFirst({
@@ -50,12 +53,14 @@ function matchesPage(allowedPages: string | null, pathname: string): boolean {
 export async function AdPlacement({
   placement,
   className = "",
+  pathname,
 }: AdPlacementProps) {
-  const [headersList, ad] = await Promise.all([headers(), getAd(placement)]);
+  const ad = await getAd(placement);
   if (!ad) return null;
 
-  const pathname = headersList.get("x-pathname") || "/";
-  if (!matchesPage(ad.allowedPages, pathname)) return null;
+  // Server-side filtering when pathname is provided.
+  // When omitted, behave as "all pages" — still renders, still static.
+  if (pathname && !matchesPage(ad.allowedPages, pathname)) return null;
 
   return (
     <AdRenderer

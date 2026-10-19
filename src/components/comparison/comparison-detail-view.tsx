@@ -435,7 +435,7 @@ export default async function ComparisonDetailPage(props: {
                   </div>
                 </section>
 
-                <AdPlacement placement="SIDEBAR" />
+                <AdPlacement placement="SIDEBAR" pathname={`/${slug}`} />
 
                 {/* Newsletter */}
                 <div className="bg-card/40 border border-border/40 p-5 rounded-2xl space-y-4">
@@ -517,7 +517,11 @@ export default async function ComparisonDetailPage(props: {
 
             {/* ── MAIN CONTENT ─────────────── */}
             <main className="lg:col-span-8 space-y-24">
-              <AdPlacement placement="POST_TOP" className="mb-16" />
+              <AdPlacement
+                placement="POST_TOP"
+                pathname={`/${slug}`}
+                className="mb-16"
+              />
 
               {/* Introduction */}
               <section className="space-y-16">
@@ -525,7 +529,11 @@ export default async function ComparisonDetailPage(props: {
                 <MarkdownContent content={comparison.introduction} />
               </section>
 
-              <AdPlacement placement="COMPARISON_BETWEEN" className="my-24" />
+              <AdPlacement
+                placement="COMPARISON_BETWEEN"
+                pathname={`/${slug}`}
+                className="my-24"
+              />
 
               {/* ROI Calculator */}
               <section className="space-y-8">
@@ -582,7 +590,11 @@ export default async function ComparisonDetailPage(props: {
               {/* FAQs */}
               <ComparisonFaqs faqs={comparison.faqs} />
 
-              <AdPlacement placement="POST_BOTTOM" className="mt-24" />
+              <AdPlacement
+                placement="POST_BOTTOM"
+                pathname={`/${slug}`}
+                className="mt-24"
+              />
 
               {/* Platform CTAs */}
               <PlatformVisitCards platformA={platformA} platformB={platformB} />

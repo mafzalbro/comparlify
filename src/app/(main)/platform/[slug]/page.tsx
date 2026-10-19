@@ -411,7 +411,10 @@ export default async function PlatformDetailPage(props: {
                   </ul>
                 </div>
 
-                <AdPlacement placement="SIDEBAR" />
+                <AdPlacement
+                  placement="SIDEBAR"
+                  pathname={`/platform/${slug}`}
+                />
                 <div className="bg-card/40 border border-border/40 p-5 rounded-2xl space-y-4">
                   <div className="space-y-1">
                     <h4 className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-2">

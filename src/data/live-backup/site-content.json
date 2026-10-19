@@ -1,0 +1,1253 @@
+[
+  {
+    "id": "ckyjqyw80uwimvdj5vuc",
+    "key": "global.siteName",
+    "value": "Comparlify",
+    "group": "Globals",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:10.068Z",
+    "updatedAt": "2026-10-18T10:17:20.017Z"
+  },
+  {
+    "id": "c3apxtamh10dmvdj5vyk",
+    "key": "global.banner.text",
+    "value": "New Tools Added!!!",
+    "group": "Globals",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:10.220Z",
+    "updatedAt": "2026-10-18T10:17:20.017Z"
+  },
+  {
+    "id": "cmmnr9hujo7mvdj5w2m",
+    "key": "global.banner.link.text",
+    "value": "Explore Tools",
+    "group": "Globals",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:10.366Z",
+    "updatedAt": "2026-10-18T10:17:20.017Z"
+  },
+  {
+    "id": "cvt3t2dgrneimvdj5w6u",
+    "key": "global.banner.link.href",
+    "value": "/tools",
+    "group": "Globals",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:10.518Z",
+    "updatedAt": "2026-10-18T10:17:20.017Z"
+  },
+  {
+    "id": "c0qfb9iwukfvhmvdj5wb1",
+    "key": "global.banner.enabled",
+    "value": "true",
+    "group": "Globals",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:10.669Z",
+    "updatedAt": "2026-10-18T10:17:20.017Z"
+  },
+  {
+    "id": "c1i5nchcgvdmmvdj5wfg",
+    "key": "seo.default.title",
+    "value": "Comparlify",
+    "group": "SEO Settings",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:10.828Z",
+    "updatedAt": "2026-10-18T07:55:10.828Z"
+  },
+  {
+    "id": "cyi45xn3cnj9mvdj5wjq",
+    "key": "seo.default.description",
+    "value": "Unbiased comparisons, AI-powered tools, and community insights to help course creators succeed.",
+    "group": "SEO Settings",
+    "type": "TEXTAREA",
+    "createdAt": "2026-10-18T07:55:10.982Z",
+    "updatedAt": "2026-10-18T07:55:10.982Z"
+  },
+  {
+    "id": "c9rk1gwgtlknmvdj5wo2",
+    "key": "seo.default.keywords",
+    "value": "online course platform, course creation, e-learning, ai tools for creators, teachable vs thinkific, course marketing",
+    "group": "SEO Settings",
+    "type": "TEXTAREA",
+    "createdAt": "2026-10-18T07:55:11.138Z",
+    "updatedAt": "2026-10-18T07:55:11.138Z"
+  },
+  {
+    "id": "ct80ubfho5zmvdj5wsm",
+    "key": "seo.default.twitter",
+    "value": "@comparlify",
+    "group": "SEO Settings",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:11.302Z",
+    "updatedAt": "2026-10-18T07:55:11.302Z"
+  },
+  {
+    "id": "clgd663xswkmvdj5wx8",
+    "key": "seo.default.url",
+    "value": "https://comparlify.com",
+    "group": "SEO Settings",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:11.468Z",
+    "updatedAt": "2026-10-18T07:55:11.468Z"
+  },
+  {
+    "id": "czu5h44msiflmvdj5x1x",
+    "key": "seo.og.image",
+    "value": "https://comparlify.com/og-image.png",
+    "group": "SEO Settings",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:11.637Z",
+    "updatedAt": "2026-10-18T07:55:11.637Z"
+  },
+  {
+    "id": "ci9u7k72uyfbmvdj5x76",
+    "key": "seo.twitter.image",
+    "value": "https://comparlify.com/twitter-image.png",
+    "group": "SEO Settings",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:11.826Z",
+    "updatedAt": "2026-10-18T07:55:11.826Z"
+  },
+  {
+    "id": "c2t99v05v5tmvdj5xbu",
+    "key": "seo.org.name",
+    "value": "Comparlify",
+    "group": "Organization Settings",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:11.994Z",
+    "updatedAt": "2026-10-18T07:55:11.994Z"
+  },
+  {
+    "id": "cku3m98fj9zhmvdj5xfx",
+    "key": "seo.org.logo",
+    "value": "https://comparlify.com/logo.png",
+    "group": "Organization Settings",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:12.141Z",
+    "updatedAt": "2026-10-18T07:55:12.141Z"
+  },
+  {
+    "id": "c95uii1ve34fmvdj5xl2",
+    "key": "theme.light.background",
+    "value": "48 100% 98%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:12.326Z",
+    "updatedAt": "2026-10-18T07:55:12.326Z"
+  },
+  {
+    "id": "clij67ks169mvdj5xp2",
+    "key": "theme.light.foreground",
+    "value": "35 33% 20%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:12.470Z",
+    "updatedAt": "2026-10-18T07:55:12.470Z"
+  },
+  {
+    "id": "c47j298xa8pmvdj5xtt",
+    "key": "theme.light.card",
+    "value": "48 100% 98%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:12.641Z",
+    "updatedAt": "2026-10-18T07:55:12.641Z"
+  },
+  {
+    "id": "cqwg7sgazvmrmvdj5xyw",
+    "key": "theme.light.card-foreground",
+    "value": "35 33% 20%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:12.824Z",
+    "updatedAt": "2026-10-18T07:55:12.824Z"
+  },
+  {
+    "id": "cbl3fyq2nstmvdj5y3d",
+    "key": "theme.light.popover",
+    "value": "48 100% 98%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:12.985Z",
+    "updatedAt": "2026-10-18T07:55:12.985Z"
+  },
+  {
+    "id": "cfemf6y28qdmvdj5y7g",
+    "key": "theme.light.popover-foreground",
+    "value": "35 33% 20%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:13.132Z",
+    "updatedAt": "2026-10-18T07:55:13.132Z"
+  },
+  {
+    "id": "cj3246bfjgonmvdj5ybq",
+    "key": "theme.light.primary",
+    "value": "45 93% 58%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:13.286Z",
+    "updatedAt": "2026-10-18T07:55:13.286Z"
+  },
+  {
+    "id": "cjmtgwsbfx6lmvdj5ygp",
+    "key": "theme.light.primary-foreground",
+    "value": "35 33% 15%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:13.465Z",
+    "updatedAt": "2026-10-18T07:55:13.465Z"
+  },
+  {
+    "id": "cdjd87vbli8mvdj5ylo",
+    "key": "theme.light.secondary",
+    "value": "48 95% 91%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:13.644Z",
+    "updatedAt": "2026-10-18T07:55:13.644Z"
+  },
+  {
+    "id": "cwwyluqmccz8mvdj5ypz",
+    "key": "theme.light.secondary-foreground",
+    "value": "35 33% 20%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:13.799Z",
+    "updatedAt": "2026-10-18T07:55:13.799Z"
+  },
+  {
+    "id": "c4yifonnj3cwmvdj5yw9",
+    "key": "theme.light.muted",
+    "value": "48 95% 94%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:14.025Z",
+    "updatedAt": "2026-10-18T07:55:14.025Z"
+  },
+  {
+    "id": "c5m3uua0el2fmvdj5z0w",
+    "key": "theme.light.muted-foreground",
+    "value": "35 33% 45%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:14.192Z",
+    "updatedAt": "2026-10-18T07:55:14.192Z"
+  },
+  {
+    "id": "crnbve6bgekmvdj5z67",
+    "key": "theme.light.accent",
+    "value": "45 93% 85%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:14.384Z",
+    "updatedAt": "2026-10-18T07:55:14.384Z"
+  },
+  {
+    "id": "clefgsh64a6lmvdj5zae",
+    "key": "theme.light.accent-foreground",
+    "value": "35 33% 15%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:14.534Z",
+    "updatedAt": "2026-10-18T07:55:14.534Z"
+  },
+  {
+    "id": "ca1oahf95o19mvdj5zee",
+    "key": "theme.light.destructive",
+    "value": "0 84.2% 60.2%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:14.678Z",
+    "updatedAt": "2026-10-18T07:55:14.678Z"
+  },
+  {
+    "id": "c37vn59k07ghmvdj5ziv",
+    "key": "theme.light.destructive-foreground",
+    "value": "0 0% 98%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:14.839Z",
+    "updatedAt": "2026-10-18T07:55:14.839Z"
+  },
+  {
+    "id": "cmtg34i91nkmvdj5zn2",
+    "key": "theme.light.border",
+    "value": "45 80% 92%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:14.990Z",
+    "updatedAt": "2026-10-18T07:55:14.990Z"
+  },
+  {
+    "id": "cgyfzzsg115gmvdj5zrr",
+    "key": "theme.light.input",
+    "value": "45 80% 92%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:15.159Z",
+    "updatedAt": "2026-10-18T07:55:15.159Z"
+  },
+  {
+    "id": "cxgogax2ohamvdj5zws",
+    "key": "theme.light.ring",
+    "value": "45 93% 58%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:15.340Z",
+    "updatedAt": "2026-10-18T07:55:15.340Z"
+  },
+  {
+    "id": "cvtyfm50306mvdj6013",
+    "key": "theme.dark.background",
+    "value": "30 10% 10%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:15.495Z",
+    "updatedAt": "2026-10-18T07:55:15.495Z"
+  },
+  {
+    "id": "cymrl5g5qoigmvdj605q",
+    "key": "theme.dark.foreground",
+    "value": "45 60% 95%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:15.662Z",
+    "updatedAt": "2026-10-18T07:55:15.662Z"
+  },
+  {
+    "id": "cdxvut2dv6d7mvdj60a2",
+    "key": "theme.dark.card",
+    "value": "30 10% 12%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:15.818Z",
+    "updatedAt": "2026-10-18T07:55:15.818Z"
+  },
+  {
+    "id": "c0q9nlchle6amvdj60es",
+    "key": "theme.dark.card-foreground",
+    "value": "45 60% 95%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:15.989Z",
+    "updatedAt": "2026-10-18T07:55:15.989Z"
+  },
+  {
+    "id": "ckzp927y5axmvdj60j6",
+    "key": "theme.dark.popover",
+    "value": "30 10% 10%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:16.146Z",
+    "updatedAt": "2026-10-18T07:55:16.146Z"
+  },
+  {
+    "id": "ck1zamyv55jrmvdj60na",
+    "key": "theme.dark.popover-foreground",
+    "value": "45 60% 95%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:16.295Z",
+    "updatedAt": "2026-10-18T07:55:16.295Z"
+  },
+  {
+    "id": "c2cly6bc5gfbmvdj60rz",
+    "key": "theme.dark.primary",
+    "value": "45 93% 58%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:16.463Z",
+    "updatedAt": "2026-10-18T07:55:16.463Z"
+  },
+  {
+    "id": "c0geji4rhep7mvdj60w9",
+    "key": "theme.dark.primary-foreground",
+    "value": "35 33% 15%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:16.617Z",
+    "updatedAt": "2026-10-18T07:55:16.617Z"
+  },
+  {
+    "id": "cg3vahpbv2gmvdj6118",
+    "key": "theme.dark.secondary",
+    "value": "30 10% 18%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:16.796Z",
+    "updatedAt": "2026-10-18T07:55:16.796Z"
+  },
+  {
+    "id": "c22niktxeo74mvdj615o",
+    "key": "theme.dark.secondary-foreground",
+    "value": "45 60% 95%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:16.956Z",
+    "updatedAt": "2026-10-18T07:55:16.956Z"
+  },
+  {
+    "id": "cbr10jtt28pmvdj619u",
+    "key": "theme.dark.muted",
+    "value": "30 10% 18%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:17.106Z",
+    "updatedAt": "2026-10-18T07:55:17.106Z"
+  },
+  {
+    "id": "cjqwhmktmefhmvdj61e0",
+    "key": "theme.dark.muted-foreground",
+    "value": "45 60% 75%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:17.256Z",
+    "updatedAt": "2026-10-18T07:55:17.256Z"
+  },
+  {
+    "id": "c7nxwam95x2smvdj61i3",
+    "key": "theme.dark.accent",
+    "value": "30 10% 22%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:17.403Z",
+    "updatedAt": "2026-10-18T07:55:17.403Z"
+  },
+  {
+    "id": "cb9rnrsuvq8jmvdj61m9",
+    "key": "theme.dark.accent-foreground",
+    "value": "45 60% 95%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:17.553Z",
+    "updatedAt": "2026-10-18T07:55:17.553Z"
+  },
+  {
+    "id": "cr8xew0yex9mvdj61qe",
+    "key": "theme.dark.destructive",
+    "value": "0 62.8% 30.6%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:17.702Z",
+    "updatedAt": "2026-10-18T07:55:17.702Z"
+  },
+  {
+    "id": "corlmsa1qdumvdj61uv",
+    "key": "theme.dark.destructive-foreground",
+    "value": "0 0% 98%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:17.863Z",
+    "updatedAt": "2026-10-18T07:55:17.863Z"
+  },
+  {
+    "id": "c3uj9tknd43smvdj61z3",
+    "key": "theme.dark.border",
+    "value": "30 10% 25%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:18.015Z",
+    "updatedAt": "2026-10-18T07:55:18.015Z"
+  },
+  {
+    "id": "cvzb1trv74gkmvdj6239",
+    "key": "theme.dark.input",
+    "value": "30 10% 25%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:18.165Z",
+    "updatedAt": "2026-10-18T07:55:18.165Z"
+  },
+  {
+    "id": "cdssv8d3j1sdmvdj627m",
+    "key": "theme.dark.ring",
+    "value": "45 93% 58%",
+    "group": "Theme",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:18.322Z",
+    "updatedAt": "2026-10-18T07:55:18.322Z"
+  },
+  {
+    "id": "c3eeve1vcxy6mvdj62br",
+    "key": "module.blog.enabled",
+    "value": "false",
+    "group": "Module Visibility",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:18.471Z",
+    "updatedAt": "2026-10-18T10:33:57.576Z"
+  },
+  {
+    "id": "cfwei69ittxkmvdj62fv",
+    "key": "module.compare.enabled",
+    "value": "true",
+    "group": "Module Visibility",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:18.619Z",
+    "updatedAt": "2026-10-18T10:33:57.576Z"
+  },
+  {
+    "id": "c6wuv3cyrblmvdj62k8",
+    "key": "module.news.enabled",
+    "value": "false",
+    "group": "Module Visibility",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:18.776Z",
+    "updatedAt": "2026-10-18T10:33:57.576Z"
+  },
+  {
+    "id": "c4nqapoxecavmvdj62pr",
+    "key": "module.community.enabled",
+    "value": "false",
+    "group": "Module Visibility",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:18.975Z",
+    "updatedAt": "2026-10-18T10:33:57.576Z"
+  },
+  {
+    "id": "cj71bwoolgagmvdj62ue",
+    "key": "module.tools.enabled",
+    "value": "true",
+    "group": "Module Visibility",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:19.142Z",
+    "updatedAt": "2026-10-18T10:33:57.576Z"
+  },
+  {
+    "id": "c3aw0muwisipmvdj630s",
+    "key": "module.ai.enabled",
+    "value": "false",
+    "group": "Module Visibility",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:19.372Z",
+    "updatedAt": "2026-10-18T10:33:57.576Z"
+  },
+  {
+    "id": "ck45i5lw6ywemvdj6352",
+    "key": "homepage.hero.supertitle",
+    "value": "The Ultimate Co-pilot for Course Creators",
+    "group": "Homepage",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:19.526Z",
+    "updatedAt": "2026-10-18T07:55:19.526Z"
+  },
+  {
+    "id": "c7atqnnt3rasmvdj639x",
+    "key": "homepage.hero.title",
+    "value": "Build, Market & Sell\nSmarter, Not Harder",
+    "group": "Homepage",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:19.701Z",
+    "updatedAt": "2026-10-18T07:55:19.701Z"
+  },
+  {
+    "id": "ccr8d5zritdamvdj63ec",
+    "key": "homepage.hero.subtitle",
+    "value": "Comparlify provides the tools, comparisons, and insights you need to turn your expertise into a thriving online business.",
+    "group": "Homepage",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:19.861Z",
+    "updatedAt": "2026-10-18T07:55:19.861Z"
+  },
+  {
+    "id": "crfth68mrdi8mvdj63jg",
+    "key": "homepage.cta.primary",
+    "value": "Explore Comparisons",
+    "group": "Homepage",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:20.044Z",
+    "updatedAt": "2026-10-18T07:55:20.044Z"
+  },
+  {
+    "id": "cy956awr7c3mvdj63o3",
+    "key": "homepage.cta.secondary",
+    "value": "Explore Tools",
+    "group": "Homepage",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:20.211Z",
+    "updatedAt": "2026-10-18T07:55:20.211Z"
+  },
+  {
+    "id": "cxxeox88hrprmvdj63so",
+    "key": "homepage.whyus.title",
+    "value": "Your All-In-One Creator Hub",
+    "group": "Homepage",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:20.376Z",
+    "updatedAt": "2026-10-18T07:55:20.376Z"
+  },
+  {
+    "id": "c2obqa9gsitomvdj63x8",
+    "key": "homepage.whyus.subtitle",
+    "value": "Stop juggling dozens of apps. Get everything you need to succeed from a single, powerful dashboard.",
+    "group": "Homepage",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:20.540Z",
+    "updatedAt": "2026-10-18T07:55:20.540Z"
+  },
+  {
+    "id": "cf6n4uepvbqmvdj641s",
+    "key": "homepage.whyus.comparisons.title",
+    "value": "Unbiased Comparisons",
+    "group": "Homepage",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:20.704Z",
+    "updatedAt": "2026-10-18T07:55:20.704Z"
+  },
+  {
+    "id": "coza03j1mhlmvdj6465",
+    "key": "homepage.whyus.comparisons.description",
+    "value": "Get in-depth, data-driven comparisons of the top platforms. We dig into the details so you can choose with absolute confidence.",
+    "group": "Homepage",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:20.861Z",
+    "updatedAt": "2026-10-18T07:55:20.861Z"
+  },
+  {
+    "id": "c9qgocbtllfmvdj64ap",
+    "key": "homepage.whyus.aitools.title",
+    "value": "Powerful AI Tools",
+    "group": "Homepage",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:21.026Z",
+    "updatedAt": "2026-10-18T07:55:21.026Z"
+  },
+  {
+    "id": "ck5i6dcyb4a9mvdj64eq",
+    "key": "homepage.whyus.aitools.description",
+    "value": "From generating catchy titles to outlining entire courses, our suite of AI tools is designed to save you time and spark your creativity.",
+    "group": "Homepage",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:21.170Z",
+    "updatedAt": "2026-10-18T07:55:21.170Z"
+  },
+  {
+    "id": "cm35nmlvekkmmvdj64jy",
+    "key": "homepage.whyus.strategies.title",
+    "value": "Growth Strategies",
+    "group": "Homepage",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:21.358Z",
+    "updatedAt": "2026-10-18T07:55:21.358Z"
+  },
+  {
+    "id": "ceztfvg74ltpmvdj64oj",
+    "key": "homepage.whyus.strategies.description",
+    "value": "Access our regularly updated blog for expert tips, marketing strategies, and insights to help you scale your course business effectively.",
+    "group": "Homepage",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:21.523Z",
+    "updatedAt": "2026-10-18T07:55:21.523Z"
+  },
+  {
+    "id": "cwx940svxzsmvdj64tb",
+    "key": "homepage.tools.title",
+    "value": "Supercharge Your Workflow",
+    "group": "Homepage",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:21.695Z",
+    "updatedAt": "2026-10-18T07:55:21.695Z"
+  },
+  {
+    "id": "ciiigsp3wbrbmvdj64ym",
+    "key": "homepage.tools.subtitle",
+    "value": "Our suite of AI-powered tools is designed to handle the tedious tasks, so you can focus on creating.",
+    "group": "Homepage",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:21.886Z",
+    "updatedAt": "2026-10-18T07:55:21.886Z"
+  },
+  {
+    "id": "c4v22a8qqzyqmvdj6535",
+    "key": "homepage.blog.title",
+    "value": "Creator Insights",
+    "group": "Homepage",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:22.049Z",
+    "updatedAt": "2026-10-18T07:55:22.049Z"
+  },
+  {
+    "id": "cxkisgfdwg9bmvdj657o",
+    "key": "homepage.blog.subtitle",
+    "value": "The latest strategies, tips, and news from our blog.",
+    "group": "Homepage",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:22.212Z",
+    "updatedAt": "2026-10-18T07:55:22.212Z"
+  },
+  {
+    "id": "ct4b8y48ns6imvdj65cw",
+    "key": "homepage.testimonials.title",
+    "value": "Loved by Creators Worldwide",
+    "group": "Homepage",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:22.400Z",
+    "updatedAt": "2026-10-18T07:55:22.400Z"
+  },
+  {
+    "id": "cqwl77xp75kmvdj65hi",
+    "key": "homepage.testimonials.subtitle",
+    "value": "Don't just take our word for it. Here's what creators are saying about Comparlify.",
+    "group": "Homepage",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:22.566Z",
+    "updatedAt": "2026-10-18T07:55:22.566Z"
+  },
+  {
+    "id": "cxedkn7f4dfmvdj65m4",
+    "key": "homepage.finalCta.title",
+    "value": "Ready to Elevate Your Course Business?",
+    "group": "Homepage",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:22.732Z",
+    "updatedAt": "2026-10-18T07:55:22.732Z"
+  },
+  {
+    "id": "ca6zn03hrngmmvdj65qt",
+    "key": "homepage.finalCta.subtitle",
+    "value": "Join thousands of successful creators. Access all our tools and resources for free.",
+    "group": "Homepage",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:22.901Z",
+    "updatedAt": "2026-10-18T07:55:22.901Z"
+  },
+  {
+    "id": "cv8i7rfxyxnmvdj65vz",
+    "key": "homepage.finalCta.button",
+    "value": "Sign Up for Free",
+    "group": "Homepage",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:23.087Z",
+    "updatedAt": "2026-10-18T07:55:23.087Z"
+  },
+  {
+    "id": "c4vqziy6ay3fmvdj660k",
+    "key": "header.navLinks",
+    "value": "[\n  {\n    \"href\": \"/\",\n    \"label\": \"Home\"\n  },\n  {\n    \"href\": \"/compare\",\n    \"label\": \"Comparisons\"\n  },\n  {\n    \"href\": \"/blog\",\n    \"label\": \"Blog\"\n  },\n  {\n    \"href\": \"/news\",\n    \"label\": \"News\"\n  },\n  {\n    \"href\": \"/community\",\n    \"label\": \"Community\"\n  },\n  {\n    \"href\": \"/tools\",\n    \"label\": \"Tools\"\n  },\n  {\n    \"href\": \"/about\",\n    \"label\": \"About\"\n  },\n  {\n    \"href\": \"/contact\",\n    \"label\": \"Contact\"\n  }\n]",
+    "group": "Header",
+    "type": "TEXTAREA",
+    "createdAt": "2026-10-18T07:55:23.252Z",
+    "updatedAt": "2026-10-18T07:55:23.252Z"
+  },
+  {
+    "id": "cl0dmeuycsemvdj6659",
+    "key": "footer.tagline",
+    "value": "Helping course creators thrive with better tools and expert insights.",
+    "group": "Footer",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:23.421Z",
+    "updatedAt": "2026-10-18T07:55:23.421Z"
+  },
+  {
+    "id": "cmi22nexwhamvdj669t",
+    "key": "footer.newsletter.title",
+    "value": "Stay Updated",
+    "group": "Footer",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:23.585Z",
+    "updatedAt": "2026-10-18T07:55:23.585Z"
+  },
+  {
+    "id": "ctjh7a5ldn2mvdj66e2",
+    "key": "footer.newsletter.subtitle",
+    "value": "Get the latest tips and tool updates straight to your inbox.",
+    "group": "Footer",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:23.738Z",
+    "updatedAt": "2026-10-18T07:55:23.738Z"
+  },
+  {
+    "id": "chnow65wf9shmvdj66ii",
+    "key": "footer.navLinks.navigate",
+    "value": "[\n  {\n    \"label\": \"Comparisons\",\n    \"href\": \"/compare\"\n  },\n  {\n    \"label\": \"Blog\",\n    \"href\": \"/blog\"\n  },\n  {\n    \"label\": \"Tools\",\n    \"href\": \"/tools\"\n  }\n]",
+    "group": "Footer",
+    "type": "TEXTAREA",
+    "createdAt": "2026-10-18T07:55:23.898Z",
+    "updatedAt": "2026-10-18T07:55:23.898Z"
+  },
+  {
+    "id": "cv8ks9tjwwumvdj66o4",
+    "key": "footer.navLinks.company",
+    "value": "[\n  {\n    \"label\": \"About Us\",\n    \"href\": \"/about\"\n  },\n  {\n    \"label\": \"Contact\",\n    \"href\": \"/contact\"\n  },\n  {\n    \"label\": \"Privacy Policy\",\n    \"href\": \"/privacy\"\n  },\n  {\n    \"label\": \"Terms of Service\",\n    \"href\": \"/legal/terms-of-service\"\n  },\n  {\n    \"label\": \"Sponsor Policy\",\n    \"href\": \"/legal/sponsor-policy\"\n  }\n]",
+    "group": "Footer",
+    "type": "TEXTAREA",
+    "createdAt": "2026-10-18T07:55:24.100Z",
+    "updatedAt": "2026-10-18T07:55:24.100Z"
+  },
+  {
+    "id": "c2if5epi0q7smvdj66s4",
+    "key": "about.hero.title",
+    "value": "We're Here to Help Creators Thrive",
+    "group": "About Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:24.244Z",
+    "updatedAt": "2026-10-18T07:55:24.244Z"
+  },
+  {
+    "id": "cxor6qxzzinmvdj66wd",
+    "key": "about.hero.subtitle",
+    "value": "Discover the story, mission, and people behind Comparlify.",
+    "group": "About Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:24.397Z",
+    "updatedAt": "2026-10-18T07:55:24.397Z"
+  },
+  {
+    "id": "cjqemt5pclkmvdj670x",
+    "key": "about.story.content",
+    "value": "## Our Story\n\nComparlify was born from a simple observation: the world of online course creation is both exciting and overwhelming. With countless platforms, tools, and strategies available, creators often find themselves lost in a sea of options, spending more time on research than on what they do best—creating amazing content.\n\nWe decided to change that. Our mission is to be the trusted guide for every course creator. We provide unbiased, in-depth comparisons, innovative AI-powered tools, and actionable insights to help you make informed decisions, save time, and accelerate your growth.\n\n> \"We believe that every creator, regardless of their technical skill or budget, deserves a clear path to success.\"",
+    "group": "About Page",
+    "type": "MARKDOWN",
+    "createdAt": "2026-10-18T07:55:24.561Z",
+    "updatedAt": "2026-10-18T07:55:24.561Z"
+  },
+  {
+    "id": "cr4n5vz4bxlomvdj675n",
+    "key": "about.values.title",
+    "value": "Our Core Values",
+    "group": "About Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:24.731Z",
+    "updatedAt": "2026-10-18T07:55:24.731Z"
+  },
+  {
+    "id": "crq8a1ijah0emvdj67a5",
+    "key": "about.values.subtitle",
+    "value": "These principles guide everything we do.",
+    "group": "About Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:24.893Z",
+    "updatedAt": "2026-10-18T07:55:24.893Z"
+  },
+  {
+    "id": "cihf2rmf9somvdj67ev",
+    "key": "about.values.clarity.title",
+    "value": "Clarity",
+    "group": "About Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:25.063Z",
+    "updatedAt": "2026-10-18T07:55:25.063Z"
+  },
+  {
+    "id": "c8iltf16rir5mvdj67iy",
+    "key": "about.values.clarity.description",
+    "value": "We cut through the noise, providing clear, unbiased information to help you make confident decisions.",
+    "group": "About Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:25.210Z",
+    "updatedAt": "2026-10-18T07:55:25.210Z"
+  },
+  {
+    "id": "c6wiyy1q9d6omvdj67n3",
+    "key": "about.values.community.title",
+    "value": "Community",
+    "group": "About Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:25.359Z",
+    "updatedAt": "2026-10-18T07:55:25.359Z"
+  },
+  {
+    "id": "c5xkbgxnpzfmvdj67rd",
+    "key": "about.values.community.description",
+    "value": "We believe in the power of creators helping creators. We're building a space for support and growth.",
+    "group": "About Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:25.513Z",
+    "updatedAt": "2026-10-18T07:55:25.513Z"
+  },
+  {
+    "id": "c3q35gymrkudmvdj67vw",
+    "key": "about.values.empowerment.title",
+    "value": "Empowerment",
+    "group": "About Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:25.676Z",
+    "updatedAt": "2026-10-18T07:55:25.676Z"
+  },
+  {
+    "id": "cf8048lm8suemvdj67zx",
+    "key": "about.values.empowerment.description",
+    "value": "Our goal is to give you the tools and insights you need to turn your passion into a thriving business.",
+    "group": "About Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:25.821Z",
+    "updatedAt": "2026-10-18T07:55:25.821Z"
+  },
+  {
+    "id": "cocvdseqx3ismvdj684f",
+    "key": "about.team.title",
+    "value": "Meet the Creators",
+    "group": "About Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:25.983Z",
+    "updatedAt": "2026-10-18T07:55:25.983Z"
+  },
+  {
+    "id": "ccepy9duxjr6mvdj688z",
+    "key": "about.team.subtitle",
+    "value": "We're a small, passionate team dedicated to your success.",
+    "group": "About Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:26.147Z",
+    "updatedAt": "2026-10-18T07:55:26.147Z"
+  },
+  {
+    "id": "cljt3rnvsyemvdj68d0",
+    "key": "about.team.members",
+    "value": "[\n  {\n    \"name\": \"Marcus Sterling\",\n    \"role\": \"Chief Executive Architect\",\n    \"avatar\": \"/ceo_avatar_1773077297883.png\",\n    \"dataAiHint\": \"ceo high-end portrait professional suit\"\n  },\n  {\n    \"name\": \"Elena Vance\",\n    \"role\": \"Head of Digital Strategy\",\n    \"avatar\": \"/marketing_avatar_1773077331514.png\",\n    \"dataAiHint\": \"marketing expert professional portrait\"\n  },\n  {\n    \"name\": \"Dr. Aris Thorne\",\n    \"role\": \"Chief Technology Officer\",\n    \"avatar\": \"/cto_avatar_1773077313648.png\",\n    \"dataAiHint\": \"cto tech expert professional portrait\"\n  }\n]",
+    "group": "About Page",
+    "type": "TEXTAREA",
+    "createdAt": "2026-10-18T07:55:26.292Z",
+    "updatedAt": "2026-10-18T07:55:26.292Z"
+  },
+  {
+    "id": "cvi2xr79r31dmvdj68hm",
+    "key": "about.cta.title",
+    "value": "Ready to Join Us?",
+    "group": "About Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:26.458Z",
+    "updatedAt": "2026-10-18T07:55:26.458Z"
+  },
+  {
+    "id": "cjbqgng4n2cmvdj68lo",
+    "key": "about.cta.subtitle",
+    "value": "Become part of a community of forward-thinking creators. Explore our tools and insights today.",
+    "group": "About Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:26.604Z",
+    "updatedAt": "2026-10-18T07:55:26.604Z"
+  },
+  {
+    "id": "cuwng1df20semvdj68qa",
+    "key": "about.cta.button",
+    "value": "Get Started for Free",
+    "group": "About Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:26.770Z",
+    "updatedAt": "2026-10-18T07:55:26.770Z"
+  },
+  {
+    "id": "coyccsjcznhmvdj68us",
+    "key": "contact.hero.title",
+    "value": "Get in Touch",
+    "group": "Contact Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:26.932Z",
+    "updatedAt": "2026-10-18T07:55:26.932Z"
+  },
+  {
+    "id": "czc48nhc3jxmvdj68ys",
+    "key": "contact.hero.subtitle",
+    "value": "We'd love to hear from you! Whether you have a question, feedback, or a partnership proposal, feel free to reach out.",
+    "group": "Contact Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:27.076Z",
+    "updatedAt": "2026-10-18T07:55:27.076Z"
+  },
+  {
+    "id": "c12bnl5dhadwcmvdj693a",
+    "key": "contact.email.title",
+    "value": "Email",
+    "group": "Contact Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:27.238Z",
+    "updatedAt": "2026-10-18T07:55:27.238Z"
+  },
+  {
+    "id": "cd8eu0n5tshumvdj697e",
+    "key": "contact.email.description",
+    "value": "Send us an email for general inquiries.",
+    "group": "Contact Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:27.386Z",
+    "updatedAt": "2026-10-18T07:55:27.386Z"
+  },
+  {
+    "id": "c6i30oqzx41mmvdj69cw",
+    "key": "contact.email.value",
+    "value": "hello@comparlify.com",
+    "group": "Contact Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:27.584Z",
+    "updatedAt": "2026-10-18T07:55:27.584Z"
+  },
+  {
+    "id": "cgzole6qpbdvmvdj69h6",
+    "key": "contact.phone.title",
+    "value": "Phone",
+    "group": "Contact Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:27.738Z",
+    "updatedAt": "2026-10-18T07:55:27.738Z"
+  },
+  {
+    "id": "cmybqwb2h0o9mvdj69ll",
+    "key": "contact.phone.description",
+    "value": "Give us a call during business hours.",
+    "group": "Contact Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:27.897Z",
+    "updatedAt": "2026-10-18T07:55:27.897Z"
+  },
+  {
+    "id": "ct12jzxb1huhmvdj69ps",
+    "key": "contact.phone.value",
+    "value": "+1 (234) 567-890",
+    "group": "Contact Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:28.048Z",
+    "updatedAt": "2026-10-18T07:55:28.048Z"
+  },
+  {
+    "id": "c9k8ih7rsl2nmvdj69uj",
+    "key": "contact.office.title",
+    "value": "Office",
+    "group": "Contact Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:28.219Z",
+    "updatedAt": "2026-10-18T07:55:28.219Z"
+  },
+  {
+    "id": "ciygz1xe498kmvdj69z4",
+    "key": "contact.office.description",
+    "value": "123 Creator Lane, Suite 100\nInnovation City, 12345",
+    "group": "Contact Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:28.384Z",
+    "updatedAt": "2026-10-18T07:55:28.384Z"
+  },
+  {
+    "id": "crc6iw6arvm8mvdj6a33",
+    "key": "privacy.policy",
+    "value": "\nYour privacy is important to us. It is Comparlify's policy to respect your privacy regarding any information we may collect from you across our website, and other sites we own and operate.\n\n## 1. Information We Collect\nWe only ask for personal information when we truly need it to provide a service to you. We collect it by fair and lawful means, with your knowledge and consent. We also let you know why we’re collecting it and how it will be used.\n\n### Log Data\nWhen you visit our website, our servers may automatically log the standard data provided by your web browser. It may include your computer’s Internet Protocol (IP) address, your browser type and version, the pages you visit, the time and date of your visit, the time spent on each page, and other details.\n\n### Personal Information\nWe may ask for personal information, such as your: Name, Email, Social media profiles, Date of birth, Phone/mobile number.\n\n## 2. How We Use Your Information\nWe may use the information we collect for various purposes, including to:\n<ul>\n  <li>Provide, operate, and maintain our website</li>\n  <li>Improve, personalize, and expand our website</li>\n  <li>Understand and analyze how you use our website</li>\n  <li>Develop new products, services, features, and functionality</li>\n  <li>Communicate with you, either directly or through one of our partners, including for customer service, to provide you with updates and other information relating to the website, and for marketing and promotional purposes</li>\n  <li>Send you emails</li>\n  <li>Find and prevent fraud</li>\n</ul>\n\n## 3. Security of Your Personal Information\nWe retain collected information for as long as necessary to provide you with your requested service. What data we store, we’ll protect within commercially acceptable means to prevent loss and theft, as well as unauthorized access, disclosure, copying, use or modification.\n\n## 4. Links to Other Sites\nOur website may link to external sites that are not operated by us. Please be aware that we have no control over the content and practices of these sites, and cannot accept responsibility or liability for their respective privacy policies.\n\n## 5. Changes to Our Privacy Policy\nWe reserve the right to modify this privacy policy at any time, so please review it frequently. Changes and clarifications will take effect immediately upon their posting on the website.\n\n## 6. Contact Us\nIf you have any questions about our privacy policy, please contact us at <a href=\"mailto:privacy@comparlify.com\">privacy@comparlify.com</a>.\n",
+    "group": "Privacy Page",
+    "type": "MARKDOWN",
+    "createdAt": "2026-10-18T07:55:28.527Z",
+    "updatedAt": "2026-10-18T07:55:28.527Z"
+  },
+  {
+    "id": "ceycs349haeamvdj6a71",
+    "key": "blog.hero.title",
+    "value": "Creator Insights",
+    "group": "Blog Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:28.669Z",
+    "updatedAt": "2026-10-18T07:55:28.669Z"
+  },
+  {
+    "id": "c3pbf9nxht8fmvdj6abl",
+    "key": "blog.hero.subtitle",
+    "value": "Actionable advice, deep dives, and growth strategies for the modern course creator.",
+    "group": "Blog Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:28.833Z",
+    "updatedAt": "2026-10-18T07:55:28.833Z"
+  },
+  {
+    "id": "cl4owksbe90mmvdj6afw",
+    "key": "blog.empty.title",
+    "value": "No Posts Found",
+    "group": "Blog Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:28.988Z",
+    "updatedAt": "2026-10-18T07:55:28.988Z"
+  },
+  {
+    "id": "chddr079xnemvdj6akp",
+    "key": "blog.empty.subtitle",
+    "value": "Try adjusting your search or filters. Or check back soon!",
+    "group": "Blog Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:29.161Z",
+    "updatedAt": "2026-10-18T07:55:29.161Z"
+  },
+  {
+    "id": "cmn2bf4kcfijmvdj6apn",
+    "key": "blog.post.backLink",
+    "value": "Back to Blog",
+    "group": "Blog Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:29.339Z",
+    "updatedAt": "2026-10-18T07:55:29.339Z"
+  },
+  {
+    "id": "ckni0tabiqggmvdj6au6",
+    "key": "blog.post.relatedTitle",
+    "value": "Related Posts",
+    "group": "Blog Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:29.502Z",
+    "updatedAt": "2026-10-18T07:55:29.502Z"
+  },
+  {
+    "id": "cs78okx3calnmvdj6azf",
+    "key": "blog.post.preview.title",
+    "value": "Preview Mode",
+    "group": "Blog Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:29.691Z",
+    "updatedAt": "2026-10-18T07:55:29.691Z"
+  },
+  {
+    "id": "cmv745xh9fs8mvdj6b3y",
+    "key": "blog.post.preview.subtitle",
+    "value": "This is a draft post and is not visible to the public.",
+    "group": "Blog Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:29.854Z",
+    "updatedAt": "2026-10-18T07:55:29.854Z"
+  },
+  {
+    "id": "cq30csziv34mvdj6b8a",
+    "key": "blog.post.preview.exitButton",
+    "value": "Exit Preview",
+    "group": "Blog Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:30.010Z",
+    "updatedAt": "2026-10-18T07:55:30.010Z"
+  },
+  {
+    "id": "cq3p357cjrmcmvdj6bd4",
+    "key": "compare.hero.title",
+    "value": "Course Platform Face-Off",
+    "group": "Comparison Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:30.184Z",
+    "updatedAt": "2026-10-18T07:55:30.184Z"
+  },
+  {
+    "id": "cdftrnputukvmvdj6bht",
+    "key": "compare.hero.subtitle",
+    "value": "We've put the top platforms head-to-head. Get unbiased, in-depth analysis to make the right choice.",
+    "group": "Comparison Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:30.353Z",
+    "updatedAt": "2026-10-18T07:55:30.353Z"
+  },
+  {
+    "id": "cc4x6c4r4qximvdj6bm6",
+    "key": "compare.empty.title",
+    "value": "No Comparisons Found",
+    "group": "Comparison Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:30.510Z",
+    "updatedAt": "2026-10-18T07:55:30.510Z"
+  },
+  {
+    "id": "c5741weomncbmvdj6br1",
+    "key": "compare.empty.subtitle",
+    "value": "Try adjusting your search or filters. Or check back soon!",
+    "group": "Comparison Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:30.685Z",
+    "updatedAt": "2026-10-18T07:55:30.685Z"
+  },
+  {
+    "id": "corb3m0zizudmvdj6bvd",
+    "key": "compare.detail.backLink",
+    "value": "Back to All Comparisons",
+    "group": "Comparison Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:30.841Z",
+    "updatedAt": "2026-10-18T07:55:30.841Z"
+  },
+  {
+    "id": "cgu198268pymvdj6bzr",
+    "key": "compare.detail.glance.title",
+    "value": "At a Glance",
+    "group": "Comparison Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:30.999Z",
+    "updatedAt": "2026-10-18T07:55:30.999Z"
+  },
+  {
+    "id": "c1wbpxb5dm9rmvdj6c3x",
+    "key": "compare.detail.ratings.title",
+    "value": "Ratings Breakdown",
+    "group": "Comparison Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:31.149Z",
+    "updatedAt": "2026-10-18T07:55:31.149Z"
+  },
+  {
+    "id": "cemi1ux67j3smvdj6c89",
+    "key": "compare.detail.ratings.chartTitle",
+    "value": "Side-by-Side Ratings",
+    "group": "Comparison Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:31.305Z",
+    "updatedAt": "2026-10-18T07:55:31.305Z"
+  },
+  {
+    "id": "c3cijdoypy2xmvdj6ccb",
+    "key": "compare.detail.features.title",
+    "value": "Feature Comparison",
+    "group": "Comparison Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:31.451Z",
+    "updatedAt": "2026-10-18T07:55:31.451Z"
+  },
+  {
+    "id": "ch6q0vdpolnamvdj6chd",
+    "key": "compare.detail.faq.title",
+    "value": "Frequently Asked Questions",
+    "group": "Comparison Page",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:31.633Z",
+    "updatedAt": "2026-10-18T07:55:31.633Z"
+  },
+  {
+    "id": "ch15tcfl2sfnmvdj6clo",
+    "key": "settings.email.fromName",
+    "value": "Comparlify",
+    "group": "Email Settings",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:31.788Z",
+    "updatedAt": "2026-10-18T07:55:31.788Z"
+  },
+  {
+    "id": "cami7t99t7tpmvdj6cq6",
+    "key": "settings.email.fromEmail",
+    "value": "noreply@comparlify.com",
+    "group": "Email Settings",
+    "type": "TEXT",
+    "createdAt": "2026-10-18T07:55:31.950Z",
+    "updatedAt": "2026-10-18T07:55:31.950Z"
+  },
+  {
+    "id": "ch5fz74p2hm6mvdj6cu8",
+    "key": "settings.code.head",
+    "value": "",
+    "group": "Code Injection",
+    "type": "TEXTAREA",
+    "createdAt": "2026-10-18T07:55:32.096Z",
+    "updatedAt": "2026-10-18T07:55:32.096Z"
+  },
+  {
+    "id": "cpmlo3w1shjnmvdj6cyx",
+    "key": "settings.code.body",
+    "value": "",
+    "group": "Code Injection",
+    "type": "TEXTAREA",
+    "createdAt": "2026-10-18T07:55:32.265Z",
+    "updatedAt": "2026-10-18T07:55:32.265Z"
+  },
+  {
+    "id": "cizgrdy3bvbmvdj6d3k",
+    "key": "legal.terms-of-service",
+    "value": "\n# Terms of Service\n\n**Last Updated:** 10/18/2026\n\nWelcome to Comparlify! These terms and conditions outline the rules and regulations for the use of Comparlify's Website, located at comparlify.com.\n\nBy accessing this website we assume you accept these terms and conditions. Do not continue to use Comparlify if you do not agree to take all of the terms and conditions stated on this page.\n\n... (full terms content) ...\n",
+    "group": "Legal Pages",
+    "type": "MARKDOWN",
+    "createdAt": "2026-10-18T07:55:32.432Z",
+    "updatedAt": "2026-10-18T07:55:32.432Z"
+  },
+  {
+    "id": "c87zbx21xulsmvdj6d7l",
+    "key": "legal.sponsor-policy",
+    "value": "\n# Sponsor & Affiliate Policy\n\n**Last Updated:** 10/18/2026\n\nAt Comparlify, our mission is to provide clear, unbiased, and valuable information to course creators. To support our work and keep our content free, we may partner with companies through sponsorships or affiliate links. This policy outlines our commitment to transparency.\n\n## Our Principles\n\n1.  **Editorial Independence:** Our content is created independently. Sponsors do not influence our reviews, comparisons, or opinions.\n2.  **Transparency:** We will always clearly disclose sponsored content or affiliate relationships.\n3.  **Relevance:** We only partner with companies whose products or services we believe are genuinely valuable to our audience.\n\n... (full policy content) ...\n",
+    "group": "Legal Pages",
+    "type": "MARKDOWN",
+    "createdAt": "2026-10-18T07:55:32.577Z",
+    "updatedAt": "2026-10-18T07:55:32.577Z"
+  }
+]

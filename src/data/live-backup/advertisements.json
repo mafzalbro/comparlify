@@ -1,0 +1,14 @@
+[
+  {
+    "id": "cmve4pw1m0000uv98wstvh8av",
+    "type": "SCRIPT",
+    "content": "<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6663409277615917\"\n     crossorigin=\"anonymous\"></script>\n<!-- 300 x 250 ads 1 -->\n<ins class=\"adsbygoogle\"\n     style=\"display:inline-block;width:300px;height:250px\"\n     data-ad-client=\"ca-pub-6663409277615917\"\n     data-ad-slot=\"9330259833\"></ins>\n<script>\n     (adsbygoogle = window.adsbygoogle || []).push({});\n</script>",
+    "imageUrl": null,
+    "linkUrl": null,
+    "placement": "SIDEBAR",
+    "active": false,
+    "allowedPages": "*",
+    "createdAt": "2026-10-18T17:58:35.384Z",
+    "updatedAt": "2026-10-19T00:46:38.224Z"
+  }
+]
