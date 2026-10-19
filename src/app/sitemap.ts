@@ -2,6 +2,7 @@ import { MetadataRoute } from "next";
 import prisma from "@/lib/prisma";
 import { getContent } from "@/lib/content";
 import { isModuleEnabled, isRouteEnabled } from "@/lib/module-navigation";
+import { TOOLS } from "@/data/tools/registry";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = "https://www.comparlify.com";
@@ -10,6 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const isBlogOn = isModuleEnabled("blog", content);
   const isCompareOn = isModuleEnabled("compare", content);
   const isToolsOn = isModuleEnabled("tools", content);
+  const isAIOn = isModuleEnabled("ai", content);
   const isNewsOn = isModuleEnabled("news", content);
   const isCommunityOn = isModuleEnabled("community", content);
 
@@ -17,7 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [
     posts,
     comparisons,
-    tools,
+    aiTools,
     news,
     forumCategories,
     forumTopics,
@@ -35,7 +37,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           select: { slug: true, updatedAt: true },
         })
       : Promise.resolve([]),
-    isToolsOn
+    // DB-backed tools are AI assistant tools (registry covers the rest)
+    isAIOn
       ? prisma.tool.findMany({
           where: { enabled: true },
           select: { slug: true, updatedAt: true },
@@ -78,12 +81,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.9,
   }));
 
-  const toolUrls = tools.map((tool: any) => ({
-    url: `${siteUrl}/tools?tool=${tool.slug}`,
-    lastModified: tool.updatedAt,
-    changeFrequency: "monthly" as const,
-    priority: 0.6,
-  }));
+  // ── Registry-driven tool URLs (static, non-AI tools) ────────────────
+  // Path format mirrors getToolBySlug() in src/data/tools/registry.ts:
+  //   - with subcategory:    /tools/{category}/{subcategory}/{slug}
+  //   - without subcategory: /tools/{category}/{slug}
+  const registryToolUrls = isToolsOn
+    ? TOOLS.map((tool) => ({
+        url: tool.subcategory
+          ? `${siteUrl}/tools/${tool.category}/${tool.subcategory}/${tool.slug}`
+          : `${siteUrl}/tools/${tool.category}/${tool.slug}`,
+        lastModified: new Date(),
+        changeFrequency: "monthly" as const,
+        priority: 0.6,
+      }))
+    : [];
+
+  // ── DB-backed AI tool URLs (Legacy Creator AI tools) ────────────────
+  // Gated on the AI module, not the tools module, since these live
+  // under the "AI Assistants" category.
+  const aiToolUrls = isAIOn
+    ? aiTools.map((tool: any) => ({
+        url: `${siteUrl}/tools/ai/${tool.slug}`,
+        lastModified: tool.updatedAt ?? new Date(),
+        changeFrequency: "monthly" as const,
+        priority: 0.6,
+      }))
+    : [];
+
+  const toolUrls = [...registryToolUrls, ...aiToolUrls];
 
   const newsUrls = news.map((article: any) => ({
     url: `${siteUrl}/news/${article.slug}`,

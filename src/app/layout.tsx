@@ -109,6 +109,7 @@ export default async function RootLayout({
           "font-body antialiased flex flex-col min-h-screen bg-background",
           font.className,
         )}
+        suppressHydrationWarning
       >
         <NextTopLoader color="hsl(var(--primary))" showSpinner={false} />
         <ThemeProvider
@@ -118,7 +119,7 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col" suppressHydrationWarning>
               <Suspense fallback={null}>{children}</Suspense>
             </div>
             <Toaster />

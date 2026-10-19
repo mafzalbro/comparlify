@@ -7,7 +7,7 @@ type NavLink = {
 type Content = Record<string, string | undefined>;
 
 // Maps routes to their module enable/disable settings.
-const MODULE_ROUTES: Record<string, string> = {
+const MODULE_ROUTES: any = {
   "/community": "community",
   "/tools/ai": "ai",
   "/tools": "tools",
@@ -16,7 +16,7 @@ const MODULE_ROUTES: Record<string, string> = {
   "/blog": "blog",
   "/about": "about",
   "/contact": "contact",
-};
+} as const;
 
 export function isModuleEnabled(
   module: string,
