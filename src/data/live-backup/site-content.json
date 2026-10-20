@@ -83,7 +83,7 @@
   {
     "id": "clgd663xswkmvdj5wx8",
     "key": "seo.default.url",
-    "value": "https://comparlify.com",
+    "value": "https://www.comparlify.com",
     "group": "SEO Settings",
     "type": "TEXT",
     "createdAt": "2026-10-18T07:55:11.468Z",
@@ -92,7 +92,7 @@
   {
     "id": "czu5h44msiflmvdj5x1x",
     "key": "seo.og.image",
-    "value": "https://comparlify.com/og-image.png",
+    "value": "https://www.comparlify.com/og-image.png",
     "group": "SEO Settings",
     "type": "TEXT",
     "createdAt": "2026-10-18T07:55:11.637Z",
@@ -101,7 +101,7 @@
   {
     "id": "ci9u7k72uyfbmvdj5x76",
     "key": "seo.twitter.image",
-    "value": "https://comparlify.com/twitter-image.png",
+    "value": "https://www.comparlify.com/twitter-image.png",
     "group": "SEO Settings",
     "type": "TEXT",
     "createdAt": "2026-10-18T07:55:11.826Z",
@@ -119,7 +119,7 @@
   {
     "id": "cku3m98fj9zhmvdj5xfx",
     "key": "seo.org.logo",
-    "value": "https://comparlify.com/logo.png",
+    "value": "https://www.comparlify.com/logo.png",
     "group": "Organization Settings",
     "type": "TEXT",
     "createdAt": "2026-10-18T07:55:12.141Z",
@@ -533,7 +533,7 @@
   {
     "id": "c7atqnnt3rasmvdj639x",
     "key": "homepage.hero.title",
-    "value": "Build, Market & Sell\nSmarter, Not Harder",
+    "value": "Compare Smarter.\nGrow Faster.",
     "group": "Homepage",
     "type": "TEXT",
     "createdAt": "2026-10-18T07:55:19.701Z",
@@ -542,7 +542,7 @@
   {
     "id": "ccr8d5zritdamvdj63ec",
     "key": "homepage.hero.subtitle",
-    "value": "Comparlify provides the tools, comparisons, and insights you need to turn your expertise into a thriving online business.",
+    "value": "Discover, compare, and choose the best platforms and tools to build, market, and grow your online business.",
     "group": "Homepage",
     "type": "TEXT",
     "createdAt": "2026-10-18T07:55:19.861Z",

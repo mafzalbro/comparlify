@@ -1,7 +1,6 @@
 import prisma from "@/lib/prisma";
 import type { Metadata } from "next";
 import { generateSeoMetadata } from "@/lib/seo";
-import { SchemaScript } from "@/components/schema-script";
 import { cache } from "react";
 import { getContent } from "@/lib/content";
 
@@ -73,20 +72,13 @@ export default async function Home() {
   const isCompareEnabled = content["module.compare.enabled"] !== "false";
   const isBlogEnabled = content["module.blog.enabled"] !== "false";
 
+  // NOTE: Organization schema is emitted once globally in src/app/layout.tsx
+  // with a stable @id (https://www.comparlify.com/#organization).
+  // Do NOT re-declare it here — duplicate Organization schemas on the same
+  // page are treated as conflicting signals by Google's structured data parser.
+
   return (
     <div className="flex flex-col w-full relative">
-      <SchemaScript
-        schema={{
-          "@context": "https://schema.org",
-          "@type": "Organization",
-          name: "Comparlify",
-          url: "https://comparlify.com",
-          logo: "https://comparlify.com/logo.png",
-          description:
-            "Independent platform for course creators and digital entrepreneurs to compare platforms side-by-side with transparent data.",
-        }}
-      />
-
       {/* <GeometricBackground /> */}
       <HomePageClient />
 

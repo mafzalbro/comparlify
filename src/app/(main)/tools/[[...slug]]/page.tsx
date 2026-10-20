@@ -1,21 +1,27 @@
 import { Metadata } from "next";
 import { Suspense } from "react";
+import { redirect, permanentRedirect } from "next/navigation";
 import { generateSeoMetadata } from "@/lib/seo";
 import { ToolHubSearch } from "@/components/tools/ToolHubSearch";
 import { TOOLS, CATEGORIES, getToolBySlug } from "@/data/tools/registry";
 import prisma from "@/lib/prisma";
 
-// ── ISR: build once at build time, reject unknown paths ──
 export const revalidate = false;
 export const dynamicParams = false;
 
 interface PageProps {
-  params: Promise<{
-    slug?: string[];
-  }>;
+  params: Promise<{ slug?: string[] }>;
 }
 
-// ── METADATA GENERATOR ───────────────────────────────────
+/** Resolve the SINGLE canonical path for any tool slug. */
+function canonicalToolPath(slug: string[]): string | null {
+  const tool = getToolBySlug(slug);
+  if (!tool) return null;
+  return tool.subcategory
+    ? `/tools/${tool.category}/${tool.subcategory}/${tool.slug}`
+    : `/tools/${tool.category}/${tool.slug}`;
+}
+
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
@@ -55,27 +61,25 @@ export async function generateMetadata({
 
   const tool = getToolBySlug(slug);
   if (tool) {
+    // Canonical ALWAYS points to the fully-qualified path
+    const canonicalPath = tool.subcategory
+      ? `/tools/${tool.category}/${tool.subcategory}/${tool.slug}`
+      : `/tools/${tool.category}/${tool.slug}`;
     return generateSeoMetadata({
       title: tool.metaTitle,
       description: tool.metaDescription,
-      path: `/tools/${slug.join("/")}`,
+      path: canonicalPath,
     });
   }
 
-  return generateSeoMetadata({
-    title: "Tool Directory",
-    path: "/tools",
-  });
+  return generateSeoMetadata({ title: "Tool Directory", path: "/tools" });
 }
 
-// ── STATIC PARAMS GENERATOR ──────────────────────────────
 export async function generateStaticParams() {
   const params: { slug?: string[] }[] = [];
 
-  // Root /tools
   params.push({ slug: [] });
 
-  // Categories & Subcategories
   for (const cat of Object.keys(CATEGORIES)) {
     params.push({ slug: [cat] });
     const subcats = Object.keys(
@@ -86,20 +90,15 @@ export async function generateStaticParams() {
     }
   }
 
-  // Tools — register ALL forms the router supports (including 1-segment alias)
+  // Only register the FULL canonical path for each tool
   for (const tool of TOOLS) {
-    // /tools/roi-calculator, /tools/ad-profit-predictor, etc.
-    params.push({ slug: [tool.slug] });
-
     if (tool.subcategory) {
       params.push({ slug: [tool.category, tool.subcategory, tool.slug] });
-      params.push({ slug: [tool.category, tool.slug] });
     } else {
       params.push({ slug: [tool.category, tool.slug] });
     }
   }
 
-  // Register AI tool paths from Prisma (DB-backed, not in TOOLS registry)
   try {
     const aiTools = await prisma.tool.findMany({
       where: { enabled: true },
@@ -112,7 +111,6 @@ export async function generateStaticParams() {
     console.warn("[generateStaticParams] tools DB unreachable:", err);
   }
 
-  // Deduplicate
   const seen = new Set<string>();
   return params.filter((p) => {
     const key = (p.slug ?? []).join("/");
@@ -122,7 +120,6 @@ export async function generateStaticParams() {
   });
 }
 
-// ── FALLBACK SKELETON ────────────────────────────────────
 function ToolHubSkeleton() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 space-y-8">
@@ -132,9 +129,19 @@ function ToolHubSkeleton() {
   );
 }
 
-// ── MAIN ROUTING CONTROLLER ─────────────────────────────
 export default async function ToolsControllerPage({ params }: PageProps) {
   const { slug } = await params;
+
+  // If this is a tool URL, ensure it's the canonical path. If not, 308-redirect.
+  if (slug && slug.length > 0) {
+    const tool = getToolBySlug(slug);
+    if (tool) {
+      const canonical = canonicalToolPath(slug);
+      if (canonical && canonical !== `/tools/${slug.join("/")}`) {
+        permanentRedirect(canonical); // 308 — preserves link equity
+      }
+    }
+  }
 
   return (
     <Suspense fallback={<ToolHubSkeleton />}>

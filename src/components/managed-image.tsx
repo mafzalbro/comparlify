@@ -7,9 +7,28 @@ import { Layers } from "lucide-react";
 export function ManagedImage(props: ImageProps) {
   const [error, setError] = useState(false);
 
+  // Dev-time guard: surfaces every missing/empty alt in the console so it can
+  // be fixed at the source. Does not fire in production to keep the bundle lean.
+  if (process.env.NODE_ENV !== "production") {
+    if (!props.alt || props.alt.trim() === "") {
+      console.warn(
+        `[ManagedImage] Missing alt text for src="${String(props.src)}". ` +
+          `Provide a descriptive alt prop for accessibility and SEO.`,
+      );
+    }
+  }
+
+  // Guarantee a non-empty alt attribute is always shipped, even if the caller
+  // forgot it. This is what Googlebot, screen readers, and OG unfurlers read.
+  const altText =
+    props.alt && props.alt.trim() !== ""
+      ? props.alt.trim()
+      : "Comparlify image";
+
   const isExternal =
     typeof props.src === "string" && props.src.startsWith("http");
 
+  // ── Fallback (broken src / missing src) ────────────────────────────────────
   if (error || !props.src) {
     const isFill = !!props.fill;
     const fallbackStyle: React.CSSProperties = isFill
@@ -27,13 +46,15 @@ export function ManagedImage(props: ImageProps) {
           height: props.height ? `${props.height}px` : "100%",
         };
 
-    const initial = props.alt ? props.alt.trim().charAt(0).toUpperCase() : "";
+    const initial = altText.charAt(0).toUpperCase();
 
     return (
       <div
         className="flex items-center justify-center gap-2.5 bg-secondary/30 border border-border/40 rounded-xl px-4 py-2 text-center select-none min-h-11"
         style={props.style}
-        title={props.alt || "Platform"}
+        title={altText}
+        role="img"
+        aria-label={altText}
       >
         {initial ? (
           <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary text-primary-foreground font-black text-sm tracking-wider shadow-xs shrink-0">
@@ -44,15 +65,16 @@ export function ManagedImage(props: ImageProps) {
             <Layers className="h-4 w-4" />
           </div>
         )}
-        {props.alt && (
+        {altText && (
           <span className="text-xs sm:text-sm font-bold text-foreground tracking-tight whitespace-nowrap">
-            {props.alt}
+            {altText}
           </span>
         )}
       </div>
     );
   }
 
+  // ── External images (raw <img> — bypasses Next.js optimization) ────────────
   if (isExternal) {
     const {
       fill,
@@ -65,6 +87,8 @@ export function ManagedImage(props: ImageProps) {
       width,
       height,
       style,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      alt,
       ...imgDomProps
     } = props;
 
@@ -88,6 +112,7 @@ export function ManagedImage(props: ImageProps) {
       <img
         {...imgDomProps}
         src={props.src as string}
+        alt={altText}
         loading={loading}
         decoding="async"
         fetchPriority={fetchPriority}
@@ -100,23 +125,25 @@ export function ManagedImage(props: ImageProps) {
           width: !fill && width ? `${width}px` : undefined,
           height: !fill && height ? `${height}px` : undefined,
           ...fillStyle,
-          ...(style as any),
+          ...(style as React.CSSProperties),
         }}
       />
     );
   }
 
+  // ── Internal images (Next.js <Image>) ─────────────────────────────────────
   return (
     <Image
       {...props}
+      alt={altText}
       src={props.src}
       onError={() => {
         if (!error) {
-          // Prevent infinite loop if fallback also fails
+          // Prevent infinite loop if the fallback also fails
           setError(true);
         }
       }}
-      unoptimized={error} // Use unoptimized for the SVG fallback
+      unoptimized={error}
     />
   );
 }

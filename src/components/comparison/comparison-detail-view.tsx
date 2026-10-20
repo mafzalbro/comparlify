@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { generateSeoMetadata } from "@/lib/seo";
 import { SchemaScript } from "@/components/schema-script";
+import { JsonLd } from "@/components/json-ld";
+import { generateFaqSchema, generateBreadcrumbSchema } from "@/lib/seo";
 import { MarkdownContent } from "@/components/markdown-content";
 import { AdPlacement } from "@/components/ad-placement";
 import { PremiumNewsletterForm } from "@/components/premium-newsletter-form";
@@ -192,6 +194,10 @@ export async function generateMetadata(props: {
     title: professionalTitle,
     description: comparison.summary,
     path: `/${comparison.slug}`,
+    type: "article",
+    publishedTime: comparison.createdAt.toISOString(),
+    modifiedTime: comparison.updatedAt.toISOString(),
+    authors: [comparison.authorName || "Comparlify Intelligence"],
   });
 }
 
@@ -351,9 +357,30 @@ export default async function ComparisonDetailPage(props: {
     },
   };
 
+  const faqJsonLd =
+    comparison.faqs.length > 0
+      ? generateFaqSchema(
+          comparison.faqs.map((f: { question: string; answer: string }) => ({
+            question: f.question,
+            answer: f.answer,
+          })),
+        )
+      : null;
+
+  const breadcrumbJsonLd = generateBreadcrumbSchema([
+    { name: "Home", url: "https://www.comparlify.com" },
+    { name: "Compare", url: "https://www.comparlify.com/compare" },
+    {
+      name: comparison.title,
+      url: `https://www.comparlify.com/${comparison.slug}`,
+    },
+  ]);
+
   return (
     <div className="bg-background min-h-screen">
       <SchemaScript schema={comparisonJsonLd} />
+      {faqJsonLd && <JsonLd data={faqJsonLd} />}
+      <JsonLd data={breadcrumbJsonLd} />
 
       <article className="pb-40">
         {/* ── HERO ─────────────────────────── */}

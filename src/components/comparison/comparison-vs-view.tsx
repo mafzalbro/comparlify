@@ -3,19 +3,20 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { generateSeoMetadata } from "@/lib/seo";
 import { SchemaScript } from "@/components/schema-script";
+import { JsonLd } from "@/components/json-ld";
+import { generateBreadcrumbSchema } from "@/lib/seo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Sparkles,
-  Zap,
-  MessageSquare,
-  Newspaper,
-} from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { Sparkles, Zap, MessageSquare, Newspaper } from "lucide-react";
 import Link from "next/link";
 import { cache } from "react";
 import { cn } from "@/lib/utils";
-import { DETAIL_CONTAINER, GLASS_CARD, GLASS_CARD_SM, MICRO_LABEL } from "@/lib/design-tokens";
+import {
+  DETAIL_CONTAINER,
+  GLASS_CARD,
+  GLASS_CARD_SM,
+  MICRO_LABEL,
+} from "@/lib/design-tokens";
 import dynamic from "next/dynamic";
 
 export const revalidate = 3600; // Cache pages with ISR so already visited pages don't regenerate
@@ -86,6 +87,8 @@ export async function generateMetadata(props: {
     title: `${parts[0].toUpperCase()} vs ${parts[1].toUpperCase()} | Platform Matchup`,
     description: `Detailed comparison between ${parts[0]} and ${parts[1]}. Find the winner with expert insights.`,
     path: `/${slug}`,
+    type: "article",
+    authors: ["Comparlify Intelligence"],
   });
 }
 
@@ -174,6 +177,15 @@ export default async function DynamicBattlePage(props: {
     };
   });
 
+  const breadcrumbJsonLd = generateBreadcrumbSchema([
+    { name: "Home", url: "https://www.comparlify.com" },
+    { name: "Compare", url: "https://www.comparlify.com/compare" },
+    {
+      name: `${platformA.name} vs ${platformB.name}`,
+      url: `https://www.comparlify.com/${slug}`,
+    },
+  ]);
+
   return (
     <div className="bg-background min-h-screen">
       <SchemaScript
@@ -183,6 +195,7 @@ export default async function DynamicBattlePage(props: {
           name: `${platformA.name} vs ${platformB.name}`,
         }}
       />
+      <JsonLd data={breadcrumbJsonLd} />
 
       <article className="pb-40">
         <ComparisonHero
@@ -196,20 +209,29 @@ export default async function DynamicBattlePage(props: {
         />
 
         <ComparisonStats
-          stats={stats} platformAName={platformA.name} platformBName={platformB.name}
+          stats={stats}
+          platformAName={platformA.name}
+          platformBName={platformB.name}
         />
 
         <section className={DETAIL_CONTAINER}>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
             <aside className="lg:col-span-4 space-y-6 lg:sticky lg:top-24 h-fit z-30">
-              <div className={cn(GLASS_CARD, "p-6 sm:p-8 relative overflow-hidden")}>
+              <div
+                className={cn(
+                  GLASS_CARD,
+                  "p-6 sm:p-8 relative overflow-hidden",
+                )}
+              >
                 <h3 className="text-lg font-black mb-6 flex items-center gap-2">
                   <Zap className="h-4 w-4 text-primary" /> Feature Radar
                 </h3>
                 <div className="h-[250px]">
                   <ComparisonChart
                     chartConfig={chartConfig}
-                    chartData={chartData} platformAName={platformA.name} platformBName={platformB.name}
+                    chartData={chartData}
+                    platformAName={platformA.name}
+                    platformBName={platformB.name}
                   />
                 </div>
               </div>
@@ -222,7 +244,8 @@ export default async function DynamicBattlePage(props: {
                     Community Pulse
                   </Badge>
                   <h4 className="text-xl font-black leading-none">
-                    Expert <span className="text-primary italic">Highlights</span>
+                    Expert{" "}
+                    <span className="text-primary italic">Highlights</span>
                   </h4>
 
                   <div className="space-y-3">
@@ -286,7 +309,9 @@ export default async function DynamicBattlePage(props: {
               <IntelligentAnalysis content="" />
 
               <ComparisonFeatureMatrix
-                features={featureRows} platformAName={platformA.name} platformBName={platformB.name}
+                features={featureRows}
+                platformAName={platformA.name}
+                platformBName={platformB.name}
               />
 
               <div className={cn(GLASS_CARD, "p-6 sm:p-8")}>

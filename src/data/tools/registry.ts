@@ -1,33 +1,3 @@
-import {
-  FileCode,
-  CheckCircle,
-  Minimize2,
-  Eye,
-  Lock,
-  Unlock,
-  Link2,
-  FileKey,
-  Fingerprint,
-  KeyRound,
-  FileCheck,
-  Code,
-  Layout,
-  Terminal,
-  Database,
-  FileText,
-  FileJson,
-  Clock,
-  Calendar,
-  Layers,
-  Scissors,
-  FileSymlink,
-  Image,
-  Sparkles,
-  Calculator,
-  Compass,
-  Zap,
-} from "lucide-react";
-
 export interface ToolFAQ {
   question: string;
   answer: string;

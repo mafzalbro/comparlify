@@ -19,6 +19,7 @@ interface SubToolOption {
   id: string;
   label: string;
   slug: string;
+  path: string;
 }
 
 interface WorkspaceTab {
@@ -60,8 +61,7 @@ export function ToolSidebarInteractive({
   const ActiveIcon = ICON_MAP[activeCategoryIconName] || Globe;
 
   const handleSubToolClick = (sub: SubToolOption) => {
-    const targetPath = `/tools/${selectedCategory}/${sub.slug}`;
-    router.push(targetPath);
+    router.push(sub.path);
 
     // If scrolling on a full page view (e.g. Web Diagnostics)
     const targetElem = document.getElementById(sub.id);
@@ -115,7 +115,8 @@ export function ToolSidebarInteractive({
 
             <div className="space-y-1 max-h-[calc(100vh-220px)] overflow-y-auto scrollbar-none pr-0.5">
               {subToolOptions.map((sub) => {
-                const isActive = activeSubTool === sub.id || activeSubTool === sub.slug;
+                const isActive =
+                  activeSubTool === sub.id || activeSubTool === sub.slug;
                 return (
                   <button
                     key={sub.id}
@@ -127,7 +128,9 @@ export function ToolSidebarInteractive({
                     }`}
                   >
                     <span className="truncate">{sub.label}</span>
-                    {isActive && <Zap className="h-3 w-3 shrink-0 ml-1 fill-primary-foreground" />}
+                    {isActive && (
+                      <Zap className="h-3 w-3 shrink-0 ml-1 fill-primary-foreground" />
+                    )}
                   </button>
                 );
               })}

@@ -504,14 +504,12 @@ async function main() {
     {
       key: "homepage.hero.title",
       group: "Homepage",
-      value: "Build, Market & Sell\nSmarter, Not Harder",
+      value: "Compare Smarter.\nGrow Faster.",
     },
     {
       key: "homepage.hero.subtitle",
       group: "Homepage",
-      value:
-        "Comparlify provides the tools, comparisons, and insights you need to turn your expertise into a thriving online business.",
-    },
+      value: "Discover, compare, and choose the best platforms and tools to build, market, and grow your online business."     },
     {
       key: "homepage.cta.primary",
       group: "Homepage",

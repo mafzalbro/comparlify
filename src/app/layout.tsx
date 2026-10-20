@@ -3,7 +3,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import type { Metadata } from "next";
-import { generateSeoMetadata } from "@/lib/seo";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { Outfit } from "next/font/google";
 import { cn } from "@/lib/utils";
@@ -11,6 +10,8 @@ import { getContent } from "@/lib/content";
 import { Suspense } from "react";
 import NextTopLoader from "nextjs-toploader";
 import { themeConfig } from "@/lib/theme";
+
+const SITE_URL = "https://www.comparlify.com";
 
 const font = Outfit({
   preload: true,
@@ -27,9 +28,32 @@ const font = Outfit({
   ],
 });
 
-export const metadata: Metadata = await generateSeoMetadata({
-  path: "/",
-});
+// DEFENSIVE: layout metadata intentionally does NOT set a canonical,
+// openGraph, or twitter block. Those are page-level responsibilities
+// (each page calls generateSeoMetadata() to declare its own).
+// This prevents a page from ever accidentally inheriting "/" as its canonical.
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  title: "Comparlify — Helping Course Creators Grow",
+  description:
+    "Unbiased comparisons, AI-powered tools, and community insights to help course creators succeed.",
+  applicationName: "Comparlify",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
+};
 
 export default async function RootLayout({
   children,
@@ -38,22 +62,49 @@ export default async function RootLayout({
 }>) {
   const content = await getContent();
   const siteName = content["global.siteName"] || "Comparlify";
+  const siteDescription =
+    content["seo.default.description"] ||
+    "Unbiased comparisons, AI-powered tools, and community insights to help course creators succeed.";
+  const orgLogo = content["seo.org.logo"] || `${SITE_URL}/logo.png`;
   const headCode = content["settings.code.head"] || "";
   const bodyCode = content["settings.code.body"] || "";
 
-  const websiteSchema = {
+  // Site-wide JSON-LD graph.
+  // Organization is given a stable @id so every page's Article / Product /
+  // FAQPage schema can reference it via `publisher: { "@id": ".../#organization" }`.
+  // SearchAction intentionally removed — Google retired Sitelinks Search Box in Nov 2024.
+  const schemaGraph = {
     "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: siteName,
-    url: "https://www.comparlify.com",
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: "https://www.comparlify.com/search?q={search_term_string}",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${SITE_URL}/#organization`,
+        name: siteName,
+        url: SITE_URL,
+        logo: {
+          "@type": "ImageObject",
+          url: orgLogo,
+          width: 512,
+          height: 512,
+        },
+        description: siteDescription,
+        // Populate sameAs when your public social profiles are ready:
+        sameAs: [
+          // "https://twitter.com/comparlify",
+          // "https://www.linkedin.com/company/comparlify",
+          // "https://github.com/comparlify",
+        ],
       },
-      "query-input": "required name=search_term_string",
-    },
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        url: SITE_URL,
+        name: siteName,
+        description: siteDescription,
+        publisher: { "@id": `${SITE_URL}/#organization` },
+        inLanguage: "en-US",
+      },
+    ],
   };
 
   const themeOverrides: { [key: string]: string | undefined } = {};
@@ -99,7 +150,7 @@ export default async function RootLayout({
       <head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaGraph) }}
         />
         {themeCss && <style>{themeCss}</style>}
         {headCode && <div dangerouslySetInnerHTML={{ __html: headCode }} />}

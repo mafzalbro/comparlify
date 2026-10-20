@@ -256,7 +256,7 @@ async function main(skipCleanup = true) {
       role: Role.ADMIN,
       username: "muhammad_afzal",
       bio: "Over 10 years of experience building and migrating premium online academies. Muhammad focuses on zero-friction migrations, high-LTV student retention, and helping creators own their platform destiny.",
-      website: "https://comparlify.com",
+      website: "https://www.comparlify.com",
       onboarded: true,
       newsletter: true,
     },
@@ -779,17 +779,17 @@ async function main(skipCleanup = true) {
     {
       key: "seo.default.url",
       group: "SEO Settings",
-      value: "https://comparlify.com",
+      value: "https://www.comparlify.com",
     },
     {
       key: "seo.og.image",
       group: "SEO Settings",
-      value: "https://comparlify.com/og-image.png",
+      value: "https://www.comparlify.com/og-image.png",
     },
     {
       key: "seo.twitter.image",
       group: "SEO Settings",
-      value: "https://comparlify.com/twitter-image.png",
+      value: "https://www.comparlify.com/twitter-image.png",
     },
 
     // Organization Settings
@@ -801,7 +801,7 @@ async function main(skipCleanup = true) {
     {
       key: "seo.org.logo",
       group: "Organization Settings",
-      value: "https://comparlify.com/logo.png",
+      value: "https://www.comparlify.com/logo.png",
     },
 
     // Theme Settings: Light Mode
@@ -915,13 +915,13 @@ async function main(skipCleanup = true) {
     {
       key: "homepage.hero.title",
       group: "Homepage",
-      value: "Build, Market & Sell\nSmarter, Not Harder",
+      value: "Compare Smarter.\nGrow Faster.",
     },
     {
       key: "homepage.hero.subtitle",
       group: "Homepage",
       value:
-        "Comparlify provides the tools, comparisons, and insights you need to turn your expertise into a thriving online business.",
+        "Discover, compare, and choose the best platforms and tools to build, market, and grow your online business.",
     },
     {
       key: "homepage.cta.primary",

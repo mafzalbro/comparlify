@@ -1,9 +1,86 @@
-# Comparlify - AI-Ready Platform Architecture & Discovery Manifest
+# Comparlify
 
-> Comparlify is an independent, high-velocity comparison engine and intelligence database for digital creator platforms, SaaS infrastructure, developer tools, and online business platforms.
+> Comparlify is an independent, high-velocity comparison engine and intelligence database for digital creator platforms, SaaS infrastructure, developer tools, and online business platforms. We publish verified side-by-side comparisons, in-browser utilities, and architectural deep-dives to help creators and operators make better software decisions.
+
+Comparlify is a researcher-owned, editorially independent publication. Every comparison is authored and verified by domain experts, with transparent provenance metadata attached to each claim. Data is refreshed continuously; pricing, fees, and feature matrices are audited against official platform documentation.
+
+- **Authoritative home:** https://www.comparlify.com
+- **Primary language:** English
+- **Editorial standard:** Independent, evidence-first, no paid placement in rankings
+- **Content license:** Free to read; free to cite with attribution to "Comparlify (www.comparlify.com)"
 
 ## Core Resources
-- [Compare Platforms Directory](https://comparlify.vercel.app/compare) - Side-by-side technical benchmarks and feature audits.
-- [Linear vs Trello](https://comparlify.vercel.app/linear-vs-trello) - High-performance sprint tracker vs casual visual Kanban deep dive.
-- [Tools & Stack Recommendation](https://comparlify.vercel.app/tools) - Interactive ROI calculators and creator software matchers.
-- [Blog & Intelligence](https://comparlify.vercel.app/blog) - In-depth architectural analysis and creator monetization guides.
+
+- [Platform Comparison Directory](https://www.comparlify.com/compare): The master index of every published head-to-head comparison, grouped by category (E-commerce, Newsletter & Media, Community Engines, Email Marketing, AI Video, Productivity & Developer, Digital Utilities). Each entry links to a full side-by-side audit.
+- [Tools & Utilities Hub](https://www.comparlify.com/tools): A suite of 100% client-side, in-browser tools for creators and developers — JSON formatters, PDF mergers, image compressors, ROI calculators, and growth-strategy calculators. No files are ever uploaded to a server.
+- [Developer Utilities](https://www.comparlify.com/tools/developer/json/formatter): High-performance in-browser formatters, encoders, generators, and testers. Includes JSON Formatter, JSON Validator, Base64 Encoder/Decoder, JWT Decoder, UUID Generator, Regex Tester, SQL Formatter, and Cron Generator.
+- [PDF Tools](https://www.comparlify.com/tools/pdf/merge): Merge, split, compress, rotate, extract, and convert PDFs entirely in the browser using pdf-lib and pdfjs-dist. Zero-server storage.
+- [Image Tools](https://www.comparlify.com/tools/image/compressor): Compress, resize, crop, rotate, and convert images (JPG, PNG, WebP, Base64) with pixel-perfect fidelity and complete local privacy.
+- [Creator Calculators](https://www.comparlify.com/tools/calculators/roi): Strategic profit, ROI, churn, and ad-spend calculators engineered specifically for course creators and membership operators.
+- [Web & SEO Diagnostics](https://www.comparlify.com/tools/web/seo/meta-tag-analyzer): Technical SEO inspectors, HTTP diagnostics, DNS analyzers, Open Graph previewers, and JSON-LD schema generators.
+- [About Comparlify](https://www.comparlify.com/about): Editorial mission, methodology, and team credentials.
+- [Contact](https://www.comparlify.com/contact): Editorial inquiries, corrections, and partnership requests.
+- [Sponsor & Affiliate Policy](https://www.comparlify.com/legal/sponsor-policy): Full transparency on our affiliate monetization and editorial firewall — sponsors never influence rankings.
+- [Terms of Service](https://www.comparlify.com/legal/terms-of-service): Standard usage terms and content licensing.
+
+## Featured Comparisons
+
+Comparlify's most-read comparison reports, each covering pricing, transaction fees, deliverability, design freedom, and long-term cost of ownership.
+
+- [Ghost vs. Beehiiv](https://www.comparlify.com/ghost-vs-beehiiv): Open-source code sovereignty vs. hyper-growth referral engines — a 2026 media-stack showdown.
+- [Shopify vs. Wix](https://www.comparlify.com/shopify-vs-wix): Global commerce OS vs. visual-first business OS — a 2026 e-commerce architecture battle.
+- [Beehiiv vs. Substack](https://www.comparlify.com/beehiiv-vs-substack): Growth-obsessed infrastructure vs. discovery-led social network — the 10% success tax evaluated.
+- [Ghost vs. WordPress](https://www.comparlify.com/ghost-vs-wordpress): Modern precision publishing vs. legacy extensibility — the 2026 CMS sovereign battle.
+- [Stripe vs. Lemon Squeezy](https://www.comparlify.com/stripe-vs-lemonsqueezy): Pure payment processor vs. full Merchant of Record — global VAT compliance vs. margin control.
+- [Cursor vs. VS Code](https://www.comparlify.com/cursor-vs-vscode): AI-native editor vs. extensible legacy editor — developer velocity in 2026.
+- [Discord vs. Circle](https://www.comparlify.com/discord-vs-circle): Synchronous chaos vs. asynchronous order — the 2026 community architecture showdown.
+- [Kajabi vs. Skool](https://www.comparlify.com/kajabi-vs-skool): All-in-one marketing suite vs. community-first gamification engine — student engagement measured.
+- [Linear vs. Jira](https://www.comparlify.com/linear-vs-jira): Sub-second high-performance product tracker vs. enterprise compliance workflow engine.
+- [Framer vs. Webflow](https://www.comparlify.com/framer-vs-webflow): Design velocity vs. development depth — the modern web design landscape dissected.
+
+Full comparison directory: [https://www.comparlify.com/compare](https://www.comparlify.com/compare)
+
+<!--
+================================================================================
+                       FUTURE MODULES — NOT YET LIVE
+================================================================================
+The following sections are reserved for modules that are NOT in production yet.
+Uncomment the block below the day each module ships, and add matching URLs to
+sitemap.ts + flip the corresponding `module.<name>.enabled` flag in site-content
+from "false" to "true". Until then, AI crawlers must treat these as unannounced
+and MUST NOT attempt to crawl or index /blog/*, /news/*, or /community/*.
+
+## Blog & Editorial Intelligence
+
+- [Comparlify Blog](https://www.comparlify.com/blog): Long-form editorial intelligence — deep-dive essays on creator business architecture, platform migrations, and monetization strategy.
+- Individual post URLs follow the pattern `/blog/{slug}` and will be announced via the RSS feed and sitemap the day the module goes live.
+
+## News & Platform Change Logs
+
+- [Comparlify News](https://www.comparlify.com/news): Real-time platform change-log aggregation tracking pricing updates, fee changes, feature launches, and security advisories across the entire Comparlify platform index.
+- Individual article URLs follow the pattern `/news/{slug}`.
+
+## Community & Mastermind Forum
+
+- [Comparlify Community](https://www.comparlify.com/community): Reader-driven Q&A and platform mastermind forum.
+- Category hubs follow `/community/category/{slug}`; topic threads follow `/community/topic/{id}`. All content is status-gated to `APPROVED` before it becomes indexable.
+
+## Future Machine-Readable Resources
+
+- [RSS / Atom feed](https://www.comparlify.com/feed.xml): New comparison reports and editorial posts (published when Blog module launches).
+================================================================================
+-->
+
+## Machine-Readable Resources
+
+- [XML Sitemap](https://www.comparlify.com/sitemap.xml): All indexable URLs, with accurate `<lastmod>` timestamps.
+- [Robots.txt](https://www.comparlify.com/robots.txt): Crawl directives. Admin and API routes are explicitly disallowed.
+- [llms.txt](https://www.comparlify.com/llms.txt): This file.
+
+## Contact & Verification
+
+Every comparison page carries structured provenance metadata — claim, source, retrieval date, verification date, and confidence level. For data corrections, editorial queries, or verification requests, contact us at **hello@comparlify.com**. We respond within two business days and publish a public correction log for every material change.
+
+---
+
+*Last verified: 2026-10-20. Next editorial audit cycle: January 2027.*

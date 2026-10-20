@@ -5,6 +5,9 @@ import { isModuleEnabled, isRouteEnabled } from "@/lib/module-navigation";
 import { TOOLS } from "@/data/tools/registry";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const STATIC_LAST_MODIFIED = new Date("2026-04-24T00:00:00.000Z");
+const TOOLS_LAST_MODIFIED  = new Date("2026-04-24T00:00:00.000Z");
+
   const siteUrl = "https://www.comparlify.com";
   const content = await getContent();
 
@@ -90,7 +93,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         url: tool.subcategory
           ? `${siteUrl}/tools/${tool.category}/${tool.subcategory}/${tool.slug}`
           : `${siteUrl}/tools/${tool.category}/${tool.slug}`,
-        lastModified: new Date(),
+        lastModified: TOOLS_LAST_MODIFIED,
         changeFrequency: "monthly" as const,
         priority: 0.6,
       }))
@@ -154,7 +157,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const staticUrls = staticRoutes.map((route) => ({
     url: `${siteUrl}${route}`,
-    lastModified: new Date(),
+    lastModified: STATIC_LAST_MODIFIED,
     changeFrequency: route === "/" ? ("daily" as const) : ("weekly" as const),
     priority: route === "/" ? 1.0 : 0.7,
   }));
