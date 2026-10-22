@@ -1,9 +1,23 @@
-
 const CONFIG = {
   inputDir: ".",
   outputFile: "./all_files.txt",
 
   extensions: [".ts", ".tsx", ".js", ".json"],
+
+  // Only files whose content contains AT LEAST ONE of these keywords
+  // will be exported. Matching is case-insensitive.
+  // Leave the array EMPTY to export ALL matching files (no filter).
+  keywords: [
+    "@prisma/client",
+    "prisma",
+    "PrismaClient",
+    "Mock Prisma",
+    "MockPrisma",
+    "transpilePackages",
+    "serverExternalPackages",
+    "turbopack",
+    "Turbopack",
+  ] as string[],
 
   excludeDirs: [
     "node_modules",
@@ -16,6 +30,12 @@ const CONFIG = {
     ".turbo",
     ".cache",
     "source_export",
+    "next-env.d.ts",
+    "export-files.ts",
+    "tsconfig.json",
+    "bun.lock",
+    ".env",
+    ".agent"
   ],
 
   includeHidden: true,
@@ -53,11 +73,17 @@ const extensions = new Set(
 );
 const excluded = new Set(CONFIG.excludeDirs);
 
+// Prepare keyword filter (case-insensitive, ignore blank entries)
+const keywords = CONFIG.keywords.filter((k) => k.trim().length > 0);
+const lowerKeywords = keywords.map((k) => k.toLowerCase());
+const useKeywordFilter = lowerKeywords.length > 0;
+
 async function main(): Promise<void> {
   const errors: string[] = [];
 
   let discovered = 0;
   let successful = 0;
+  let skipped = 0;
   let failed = 0;
 
   // Open ONE writer for the entire export.
@@ -70,6 +96,11 @@ async function main(): Promise<void> {
 
     console.log(`Scanning: ${root}`);
     console.log(`Output:   ${outputPath}`);
+    if (useKeywordFilter) {
+      console.log(`Keywords: ${keywords.join(", ")}`);
+    } else {
+      console.log(`Keywords: (none — exporting all files)`);
+    }
 
     for await (const entry of glob.scan({
       cwd: root,
@@ -101,16 +132,37 @@ async function main(): Promise<void> {
       try {
         const content = await Bun.file(join(root, entry)).text();
 
-        writer.write(
-          `\n\n${"=".repeat(90)}\n` +
-          `FILE: ${normalizedEntry}\n` +
-          `${"=".repeat(90)}\n\n` +
-          content +
-          "\n",
-        );
+        let matchedKeywords: string[] = [];
+        if (useKeywordFilter) {
+          const haystack = content.toLowerCase();
+          matchedKeywords = keywords.filter((_, i) =>
+            haystack.includes(lowerKeywords[i]),
+          );
+
+          if (matchedKeywords.length === 0) {
+            skipped++;
+            console.log(`[SKIP] ${normalizedEntry} (no keyword match)`);
+            continue;
+          }
+        }
+
+        const header = useKeywordFilter
+          ? `\n\n${"=".repeat(90)}\n` +
+            `FILE: ${normalizedEntry}\n` +
+            `MATCHED KEYWORDS: ${matchedKeywords.join(", ")}\n` +
+            `${"=".repeat(90)}\n\n`
+          : `\n\n${"=".repeat(90)}\n` +
+            `FILE: ${normalizedEntry}\n` +
+            `${"=".repeat(90)}\n\n`;
+
+        writer.write(header + content + "\n");
 
         successful++;
-        console.log(`[OK] ${normalizedEntry}`);
+        console.log(
+          useKeywordFilter
+            ? `[OK] ${normalizedEntry} (matched: ${matchedKeywords.join(", ")})`
+            : `[OK] ${normalizedEntry}`,
+        );
       } catch (error: unknown) {
         failed++;
 
@@ -139,6 +191,7 @@ async function main(): Promise<void> {
   console.log("\n========== EXPORT SUMMARY ==========");
   console.log(`Files discovered: ${discovered}`);
   console.log(`Files read:       ${successful}`);
+  console.log(`Files skipped:    ${skipped}`);
   console.log(`Files failed:     ${failed}`);
   console.log(`Output:           ${outputPath}`);
   console.log("====================================");

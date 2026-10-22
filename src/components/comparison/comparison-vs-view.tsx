@@ -83,6 +83,21 @@ export async function generateMetadata(props: {
   const parts = slug.split("-vs-");
   if (parts.length !== 2) return {};
 
+  const [platformA, platformB] = await Promise.all([
+    getPlatformBySlug(parts[0]),
+    getPlatformBySlug(parts[1]),
+  ]);
+
+  if (!platformA || !platformB) {
+    return {
+      title: "Not Found",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
   return generateSeoMetadata({
     title: `${parts[0].toUpperCase()} vs ${parts[1].toUpperCase()} | Platform Matchup`,
     description: `Detailed comparison between ${parts[0]} and ${parts[1]}. Find the winner with expert insights.`,
@@ -226,7 +241,7 @@ export default async function DynamicBattlePage(props: {
                 <h3 className="text-lg font-black mb-6 flex items-center gap-2">
                   <Zap className="h-4 w-4 text-primary" /> Feature Radar
                 </h3>
-                <div className="h-[250px]">
+                <div className="h-62.5">
                   <ComparisonChart
                     chartConfig={chartConfig}
                     chartData={chartData}

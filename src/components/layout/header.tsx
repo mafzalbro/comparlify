@@ -63,6 +63,7 @@ export default function Header({ navLinks = [], siteName }: HeaderProps) {
     return (
       <Link
         href={href}
+        prefetch={true}
         className={cn(
           "text-sm font-medium transition-colors hover:text-primary relative group",
           isActive ? "font-semibold text-primary" : "text-muted-foreground",
@@ -105,7 +106,11 @@ export default function Header({ navLinks = [], siteName }: HeaderProps) {
       >
         <div className="w-full px-4 sm:container flex h-14 items-center justify-between">
           <div className="flex items-center gap-6">
-            <Link href="/" className="mr-6 flex items-center space-x-2">
+            <Link
+              href="/"
+              prefetch={true}
+              className="mr-6 flex items-center space-x-2"
+            >
               <Logo siteName={siteName} noLink={true} />
             </Link>
             <nav className="hidden lg:flex items-center gap-6">
@@ -128,7 +133,9 @@ export default function Header({ navLinks = [], siteName }: HeaderProps) {
               </>
             ) : (
               <Button asChild>
-                <Link href="/login">Log In</Link>
+                <Link href="/login" prefetch={true}>
+                  Log In
+                </Link>
               </Button>
             )}
           </div>

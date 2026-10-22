@@ -61,7 +61,7 @@ export function UserNav({ user }: { user: Session["user"] }) {
             asChild
             className="rounded-xl px-4 py-3 cursor-pointer"
           >
-            <Link href="/panel">
+            <Link href="/panel" prefetch={true}>
               <LayoutDashboard className="mr-3 h-4 w-4 text-primary" />
               <span className="font-black uppercase tracking-widest text-[10px]">
                 Dashboard
@@ -72,7 +72,7 @@ export function UserNav({ user }: { user: Session["user"] }) {
             asChild
             className="rounded-xl px-4 py-3 cursor-pointer"
           >
-            <Link href="/panel/profile">
+            <Link href="/panel/profile" prefetch={true}>
               <UserCircle className="mr-3 h-4 w-4 text-primary" />
               <span className="font-black uppercase tracking-widest text-[10px]">
                 Profile
@@ -83,7 +83,7 @@ export function UserNav({ user }: { user: Session["user"] }) {
             asChild
             className="rounded-xl px-4 py-3 cursor-pointer"
           >
-            <Link href="/panel/settings">
+            <Link href="/panel/settings" prefetch={true}>
               <Settings className="mr-3 h-4 w-4 text-primary" />
               <span className="font-black uppercase tracking-widest text-[10px]">
                 Settings
@@ -95,7 +95,7 @@ export function UserNav({ user }: { user: Session["user"] }) {
               asChild
               className="rounded-xl px-4 py-3 cursor-pointer group hover:bg-red-500/10"
             >
-              <Link href="/admin">
+              <Link href="/admin" prefetch={true}>
                 <ShieldCheck className="mr-3 h-4 w-4 text-red-500" />
                 <span className="font-black uppercase tracking-widest text-[10px] text-red-500">
                   Admin Arena

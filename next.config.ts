@@ -9,10 +9,18 @@ const nextConfig: NextConfig = {
   /* config options here */
   outputFileTracingRoot: process.cwd(),
   output: "standalone",
-  serverExternalPackages: ["@prisma/client", "prisma"],
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  transpilePackages: ["@prisma/client"],
+  //   serverExternalPackages: [
+  //   "@prisma/client",
+  //   "prisma",
+  //   "genkit",
+  //   "@genkit-ai/core",
+  //   "@genkit-ai/google-genai",
+  //   "express",
+  // ],
+  // typescript: {
+  //   ignoreBuildErrors: true,
+  // },
   // eslint: {
   //   ignoreDuringBuilds: true,
   // },

@@ -1402,13 +1402,135 @@ If you have any questions about our privacy policy, please contact us at <a href
       value: `
 # Terms of Service
 
-**Last Updated:** ${new Date().toLocaleDateString()}
+**Last Updated:** ${new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
 
-Welcome to Comparlify! These terms and conditions outline the rules and regulations for the use of Comparlify's Website, located at comparlify.com.
+Welcome to **Comparlify** ("Comparlify", "we", "our", or "us"). By accessing or using our website located at [comparlify.com](https://www.comparlify.com) and associated subdomains, tools, calculators, comparison matrices, and directories (collectively, the "Platform"), you acknowledge that you have read, understood, and agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, you must discontinue your use of the Platform immediately.
 
-By accessing this website we assume you accept these terms and conditions. Do not continue to use Comparlify if you do not agree to take all of the terms and conditions stated on this page.
+---
 
-... (full terms content) ...
+## 1. Acceptance & Eligibility
+
+By using Comparlify, you affirm and warrant that:
+1. You are at least 18 years of age (or the legal age of majority in your jurisdiction).
+2. You possess the legal capacity to enter into a binding contractual agreement.
+3. Your use of the Platform does not violate any applicable local, national, or international law or regulation.
+
+If you are accessing the Platform on behalf of a company, organization, or other legal entity, you represent and warrant that you have the authority to bind that entity to these Terms.
+
+---
+
+## 2. Our Mission & Nature of the Platform
+
+Comparlify provides independent research, algorithmic scorecards, side-by-side platform comparisons, interactive ROI calculators, migration playbooks, software directory listings, and educational content tailored for creators, course builders, community managers, and digital entrepreneurs.
+
+### 2.1 Informational & Decision-Support Purposes Only
+All content, scoring models, feature checkmarks, fee calculators, and editorial verdicts published on the Platform are provided for general informational and educational purposes only. While we perform rigorous benchmark testing, software updates and pricing structures change frequently in the SaaS industry:
+- **No Professional Financial, Tax, or Legal Advice:** Our tools and articles do not constitute financial, legal, accounting, or professional business consultation.
+- **Independent Verification Required:** You are solely responsible for independently verifying platform pricing, transaction fee structures, feature availability, and contractual terms directly with any software provider before making procurement decisions or financial commitments.
+
+---
+
+## 3. Acceptable Use Policy
+
+When browsing, interacting with, or submitting data to Comparlify, you agree to uphold community and technical integrity.
+
+### 3.1 Prohibited Conduct
+You agree not to:
+- Use any automated scraper, spider, crawler, bot, or automated extraction software to harvest data, tables, scoring matrices, or user reviews without prior written authorization from Comparlify.
+- Probe, scan, test the vulnerability of, or breach any security or authentication measures implemented on our servers, APIs, or database systems.
+- Submit false, malicious, misleading, or defamatory reviews, forum topics, or comments.
+- Impersonate any individual, brand, platform representative, or Comparlify editorial staff member.
+- Upload, transmit, or distribute any code, files, or programs containing viruses, worms, Trojan horses, or malicious payloads.
+- Circumvent rate limits, spam prevention, caching layers, or access controls.
+
+---
+
+## 4. User Accounts & Community Conduct
+
+Certain features of the Platform (such as verified stack publishing, forum discussions, review submissions, and custom tool profiles) may require account creation or authentication via third-party OAuth providers (e.g., Google OAuth).
+
+### 4.1 Account Responsibility
+You are responsible for maintaining the confidentiality of your login credentials and for all activities that occur under your account. If you suspect unauthorized access to your account, you must notify us immediately at [security@comparlify.com](mailto:security@comparlify.com).
+
+### 4.2 User Content & Licensing
+When you submit reviews, comments, benchmark feedback, or community topics ("User Content"):
+- You grant Comparlify a non-exclusive, worldwide, royalty-free, perpetual, and irrevocable license to publish, adapt, format, display, and distribute your User Content on the Platform.
+- You represent and warrant that you own or have obtained all necessary licenses, permissions, and rights to submit your User Content, and that it does not infringe upon any third-party intellectual property or privacy rights.
+- Comparlify reserves the right, in its sole discretion, to moderate, edit, reject, or remove any User Content that violates our community standards or editorial policy.
+
+---
+
+## 5. Intellectual Property Rights
+
+Unless otherwise indicated, the Platform, its software architecture, database design, visual design tokens, comparison matrices, proprietary scoring formulas (including the Comparlify Scorecard algorithm), logos, trademarks, and original editorial content are the exclusive property of Comparlify and are protected by applicable copyright, trademark, and trade secret laws.
+
+- **Limited Personal License:** You are granted a limited, revocable, non-exclusive, non-transferable license to view, bookmark, and share links to our public comparisons and guides for personal, internal, or non-commercial decision-making.
+- **Reproduction Restrictions:** You may not copy, republish, reproduce, mirror, or syndicate our comparison tables, scorecards, or detailed platform writeups in whole or in substantial part without explicit attribution and prior written consent.
+
+---
+
+## 6. Third-Party Links, Platforms & Affiliate Relationships
+
+Comparlify contains links, redirects, benchmark references, and widgets that connect to external third-party software vendors, payment gateways, and SaaS providers (e.g., Kajabi, Skool, Circle, Teachable, Shopify, Stripe, etc.).
+
+- **Independent Third Parties:** We do not own, control, maintain, or operate third-party websites or services. We assume no responsibility or liability for third-party content, terms of service, uptime, refund policies, or data security practices.
+- **Affiliate Disclosure:** Some outbound links on Comparlify are affiliate tracking links. If you click through and purchase a software subscription, we may earn an affiliate commission at no additional cost to you. For full details on our editorial firewall, please review our [Sponsor & Affiliate Policy](/legal/sponsor-policy).
+
+---
+
+## 7. Disclaimer of Warranties
+
+TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, THE PLATFORM, SERVICES, COMPARISONS, CALCULATORS, ARTICLES, AND SOFTWARE REVIEWS ARE PROVIDED ON AN **"AS IS"** AND **"AS AVAILABLE"** BASIS, WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE.
+
+COMPARLIFY EXPRESSLY DISCLAIMS ALL WARRANTIES, INCLUDING BUT NOT LIMITED TO:
+1. IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT.
+2. THAT THE INFORMATION, PLATFORM PRICING, COMMISSION RATES, INTEGRATION CAPABILITIES, OR CALCULATOR OUTPUTS ARE ENTIRELY ERROR-FREE, COMPLETE, ACCURATE, OR CURRENT AT ALL TIMES.
+3. THAT ACCESS TO THE PLATFORM WILL BE UNINTERRUPTED, SECURE, DEFECT-FREE, OR FREE OF HARMFUL COMPONENTS.
+
+---
+
+## 8. Limitation of Liability
+
+TO THE MAXIMUM EXTENT PERMITTED UNDER APPLICABLE LAW, IN NO EVENT SHALL COMPARLIFY, ITS FOUNDERS, OFFICERS, DIRECTORS, EMPLOYEES, CONTRACTORS, EDITORS, OR AFFILIATES BE LIABLE FOR ANY INDIRECT, INCIDENTAL, CONSEQUENTIAL, SPECIAL, PUNITIVE, OR EXEMPLARY DAMAGES (INCLUDING DAMAGES FOR LOSS OF REVENUE, PROFITS, BUSINESS GOODWILL, DATA, OR SUBSCRIBER CHURN), ARISING OUT OF OR IN CONNECTION WITH:
+- YOUR RELIANCE ON ANY COMPARISON, REVIEW, RECOMMENDATION, OR CALCULATOR ON COMPARLIFY.
+- YOUR CHOICE TO MIGRATE TO, SUBSCRIBE TO, OR CANCEL ANY THIRD-PARTY SAAS OR LMS PLATFORM.
+- ANY DEFECT, ERROR, DOWNTIME, OR DATA BREACH EXPERIENCED ON A THIRD-PARTY SOFTWARE APPLICATION LINKED FROM COMPARLIFY.
+
+IN NO EVENT SHALL OUR TOTAL CUMULATIVE LIABILITY EXCEED THE GREATER OF ONE HUNDRED U.S. DOLLARS ($100.00 USD) OR THE AMOUNT YOU HAVE PAID DIRECTLY TO COMPARLIFY FOR USE OF THE SERVICES IN THE TWELVE (12) MONTHS PRECEDING THE CLAIM.
+
+---
+
+## 9. Indemnification
+
+You agree to defend, indemnify, and hold harmless Comparlify, its parent entities, officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, costs, or expenses (including reasonable legal fees) resulting from or arising out of:
+- Your violation of these Terms.
+- Your User Content submitted to the Platform.
+- Your misuse of the Platform or violation of any third-party right or applicable regulation.
+
+---
+
+## 10. Modifications to Terms & Platform
+
+We reserve the right to revise, update, or replace these Terms at any time. When modifications occur, we will update the "Last Updated" timestamp at the top of this document. Continued use of the Platform after the effective date of revised Terms constitutes your unconditional acceptance of the changes.
+
+We also reserve the right to modify, suspend, or discontinue any feature, comparison engine, tool, or database record on Comparlify without prior notice.
+
+---
+
+## 11. Governing Law & Dispute Resolution
+
+These Terms shall be governed by, construed, and enforced in accordance with the laws of the jurisdiction in which Comparlify is registered, without giving effect to conflict of law principles. Any legal action or proceeding arising out of or related to these Terms or your use of Comparlify shall be submitted to the exclusive jurisdiction of the state or federal courts located within that jurisdiction.
+
+---
+
+## 12. Contact Information
+
+If you have questions, concerns, or legal inquiries regarding these Terms of Service, please reach out to our legal department:
+
+- **Entity:** Comparlify Legal & Compliance
+- **Email:** [legal@comparlify.com](mailto:legal@comparlify.com)
+- **General Inquiries:** [support@comparlify.com](mailto:support@comparlify.com)
+- **Official Address:** 123 Creator Lane, Suite 100, Innovation City, 12345
 `,
     },
     {
@@ -1418,33 +1540,118 @@ By accessing this website we assume you accept these terms and conditions. Do no
       value: `
 # Sponsor & Affiliate Policy
 
-**Last Updated:** ${new Date().toLocaleDateString()}
+**Last Updated:** ${new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
 
-At Comparlify, our mission is to provide clear, unbiased, and valuable information to course creators. To support our work and keep our content free, we may partner with companies through sponsorships or affiliate links. This policy outlines our commitment to transparency.
+At **Comparlify**, our primary mission is to empower course creators, educators, community founders, and digital entrepreneurs with unbiased, mathematically rigorous, and architecturally verified software intelligence.
 
-## Our Principles
+To support our operations, maintain high-performance testing environments, conduct independent SaaS audits, and keep our entire suite of benchmarks, calculators, and comparisons 100% free for our readers, we partner with selected software vendors through affiliate relationships and sponsored placements.
 
-1.  **Editorial Independence:** Our content is created independently. Sponsors do not influence our reviews, comparisons, or opinions.
-2.  **Transparency:** We will always clearly disclose sponsored content or affiliate relationships.
-3.  **Relevance:** We only partner with companies whose products or services we believe are genuinely valuable to our audience.
+This Sponsor & Affiliate Policy explains how we earn revenue, how our editorial firewall works, and our strict commitment to creator-first transparency in compliance with the **Federal Trade Commission (FTC) Guides (16 CFR Part 255)** and international consumer protection standards.
 
-... (full policy content) ...
+---
+
+## 1. Core Editorial Principles
+
+### 1.1 The Editorial Firewall
+Our editorial evaluation team operates under a strict, impenetrable separation of church and state:
+- **Rankings Cannot Be Bought:** Software vendors cannot pay to manipulate their scorecards, alter their feature checkmarks, improve their position in automated comparison grids, or artificially boost their Comparlify Scorecard score.
+- **Identical Benchmark Standards:** Every platform—whether an affiliate partner or not—is audited against the exact same evaluation metrics: ease of use, pricing transparency, checkout conversion efficiency, student learning experience, community engagement, and data sovereignty.
+- **Critical Verdicts Are Preserved:** If a platform has confusing fee structures, excessive transaction take-rates, poor mobile responsiveness, or subpar customer support, we document and highlight it regardless of whether that platform offers an affiliate program.
+
+---
+
+## 2. Affiliate Relationships & Outbound Tracking
+
+### 2.1 How Affiliate Links Work
+Throughout Comparlify—including comparison tables, platform review deep dives, alternative roundups, and migration playbooks—you will find buttons and links such as "Visit Platform", "Start Free Trial", or "View Pricing".
+- When you click on one of these links and proceed to sign up or purchase a subscription, the software provider recognizes that you were referred by Comparlify via a tracking cookie.
+- The provider may pay us a referral commission or percentage fee.
+- **Zero Surcharge Guarantee:** Using our affiliate links **never costs you anything extra**. In fact, our partnerships frequently allow us to negotiate exclusive trial extensions, waived setup fees, or discounted creator pricing on your behalf.
+
+### 2.2 Independent Selection
+We feature, review, and benchmark dozens of software platforms (including open-source platforms and boutique tools) that have no affiliate programs whatsoever. Our tool selection is driven strictly by what is relevant, superior, and valuable for course creators and digital businesses.
+
+---
+
+## 3. Sponsored Content & Featured Partner Badges
+
+On select sections of the Platform, we may offer commercial sponsorship formats, such as newsletter sponsorships, banner placements, or clearly labeled featured listings.
+
+### 3.1 Transparent Disclosures
+Whenever content, placement, or promotion is supported by commercial compensation:
+- It is explicitly marked with prominent visual identifiers such as **"Sponsored"**, **"Partner Feature"**, or **"Ad"**.
+- Sponsored placements are distinctly demarcated from organic search results, algorithmic tool directory rankings, and editorial comparison verdict cards.
+
+### 3.2 Product Quality Criteria
+We reject sponsorships from software providers that do not meet our baseline standards for security, data privacy, customer support responsiveness, and fair business practices. We do not promote get-rich-quick schemes, predatory lending platforms, or unreputable software.
+
+---
+
+## 4. Benchmark Data & Scorecard Integrity
+
+The scorecards and recommendation badges displayed on Comparlify (such as *"Best for High-Ticket Academies"*, *"Best Value for Communities"*, or *"Top Pick for Scaled DTC"*) are calculated through our proprietary evaluation framework:
+1. **Feature Completeness:** Live feature audit across LMS tools, course delivery, gamification, and checkout flow.
+2. **True Cost of Ownership:** Algorithmic calculation factoring in monthly tier subscriptions, transaction fees, third-party plugin requirements, and payment gateway costs.
+3. **Verified User Sentiment:** Continuous aggregation of developer feedback, creator community reviews, and real-world uptime reliability.
+4. **Data Sovereignty:** Evaluation of how easily creators can export their student database, email lists, course assets, and transactional history.
+
+A vendor's commercial relationship or willingness to pay affiliate commissions has zero weighting in our scorecard algorithms.
+
+---
+
+## 5. FTC & Global Regulatory Compliance
+
+In accordance with the FTC guidelines and global digital marketing standards (including UK ASA guidelines and EU consumer transparency regulations):
+- We place disclosure notices adjacent to our comparison tables, outbound affiliate links, and review headers.
+- Readers are alerted before clicking external affiliate links that commercial relationships may exist.
+- We never make unsubstantiated claims or artificially inflate performance statistics.
+
+---
+
+## 6. How Your Support Empowers Independent Research
+
+Every time you choose to use our links to try a platform, you are directly funding:
+- Real subscription purchases for our team to test platforms firsthand.
+- In-depth, sub-second latency and speed benchmarks on mobile and desktop networks.
+- Maintenance of free, high-utility interactive calculators (ROI calculators, migration estimators, price comparators).
+- Independent investigative reporting on SaaS pricing changes, hidden fees, and creator business trends.
+
+---
+
+## 7. Questions, Feedback & Sponsor Inquiries
+
+We encourage questions, feedback, and vendor verification requests. If you are a creator with questions about a platform review, or a software company seeking to verify your platform's benchmark details:
+
+- **Editorial Independence Inquiries:** [editorial@comparlify.com](mailto:editorial@comparlify.com)
+- **Partnership & Sponsorship Inquiries:** [partnerships@comparlify.com](mailto:partnerships@comparlify.com)
+- **Compliance Officer:** [legal@comparlify.com](mailto:legal@comparlify.com)
+- **Official Mailing Address:** Comparlify Media, 123 Creator Lane, Suite 100, Innovation City, 12345
 `,
     },
   ];
   for (const content of siteContent) {
     try {
-      const existing = await prisma.siteContent.findUnique({
-        where: { key: content.key },
-      });
-      if (existing) {
-        continue;
-      }
       if (isMongo) {
-        await safeCreate("SiteContent", content);
+        const existing = await prisma.siteContent.findUnique({
+          where: { key: content.key },
+        });
+        if (existing) {
+          await prisma.siteContent.update({
+            where: { key: content.key },
+            data: content as any,
+          });
+        } else {
+          await safeCreate("SiteContent", content);
+        }
       } else {
-        await prisma.siteContent.create({
-          data: content as any,
+        await prisma.siteContent.upsert({
+          where: { key: content.key },
+          update: {
+            value: content.value,
+            group: content.group,
+            type: content.type as any,
+          },
+          create: content as any,
         });
       }
     } catch (e: any) {

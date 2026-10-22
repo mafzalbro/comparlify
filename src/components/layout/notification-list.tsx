@@ -59,6 +59,7 @@ export function NotificationList({
             {notifications.map((notif) => (
               <Link
                 href={notif.link}
+                prefetch={true}
                 key={notif.id}
                 className={cn(
                   "block p-5 hover:bg-primary/5 transition-all duration-300 relative group",
@@ -112,10 +113,13 @@ export function NotificationList({
       {notifications.length > 0 && (
         <div className="p-4 border-t border-primary/10 bg-muted/20">
           <Button
+            asChild
             variant="ghost"
             className="w-full h-10 rounded-xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-all"
           >
-            View All Dispatches
+            <Link href="/notifications" prefetch={true}>
+              View All Dispatches
+            </Link>
           </Button>
         </div>
       )}

@@ -59,5 +59,6 @@ bun.lock
 package-lock.json
 
 diff.txt
+all-files.txt
 
 .z*
