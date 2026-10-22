@@ -1385,7 +1385,8 @@ If you have any questions about our privacy policy, please contact us at <a href
       key: "settings.code.head",
       group: "Code Injection",
       type: "TEXTAREA",
-      value: "",
+      value: `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6663409277615917"
+     crossorigin="anonymous"></script>`,
     },
     {
       key: "settings.code.body",

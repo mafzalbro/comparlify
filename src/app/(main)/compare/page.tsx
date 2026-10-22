@@ -4,14 +4,11 @@ import { generateSeoMetadata } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import { Suspense, cache } from "react";
 import { cn } from "@/lib/utils";
-import type { SearchParams } from "@/types/next";
 import { getContent } from "@/lib/content";
 import { SchemaScript } from "@/components/schema-script";
 import { MotionDiv } from "@/components/motion-wrapper";
-import { Zap } from "lucide-react";
 import { PAGE_CONTAINER, GLASS_CARD } from "@/lib/design-tokens";
 
-// Components
 import { FilterControls } from "./_components/filter-controls";
 import { CompareHero } from "@/components/compare/compare-hero";
 import { BattleSelector } from "./_components/battle-selector";
@@ -19,6 +16,7 @@ import { GlobalMatchEngine } from "@/components/compare/global-match-engine";
 import { ComparisonCardsList } from "./_components/comparison-cards-list";
 import { ComparisonCardsSkeleton } from "./_components/comparison-skeletons";
 
+// ISR — now actually applies because the route is static.
 export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -30,33 +28,30 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-const getAllPlatforms = cache(async () => {
-  return prisma.platform.findMany({
-    orderBy: { name: "asc" },
-  });
-});
+const getAllPlatforms = cache(async () =>
+  prisma.platform.findMany({ orderBy: { name: "asc" } }),
+);
 
-const getAllComparisonsList = cache(async () => {
-  return prisma.comparison.findMany({
+const getAllComparisonsList = cache(async () =>
+  prisma.comparison.findMany({
     where: { published: true },
     include: {
       platformA: true,
       platformB: true,
     },
-  });
-});
+    orderBy: { createdAt: "desc" },
+  }),
+);
 
-const getComparisonCategories = cache(async () => {
-  return prisma.comparisonCategory.findMany({
+const getComparisonCategories = cache(async () =>
+  prisma.comparisonCategory.findMany({
     select: { id: true, name: true, slug: true },
     orderBy: { name: "asc" },
-  });
-});
+  }),
+);
 
-export default async function ComparePage(props: {
-  searchParams: Promise<SearchParams>;
-}) {
-  const searchParams = await props.searchParams;
+// ⬇ No `searchParams` prop. The whole route is now static + ISR.
+export default async function ComparePage() {
   const [allPlatforms, allComps, categories, content] = await Promise.all([
     getAllPlatforms(),
     getAllComparisonsList(),
@@ -67,13 +62,6 @@ export default async function ComparePage(props: {
   if (content["module.compare.enabled"] === "false") {
     notFound();
   }
-
-  // Suspense key based on filters to allow smooth loading
-  const platformsParam = searchParams.platforms;
-  const selectedPlatformsStr = Array.isArray(platformsParam)
-    ? platformsParam.join(",")
-    : platformsParam || "";
-  const filterKey = `${searchParams.search ?? ""}-${searchParams.category ?? ""}-${searchParams.sort ?? ""}-${selectedPlatformsStr}`;
 
   return (
     <div className="bg-background min-h-screen">
@@ -94,7 +82,10 @@ export default async function ComparePage(props: {
       <div className={PAGE_CONTAINER + " py-12"}>
         {/* ── MATCH ENGINE WIZARD ──────────── */}
         <div className="mb-10">
-          <GlobalMatchEngine allPlatforms={allPlatforms} allComparisons={allComps} />
+          <GlobalMatchEngine
+            allPlatforms={allPlatforms}
+            allComparisons={allComps}
+          />
         </div>
 
         {/* ── BATTLE SELECTOR ─────────────── */}
@@ -110,18 +101,23 @@ export default async function ComparePage(props: {
           className="mb-12 max-w-5xl mx-auto"
         >
           <div className={cn(GLASS_CARD, "p-5 sm:p-6")}>
-            <FilterControls
-              allPlatforms={allPlatforms}
-              categories={categories}
-              searchParams={searchParams}
-            />
+            <Suspense
+              fallback={
+                <div className="h-11 rounded-full bg-muted/40 animate-pulse" />
+              }
+            >
+              <FilterControls
+                allPlatforms={allPlatforms}
+                categories={categories}
+              />
+            </Suspense>
           </div>
         </MotionDiv>
 
         {/* ── SUSPENDED LIST ────────────────────────── */}
         <div className="max-w-6xl mx-auto">
-          <Suspense key={filterKey} fallback={<ComparisonCardsSkeleton />}>
-            <ComparisonCardsList searchParams={searchParams} content={content} />
+          <Suspense fallback={<ComparisonCardsSkeleton />}>
+            <ComparisonCardsList allComparisons={allComps} content={content} />
           </Suspense>
         </div>
       </div>

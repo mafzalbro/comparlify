@@ -42,8 +42,8 @@ const getPlatformBySlug = cache(async (slug: string) => {
     where: {
       OR: [
         { id: slug },
-        { name: { equals: platformNameClean, mode: "insensitive" } },
-        { name: { equals: slug, mode: "insensitive" } },
+        { name: platformNameClean },
+        { name: slug },
       ],
     },
     include: {

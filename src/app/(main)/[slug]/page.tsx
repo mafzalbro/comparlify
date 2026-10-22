@@ -36,11 +36,7 @@ const getPlatform = cache(async (slug: string) => {
   try {
     const directMatch = await prisma.platform.findFirst({
       where: {
-        OR: [
-          { id: slug },
-          { name: { equals: cleanName, mode: "insensitive" } },
-          { name: { equals: slug, mode: "insensitive" } },
-        ],
+        OR: [{ id: slug }, { name: cleanName }, { name: slug }],
       },
       select: { id: true, name: true },
     });
