@@ -98,6 +98,7 @@ GA4 is a "Data Superweapon" for the modern age. It has a notoriously steep learn
     { featureName: "BigQuery Export", categoryName: "Data", hasFeature: true },
     { featureName: "Custom Explorations", categoryName: "Reporting", hasFeature: true }
   ],
+  category: "Analytics & Intelligence",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://marketingplatform.google.com/about/analytics/pricing/"
 };

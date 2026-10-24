@@ -92,6 +92,7 @@ Substack is more than a platform; it is a movement toward a "Sovereign Internet.
     { featureName: "Mobile App", categoryName: "Access", hasFeature: true },
     { featureName: "Podcasting", categoryName: "Content", hasFeature: true }
   ],
+  category: "Newsletter & Publishing",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://substack.com/going-paid"
 };

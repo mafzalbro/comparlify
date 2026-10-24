@@ -86,23 +86,31 @@ export function PlatformVisitCards({
               </div>
             </div>
 
-            <Button
-              asChild
-              className={`w-full rounded-xl py-5 text-xs font-extrabold uppercase tracking-widest gap-2 transition-all hover:scale-102 ${
-                idx === 0
-                  ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                  : "bg-foreground text-background shadow-md"
-              }`}
-            >
-              <a
-                href={`/api/out/${platform.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`Claim exclusive deal for ${platform.name}`}
+            <div className="space-y-3">
+              <Button
+                asChild
+                className={`w-full rounded-xl py-5 text-xs font-extrabold uppercase tracking-widest gap-2 transition-all hover:scale-102 ${
+                  idx === 0
+                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                    : "bg-foreground text-background shadow-md"
+                }`}
               >
-                Claim Exclusive Deal <ArrowRight className="h-4 w-4" />
+                <a
+                  href={`/api/out/${platform.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Claim exclusive deal for ${platform.name}`}
+                >
+                  Claim Exclusive Deal <ArrowRight className="h-4 w-4" />
+                </a>
+              </Button>
+              <a
+                href={`/platform/${(platform as any).slug || platform.name.toLowerCase().replace(/\s+/g, "-")}`}
+                className="text-[11px] font-bold text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-1"
+              >
+                Read Complete {platform.name} Review →
               </a>
-            </Button>
+            </div>
           </div>
         );
       })}

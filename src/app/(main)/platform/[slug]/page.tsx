@@ -232,23 +232,16 @@ export default async function PlatformDetailPage(props: {
                     Visit Official Site <ExternalLink className="h-4 w-4" />
                   </a>
                 </Button>
-                {platform.affiliateLink && (
-                  <Button
-                    asChild
-                    variant="outline"
-                    size="default"
-                    className="w-full sm:w-auto rounded-full px-6 h-11 font-extrabold tracking-wide border border-border/60 hover:border-primary/50"
-                  >
-                    <a
-                      href={platform.affiliateLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      View Exclusive Offers{" "}
-                      <Sparkles className="h-4 w-4 text-primary" />
-                    </a>
-                  </Button>
-                )}
+                <Button
+                  asChild
+                  variant="outline"
+                  size="default"
+                  className="w-full sm:w-auto rounded-full px-6 h-11 font-bold text-xs border border-border/60 hover:border-primary/50"
+                >
+                  <Link href={`/alternatives/${slug}`}>
+                    View {platform.name} Alternatives
+                  </Link>
+                </Button>
                 <Button
                   asChild
                   variant="secondary"
@@ -360,6 +353,14 @@ export default async function PlatformDetailPage(props: {
                     <Layers className="w-3.5 h-3.5 text-primary" /> On This Page
                   </h4>
                   <ul className="space-y-2 text-xs font-bold text-muted-foreground">
+                    <li>
+                      <Link
+                        href={`/alternatives/${slug}`}
+                        className="text-primary hover:underline transition-colors flex items-center gap-1.5 py-1"
+                      >
+                        • Top {platform.name} Alternatives →
+                      </Link>
+                    </li>
                     <li>
                       <a
                         href="#scorecard"
@@ -769,7 +770,7 @@ export default async function PlatformDetailPage(props: {
                     size="lg"
                     className="w-full sm:w-auto rounded-full px-8 h-12 text-xs sm:text-sm font-bold uppercase tracking-wider border-border/60 hover:bg-secondary/50 text-foreground"
                   >
-                    <Link href="/compare">Compare Alternatives</Link>
+                    <Link href={`/alternatives/${slug}`}>{platform.name} Alternatives</Link>
                   </Button>
                 </div>
               </div>

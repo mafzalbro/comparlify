@@ -115,6 +115,7 @@ Beehiiv has successfully and permanently industrialized the newsletter space in 
     { featureName: "Custom Domains", categoryName: "Branding", hasFeature: true },
     { featureName: "A/B Testing", categoryName: "Optimization", hasFeature: true }
   ],
+  category: "Newsletter & Media Stack",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://www.beehiiv.com/pricing"
 };

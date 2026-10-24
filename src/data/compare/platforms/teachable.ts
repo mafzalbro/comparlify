@@ -120,6 +120,7 @@ Teachable is the "reliable workhorse" of the online education world. It does one
     { featureName: "Student Analytics", categoryName: "Education", hasFeature: true },
     { featureName: "Affiliate Center", categoryName: "Growth", hasFeature: true }
   ],
+  category: "Course & LMS Platforms",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://teachable.com/pricing"
 };

@@ -116,7 +116,12 @@ export function ComparisonHero({
                 <div className="flex flex-col items-center">
                   <div className="flex items-center gap-1.5">
                     <h2 className="text-lg font-extrabold text-foreground tracking-tight">
-                      {platform.name}
+                      <a
+                        href={`/platform/${(platform as any).slug || platform.name.toLowerCase().replace(/\s+/g, "-")}`}
+                        className="hover:text-primary transition-colors hover:underline"
+                      >
+                        {platform.name}
+                      </a>
                     </h2>
                     <PlatformIntelligenceModal platform={platform as any}>
                       <Button
@@ -129,9 +134,17 @@ export function ComparisonHero({
                       </Button>
                     </PlatformIntelligenceModal>
                   </div>
-                  <Badge className="mt-2 bg-secondary/50 text-muted-foreground text-[9px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full border-none">
-                    Expert Assessment
-                  </Badge>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Badge className="bg-secondary/50 text-muted-foreground text-[9px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full border-none">
+                      Expert Assessment
+                    </Badge>
+                    <a
+                      href={`/platform/${(platform as any).slug || platform.name.toLowerCase().replace(/\s+/g, "-")}`}
+                      className="text-[10px] font-extrabold text-primary hover:underline transition-colors"
+                    >
+                      Read Review →
+                    </a>
+                  </div>
                 </div>
               </div>
             );

@@ -74,6 +74,7 @@ Run hundreds of localized storefronts from a single unified admin panel:
     { featureName: "B2B Quoting Engine", categoryName: "Sales", hasFeature: true },
     { featureName: "Headless GraphQL APIs", categoryName: "Extensibility", hasFeature: true }
   ],
+  category: "E-Commerce Platforms",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://business.adobe.com/products/magento/magento-commerce.html"
 };

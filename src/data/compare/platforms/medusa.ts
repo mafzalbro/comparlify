@@ -108,6 +108,7 @@ Medusa is "Commerce Unlocked." It is a powerful, flexible, and rock-solid founda
     { featureName: "Plugin Ecosystem", categoryName: "Extensibility", hasFeature: true },
     { featureName: "Custom Checkout", categoryName: "Sales", hasFeature: true }
   ],
+  category: "Headless E-Commerce Engines",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://medusajs.com"
 };

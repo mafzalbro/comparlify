@@ -109,6 +109,7 @@ HeyGen is not just a tool; it is a "Sovereign Content Multiplier." It allows a s
     { featureName: "Multi-language Support", categoryName: "Content", hasFeature: true },
     { featureName: "Video API", categoryName: "Developer", hasFeature: true }
   ],
+  category: "AI Video & Media Generation",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://www.heygen.com/pricing"
 };

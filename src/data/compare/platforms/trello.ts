@@ -57,5 +57,6 @@ Trello remains the quintessential visual collaboration tool, offering clean drag
   affiliateLink: "https://trello.com",
   dealDescription: "Get started free on Trello's visual collaboration system.",
   videoHostingIncluded: false,
+  category: "Project & Productivity Management",
   lastVerifiedAt: "2026-03-01T00:00:00.000Z",
 };

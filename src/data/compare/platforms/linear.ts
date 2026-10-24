@@ -111,6 +111,7 @@ Linear is "The Professional's Choice" for project management in 2026. It is a sh
     { featureName: "GitHub Sync", categoryName: "Integrations", hasFeature: true },
     { featureName: "Offline Mode", categoryName: "UX", hasFeature: true }
   ],
+  category: "Project & Issue Management",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://linear.app/pricing"
 };

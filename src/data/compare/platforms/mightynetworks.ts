@@ -105,6 +105,7 @@ Mighty Networks is the "Industrial Strength" community builder of 2026. It offer
     { featureName: "LMS & Courses", categoryName: "Education", hasFeature: true },
     { featureName: "Native Livestreaming", categoryName: "Events", hasFeature: true }
   ],
+  category: "Community & Membership",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://www.mightynetworks.com/pricing"
 };

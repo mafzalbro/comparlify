@@ -109,6 +109,7 @@ Kit is the "Creator's Best Friend" and their most valuable business partner. It 
     { featureName: "Landing Pages", categoryName: "Marketing", hasFeature: true },
     { featureName: "Subscriber Scoring", categoryName: "Analytics", hasFeature: true }
   ],
+  category: "Email & Newsletter Stack",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://kit.com/pricing"
 };

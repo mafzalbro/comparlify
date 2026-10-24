@@ -112,6 +112,7 @@ Thinkific is the "Engineers' LMS." It is precise, powerful, and remarkably stabl
     { featureName: "App Store", categoryName: "Integrations", hasFeature: true },
     { featureName: "Certificates", categoryName: "Education", hasFeature: true }
   ],
+  category: "Course & LMS Platforms",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://thinkific.com/pricing"
 };

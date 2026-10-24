@@ -112,6 +112,7 @@ Synthesia is the "Industrial Workhorse" of the AI video era. It is reliable, sec
     { featureName: "API Access", categoryName: "Developer", hasFeature: true },
     { featureName: "Interactive Video", categoryName: "Experience", hasFeature: true }
   ],
+  category: "AI Video & Media Generation",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://www.synthesia.io/pricing"
 };

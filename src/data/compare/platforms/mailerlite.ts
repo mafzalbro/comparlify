@@ -107,6 +107,7 @@ MailerLite is the "Great Equalizer" of the 2026 marketing landscape. It gives sm
     { featureName: "A/B Testing", categoryName: "Optimization", hasFeature: true },
     { featureName: "E-commerce Integration", categoryName: "Sales", hasFeature: true }
   ],
+  category: "Email & Marketing Automation",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://mailerlite.com/pricing"
 };

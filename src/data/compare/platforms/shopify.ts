@@ -117,6 +117,7 @@ Shopify has successfully industrialized e-commerce. It removes the technical "fr
     { featureName: "Omnichannel Selling", categoryName: "Marketing", hasFeature: true },
     { featureName: "POS Integration", categoryName: "Retail", hasFeature: true }
   ],
+  category: "E-Commerce Platforms",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://www.shopify.com/pricing"
 };

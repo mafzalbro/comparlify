@@ -121,6 +121,7 @@ Kajabi is the "heavy hitter" of the industry. It is a sophisticated, powerful, a
     { featureName: "Mobile App", categoryName: "Access", hasFeature: true },
     { featureName: "CRM", categoryName: "Business", hasFeature: true }
   ],
+  category: "Course & All-In-One LMS",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://kajabi.com/pricing",
   sovereigntyScore: 85,

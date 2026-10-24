@@ -110,6 +110,7 @@ Squarespace is the "Vogue" of website builders. It is polished, stable, and unde
     { featureName: "Email Campaigns", categoryName: "Marketing", hasFeature: true },
     { featureName: "E-commerce Engine", categoryName: "Sales", hasFeature: true }
   ],
+  category: "Design & Web Builders",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://squarespace.com/pricing"
 };

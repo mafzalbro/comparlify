@@ -102,6 +102,7 @@ Cursor has successfully moved AI from being a "plugin" to being the "platform" i
     { featureName: "VS Code Extensions", categoryName: "Editor", hasFeature: true },
     { featureName: "Git Integration", categoryName: "Workflow", hasFeature: true }
   ],
+  category: "AI Developer Tools",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://cursor.sh/pricing"
 };

@@ -76,23 +76,18 @@ const getPlatformAndAlternatives = cache(async (slug: string) => {
 
   const targetCategory = targetPlatform.category;
 
-  // 1. Try to find alternatives in the same category
-  let alternatives = allPlatforms.filter(
-    (p) => p.id !== targetPlatform.id && p.category === targetCategory,
-  );
+  // 1. Find alternatives in the same category
+  const sameCategory = allPlatforms
+    .filter((p) => p.id !== targetPlatform.id && p.category === targetCategory)
+    .sort((a, b) => calculatePlatformScore(b).overallScore - calculatePlatformScore(a).overallScore);
 
-  // 2. If there are less than 2 alternatives in this category, pull from the global pool instead.
-  // This prevents pages like Cursor from only showing 1 alternative (Ghost).
-  if (alternatives.length < 2) {
-    alternatives = allPlatforms.filter((p) => p.id !== targetPlatform.id);
-  }
+  // 2. Find alternatives in other categories to fill up to 6
+  const otherCategories = allPlatforms
+    .filter((p) => p.id !== targetPlatform.id && p.category !== targetCategory)
+    .sort((a, b) => calculatePlatformScore(b).overallScore - calculatePlatformScore(a).overallScore);
 
-  // Sort alternatives by Comparlify Scorecard
-  alternatives.sort((a, b) => {
-    const scoreA = calculatePlatformScore(a).overallScore;
-    const scoreB = calculatePlatformScore(b).overallScore;
-    return scoreB - scoreA;
-  });
+  // Combine same category first, then complementary platforms, capped at Top 6
+  const alternatives = [...sameCategory, ...otherCategories].slice(0, 6);
 
   return { targetPlatform, alternatives };
 });

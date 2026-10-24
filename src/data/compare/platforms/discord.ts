@@ -101,6 +101,7 @@ Discord is the "Real-Time Headquarters" of the future. It is chaotic, fast, and 
     { featureName: "Bot API", categoryName: "Extensibility", hasFeature: true },
     { featureName: "Role-based Permissions", categoryName: "Management", hasFeature: true }
   ],
+  category: "Community & Communication",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://discord.com/servers"
 };

@@ -113,6 +113,7 @@ ActiveCampaign is a "sophistication engine" for the modern age. It requires a st
     { featureName: "Predictive AI", categoryName: "Intelligence", hasFeature: true },
     { featureName: "Omnichannel Support", categoryName: "Marketing", hasFeature: true }
   ],
+  category: "Email & Marketing Automation",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://activecampaign.com/pricing"
 };

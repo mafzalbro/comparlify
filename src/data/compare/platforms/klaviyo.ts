@@ -112,6 +112,7 @@ Klaviyo is the "Profit Engine" of the modern e-commerce world. It is a sophistic
     { featureName: "Behavioral Segmentation", categoryName: "Marketing", hasFeature: true },
     { featureName: "Automation Flows", categoryName: "Marketing", hasFeature: true }
   ],
+  category: "E-Commerce Marketing Automation",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://klaviyo.com/pricing"
 };

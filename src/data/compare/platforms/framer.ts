@@ -111,6 +111,7 @@ Framer is "Design Liberation." It has effectively removed the technical barriers
     { featureName: "Relational CMS", categoryName: "Content", hasFeature: true },
     { featureName: "Figma Integration", categoryName: "Workflow", hasFeature: true }
   ],
+  category: "Design & Web Builders",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://framer.com/pricing"
 };

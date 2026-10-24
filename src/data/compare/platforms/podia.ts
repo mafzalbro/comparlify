@@ -121,6 +121,7 @@ Podia is the "Happy Place" of the creator economy in 2026. It removes the techni
     { featureName: "Email Marketing", categoryName: "Marketing", hasFeature: true },
     { featureName: "Community", categoryName: "Engagement", hasFeature: true }
   ],
+  category: "Course & Digital Products",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://podia.com/pricing"
 };

@@ -107,6 +107,7 @@ Circle.so has successfully professionalized the community space in 2026. It is a
     { featureName: "White-labeling", categoryName: "Branding", hasFeature: true },
     { featureName: "SSO", categoryName: "Access", hasFeature: true }
   ],
+  category: "Community & Membership",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://circle.so/pricing"
 };

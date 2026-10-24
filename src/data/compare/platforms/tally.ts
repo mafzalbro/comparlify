@@ -110,6 +110,7 @@ Tally is a masterclass in "Product-Led Growth." It is simple enough for a total 
     { featureName: "Custom Domains", categoryName: "Branding", hasFeature: true },
     { featureName: "Airtable Integration", categoryName: "Integrations", hasFeature: true }
   ],
+  category: "Forms & Surveys",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://tally.so/pricing"
 };

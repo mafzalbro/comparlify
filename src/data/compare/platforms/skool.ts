@@ -99,6 +99,7 @@ Skool has successfully "cracked the code" of online education. By putting commun
     { featureName: "LMS", categoryName: "Education", hasFeature: true },
     { featureName: "Native App", categoryName: "Access", hasFeature: true }
   ],
+  category: "Community & Gamification LMS",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://www.skool.com/pricing",
   sovereigntyScore: 72,

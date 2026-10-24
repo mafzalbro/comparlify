@@ -94,6 +94,7 @@ Patreon is the "Digital Home of the Arts." It is a platform with a soul, built b
     { featureName: "Discord Integration", categoryName: "Community", hasFeature: true },
     { featureName: "Merch Fulfillment", categoryName: "Sales", hasFeature: true }
   ],
+  category: "Membership & Crowdfunding",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://www.patreon.com/pricing"
 };

@@ -102,6 +102,7 @@ Webflow is a "career-defining" tool. For designers, it turns them into visual de
     { featureName: "Native CMS", categoryName: "Content", hasFeature: true },
     { featureName: "E-commerce", categoryName: "Sales", hasFeature: true }
   ],
+  category: "Design & Web Builders",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://webflow.com/pricing"
 };

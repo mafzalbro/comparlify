@@ -98,6 +98,7 @@ Lemon Squeezy is the "Merchant of Record for the Creator Generation." It is a so
     { featureName: "Affiliate Center", categoryName: "Growth", hasFeature: true },
     { featureName: "API Access", categoryName: "Developer", hasFeature: true }
   ],
+  category: "Creator Commerce & Merchant of Record",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://www.lemonsqueezy.com/pricing"
 };

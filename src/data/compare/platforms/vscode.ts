@@ -90,6 +90,7 @@ VS Code is the "Swiss Army Knife" that successfully evolved into a lightsaber. I
     { featureName: "IntelliSense", categoryName: "AI/Code", hasFeature: true },
     { featureName: "Remote Development", categoryName: "Workflow", hasFeature: true }
   ],
+  category: "AI Developer Tools",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://code.visualstudio.com"
 };

@@ -45,9 +45,12 @@ export function ComparisonStats({
               <CardContent className="p-5 pt-2 flex-1 space-y-4">
                 <div className="space-y-2">
                   <div className="flex justify-between items-end font-extrabold">
-                    <span className="text-xs uppercase tracking-tight text-foreground">
+                    <a
+                      href={`/platform/${platformAName.toLowerCase().replace(/\s+/g, "-")}`}
+                      className="text-xs uppercase tracking-tight text-foreground hover:text-primary transition-colors hover:underline"
+                    >
                       {platformAName}
-                    </span>
+                    </a>
                     <span className="text-lg text-primary">{stat.value1}</span>
                   </div>
                   <Progress
@@ -57,9 +60,12 @@ export function ComparisonStats({
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between items-end font-extrabold">
-                    <span className="text-xs uppercase tracking-tight text-foreground">
+                    <a
+                      href={`/platform/${platformBName.toLowerCase().replace(/\s+/g, "-")}`}
+                      className="text-xs uppercase tracking-tight text-foreground hover:text-blue-500 transition-colors hover:underline"
+                    >
                       {platformBName}
-                    </span>
+                    </a>
                     <span className="text-lg text-blue-500">
                       {stat.value2}
                     </span>

@@ -118,6 +118,7 @@ Typeform is the "Designer Label" of the data collection world. It is elegant, po
     { featureName: "Video Ask Integration", categoryName: "Integrations", hasFeature: true },
     { featureName: "Drop-off Analytics", categoryName: "Insights", hasFeature: true }
   ],
+  category: "Forms & Surveys",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://typeform.com/pricing"
 };

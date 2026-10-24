@@ -111,6 +111,7 @@ Plausible is a "breath of fresh air" in a cluttered and ethically questionable i
     { featureName: "Goal Tracking", categoryName: "Analytics", hasFeature: true },
     { featureName: "Email Reports", categoryName: "Reporting", hasFeature: true }
   ],
+  category: "Privacy Analytics",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://plausible.io/pricing"
 };

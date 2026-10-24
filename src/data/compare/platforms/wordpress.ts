@@ -108,6 +108,7 @@ WordPress is the "Eternal King" of the web for a reason. It may have a steeper i
     { featureName: "Custom CSS", categoryName: "Branding", hasFeature: true },
     { featureName: "Post Revision History", categoryName: "Content", hasFeature: true }
   ],
+  category: "CMS & Publishing Platforms",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://wordpress.com/pricing/"
 };

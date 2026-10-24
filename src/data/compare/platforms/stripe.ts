@@ -91,6 +91,7 @@ Stripe is the "Engine Room" of the digital world. It is a powerful, flexible, an
     { featureName: "Billing & Subscriptions", categoryName: "Finance", hasFeature: true },
     { featureName: "POS Integration", categoryName: "Retail", hasFeature: true }
   ],
+  category: "Payment Infrastructure",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://stripe.com/pricing"
 };

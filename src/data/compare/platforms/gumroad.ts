@@ -94,6 +94,7 @@ Gumroad is "E-commerce for the Rest of Us." It is powerful precisely because it 
     { featureName: "Affiliate Center", categoryName: "Growth", hasFeature: true },
     { featureName: "Discovery Marketplace", categoryName: "Growth", hasFeature: true }
   ],
+  category: "Creator Commerce & Products",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://gumroad.com/pricing"
 };

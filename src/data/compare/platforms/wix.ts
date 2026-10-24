@@ -111,6 +111,7 @@ Wix is a "Business Operating System in a Box." It is powerful, versatile, and in
     { featureName: "Wix Bookings", categoryName: "Business", hasFeature: true },
     { featureName: "AI Design Tools", categoryName: "AI", hasFeature: true }
   ],
+  category: "Design & Web Builders",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://wix.com/upgrade/website"
 };

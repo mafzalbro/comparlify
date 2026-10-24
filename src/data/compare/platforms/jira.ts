@@ -100,6 +100,7 @@ Jira is the "Operating System" of the professional software industry. It is a po
     { featureName: "Agile Reporting", categoryName: "Analytics", hasFeature: true },
     { featureName: "SSO & Security", categoryName: "Enterprise", hasFeature: true }
   ],
+  category: "Project & Issue Management",
   lastVerifiedAt: "2026-04-24T00:00:00Z",
   sourceUrl: "https://www.atlassian.com/software/jira/pricing"
 };
