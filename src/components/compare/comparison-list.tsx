@@ -43,7 +43,11 @@ export function ComparisonList({
   );
 
   return (
-    <InfiniteScrollGrid batchSize={9} emptyState={emptyState}>
+    <InfiniteScrollGrid
+      key={comparisons.map((c) => c.id).join("-")}
+      batchSize={9}
+      emptyState={emptyState}
+    >
       {comparisons.map((comp, index) => {
         if (!comp.platformA || !comp.platformB) return null;
         return (

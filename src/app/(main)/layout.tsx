@@ -3,7 +3,7 @@ import Footer from "@/components/layout/footer";
 import Header from "@/components/layout/header";
 import { getContent } from "@/lib/content";
 import { AdPlacement } from "@/components/ad-placement";
-import { PromoBanner } from "@/components/layout/promo-banner";
+// import { PromoBanner } from "@/components/layout/promo-banner";
 import {
   filterNavigation,
   isModuleEnabled,
@@ -41,18 +41,18 @@ export default async function MainLayout({
     "footer.navLinks.company": content["footer.navLinks.company"],
   };
 
-  const bannerSettings = {
-    enabled: content["global.banner.enabled"] === "true",
-    text: content["global.banner.text"] || "",
-    linkText: content["global.banner.link.text"] || "",
-    linkHref: content["global.banner.link.href"] || "",
-  };
+  // const bannerSettings = {
+  //   enabled: content["global.banner.enabled"] === "true",
+  //   text: content["global.banner.text"] || "",
+  //   linkText: content["global.banner.link.text"] || "",
+  //   linkHref: content["global.banner.link.href"] || "",
+  // };
 
   const aiEnabled = isModuleEnabled("ai", content);
 
   return (
     <>
-      <PromoBanner settings={bannerSettings} />
+      {/* <PromoBanner settings={bannerSettings} /> */}
 
       <div className="fixed inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-[0.05] pointer-events-none" />
 

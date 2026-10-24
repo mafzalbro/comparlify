@@ -81,12 +81,12 @@ export default async function ComparePage() {
 
       <div className={PAGE_CONTAINER + " py-12"}>
         {/* ── MATCH ENGINE WIZARD ──────────── */}
-        <div className="mb-10">
+        {/* <div className="mb-10">
           <GlobalMatchEngine
             allPlatforms={allPlatforms}
             allComparisons={allComps}
           />
-        </div>
+        </div> */}
 
         {/* ── BATTLE SELECTOR ─────────────── */}
         <div className="mb-14">

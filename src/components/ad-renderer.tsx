@@ -126,7 +126,7 @@ export function AdRenderer({
   return (
     <div
       ref={containerRef}
-      className={`ad-placement ad-${placement.toLowerCase()} flex justify-center py-4 w-full ${className}`}
+      className={`ad-placement ad-${placement.toLowerCase()} flex justify-center py-4 w-full bg-muted/10 rounded-3xl ${className}`}
       style={{ minHeight }}
       suppressHydrationWarning
       dangerouslySetInnerHTML={{ __html: safeHtml }}

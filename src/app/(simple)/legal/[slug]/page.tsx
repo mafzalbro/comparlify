@@ -11,14 +11,30 @@ import { MotionDiv } from "@/components/motion-wrapper";
 import { ShieldCheck, Clock, FileText, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
+export const revalidate = 86400; // Cache for 24 hours (ISR); on-demand revalidated via admin edits
+export const dynamicParams = true;
+
+const FALLBACK_LEGAL_SLUGS = ["terms-of-service", "sponsor-policy"];
+
 export async function generateStaticParams() {
-  const docs = await prisma.siteContent.findMany({
-    where: { group: "Legal Pages" },
-    select: { key: true },
-  });
-  return docs.map((doc: { key: string }) => ({
-    slug: doc.key.replace("legal.", ""),
-  }));
+  try {
+    const docs = await prisma.siteContent.findMany({
+      where: { group: "Legal Pages" },
+      select: { key: true },
+    });
+    const slugs = docs.map((doc: { key: string }) => ({
+      slug: doc.key.replace("legal.", ""),
+    }));
+    return slugs.length > 0
+      ? slugs
+      : FALLBACK_LEGAL_SLUGS.map((slug) => ({ slug }));
+  } catch (err) {
+    console.warn(
+      "[generateStaticParams] /legal/[slug] DB unreachable during build, using static fallbacks:",
+      err,
+    );
+    return FALLBACK_LEGAL_SLUGS.map((slug) => ({ slug }));
+  }
 }
 
 const getDocument = cache(async (slug: string): Promise<SiteContent | null> => {

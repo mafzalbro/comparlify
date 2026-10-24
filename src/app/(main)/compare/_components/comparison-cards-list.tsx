@@ -27,12 +27,15 @@ export function ComparisonCardsList({
     const search = (params.get("search") ?? "").toLowerCase();
     const sort = params.get("sort") ?? "newest";
     const category = params.get("category") ?? "all";
-    const platformsParam = params.get("platforms") ?? "";
-    const selectedPlatforms = platformsParam.split(",").filter(Boolean);
+
+    const selectedPlatforms = params
+      .getAll("platforms")
+      .flatMap((v) => v.split(",").filter(Boolean))
+      .map((p) => p.toLowerCase()); // Normalize to lowercase
 
     let result = [...allComparisons];
 
-    // ── SEARCH (mirrors original server-side behaviour) ─────────
+    // ── SEARCH ─────────
     if (search) {
       result = result.filter(
         (c) =>
@@ -48,13 +51,34 @@ export function ComparisonCardsList({
       result = result.filter((c) => c.categoryId === category);
     }
 
-    // ── PLATFORMS ───────────────────────────────────────────────
+    // ── PLATFORMS (SMART FALLBACK) ──────────────────────────────
     if (selectedPlatforms.length > 0) {
-      result = result.filter(
-        (c) =>
-          selectedPlatforms.includes(c.platformAId) ||
-          selectedPlatforms.includes(c.platformBId),
-      );
+      result = result.filter((c) => {
+        const pAId = (c.platformAId || "").toLowerCase();
+        const pBId = (c.platformBId || "").toLowerCase();
+        const nameA = (c.platformA?.name || "")
+          .toLowerCase()
+          .replace(/\s+/g, "-");
+        const nameB = (c.platformB?.name || "")
+          .toLowerCase()
+          .replace(/\s+/g, "-");
+
+        return selectedPlatforms.some((selected) => {
+          // Remove "plat_" prefix if it exists to match raw names
+          const cleanSelected = selected.replace("plat_", "");
+
+          return (
+            selected === pAId ||
+            selected === pBId ||
+            selected === nameA ||
+            selected === nameB ||
+            cleanSelected === pAId ||
+            cleanSelected === pBId ||
+            cleanSelected === nameA ||
+            cleanSelected === nameB
+          );
+        });
+      });
     }
 
     // ── SORT ────────────────────────────────────────────────────
@@ -68,7 +92,6 @@ export function ComparisonCardsList({
         (a, b) => (b.platformA.rating ?? 0) - (a.platformA.rating ?? 0),
       );
     } else {
-      // "newest" default
       result.sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
@@ -78,8 +101,10 @@ export function ComparisonCardsList({
     return result;
   }, [allComparisons, searchParamsString]);
 
+  // ✅ Force InfiniteScrollGrid to reset when filters change
   return (
     <ComparisonList
+      key={filtered.map((c) => c.id).join("-")}
       comparisons={filtered}
       emptyTitle={content["compare.empty.title"]}
       emptySubtitle={content["compare.empty.subtitle"]}

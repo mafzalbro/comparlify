@@ -4,13 +4,23 @@ import { getContent } from "@/lib/content";
 import { MarkdownContent } from "@/components/markdown-content";
 import { MotionDiv } from "@/components/motion-wrapper";
 import { ShieldCheck, Clock, Sparkles } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import type { Metadata } from "next";
+import { generateSeoMetadata } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 86400; // Static generation with 24h ISR; on-demand revalidated via admin edits
+
+export async function generateMetadata(): Promise<Metadata> {
+  const content = await getContent();
+  return generateSeoMetadata({
+    title: "Privacy Policy | Comparlify",
+    description: (content["privacy.policy"] || "").substring(0, 160) || "Learn how Comparlify collects, protects, and respects your personal information.",
+    path: "/privacy",
+  });
+}
 
 export default async function PrivacyPage() {
   const content = await getContent();
-  const lastUpdated = format(new Date(), "MMMM d, yyyy");
+  const lastUpdated = "October 18, 2026";
 
   return (
     <div className="bg-background min-h-screen">

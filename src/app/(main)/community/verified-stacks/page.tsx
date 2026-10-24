@@ -6,11 +6,14 @@ import { Metadata } from "next";
 import { ShieldCheck, Plus, Sparkles } from "lucide-react";
 import Link from "next/link";
 
-export const metadata: Metadata = await generateSeoMetadata({
-  title: "Verified Creator Stacks | Comparlify",
-  description: "Browse verified technology stacks used by professional course creators. See the real infrastructure behind million-dollar academies.",
-  path: "/community/verified-stacks",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return generateSeoMetadata({
+    title: "Verified Creator Stacks | Comparlify",
+    description:
+      "Browse verified technology stacks used by professional course creators. See the real infrastructure behind million-dollar academies.",
+    path: "/community/verified-stacks",
+  });
+}
 
 import { getContent } from "@/lib/content";
 import { isModuleEnabled } from "@/lib/module-navigation";

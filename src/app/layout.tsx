@@ -3,13 +3,14 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import type { Metadata } from "next";
-import { CookieConsentBanner } from "@/components/cookie-consent-banner";
+// import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { Outfit } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { getContent } from "@/lib/content";
 import { Suspense } from "react";
 import NextTopLoader from "nextjs-toploader";
 import { themeConfig } from "@/lib/theme";
+import parse from "html-react-parser";
 
 const SITE_URL = "https://www.comparlify.com";
 
@@ -28,10 +29,6 @@ const font = Outfit({
   ],
 });
 
-// DEFENSIVE: layout metadata intentionally does NOT set a canonical,
-// openGraph, or twitter block. Those are page-level responsibilities
-// (each page calls generateSeoMetadata() to declare its own).
-// This prevents a page from ever accidentally inheriting "/" as its canonical.
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "Comparlify — Helping Course Creators Grow",
@@ -69,10 +66,6 @@ export default async function RootLayout({
   const headCode = content["settings.code.head"] || "";
   const bodyCode = content["settings.code.body"] || "";
 
-  // Site-wide JSON-LD graph.
-  // Organization is given a stable @id so every page's Article / Product /
-  // FAQPage schema can reference it via `publisher: { "@id": ".../#organization" }`.
-  // SearchAction intentionally removed — Google retired Sitelinks Search Box in Nov 2024.
   const schemaGraph = {
     "@context": "https://schema.org",
     "@graph": [
@@ -88,12 +81,7 @@ export default async function RootLayout({
           height: 512,
         },
         description: siteDescription,
-        // Populate sameAs when your public social profiles are ready:
-        sameAs: [
-          // "https://twitter.com/comparlify",
-          // "https://www.linkedin.com/company/comparlify",
-          // "https://github.com/comparlify",
-        ],
+        sameAs: [],
       },
       {
         "@type": "WebSite",
@@ -153,7 +141,8 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaGraph) }}
         />
         {themeCss && <style>{themeCss}</style>}
-        {headCode && <div dangerouslySetInnerHTML={{ __html: headCode }} />}
+
+        {headCode && parse(headCode)}
       </head>
       <body
         className={cn(
@@ -174,10 +163,11 @@ export default async function RootLayout({
               <Suspense fallback={null}>{children}</Suspense>
             </div>
             <Toaster />
-            <CookieConsentBanner />
+            {/* <CookieConsentBanner /> */}
           </AuthProvider>
         </ThemeProvider>
-        {bodyCode && <div dangerouslySetInnerHTML={{ __html: bodyCode }} />}
+
+        {bodyCode && parse(bodyCode)}
       </body>
     </html>
   );

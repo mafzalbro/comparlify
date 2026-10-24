@@ -21,12 +21,14 @@ import { MarkdownContent } from "@/components/markdown-content";
 import { MotionDiv } from "@/components/motion-wrapper";
 import { Badge } from "@/components/ui/badge";
 
-export const metadata: Metadata = await generateSeoMetadata({
-  title: "Our Story | The Vision Behind Comparlify",
-  description:
-    "Empowering course creators with data-driven clarity. Discover how Comparlify is reshaping the digital education landscape.",
-  path: "/about",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return generateSeoMetadata({
+    title: "Our Story | The Vision Behind Comparlify",
+    description:
+      "Empowering course creators with data-driven clarity. Discover how Comparlify is reshaping the digital education landscape.",
+    path: "/about",
+  });
+}
 
 type TeamMember = {
   name: string;

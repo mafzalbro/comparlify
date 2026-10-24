@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: process.cwd(),
   output: "standalone",
   transpilePackages: ["@prisma/client"],
+  logging: { serverFunctions: true, browserToTerminal: "warn" },
   //   serverExternalPackages: [
   //   "@prisma/client",
   //   "prisma",

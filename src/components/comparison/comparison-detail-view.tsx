@@ -462,8 +462,6 @@ export default async function ComparisonDetailPage(props: {
                   </div>
                 </section>
 
-                <AdPlacement placement="SIDEBAR" pathname={`/${slug}`} />
-
                 {/* Newsletter */}
                 <div className="bg-card/40 border border-border/40 p-5 rounded-2xl space-y-4">
                   <div className="space-y-1">
@@ -482,6 +480,8 @@ export default async function ComparisonDetailPage(props: {
                     buttonText="Subscribe Free"
                   />
                 </div>
+
+                <AdPlacement placement="SIDEBAR" pathname={`/${slug}`} />
 
                 {/* ── COLLECTIVE PULSE ─────────────── */}
                 {(content["module.community.enabled"] !== "false" ||
