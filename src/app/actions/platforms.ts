@@ -13,6 +13,7 @@ const platformSchema = z.object({
   website: z.string().url(),
   logoUrl: z.string().min(1, "Logo URL is required"),
   description: z.string().min(10),
+  category: z.string().optional(),
   rating: z
     .string()
     .transform((val) => (val === "" ? null : Number(val)))
@@ -87,6 +88,9 @@ export async function createPlatform(
     });
 
     revalidatePath("/admin/platforms");
+    revalidatePath("/platform", "layout");
+    revalidatePath("/alternatives", "layout");
+    revalidatePath("/compare", "layout");
   } catch (error) {
     console.error(error);
     return { error: "Failed to create platform." };
@@ -156,6 +160,8 @@ export async function updatePlatform(
 
     revalidatePath("/admin/platforms");
     revalidatePath(`/admin/platforms/edit/${id}`);
+    revalidatePath("/platform", "layout");
+    revalidatePath("/alternatives", "layout");
     revalidatePath("/compare", "layout");
   } catch (error) {
     console.error(error);
@@ -181,7 +187,9 @@ export async function deletePlatform(
   try {
     await prisma.platform.delete({ where: { id } });
     revalidatePath("/admin/platforms");
-    revalidatePath("/compare");
+    revalidatePath("/platform", "layout");
+    revalidatePath("/alternatives", "layout");
+    revalidatePath("/compare", "layout");
     return { error: null };
   } catch (error) {
     console.error(error);

@@ -89,7 +89,8 @@ export async function createComparison(
       },
     });
     revalidatePath("/admin/comparisons");
-    revalidatePath("/compare");
+    revalidatePath("/compare", "layout");
+    revalidatePath("/", "layout");
   } catch (error) {
     console.error(error);
     return { error: "Failed to create comparison." };
@@ -151,6 +152,8 @@ export async function updateComparison(
 
     revalidatePath("/admin/comparisons");
     revalidatePath(`/compare/${validatedFields.data.slug}`);
+    revalidatePath(`/${validatedFields.data.slug}`);
+    revalidatePath("/compare", "layout");
   } catch (error) {
     console.error(error);
     return { error: "Failed to update comparison." };
@@ -175,7 +178,8 @@ export async function deleteComparison(
   try {
     await prisma.comparison.delete({ where: { id } });
     revalidatePath("/admin/comparisons");
-    revalidatePath("/compare");
+    revalidatePath("/compare", "layout");
+    revalidatePath("/", "layout");
     return { error: null };
   } catch (error) {
     console.error(error);
