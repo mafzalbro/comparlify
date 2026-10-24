@@ -4,8 +4,21 @@ import React from "react";
 import { calculatePlatformScore, PlatformScorecard } from "@/lib/score-engine";
 import { PlatformData } from "@/data/compare/types";
 import { Badge } from "@/components/ui/badge";
-import { ShieldCheck, Info, Sparkles, CheckCircle2, XCircle, TrendingUp, HelpCircle } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  ShieldCheck,
+  Info,
+  Sparkles,
+  CheckCircle2,
+  XCircle,
+  TrendingUp,
+  HelpCircle,
+} from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import Link from "next/link";
 
 interface PlatformScorecardCardProps {
@@ -15,13 +28,20 @@ interface PlatformScorecardCardProps {
   showDetails?: boolean;
 }
 
-export function PlatformScorecardCard({ platform, title, className = "", showDetails = true }: PlatformScorecardCardProps) {
+export function PlatformScorecardCard({
+  platform,
+  title,
+  className = "",
+  showDetails = true,
+}: PlatformScorecardCardProps) {
   const scorecard: PlatformScorecard = calculatePlatformScore(platform);
 
   return (
-    <div className={`bg-card/40 backdrop-blur-md border border-border/40 p-6 md:p-8 rounded-3xl shadow-lg space-y-6 ${className}`}>
+    <div
+      className={`bg-card/40 backdrop-blur-md border border-border/40 p-6 md:p-8 rounded-3xl shadow-lg space-y-6 ${className}`}
+    >
       {/* HEADER */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-5 border-b border-border/20">
+      <div className="flex flex-col gap-5 pb-5 border-b border-border/20">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="inline-flex items-center text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
@@ -29,7 +49,8 @@ export function PlatformScorecardCard({ platform, title, className = "", showDet
             </span>
             {scorecard.scoreTrend && (
               <span className="inline-flex items-center gap-1 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                <TrendingUp className="w-3 h-3" /> +{scorecard.scoreTrend.change6Months} pts (6 mo)
+                <TrendingUp className="w-3 h-3" /> +
+                {scorecard.scoreTrend.change6Months} pts (6 mo)
               </span>
             )}
           </div>
@@ -39,7 +60,7 @@ export function PlatformScorecardCard({ platform, title, className = "", showDet
         </div>
 
         {/* Dual Signal Display: Comparlify Score vs Creator Rating */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full sm:w-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
           {/* Signal 1: Comparlify Score */}
           <div className="flex items-center justify-between gap-3 bg-card/90 border border-border/50 p-3.5 rounded-2xl shadow-xs">
             <div className="space-y-1">
@@ -50,17 +71,24 @@ export function PlatformScorecardCard({ platform, title, className = "", showDet
                 </Link>
               </div>
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-xs font-black text-primary">Grade {scorecard.grade}</span>
-                <Badge variant="outline" className={`text-[9px] uppercase font-bold px-1.5 py-0 rounded ${
-                  scorecard.confidence === "HIGH" ? "border-emerald-500/30 text-emerald-500 bg-emerald-500/10" :
-                  scorecard.confidence === "MODERATE" ? "border-amber-500/30 text-amber-500 bg-amber-500/10" :
-                  "border-zinc-500/30 text-zinc-400 bg-zinc-500/10"
-                }`}>
+                <span className="text-xs font-black text-primary">
+                  Grade {scorecard.grade}
+                </span>
+                <Badge
+                  variant="outline"
+                  className={`text-[9px] uppercase font-bold px-1.5 py-0 rounded ${
+                    scorecard.confidence === "HIGH"
+                      ? "border-emerald-500/30 text-emerald-500 bg-emerald-500/10"
+                      : scorecard.confidence === "MODERATE"
+                        ? "border-amber-500/30 text-amber-500 bg-amber-500/10"
+                        : "border-zinc-500/30 text-zinc-400 bg-zinc-500/10"
+                  }`}
+                >
                   {scorecard.confidence}
                 </Badge>
               </div>
             </div>
-            <div className="flex items-center justify-center w-12 sm:w-13 h-12 sm:h-13 rounded-xl bg-primary text-primary-foreground font-black text-xl shadow-md shrink-0">
+            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary text-primary-foreground font-black text-xl shadow-md shrink-0">
               {scorecard.overallScore}
             </div>
           </div>
@@ -75,8 +103,10 @@ export function PlatformScorecardCard({ platform, title, className = "", showDet
                 {(platform as any).currentReviews?.length || 0} Verified Reviews
               </div>
             </div>
-            <div className="flex items-center justify-center w-12 sm:w-13 h-12 sm:h-13 rounded-xl bg-secondary text-foreground font-black text-lg shadow-xs border border-border/40 shrink-0">
-              {(platform as any).rating ? `${(platform as any).rating.toFixed(1)}/5` : "4.8/5"}
+            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-secondary text-foreground font-black text-lg shadow-xs border border-border/40 shrink-0">
+              {(platform as any).rating
+                ? `${(platform as any).rating.toFixed(1)}/5`
+                : "4.8/5"}
             </div>
           </div>
         </div>
@@ -87,11 +117,16 @@ export function PlatformScorecardCard({ platform, title, className = "", showDet
         <div className="p-3.5 rounded-xl bg-primary/5 border border-primary/20 text-xs font-medium space-y-1">
           <div className="flex items-center justify-between text-[11px] font-extrabold text-primary uppercase tracking-wider">
             <span className="flex items-center gap-1">
-              <TrendingUp className="w-3.5 h-3.5" /> Score Change ({scorecard.scoreTrend.deltaExplanation.date})
+              <TrendingUp className="w-3.5 h-3.5" /> Score Change (
+              {scorecard.scoreTrend.deltaExplanation.date})
             </span>
-            <span>+{scorecard.scoreTrend.deltaExplanation.changeAmount} pts</span>
+            <span>
+              +{scorecard.scoreTrend.deltaExplanation.changeAmount} pts
+            </span>
           </div>
-          <p className="text-muted-foreground">{scorecard.scoreTrend.deltaExplanation.summary}</p>
+          <p className="text-muted-foreground">
+            {scorecard.scoreTrend.deltaExplanation.summary}
+          </p>
         </div>
       )}
 
@@ -108,14 +143,20 @@ export function PlatformScorecardCard({ platform, title, className = "", showDet
         </div>
 
         {scorecard.pillars.map((pillar) => (
-          <div key={pillar.key} className="space-y-1.5 p-3 rounded-2xl bg-secondary/10 border border-border/10">
+          <div
+            key={pillar.key}
+            className="space-y-1.5 p-3 rounded-2xl bg-secondary/10 border border-border/10"
+          >
             <div className="flex justify-between items-center text-sm">
               <span className="font-extrabold text-foreground flex items-center gap-1.5">
                 {pillar.name}
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <button type="button" aria-label={`Info about ${pillar.name}`}>
+                      <button
+                        type="button"
+                        aria-label={`Info about ${pillar.name}`}
+                      >
                         <Info className="w-3.5 h-3.5 text-muted-foreground/60 hover:text-muted-foreground" />
                       </button>
                     </TooltipTrigger>
@@ -126,8 +167,12 @@ export function PlatformScorecardCard({ platform, title, className = "", showDet
                 </TooltipProvider>
               </span>
               <div className="flex items-center gap-2 font-mono">
-                <span className="text-xs font-bold text-muted-foreground">({pillar.weightLabel})</span>
-                <span className="font-extrabold text-primary">{pillar.score}/5.0</span>
+                <span className="text-xs font-bold text-muted-foreground">
+                  ({pillar.weightLabel})
+                </span>
+                <span className="font-extrabold text-primary">
+                  {pillar.score}/5.0
+                </span>
               </div>
             </div>
 
@@ -187,14 +232,23 @@ export function PlatformScorecardCard({ platform, title, className = "", showDet
             <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
               Creator Type Fit Ratings
             </span>
-            <span className="text-[10px] font-semibold text-primary">Segment Match</span>
+            <span className="text-[10px] font-semibold text-primary">
+              Segment Match
+            </span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
             {scorecard.creatorFits.map((fit) => (
-              <div key={fit.type} className="p-3 rounded-2xl bg-secondary/20 border border-border/20 text-center space-y-1">
-                <div className="text-[10px] font-extrabold text-foreground truncate">{fit.label}</div>
-                <div className="text-base font-black text-primary">{fit.score}%</div>
+              <div
+                key={fit.type}
+                className="p-3 rounded-2xl bg-secondary/20 border border-border/20 text-center space-y-1"
+              >
+                <div className="text-[10px] font-extrabold text-foreground truncate">
+                  {fit.label}
+                </div>
+                <div className="text-base font-black text-primary">
+                  {fit.score}%
+                </div>
               </div>
             ))}
           </div>

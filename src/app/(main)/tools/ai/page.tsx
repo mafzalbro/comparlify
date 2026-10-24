@@ -8,6 +8,8 @@ import { type Tool } from "./tools";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
+export const revalidate = 3600;
+
 export async function generateMetadata(): Promise<Metadata> {
   return generateSeoMetadata({
     title: "AI Creator Hub | Relocated Tools",

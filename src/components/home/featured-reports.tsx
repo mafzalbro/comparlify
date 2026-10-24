@@ -98,9 +98,12 @@ export function FeaturedReports({ comparisons }: FeaturedReportsProps) {
                   </div>
                   <NextLink
                     href={`/${comp.slug}`}
+                    aria-label={`Read full breakdown of ${comp.title}`}
                     className="mt-6 flex items-center text-[10px] font-extrabold text-primary uppercase tracking-widest group-hover:translate-x-2 transition-transform duration-300"
                   >
-                    The Full Breakdown <ArrowRight className="ml-2 h-3.5 w-3.5" />
+                    The Full Breakdown
+                    <span className="sr-only">: {comp.title}</span>
+                    <ArrowRight className="ml-2 h-3.5 w-3.5" />
                   </NextLink>
                 </div>
                 <div className="w-full sm:w-[150px] bg-primary/5 p-4 flex flex-col justify-center items-center gap-4 border-l border-border/20">

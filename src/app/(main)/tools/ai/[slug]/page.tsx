@@ -48,6 +48,9 @@ export async function generateMetadata(props: {
   });
 }
 
+export const revalidate = 3600;
+export const dynamicParams = true;
+
 export async function generateStaticParams() {
   const tools = await prisma.tool.findMany({
     where: { enabled: true },

@@ -6,8 +6,8 @@ import { ToolHubSearch } from "@/components/tools/ToolHubSearch";
 import { TOOLS, CATEGORIES, getToolBySlug } from "@/data/tools/registry";
 import prisma from "@/lib/prisma";
 
-export const revalidate = false;
-export const dynamicParams = false;
+export const revalidate = 3600;
+export const dynamicParams = true;
 
 interface PageProps {
   params: Promise<{ slug?: string[] }>;
@@ -97,18 +97,6 @@ export async function generateStaticParams() {
     } else {
       params.push({ slug: [tool.category, tool.slug] });
     }
-  }
-
-  try {
-    const aiTools = await prisma.tool.findMany({
-      where: { enabled: true },
-      select: { slug: true },
-    });
-    for (const t of aiTools) {
-      params.push({ slug: ["ai", t.slug] });
-    }
-  } catch (err) {
-    console.warn("[generateStaticParams] tools DB unreachable:", err);
   }
 
   const seen = new Set<string>();

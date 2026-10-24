@@ -1,17 +1,20 @@
-// src/app/api/rest/route.ts
 import { NextResponse } from "next/server";
 import { isAuthorized } from "@/lib/api-auth";
 
+// Helper to redirect to the 404 page
+const redirectToNotFound = (request: Request) => {
+  return NextResponse.redirect(new URL("/404", request.url));
+};
+
 /**
  * Proactive server-side protection for all API calls.
- * This route is protected:
- *   - Allowed from own origin.
- *   - Allowed from other origins only if a valid REST_API_KEY is provided in x-api-key header.
+ * This route is ONLY accessible via a valid REST_API_KEY in the x-api-key header.
+ * Browser access (even from admins) is blocked and redirected to 404.
  */
 export async function GET(request: Request) {
-  // Security is most important: protect this route
+  // 1. Block browser/unauthorized access with 404
   if (!isAuthorized(request)) {
-    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+    return redirectToNotFound(request);
   }
 
   // Hide sensitive API_KEY and other details from the user/client
@@ -21,7 +24,6 @@ export async function GET(request: Request) {
     status: "ok",
     message: "Comparlify REST API is active and protected.",
     version: "1.0.0",
-    docs: "/api/docs", // assuming there might be docs
     endpoints: [
       "/api/rest/post",
       "/api/rest/comparison",
@@ -40,8 +42,9 @@ export async function GET(request: Request) {
 
 // Ensure security for other methods too
 export async function POST(request: Request) {
+  // 1. Block browser/unauthorized access with 404
   if (!isAuthorized(request)) {
-    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+    return redirectToNotFound(request);
   }
 
   return NextResponse.json(

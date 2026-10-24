@@ -77,6 +77,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
                       >
                         <AvatarImage
                           src={`https://picsum.photos/100/100?random=${index}${i}`}
+                          alt={`Contributor ${i}`}
                         />
                       </Avatar>
                     ))}

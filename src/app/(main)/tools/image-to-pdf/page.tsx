@@ -4,6 +4,8 @@ import { UniversalConverter } from "@/components/tools/converters/universal-conv
 import { MotionDiv } from "@/components/motion-wrapper";
 import { FileStack, ShieldCheck, Zap, Scissors } from "lucide-react";
 
+export const revalidate = 3600;
+
 export async function generateMetadata(): Promise<Metadata> {
   return generateSeoMetadata({
     title: "Image to PDF Converter | Instant Assembly | Comparlify",

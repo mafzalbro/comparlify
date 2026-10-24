@@ -4,6 +4,8 @@ import { generateSeoMetadata } from "@/lib/seo";
 import { cache } from "react";
 import { getContent } from "@/lib/content";
 
+import { JsonLd } from "@/components/json-ld";
+
 // import { GeometricBackground } from "@/components/geometric-background";
 import { HomePageClient } from "@/components/home-page-client";
 import { WhyChooseUs } from "@/components/why-choose-us";
@@ -77,8 +79,23 @@ export default async function Home() {
   // Do NOT re-declare it here — duplicate Organization schemas on the same
   // page are treated as conflicting signals by Google's structured data parser.
 
+  const featuredComparisonsJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Featured Platform Comparisons",
+    description:
+      "Independent side-by-side creator software and LMS platform comparisons.",
+    itemListElement: featuredComparisons.map((comp, idx) => ({
+      "@type": "ListItem",
+      position: idx + 1,
+      name: comp.title,
+      url: `https://www.comparlify.com/${comp.slug}`,
+    })),
+  };
+
   return (
     <div className="flex flex-col w-full relative">
+      <JsonLd data={featuredComparisonsJsonLd} />
       {/* <GeometricBackground /> */}
       <HomePageClient />
 

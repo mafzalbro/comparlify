@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { auth } from "@/lib/auth";
 import { isAuthorized } from "@/lib/api-auth";
 
 const VALID_MODELS = [
@@ -22,18 +21,25 @@ const VALID_MODELS = [
   "advertisement",
 ];
 
+// Helper to redirect to the 404 page
+const redirectToNotFound = (request: Request) => {
+  return NextResponse.redirect(new URL("/404", request.url));
+};
+
 export async function GET(
   request: Request,
   props: { params: Promise<{ model: string }> },
 ) {
   if (!isAuthorized(request)) {
-    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+    return redirectToNotFound(request);
   }
+
   const params = await props.params;
   const model = params.model;
 
+  // Hide invalid models by redirecting to 404 instead of returning 400
   if (!VALID_MODELS.includes(model)) {
-    return NextResponse.json({ error: "Invalid model" }, { status: 400 });
+    return redirectToNotFound(request);
   }
 
   try {
@@ -55,12 +61,7 @@ export async function GET(
 
     const modelClient = (prisma as any)[model];
     if (!modelClient) {
-      return NextResponse.json(
-        {
-          error: `Model ${model} not found in database client. Please run migrations.`,
-        },
-        { status: 400 },
-      );
+      return redirectToNotFound(request);
     }
 
     const items = await modelClient.findMany({
@@ -97,41 +98,25 @@ export async function POST(
   request: Request,
   props: { params: Promise<{ model: string }> },
 ) {
+  // If no valid API key, redirect the browser to the 404 page
   if (!isAuthorized(request)) {
-    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
-  }
-  const params = await props.params;
-  const session = await auth();
-  if (session?.user?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+    return redirectToNotFound(request);
   }
 
+  const params = await props.params;
   const model = params.model;
+
+  // Hide invalid models by redirecting to 404
   if (!VALID_MODELS.includes(model)) {
-    return NextResponse.json({ error: "Invalid model" }, { status: 400 });
+    return redirectToNotFound(request);
   }
 
   try {
     const body = await request.json();
 
-    // Add authorId if needed
-    if (
-      ["post", "newsArticle", "forumTopic", "forumPost", "comment"].includes(
-        model,
-      ) &&
-      !body.authorId
-    ) {
-      body.authorId = session.user.id;
-    }
-
     const modelClient = (prisma as any)[model];
     if (!modelClient) {
-      return NextResponse.json(
-        {
-          error: `Model ${model} not found in database client. Please run migrations.`,
-        },
-        { status: 400 },
-      );
+      return redirectToNotFound(request);
     }
 
     const item = await modelClient.create({

@@ -48,6 +48,7 @@ export function CommunityStatsBar({ stats }: CommunityStatsBarProps) {
             <Avatar key={i} className="h-8 w-8 ring-2 ring-card shadow-sm">
               <AvatarImage
                 src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i}`}
+                alt={`Active community member ${i}`}
               />
             </Avatar>
           ))}

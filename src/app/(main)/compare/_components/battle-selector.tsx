@@ -69,9 +69,9 @@ export function BattleSelector({
 
       <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 md:gap-8">
         <div className="flex-1 space-y-2">
-          <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight leading-none text-foreground">
+          <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight leading-none text-foreground">
             Side-by-Side <span className="text-primary italic">Compare</span>
-          </h3>
+          </h2>
           <p className="text-xs md:text-sm font-medium text-muted-foreground max-w-md">
             Can&apos;t find what you need? Select any two platforms to see a
             detailed, data-driven comparison immediately.
@@ -81,7 +81,10 @@ export function BattleSelector({
         <div className="flex flex-col sm:flex-row items-center gap-3.5 w-full lg:w-auto">
           <div className="w-full sm:w-55">
             <Select value={a} onValueChange={setA}>
-              <SelectTrigger className="w-full h-11 rounded-full bg-accent-surface dark:bg-white/5 border border-border/40 focus:ring-primary shadow-none text-xs font-semibold px-5 text-foreground">
+              <SelectTrigger
+                aria-label="Select first platform to compare"
+                className="w-full h-11 rounded-full bg-accent-surface dark:bg-white/5 border border-border/40 focus:ring-primary shadow-none text-xs font-semibold px-5 text-foreground"
+              >
                 <SelectValue placeholder="First Platform" />
               </SelectTrigger>
               <SelectContent className="rounded-2xl border border-border/40 bg-background max-h-75">
@@ -105,7 +108,10 @@ export function BattleSelector({
 
           <div className="w-full sm:w-55">
             <Select value={b} onValueChange={setB}>
-              <SelectTrigger className="w-full h-11 rounded-full bg-accent-surface dark:bg-white/5 border border-border/40 focus:ring-primary shadow-none text-xs font-semibold px-5 text-foreground">
+              <SelectTrigger
+                aria-label="Select second platform to compare"
+                className="w-full h-11 rounded-full bg-accent-surface dark:bg-white/5 border border-border/40 focus:ring-primary shadow-none text-xs font-semibold px-5 text-foreground"
+              >
                 <SelectValue placeholder="Second Platform" />
               </SelectTrigger>
               <SelectContent className="rounded-2xl border border-border/40 bg-background max-h-75">

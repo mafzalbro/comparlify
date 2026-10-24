@@ -410,9 +410,9 @@ export function WhyChooseUs({ content }: WhyChooseUsProps) {
                             </div>
                           </div>
 
-                          <h4 className="text-xl lg:text-2xl font-black tracking-tight leading-none">
+                          <h3 className="text-xl lg:text-2xl font-black tracking-tight leading-none">
                             {activeFeatureData?.title}
-                          </h4>
+                          </h3>
                           <p className="text-muted-foreground leading-relaxed text-xs max-w-md">
                             {activeFeatureData?.description} Discover tools and insights designed to help you make faster, smarter decisions.
                           </p>

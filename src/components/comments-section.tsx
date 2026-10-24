@@ -148,7 +148,10 @@ export function CommentsSection({
               className="group relative flex items-start gap-4 p-4 rounded-2xl bg-card/40 backdrop-blur-md border border-border/40 hover:border-border/60 transition-all shadow-xs"
             >
               <Avatar className="h-10 w-10 ring-1 ring-background shadow-xs shrink-0">
-                <AvatarImage src={comment.author.image ?? undefined} />
+                <AvatarImage
+                  src={comment.author.image ?? undefined}
+                  alt={comment.author.name || "User avatar"}
+                />
                 <AvatarFallback className="font-extrabold">
                   {comment.author.name?.charAt(0)}
                 </AvatarFallback>

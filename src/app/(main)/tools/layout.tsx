@@ -2,7 +2,7 @@ import { getContent } from "@/lib/content";
 import { isModuleEnabled } from "@/lib/module-navigation";
 import { notFound } from "next/navigation";
 
-export const revalidate = 0;
+export const revalidate = 3600;
 
 export default async function ToolsLayout({
   children,

@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { auth } from "@/lib/auth";
 import { isAuthorized } from "@/lib/api-auth";
 
 const VALID_MODELS = [
@@ -22,18 +21,26 @@ const VALID_MODELS = [
   "advertisement",
 ];
 
+// Helper to redirect to the 404 page
+const redirectToNotFound = (request: Request) => {
+  return NextResponse.redirect(new URL("/404", request.url));
+};
+
 export async function GET(
   request: Request,
   props: { params: Promise<{ model: string; id: string }> },
 ) {
+  // 1. Block browser/unauthorized access with 404
   if (!isAuthorized(request)) {
-    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+    return redirectToNotFound(request);
   }
+
   const params = await props.params;
   const { model, id } = params;
 
+  // 2. Hide invalid models with 404
   if (!VALID_MODELS.includes(model)) {
-    return NextResponse.json({ error: "Invalid model" }, { status: 400 });
+    return redirectToNotFound(request);
   }
 
   try {
@@ -53,6 +60,7 @@ export async function GET(
             : undefined,
     });
 
+    // If item doesn't exist, return a JSON 404 (since this is a valid API request)
     if (!item) {
       return NextResponse.json({ error: "Item not found" }, { status: 404 });
     }
@@ -68,24 +76,25 @@ export async function PUT(
   request: Request,
   props: { params: Promise<{ model: string; id: string }> },
 ) {
+  // 1. Block browser/unauthorized access with 404
   if (!isAuthorized(request)) {
-    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+    return redirectToNotFound(request);
   }
+
   const params = await props.params;
-  const session = await auth();
-  if (session?.user?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Not authorized" }, { status: 403 });
-  }
-
   const { model, id } = params;
+
+  // 2. Hide invalid models with 404
   if (!VALID_MODELS.includes(model)) {
-    return NextResponse.json({ error: "Invalid model" }, { status: 400 });
+    return redirectToNotFound(request);
   }
 
+  // NOTE: We removed auth() check here. The API Key is the only gatekeeper now.
+  
   try {
     const body = await request.json();
 
-    // Remove fixed fields that shouldn't be updated manually or might cause issues
+    // Remove fixed fields that shouldn't be updated manually
     delete body.id;
     delete body.createdAt;
     delete body.updatedAt;
@@ -106,19 +115,20 @@ export async function DELETE(
   request: Request,
   props: { params: Promise<{ model: string; id: string }> },
 ) {
+  // 1. Block browser/unauthorized access with 404
   if (!isAuthorized(request)) {
-    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
-  }
-  const params = await props.params;
-  const session = await auth();
-  if (session?.user?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+    return redirectToNotFound(request);
   }
 
+  const params = await props.params;
   const { model, id } = params;
+
+  // 2. Hide invalid models with 404
   if (!VALID_MODELS.includes(model)) {
-    return NextResponse.json({ error: "Invalid model" }, { status: 400 });
+    return redirectToNotFound(request);
   }
+
+  // NOTE: We removed auth() check here. The API Key is the only gatekeeper now.
 
   try {
     await (prisma as any)[model].delete({

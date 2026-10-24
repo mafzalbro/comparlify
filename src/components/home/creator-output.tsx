@@ -71,7 +71,7 @@ export function CreatorOutput() {
                   </div>
                   <div className="flex items-center space-x-4 pt-4 border-t border-border/20">
                     <Avatar className="h-10 w-10 ring-2 ring-primary/10 border border-background">
-                      <AvatarImage src={t.avatar} />
+                      <AvatarImage src={t.avatar} alt={`${t.name} - ${t.title}`} />
                       <AvatarFallback>{t.name[0]}</AvatarFallback>
                     </Avatar>
                     <div>
