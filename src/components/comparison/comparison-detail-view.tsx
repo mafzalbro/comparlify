@@ -399,6 +399,8 @@ export default async function ComparisonDetailPage(props: {
           stats={stats}
           platformAName={platformA.name}
           platformBName={platformB.name}
+          platformAId={platformA.id}
+          platformBId={platformB.id}
         />
 
         {/* ── SIDE-BY-SIDE SCORECARDS & INTERACTIVE MATCHER ────────────────── */}

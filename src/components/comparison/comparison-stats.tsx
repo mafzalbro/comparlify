@@ -14,13 +14,19 @@ interface ComparisonStatsProps {
   stats: StatItem[];
   platformAName: string;
   platformBName: string;
+  platformAId?: string;
+  platformBId?: string;
 }
 
 export function ComparisonStats({
   stats,
   platformAName,
   platformBName,
+  platformAId,
+  platformBId,
 }: ComparisonStatsProps) {
+  const targetA = platformAId || platformAName.toLowerCase().replace(/\s+/g, "-");
+  const targetB = platformBId || platformBName.toLowerCase().replace(/\s+/g, "-");
   return (
     <section
       id="comparison-stats"
@@ -46,7 +52,7 @@ export function ComparisonStats({
                 <div className="space-y-2">
                   <div className="flex justify-between items-end font-extrabold">
                     <a
-                      href={`/platform/${platformAName.toLowerCase().replace(/\s+/g, "-")}`}
+                      href={`/platform/${targetA}`}
                       className="text-xs uppercase tracking-tight text-foreground hover:text-primary transition-colors hover:underline"
                     >
                       {platformAName}
@@ -61,7 +67,7 @@ export function ComparisonStats({
                 <div className="space-y-2">
                   <div className="flex justify-between items-end font-extrabold">
                     <a
-                      href={`/platform/${platformBName.toLowerCase().replace(/\s+/g, "-")}`}
+                      href={`/platform/${targetB}`}
                       className="text-xs uppercase tracking-tight text-foreground hover:text-blue-500 transition-colors hover:underline"
                     >
                       {platformBName}

@@ -227,6 +227,8 @@ export default async function DynamicBattlePage(props: {
           stats={stats}
           platformAName={platformA.name}
           platformBName={platformB.name}
+          platformAId={platformA.id}
+          platformBId={platformB.id}
         />
 
         <section className={DETAIL_CONTAINER}>

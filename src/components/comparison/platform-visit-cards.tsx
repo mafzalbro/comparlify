@@ -105,7 +105,7 @@ export function PlatformVisitCards({
                 </a>
               </Button>
               <a
-                href={`/platform/${(platform as any).slug || platform.name.toLowerCase().replace(/\s+/g, "-")}`}
+                href={`/platform/${(platform as any).slug || platform.id || platform.name.toLowerCase().replace(/\s+/g, "-")}`}
                 className="text-[11px] font-bold text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-1"
               >
                 Read Complete {platform.name} Review →

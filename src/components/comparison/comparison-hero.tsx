@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MotionDiv } from "@/components/motion-wrapper";
 import { PlatformIntelligenceModal } from "./platform-intelligence-modal";
+import Link from "next/link";
 import { Scale, Zap, ShieldCheck, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GLASS_CARD_SM } from "@/lib/design-tokens";
@@ -116,12 +117,12 @@ export function ComparisonHero({
                 <div className="flex flex-col items-center">
                   <div className="flex items-center gap-1.5">
                     <h2 className="text-lg font-extrabold text-foreground tracking-tight">
-                      <a
-                        href={`/platform/${(platform as any).slug || platform.name.toLowerCase().replace(/\s+/g, "-")}`}
+                      <Link
+                        href={`/platform/${(platform as any).slug || platform.id || platform.name.toLowerCase().replace(/\s+/g, "-")}`}
                         className="hover:text-primary transition-colors hover:underline"
                       >
                         {platform.name}
-                      </a>
+                      </Link>
                     </h2>
                     <PlatformIntelligenceModal platform={platform as any}>
                       <Button
@@ -138,12 +139,12 @@ export function ComparisonHero({
                     <Badge className="bg-secondary/50 text-muted-foreground text-[9px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full border-none">
                       Expert Assessment
                     </Badge>
-                    <a
-                      href={`/platform/${(platform as any).slug || platform.name.toLowerCase().replace(/\s+/g, "-")}`}
+                    <Link
+                      href={`/platform/${(platform as any).slug || platform.id || platform.name.toLowerCase().replace(/\s+/g, "-")}`}
                       className="text-[10px] font-extrabold text-primary hover:underline transition-colors"
                     >
                       Read Review →
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </div>
