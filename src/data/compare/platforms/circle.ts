@@ -80,24 +80,24 @@ Circle.so has successfully professionalized the community space in 2026. It is a
   ],
   tiers: [
     {
-      name: "Basic",
-      monthlyPrice: 49,
-      annualPriceMonthlyEquivalent: 39,
-      features: ["Engaging discussions", "Member directory", "Mobile app", "Unlimited members"],
-      isPopular: false
-    },
-    {
       name: "Professional",
       monthlyPrice: 99,
       annualPriceMonthlyEquivalent: 89,
-      features: ["Courses", "Live streaming", "Detailed analytics", "Custom domain"],
+      features: ["Courses", "Live streaming", "Detailed analytics", "Custom domain", "2% transaction fee"],
       isPopular: true
     },
     {
       name: "Business",
       monthlyPrice: 219,
       annualPriceMonthlyEquivalent: 199,
-      features: ["Workflows", "Custom profile fields", "Priority support", "Single Sign-On (SSO)"],
+      features: ["Workflows", "Custom profile fields", "Priority support", "Single Sign-On (SSO)", "1% transaction fee"],
+      isPopular: false
+    },
+    {
+      name: "Enterprise / Plus",
+      monthlyPrice: 499,
+      annualPriceMonthlyEquivalent: 419,
+      features: ["Branded mobile apps", "Unlimited AI workflows", "0.5% transaction fee", "Dedicated CSM"],
       isPopular: false
     }
   ],

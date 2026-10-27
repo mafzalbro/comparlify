@@ -78,24 +78,24 @@ Mighty Networks is the "Industrial Strength" community builder of 2026. It offer
   ],
   tiers: [
     {
-      name: "Community",
-      monthlyPrice: 39,
-      annualPriceMonthlyEquivalent: 33,
-      features: ["Native livestreaming", "Chat & messaging", "Events & Zoom integration"],
+      name: "Launch",
+      monthlyPrice: 99,
+      annualPriceMonthlyEquivalent: 79,
+      features: ["AI Co-Host", "Unlimited members & Spaces", "Native iOS/Android apps", "2% transaction fee"],
       isPopular: false
     },
     {
-      name: "Courses",
-      monthlyPrice: 119,
-      annualPriceMonthlyEquivalent: 99,
-      features: ["Unlimited courses", "AI features", "Detailed analytics"],
+      name: "Scale",
+      monthlyPrice: 219,
+      annualPriceMonthlyEquivalent: 179,
+      features: ["Advanced automations", "Full course engine", "1% transaction fee", "Detailed analytics"],
       isPopular: true
     },
     {
-      name: "Business",
-      monthlyPrice: 219,
-      annualPriceMonthlyEquivalent: 179,
-      features: ["Advanced analytics", "20+ Space templates", "Priority support"],
+      name: "Growth",
+      monthlyPrice: 420,
+      annualPriceMonthlyEquivalent: 354,
+      features: ["Advanced reporting", "Custom storage & limits", "0.5% transaction fee", "Priority support"],
       isPopular: false
     }
   ],

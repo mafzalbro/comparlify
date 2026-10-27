@@ -76,23 +76,23 @@ Webflow is a "career-defining" tool. For designers, it turns them into visual de
   tiers: [
     {
       name: "Basic",
-      monthlyPrice: 18,
-      annualPriceMonthlyEquivalent: 14,
-      features: ["Custom domain", "0 CMS items", "500 form submissions", "50GB Bandwidth"],
+      monthlyPrice: 25,
+      annualPriceMonthlyEquivalent: 15,
+      features: ["Custom domain", "0 CMS items", "300 static pages", "10GB Bandwidth", "Unlimited forms"],
       isPopular: false
     },
     {
-      name: "CMS",
-      monthlyPrice: 29,
-      annualPriceMonthlyEquivalent: 23,
-      features: ["2,000 CMS items", "1,000 form submissions", "3 content editors", "200GB Bandwidth"],
+      name: "Premium",
+      monthlyPrice: 39,
+      annualPriceMonthlyEquivalent: 25,
+      features: ["20,000 CMS items", "40 CMS Collections", "300 static pages", "50GB Bandwidth", "Site search"],
       isPopular: true
     },
     {
-      name: "Business",
-      monthlyPrice: 49,
-      annualPriceMonthlyEquivalent: 39,
-      features: ["10,000 CMS items", "2,500 form submissions", "10 content editors", "400GB Bandwidth"],
+      name: "Team",
+      monthlyPrice: 2500,
+      annualPriceMonthlyEquivalent: 2500,
+      features: ["Page branching", "Single-page publishing", "Bundled localization", "Enterprise security"],
       isPopular: false
     }
   ],

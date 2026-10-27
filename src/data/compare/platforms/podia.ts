@@ -88,30 +88,24 @@ Podia is the "Happy Place" of the creator economy in 2026. It removes the techni
   ],
   tiers: [
     {
-      name: "Free",
-      monthlyPrice: 0,
-      features: ["Full website", "Community", "1 Download", "8% fee"],
-      isPopular: false
-    },
-    {
-      name: "Starter",
-      monthlyPrice: 9,
-      annualPriceMonthlyEquivalent: 4,
-      features: ["Custom domain", "Chat support", "8% fee"],
-      isPopular: false
-    },
-    {
       name: "Mover",
-      monthlyPrice: 39,
-      annualPriceMonthlyEquivalent: 33,
-      features: ["Zero transaction fees", "Unlimited courses", "Unlimited downloads"],
+      monthlyPrice: 49,
+      annualPriceMonthlyEquivalent: 42,
+      features: ["5% Transaction fee", "Up to 50 products", "25 community spaces", "Website builder", "Email marketing"],
       isPopular: true
     },
     {
       name: "Shaker",
-      monthlyPrice: 89,
-      annualPriceMonthlyEquivalent: 75,
-      features: ["Affiliate marketing", "Embedded checkout", "White-labeling"],
+      monthlyPrice: 99,
+      annualPriceMonthlyEquivalent: 84,
+      features: ["0% Transaction fee", "Up to 150 products", "100 community spaces", "Affiliate marketing", "Embedded checkout"],
+      isPopular: false
+    },
+    {
+      name: "Earthquaker",
+      monthlyPrice: 179,
+      annualPriceMonthlyEquivalent: 150,
+      features: ["0% Transaction fee", "Unlimited products", "Unlimited spaces & video", "Priority support"],
       isPopular: false
     }
   ],

@@ -76,31 +76,31 @@ Squarespace is the "Vogue" of website builders. It is polished, stable, and unde
   ],
   tiers: [
     {
-      name: "Personal",
+      name: "Basic",
       monthlyPrice: 25,
       annualPriceMonthlyEquivalent: 16,
-      features: ["Unlimited bandwidth", "Free custom domain", "Basic metrics", "2 Contributors"],
+      features: ["Unlimited bandwidth", "Free custom domain", "Basic metrics", "2 Contributors", "0% eCommerce fees"],
       isPopular: false
     },
     {
-      name: "Business",
+      name: "Core",
       monthlyPrice: 36,
       annualPriceMonthlyEquivalent: 23,
-      features: ["Professional email from Google", "Advanced analytics", "Fully integrated eCommerce", "Unlimited contributors"],
+      features: ["Professional email from Google", "Advanced analytics", "2% transaction fee on store sales", "Unlimited contributors"],
       isPopular: true
     },
     {
-      name: "Commerce Basic",
-      monthlyPrice: 40,
-      annualPriceMonthlyEquivalent: 28,
-      features: ["0% transaction fees", "Customer accounts", "Point of sale", "Powerful selling tools"],
+      name: "Plus",
+      monthlyPrice: 45,
+      annualPriceMonthlyEquivalent: 33,
+      features: ["0% transaction fees", "Customer accounts", "Point of sale", "Advanced merchandising"],
       isPopular: false
     },
     {
-      name: "Commerce Advanced",
-      monthlyPrice: 72,
-      annualPriceMonthlyEquivalent: 52,
-      features: ["Abandoned cart recovery", "Sell subscriptions", "Advanced shipping", "Discount automation"],
+      name: "Advanced",
+      monthlyPrice: 79,
+      annualPriceMonthlyEquivalent: 59,
+      features: ["Abandoned cart recovery", "Sell recurring subscriptions", "Advanced shipping rates", "Discount automation"],
       isPopular: false
     }
   ],

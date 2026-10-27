@@ -89,23 +89,23 @@ Beehiiv has successfully and permanently industrialized the newsletter space in 
   affiliateLink: "https://www.beehiiv.com/?via=comparlify",
   tiers: [
     {
-      name: "Launch",
+      name: "Free",
       monthlyPrice: 0,
-      features: ["Up to 2,500 subscribers", "Unlimited sends", "Custom Website", "Custom Domains"],
+      features: ["Up to 2,500 subscribers", "Unlimited sends", "Web & newsletter builder", "Recommendation network"],
       isPopular: false
     },
     {
-      name: "Scale",
-      monthlyPrice: 49,
-      annualPriceMonthlyEquivalent: 43,
-      features: ["Ad Network", "Boosts Network", "Automations", "Surveys & Polls"],
+      name: "Lite",
+      monthlyPrice: 59,
+      annualPriceMonthlyEquivalent: 49,
+      features: ["0% Take rate", "Ad Network access", "Email automations", "Surveys & Polls", "Up to 3 seats"],
       isPopular: true
     },
     {
-      name: "Max",
+      name: "Pro",
       monthlyPrice: 109,
-      annualPriceMonthlyEquivalent: 96,
-      features: ["Remove beehiiv Branding", "Priority Support", "Unlimited Teams", "Dynamic Content"],
+      annualPriceMonthlyEquivalent: 95,
+      features: ["Remove beehiiv Branding", "Multiple publications (up to 10)", "Unlimited seats", "Priority support"],
       isPopular: false
     }
   ],

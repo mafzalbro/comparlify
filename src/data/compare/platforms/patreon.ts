@@ -76,15 +76,15 @@ Patreon is the "Digital Home of the Arts." It is a platform with a soul, built b
   ],
   tiers: [
     {
-      name: "Pro",
+      name: "Standard",
       monthlyPrice: 0,
-      features: ["8% Revenue share", "Membership tiers", "Analytics", "App integrations"],
+      features: ["10% Flat platform fee", "Membership tiers", "Commerce (Digital sales)", "Native video & audio", "Discord integration"],
       isPopular: true
     },
     {
-      name: "Premium",
+      name: "Legacy Pro (Grandfathered)",
       monthlyPrice: 0,
-      features: ["12% Revenue share", "Dedicated account manager", "Merch for membership"],
+      features: ["8% Legacy platform fee", "Accounts published before Aug 2025", "Advanced analytics"],
       isPopular: false
     }
   ],

@@ -84,24 +84,24 @@ Plausible is a "breath of fresh air" in a cluttered and ethically questionable i
   ],
   tiers: [
     {
-      name: "Growth",
+      name: "Starter",
       monthlyPrice: 9,
       annualPriceMonthlyEquivalent: 7.5,
-      features: ["10k Pageviews", "Unlimited sites", "100% Data ownership", "Email reports"],
+      features: ["10k Pageviews", "1 website", "Solo use (1 user)", "3-year data retention", "Email reports"],
+      isPopular: false
+    },
+    {
+      name: "Growth",
+      monthlyPrice: 14,
+      annualPriceMonthlyEquivalent: 11.6,
+      features: ["10k Pageviews", "Up to 3 websites", "Up to 3 team members", "Shared dashboards"],
       isPopular: true
     },
     {
       name: "Business",
       monthlyPrice: 19,
       annualPriceMonthlyEquivalent: 15.8,
-      features: ["100k Pageviews", "Custom domains", "Stats API", "Priority support"],
-      isPopular: false
-    },
-    {
-      name: "Enterprise",
-      monthlyPrice: 69,
-      annualPriceMonthlyEquivalent: 57.5,
-      features: ["1M+ Pageviews", "White-labeling", "Custom contract", "Dedicated support"],
+      features: ["10k Pageviews", "Up to 10 websites", "10 team members", "Funnels & Stats API", "5-year retention"],
       isPopular: false
     }
   ],
