@@ -12,6 +12,22 @@ export function URLDecoder() {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
+  const handleInputChange = (val: string) => {
+    setInput(val);
+    if (!val.trim()) {
+      setOutput("");
+      setError(null);
+      return;
+    }
+    try {
+      const decoded = mode === "component" ? decodeURIComponent(val) : decodeURI(val);
+      setOutput(decoded);
+      setError(null);
+    } catch (_) {
+      setOutput("");
+    }
+  };
+
   const handleDecode = () => {
     if (!input.trim()) {
       setOutput("");
@@ -72,7 +88,7 @@ export function URLDecoder() {
           </div>
           <textarea
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => handleInputChange(e.target.value)}
             placeholder="Paste your percent-encoded URL string here..."
             className="w-full h-80 p-4 rounded-xl border border-border/30 bg-secondary/20 font-mono text-xs focus:ring-1 focus:ring-primary focus:outline-none resize-none leading-relaxed break-all"
           />

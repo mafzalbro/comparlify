@@ -25,6 +25,23 @@ export function JSONMinifier() {
     } catch (_) {}
   };
 
+  const handleInputChange = (val: string) => {
+    setInput(val);
+    if (!val.trim()) {
+      setOutput("");
+      setError(null);
+      return;
+    }
+    try {
+      const parsed = JSON.parse(val);
+      const minified = JSON.stringify(parsed);
+      setOutput(minified);
+      setError(null);
+    } catch (_) {
+      // Don't show intrusive error while typing incomplete JSON
+    }
+  };
+
   const handleMinify = () => {
     if (!input.trim()) {
       setError("Please enter some JSON to minify.");
@@ -115,7 +132,7 @@ export function JSONMinifier() {
 
           <textarea
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => handleInputChange(e.target.value)}
             placeholder="Paste formatted JSON here..."
             className="w-full h-44 sm:h-80 p-3 sm:p-4 rounded-xl border border-border/30 bg-muted/40 font-mono text-xs focus:ring-1 focus:ring-primary focus:outline-none resize-none leading-relaxed text-foreground"
           />

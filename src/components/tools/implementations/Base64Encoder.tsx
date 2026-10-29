@@ -21,6 +21,20 @@ export function Base64Encoder() {
     } catch (_) {}
   };
 
+  const handleInputChange = (val: string) => {
+    setInput(val);
+    if (!val) {
+      setOutput("");
+      return;
+    }
+    try {
+      const encoded = window.btoa(unescape(encodeURIComponent(val)));
+      setOutput(encoded);
+    } catch (_) {
+      setOutput("");
+    }
+  };
+
   const handleEncode = () => {
     if (!input) {
       setOutput("");
@@ -98,7 +112,7 @@ export function Base64Encoder() {
 
           <textarea
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => handleInputChange(e.target.value)}
             placeholder="Enter standard text or code to encode..."
             className="w-full h-64 sm:h-96 p-4 rounded-2xl border border-border/50 bg-background/80 dark:bg-slate-950/70 font-mono text-xs focus:ring-2 focus:ring-primary/30 focus:border-primary/60 focus:outline-none resize-none leading-relaxed text-foreground placeholder:text-muted-foreground/50 shadow-inner transition-all selection:bg-primary/30"
           />

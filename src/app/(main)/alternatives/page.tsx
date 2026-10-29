@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { calculatePlatformScore } from "@/lib/score-engine";
 import { ManagedImage } from "@/components/managed-image";
+import { SchemaScript } from "@/components/schema-script";
 import Link from "next/link";
 import { ArrowUpRight, Layers, ShieldCheck } from "lucide-react";
 import { allPlatforms } from "@/data/compare/platforms";
@@ -122,8 +123,26 @@ export default async function AlternativesIndexPage() {
     a.localeCompare(b),
   );
 
+  const directorySchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Best Software & Platform Alternatives Directory 2026",
+    description: "Compare ranked software alternatives with scorecards, pricing, and switching difficulty.",
+    url: "https://comparlify.com/alternatives",
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: platforms.slice(0, 30).map((p, idx) => ({
+        "@type": "ListItem",
+        position: idx + 1,
+        name: `${p.name} Alternatives`,
+        url: `https://comparlify.com/alternatives/${p.slug}`,
+      })),
+    },
+  };
+
   return (
     <div className="bg-background min-h-screen pb-32">
+      <SchemaScript schema={directorySchema} />
       {/* HERO SECTION */}
       <section className="relative pt-20 pb-16 overflow-hidden border-b border-border/20">
         <div className="container mx-auto px-4 md:px-6 relative z-10 text-center max-w-4xl">

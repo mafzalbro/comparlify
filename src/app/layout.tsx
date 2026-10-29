@@ -12,7 +12,7 @@ import NextTopLoader from "nextjs-toploader";
 import { themeConfig } from "@/lib/theme";
 import parse from "html-react-parser";
 
-const SITE_URL = "https://www.comparlify.com";
+const SITE_URL = "https://comparlify.com";
 
 const font = Outfit({
   preload: true,

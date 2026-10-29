@@ -22,6 +22,20 @@ export function URLEncoder() {
     toast({ title: "Sample URL Loaded", description: "Sample URL percent-encoded." });
   };
 
+  const handleInputChange = (val: string) => {
+    setInput(val);
+    if (!val) {
+      setOutput("");
+      return;
+    }
+    try {
+      const encoded = mode === "component" ? encodeURIComponent(val) : encodeURI(val);
+      setOutput(encoded);
+    } catch (_) {
+      setOutput("");
+    }
+  };
+
   const handleEncode = () => {
     if (!input) {
       setOutput("");
@@ -99,7 +113,7 @@ export function URLEncoder() {
 
           <textarea
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => handleInputChange(e.target.value)}
             placeholder="Enter URL query string or path to encode..."
             className="w-full h-44 sm:h-80 p-3 sm:p-4 rounded-xl border border-border/30 bg-muted/40 font-mono text-xs focus:ring-1 focus:ring-primary focus:outline-none resize-none leading-relaxed text-foreground"
           />

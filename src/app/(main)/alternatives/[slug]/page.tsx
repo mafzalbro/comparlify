@@ -102,9 +102,21 @@ export async function generateMetadata(props: {
   const currentYear = new Date().getFullYear();
   const { targetPlatform } = data;
 
+  const targetKeywords = [
+    `${targetPlatform.name.toLowerCase()} alternatives`,
+    `best ${targetPlatform.name.toLowerCase()} alternative`,
+    `top ${targetPlatform.name.toLowerCase()} competitors`,
+    `cheaper alternatives to ${targetPlatform.name.toLowerCase()}`,
+    `open source alternative to ${targetPlatform.name.toLowerCase()}`,
+    `european alternative to ${targetPlatform.name.toLowerCase()}`,
+    `${targetPlatform.name.toLowerCase()} pricing vs competitors`,
+    `switch from ${targetPlatform.name.toLowerCase()}`,
+  ];
+
   return generateSeoMetadata({
     title: `Best ${targetPlatform.name} Alternatives ${currentYear}: Ranked & Compared`,
-    description: `Looking for top alternatives to ${targetPlatform.name}? Compare scorecards, pricing models, feature matrix, and migration effort for 2026.`,
+    description: `Looking for top alternatives to ${targetPlatform.name}? Compare 2026 scorecards, pricing plans, feature matrix, and migration difficulty across top competitors.`,
+    keywords: targetKeywords,
     path: `/alternatives/${slug}`,
   });
 }
@@ -141,7 +153,7 @@ export default async function AlternativeDetailPage(props: {
       "@type": "ListItem",
       position: idx + 1,
       name: alt.name,
-      url: `https://comparlify.com/platform/${alt.slug}`, // FIXED
+      url: `https://comparlify.com/platform/${alt.slug}`,
     })),
   };
 
@@ -397,6 +409,61 @@ export default async function AlternativeDetailPage(props: {
                 </Card>
               );
             })}
+          </div>
+        </section>
+
+        {/* --- BUYER'S INTENT GUIDE & FAQ (Targeting Search Queries) --- */}
+        <section className="mt-20 pt-16 border-t border-border/40">
+          <div className="max-w-4xl mx-auto space-y-12">
+            <div className="text-center space-y-3">
+              <Badge className="bg-primary/10 text-primary border-primary/20 px-3.5 py-1 uppercase tracking-widest text-[10px] font-black rounded-full">
+                Buyer Decision Guide
+              </Badge>
+              <h2 className="text-2xl md:text-3xl font-black text-foreground">
+                How to Choose the Best {targetPlatform.name} Alternative
+              </h2>
+              <p className="text-sm text-muted-foreground font-medium max-w-xl mx-auto">
+                Real-world insights on switching costs, European/GDPR compliance, open-source alternatives, and pricing models.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="p-6 rounded-2xl bg-card/60 border border-border/40 space-y-3">
+                <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-primary" /> Why look for alternatives to {targetPlatform.name}?
+                </h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Most teams migrate away from {targetPlatform.name} due to pricing tier jumps at scale, vendor lock-in, proprietary data export limits, or feature bloat. Modern competitors often offer flatter pricing models, faster lightweight interfaces, and greater data sovereignty.
+                </p>
+              </Card>
+
+              <Card className="p-6 rounded-2xl bg-card/60 border border-border/40 space-y-3">
+                <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Are there European / GDPR-compliant alternatives?
+                </h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Yes. For European teams requiring strict GDPR compliance and EU data residency, competitors with EU data centers or self-hosted open-source options provide sovereign alternatives without transatlantic data transfer concerns.
+                </p>
+              </Card>
+
+              <Card className="p-6 rounded-2xl bg-card/60 border border-border/40 space-y-3">
+                <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-amber-500" /> What is the switching difficulty?
+                </h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Migration effort varies by category. Platforms with CSV/JSON exports or direct 1-click import integrations allow teams to transition in hours. Review our detailed side-by-side comparison tables above to evaluate switching ease for each competitor.
+                </p>
+              </Card>
+
+              <Card className="p-6 rounded-2xl bg-card/60 border border-border/40 space-y-3">
+                <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-blue-500" /> Which alternative offers the best ROI?
+                </h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {alternatives.length > 0 ? `${alternatives[0].name} holds our highest overall value-to-cost rating for replacing ${targetPlatform.name}.` : "Explore our scorecard breakdowns to match your volume and budget requirements."}
+                </p>
+              </Card>
+            </div>
           </div>
         </section>
       </div>

@@ -3,12 +3,13 @@ import prisma from "@/lib/prisma";
 import { getContent } from "@/lib/content";
 import { isModuleEnabled, isRouteEnabled } from "@/lib/module-navigation";
 import { TOOLS } from "@/data/tools/registry";
+import { allPlatforms as staticPlatforms } from "@/data/compare/platforms";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const STATIC_LAST_MODIFIED = new Date("2026-04-24T00:00:00.000Z");
-const TOOLS_LAST_MODIFIED  = new Date("2026-04-24T00:00:00.000Z");
+  const TOOLS_LAST_MODIFIED  = new Date("2026-04-24T00:00:00.000Z");
 
-  const siteUrl = "https://www.comparlify.com";
+  const siteUrl = "https://comparlify.com";
   const content = await getContent();
 
   const isBlogOn = isModuleEnabled("blog", content);
@@ -22,6 +23,7 @@ const TOOLS_LAST_MODIFIED  = new Date("2026-04-24T00:00:00.000Z");
   const [
     posts,
     comparisons,
+    platforms,
     aiTools,
     news,
     forumCategories,
@@ -40,6 +42,9 @@ const TOOLS_LAST_MODIFIED  = new Date("2026-04-24T00:00:00.000Z");
           select: { slug: true, updatedAt: true },
         })
       : Promise.resolve([]),
+    prisma.platform.findMany({
+      select: { name: true, updatedAt: true },
+    }).catch(() => []),
     // DB-backed tools are AI assistant tools (registry covers the rest)
     isAIOn
       ? prisma.tool.findMany({
@@ -141,9 +146,43 @@ const TOOLS_LAST_MODIFIED  = new Date("2026-04-24T00:00:00.000Z");
     priority: 0.3,
   }));
 
+  // Deduplicate platforms across static data and DB
+  const platformSlugMap = new Map<string, { slug: string; updatedAt: Date }>();
+  for (const sp of staticPlatforms) {
+    const s = sp.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+    if (s) {
+      platformSlugMap.set(s, { slug: s, updatedAt: STATIC_LAST_MODIFIED });
+    }
+  }
+  for (const dp of platforms as any[]) {
+    if (dp?.name) {
+      const s = dp.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+      if (s) {
+        platformSlugMap.set(s, { slug: s, updatedAt: dp.updatedAt || STATIC_LAST_MODIFIED });
+      }
+    }
+  }
+
+  const platformItems = Array.from(platformSlugMap.values());
+
+  const platformUrls = platformItems.map((p) => ({
+    url: `${siteUrl}/platform/${p.slug}`,
+    lastModified: p.updatedAt,
+    changeFrequency: "weekly" as const,
+    priority: 0.85,
+  }));
+
+  const alternativesUrls = platformItems.map((p) => ({
+    url: `${siteUrl}/alternatives/${p.slug}`,
+    lastModified: p.updatedAt,
+    changeFrequency: "weekly" as const,
+    priority: 0.85,
+  }));
+
   // Define static routes and filter by route module enablement
   const allStaticRoutes = [
     "/",
+    "/alternatives",
     "/blog",
     "/compare",
     "/tools",
@@ -152,18 +191,20 @@ const TOOLS_LAST_MODIFIED  = new Date("2026-04-24T00:00:00.000Z");
   ];
 
   const staticRoutes = allStaticRoutes.filter((route) =>
-    route === "/" ? true : isRouteEnabled(route, content),
+    route === "/" || route === "/alternatives" ? true : isRouteEnabled(route, content),
   );
 
   const staticUrls = staticRoutes.map((route) => ({
     url: `${siteUrl}${route}`,
     lastModified: STATIC_LAST_MODIFIED,
-    changeFrequency: route === "/" ? ("daily" as const) : ("weekly" as const),
-    priority: route === "/" ? 1.0 : 0.7,
+    changeFrequency: route === "/" || route === "/alternatives" ? ("daily" as const) : ("weekly" as const),
+    priority: route === "/" ? 1.0 : 0.8,
   }));
 
   return [
     ...staticUrls,
+    ...platformUrls,
+    ...alternativesUrls,
     ...postUrls,
     ...comparisonUrls,
     ...toolUrls,

@@ -2,9 +2,9 @@ import { Metadata } from "next";
 import { Suspense } from "react";
 import { redirect, permanentRedirect } from "next/navigation";
 import { generateSeoMetadata } from "@/lib/seo";
+import { SchemaScript } from "@/components/schema-script";
 import { ToolHubSearch } from "@/components/tools/ToolHubSearch";
 import { TOOLS, CATEGORIES, getToolBySlug } from "@/data/tools/registry";
-import prisma from "@/lib/prisma";
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -121,9 +121,11 @@ export default async function ToolsControllerPage({ params }: PageProps) {
   const { slug } = await params;
 
   // If this is a tool URL, ensure it's the canonical path. If not, 308-redirect.
+  let toolData = null;
   if (slug && slug.length > 0) {
     const tool = getToolBySlug(slug);
     if (tool) {
+      toolData = tool;
       const canonical = canonicalToolPath(slug);
       if (canonical && canonical !== `/tools/${slug.join("/")}`) {
         permanentRedirect(canonical); // 308 — preserves link equity
@@ -131,9 +133,47 @@ export default async function ToolsControllerPage({ params }: PageProps) {
     }
   }
 
+  const toolSchema = toolData
+    ? {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            name: toolData.title,
+            description: toolData.metaDescription || toolData.description,
+            applicationCategory: "UtilitiesApplication",
+            operatingSystem: "All (Web Browser)",
+            offers: {
+              "@type": "Offer",
+              price: "0",
+              priceCurrency: "USD",
+            },
+          },
+          ...(toolData.faqs && toolData.faqs.length > 0
+            ? [
+                {
+                  "@type": "FAQPage",
+                  mainEntity: toolData.faqs.map((faq) => ({
+                    "@type": "Question",
+                    name: faq.question,
+                    acceptedAnswer: {
+                      "@type": "Answer",
+                      text: faq.answer,
+                    },
+                  })),
+                },
+              ]
+            : []),
+        ],
+      }
+    : null;
+
   return (
-    <Suspense fallback={<ToolHubSkeleton />}>
-      <ToolHubSearch tools={TOOLS} categories={CATEGORIES} initialSlug={slug} />
-    </Suspense>
+    <>
+      {toolSchema && <SchemaScript schema={toolSchema} />}
+      <Suspense fallback={<ToolHubSkeleton />}>
+        <ToolHubSearch tools={TOOLS} categories={CATEGORIES} initialSlug={slug} />
+      </Suspense>
+    </>
   );
 }

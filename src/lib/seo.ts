@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getContent } from "./content";
 
-const CANONICAL_HOST = "www.comparlify.com";
+const CANONICAL_HOST = "comparlify.com";
 const CANONICAL_ORIGIN = `https://${CANONICAL_HOST}`;
 
 const fallbackConfig = {

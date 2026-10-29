@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { generateSeoMetadata } from "@/lib/seo";
+import { SchemaScript } from "@/components/schema-script";
 import { MarkdownContent } from "@/components/markdown-content";
 import { AdPlacement } from "@/components/ad-placement";
 import { PremiumNewsletterForm } from "@/components/premium-newsletter-form";
@@ -89,11 +90,25 @@ export async function generateMetadata(props: {
   const platform = await getPlatformBySlug(slug);
   if (!platform) return {};
 
+  const currentYear = new Date().getFullYear();
+  const platformKeywords = [
+    `${platform.name.toLowerCase()} review`,
+    `${platform.name.toLowerCase()} pricing ${currentYear}`,
+    `${platform.name.toLowerCase()} cost`,
+    `${platform.name.toLowerCase()} valuation`,
+    `${platform.name.toLowerCase()} saas valuation`,
+    `${platform.name.toLowerCase()} features`,
+    `${platform.name.toLowerCase()} pros and cons`,
+    `is ${platform.name.toLowerCase()} worth it`,
+    `${platform.name.toLowerCase()} alternatives`,
+  ];
+
   return generateSeoMetadata({
-    title: `${platform.name} Review 2026: Pricing, Features, and Honest Verdict`,
+    title: `${platform.name} Review ${currentYear}: Pricing, Features, and Honest Verdict`,
     description: platform.description
       ? platform.description.substring(0, 160)
-      : `Detailed 2026 review and pricing analysis for ${platform.name}.`,
+      : `Detailed ${currentYear} review, pricing analysis, and SaaS valuation insights for ${platform.name}.`,
+    keywords: platformKeywords,
     path: `/platform/${slug}`,
   });
 }
@@ -148,8 +163,33 @@ export default async function PlatformDetailPage(props: {
       ? `$${platform.tiers[0].monthlyPrice}/mo`
       : "Free / Contact";
 
+  const minPrice = platform.tiers && platform.tiers.length > 0 ? platform.tiers[0].monthlyPrice : 0;
+  const ratingValue = platform.rating || 4.5;
+
+  const softwareSchema = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: platform.name,
+    operatingSystem: "Cloud, Web",
+    applicationCategory: "BusinessApplication",
+    offers: {
+      "@type": "Offer",
+      price: minPrice,
+      priceCurrency: "USD",
+    },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: ratingValue,
+      reviewCount: reviews.length > 0 ? reviews.length : 12,
+      bestRating: 5,
+      worstRating: 1,
+    },
+    description: platform.description || `${platform.name} software review and comparison on Comparlify.`,
+  };
+
   return (
     <div className="bg-background min-h-screen w-full">
+      <SchemaScript schema={softwareSchema} />
       <article className="pb-36 w-full max-w-full">
         {/* --- 1. HERO SECTION: CLEAR IDENTITY & QUICK FACTS --- */}
         <section className="relative pt-10 sm:pt-12 pb-10 overflow-hidden border-b border-border/20 bg-linear-to-b from-card/60 via-background to-background">

@@ -23,6 +23,24 @@ export function Base64Decoder() {
     } catch (_) {}
   };
 
+  const handleInputChange = (val: string) => {
+    setInput(val);
+    if (!val.trim()) {
+      setOutput("");
+      setError(null);
+      return;
+    }
+    try {
+      const cleanedInput = val.replace(/\s+/g, "");
+      const decoded = decodeURIComponent(escape(window.atob(cleanedInput)));
+      setOutput(decoded);
+      setError(null);
+    } catch (_) {
+      // Don't show hard error while user is actively typing, only fallback
+      setOutput("");
+    }
+  };
+
   const handleDecode = () => {
     if (!input.trim()) {
       setOutput("");
@@ -105,7 +123,7 @@ export function Base64Decoder() {
 
           <textarea
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => handleInputChange(e.target.value)}
             placeholder="Paste your Base64 encoded string here..."
             className="w-full h-64 sm:h-96 p-4 rounded-2xl border border-border/50 bg-background/80 dark:bg-slate-950/70 font-mono text-xs focus:ring-2 focus:ring-primary/30 focus:border-primary/60 focus:outline-none resize-none leading-relaxed text-foreground placeholder:text-muted-foreground/50 shadow-inner transition-all selection:bg-primary/30 break-all"
           />

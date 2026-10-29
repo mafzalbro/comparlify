@@ -34,6 +34,23 @@ export function JSONFormatter() {
     } catch (_) {}
   };
 
+  const handleInputChange = (val: string) => {
+    setInput(val);
+    if (!val.trim()) {
+      setOutput("");
+      setError(null);
+      return;
+    }
+    try {
+      const parsed = JSON.parse(val);
+      const space = indent === "tab" ? "\t" : parseInt(indent, 10);
+      setOutput(JSON.stringify(parsed, null, space));
+      setError(null);
+    } catch (_) {
+      // Don't interrupt user typing
+    }
+  };
+
   const handleFormat = () => {
     if (!input.trim()) {
       setError("Please enter some JSON to format.");
@@ -156,7 +173,7 @@ export function JSONFormatter() {
 
           <textarea
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => handleInputChange(e.target.value)}
             placeholder='Paste raw JSON here... e.g. {"name":"John", "age":30}'
             className="w-full h-64 sm:h-96 p-4 rounded-2xl border border-border/50 bg-background/80 dark:bg-slate-950/70 font-mono text-xs focus:ring-2 focus:ring-primary/30 focus:border-primary/60 focus:outline-none resize-none leading-relaxed text-foreground placeholder:text-muted-foreground/50 shadow-inner transition-all selection:bg-primary/30"
           />
