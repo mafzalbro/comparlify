@@ -1,7 +1,18 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, Copy, Download, Trash2, Code2, AlertCircle, Sparkles, Wand2, ShieldCheck, Minimize2 } from "lucide-react";
+import {
+  Check,
+  Copy,
+  Download,
+  Trash2,
+  Code2,
+  AlertCircle,
+  Sparkles,
+  Wand2,
+  ShieldCheck,
+  Minimize2,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export function JSONFormatter() {
@@ -17,10 +28,10 @@ export function JSONFormatter() {
       appName: "Comparlify",
       version: "2.0.0",
       features: ["JSON Studio", "PDF Suite", "Financial Calculators"],
-      config: { active: true, maxUsers: 1000, theme: "dark" }
+      config: { active: true, maxUsers: 1000, theme: "dark" },
     },
     null,
-    2
+    2,
   );
 
   const handleLoadSample = () => {
@@ -30,7 +41,10 @@ export function JSONFormatter() {
       const parsed = JSON.parse(sampleJSON);
       const space = indent === "tab" ? "\t" : parseInt(indent, 10);
       setOutput(JSON.stringify(parsed, null, space));
-      toast({ title: "Sample Loaded", description: "JSON sample loaded and formatted." });
+      toast({
+        title: "Sample Loaded",
+        description: "JSON sample loaded and formatted.",
+      });
     } catch (_) {}
   };
 
@@ -47,7 +61,8 @@ export function JSONFormatter() {
       setOutput(JSON.stringify(parsed, null, space));
       setError(null);
     } catch (_) {
-      // Don't interrupt user typing
+      // Clear output on invalid input so users know it's broken
+      setOutput("");
     }
   };
 
@@ -116,7 +131,6 @@ export function JSONFormatter() {
 
   return (
     <div className="space-y-4">
-      {/* Studio Header Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 bg-card/50 backdrop-blur-xl px-4 py-3 rounded-2xl border border-border/40 shadow-sm">
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
@@ -149,7 +163,6 @@ export function JSONFormatter() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Input Panel */}
         <div className="flex flex-col space-y-2">
           <div className="flex items-center justify-between px-1">
             <label className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
@@ -194,7 +207,6 @@ export function JSONFormatter() {
           </div>
         </div>
 
-        {/* Output Panel */}
         <div className="flex flex-col space-y-2">
           <div className="flex items-center justify-between px-1 h-6">
             <label className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground">
@@ -210,7 +222,11 @@ export function JSONFormatter() {
                   className="p-1.5 rounded-lg bg-secondary hover:bg-primary/20 border border-border/30 transition-all text-foreground"
                   title="Copy JSON"
                 >
-                  {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                  {copied ? (
+                    <Check className="h-3.5 w-3.5 text-emerald-400" />
+                  ) : (
+                    <Copy className="h-3.5 w-3.5" />
+                  )}
                 </button>
                 <button
                   onClick={handleDownload}
@@ -221,7 +237,9 @@ export function JSONFormatter() {
                 </button>
               </div>
             ) : (
-              <span className="text-[10px] text-muted-foreground font-mono font-medium">Awaiting Input</span>
+              <span className="text-[10px] text-muted-foreground font-mono font-medium">
+                Awaiting Input
+              </span>
             )}
           </div>
 

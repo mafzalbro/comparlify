@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useDeferredValue } from "react";
 import {
   FileText,
   Copy,
@@ -8,560 +8,1424 @@ import {
   Trash2,
   Sparkles,
   ShieldCheck,
-  RotateCcw,
-  ArrowRight,
-  Settings2,
-  Type,
-  Filter,
-  ArrowDownUp,
   GitCompare,
-  Search,
   Link2,
-  Clock,
-  MessageSquare,
-  Hash,
   Download,
-  Code2,
-  ListOrdered,
   Workflow,
-  BarChart3
+  BarChart3,
+  Undo2,
+  ArrowUp,
+  ArrowDown,
+  X,
+  Plus,
+  ArrowLeftRight,
+  AlertTriangle,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+/* ════════════════════════════════════════════════════════════════
+   TYPES & CONSTANTS
+════════════════════════════════════════════════════════════════ */
+
+type TabId =
+  | "count"
+  | "case"
+  | "clean"
+  | "sort"
+  | "reverse"
+  | "diff"
+  | "replace"
+  | "slug"
+  | "struct"
+  | "pipeline";
+
+const TABS: { id: TabId; label: string }[] = [
+  { id: "count", label: "Analyze" },
+  { id: "case", label: "Case" },
+  { id: "clean", label: "Clean" },
+  { id: "sort", label: "Sort" },
+  { id: "reverse", label: "Reverse" },
+  { id: "diff", label: "Diff" },
+  { id: "replace", label: "Find & Replace" },
+  { id: "slug", label: "Slug" },
+  { id: "struct", label: "Data" },
+  { id: "pipeline", label: "Pipeline" },
+];
+
+function resolveTab(mode: string): TabId {
+  switch (mode) {
+    case "word-counter":
+    case "character-counter":
+    case "count":
+      return "count";
+    case "case-converter":
+    case "case":
+      return "case";
+    case "remove-duplicate-lines":
+    case "remove-empty-lines":
+    case "clean":
+      return "clean";
+    case "text-sorter":
+    case "sort":
+      return "sort";
+    case "text-reverser":
+    case "reverse":
+      return "reverse";
+    case "text-diff-checker":
+    case "diff":
+      return "diff";
+    case "find-and-replace":
+    case "replace":
+      return "replace";
+    case "slug-generator":
+    case "slug":
+      return "slug";
+    case "struct":
+    case "text-to-data":
+      return "struct";
+    case "pipeline":
+      return "pipeline";
+    default:
+      return "count";
+  }
+}
+
+const SAMPLES: Record<TabId, string> = {
+  count:
+    "Comparlify is an all-in-one platform intelligence engine and developer utility suite. It helps creators evaluate software options, analyze migration costs, and compute expected ROI across platforms like Teachable, Skool, Mighty Networks, and Kajabi.",
+  case: "the quick brown fox jumps over the lazy dog",
+  clean: "banana\nApple\ncherry\napple\n\n  banana  \nDate\n\ncherry",
+  sort: "banana\nApple\ncherry\n10\n2\ndate\n1,000",
+  reverse: "Hello world\nThis is a test",
+  diff: "",
+  replace:
+    "The cat sat on the mat. The catalog lists every cat breed.\nPrice: $5 each.",
+  slug: "10 Best Tools for Creators: The Complete Guide (2026)",
+  struct:
+    'name,age,city\nAisha,28,Lahore\nBilal,34,Karachi\n"Khan, Omar",41,Islamabad',
+  pipeline: "  banana  \nApple\n\ncherry\napple\nbanana\nDate",
+};
+
+const MAX_DIFF_CELLS = 9_000_000;
+const CJK_RE = /[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af\u0e00-\u0e7f]/;
+
+const STOP_WORDS = new Set([
+  "the",
+  "be",
+  "to",
+  "of",
+  "and",
+  "a",
+  "in",
+  "that",
+  "have",
+  "i",
+  "it",
+  "for",
+  "not",
+  "on",
+  "with",
+  "he",
+  "as",
+  "you",
+  "do",
+  "at",
+  "this",
+  "but",
+  "his",
+  "by",
+  "from",
+  "is",
+  "or",
+  "an",
+  "will",
+  "my",
+  "all",
+  "would",
+  "there",
+  "their",
+  "what",
+  "are",
+  "was",
+  "were",
+  "has",
+  "had",
+  "its",
+  "they",
+  "we",
+]);
+
+const SLUG_STOP_WORDS = new Set([
+  "a",
+  "an",
+  "and",
+  "are",
+  "as",
+  "at",
+  "be",
+  "but",
+  "by",
+  "for",
+  "if",
+  "in",
+  "into",
+  "is",
+  "it",
+  "no",
+  "not",
+  "of",
+  "on",
+  "or",
+  "such",
+  "that",
+  "the",
+  "their",
+  "then",
+  "there",
+  "these",
+  "they",
+  "this",
+  "to",
+  "was",
+  "will",
+  "with",
+]);
+
+/* ════════════════════════════════════════════════════════════════
+   PURE HELPERS
+════════════════════════════════════════════════════════════════ */
+
+const splitLines = (t: string) => t.split(/\r?\n/);
+
+/** Applies fn to the lines but keeps a trailing newline at the END (not the top). */
+function mapLines(text: string, fn: (lines: string[]) => string[]) {
+  const trailing = /\r?\n$/.test(text);
+  const body = trailing ? text.replace(/\r?\n$/, "") : text;
+  const out = fn(splitLines(body)).join("\n");
+  return trailing ? out + "\n" : out;
+}
+
+function countCodePoints(s: string) {
+  let n = 0;
+  for (const _ of s) n++;
+  return n;
+}
+
+/** Whitespace words; Intl.Segmenter for CJK/Thai where there are no spaces. */
+function tokenizeWords(raw: string): string[] {
+  const t = raw.trim();
+  if (!t) return [];
+  if (CJK_RE.test(t) && typeof Intl !== "undefined" && "Segmenter" in Intl) {
+    const seg = new (Intl as any).Segmenter(undefined, { granularity: "word" });
+    return Array.from(
+      seg.segment(t) as Iterable<{ segment: string; isWordLike?: boolean }>,
+    )
+      .filter((s) => s.isWordLike)
+      .map((s) => s.segment);
+  }
+  return t.split(/\s+/);
+}
+
+function splitSentences(raw: string): string[] {
+  const t = raw.trim();
+  if (!t) return [];
+  const m = t.match(/[^.!?。！？؟۔]+(?:[.!?。！？؟۔]+|$)/g);
+  return (m ?? [t]).map((s) => s.trim()).filter(Boolean);
+}
+
+function countSyllables(raw: string): number {
+  const w = raw.toLowerCase().replace(/[^a-z]/g, "");
+  if (!w) return 1;
+  if (w.length <= 3) return 1;
+  const stripped = w.replace(/(?:[^laeiouy]es|ed|e)$/, "").replace(/^y/, "");
+  const m = stripped.match(/[aeiouy]{1,2}/g);
+  return Math.max(1, m ? m.length : 1);
+}
+
+function formatDuration(words: number, wpm: number) {
+  const secs = Math.round((words / wpm) * 60);
+  if (secs < 60) return `${secs} sec`;
+  return `${Math.round(secs / 60)} min`;
+}
+
+function graphemes(s: string): string[] {
+  if (typeof Intl !== "undefined" && "Segmenter" in Intl) {
+    const seg = new (Intl as any).Segmenter(undefined, {
+      granularity: "grapheme",
+    });
+    return Array.from(
+      seg.segment(s) as Iterable<{ segment: string }>,
+      (x) => x.segment,
+    );
+  }
+  return Array.from(s);
+}
+
+/* ── Case ─────────────────────────────────────────────────────── */
+
+// Unicode-aware: keeps é, ü, Cyrillic, Arabic/Urdu, Devanagari, CJK intact.
+const WORD_RE =
+  /\p{Lu}{2,}(?=\p{Lu}\p{Ll}|(?!\p{L}))|\p{Lu}?\p{Ll}+\p{N}*|\p{Lu}+|[\p{Lo}\p{M}]+|\p{N}+/gu;
+
+const cap = (w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+
+function convertCase(text: string, mode: string): string {
+  const perLine = (join: (w: string[]) => string) =>
+    mapLines(text, (lines) =>
+      lines.map((l) => join(l.normalize("NFC").match(WORD_RE) ?? [])),
+    );
+
+  switch (mode) {
+    case "camel":
+      return perLine((w) =>
+        w.map((x, i) => (i === 0 ? x.toLowerCase() : cap(x))).join(""),
+      );
+    case "pascal":
+      return perLine((w) => w.map(cap).join(""));
+    case "snake":
+      return perLine((w) => w.map((x) => x.toLowerCase()).join("_"));
+    case "kebab":
+      return perLine((w) => w.map((x) => x.toLowerCase()).join("-"));
+    case "constant":
+      return perLine((w) => w.map((x) => x.toUpperCase()).join("_"));
+    case "dot":
+      return perLine((w) => w.map((x) => x.toLowerCase()).join("."));
+    case "path":
+      return perLine((w) => w.map((x) => x.toLowerCase()).join("/"));
+    case "upper":
+      return text.toUpperCase();
+    case "lower":
+      return text.toLowerCase();
+    case "swap":
+      return Array.from(text, (c) =>
+        c === c.toUpperCase() ? c.toLowerCase() : c.toUpperCase(),
+      ).join("");
+    case "title":
+      return text
+        .toLowerCase()
+        .replace(/(^|[\s\-("“[])(\p{L})/gu, (_, p, c) => p + c.toUpperCase());
+    case "sentence":
+      return text
+        .toLowerCase()
+        .replace(
+          /(^|[.!?]\s+|\n\s*)(\p{Ll})/gu,
+          (_, p, c) => p + c.toUpperCase(),
+        );
+    default:
+      return text;
+  }
+}
+
+/* ── Clean / sort / reverse ───────────────────────────────────── */
+
+function dedupeLines(
+  lines: string[],
+  caseSensitive: boolean,
+  ignoreOuterSpace: boolean,
+) {
+  const seen = new Set<string>();
+  return lines.filter((line) => {
+    if (line.trim() === "") return true; // blank lines aren't "duplicates"
+    let key = ignoreOuterSpace ? line.trim() : line;
+    if (!caseSensitive) key = key.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+type SortMode = "alpha" | "numeric" | "length" | "natural";
+
+function sortLines(text: string, mode: SortMode, order: "asc" | "desc") {
+  const dir = order === "asc" ? 1 : -1;
+  const num = (s: string) => parseFloat(s.trim().replace(/,/g, ""));
+  return mapLines(text, (lines) =>
+    [...lines].sort((a, b) => {
+      if (mode === "numeric") {
+        const na = num(a);
+        const nb = num(b);
+        const aN = Number.isNaN(na);
+        const bN = Number.isNaN(nb);
+        if (aN && bN) return a.localeCompare(b);
+        if (aN) return 1; // non-numbers always go last
+        if (bN) return -1;
+        return (na - nb) * dir;
+      }
+      if (mode === "length")
+        return (a.length - b.length) * dir || a.localeCompare(b);
+      if (mode === "natural")
+        return (
+          a.localeCompare(b, undefined, {
+            numeric: true,
+            sensitivity: "base",
+          }) * dir
+        );
+      return a.localeCompare(b) * dir;
+    }),
+  );
+}
+
+type ReverseMode = "chars" | "each" | "words" | "lines";
+
+function reverseText(text: string, mode: ReverseMode) {
+  if (mode === "chars") return graphemes(text).reverse().join("");
+  if (mode === "lines") return mapLines(text, (l) => [...l].reverse());
+  if (mode === "each")
+    return mapLines(text, (l) => l.map((x) => graphemes(x).reverse().join("")));
+  // words: reverse word order inside each line, keep spacing and line structure
+  return mapLines(text, (lines) =>
+    lines.map((line) => {
+      const m = line.match(/^(\s*)([\s\S]*?)(\s*)$/)!;
+      const parts = m[2].split(/(\s+)/);
+      const words = parts.filter((_, i) => i % 2 === 0).reverse();
+      return (
+        m[1] +
+        parts.map((p, i) => (i % 2 === 0 ? words[i / 2] : p)).join("") +
+        m[3]
+      );
+    }),
+  );
+}
+
+/* ── Find & replace ───────────────────────────────────────────── */
+
+function buildRegex(
+  search: string,
+  o: { matchCase: boolean; useRegex: boolean; wholeWord: boolean },
+) {
+  const base = o.useRegex
+    ? search
+    : search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const flags = "g" + (o.matchCase ? "" : "i") + (o.useRegex ? "m" : "");
+  if (o.wholeWord) {
+    try {
+      return new RegExp(
+        `(?<![\\p{L}\\p{N}_])(?:${base})(?![\\p{L}\\p{N}_])`,
+        flags + "u",
+      );
+    } catch {
+      return new RegExp(`\\b(?:${base})\\b`, flags);
+    }
+  }
+  return new RegExp(base, flags);
+}
+
+/* ── Slug ─────────────────────────────────────────────────────── */
+
+interface SlugOptions {
+  sep: string;
+  lowercase: boolean;
+  stopWords: boolean;
+  maxLength: number;
+  keepUnicode: boolean;
+}
+
+function slugify(input: string, o: SlugOptions): string {
+  let s = input.normalize("NFC");
+  if (o.lowercase) s = s.toLowerCase();
+  if (o.keepUnicode) {
+    s = s.replace(/[^\p{L}\p{M}\p{N}\s_-]/gu, "");
+  } else {
+    s = s
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9\s_-]/g, "");
+  }
+  let tokens = s.split(/[\s_-]+/).filter(Boolean);
+  if (o.stopWords) {
+    const kept = tokens.filter((t) => !SLUG_STOP_WORDS.has(t.toLowerCase()));
+    if (kept.length > 0) tokens = kept; // never strip everything
+  }
+  let out = tokens.join(o.sep);
+  const max = Math.max(1, o.maxLength);
+  if (out.length > max) {
+    out = out.slice(0, max);
+    if (o.sep) {
+      const cut = out.lastIndexOf(o.sep);
+      // cut back to a whole word when that doesn't throw everything away
+      if (cut > 0 && tokens.join(o.sep).charAt(max) !== o.sep)
+        out = out.slice(0, cut);
+      while (o.sep && out.endsWith(o.sep)) out = out.slice(0, -o.sep.length);
+    }
+  }
+  return out;
+}
+
+/* ── Diff ─────────────────────────────────────────────────────── */
+
+interface DiffOp<T> {
+  type: "same" | "added" | "removed";
+  value: T;
+}
+
+function diffSeq<T>(
+  a: T[],
+  b: T[],
+  key: (x: T) => string,
+): { ops: DiffOp<T>[]; tooLarge: boolean } {
+  const ka = a.map(key);
+  const kb = b.map(key);
+
+  // Trim common head/tail first: cheap, and shrinks the expensive part a lot.
+  let p = 0;
+  while (p < ka.length && p < kb.length && ka[p] === kb[p]) p++;
+  let sa = ka.length;
+  let sb = kb.length;
+  while (sa > p && sb > p && ka[sa - 1] === kb[sb - 1]) {
+    sa--;
+    sb--;
+  }
+
+  const head: DiffOp<T>[] = [];
+  for (let i = 0; i < p; i++) head.push({ type: "same", value: b[i] });
+  const tail: DiffOp<T>[] = [];
+  for (let i = sa; i < ka.length; i++)
+    tail.push({ type: "same", value: b[sb + (i - sa)] });
+
+  const ma = a.slice(p, sa);
+  const mb = b.slice(p, sb);
+  const xa = ka.slice(p, sa);
+  const xb = kb.slice(p, sb);
+  const n = ma.length;
+  const m = mb.length;
+
+  if ((n + 1) * (m + 1) > MAX_DIFF_CELLS) {
+    return {
+      ops: [
+        ...head,
+        ...ma.map((v): DiffOp<T> => ({ type: "removed", value: v })),
+        ...mb.map((v): DiffOp<T> => ({ type: "added", value: v })),
+        ...tail,
+      ],
+      tooLarge: true,
+    };
+  }
+
+  const W = m + 1;
+  const dp = new Uint32Array((n + 1) * W);
+  for (let i = 1; i <= n; i++) {
+    for (let j = 1; j <= m; j++) {
+      dp[i * W + j] =
+        xa[i - 1] === xb[j - 1]
+          ? dp[(i - 1) * W + j - 1] + 1
+          : Math.max(dp[(i - 1) * W + j], dp[i * W + j - 1]);
+    }
+  }
+
+  const mid: DiffOp<T>[] = [];
+  let i = n;
+  let j = m;
+  while (i > 0 || j > 0) {
+    if (i > 0 && j > 0 && xa[i - 1] === xb[j - 1]) {
+      mid.push({ type: "same", value: mb[j - 1] });
+      i--;
+      j--;
+    } else if (j > 0 && (i === 0 || dp[i * W + j - 1] >= dp[(i - 1) * W + j])) {
+      mid.push({ type: "added", value: mb[j - 1] });
+      j--;
+    } else {
+      mid.push({ type: "removed", value: ma[i - 1] });
+      i--;
+    }
+  }
+  mid.reverse();
+  return { ops: [...head, ...mid, ...tail], tooLarge: false };
+}
+
+/* ── Structured data ──────────────────────────────────────────── */
+
+type StructFormat = "json" | "csv" | "markdown" | "sql";
+type Dialect = "mysql" | "ansi";
+
+function parseDelimited(input: string, delim: string): string[][] {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let cell = "";
+  let inQuotes = false;
+  for (let i = 0; i < input.length; i++) {
+    const c = input[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (input[i + 1] === '"') {
+          cell += '"';
+          i++;
+        } else inQuotes = false;
+      } else cell += c;
+    } else if (c === '"' && cell.trim() === "") {
+      cell = "";
+      inQuotes = true;
+    } else if (c === delim) {
+      row.push(cell.trim());
+      cell = "";
+    } else if (c === "\n" || c === "\r") {
+      if (c === "\r" && input[i + 1] === "\n") i++;
+      row.push(cell.trim());
+      rows.push(row);
+      row = [];
+      cell = "";
+    } else cell += c;
+  }
+  if (cell !== "" || row.length > 0) {
+    row.push(cell.trim());
+    rows.push(row);
+  }
+  return rows.filter((r) => !(r.length === 1 && r[0] === ""));
+}
+
+const NUM_RE = /^-?(?:0|[1-9]\d*)(?:\.\d+)?$/;
+const isSafeNumber = (v: string) =>
+  NUM_RE.test(v) && v.replace(/[-.]/g, "").length <= 15;
+
+function inferValue(v: string): string | number | boolean {
+  if (isSafeNumber(v)) return Number(v);
+  if (v === "true") return true;
+  if (v === "false") return false;
+  return v;
+}
+
+function buildStructured(
+  rows: string[][],
+  fmt: StructFormat,
+  o: {
+    hasHeader: boolean;
+    inferTypes: boolean;
+    tableName: string;
+    dialect: Dialect;
+  },
+): string {
+  if (rows.length === 0) return "";
+  const cols = Math.max(...rows.map((r) => r.length));
+
+  // headers: fill blanks, make duplicates unique
+  const used = new Map<string, number>();
+  const headers = Array.from({ length: cols }, (_, i) => {
+    const raw = o.hasHeader ? (rows[0][i] ?? "").trim() : "";
+    const base = raw || `col_${i + 1}`;
+    const n = used.get(base) ?? 0;
+    used.set(base, n + 1);
+    return n === 0 ? base : `${base}_${n + 1}`;
+  });
+  const body = o.hasHeader ? rows.slice(1) : rows;
+  const cell = (r: string[], i: number) => r[i] ?? "";
+
+  if (fmt === "json") {
+    if (!o.hasHeader)
+      return JSON.stringify(
+        body.map((r) =>
+          headers.map((_, i) =>
+            o.inferTypes ? inferValue(cell(r, i)) : cell(r, i),
+          ),
+        ),
+        null,
+        2,
+      );
+    return JSON.stringify(
+      body.map((r) => {
+        const obj: Record<string, string | number | boolean> = {};
+        headers.forEach((h, i) => {
+          obj[h] = o.inferTypes ? inferValue(cell(r, i)) : cell(r, i);
+        });
+        return obj;
+      }),
+      null,
+      2,
+    );
+  }
+
+  if (fmt === "markdown") {
+    const esc = (c: string) =>
+      c.replace(/\|/g, "\\|").replace(/\r?\n/g, "<br>");
+    const line = (cells: string[]) => `| ${cells.map(esc).join(" | ")} |`;
+    return [
+      line(headers),
+      `| ${headers.map(() => "---").join(" | ")} |`,
+      ...body.map((r) => line(headers.map((_, i) => cell(r, i)))),
+    ].join("\n");
+  }
+
+  if (fmt === "sql") {
+    const q = (id: string) => (o.dialect === "mysql" ? `\`${id}\`` : `"${id}"`);
+    const ident = (s: string, fallback: string) =>
+      s
+        .trim()
+        .replace(/[^\p{L}\p{N}_]+/gu, "_")
+        .replace(/^_+|_+$/g, "") || fallback;
+    const table = ident(o.tableName, "table_name");
+    const colNames = headers.map((h, i) => q(ident(h, `col_${i + 1}`)));
+    const val = (v: string) => {
+      if (v === "") return "NULL";
+      if (isSafeNumber(v)) return v;
+      let s = v.replace(/'/g, "''");
+      if (o.dialect === "mysql") s = s.replace(/\\/g, "\\\\");
+      return `'${s}'`;
+    };
+    if (body.length === 0) return "";
+    const values = body
+      .map((r) => `(${headers.map((_, i) => val(cell(r, i))).join(", ")})`)
+      .join(",\n  ");
+    return `INSERT INTO ${q(table)} (${colNames.join(", ")})\nVALUES\n  ${values};`;
+  }
+
+  // csv (normalized to comma, quoting only when needed)
+  const csvCell = (c: string) =>
+    /[",\n\r]/.test(c) ? `"${c.replace(/"/g, '""')}"` : c;
+  const all = o.hasHeader ? [headers, ...body] : body;
+  return all
+    .map((r) => headers.map((_, i) => csvCell(cell(r, i))).join(","))
+    .join("\n");
+}
+
+/* ── Pipeline ─────────────────────────────────────────────────── */
+
+const PIPELINE_STEPS: Record<
+  string,
+  { label: string; run: (t: string) => string }
+> = {
+  trim: {
+    label: "Trim lines",
+    run: (t) => mapLines(t, (l) => l.map((x) => x.trim())),
+  },
+  collapse: {
+    label: "Collapse spaces",
+    run: (t) => mapLines(t, (l) => l.map((x) => x.replace(/[ \t]+/g, " "))),
+  },
+  empty: {
+    label: "Remove empty lines",
+    run: (t) => mapLines(t, (l) => l.filter((x) => x.trim() !== "")),
+  },
+  dedupe: {
+    label: "Remove duplicates",
+    run: (t) => mapLines(t, (l) => dedupeLines(l, false, true)),
+  },
+  sortAsc: { label: "Sort A→Z", run: (t) => sortLines(t, "natural", "asc") },
+  sortDesc: { label: "Sort Z→A", run: (t) => sortLines(t, "natural", "desc") },
+  reverse: { label: "Reverse line order", run: (t) => reverseText(t, "lines") },
+  lower: { label: "lowercase", run: (t) => t.toLowerCase() },
+  upper: { label: "UPPERCASE", run: (t) => t.toUpperCase() },
+  slug: {
+    label: "Slugify each line",
+    run: (t) =>
+      mapLines(t, (l) =>
+        l.map((x) =>
+          slugify(x, {
+            sep: "-",
+            lowercase: true,
+            stopWords: false,
+            maxLength: 200,
+            keepUnicode: false,
+          }),
+        ),
+      ),
+  },
+};
+
+/* ════════════════════════════════════════════════════════════════
+   COMPONENT
+════════════════════════════════════════════════════════════════ */
 
 interface TextWorkspaceProps {
   defaultMode?: string;
 }
 
+const card =
+  "bg-card/60 backdrop-blur-xl border border-border/40 rounded-2xl shadow-xl";
+const smallLabel =
+  "text-[10px] font-black uppercase tracking-widest text-muted-foreground block";
+const chipBtn = (on: boolean) =>
+  `py-1 px-2 rounded text-[10px] font-bold uppercase transition-all ${
+    on
+      ? "bg-primary text-primary-foreground"
+      : "bg-secondary/50 text-muted-foreground hover:text-foreground"
+  }`;
+const primaryBtn =
+  "px-3.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-black uppercase tracking-wider shadow-md active:scale-95 transition-all disabled:opacity-50";
+const secondaryBtn =
+  "px-3.5 py-1.5 rounded-lg bg-secondary hover:bg-secondary/80 text-foreground text-xs font-bold border border-border/30 active:scale-95 transition-all disabled:opacity-50";
+const textInput =
+  "h-8 px-2.5 bg-background/50 border border-border/30 rounded-lg text-xs font-mono text-foreground w-full";
+
 export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
   const { toast } = useToast();
 
-  // Mode mapping helper from tool slug
-  const resolvedTab = useMemo(() => {
-    switch (defaultMode) {
-      case "word-counter":
-      case "character-counter":
-      case "count":
-        return "count";
-      case "case-converter":
-      case "case":
-        return "case";
-      case "remove-duplicate-lines":
-      case "remove-empty-lines":
-      case "clean":
-        return "clean";
-      case "text-sorter":
-      case "text-reverser":
-      case "sort":
-        return "sort";
-      case "text-diff-checker":
-      case "diff":
-        return "diff";
-      case "find-and-replace":
-      case "replace":
-        return "replace";
-      case "slug-generator":
-      case "slug":
-        return "slug";
-      default:
-        return "count";
-    }
+  const [activeTab, setActiveTab] = useState<TabId>(resolveTab(defaultMode));
+  useEffect(() => {
+    setActiveTab(resolveTab(defaultMode));
   }, [defaultMode]);
 
-  const [activeTab, setActiveTab] = useState<string>(resolvedTab);
-  useEffect(() => {
-    setActiveTab(resolvedTab);
-  }, [resolvedTab]);
+  const [text, setText] = useState("");
+  const [history, setHistory] = useState<string[]>([]);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
-  // Main text buffer
-  const [text, setText] = useState<string>("");
-  const [copied, setCopied] = useState<boolean>(false);
+  // Diff
+  const [originalText, setOriginalText] = useState("");
+  const [modifiedText, setModifiedText] = useState("");
+  const [diffMode, setDiffMode] = useState<"line" | "word">("line");
+  const [diffIgnoreWS, setDiffIgnoreWS] = useState(false);
+  const [diffIgnoreCase, setDiffIgnoreCase] = useState(false);
 
-  // --- Diff Checker States ---
-  const [originalText, setOriginalText] = useState<string>("");
-  const [modifiedText, setModifiedText] = useState<string>("");
+  // Replace
+  const [searchTerm, setSearchTerm] = useState("");
+  const [replaceTerm, setReplaceTerm] = useState("");
+  const [matchCase, setMatchCase] = useState(false);
+  const [useRegex, setUseRegex] = useState(false);
+  const [wholeWord, setWholeWord] = useState(false);
 
-  // --- Find & Replace States ---
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [replaceTerm, setReplaceTerm] = useState<string>("");
-  const [matchCase, setMatchCase] = useState<boolean>(false);
-  const [useRegex, setUseRegex] = useState<boolean>(false);
-  const [wholeWord, setWholeWord] = useState<boolean>(false);
+  // Slug
+  const [slugSep, setSlugSep] = useState("-");
+  const [slugStop, setSlugStop] = useState(true);
+  const [slugLower, setSlugLower] = useState(true);
+  const [slugMax, setSlugMax] = useState(80);
+  const [slugUnicode, setSlugUnicode] = useState(false);
 
-  // --- Slug Generator States ---
-  const [slugSeparator, setSlugSeparator] = useState<string>("-");
-  const [slugRemoveStopWords, setSlugRemoveStopWords] = useState<boolean>(true);
-  const [slugLowercase, setSlugLowercase] = useState<boolean>(true);
-  const [slugMaxLength, setSlugMaxLength] = useState<number>(80);
-
-  // --- Clean & Deduplicate States ---
-  const [caseSensitiveDedupe, setCaseSensitiveDedupe] = useState<boolean>(false);
-
-  // --- Sort & Reverse States ---
-  const [sortMode, setSortMode] = useState<"alpha" | "numeric" | "length" | "natural">("alpha");
+  // Clean / sort / reverse
+  const [dedupeCase, setDedupeCase] = useState(false);
+  const [dedupeTrim, setDedupeTrim] = useState(true);
+  const [sortMode, setSortMode] = useState<SortMode>("alpha");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [reverseMode, setReverseMode] = useState<"chars" | "words" | "lines">("chars");
+  const [reverseMode, setReverseMode] = useState<ReverseMode>("chars");
 
-  // --- Text to Structured Data State ---
-  const [structFormat, setStructFormat] = useState<"json" | "csv" | "markdown" | "sql">("json");
-  const [structDelimiter, setStructSeparator] = useState<string>(",");
+  // Data
+  const [structFormat, setStructFormat] = useState<StructFormat>("json");
+  const [structDelim, setStructDelim] = useState(",");
+  const [hasHeader, setHasHeader] = useState(true);
+  const [inferTypes, setInferTypes] = useState(true);
+  const [tableName, setTableName] = useState("my_table");
+  const [dialect, setDialect] = useState<Dialect>("mysql");
 
-  // --- Pipeline Mode Chainer States ---
-  const [pipelineChain, setPipelineChain] = useState<string[]>(["trim", "empty", "dedupe", "slug"]);
+  // Pipeline
+  const [chain, setChain] = useState<string[]>([
+    "trim",
+    "empty",
+    "dedupe",
+    "sortAsc",
+  ]);
 
-  // --- Syllable Counter Helper for Flesch Score ---
-  const countSyllables = (word: string): number => {
-    word = word.toLowerCase().trim();
-    if (word.length <= 3) return 1;
-    word = word.replace(/(?:[^laeiouy]es|ed|e)$/, "");
-    word = word.replace(/^y/, "");
-    const matches = word.match(/[aeiouy]{1,2}/g);
-    return matches ? matches.length : 1;
-  };
+  // Heavy work runs on a deferred copy so typing stays instant.
+  const dText = useDeferredValue(text);
+  const dOrig = useDeferredValue(originalText);
+  const dMod = useDeferredValue(modifiedText);
 
-  // --- Live Metrics Analysis ---
-  const stats = useMemo(() => {
-    const raw = text;
-    const charsTotal = raw.length;
-    const charsNoSpaces = raw.replace(/\s/g, "").length;
-    const wordsList = raw.trim() ? raw.trim().split(/\s+/).filter(Boolean) : [];
-    const words = wordsList.length;
-    const lines = raw ? raw.split("\n").length : 0;
-    const sentencesList = raw.trim() ? raw.match(/[^.!?]+[.!?]+/g) || [raw] : [];
-    const sentences = sentencesList.length || 1;
-    const paragraphs = raw.trim() ? raw.split(/\n\s*\n/).filter(Boolean).length : 0;
+  /* ── history ─────────────────────────────────────────────────── */
 
-    // Time calculations
-    const readTimeMinutes = Math.ceil(words / 200);
-    const speakTimeMinutes = Math.ceil(words / 130);
-
-    // Sentence metrics
-    const longestSentenceWords = sentencesList.reduce((max, s) => {
-      const cnt = s.trim().split(/\s+/).filter(Boolean).length;
-      return Math.max(max, cnt);
-    }, 0);
-    const avgSentenceWords = sentences > 0 ? (words / sentences).toFixed(1) : "0";
-
-    // Flesch Reading Ease Calculation
-    let totalSyllables = 0;
-    wordsList.forEach(w => { totalSyllables += countSyllables(w); });
-    let fleschScore = 100;
-    let fleschGrade = "Easy / Standard";
-    if (words > 0 && sentences > 0) {
-      fleschScore = Math.round(206.835 - 1.015 * (words / sentences) - 84.6 * (totalSyllables / words));
-      fleschScore = Math.max(0, Math.min(100, fleschScore));
-      if (fleschScore >= 80) fleschGrade = "Very Easy";
-      else if (fleschScore >= 60) fleschGrade = "Standard / Moderate";
-      else if (fleschScore >= 40) fleschGrade = "Difficult / Academic";
-      else fleschGrade = "Very Complex";
+  const commit = (next: string, title: string, description: string) => {
+    if (next === text) {
+      toast({
+        title: "No changes",
+        description: "The text already matches this result.",
+      });
+      return;
     }
-
-    // Keyword Density Top 5
-    const freqMap: Record<string, number> = {};
-    const stopWords = new Set(["the", "be", "to", "of", "and", "a", "in", "that", "have", "i", "it", "for", "not", "on", "with", "he", "as", "you", "do", "at", "this", "but", "his", "by", "from", "is", "or", "an", "will", "my", "all", "would", "there", "their", "what"]);
-    wordsList.forEach(w => {
-      const clean = w.toLowerCase().replace(/[^a-z0-9]/g, "");
-      if (clean.length >= 3 && !stopWords.has(clean)) {
-        freqMap[clean] = (freqMap[clean] || 0) + 1;
-      }
-    });
-
-    const topKeywords = Object.entries(freqMap)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
-      .map(([kw, count]) => ({
-        word: kw,
-        count,
-        pct: words > 0 ? ((count / words) * 100).toFixed(1) : "0"
-      }));
-
-    return {
-      words,
-      charsTotal,
-      charsNoSpaces,
-      lines,
-      sentences,
-      paragraphs,
-      readTimeMinutes: words > 0 ? `${readTimeMinutes} min` : "0 min",
-      speakTimeMinutes: words > 0 ? `${speakTimeMinutes} min` : "0 min",
-      longestSentenceWords,
-      avgSentenceWords,
-      fleschScore,
-      fleschGrade,
-      topKeywords
-    };
-  }, [text]);
-
-  // Copy helper
-  const handleCopy = (strToCopy?: string) => {
-    const content = strToCopy ?? text;
-    if (!content) return;
-    navigator.clipboard.writeText(content);
-    setCopied(true);
-    toast({ title: "Copied!", description: "Text copied to your clipboard." });
-    setTimeout(() => setCopied(false), 2000);
+    setHistory((h) => [...h.slice(-19), text]);
+    setText(next);
+    toast({ title, description });
   };
 
-  // Download helper
-  const handleDownload = (contentStr?: string, filename = "text_output_comparlify.txt") => {
-    const content = contentStr ?? text;
+  const undo = () => {
+    if (history.length === 0) return;
+    setText(history[history.length - 1]);
+    setHistory(history.slice(0, -1));
+  };
+
+  /* ── clipboard / download ────────────────────────────────────── */
+
+  const copyValue = async (value: string, key: string) => {
+    if (!value) return;
+    try {
+      await navigator.clipboard.writeText(value);
+    } catch {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = value;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        if (!ok) throw new Error("copy failed");
+      } catch {
+        toast({
+          variant: "destructive",
+          title: "Copy failed",
+          description: "Your browser blocked clipboard access.",
+        });
+        return;
+      }
+    }
+    setCopiedKey(key);
+    toast({ title: "Copied!", description: "Copied to your clipboard." });
+    setTimeout(() => setCopiedKey((k) => (k === key ? null : k)), 2000);
+  };
+
+  const downloadValue = (content: string, filename: string) => {
     if (!content) return;
     const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 10_000);
   };
 
-  // --- Case Converters ---
-  const applyCasing = (mode: string) => {
-    if (!text) return;
-    let result = text;
-    const words = text.match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]+|[0-9]+/g) || [text];
+  /* ── stats ───────────────────────────────────────────────────── */
 
-    switch (mode) {
-      case "camel":
-        result = words.map((w, i) => (i === 0 ? w.toLowerCase() : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())).join("");
-        break;
-      case "pascal":
-        result = words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join("");
-        break;
-      case "snake":
-        result = words.map(w => w.toLowerCase()).join("_");
-        break;
-      case "kebab":
-        result = words.map(w => w.toLowerCase()).join("-");
-        break;
-      case "constant":
-        result = words.map(w => w.toUpperCase()).join("_");
-        break;
-      case "title":
-        result = text.toLowerCase().replace(/(?:^|\s|-)\S/g, m => m.toUpperCase());
-        break;
-      case "sentence":
-        result = text.toLowerCase().replace(/(^\s*|[.!?]\s*)([a-z])/g, (_, p1, p2) => p1 + p2.toUpperCase());
-        break;
-      case "dot":
-        result = words.map(w => w.toLowerCase()).join(".");
-        break;
-      case "path":
-        result = words.map(w => w.toLowerCase()).join("/");
-        break;
+  const wordsList = useMemo(() => tokenizeWords(dText), [dText]);
+
+  const basic = useMemo(() => {
+    const words = wordsList.length;
+    const sentences = splitSentences(dText).length;
+    return {
+      words,
+      chars: countCodePoints(dText),
+      charsNoSpaces: countCodePoints(dText.replace(/\s/g, "")),
+      lines: dText ? splitLines(dText).length : 0,
+      sentences,
+      paragraphs: dText.trim()
+        ? dText.split(/\n\s*\n/).filter((s) => s.trim()).length
+        : 0,
+      readTime: formatDuration(words, 200),
+      speakTime: formatDuration(words, 130),
+    };
+  }, [dText, wordsList]);
+
+  const analysis = useMemo(() => {
+    if (activeTab !== "count") return null;
+    const sentenceList = splitSentences(dText);
+    const words = wordsList.length;
+    const sentences = sentenceList.length;
+
+    const latinWords = wordsList.filter((w) => /[a-z]/i.test(w)).length;
+    const isEnglishLike = words > 0 && latinWords / words >= 0.7;
+
+    let flesch: number | null = null;
+    let grade = "";
+    if (isEnglishLike && sentences > 0) {
+      const syll = wordsList.reduce((s, w) => s + countSyllables(w), 0);
+      flesch = Math.round(
+        206.835 - 1.015 * (words / sentences) - 84.6 * (syll / words),
+      );
+      flesch = Math.max(0, Math.min(100, flesch));
+      grade =
+        flesch >= 80
+          ? "Very easy"
+          : flesch >= 60
+            ? "Standard"
+            : flesch >= 40
+              ? "Difficult"
+              : "Very complex";
     }
-    setText(result);
-    toast({ title: "Casing Transformed", description: `Applied ${mode.toUpperCase()} case.` });
-  };
 
-  // --- Clean Operations ---
-  const removeDuplicates = () => {
-    const lines = text.split("\n");
-    const seen = new Set<string>();
-    const result: string[] = [];
+    const longest = sentenceList.reduce(
+      (max, s) => Math.max(max, s.split(/\s+/).filter(Boolean).length),
+      0,
+    );
 
-    lines.forEach(line => {
-      const key = caseSensitiveDedupe ? line : line.toLowerCase();
-      if (!seen.has(key)) {
-        seen.add(key);
-        result.push(line);
-      }
+    const freq: Record<string, number> = {};
+    wordsList.forEach((w) => {
+      const clean = w.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+      if (clean.length >= 3 && !STOP_WORDS.has(clean))
+        freq[clean] = (freq[clean] || 0) + 1;
     });
+    const keywords = Object.entries(freq)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([word, count]) => ({
+        word,
+        count,
+        pct: words > 0 ? ((count / words) * 100).toFixed(1) : "0",
+      }));
 
-    setText(result.join("\n"));
-    toast({ title: "Duplicates Removed", description: `Cleaned ${lines.length - result.length} duplicate lines.` });
-  };
+    return {
+      flesch,
+      grade,
+      isEnglishLike,
+      longest,
+      avg: sentences > 0 ? (words / sentences).toFixed(1) : "0",
+      keywords,
+    };
+  }, [activeTab, dText, wordsList]);
 
-  const removeEmptyLines = () => {
-    const lines = text.split("\n").filter(l => l.trim().length > 0);
-    setText(lines.join("\n"));
-    toast({ title: "Empty Lines Stripped", description: "All blank lines removed." });
-  };
+  /* ── derived outputs ─────────────────────────────────────────── */
 
-  // --- Sort Operations ---
-  const runSort = () => {
-    let lines = text.split("\n");
-    lines.sort((a, b) => {
-      if (sortMode === "numeric") {
-        const numA = parseFloat(a) || 0;
-        const numB = parseFloat(b) || 0;
-        return sortOrder === "asc" ? numA - numB : numB - numA;
-      } else if (sortMode === "length") {
-        return sortOrder === "asc" ? a.length - b.length : b.length - a.length;
-      } else if (sortMode === "natural") {
-        return sortOrder === "asc" ? a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }) : b.localeCompare(a, undefined, { numeric: true, sensitivity: "base" });
-      } else {
-        return sortOrder === "asc" ? a.localeCompare(b) : b.localeCompare(a);
-      }
+  const slugOutput = useMemo(() => {
+    if (activeTab !== "slug" || !dText.trim()) return "";
+    const opts: SlugOptions = {
+      sep: slugSep,
+      lowercase: slugLower,
+      stopWords: slugStop,
+      maxLength: slugMax,
+      keepUnicode: slugUnicode,
+    };
+    return splitLines(dText)
+      .filter((l) => l.trim())
+      .map((l) => slugify(l, opts))
+      .join("\n");
+  }, [activeTab, dText, slugSep, slugLower, slugStop, slugMax, slugUnicode]);
+
+  const structOutput = useMemo(() => {
+    if (activeTab !== "struct" || !dText.trim()) return "";
+    return buildStructured(parseDelimited(dText, structDelim), structFormat, {
+      hasHeader,
+      inferTypes,
+      tableName,
+      dialect,
     });
-    setText(lines.join("\n"));
-    toast({ title: "Lines Sorted", description: `Sorted ${lines.length} lines (${sortMode.toUpperCase()}).` });
-  };
+  }, [
+    activeTab,
+    dText,
+    structDelim,
+    structFormat,
+    hasHeader,
+    inferTypes,
+    tableName,
+    dialect,
+  ]);
 
-  const runReverse = () => {
-    if (reverseMode === "chars") {
-      setText(text.split("").reverse().join(""));
-    } else if (reverseMode === "words") {
-      setText(text.split(" ").reverse().join(" "));
-    } else {
-      setText(text.split("\n").reverse().join("\n"));
-    }
-    toast({ title: "Text Reversed", description: `Reversed text by ${reverseMode}.` });
-  };
-
-  // --- Find & Replace Execution ---
-  const runReplace = () => {
-    if (!searchTerm) return;
+  const matchInfo = useMemo(() => {
+    if (activeTab !== "replace" || !searchTerm)
+      return { count: 0, error: null as string | null };
     try {
-      let flags = "g";
-      if (!matchCase) flags += "i";
-
-      let pattern = searchTerm;
-      if (!useRegex) {
-        pattern = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const re = buildRegex(searchTerm, { matchCase, useRegex, wholeWord });
+      let count = 0;
+      for (const _ of dText.matchAll(re)) {
+        count++;
+        if (count >= 100000) break;
       }
-      if (wholeWord) {
-        pattern = `\\b${pattern}\\b`;
-      }
-
-      const regex = new RegExp(pattern, flags);
-      const newText = text.replace(regex, replaceTerm);
-      setText(newText);
-      toast({ title: "Replacement Complete", description: "Search & replace executed." });
-    } catch (e) {
-      toast({ variant: "destructive", title: "Regex Syntax Error", description: "Invalid Regular Expression pattern." });
+      return { count, error: null as string | null };
+    } catch (e: any) {
+      return { count: 0, error: e?.message ?? "Invalid pattern" };
     }
-  };
+  }, [activeTab, dText, searchTerm, matchCase, useRegex, wholeWord]);
 
-  // --- Slug Generator ---
-  const generatedSlug = useMemo(() => {
-    if (!text) return "";
-    let str = text;
-    if (slugLowercase) str = str.toLowerCase();
-
-    if (slugRemoveStopWords) {
-      const stopWords = ["a", "an", "and", "are", "as", "at", "be", "but", "by", "for", "if", "in", "into", "is", "it", "no", "not", "of", "on", "or", "such", "that", "the", "their", "then", "there", "these", "they", "this", "to", "was", "will", "with"];
-      const re = new RegExp(`\\b(${stopWords.join("|")})\\b`, "gi");
-      str = str.replace(re, "");
-    }
-
-    str = str
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9\s-]/gi, "")
-      .trim()
-      .replace(/\s+/g, slugSeparator)
-      .replace(new RegExp(`\\${slugSeparator}+`, "g"), slugSeparator);
-
-    return str.substring(0, slugMaxLength);
-  }, [text, slugSeparator, slugRemoveStopWords, slugLowercase, slugMaxLength]);
-
-  // --- Text to Structured Data Converter ---
-  const structuredDataOutput = useMemo(() => {
-    if (!text.trim()) return "";
-    const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
-    if (lines.length === 0) return "";
-
-    const rows = lines.map(line => line.split(structDelimiter).map(cell => cell.trim()));
-
-    if (structFormat === "json") {
-      if (rows.length > 1) {
-        const headers = rows[0];
-        const jsonList = rows.slice(1).map(r => {
-          const obj: Record<string, string> = {};
-          headers.forEach((h, i) => {
-            obj[h || `col_${i + 1}`] = r[i] || "";
-          });
-          return obj;
-        });
-        return JSON.stringify(jsonList, null, 2);
-      }
-      return JSON.stringify(rows.map(r => r[0]), null, 2);
-    } else if (structFormat === "markdown") {
-      if (rows.length === 0) return "";
-      const headers = rows[0];
-      const sep = headers.map(() => "---").join(" | ");
-      const body = rows.slice(1).map(r => r.join(" | ")).join("\n");
-      return `| ${headers.join(" | ")} |\n| ${sep} |\n${body ? `| ${body} |` : ""}`;
-    } else if (structFormat === "sql") {
-      if (rows.length < 2) return "";
-      const headers = rows[0].map(h => `\`${h.replace(/[^a-zA-Z0-9_]/g, "")}\``).join(", ");
-      const insertRows = rows.slice(1).map(r => `(${r.map(v => `'${v.replace(/'/g, "''")}'`).join(", ")})`).join(",\n  ");
-      return `INSERT INTO \`table_name\` (${headers})\nVALUES\n  ${insertRows};`;
-    } else {
-      // CSV Export
-      return rows.map(r => r.map(c => `"${c.replace(/"/g, '""')}"`).join(",")).join("\n");
-    }
-  }, [text, structFormat, structDelimiter]);
-
-  // --- Pipeline Chainer Execution ---
-  const runPipelineChain = () => {
-    if (!text) return;
-    let res = text;
-
-    pipelineChain.forEach(step => {
-      if (step === "trim") {
-        res = res.split("\n").map(l => l.trim()).join("\n");
-      } else if (step === "empty") {
-        res = res.split("\n").filter(l => l.trim().length > 0).join("\n");
-      } else if (step === "dedupe") {
-        const seen = new Set<string>();
-        res = res.split("\n").filter(l => {
-          const k = l.toLowerCase();
-          if (seen.has(k)) return false;
-          seen.add(k);
-          return true;
-        }).join("\n");
-      } else if (step === "sort") {
-        res = res.split("\n").sort((a, b) => a.localeCompare(b)).join("\n");
-      } else if (step === "lower") {
-        res = res.toLowerCase();
-      } else if (step === "slug") {
-        res = res.toLowerCase().replace(/[^a-z0-9\s-]/gi, "").trim().replace(/\s+/g, "-");
-      }
-    });
-
-    setText(res);
-    toast({ title: "Pipeline Chain Executed", description: `Applied ${pipelineChain.length} transformation steps.` });
-  };
-
-  // --- Smart Diff Calculation Helper ---
   const diffResult = useMemo(() => {
-    if (activeTab !== "diff") return { rows: [], similarity: 100, addedChars: 0, removedChars: 0 };
-    const origLines = originalText.split("\n");
-    const modLines = modifiedText.split("\n");
+    if (activeTab !== "diff") return null;
+    if (!dOrig && !dMod) return null;
 
-    const maxLen = Math.max(origLines.length, modLines.length);
-    const rows = [];
-    let sameCount = 0;
+    const norm = (s: string) => {
+      let k = s;
+      if (diffIgnoreWS) k = k.replace(/\s+/g, " ").trim();
+      if (diffIgnoreCase) k = k.toLowerCase();
+      return k;
+    };
+
+    const tokens = (s: string) =>
+      s ? s.split(/(\s+)/).filter((t) => t !== "") : [];
+    const a = diffMode === "line" ? splitLines(dOrig) : tokens(dOrig);
+    const b = diffMode === "line" ? splitLines(dMod) : tokens(dMod);
+    const { ops, tooLarge } = diffSeq<string>(a, b, norm);
+
+    const countable = (v: string) => diffMode === "line" || v.trim() !== "";
+    let same = 0;
+    let removedUnits = 0;
+    let addedUnits = 0;
     let addedChars = 0;
     let removedChars = 0;
-
-    for (let i = 0; i < maxLen; i++) {
-      const orig = origLines[i];
-      const mod = modLines[i];
-
-      if (orig === mod) {
-        sameCount++;
-        rows.push({ type: "same", orig, mod });
-      } else if (orig !== undefined && mod === undefined) {
-        removedChars += orig.length;
-        rows.push({ type: "removed", orig, mod: "" });
-      } else if (orig === undefined && mod !== undefined) {
-        addedChars += mod.length;
-        rows.push({ type: "added", orig: "", mod });
+    ops.forEach((op) => {
+      if (op.type === "same") {
+        if (countable(op.value)) same++;
+      } else if (op.type === "added") {
+        addedChars += op.value.length;
+        if (countable(op.value)) addedUnits++;
       } else {
-        removedChars += orig.length;
-        addedChars += mod.length;
-        rows.push({ type: "modified", orig, mod });
+        removedChars += op.value.length;
+        if (countable(op.value)) removedUnits++;
       }
+    });
+    const maxLen = Math.max(same + removedUnits, same + addedUnits);
+    const similarity = maxLen > 0 ? Math.round((same / maxLen) * 100) : 100;
+    const identical = ops.every((o) => o.type === "same");
+
+    const exported =
+      diffMode === "line"
+        ? ops
+            .map(
+              (o) =>
+                (o.type === "added"
+                  ? "+ "
+                  : o.type === "removed"
+                    ? "- "
+                    : "  ") + o.value,
+            )
+            .join("\n")
+        : ops
+            .map((o) =>
+              o.type === "added"
+                ? `{+${o.value}+}`
+                : o.type === "removed"
+                  ? `[-${o.value}-]`
+                  : o.value,
+            )
+            .join("");
+
+    return {
+      ops,
+      tooLarge,
+      similarity,
+      addedChars,
+      removedChars,
+      identical,
+      exported,
+    };
+  }, [activeTab, dOrig, dMod, diffMode, diffIgnoreWS, diffIgnoreCase]);
+
+  /* ── actions ─────────────────────────────────────────────────── */
+
+  const loadSample = () => {
+    if (activeTab === "diff") {
+      setOriginalText(
+        "Comparlify provides platform comparison tools for digital creators, educators, and developers.",
+      );
+      setModifiedText(
+        "Comparlify offers platform comparison utilities for online creators, course builders, and software engineers.",
+      );
+      setDiffMode("word");
+      toast({
+        title: "Sample loaded",
+        description: "Switched to word-level diff.",
+      });
+      return;
     }
+    commit(
+      SAMPLES[activeTab],
+      "Sample loaded",
+      "Sample text is in the editor.",
+    );
+  };
 
-    const similarity = maxLen > 0 ? Math.round((sameCount / maxLen) * 100) : 100;
-    return { rows, similarity, addedChars, removedChars };
-  }, [originalText, modifiedText, activeTab]);
+  const clearAll = () => {
+    if (activeTab === "diff") {
+      setOriginalText("");
+      setModifiedText("");
+      return;
+    }
+    if (!text) return;
+    commit("", "Cleared", "Use Undo to bring it back.");
+  };
 
-  const [showFullAnalytics, setShowFullAnalytics] = useState<boolean>(false);
+  const runDedupe = () => {
+    const before = splitLines(text).length;
+    const next = mapLines(text, (l) => dedupeLines(l, dedupeCase, dedupeTrim));
+    const removed = before - splitLines(next).length;
+    if (removed === 0) {
+      toast({ title: "No duplicates found" });
+      return;
+    }
+    commit(
+      next,
+      "Duplicates removed",
+      `Removed ${removed} duplicate line${removed > 1 ? "s" : ""}.`,
+    );
+  };
+
+  const runEmpty = () => {
+    const next = mapLines(text, (l) => l.filter((x) => x.trim() !== ""));
+    commit(next, "Empty lines removed", "All blank lines were stripped.");
+  };
+
+  const runTrim = () =>
+    commit(
+      PIPELINE_STEPS.trim.run(text),
+      "Lines trimmed",
+      "Leading and trailing spaces removed.",
+    );
+
+  const runReplace = () => {
+    if (!searchTerm) {
+      toast({ variant: "destructive", title: "Enter something to find" });
+      return;
+    }
+    if (matchInfo.error) {
+      toast({
+        variant: "destructive",
+        title: "Invalid pattern",
+        description: matchInfo.error,
+      });
+      return;
+    }
+    if (matchInfo.count === 0) {
+      toast({ title: "No matches found" });
+      return;
+    }
+    const re = buildRegex(searchTerm, { matchCase, useRegex, wholeWord });
+    // Plain mode: replacement is literal ($& etc. are NOT special). Regex mode: $1 works.
+    const next = useRegex
+      ? text.replace(re, replaceTerm)
+      : text.replace(re, () => replaceTerm);
+    commit(
+      next,
+      "Replaced",
+      `${matchInfo.count} match${matchInfo.count > 1 ? "es" : ""} replaced.`,
+    );
+  };
+
+  const runPipeline = () => {
+    if (!text || chain.length === 0) return;
+    const next = chain.reduce((acc, id) => PIPELINE_STEPS[id].run(acc), text);
+    commit(
+      next,
+      "Pipeline applied",
+      `Ran ${chain.length} step${chain.length > 1 ? "s" : ""}.`,
+    );
+  };
+
+  const moveStep = (i: number, dir: -1 | 1) =>
+    setChain((c) => {
+      const j = i + dir;
+      if (j < 0 || j >= c.length) return c;
+      const n = [...c];
+      [n[i], n[j]] = [n[j], n[i]];
+      return n;
+    });
+
+  const structExt: Record<StructFormat, string> = {
+    json: "json",
+    csv: "csv",
+    markdown: "md",
+    sql: "sql",
+  };
+
+  /* ════════════════════════════════════════════════════════════════
+     RENDER
+  ════════════════════════════════════════════════════════════════ */
+
+  const isDiff = activeTab === "diff";
+
+  const renderDiffBody = () => {
+    if (!diffResult)
+      return (
+        <span className="text-muted-foreground italic">
+          Enter the original and modified text above to see the differences.
+        </span>
+      );
+    const { ops } = diffResult;
+    if (diffMode === "word")
+      return (
+        <div className="whitespace-pre-wrap break-words leading-relaxed">
+          {ops.map((o, i) =>
+            o.type === "added" ? (
+              <span
+                key={i}
+                className="bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 rounded px-0.5"
+              >
+                {o.value}
+              </span>
+            ) : o.type === "removed" ? (
+              <span
+                key={i}
+                className="bg-rose-500/25 text-rose-700 dark:text-rose-300 line-through rounded px-0.5"
+              >
+                {o.value}
+              </span>
+            ) : (
+              <span key={i}>{o.value}</span>
+            ),
+          )}
+        </div>
+      );
+    return (
+      <div className="space-y-1">
+        {ops.map((o, i) => {
+          const body = o.value === "" ? "\u00A0" : o.value;
+          if (o.type === "added")
+            return (
+              <div
+                key={i}
+                className="bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 p-2 rounded-lg border-l-4 border-emerald-500 font-semibold whitespace-pre-wrap break-words"
+              >
+                + {body}
+              </div>
+            );
+          if (o.type === "removed")
+            return (
+              <div
+                key={i}
+                className="bg-rose-500/20 text-rose-700 dark:text-rose-300 p-2 rounded-lg border-l-4 border-rose-500 font-semibold whitespace-pre-wrap break-words"
+              >
+                - {body}
+              </div>
+            );
+          return (
+            <div
+              key={i}
+              className="text-muted-foreground p-1.5 whitespace-pre-wrap break-words"
+            >
+              {body}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* Main Text Area (AT THE VERY TOP) */}
-      <div className="bg-card/60 backdrop-blur-xl border border-border/40 rounded-2xl p-4 sm:p-6 shadow-xl space-y-4">
-        {/* Header & Quick Action Bar */}
+      {/* ── Tab bar ── */}
+      <div
+        role="tablist"
+        aria-label="Text tools"
+        className="flex gap-1.5 overflow-x-auto pb-1 -mb-1"
+      >
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            role="tab"
+            aria-selected={activeTab === t.id}
+            onClick={() => setActiveTab(t.id)}
+            className={`shrink-0 px-3 py-1.5 rounded-lg border text-[11px] font-black uppercase tracking-wide transition-all ${
+              activeTab === t.id
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border/30 text-muted-foreground hover:text-foreground hover:border-border/60"
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Editor ── */}
+      <div className={`${card} p-4 sm:p-6 space-y-4`}>
         <div className="flex items-center justify-between gap-3 border-b border-border/20 pb-3">
           <div className="flex items-center gap-2">
             <FileText className="h-4 w-4 text-primary" />
-            <span className="text-xs font-black uppercase tracking-widest text-foreground">Text Input & Workspace Buffer</span>
+            <span className="text-xs font-black uppercase tracking-widest text-foreground">
+              {isDiff ? "Compare two texts" : "Text input"}
+            </span>
           </div>
-
-          <div className="flex items-center justify-end gap-3 shrink-0">
+          <div className="flex items-center justify-end gap-2 shrink-0">
             <button
-              onClick={() => {
-                setText("Comparlify is an all-in-one platform intelligence engine and developer utility suite. It helps creators evaluate software options, analyze migration costs, and compute expected ROI across platforms like Teachable, Skool, Mighty Networks, and Kajabi.");
-                toast({ title: "Sample Text Loaded", description: "Sample paragraph loaded into buffer." });
-              }}
-              className="text-xs sm:text-sm font-bold text-primary hover:underline flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/10 hover:bg-primary/20 transition-all"
+              onClick={loadSample}
+              className="text-xs font-bold text-primary flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/10 hover:bg-primary/20 transition-all"
             >
-              <Sparkles className="h-3.5 w-3.5" /> Sample Text
+              <Sparkles className="h-3.5 w-3.5" /> Sample
             </button>
+            {!isDiff && (
+              <button
+                onClick={undo}
+                disabled={history.length === 0}
+                className="text-xs font-bold text-foreground flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-secondary hover:bg-secondary/80 transition-all disabled:opacity-40"
+              >
+                <Undo2 className="h-3.5 w-3.5" /> Undo
+              </button>
+            )}
             <button
-              onClick={() => setText("")}
-              className="text-xs sm:text-sm font-bold text-rose-500 hover:underline flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 transition-all"
+              onClick={clearAll}
+              className="text-xs font-bold text-rose-500 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 transition-all"
             >
               <Trash2 className="h-3.5 w-3.5" /> Clear
             </button>
           </div>
         </div>
 
-        {/* EDITOR AREA (Single Buffer vs Diff Double Buffer) */}
-        {activeTab === "diff" ? (
+        {isDiff ? (
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-muted-foreground block">Original Text</label>
-                  <button
-                    onClick={() => {
-                      setOriginalText("Comparlify provides platform comparison tools for digital creators, educators, and developers.");
-                      setModifiedText("Comparlify offers platform comparison utilities for online creators, course builders, and software engineers.");
-                      toast({ title: "Sample Diff Loaded", description: "Loaded sample texts for comparison." });
-                    }}
-                    className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
-                  >
-                    <Sparkles className="h-3.5 w-3.5" /> Load Sample Diff
-                  </button>
+              {[
+                {
+                  label: "Original",
+                  value: originalText,
+                  set: setOriginalText,
+                },
+                {
+                  label: "Modified",
+                  value: modifiedText,
+                  set: setModifiedText,
+                },
+              ].map((f) => (
+                <div key={f.label}>
+                  <label className="text-xs font-black uppercase tracking-widest text-muted-foreground block mb-2">
+                    {f.label} text
+                  </label>
+                  <textarea
+                    value={f.value}
+                    onChange={(e) => f.set(e.target.value)}
+                    aria-label={`${f.label} text`}
+                    placeholder={`Paste ${f.label.toLowerCase()} text here...`}
+                    className="w-full h-44 sm:h-52 p-4 bg-background/60 border border-border/40 rounded-2xl text-sm font-mono outline-none resize-none text-foreground focus:ring-2 focus:ring-primary/50 shadow-inner"
+                  />
                 </div>
-                <textarea
-                  value={originalText}
-                  onChange={e => setOriginalText(e.target.value)}
-                  placeholder="Paste original text here..."
-                  className="w-full h-44 sm:h-52 p-4 bg-background/60 border border-border/40 rounded-2xl text-sm sm:text-base font-mono outline-none resize-none text-foreground focus:ring-2 focus:ring-primary/50 shadow-inner"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground block mb-2">Modified Text</label>
-                <textarea
-                  value={modifiedText}
-                  onChange={e => setModifiedText(e.target.value)}
-                  placeholder="Paste modified text here..."
-                  className="w-full h-44 sm:h-52 p-4 bg-background/60 border border-border/40 rounded-2xl text-sm sm:text-base font-mono outline-none resize-none text-foreground focus:ring-2 focus:ring-primary/50 shadow-inner"
-                />
-              </div>
+              ))}
             </div>
 
-            {/* UNIFIED VISUAL DIFF (EXACTLY AFTER EDITORS) */}
-            <div className="p-4 sm:p-5 bg-card/80 backdrop-blur-xl border border-border/40 rounded-2xl space-y-3 shadow-lg">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+            <div className="p-4 sm:p-5 bg-card/80 border border-border/40 rounded-2xl space-y-3 shadow-lg">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                 <label className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
-                  <GitCompare className="h-4 w-4" /> Visual Diff Inspector
+                  <GitCompare className="h-4 w-4" /> Visual diff
                 </label>
-                <div className="flex flex-wrap gap-2.5 text-xs sm:text-sm font-mono font-bold">
-                  <span className="px-2.5 py-1 rounded-md bg-primary/15 text-primary">Similarity: {diffResult.similarity}%</span>
-                  <span className="px-2.5 py-1 rounded-md bg-emerald-500/15 text-emerald-400">+{diffResult.addedChars} chars</span>
-                  <span className="px-2.5 py-1 rounded-md bg-rose-500/15 text-rose-400">-{diffResult.removedChars} chars</span>
-                </div>
-              </div>
-              <div className="p-4 bg-background/80 rounded-xl border border-border/30 font-mono text-xs sm:text-sm max-h-72 overflow-y-auto space-y-1.5">
-                {diffResult.rows.length === 0 ? (
-                  <span className="text-muted-foreground italic">Enter original and modified text above to compute diff.</span>
-                ) : (
-                  diffResult.rows.map((row, idx) => {
-                    if (row.type === "added") {
-                      return <div key={idx} className="bg-emerald-500/20 text-emerald-300 p-2 rounded-lg border-l-4 border-emerald-500 font-semibold">+ {row.mod}</div>;
-                    } else if (row.type === "removed") {
-                      return <div key={idx} className="bg-rose-500/20 text-rose-300 p-2 rounded-lg border-l-4 border-rose-500 font-semibold">- {row.orig}</div>;
-                    } else if (row.type === "modified") {
-                      return (
-                        <div key={idx} className="space-y-1">
-                          <div className="bg-rose-500/20 text-rose-300 p-2 rounded-lg border-l-4 border-rose-500 font-semibold">- {row.orig}</div>
-                          <div className="bg-emerald-500/20 text-emerald-300 p-2 rounded-lg border-l-4 border-emerald-500 font-semibold">+ {row.mod}</div>
-                        </div>
-                      );
-                    }
-                    return <div key={idx} className="text-muted-foreground p-1.5">{row.orig}</div>;
-                  })
+                {diffResult && (
+                  <div className="flex flex-wrap gap-2 text-xs font-mono font-bold">
+                    <span className="px-2.5 py-1 rounded-md bg-primary/15 text-primary">
+                      Similarity: {diffResult.similarity}%
+                    </span>
+                    <span className="px-2.5 py-1 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                      +{diffResult.addedChars} chars
+                    </span>
+                    <span className="px-2.5 py-1 rounded-md bg-rose-500/15 text-rose-600 dark:text-rose-400">
+                      −{diffResult.removedChars} chars
+                    </span>
+                  </div>
                 )}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                <div className="flex gap-1">
+                  {(["line", "word"] as const).map((m) => (
+                    <button
+                      key={m}
+                      onClick={() => setDiffMode(m)}
+                      className={chipBtn(diffMode === m)}
+                    >
+                      {m === "line" ? "By line" : "By word"}
+                    </button>
+                  ))}
+                </div>
+                <label className="flex items-center gap-1.5 text-[11px] text-muted-foreground cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={diffIgnoreWS}
+                    onChange={(e) => setDiffIgnoreWS(e.target.checked)}
+                    className="rounded accent-primary"
+                  />
+                  Ignore whitespace
+                </label>
+                <label className="flex items-center gap-1.5 text-[11px] text-muted-foreground cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={diffIgnoreCase}
+                    onChange={(e) => setDiffIgnoreCase(e.target.checked)}
+                    className="rounded accent-primary"
+                  />
+                  Ignore case
+                </label>
+                <button
+                  onClick={() => {
+                    setOriginalText(modifiedText);
+                    setModifiedText(originalText);
+                  }}
+                  className="text-[11px] font-bold text-primary flex items-center gap-1 hover:underline"
+                >
+                  <ArrowLeftRight className="h-3.5 w-3.5" /> Swap
+                </button>
+              </div>
+
+              {diffResult?.tooLarge && (
+                <p className="text-[11px] text-amber-600 dark:text-amber-400 flex gap-1.5">
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                  These texts are too different and too large to match
+                  precisely, so the changed middle part is shown as one replaced
+                  block.
+                </p>
+              )}
+              {diffResult?.identical && (
+                <p className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                  The two texts are identical.
+                </p>
+              )}
+
+              <div className="p-4 bg-background/80 rounded-xl border border-border/30 font-mono text-xs sm:text-sm max-h-80 overflow-y-auto">
+                {renderDiffBody()}
               </div>
             </div>
           </div>
@@ -569,83 +1433,138 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
           <div className="space-y-3">
             <textarea
               value={text}
-              onChange={e => setText(e.target.value)}
-              placeholder="Paste or type your text here to transform, clean, format or analyze..."
-              className="w-full h-52 sm:h-64 p-4 sm:p-5 bg-background/60 border border-border/40 rounded-2xl text-sm sm:text-base font-mono outline-none resize-none text-foreground focus:ring-2 focus:ring-primary/50 shadow-inner leading-relaxed"
+              onChange={(e) => setText(e.target.value)}
+              aria-label="Text input"
+              placeholder="Paste or type your text here..."
+              className="w-full h-52 sm:h-64 p-4 sm:p-5 bg-background/60 border border-border/40 rounded-2xl text-sm sm:text-base font-mono outline-none resize-y text-foreground focus:ring-2 focus:ring-primary/50 shadow-inner leading-relaxed"
             />
 
-            {/* TAB-SPECIFIC RESULT OUTPUTS DIRECTLY AFTER EDITOR */}
             {activeTab === "slug" && (
-              <div className="p-4 sm:p-5 bg-card/80 backdrop-blur-xl border border-primary/30 rounded-2xl space-y-3 shadow-lg">
-                <span className="text-xs font-black uppercase tracking-widest text-primary block flex items-center gap-2">
-                  <Link2 className="h-4 w-4" /> Generated SEO Slug Output
-                </span>
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 bg-background/80 rounded-xl border border-border/30">
-                  <span className="text-base sm:text-lg font-mono font-bold text-primary break-all select-all">{generatedSlug || "your-slug-will-appear-here"}</span>
+              <div className="p-4 sm:p-5 bg-card/80 border border-primary/30 rounded-2xl space-y-3 shadow-lg">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
+                    <Link2 className="h-4 w-4" /> Generated slug
+                    {slugOutput.includes("\n") ? "s (one per line)" : ""}
+                  </span>
                   <button
-                    onClick={() => handleCopy(generatedSlug)}
-                    className="px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs sm:text-sm font-bold shrink-0 flex items-center justify-center gap-2 shadow-md hover:brightness-110 active:scale-95 transition-all"
+                    onClick={() => copyValue(slugOutput, "slug")}
+                    disabled={!slugOutput}
+                    className="px-3.5 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
                   >
-                    <Copy className="h-4 w-4" /> Copy Slug
+                    {copiedKey === "slug" ? (
+                      <Check className="h-3.5 w-3.5" />
+                    ) : (
+                      <Copy className="h-3.5 w-3.5" />
+                    )}
+                    Copy
                   </button>
                 </div>
+                <pre className="p-3 bg-background/80 rounded-xl border border-border/30 text-sm sm:text-base font-mono font-bold text-primary whitespace-pre-wrap break-all select-all min-h-[3rem]">
+                  {slugOutput || "your-slug-will-appear-here"}
+                </pre>
+                {!slugOutput && text.trim() && (
+                  <p className="text-[11px] text-amber-600 dark:text-amber-400">
+                    Nothing is left after removing unsupported characters. If
+                    your text isn't in the Latin alphabet, turn on "Keep
+                    non-Latin letters".
+                  </p>
+                )}
               </div>
             )}
 
             {activeTab === "struct" && (
-              <div className="p-4 sm:p-5 bg-card/80 backdrop-blur-xl border border-primary/30 rounded-2xl space-y-3 shadow-lg">
-                <div className="flex items-center justify-between gap-2 mb-1">
-                  <span className="text-xs font-black uppercase tracking-widest text-primary block">Structured Data Output ({structFormat.toUpperCase()})</span>
-                  <button
-                    onClick={() => handleCopy(structuredDataOutput)}
-                    className="px-3.5 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold flex items-center gap-1.5"
-                  >
-                    <Copy className="h-3.5 w-3.5" /> Copy Output
-                  </button>
+              <div className="p-4 sm:p-5 bg-card/80 border border-primary/30 rounded-2xl space-y-3 shadow-lg">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-black uppercase tracking-widest text-primary">
+                    Output ({structFormat.toUpperCase()})
+                  </span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => copyValue(structOutput, "struct")}
+                      disabled={!structOutput}
+                      className="px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
+                    >
+                      {copiedKey === "struct" ? (
+                        <Check className="h-3.5 w-3.5" />
+                      ) : (
+                        <Copy className="h-3.5 w-3.5" />
+                      )}
+                      Copy
+                    </button>
+                    <button
+                      onClick={() =>
+                        downloadValue(
+                          structOutput,
+                          `data.${structExt[structFormat]}`,
+                        )
+                      }
+                      disabled={!structOutput}
+                      className="px-3 py-1.5 rounded-xl bg-secondary border border-border/40 text-foreground text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
+                    >
+                      <Download className="h-3.5 w-3.5" /> .
+                      {structExt[structFormat]}
+                    </button>
+                  </div>
                 </div>
                 <textarea
                   readOnly
-                  value={structuredDataOutput}
-                  placeholder="Structured output will render here..."
-                  className="w-full h-40 p-4 bg-background/80 border border-border/40 rounded-xl text-xs sm:text-sm font-mono text-foreground outline-none resize-none"
+                  value={structOutput}
+                  aria-label="Structured output"
+                  placeholder="Paste CSV (or TSV) above. The converted output appears here."
+                  className="w-full h-44 p-4 bg-background/80 border border-border/40 rounded-xl text-xs sm:text-sm font-mono text-foreground outline-none resize-y"
                 />
               </div>
             )}
           </div>
         )}
 
-        {/* Compact Combined Live Stats & Action Strip (Single Row in View) */}
+        {/* Footer */}
         <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-border/20">
-          {/* Inline Live Stats Badges */}
-          <div className="flex items-center gap-2 sm:gap-3 text-xs font-mono font-bold">
-            <span className="px-2.5 py-1 rounded-md bg-primary/10 border border-primary/20 text-primary">
-              Words: <strong className="text-sm font-black">{stats.words}</strong>
-            </span>
-            <span className="px-2.5 py-1 rounded-md bg-card/60 border border-border/30 text-foreground">
-              Chars: <strong className="text-sm font-black">{stats.charsTotal}</strong>
-            </span>
-            <span className="px-2.5 py-1 rounded-md bg-card/60 border border-border/30 text-foreground hidden sm:inline-block">
-              Lines: <strong className="text-sm font-black">{stats.lines}</strong>
-            </span>
-            <span className="px-2.5 py-1 rounded-md bg-card/60 border border-border/30 text-foreground hidden sm:inline-block">
-              Read: <strong className="text-sm font-black">{stats.readTimeMinutes}</strong>
-            </span>
+          <div className="flex items-center gap-2 text-xs font-mono font-bold">
+            {isDiff ? (
+              <span className="px-2.5 py-1 rounded-md bg-primary/10 border border-primary/20 text-primary">
+                {diffMode === "line" ? "Line" : "Word"} diff
+              </span>
+            ) : (
+              <>
+                <span className="px-2.5 py-1 rounded-md bg-primary/10 border border-primary/20 text-primary">
+                  Words:{" "}
+                  <strong className="text-sm font-black">{basic.words}</strong>
+                </span>
+                <span className="px-2.5 py-1 rounded-md bg-card/60 border border-border/30 text-foreground">
+                  Chars:{" "}
+                  <strong className="text-sm font-black">{basic.chars}</strong>
+                </span>
+                <span className="px-2.5 py-1 rounded-md bg-card/60 border border-border/30 text-foreground hidden sm:inline-block">
+                  Lines:{" "}
+                  <strong className="text-sm font-black">{basic.lines}</strong>
+                </span>
+              </>
+            )}
           </div>
-
-          {/* Action Buttons */}
           <div className="flex items-center gap-2">
             <button
-              onClick={() => handleCopy()}
-              disabled={!text}
-              className="px-3.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-md shadow-primary/20 disabled:opacity-50 active:scale-95 transition-all touch-manipulation"
+              onClick={() =>
+                copyValue(isDiff ? (diffResult?.exported ?? "") : text, "main")
+              }
+              disabled={isDiff ? !diffResult : !text}
+              className={`${primaryBtn} flex items-center gap-1.5`}
             >
-              {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-              {copied ? "Copied!" : "Copy"}
+              {copiedKey === "main" ? (
+                <Check className="h-3.5 w-3.5" />
+              ) : (
+                <Copy className="h-3.5 w-3.5" />
+              )}
+              {copiedKey === "main" ? "Copied!" : isDiff ? "Copy diff" : "Copy"}
             </button>
             <button
-              onClick={() => handleDownload()}
-              disabled={!text}
-              className="px-3 py-1.5 rounded-lg bg-secondary hover:bg-secondary/80 border border-border/40 text-foreground text-xs font-bold flex items-center gap-1.5 disabled:opacity-50 active:scale-95 transition-all touch-manipulation"
+              onClick={() =>
+                isDiff
+                  ? downloadValue(diffResult?.exported ?? "", "diff.txt")
+                  : downloadValue(text, "text.txt")
+              }
+              disabled={isDiff ? !diffResult : !text}
+              className={`${secondaryBtn} flex items-center gap-1.5`}
             >
               <Download className="h-3.5 w-3.5" /> Download
             </button>
@@ -653,301 +1572,674 @@ export function TextWorkspace({ defaultMode = "count" }: TextWorkspaceProps) {
         </div>
       </div>
 
-      {/* Sub-Tool Operations Panel (COMPACTED) */}
+      {/* ── Options panel ── */}
       <div className="bg-card/60 backdrop-blur-xl border border-border/40 rounded-xl p-3.5 sm:p-4 shadow-md">
-        {/* TAB 1: ANALYZE */}
         {activeTab === "count" && (
-          <div className="text-xs text-muted-foreground">
-            <span className="font-bold text-foreground">Live Text Analysis Active</span> — Real-time readability metrics and social length bounds displayed below.
-          </div>
+          <p className="text-xs text-muted-foreground">
+            <span className="font-bold text-foreground">Live analysis.</span>{" "}
+            Counts and readability update as you type. Nothing is changed in
+            your text.
+          </p>
         )}
 
-        {/* TAB 2: CASE CONVERTER */}
         {activeTab === "case" && (
           <div className="space-y-2.5">
-            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Apply Case Transformation</label>
-            <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-1.5">
+            <span className={smallLabel}>
+              Convert case (multi-line text is converted line by line)
+            </span>
+            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-1.5">
               {[
-                { id: "camel", label: "camelCase" },
-                { id: "pascal", label: "PascalCase" },
-                { id: "snake", label: "snake_case" },
-                { id: "kebab", label: "kebab-case" },
-                { id: "constant", label: "CONSTANT" },
-                { id: "title", label: "Title Case" },
-                { id: "sentence", label: "Sentence" },
-                { id: "dot", label: "dot.case" },
-                { id: "path", label: "path/case" }
-              ].map(c => (
+                ["upper", "UPPERCASE"],
+                ["lower", "lowercase"],
+                ["title", "Title Case"],
+                ["sentence", "Sentence case"],
+                ["swap", "sWAP cASE"],
+                ["camel", "camelCase"],
+                ["pascal", "PascalCase"],
+                ["snake", "snake_case"],
+                ["kebab", "kebab-case"],
+                ["constant", "CONSTANT_CASE"],
+                ["dot", "dot.case"],
+                ["path", "path/case"],
+              ].map(([id, label]) => (
                 <button
-                  key={c.id}
-                  onClick={() => applyCasing(c.id)}
-                  className="py-1.5 px-2 rounded-lg border border-border/30 bg-background/50 hover:border-primary hover:bg-primary/10 text-[11px] font-bold transition-all text-foreground truncate active:scale-95 touch-manipulation"
+                  key={id}
+                  onClick={() =>
+                    commit(
+                      convertCase(text, id),
+                      "Case converted",
+                      `Applied ${label}.`,
+                    )
+                  }
+                  disabled={!text}
+                  className="py-1.5 px-2 rounded-lg border border-border/30 bg-background/50 hover:border-primary hover:bg-primary/10 text-[11px] font-bold transition-all text-foreground truncate active:scale-95 disabled:opacity-50"
                 >
-                  {c.label}
+                  {label}
                 </button>
               ))}
             </div>
           </div>
         )}
 
-        {/* TAB 3: CLEAN & DEDUPLICATE */}
         {activeTab === "clean" && (
-          <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-            <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={caseSensitiveDedupe}
-                onChange={e => setCaseSensitiveDedupe(e.target.checked)}
-                className="h-3.5 w-3.5 rounded border-border/40 bg-background accent-primary"
-              />
-              Case-sensitive deduplication
-            </label>
-
-            <div className="flex w-full sm:w-auto gap-2">
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-x-5 gap-y-2">
+              <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={dedupeCase}
+                  onChange={(e) => setDedupeCase(e.target.checked)}
+                  className="h-3.5 w-3.5 rounded accent-primary"
+                />
+                Case-sensitive
+              </label>
+              <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={dedupeTrim}
+                  onChange={(e) => setDedupeTrim(e.target.checked)}
+                  className="h-3.5 w-3.5 rounded accent-primary"
+                />
+                Ignore spaces around lines
+              </label>
+            </div>
+            <div className="flex flex-wrap gap-2">
               <button
-                onClick={removeDuplicates}
-                className="flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-black uppercase tracking-wider shadow-md"
+                onClick={runDedupe}
+                disabled={!text}
+                className={primaryBtn}
               >
-                Remove Duplicates
+                Remove duplicate lines
               </button>
               <button
-                onClick={removeEmptyLines}
-                className="px-3.5 py-1.5 rounded-lg bg-secondary hover:bg-secondary/80 text-foreground text-xs font-bold border border-border/30"
+                onClick={runEmpty}
+                disabled={!text}
+                className={secondaryBtn}
               >
-                Strip Blank Lines
+                Remove empty lines
+              </button>
+              <button
+                onClick={runTrim}
+                disabled={!text}
+                className={secondaryBtn}
+              >
+                Trim each line
               </button>
             </div>
+            <p className="text-[11px] text-muted-foreground">
+              The first occurrence of each line is kept. Blank lines are not
+              treated as duplicates.
+            </p>
           </div>
         )}
 
-        {/* TAB 4: SORT & REVERSE */}
         {activeTab === "sort" && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-2 p-2.5 bg-background/50 rounded-lg border border-border/30">
-              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Sort Lines</label>
-              <div className="grid grid-cols-4 gap-1">
-                {(["alpha", "numeric", "length", "natural"] as const).map(mode => (
-                  <button
-                    key={mode}
-                    onClick={() => setSortMode(mode)}
-                    className={`py-1 px-1.5 rounded text-[10px] font-bold uppercase transition-all ${sortMode === mode ? "bg-primary text-primary-foreground" : "bg-secondary/50 text-muted-foreground"}`}
-                  >
-                    {mode}
-                  </button>
-                ))}
-              </div>
-              <div className="flex gap-2 pt-1">
+          <div className="space-y-2 p-2.5 bg-background/50 rounded-lg border border-border/30">
+            <span className={smallLabel}>Sort lines</span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1">
+              {(
+                [
+                  ["alpha", "A–Z"],
+                  ["natural", "Natural (2 < 10)"],
+                  ["numeric", "Numeric"],
+                  ["length", "Length"],
+                ] as [SortMode, string][]
+              ).map(([m, l]) => (
                 <button
-                  onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-                  className="flex-1 py-1 rounded border border-border/30 text-[10px] font-bold uppercase text-foreground"
+                  key={m}
+                  onClick={() => setSortMode(m)}
+                  className={chipBtn(sortMode === m)}
                 >
-                  Order: {sortOrder.toUpperCase()}
+                  {l}
                 </button>
-                <button
-                  onClick={runSort}
-                  className="px-3 py-1 rounded bg-primary text-primary-foreground text-[10px] font-black uppercase"
-                >
-                  Sort
-                </button>
-              </div>
+              ))}
             </div>
-
-            <div className="space-y-2 p-2.5 bg-background/50 rounded-lg border border-border/30">
-              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Reverse Text</label>
-              <div className="grid grid-cols-3 gap-1">
-                {(["chars", "words", "lines"] as const).map(m => (
-                  <button
-                    key={m}
-                    onClick={() => setReverseMode(m)}
-                    className={`py-1 px-1.5 rounded text-[10px] font-bold uppercase transition-all ${reverseMode === m ? "bg-primary text-primary-foreground" : "bg-secondary/50 text-muted-foreground"}`}
-                  >
-                    {m}
-                  </button>
-                ))}
-              </div>
+            <div className="flex gap-2 pt-1">
               <button
-                onClick={runReverse}
-                className="w-full mt-1 py-1 rounded bg-primary text-primary-foreground text-[10px] font-black uppercase"
+                onClick={() =>
+                  setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+                }
+                className="flex-1 py-1 rounded border border-border/30 text-[10px] font-bold uppercase text-foreground"
               >
-                Execute Reverse
+                Order: {sortOrder === "asc" ? "Ascending" : "Descending"}
+              </button>
+              <button
+                onClick={() =>
+                  commit(
+                    sortLines(text, sortMode, sortOrder),
+                    "Lines sorted",
+                    `Sorted by ${sortMode}.`,
+                  )
+                }
+                disabled={!text}
+                className={primaryBtn}
+              >
+                Sort
               </button>
             </div>
+            {sortMode === "numeric" && (
+              <p className="text-[11px] text-muted-foreground">
+                Lines that aren't numbers are placed last.
+              </p>
+            )}
           </div>
         )}
 
-        {/* TAB 5: DIFF VIEW */}
+        {activeTab === "reverse" && (
+          <div className="space-y-2 p-2.5 bg-background/50 rounded-lg border border-border/30">
+            <span className={smallLabel}>Reverse text</span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1">
+              {(
+                [
+                  ["chars", "Whole text"],
+                  ["each", "Each line"],
+                  ["words", "Word order"],
+                  ["lines", "Line order"],
+                ] as [ReverseMode, string][]
+              ).map(([m, l]) => (
+                <button
+                  key={m}
+                  onClick={() => setReverseMode(m)}
+                  className={chipBtn(reverseMode === m)}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() =>
+                commit(
+                  reverseText(text, reverseMode),
+                  "Text reversed",
+                  "Reversal applied.",
+                )
+              }
+              disabled={!text}
+              className={`${primaryBtn} w-full mt-1`}
+            >
+              Reverse
+            </button>
+          </div>
+        )}
+
         {activeTab === "diff" && (
-          <div className="text-xs text-muted-foreground italic">
-            Live visual diff displayed directly after text inputs above.
-          </div>
+          <p className="text-xs text-muted-foreground italic">
+            Use "By word" for sentences and paragraphs, "By line" for lists and
+            code.
+          </p>
         )}
 
-        {/* TAB 6: FIND & REPLACE */}
         {activeTab === "replace" && (
           <div className="space-y-2">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <input
                 type="text"
                 value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                placeholder="Find pattern..."
-                className="h-8 px-2.5 bg-background/50 border border-border/30 rounded-lg text-xs font-mono text-foreground"
+                onChange={(e) => setSearchTerm(e.target.value)}
+                aria-label="Find"
+                placeholder="Find..."
+                className={textInput}
               />
               <input
                 type="text"
                 value={replaceTerm}
-                onChange={e => setReplaceTerm(e.target.value)}
+                onChange={(e) => setReplaceTerm(e.target.value)}
+                aria-label="Replace with"
                 placeholder="Replace with..."
-                className="h-8 px-2.5 bg-background/50 border border-border/30 rounded-lg text-xs font-mono text-foreground"
+                className={textInput}
               />
             </div>
-
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex gap-3 text-[11px] text-muted-foreground">
-                <label className="flex items-center gap-1 cursor-pointer">
-                  <input type="checkbox" checked={matchCase} onChange={e => setMatchCase(e.target.checked)} className="rounded accent-primary" /> Case
-                </label>
-                <label className="flex items-center gap-1 cursor-pointer">
-                  <input type="checkbox" checked={wholeWord} onChange={e => setWholeWord(e.target.checked)} className="rounded accent-primary" /> Word
-                </label>
-                <label className="flex items-center gap-1 cursor-pointer">
-                  <input type="checkbox" checked={useRegex} onChange={e => setUseRegex(e.target.checked)} className="rounded accent-primary" /> Regex
-                </label>
+                {(
+                  [
+                    ["Match case", matchCase, setMatchCase],
+                    ["Whole word", wholeWord, setWholeWord],
+                    ["Regex", useRegex, setUseRegex],
+                  ] as [string, boolean, (v: boolean) => void][]
+                ).map(([l, v, set]) => (
+                  <label
+                    key={l}
+                    className="flex items-center gap-1 cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={v}
+                      onChange={(e) => set(e.target.checked)}
+                      className="rounded accent-primary"
+                    />
+                    {l}
+                  </label>
+                ))}
               </div>
-
-              <button
-                onClick={runReplace}
-                className="px-3.5 py-1 rounded-lg bg-primary text-primary-foreground text-xs font-black uppercase"
-              >
-                Replace All
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 7: SLUG GENERATOR */}
-        {activeTab === "slug" && (
-          <div className="text-xs text-muted-foreground italic">
-            Generated SEO slug rendered directly after text editor above.
-          </div>
-        )}
-
-        {/* TAB 8: TEXT TO STRUCTURED DATA */}
-        {activeTab === "struct" && (
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex gap-1.5">
-              {(["json", "csv", "markdown", "sql"] as const).map(fmt => (
+              <div className="flex items-center gap-3">
+                {searchTerm && (
+                  <span
+                    className={`text-[11px] font-mono font-bold ${matchInfo.error ? "text-rose-500" : "text-muted-foreground"}`}
+                  >
+                    {matchInfo.error
+                      ? "Invalid pattern"
+                      : `${matchInfo.count} match${matchInfo.count === 1 ? "" : "es"}`}
+                  </span>
+                )}
                 <button
-                  key={fmt}
-                  onClick={() => setStructFormat(fmt)}
-                  className={`py-1 px-2.5 rounded-lg border text-[10px] font-black uppercase transition-all ${structFormat === fmt ? "border-primary bg-primary/10 text-primary" : "border-border/20 text-muted-foreground"}`}
+                  onClick={runReplace}
+                  disabled={!text || !searchTerm}
+                  className={primaryBtn}
                 >
-                  .{fmt}
+                  Replace all
+                </button>
+              </div>
+            </div>
+            {useRegex && (
+              <p className="text-[11px] text-muted-foreground">
+                Use $1, $2… in the replacement to reuse capture groups.
+              </p>
+            )}
+          </div>
+        )}
+
+        {activeTab === "slug" && (
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-end gap-x-5 gap-y-3">
+              <div>
+                <span className={`${smallLabel} mb-1`}>Separator</span>
+                <div className="flex gap-1">
+                  {[
+                    ["-", "Hyphen"],
+                    ["_", "Underscore"],
+                    [".", "Dot"],
+                  ].map(([v, l]) => (
+                    <button
+                      key={v}
+                      onClick={() => setSlugSep(v)}
+                      className={chipBtn(slugSep === v)}
+                    >
+                      {l}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <span className={`${smallLabel} mb-1`}>Max length</span>
+                <input
+                  type="number"
+                  min={10}
+                  max={200}
+                  value={slugMax}
+                  onChange={(e) =>
+                    setSlugMax(
+                      Math.min(
+                        200,
+                        Math.max(1, parseInt(e.target.value, 10) || 80),
+                      ),
+                    )
+                  }
+                  aria-label="Maximum slug length"
+                  className="h-8 w-20 px-2 bg-background/50 border border-border/30 rounded-lg text-xs font-mono text-foreground text-center"
+                />
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-x-5 gap-y-2 text-[11px] text-muted-foreground">
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={slugLower}
+                  onChange={(e) => setSlugLower(e.target.checked)}
+                  className="rounded accent-primary"
+                />
+                Lowercase
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={slugStop}
+                  onChange={(e) => setSlugStop(e.target.checked)}
+                  className="rounded accent-primary"
+                />
+                Remove filler words (the, and, of…)
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={slugUnicode}
+                  onChange={(e) => setSlugUnicode(e.target.checked)}
+                  className="rounded accent-primary"
+                />
+                Keep non-Latin letters (Urdu, Arabic, Cyrillic…)
+              </label>
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              Each line becomes its own slug. Accents are removed (é → e) unless
+              you keep non-Latin letters.
+            </p>
+          </div>
+        )}
+
+        {activeTab === "struct" && (
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-4 items-end">
+              <div>
+                <span className={`${smallLabel} mb-1`}>Convert to</span>
+                <div className="flex gap-1.5">
+                  {(["json", "csv", "markdown", "sql"] as StructFormat[]).map(
+                    (f) => (
+                      <button
+                        key={f}
+                        onClick={() => setStructFormat(f)}
+                        className={`py-1 px-2.5 rounded-lg border text-[10px] font-black uppercase transition-all ${structFormat === f ? "border-primary bg-primary/10 text-primary" : "border-border/20 text-muted-foreground"}`}
+                      >
+                        {f === "markdown" ? "Markdown table" : f}
+                      </button>
+                    ),
+                  )}
+                </div>
+              </div>
+              <div>
+                <span className={`${smallLabel} mb-1`}>Input separator</span>
+                <select
+                  value={structDelim}
+                  onChange={(e) => setStructDelim(e.target.value)}
+                  aria-label="Input separator"
+                  className="h-8 px-2 bg-background/50 border border-border/30 rounded-lg text-xs text-foreground"
+                >
+                  <option value=",">Comma</option>
+                  <option value=";">Semicolon</option>
+                  <option value={"\t"}>Tab</option>
+                  <option value="|">Pipe</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-x-5 gap-y-2 text-[11px] text-muted-foreground">
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={hasHeader}
+                  onChange={(e) => setHasHeader(e.target.checked)}
+                  className="rounded accent-primary"
+                />
+                First row is the header
+              </label>
+              {structFormat === "json" && (
+                <label className="flex items-center gap-1.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={inferTypes}
+                    onChange={(e) => setInferTypes(e.target.checked)}
+                    className="rounded accent-primary"
+                  />
+                  Detect numbers and true/false
+                </label>
+              )}
+            </div>
+            {structFormat === "sql" && (
+              <div className="flex flex-wrap gap-3 items-center">
+                <input
+                  type="text"
+                  value={tableName}
+                  onChange={(e) => setTableName(e.target.value)}
+                  aria-label="Table name"
+                  placeholder="table name"
+                  className="h-8 px-2.5 bg-background/50 border border-border/30 rounded-lg text-xs font-mono text-foreground w-44"
+                />
+                <div className="flex gap-1">
+                  {(
+                    [
+                      ["mysql", "MySQL (`)"],
+                      ["ansi", 'Postgres / ANSI (")'],
+                    ] as [Dialect, string][]
+                  ).map(([d, l]) => (
+                    <button
+                      key={d}
+                      onClick={() => setDialect(d)}
+                      className={chipBtn(dialect === d)}
+                    >
+                      {l}
+                    </button>
+                  ))}
+                </div>
+                <span className="text-[11px] text-muted-foreground">
+                  Empty cells become NULL.
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "pipeline" && (
+          <div className="space-y-3">
+            <span className={smallLabel}>Steps run top to bottom</span>
+            {chain.length === 0 ? (
+              <p className="text-xs text-muted-foreground">
+                Add a step below to build your pipeline.
+              </p>
+            ) : (
+              <ol className="space-y-1.5">
+                {chain.map((id, i) => (
+                  <li
+                    key={`${id}-${i}`}
+                    className="flex items-center gap-2 bg-background/50 border border-border/30 rounded-lg px-2.5 py-1.5"
+                  >
+                    <span className="text-[10px] font-mono font-bold text-muted-foreground w-4">
+                      {i + 1}.
+                    </span>
+                    <span className="flex-1 text-xs font-bold text-foreground">
+                      {PIPELINE_STEPS[id].label}
+                    </span>
+                    <button
+                      onClick={() => moveStep(i, -1)}
+                      disabled={i === 0}
+                      aria-label="Move up"
+                      className="p-1 rounded hover:bg-secondary disabled:opacity-30"
+                    >
+                      <ArrowUp className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={() => moveStep(i, 1)}
+                      disabled={i === chain.length - 1}
+                      aria-label="Move down"
+                      className="p-1 rounded hover:bg-secondary disabled:opacity-30"
+                    >
+                      <ArrowDown className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={() =>
+                        setChain((c) => c.filter((_, k) => k !== i))
+                      }
+                      aria-label="Remove step"
+                      className="p-1 rounded hover:bg-rose-500/10 text-rose-500"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </li>
+                ))}
+              </ol>
+            )}
+            <div className="flex flex-wrap gap-1.5">
+              {Object.entries(PIPELINE_STEPS).map(([id, s]) => (
+                <button
+                  key={id}
+                  onClick={() => setChain((c) => [...c, id])}
+                  className="flex items-center gap-1 px-2 py-1 rounded-lg border border-border/30 text-[10px] font-bold text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all"
+                >
+                  <Plus className="h-3 w-3" /> {s.label}
                 </button>
               ))}
             </div>
-          </div>
-        )}
-
-        {/* TAB 9: PIPELINE CHAINER */}
-        {activeTab === "pipeline" && (
-          <div className="space-y-2">
-            <div className="flex flex-wrap gap-1.5 items-center text-xs font-mono">
-              {pipelineChain.map((step, idx) => (
-                <span key={idx} className="bg-background/50 px-2 py-0.5 rounded border border-border/20 text-[10px] font-bold text-foreground">
-                  {idx + 1}. {step}
-                </span>
-              ))}
-            </div>
             <button
-              onClick={runPipelineChain}
-              className="w-full py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5"
+              onClick={runPipeline}
+              disabled={!text || chain.length === 0}
+              className={`${primaryBtn} w-full flex items-center justify-center gap-1.5`}
             >
-              <Workflow className="h-3.5 w-3.5" /> Execute Pipeline
+              <Workflow className="h-3.5 w-3.5" /> Run pipeline
             </button>
           </div>
         )}
       </div>
 
-      {/* Full Detailed Analytics Section (COMPACTED) */}
-      <div className="bg-card/60 backdrop-blur-xl border border-border/40 rounded-xl p-3.5 sm:p-4 space-y-3 shadow-md">
-        <h4 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-1.5">
-          <BarChart3 className="h-3.5 w-3.5" /> Text Analytics & Readability
-        </h4>
+      {/* ── Analytics (Analyze tab) ── */}
+      {activeTab === "count" && (
+        <div className="bg-card/60 backdrop-blur-xl border border-border/40 rounded-xl p-3.5 sm:p-4 space-y-4 shadow-md">
+          <h4 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-1.5">
+            <BarChart3 className="h-3.5 w-3.5" /> Text analytics
+          </h4>
 
-        {/* Social Constraints Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-          {[
-            { name: "Twitter / X", max: 280, current: stats.charsTotal },
-            { name: "LinkedIn Post", max: 3000, current: stats.charsTotal },
-            { name: "SEO Meta Title", max: 60, current: stats.charsTotal },
-            { name: "SEO Meta Desc", max: 160, current: stats.charsTotal }
-          ].map((platform, idx) => {
-            const pct = Math.min(Math.round((platform.current / platform.max) * 100), 100);
-            const isExceeded = platform.current > platform.max;
-            return (
-              <div key={idx} className="bg-background/50 p-2 rounded-lg border border-border/20 space-y-1">
-                <div className="flex justify-between text-[10px] font-bold">
-                  <span className="text-muted-foreground truncate">{platform.name}</span>
-                  <span className={isExceeded ? "text-rose-500 font-extrabold" : "text-foreground font-mono"}>
-                    {platform.current}/{platform.max}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {[
+              ["Words", basic.words],
+              ["Characters", basic.chars],
+              ["No spaces", basic.charsNoSpaces],
+              ["Sentences", basic.sentences],
+              ["Paragraphs", basic.paragraphs],
+              ["Lines", basic.lines],
+              ["Reading time", basic.readTime],
+              ["Speaking time", basic.speakTime],
+            ].map(([l, v]) => (
+              <div
+                key={l}
+                className="bg-background/50 p-2.5 rounded-lg border border-border/20"
+              >
+                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">
+                  {l}
+                </span>
+                <span className="text-lg font-black text-foreground font-mono">
+                  {v}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-2">
+            <span className={smallLabel}>Length limits (approximate)</span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+              {[
+                { name: "X / Twitter", max: 280 },
+                { name: "LinkedIn post", max: 3000 },
+                { name: "SEO title", max: 60 },
+                { name: "SEO description", max: 160 },
+              ].map((p) => {
+                const pct = Math.min(
+                  Math.round((basic.chars / p.max) * 100),
+                  100,
+                );
+                const over = basic.chars > p.max;
+                return (
+                  <div
+                    key={p.name}
+                    className="bg-background/50 p-2 rounded-lg border border-border/20 space-y-1"
+                  >
+                    <div className="flex justify-between text-[10px] font-bold">
+                      <span className="text-muted-foreground truncate">
+                        {p.name}
+                      </span>
+                      <span
+                        className={
+                          over
+                            ? "text-rose-500 font-extrabold"
+                            : "text-foreground font-mono"
+                        }
+                      >
+                        {basic.chars}/{p.max}
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 bg-border/30 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-300 ${over ? "bg-rose-500" : "bg-primary"}`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="text-[10px] text-muted-foreground">
+              Platforms count differently: X counts links as 23 characters, and
+              Google truncates titles by pixel width, not characters.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+            <div className="p-3 bg-background/50 rounded-lg border border-border/20 flex items-center justify-between gap-3">
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-primary block">
+                  Flesch reading ease
+                </span>
+                {analysis?.flesch != null ? (
+                  <>
+                    <span className="text-xl font-black text-foreground">
+                      {analysis.flesch}{" "}
+                      <span className="text-xs font-medium text-muted-foreground">
+                        / 100
+                      </span>
+                    </span>
+                    <span className="text-[10px] text-primary font-bold block">
+                      {analysis.grade}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-xs text-muted-foreground block mt-1">
+                    {basic.words === 0
+                      ? "—"
+                      : "Available for English text only."}
+                  </span>
+                )}
+              </div>
+              <div className="text-right font-mono text-[10px] text-muted-foreground space-y-0.5">
+                <div>
+                  Avg:{" "}
+                  <span className="font-bold text-foreground">
+                    {analysis?.avg ?? "0"} words/sentence
                   </span>
                 </div>
-                <div className="w-full h-1.5 bg-border/30 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all duration-300 ${isExceeded ? "bg-rose-500" : "bg-primary"}`}
-                    style={{ width: `${pct}%` }}
-                  />
+                <div>
+                  Longest:{" "}
+                  <span className="font-bold text-foreground">
+                    {analysis?.longest ?? 0} words
+                  </span>
                 </div>
               </div>
-            );
-          })}
-        </div>
-
-        {/* Detailed Readability & Keyword Breakdown */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-          <div className="p-3 bg-background/50 rounded-lg border border-border/20 flex items-center justify-between">
-            <div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-primary block">Flesch Ease</span>
-              <span className="text-xl font-black text-foreground">{stats.fleschScore} <span className="text-xs font-medium text-muted-foreground">/ 100</span></span>
-              <span className="text-[10px] text-primary font-bold block">{stats.fleschGrade}</span>
             </div>
-            <div className="text-right font-mono text-[10px] text-muted-foreground space-y-0.5">
-              <div>Avg: <span className="font-bold text-foreground">{stats.avgSentenceWords} words/sent</span></div>
-              <div>Max: <span className="font-bold text-foreground">{stats.longestSentenceWords} words/sent</span></div>
-            </div>
-          </div>
 
-          <div className="p-3 bg-background/50 rounded-lg border border-border/20 space-y-1">
-            <span className="text-[10px] font-black uppercase tracking-widest text-primary block">Top Keywords</span>
-            <div className="flex flex-wrap gap-1.5">
-              {stats.topKeywords.length === 0 ? (
-                <span className="text-[10px] text-muted-foreground">Type text above to compute density.</span>
-              ) : (
-                stats.topKeywords.map((kw, i) => (
-                  <span key={i} className="px-2 py-0.5 rounded bg-card/60 border border-border/20 text-[10px] font-mono font-bold text-foreground">
-                    {kw.word} ({kw.count}×)
+            <div className="p-3 bg-background/50 rounded-lg border border-border/20 space-y-1">
+              <span className="text-[10px] font-black uppercase tracking-widest text-primary block">
+                Top keywords
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {!analysis || analysis.keywords.length === 0 ? (
+                  <span className="text-[10px] text-muted-foreground">
+                    Type some text to see keyword density.
                   </span>
-                ))
-              )}
+                ) : (
+                  analysis.keywords.map((kw) => (
+                    <span
+                      key={kw.word}
+                      className="px-2 py-0.5 rounded bg-card/60 border border-border/20 text-[10px] font-mono font-bold text-foreground"
+                    >
+                      {kw.word} ({kw.count}× · {kw.pct}%)
+                    </span>
+                  ))
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Compact Zero-Server Privacy Footer */}
+      {/* ── Privacy strip ── */}
       <div className="flex items-center justify-between gap-3 bg-card/20 backdrop-blur-md px-3.5 py-2 rounded-xl border border-border/20 text-muted-foreground">
         <div className="flex items-center gap-2 min-w-0">
           <ShieldCheck className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
           <p className="text-[11px] font-medium truncate">
-            <span className="font-bold text-foreground">Zero-Server Text Engine</span> · 100% in-browser execution.
+            <span className="font-bold text-foreground">
+              Zero-server text engine
+            </span>{" "}
+            · everything runs in your browser.
           </p>
         </div>
-        <div className="text-[9px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0">
-          Browser RAM
+        <div className="text-[9px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 shrink-0">
+          Client-side
         </div>
       </div>
     </div>
   );
 }
-

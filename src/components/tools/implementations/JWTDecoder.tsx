@@ -1,9 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
-import { AlertCircle, Trash2 } from "lucide-react";
-
-import { Sparkles, Wand2, ShieldCheck, KeyRound, Copy, Check } from "lucide-react";
+import {
+  AlertCircle,
+  Trash2,
+  Sparkles,
+  Wand2,
+  ShieldCheck,
+  KeyRound,
+  Copy,
+  Check,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export function JWTDecoder() {
@@ -20,7 +27,8 @@ export function JWTDecoder() {
   } | null>(null);
   const { toast } = useToast();
 
-  const sampleJWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+  const sampleJWT =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
 
   const handleLoadSample = () => {
     setInput(sampleJWT);
@@ -39,9 +47,12 @@ export function JWTDecoder() {
       setMeta({
         issuedAt: new Date(decodedPayload.iat * 1000).toLocaleString(),
         expiresAt: "N/A (No exp claim)",
-        isExpired: false
+        isExpired: false,
       });
-      toast({ title: "Sample JWT Loaded", description: "Sample token decoded successfully." });
+      toast({
+        title: "Sample JWT Loaded",
+        description: "Sample token decoded successfully.",
+      });
     } catch (_) {}
   };
 
@@ -56,7 +67,9 @@ export function JWTDecoder() {
 
     const parts = input.trim().split(".");
     if (parts.length < 2 || parts.length > 3) {
-      setError("Invalid JWT format. Tokens must consist of 3 dot-separated segments (Header, Payload, Signature).");
+      setError(
+        "Invalid JWT format. Tokens must consist of 3 dot-separated segments (Header, Payload, Signature).",
+      );
       setHeader("");
       setPayload("");
       setMeta(null);
@@ -69,9 +82,7 @@ export function JWTDecoder() {
         while (base64.length % 4) {
           base64 += "=";
         }
-        return decodeURIComponent(
-          escape(window.atob(base64))
-        );
+        return decodeURIComponent(escape(window.atob(base64)));
       };
 
       const decodedHeader = JSON.parse(base64UrlDecode(parts[0]));
@@ -81,10 +92,11 @@ export function JWTDecoder() {
       setPayload(JSON.stringify(decodedPayload, null, 2));
       setError(null);
 
-      // Metadata / Expiration tracking
       const metadata: typeof meta = {};
       if (decodedPayload.iat) {
-        metadata.issuedAt = new Date(decodedPayload.iat * 1000).toLocaleString();
+        metadata.issuedAt = new Date(
+          decodedPayload.iat * 1000,
+        ).toLocaleString();
       }
       if (decodedPayload.exp) {
         const expTime = decodedPayload.exp * 1000;
@@ -93,7 +105,9 @@ export function JWTDecoder() {
       }
       setMeta(metadata);
     } catch (err) {
-      setError("Failed to parse JWT segments. Please verify that this is a valid base64-encoded token.");
+      setError(
+        "Failed to parse JWT segments. Please verify that this is a valid base64-encoded token.",
+      );
       setHeader("");
       setPayload("");
       setMeta(null);
@@ -110,7 +124,6 @@ export function JWTDecoder() {
 
   return (
     <div className="space-y-4 sm:space-y-5">
-      {/* Studio Header Bar */}
       <div className="flex flex-wrap items-center justify-between gap-2.5 bg-card/30 backdrop-blur-xl px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-border/20">
         <div className="flex items-center gap-2 min-w-0">
           <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
@@ -118,7 +131,8 @@ export function JWTDecoder() {
             JWT Studio Inspector
           </span>
           <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live Client
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />{" "}
+            Live Client
           </span>
         </div>
 
@@ -156,6 +170,16 @@ export function JWTDecoder() {
           className="w-full h-20 sm:h-24 p-3 sm:p-4 rounded-xl border border-border/30 bg-muted/40 font-mono text-xs focus:ring-1 focus:ring-primary focus:outline-none resize-none leading-relaxed text-foreground break-all"
         />
 
+        <div className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-medium leading-relaxed shadow-sm mt-1">
+          <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+          <span>
+            <strong>Security Note:</strong> This tool decodes the payload only.
+            It does <strong>NOT</strong> verify the cryptographic signature. Do
+            not trust the payload unless you have verified the signature on your
+            own backend.
+          </span>
+        </div>
+
         <button
           onClick={handleDecode}
           className="w-full py-2 sm:py-2.5 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-black uppercase tracking-wider transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-1.5 shadow-sm"
@@ -183,11 +207,18 @@ export function JWTDecoder() {
                   navigator.clipboard.writeText(header);
                   setCopiedHeader(true);
                   setTimeout(() => setCopiedHeader(false), 2000);
-                  toast({ title: "Copied!", description: "JWT Header copied." });
+                  toast({
+                    title: "Copied!",
+                    description: "JWT Header copied.",
+                  });
                 }}
                 className="p-1 rounded bg-secondary hover:bg-primary/20 text-foreground transition-colors"
               >
-                {copiedHeader ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
+                {copiedHeader ? (
+                  <Check className="h-3.5 w-3.5 text-emerald-500" />
+                ) : (
+                  <Copy className="h-3.5 w-3.5" />
+                )}
               </button>
             </div>
             <pre className="p-3 sm:p-4 rounded-xl bg-slate-950 border border-border/30 text-xs font-mono text-purple-400 overflow-auto h-48 sm:h-60 leading-relaxed">
@@ -205,11 +236,18 @@ export function JWTDecoder() {
                   navigator.clipboard.writeText(payload);
                   setCopiedPayload(true);
                   setTimeout(() => setCopiedPayload(false), 2000);
-                  toast({ title: "Copied!", description: "JWT Payload copied." });
+                  toast({
+                    title: "Copied!",
+                    description: "JWT Payload copied.",
+                  });
                 }}
                 className="p-1 rounded bg-secondary hover:bg-primary/20 text-foreground transition-colors"
               >
-                {copiedPayload ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
+                {copiedPayload ? (
+                  <Check className="h-3.5 w-3.5 text-emerald-500" />
+                ) : (
+                  <Copy className="h-3.5 w-3.5" />
+                )}
               </button>
             </div>
             <pre className="p-3 sm:p-4 rounded-xl bg-slate-950 border border-border/30 text-xs font-mono text-emerald-400 overflow-auto h-48 sm:h-60 leading-relaxed">
@@ -223,18 +261,26 @@ export function JWTDecoder() {
         <div className="p-3 sm:p-4 rounded-xl border border-border/30 bg-card/20 flex flex-wrap gap-4 sm:gap-6 text-xs">
           {meta.issuedAt && (
             <div>
-              <span className="text-muted-foreground font-semibold">Issued At: </span>
+              <span className="text-muted-foreground font-semibold">
+                Issued At:{" "}
+              </span>
               <strong className="text-foreground">{meta.issuedAt}</strong>
             </div>
           )}
           {meta.expiresAt && (
             <div>
-              <span className="text-muted-foreground font-semibold">Expires At: </span>
+              <span className="text-muted-foreground font-semibold">
+                Expires At:{" "}
+              </span>
               <strong className="text-foreground">{meta.expiresAt}</strong>
               {meta.isExpired !== undefined && (
-                <span className={`ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                  meta.isExpired ? "bg-destructive/10 text-destructive" : "bg-emerald-500/10 text-emerald-500"
-                }`}>
+                <span
+                  className={`ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                    meta.isExpired
+                      ? "bg-destructive/10 text-destructive"
+                      : "bg-emerald-500/10 text-emerald-500"
+                  }`}
+                >
                   {meta.isExpired ? "EXPIRED" : "ACTIVE"}
                 </span>
               )}

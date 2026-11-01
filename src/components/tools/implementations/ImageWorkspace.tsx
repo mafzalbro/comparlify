@@ -1,1649 +1,2267 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import JSZip from "jszip";
 import {
   Upload,
   Download,
-  Trash2,
   Loader2,
-  ShieldCheck,
   Settings2,
   Sparkles,
-  ArrowRight,
-  CheckCircle2,
-  RefreshCw,
-  AlertTriangle,
-  FileImage,
   Crop,
   Maximize2,
+  Minimize2,
   RotateCw,
-  FileCode,
-  HelpCircle,
+  RotateCcw,
   Copy,
-  Check,
-  ChevronRight,
-  Info
+  ZoomIn,
+  ZoomOut,
+  Layers,
+  ArrowRightLeft,
+  Info,
+  FileArchive,
+  X,
+  Plus,
+  FlipHorizontal,
+  FlipVertical,
+  AlertTriangle,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import JSZip from "jszip";
 
-// Simple custom aspect crop definitions
-interface CropArea {
-  x: number;
+/* ════════════════════════════════════════════════════════════════
+   TYPES & CONSTANTS
+════════════════════════════════════════════════════════════════ */
+
+type Fmt = "webp" | "jpeg" | "png";
+type TargetFormat = Fmt | "original";
+type View = "editor" | "convert" | "base64";
+type Tab = "compress" | "resize" | "crop" | "rotate" | "info";
+type QualityPreset = "high" | "balanced" | "smallest";
+type CompressionMode = "quality" | "target";
+type ResizeMode = "pixels" | "percent";
+type Handle = "move" | "nw" | "ne" | "sw" | "se";
+
+interface CropBox {
+  x: number; // all values are % of the source image
   y: number;
-  width: number;
-  height: number;
+  w: number;
+  h: number;
 }
 
-interface ImageMetadata {
-  name: string;
-  size: number;
+interface ImageItem {
+  id: string;
+  file: File;
+  mime: string;
+  url: string;
   width: number;
   height: number;
-  type: string;
-  aspectRatio: string;
   hasAlpha: boolean;
-  compressionPotential: string;
+  crop: CropBox;
+}
+
+interface ResizeSettings {
+  mode: ResizeMode;
+  width: number | null; // null = "not set"
+  height: number | null;
+  percent: number;
+  lock: boolean;
 }
 
 interface ProcessedResult {
+  id: string;
   name: string;
+  blob: Blob;
+  url: string;
   originalSize: number;
   newSize: number;
   width: number;
   height: number;
   format: string;
-  dataUrl: string;
-  savedPercentage: number;
+  kept: boolean; // original file was returned because re-encoding made it bigger
+  warnings: string[];
 }
 
-export function ImageWorkspace({ defaultMode = "compress" }: { defaultMode?: string }) {
-  const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<string>(defaultMode);
+interface ParsedMode {
+  view: View;
+  tab: Tab;
+  source: Fmt | null;
+  target: Fmt | null;
+}
 
-  // --- File State ---
-  const [files, setFiles] = useState<File[]>([]);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+const MAX_FILES = 50;
+const MAX_FILE_BYTES = 25 * 1024 * 1024;
+const MAX_SIDE = 12000;
+const MAX_PIXELS = 80_000_000;
+const MIN_CROP_PCT = 5;
+const CONCURRENCY = 2;
 
-  // --- Single Image Workspace State ---
-  const [singleImageSrc, setSingleImageSrc] = useState<string | null>(null);
-  const [metadata, setMetadata] = useState<ImageMetadata | null>(null);
+const MIME: Record<Fmt, string> = {
+  webp: "image/webp",
+  jpeg: "image/jpeg",
+  png: "image/png",
+};
+const EXT: Record<Fmt, string> = { webp: "webp", jpeg: "jpg", png: "png" };
+const QUALITY: Record<QualityPreset, number> = {
+  high: 0.95,
+  balanced: 0.85,
+  smallest: 0.65,
+};
+const QUALITY_LABEL: Record<QualityPreset, string> = {
+  high: "High",
+  balanced: "Balanced",
+  smallest: "Smallest",
+};
+const FULL_CROP: CropBox = { x: 0, y: 0, w: 100, h: 100 };
+const DEFAULT_RESIZE: ResizeSettings = {
+  mode: "pixels",
+  width: null,
+  height: null,
+  percent: 100,
+  lock: true,
+};
+const ASPECTS: { label: string; value: number | null }[] = [
+  { label: "Free", value: null },
+  { label: "1:1", value: 1 },
+  { label: "4:3", value: 4 / 3 },
+  { label: "3:2", value: 3 / 2 },
+  { label: "16:9", value: 16 / 9 },
+  { label: "9:16", value: 9 / 16 },
+];
+const TAB_DEFS: {
+  id: Tab;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+}[] = [
+  { id: "compress", label: "Compress", icon: Sparkles },
+  { id: "resize", label: "Resize", icon: Maximize2 },
+  { id: "crop", label: "Crop", icon: Crop },
+  { id: "rotate", label: "Rotate", icon: RotateCw },
+  { id: "info", label: "Info", icon: Info },
+];
 
-  // --- Compression Settings ---
-  const [compressionType, setCompressionType] = useState<"preset" | "target">("preset");
-  const [qualityPreset, setQualityPreset] = useState<"best" | "balanced" | "smallest">("balanced");
-  const [targetSizeKb, setTargetSizeKb] = useState<number>(200);
+/* ════════════════════════════════════════════════════════════════
+   PURE HELPERS
+════════════════════════════════════════════════════════════════ */
 
-  // --- Resize Settings ---
-  const [resizeWidth, setResizeWidth] = useState<number>(800);
-  const [resizeHeight, setResizeHeight] = useState<number>(600);
-  const [lockAspectRatio, setLockAspectRatio] = useState<boolean>(true);
-  const [resizePercent, setResizePercent] = useState<number>(100);
-  const [resizeUnit, setResizeUnit] = useState<"px" | "percent">("px");
+const clamp = (v: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, v));
 
-  // --- Rotation Settings ---
-  const [rotation, setRotation] = useState<number>(0); // degrees: 0, 90, 180, 270
-  const [flipH, setFlipH] = useState<boolean>(false);
-  const [flipV, setFlipV] = useState<boolean>(false);
+const normFmt = (s: string): Fmt | null =>
+  s === "jpg" || s === "jpeg"
+    ? "jpeg"
+    : s === "png"
+      ? "png"
+      : s === "webp"
+        ? "webp"
+        : null;
 
-  // --- Crop Settings (Custom Custom Crop Box Overlay) ---
-  const [cropBox, setCropBox] = useState<CropArea>({ x: 10, y: 10, width: 80, height: 80 }); // in percentages
-  const [cropAspectRatio, setCropAspectRatio] = useState<string>("custom"); // "custom", "1:1", "16:9", "4:3"
-  const cropContainerRef = useRef<HTMLDivElement>(null);
+const fmtFromMime = (m: string): Fmt | null =>
+  m === "image/png"
+    ? "png"
+    : m === "image/jpeg"
+      ? "jpeg"
+      : m === "image/webp"
+        ? "webp"
+        : null;
 
-  // --- Conversion Format ---
-  const [targetFormat, setTargetFormat] = useState<"png" | "jpeg" | "webp">("webp");
+const mimeFromFile = (f: File): string => {
+  if (f.type) return f.type;
+  const ext = f.name.split(".").pop()?.toLowerCase() ?? "";
+  const map: Record<string, string> = {
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    png: "image/png",
+    webp: "image/webp",
+    gif: "image/gif",
+  };
+  return map[ext] ?? "";
+};
 
-  // --- Presets State ---
-  const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
+const formatBytes = (n: number) =>
+  n < 1024
+    ? `${n} B`
+    : n < 1024 * 1024
+      ? `${(n / 1024).toFixed(1)} KB`
+      : `${(n / 1024 / 1024).toFixed(2)} MB`;
 
-  // --- Before / After Comparison State ---
-  const [processedResult, setProcessedResult] = useState<ProcessedResult | null>(null);
-  const [sliderPosition, setSliderPosition] = useState<number>(50); // percentage of before/after split
-  const isDraggingSlider = useRef<boolean>(false);
-  const sliderContainerRef = useRef<HTMLDivElement>(null);
+const baseName = (n: string) => {
+  const i = n.lastIndexOf(".");
+  return i > 0 ? n.slice(0, i) : n;
+};
 
-  // --- Base64 Output State ---
-  const [base64Output, setBase64Output] = useState<string>("");
-  const [copiedBase64, setCopiedBase64] = useState<boolean>(false);
+const pctChange = (orig: number, next: number) =>
+  orig > 0 ? Math.round(((next - orig) / orig) * 100) : 0;
 
-  // --- Custom Output Naming & Dominant Color State ---
-  const [namingPattern, setNamingPattern] = useState<string>("{name}-{width}x{height}");
-  const [dominantColors, setDominantColors] = useState<string[]>([]);
-  const [responsiveCode, setResponsiveCode] = useState<string>("");
-  const [copiedResponsive, setCopiedResponsive] = useState<boolean>(false);
+const preview = (text: string, max = 400) =>
+  text.length > max
+    ? `${text.slice(0, max)}… (${text.length.toLocaleString()} characters)`
+    : text;
 
-  // --- Batch Processed Files ---
-  const [batchResults, setBatchResults] = useState<ProcessedResult[]>([]);
+const TAB_IDS = ["compress", "resize", "crop", "rotate"];
 
-  // Synchronize targetFormat if defaultMode is a converter
-  useEffect(() => {
-    if (defaultMode.includes("to-")) {
-      const parts = defaultMode.split("-to-");
-      if (parts.length === 2) {
-        const rawTo = parts[1].toLowerCase();
-        if (rawTo === "jpg" || rawTo === "jpeg") {
-          setTargetFormat("jpeg");
-        } else if (rawTo === "png") {
-          setTargetFormat("png");
-        } else if (rawTo === "webp") {
-          setTargetFormat("webp");
-        }
-      }
-      setActiveTab("compress");
-    } else {
-      setActiveTab(defaultMode);
+function parseMode(mode: string): ParsedMode {
+  if (mode === "image-to-base64")
+    return { view: "base64", tab: "info", source: null, target: null };
+  const m = mode.match(/^(jpg|jpeg|png|webp)-to-(jpg|jpeg|png|webp)$/);
+  if (m) {
+    const source = normFmt(m[1]);
+    const target = normFmt(m[2]);
+    if (source && target)
+      return { view: "convert", tab: "compress", source, target };
+  }
+  const tab = (TAB_IDS.includes(mode) ? mode : "compress") as Tab;
+  return { view: "editor", tab, source: null, target: null };
+}
+
+const initialPreset = (m: ParsedMode): QualityPreset =>
+  m.view === "editor" && m.tab !== "compress" ? "high" : "balanced";
+
+function isResizeActive(r: ResizeSettings) {
+  return r.mode === "percent"
+    ? r.percent !== 100
+    : r.width !== null || r.height !== null;
+}
+
+function calcSize(cw: number, ch: number, r: ResizeSettings): [number, number] {
+  if (r.mode === "percent") {
+    const f = clamp(r.percent, 1, 1000) / 100;
+    return [Math.max(1, Math.round(cw * f)), Math.max(1, Math.round(ch * f))];
+  }
+  let w = r.width;
+  let h = r.height;
+  if (w === null && h === null) return [cw, ch];
+  if (r.lock) {
+    if (w !== null) h = Math.round((ch * w) / cw);
+    else w = Math.round((cw * (h as number)) / ch);
+  } else {
+    w = w ?? cw;
+    h = h ?? ch;
+  }
+  return [Math.max(1, w as number), Math.max(1, h as number)];
+}
+
+function cropPx(item: { width: number; height: number; crop: CropBox }) {
+  const { width: W, height: H, crop } = item;
+  const sx = clamp(Math.round((crop.x / 100) * W), 0, Math.max(0, W - 1));
+  const sy = clamp(Math.round((crop.y / 100) * H), 0, Math.max(0, H - 1));
+  const sw = clamp(Math.round((crop.w / 100) * W), 1, Math.max(1, W - sx));
+  const sh = clamp(Math.round((crop.h / 100) * H), 1, Math.max(1, H - sy));
+  return { sx, sy, sw, sh, active: sx > 0 || sy > 0 || sw < W || sh < H };
+}
+
+function triggerDownload(href: string, filename: string, revoke = false) {
+  const a = document.createElement("a");
+  a.href = href;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  if (revoke) setTimeout(() => URL.revokeObjectURL(href), 10_000);
+}
+
+/* ── Canvas helpers ───────────────────────────────────────────── */
+
+function makeCanvas(w: number, h: number) {
+  const c = document.createElement("canvas");
+  c.width = w;
+  c.height = h;
+  const ctx = c.getContext("2d");
+  if (!ctx) throw new Error("This image is too large for your browser.");
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  return { c, ctx };
+}
+
+/** Downscales in halving steps so large reductions stay sharp (no aliasing). */
+function scaleToCanvas(
+  src: CanvasImageSource,
+  sx: number,
+  sy: number,
+  sw: number,
+  sh: number,
+  dw: number,
+  dh: number,
+): HTMLCanvasElement {
+  let cur: CanvasImageSource = src;
+  let cx = sx;
+  let cy = sy;
+  let cw = sw;
+  let ch = sh;
+  while (cw / 2 > dw || ch / 2 > dh) {
+    const nw = Math.max(dw, Math.ceil(cw / 2));
+    const nh = Math.max(dh, Math.ceil(ch / 2));
+    const step = makeCanvas(nw, nh);
+    step.ctx.drawImage(cur, cx, cy, cw, ch, 0, 0, nw, nh);
+    cur = step.c;
+    cx = 0;
+    cy = 0;
+    cw = nw;
+    ch = nh;
+  }
+  const out = makeCanvas(dw, dh);
+  out.ctx.drawImage(cur, cx, cy, cw, ch, 0, 0, dw, dh);
+  return out.c;
+}
+
+function canvasToBlob(
+  c: HTMLCanvasElement,
+  mime: string,
+  quality?: number,
+): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    c.toBlob(
+      (b) => {
+        if (!b)
+          return reject(
+            new Error("Your browser couldn't encode this image (too large?)."),
+          );
+        if (b.type && b.type !== mime)
+          return reject(
+            new Error(
+              `Your browser can't export ${mime.split("/")[1].toUpperCase()} files.`,
+            ),
+          );
+        resolve(b);
+      },
+      mime,
+      quality,
+    );
+  });
+}
+
+function detectAlpha(bitmap: ImageBitmap): boolean {
+  const scale = Math.min(1, 256 / Math.max(bitmap.width, bitmap.height));
+  const w = Math.max(1, Math.round(bitmap.width * scale));
+  const h = Math.max(1, Math.round(bitmap.height * scale));
+  const c = document.createElement("canvas");
+  c.width = w;
+  c.height = h;
+  const ctx = c.getContext("2d", { willReadFrequently: true });
+  if (!ctx) return false;
+  ctx.drawImage(bitmap, 0, 0, w, h);
+  const d = ctx.getImageData(0, 0, w, h).data;
+  for (let i = 3; i < d.length; i += 4) if (d[i] < 255) return true;
+  return false;
+}
+
+async function analyzeFile(file: File, mime: string) {
+  try {
+    const bmp = await createImageBitmap(file);
+    const out = {
+      width: bmp.width,
+      height: bmp.height,
+      hasAlpha:
+        mime === "image/png" || mime === "image/webp"
+          ? detectAlpha(bmp)
+          : false,
+    };
+    bmp.close();
+    return out;
+  } catch {
+    return null;
+  }
+}
+
+/** Highest quality (<= target bytes) via binary search. */
+async function searchQuality(
+  c: HTMLCanvasElement,
+  mime: string,
+  targetBytes: number,
+  tick: () => Promise<void>,
+): Promise<{ blob: Blob | null; smallest: Blob }> {
+  const hi = await canvasToBlob(c, mime, 0.95);
+  await tick();
+  if (hi.size <= targetBytes) return { blob: hi, smallest: hi };
+  const lo = await canvasToBlob(c, mime, 0.2);
+  await tick();
+  if (lo.size > targetBytes) return { blob: null, smallest: lo };
+  let best = lo;
+  let qLo = 0.2;
+  let qHi = 0.95;
+  for (let i = 0; i < 6; i++) {
+    const q = (qLo + qHi) / 2;
+    const b = await canvasToBlob(c, mime, q);
+    await tick();
+    if (b.size <= targetBytes) {
+      best = b;
+      qLo = q;
+    } else qHi = q;
+  }
+  return { blob: best, smallest: lo };
+}
+
+/** Max-size compression: lowers quality first, then dimensions, and reports both. */
+async function encodeToTarget(
+  canvas: HTMLCanvasElement,
+  mime: string,
+  targetBytes: number,
+  onProgress?: (p: number) => void,
+) {
+  const warnings: string[] = [];
+  let steps = 0;
+  const tick = async () => {
+    steps++;
+    onProgress?.(Math.min(95, steps * 6));
+    await new Promise((r) => setTimeout(r, 0));
+  };
+  let scale = 1;
+  let smallest: { blob: Blob; w: number; h: number } | null = null;
+
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const w = Math.max(1, Math.round(canvas.width * scale));
+    const h = Math.max(1, Math.round(canvas.height * scale));
+    const c =
+      scale === 1
+        ? canvas
+        : scaleToCanvas(canvas, 0, 0, canvas.width, canvas.height, w, h);
+    const r = await searchQuality(c, mime, targetBytes, tick);
+    if (r.blob) {
+      if (scale < 1)
+        warnings.push(
+          `Dimensions reduced from ${canvas.width}×${canvas.height} to ${w}×${h} px to reach the target size.`,
+        );
+      return { blob: r.blob, width: w, height: h, warnings };
     }
+    smallest = { blob: r.smallest, w, h };
+    scale *= clamp(Math.sqrt(targetBytes / r.smallest.size) * 0.95, 0.3, 0.9);
+    if (Math.min(canvas.width, canvas.height) * scale < 16) break;
+  }
+  warnings.push(
+    `Couldn't reach ${formatBytes(targetBytes)}. This is the smallest result possible.`,
+  );
+  const s = smallest as { blob: Blob; w: number; h: number };
+  return { blob: s.blob, width: s.w, height: s.h, warnings };
+}
+
+/* ════════════════════════════════════════════════════════════════
+   COMPONENT
+════════════════════════════════════════════════════════════════ */
+
+export function ImageWorkspace({
+  defaultMode = "compress",
+}: {
+  defaultMode?: string;
+}) {
+  const { toast } = useToast();
+  const mode = useMemo(() => parseMode(defaultMode), [defaultMode]);
+  const view = mode.view;
+
+  // Files
+  const [items, setItems] = useState<ImageItem[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [isLoadingFiles, setIsLoadingFiles] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Results
+  const [results, setResults] = useState<Record<string, ProcessedResult>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isZipping, setIsZipping] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [eta, setEta] = useState("");
+
+  // UI
+  const [activeTab, setActiveTab] = useState<Tab>(mode.tab);
+  const [zoom, setZoom] = useState(1);
+  const [showChecker, setShowChecker] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [splitPosition, setSplitPosition] = useState(50);
+  const [viewSide, setViewSide] = useState<"original" | "result">("result");
+
+  // Settings (global, applied to every image)
+  const [targetFormat, setTargetFormat] = useState<TargetFormat>(
+    mode.view === "convert" && mode.target ? mode.target : "original",
+  );
+  const [qualityPreset, setQualityPreset] = useState<QualityPreset>(
+    initialPreset(mode),
+  );
+  const [compressionMode, setCompressionMode] =
+    useState<CompressionMode>("quality");
+  const [targetKbText, setTargetKbText] = useState("150");
+  const [resize, setResize] = useState<ResizeSettings>(DEFAULT_RESIZE);
+  const [rotation, setRotation] = useState(0);
+  const [flipH, setFlipH] = useState(false);
+  const [flipV, setFlipV] = useState(false);
+  const [cropRatio, setCropRatio] = useState<number | null>(null);
+
+  // Base64
+  const [b64, setB64] = useState<{ id: string; dataUri: string } | null>(null);
+  const [b64Loading, setB64Loading] = useState(false);
+
+  // Refs
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cropContainerRef = useRef<HTMLDivElement>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const draggingSlider = useRef(false);
+  const startRef = useRef(0);
+  const runIdRef = useRef(0);
+  const idRef = useRef(0);
+  const mountedRef = useRef(true);
+  const itemsRef = useRef(items);
+  const resultsRef = useRef(results);
+  itemsRef.current = items;
+  resultsRef.current = results;
+
+  /* ── Derived ─────────────────────────────────────────────────── */
+
+  const activeItem = items.find((i) => i.id === activeId) ?? items[0] ?? null;
+  const activeResult = activeItem ? results[activeItem.id] : undefined;
+  const activeError = activeItem ? errors[activeItem.id] : undefined;
+  const editing = view === "editor";
+  const resizeActive = editing && isResizeActive(resize);
+  const flipActive = editing && (flipH || flipV);
+  const rotateActive = editing && rotation !== 0;
+  const cropCount = editing ? items.filter((i) => cropPx(i).active).length : 0;
+  const targetKb = Number(targetKbText);
+  const targetValid = Number.isFinite(targetKb) && targetKb >= 5;
+  const resultList = items.map((i) => results[i.id]).filter(Boolean);
+  const pendingCount = items.filter((i) => !results[i.id]).length;
+  const canRun =
+    !isProcessing &&
+    pendingCount > 0 &&
+    (compressionMode !== "target" || targetValid);
+
+  const allowedMimes = useMemo(
+    () =>
+      view === "convert" && mode.source
+        ? [MIME[mode.source]]
+        : view === "base64"
+          ? ["image/png", "image/jpeg", "image/webp", "image/gif"]
+          : ["image/png", "image/jpeg", "image/webp"],
+    [view, mode.source],
+  );
+  const acceptAttr =
+    view === "convert" && mode.source
+      ? `${MIME[mode.source]},${mode.source === "jpeg" ? ".jpg,.jpeg" : `.${mode.source}`}`
+      : allowedMimes.join(",");
+
+  const resolveFormat = (item: ImageItem): Fmt =>
+    targetFormat === "original"
+      ? (fmtFromMime(item.mime) ?? "webp")
+      : targetFormat;
+
+  const anyPng = items.some((i) => resolveFormat(i) === "png");
+  const alphaToJpeg = items.some(
+    (i) => i.hasAlpha && resolveFormat(i) === "jpeg",
+  );
+
+  const orientedDims = (item: ImageItem): [number, number] => {
+    const c = cropPx(item);
+    return rotation === 90 || rotation === 270 ? [c.sh, c.sw] : [c.sw, c.sh];
+  };
+
+  /* ── Result bookkeeping ──────────────────────────────────────── */
+
+  const invalidate = (ids?: string[]) => {
+    const cur = resultsRef.current;
+    const targets = ids ?? Object.keys(cur);
+    const hit = targets.filter((id) => cur[id]);
+    hit.forEach((id) => URL.revokeObjectURL(cur[id].url));
+    if (hit.length)
+      setResults((p) => {
+        const n = { ...p };
+        hit.forEach((id) => delete n[id]);
+        return n;
+      });
+    setErrors((p) => {
+      if (!targets.some((id) => id in p)) return p;
+      const n = { ...p };
+      targets.forEach((id) => delete n[id]);
+      return n;
+    });
+  };
+
+  const clearAll = () => {
+    itemsRef.current.forEach((i) => URL.revokeObjectURL(i.url));
+    Object.values(resultsRef.current).forEach((r) =>
+      URL.revokeObjectURL(r.url),
+    );
+    setItems([]);
+    setActiveId(null);
+    setResults({});
+    setErrors({});
+  };
+
+  // Changing any global setting makes existing results stale → drop them.
+  const settingsSig = JSON.stringify({
+    targetFormat,
+    qualityPreset,
+    compressionMode,
+    targetKbText,
+    resize,
+    rotation,
+    flipH,
+    flipV,
+  });
+  useEffect(() => {
+    invalidate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settingsSig]);
+
+  // Tool switched by the hub: reset everything for the new tool.
+  const prevMode = useRef(defaultMode);
+  useEffect(() => {
+    if (prevMode.current === defaultMode) return;
+    prevMode.current = defaultMode;
+    clearAll();
+    setActiveTab(mode.tab);
+    setTargetFormat(
+      mode.view === "convert" && mode.target ? mode.target : "original",
+    );
+    setQualityPreset(initialPreset(mode));
+    setCompressionMode("quality");
+    setResize(DEFAULT_RESIZE);
+    setRotation(0);
+    setFlipH(false);
+    setFlipV(false);
+    setCropRatio(null);
+    setB64(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultMode]);
 
-  // Handle Aspect Ratio Changes for Crop
+  // Unmount cleanup
   useEffect(() => {
-    if (cropAspectRatio === "1:1") {
-      setCropBox(prev => ({ ...prev, height: prev.width }));
-    } else if (cropAspectRatio === "16:9") {
-      setCropBox(prev => ({ ...prev, height: prev.width * (9 / 16) }));
-    } else if (cropAspectRatio === "4:3") {
-      setCropBox(prev => ({ ...prev, height: prev.width * (3 / 4) }));
-    }
-  }, [cropAspectRatio]);
-
-  // Load single image into canvas for analysis and presets
-  const analyzeImage = (file: File, src: string) => {
-    const img = new Image();
-    img.onload = () => {
-      // Analyze transparency
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.min(img.width, 400);
-      canvas.height = Math.min(img.height, 400);
-      const ctx = canvas.getContext("2d");
-      let hasAlpha = false;
-      if (ctx) {
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        try {
-          const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-          for (let i = 3; i < imgData.length; i += 4) {
-            if (imgData[i] < 255) {
-              hasAlpha = true;
-              break;
-            }
-          }
-        } catch (e) {
-          // ignore CORS or sandbox security restrictions if any
-        }
-      }
-
-      // Calculate estimated compression potential
-      let potential = "Moderate (20-40%)";
-      if (file.size > 2 * 1024 * 1024) {
-        potential = "Very High (70-90% savings)";
-      } else if (file.type === "image/png" && !hasAlpha) {
-        potential = "High (50-80% savings using WebP)";
-      } else if (file.size < 100 * 1024) {
-        potential = "Low (Highly optimized already)";
-      }
-
-      const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
-      const divider = gcd(img.width, img.height);
-      const aspectStr = `${img.width / divider}:${img.height / divider}`;
-
-      // Sample dominant colors
-      const colors: string[] = [];
-      if (ctx) {
-        const samplePoints = [
-          [10, 10], [canvas.width / 2, canvas.height / 2], [canvas.width - 10, canvas.height - 10]
-        ];
-        samplePoints.forEach(([x, y]) => {
-          try {
-            const p = ctx.getImageData(Math.floor(x), Math.floor(y), 1, 1).data;
-            const hex = `#${((1 << 24) + (p[0] << 16) + (p[1] << 8) + p[2]).toString(16).slice(1)}`;
-            colors.push(hex);
-          } catch (e) {}
-        });
-      }
-      setDominantColors(colors.length > 0 ? colors : ["#000000", "#ffffff"]);
-
-      setMetadata({
-        name: file.name,
-        size: file.size,
-        width: img.width,
-        height: img.height,
-        type: file.type || "image/unknown",
-        aspectRatio: (img.width / img.height).toFixed(2) + ` (${aspectStr})`,
-        hasAlpha,
-        compressionPotential: potential
-      });
-
-      // Populate default Resize dimensions
-      setResizeWidth(img.width);
-      setResizeHeight(img.height);
-
-      // Generate initial responsive html snippet
-      const baseName = file.name.substring(0, file.name.lastIndexOf(".")) || file.name;
-      const htmlSnippet = `<picture>
-  <source srcset="${baseName}-320w.webp 320w, ${baseName}-640w.webp 640w, ${baseName}-1024w.webp 1024w, ${baseName}-1920w.webp 1920w" type="image/webp" sizes="(max-width: 768px) 100vw, 1024px" />
-  <img src="${baseName}-1024w.jpg" alt="${baseName.replace(/[-_]/g, " ")}" width="${img.width}" height="${img.height}" loading="lazy" decoding="async" />
-</picture>`;
-      setResponsiveCode(htmlSnippet);
-    };
-    img.src = src;
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.from(e.target.files || []);
-    if (selectedFiles.length === 0) return;
-
-    setFiles(selectedFiles);
-    setProcessedResult(null);
-    setBatchResults([]);
-
-    if (selectedFiles.length === 1) {
-      const file = selectedFiles[0];
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const src = event.target?.result as string;
-        setSingleImageSrc(src);
-        analyzeImage(file, src);
-        // Default to showing Base64 if needed
-        if (activeTab === "base64" || defaultMode === "image-to-base64") {
-          setBase64Output(src);
-        }
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setSingleImageSrc(null);
-      setMetadata(null);
-    }
-  };
-
-  const removeAllFiles = () => {
-    setFiles([]);
-    setSingleImageSrc(null);
-    setMetadata(null);
-    setProcessedResult(null);
-    setBatchResults([]);
-    setBase64Output("");
-  };
-
-  // --- Draggable Before / After split handling ---
-  const handleSliderMove = (clientX: number) => {
-    if (!sliderContainerRef.current) return;
-    const rect = sliderContainerRef.current.getBoundingClientRect();
-    const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
-    setSliderPosition((x / rect.width) * 100);
-  };
-
-  const onMouseDownSlider = (e: React.MouseEvent) => {
-    isDraggingSlider.current = true;
-    handleSliderMove(e.clientX);
-    document.addEventListener("mousemove", onGlobalMouseMove);
-    document.addEventListener("mouseup", onGlobalMouseUp);
-  };
-
-  const onTouchMoveSlider = (e: React.TouchEvent) => {
-    if (e.touches[0]) {
-      handleSliderMove(e.touches[0].clientX);
-    }
-  };
-
-  const onGlobalMouseMove = (e: MouseEvent) => {
-    if (isDraggingSlider.current) {
-      handleSliderMove(e.clientX);
-    }
-  };
-
-  const onGlobalMouseUp = () => {
-    isDraggingSlider.current = false;
-    document.removeEventListener("mousemove", onGlobalMouseMove);
-    document.removeEventListener("mouseup", onGlobalMouseUp);
-  };
-
-  // --- Smart Presets configuration ---
-  const applyPreset = (presetKey: string) => {
-    setSelectedPreset(presetKey);
-    setCompressionType("preset");
-
-    switch (presetKey) {
-      case "website":
-        setResizeUnit("px");
-        setResizeWidth(Math.min(metadata?.width || 1200, 1200));
-        setLockAspectRatio(true);
-        setTargetFormat("webp");
-        setQualityPreset("balanced");
-        break;
-      case "wordpress":
-        setResizeUnit("px");
-        setResizeWidth(Math.min(metadata?.width || 1024, 1024));
-        setLockAspectRatio(true);
-        setTargetFormat("webp");
-        setQualityPreset("balanced");
-        break;
-      case "shopify":
-        setResizeUnit("px");
-        setResizeWidth(Math.min(metadata?.width || 2048, 2048));
-        setLockAspectRatio(true);
-        setTargetFormat("webp");
-        setQualityPreset("best");
-        break;
-      case "instagram":
-        setResizeUnit("px");
-        setResizeWidth(1080);
-        setResizeHeight(1080);
-        setLockAspectRatio(false);
-        setTargetFormat("jpeg");
-        setQualityPreset("best");
-        break;
-      case "youtube":
-        setResizeUnit("px");
-        setResizeWidth(1280);
-        setResizeHeight(720);
-        setLockAspectRatio(false);
-        setTargetFormat("webp");
-        setQualityPreset("best");
-        break;
-      case "email":
-        setResizeUnit("px");
-        setResizeWidth(Math.min(metadata?.width || 600, 600));
-        setLockAspectRatio(true);
-        setTargetFormat("jpeg");
-        setQualityPreset("smallest");
-        break;
-      case "nextjs":
-        setResizeUnit("px");
-        setResizeWidth(Math.min(metadata?.width || 1920, 1920));
-        setLockAspectRatio(true);
-        setTargetFormat("webp");
-        setQualityPreset("balanced");
-        break;
-    }
-
-    toast({
-      title: "Preset Applied",
-      description: `Optimized image parameters for ${presetKey.toUpperCase()}`,
-    });
-  };
-
-  // Lock Aspect Ratio Resizing math helper
-  const handleWidthChange = (val: number) => {
-    setResizeWidth(val);
-    if (lockAspectRatio && metadata) {
-      const ratio = metadata.height / metadata.width;
-      setResizeHeight(Math.round(val * ratio));
-    }
-  };
-
-  const handleHeightChange = (val: number) => {
-    setResizeHeight(val);
-    if (lockAspectRatio && metadata) {
-      const ratio = metadata.width / metadata.height;
-      setResizeWidth(Math.round(val * ratio));
-    }
-  };
-
-  // --- Dynamic Binary Search Compression Logic (Target-Size mode) ---
-  const runBinarySearchCompression = async (
-    img: HTMLImageElement,
-    targetKb: number,
-    mimeType: string,
-    width: number,
-    height: number
-  ): Promise<{ dataUrl: string; size: number; quality: number }> => {
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) throw new Error("Could not construct 2D context");
-
-    // Set target canvas dimensions FIRST before applying matrix transformations
-    if (rotation === 90 || rotation === 270) {
-      canvas.width = height;
-      canvas.height = width;
-    } else {
-      canvas.width = width;
-      canvas.height = height;
-    }
-
-    ctx.save();
-    if (rotation !== 0) {
-      ctx.translate(canvas.width / 2, canvas.height / 2);
-      ctx.rotate((rotation * Math.PI) / 180);
-      if (rotation === 90 || rotation === 270) {
-        ctx.translate(-canvas.height / 2, -canvas.width / 2);
-      } else {
-        ctx.translate(-canvas.width / 2, -canvas.height / 2);
-      }
-    }
-
-    // Scale flips
-    if (flipH || flipV) {
-      ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
-      ctx.drawImage(
-        img,
-        flipH ? -width : 0,
-        flipV ? -height : 0,
-        width,
-        height
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      runIdRef.current++;
+      itemsRef.current.forEach((i) => URL.revokeObjectURL(i.url));
+      Object.values(resultsRef.current).forEach((r) =>
+        URL.revokeObjectURL(r.url),
       );
-    } else {
-      ctx.drawImage(img, 0, 0, width, height);
+    };
+  }, []);
+
+  // Escape closes fullscreen
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsFullscreen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isFullscreen]);
+
+  // ETA
+  useEffect(() => {
+    if (!isProcessing) return;
+    const t = setInterval(() => {
+      const elapsed = Date.now() - startRef.current;
+      if (progress >= 100) setEta("Finalizing…");
+      else if (progress > 2) {
+        const remaining = Math.max(0, (elapsed / progress) * 100 - elapsed);
+        const s = Math.ceil(remaining / 1000);
+        setEta(
+          s > 60
+            ? `~${Math.floor(s / 60)}m ${s % 60}s left`
+            : s > 0
+              ? `~${s}s left`
+              : "Almost done…",
+        );
+      } else setEta("Calculating…");
+    }, 300);
+    return () => clearInterval(t);
+  }, [isProcessing, progress]);
+
+  // Base64: read the ORIGINAL file (no re-encoding)
+  useEffect(() => {
+    if (view !== "base64" || !activeItem) {
+      setB64(null);
+      return;
     }
-    ctx.restore();
+    let cancelled = false;
+    setB64Loading(true);
+    const id = activeItem.id;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (cancelled) return;
+      setB64({ id, dataUri: String(reader.result) });
+      setB64Loading(false);
+    };
+    reader.onerror = () => {
+      if (cancelled) return;
+      setB64(null);
+      setB64Loading(false);
+      toast({ variant: "destructive", title: "Couldn't read this file" });
+    };
+    reader.readAsDataURL(activeItem.file);
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, activeItem?.id]);
 
-    // Binary search quality settings to find the optimal file size meeting the request
-    let minQ = 0.05;
-    let maxQ = 1.0;
-    let bestDataUrl = "";
-    let bestSize = 0;
-    let bestQuality = 0.8;
+  /* ── File handling ───────────────────────────────────────────── */
 
-    // Up to 6 iterations for extremely fast client performance
-    for (let i = 0; i < 6; i++) {
-      const midQ = (minQ + maxQ) / 2;
-      const dataUrl = canvas.toDataURL(mimeType, midQ);
-      // estimate byte size from Base64 length (approx 0.75 ratio)
-      const sizeBytes = Math.round((dataUrl.length - 22) * 3 / 4);
-      const sizeKb = sizeBytes / 1024;
+  const addFiles = async (incoming: File[]) => {
+    if (incoming.length === 0 || isProcessing) return;
+    const rejected: string[] = [];
+    const accepted: File[] = [];
+    let slots = MAX_FILES - itemsRef.current.length;
 
-      if (sizeKb <= targetKb) {
-        bestDataUrl = dataUrl;
-        bestSize = sizeBytes;
-        bestQuality = midQ;
-        minQ = midQ; // Try to get higher quality still beneath the target
-      } else {
-        maxQ = midQ; // File too large, step down the quality coefficient
+    for (const f of incoming) {
+      const mime = mimeFromFile(f);
+      if (!allowedMimes.includes(mime))
+        rejected.push(`${f.name}: unsupported file type`);
+      else if (f.size > MAX_FILE_BYTES)
+        rejected.push(
+          `${f.name}: larger than ${MAX_FILE_BYTES / 1024 / 1024} MB`,
+        );
+      else if (slots <= 0)
+        rejected.push(`${f.name}: limit of ${MAX_FILES} images reached`);
+      else {
+        accepted.push(f);
+        slots--;
       }
     }
 
-    // Fallback if no quality matches target constraint, output smallest possible
-    if (!bestDataUrl) {
-      bestDataUrl = canvas.toDataURL(mimeType, 0.05);
-      bestSize = Math.round((bestDataUrl.length - 22) * 3 / 4);
-      bestQuality = 0.05;
-    }
-
-    return { dataUrl: bestDataUrl, size: bestSize, quality: bestQuality };
-  };
-
-  // --- MAIN CORE IMAGE COMPILATION PIPELINE ---
-  const processImageFile = async (
-    file: File,
-    src: string
-  ): Promise<ProcessedResult> => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = async () => {
-        try {
-          // 1. Calculate Target Dimensions
-          let width = img.width;
-          let height = img.height;
-
-          if (activeTab === "resize") {
-            if (resizeUnit === "px") {
-              width = resizeWidth;
-              height = resizeHeight;
-            } else {
-              width = Math.round(img.width * (resizePercent / 100));
-              height = Math.round(img.height * (resizePercent / 100));
-            }
-          }
-
-          // 2. Compute Crop Bounds (if active)
-          let finalCanvasWidth = width;
-          let finalCanvasHeight = height;
-          let useCrop = activeTab === "crop";
-
-          const canvas = document.createElement("canvas");
-          const ctx = canvas.getContext("2d");
-          if (!ctx) throw new Error("Canvas context is unavailable.");
-
-          if (useCrop) {
-            // translate cropBox percentage coordinates into actual pixel bounds
-            const cropX = (cropBox.x / 100) * img.width;
-            const cropY = (cropBox.y / 100) * img.height;
-            const cropW = (cropBox.width / 100) * img.width;
-            const cropH = (cropBox.height / 100) * img.height;
-
-            canvas.width = cropW;
-            canvas.height = cropH;
-
-            // Apply orientation & flips
-            ctx.save();
-            ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
-            ctx.restore();
-          } else {
-            if (rotation === 90 || rotation === 270) {
-              canvas.width = height;
-              canvas.height = width;
-            } else {
-              canvas.width = width;
-              canvas.height = height;
-            }
-
-            // Standard render with geometry transformations
-            ctx.save();
-            if (rotation !== 0) {
-              ctx.translate(canvas.width / 2, canvas.height / 2);
-              ctx.rotate((rotation * Math.PI) / 180);
-              if (rotation === 90 || rotation === 270) {
-                ctx.translate(-canvas.height / 2, -canvas.width / 2);
-              } else {
-                ctx.translate(-canvas.width / 2, -canvas.height / 2);
-              }
-            }
-
-            if (flipH || flipV) {
-              ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
-              ctx.drawImage(
-                img,
-                flipH ? -width : 0,
-                flipV ? -height : 0,
-                width,
-                height
-              );
-            } else {
-              ctx.drawImage(img, 0, 0, width, height);
-            }
-            ctx.restore();
-          }
-
-          // 3. Resolve Target Format & Quality
-          let mime = "image/webp";
-          let formatExt = "webp";
-          if (targetFormat === "png") {
-            mime = "image/png";
-            formatExt = "png";
-          } else if (targetFormat === "jpeg") {
-            mime = "image/jpeg";
-            formatExt = "jpg";
-          }
-
-          let finalDataUrl = "";
-          let finalSize = 0;
-
-          // Target Size loop
-          if (activeTab === "compress" && compressionType === "target") {
-            const searchRes = await runBinarySearchCompression(
-              img,
-              targetSizeKb,
-              mime,
-              width,
-              height
-            );
-            finalDataUrl = searchRes.dataUrl;
-            finalSize = searchRes.size;
-          } else {
-            // Preset quality mapping
-            let quality = 0.85;
-            if (qualityPreset === "best") quality = 0.95;
-            else if (qualityPreset === "smallest") quality = 0.55;
-
-            finalDataUrl = canvas.toDataURL(mime, quality);
-            finalSize = Math.round((finalDataUrl.length - 22) * 3 / 4);
-          }
-
-          const savedPercentage = Math.round(
-            ((file.size - finalSize) / file.size) * 100
-          );
-
-          const dotIdx = file.name.lastIndexOf(".");
-          const baseName = dotIdx !== -1 ? file.name.substring(0, dotIdx) : file.name;
-
-          let formattedName = namingPattern
-            .replace("{name}", baseName)
-            .replace("{width}", canvas.width.toString())
-            .replace("{height}", canvas.height.toString());
-          if (!formattedName.endsWith(`.${formatExt}`)) {
-            formattedName += `.${formatExt}`;
-          }
-
-          resolve({
-            name: formattedName,
-            originalSize: file.size,
-            newSize: finalSize,
-            width: canvas.width,
-            height: canvas.height,
-            format: formatExt.toUpperCase(),
-            dataUrl: finalDataUrl,
-            savedPercentage: savedPercentage < 0 ? 0 : savedPercentage
-          });
-        } catch (err) {
-          reject(err);
-        }
+    setIsLoadingFiles(true);
+    for (const f of accepted) {
+      const mime = mimeFromFile(f);
+      const meta = await analyzeFile(f, mime);
+      if (!mountedRef.current) return;
+      if (!meta && view !== "base64") {
+        rejected.push(`${f.name}: couldn't be read as an image`);
+        continue;
+      }
+      if (meta && meta.width * meta.height > MAX_PIXELS) {
+        rejected.push(`${f.name}: more than ${MAX_PIXELS / 1e6} megapixels`);
+        continue;
+      }
+      const item: ImageItem = {
+        id: `img-${++idRef.current}`,
+        file: f,
+        mime,
+        url: URL.createObjectURL(f),
+        width: meta?.width ?? 0,
+        height: meta?.height ?? 0,
+        hasAlpha: meta?.hasAlpha ?? false,
+        crop: FULL_CROP,
       };
-      img.onerror = () => reject(new Error("Failed to load source image file."));
-      img.src = src;
-    });
-  };
+      setItems((p) => [...p, item]);
+      setActiveId((cur) => cur ?? item.id);
+    }
+    if (mountedRef.current) setIsLoadingFiles(false);
 
-  const handleProcessWorkspace = async () => {
-    if (files.length === 0) return;
-    setIsProcessing(true);
-    setProgress(10);
-
-    try {
-      if (files.length === 1 && singleImageSrc) {
-        setProgress(30);
-        const result = await processImageFile(files[0], singleImageSrc);
-        setProgress(80);
-        setProcessedResult(result);
-        if (activeTab === "base64") {
-          setBase64Output(result.dataUrl);
-        }
-        setProgress(100);
-        toast({
-          title: "Image Processed Locally!",
-          description: "Prístine, optimized variant constructed inside your RAM sandbox.",
-        });
-      } else {
-        // Batch Processing
-        const resultsArray: ProcessedResult[] = [];
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i];
-          const src = await new Promise<string>((resolve) => {
-            const reader = new FileReader();
-            reader.onload = (e) => resolve(e.target?.result as string);
-            reader.readAsDataURL(file);
-          });
-          const processed = await processImageFile(file, src);
-          resultsArray.push(processed);
-          setProgress(Math.round(20 + (i / files.length) * 80));
-        }
-        setBatchResults(resultsArray);
-        toast({
-          title: "Batch Complete!",
-          description: `Successfully optimized ${files.length} images. ZIP package ready.`,
-        });
-      }
-    } catch (err: any) {
-      console.error(err);
+    if (rejected.length) {
       toast({
         variant: "destructive",
-        title: "Workspace Error",
-        description: err.message || "An exception occurred during image mapping.",
+        title: `${rejected.length} file${rejected.length > 1 ? "s" : ""} skipped`,
+        description:
+          rejected.slice(0, 3).join(" • ") +
+          (rejected.length > 3 ? ` …and ${rejected.length - 3} more` : ""),
       });
-    } finally {
-      setIsProcessing(false);
     }
   };
 
-  const downloadProcessedSingle = () => {
-    if (!processedResult) return;
-    const link = document.createElement("a");
-    link.href = processedResult.dataUrl;
-    link.download = processedResult.name;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    addFiles(Array.from(e.target.files ?? []));
+    e.target.value = "";
   };
 
-  const downloadBatchZip = async () => {
-    if (batchResults.length === 0) return;
+  const removeItem = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const idx = items.findIndex((i) => i.id === id);
+    if (idx < 0) return;
+    invalidate([id]);
+    URL.revokeObjectURL(items[idx].url);
+    const next = items.filter((i) => i.id !== id);
+    setItems(next);
+    if (activeId === id || !next.some((i) => i.id === activeId))
+      setActiveId(next[Math.min(idx, next.length - 1)]?.id ?? null);
+  };
+
+  /* ── Crop ────────────────────────────────────────────────────── */
+
+  const updateCrop = (id: string, crop: CropBox) => {
+    setItems((p) => p.map((i) => (i.id === id ? { ...i, crop } : i)));
+    invalidate([id]);
+  };
+
+  const applyAspect = (ratio: number | null) => {
+    setCropRatio(ratio);
+    if (!ratio || !activeItem) return;
+    const { width: W, height: H } = activeItem;
+    let w: number;
+    let h: number;
+    if (ratio >= W / H) {
+      w = 100;
+      h = (100 * W) / (ratio * H);
+    } else {
+      h = 100;
+      w = (100 * ratio * H) / W;
+    }
+    updateCrop(activeItem.id, { x: (100 - w) / 2, y: (100 - h) / 2, w, h });
+  };
+
+  const startCropDrag = (
+    e: React.PointerEvent<HTMLElement>,
+    handle: Handle,
+  ) => {
+    if (!activeItem || isProcessing || !cropContainerRef.current) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const rect = cropContainerRef.current.getBoundingClientRect();
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const b = { ...activeItem.crop };
+    const id = activeItem.id;
+    const W = activeItem.width;
+    const H = activeItem.height;
+    const ratio = cropRatio;
+    const target = e.currentTarget;
+    target.setPointerCapture(e.pointerId);
+
+    const onMove = (ev: PointerEvent) => {
+      const dx = ((ev.clientX - startX) / rect.width) * 100;
+      const dy = ((ev.clientY - startY) / rect.height) * 100;
+      if (handle === "move") {
+        updateCrop(id, {
+          ...b,
+          x: clamp(b.x + dx, 0, 100 - b.w),
+          y: clamp(b.y + dy, 0, 100 - b.h),
+        });
+        return;
+      }
+      let l = b.x;
+      let t = b.y;
+      let r = b.x + b.w;
+      let bt = b.y + b.h;
+      if (handle.includes("w")) l = clamp(l + dx, 0, r - MIN_CROP_PCT);
+      if (handle.includes("e")) r = clamp(r + dx, l + MIN_CROP_PCT, 100);
+      if (handle.includes("n")) t = clamp(t + dy, 0, bt - MIN_CROP_PCT);
+      if (handle.includes("s")) bt = clamp(bt + dy, t + MIN_CROP_PCT, 100);
+
+      if (ratio) {
+        const k = W / (ratio * H); // height% per width%
+        const anchorBottom = handle.includes("n");
+        const anchorRight = handle.includes("w");
+        let w = r - l;
+        let h = w * k;
+        const maxH = anchorBottom ? bt : 100 - t;
+        const maxW = anchorRight ? r : 100 - l;
+        if (h > maxH) {
+          h = maxH;
+          w = h / k;
+        }
+        if (w > maxW) {
+          w = maxW;
+          h = w * k;
+        }
+        if (anchorRight) l = r - w;
+        else r = l + w;
+        if (anchorBottom) t = bt - h;
+        else bt = t + h;
+      }
+      updateCrop(id, { x: l, y: t, w: r - l, h: bt - t });
+    };
+    const onUp = () => {
+      target.removeEventListener("pointermove", onMove);
+      target.removeEventListener("pointerup", onUp);
+      target.removeEventListener("pointercancel", onUp);
+    };
+    target.addEventListener("pointermove", onMove);
+    target.addEventListener("pointerup", onUp);
+    target.addEventListener("pointercancel", onUp);
+  };
+
+  /* ── Processing pipeline (crop → resize → rotate/flip → encode) ─ */
+
+  const opsFor = (item: ImageItem): string[] => {
+    const o: string[] = [];
+    if (editing && cropPx(item).active) o.push("cropped");
+    if (resizeActive) o.push("resized");
+    if (rotateActive) o.push("rotated");
+    if (flipActive) o.push("flipped");
+    return o;
+  };
+
+  const buildName = (item: ImageItem, fmt: Fmt) => {
+    const ops = opsFor(item);
+    const suffix =
+      ops.length === 0
+        ? fmtFromMime(item.mime) === fmt
+          ? "-compressed"
+          : ""
+        : ops.length === 1
+          ? `-${ops[0]}`
+          : "-edited";
+    return `${baseName(item.file.name)}${suffix}.${EXT[fmt]}`;
+  };
+
+  const processItem = async (
+    item: ImageItem,
+    onProgress?: (p: number) => void,
+  ): Promise<ProcessedResult> => {
+    const bitmap = await createImageBitmap(item.file);
+    try {
+      const srcFmt = fmtFromMime(item.mime);
+      const fmt = resolveFormat(item);
+      const mime = MIME[fmt];
+      const warnings: string[] = [];
+
+      const crop = editing
+        ? cropPx({
+            width: bitmap.width,
+            height: bitmap.height,
+            crop: item.crop,
+          })
+        : { sx: 0, sy: 0, sw: bitmap.width, sh: bitmap.height, active: false };
+      const rot = editing ? rotation : 0;
+      const fx = editing && flipH;
+      const fy = editing && flipV;
+      const swap = rot === 90 || rot === 270;
+      const ow = swap ? crop.sh : crop.sw;
+      const oh = swap ? crop.sw : crop.sh;
+      const [fw, fh] = resizeActive ? calcSize(ow, oh, resize) : [ow, oh];
+
+      if (fw > MAX_SIDE || fh > MAX_SIDE || fw * fh > MAX_PIXELS)
+        throw new Error(
+          `Output of ${fw}×${fh} px is too large (max ${MAX_SIDE} px per side).`,
+        );
+
+      const [dw, dh] = swap ? [fh, fw] : [fw, fh];
+      let canvas = scaleToCanvas(
+        bitmap,
+        crop.sx,
+        crop.sy,
+        crop.sw,
+        crop.sh,
+        dw,
+        dh,
+      );
+
+      if (rot !== 0 || fx || fy || fmt === "jpeg") {
+        const out = makeCanvas(fw, fh);
+        if (fmt === "jpeg") {
+          out.ctx.fillStyle = "#ffffff"; // JPEG has no alpha
+          out.ctx.fillRect(0, 0, fw, fh);
+        }
+        out.ctx.translate(fw / 2, fh / 2);
+        out.ctx.scale(fx ? -1 : 1, fy ? -1 : 1);
+        out.ctx.rotate((rot * Math.PI) / 180);
+        out.ctx.drawImage(canvas, -dw / 2, -dh / 2);
+        canvas = out.c;
+      }
+
+      if (item.hasAlpha && fmt === "jpeg")
+        warnings.push(
+          "Transparent areas were filled with white (JPEG has no transparency).",
+        );
+
+      let blob: Blob;
+      let outW = fw;
+      let outH = fh;
+      if (compressionMode === "target" && fmt !== "png") {
+        const r = await encodeToTarget(
+          canvas,
+          mime,
+          targetKb * 1024,
+          onProgress,
+        );
+        blob = r.blob;
+        outW = r.width;
+        outH = r.height;
+        warnings.push(...r.warnings);
+      } else {
+        if (compressionMode === "target" && fmt === "png")
+          warnings.push(
+            "PNG is lossless, so a target size can't be applied. Use WebP or JPEG.",
+          );
+        blob = await canvasToBlob(
+          canvas,
+          mime,
+          fmt === "png" ? undefined : QUALITY[qualityPreset],
+        );
+      }
+
+      // Never hand back something bigger when nothing else was requested.
+      const geometryChanged =
+        crop.active ||
+        rot !== 0 ||
+        fx ||
+        fy ||
+        outW !== bitmap.width ||
+        outH !== bitmap.height;
+      let kept = false;
+      if (!geometryChanged && srcFmt === fmt && blob.size >= item.file.size) {
+        blob = item.file;
+        kept = true;
+      }
+
+      return {
+        id: item.id,
+        name: kept ? item.file.name : buildName(item, fmt),
+        blob,
+        url: URL.createObjectURL(blob),
+        originalSize: item.file.size,
+        newSize: blob.size,
+        width: kept ? bitmap.width : outW,
+        height: kept ? bitmap.height : outH,
+        format: EXT[fmt].toUpperCase(),
+        kept,
+        warnings,
+      };
+    } finally {
+      bitmap.close();
+    }
+  };
+
+  const handleProcess = async () => {
+    if (!canRun) return;
+    const pending = items.filter((i) => !results[i.id]);
+    const run = ++runIdRef.current;
     setIsProcessing(true);
+    setProgress(0);
+    setEta("Starting…");
+    startRef.current = Date.now();
+    setErrors({});
+
+    let done = 0;
+    let ok = 0;
+    let failed = 0;
+    let next = 0;
+
+    const worker = async () => {
+      for (;;) {
+        const idx = next++;
+        if (idx >= pending.length) return;
+        const item = pending[idx];
+        try {
+          const res = await processItem(
+            item,
+            pending.length === 1 ? setProgress : undefined,
+          );
+          if (!mountedRef.current || runIdRef.current !== run) {
+            URL.revokeObjectURL(res.url);
+            return;
+          }
+          setResults((p) => ({ ...p, [item.id]: res }));
+          ok++;
+        } catch (err) {
+          failed++;
+          const message =
+            err instanceof Error ? err.message : "Processing failed.";
+          if (mountedRef.current)
+            setErrors((p) => ({ ...p, [item.id]: message }));
+        }
+        done++;
+        if (pending.length > 1 && mountedRef.current)
+          setProgress(Math.round((done / pending.length) * 100));
+      }
+    };
+
+    await Promise.all(
+      Array.from({ length: Math.min(CONCURRENCY, pending.length) }, worker),
+    );
+    if (!mountedRef.current || runIdRef.current !== run) return;
+    setProgress(100);
+    setIsProcessing(false);
+
+    if (failed > 0)
+      toast({
+        variant: "destructive",
+        title: `${ok} of ${pending.length} processed`,
+        description: `${failed} failed. Select the image with a red mark to see why.`,
+      });
+    else if (pending.length > 1)
+      toast({
+        title: "Batch complete",
+        description: `Processed ${ok} images.`,
+      });
+  };
+
+  /* ── Downloads ───────────────────────────────────────────────── */
+
+  const downloadSingle = () => {
+    if (activeResult) triggerDownload(activeResult.url, activeResult.name);
+  };
+
+  const downloadZip = async () => {
+    if (resultList.length === 0) return;
+    setIsZipping(true);
     try {
       const zip = new JSZip();
-      batchResults.forEach((res, i) => {
-        // extract raw Base64 data from DataURL
-        const base64Data = res.dataUrl.split(",")[1];
-        zip.file(res.name, base64Data, { base64: true });
-      });
-
+      const used = new Map<string, number>();
+      for (const r of resultList) {
+        const key = r.name.toLowerCase();
+        const n = used.get(key) ?? 0;
+        used.set(key, n + 1);
+        const dot = r.name.lastIndexOf(".");
+        const name =
+          n === 0
+            ? r.name
+            : `${r.name.slice(0, dot)}-${n + 1}${r.name.slice(dot)}`;
+        zip.file(name, r.blob);
+      }
       const blob = await zip.generateAsync({ type: "blob" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `optimized_images_comparlify.zip`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      triggerDownload(
+        URL.createObjectURL(blob),
+        `images-${Date.now()}.zip`,
+        true,
+      );
+    } catch {
+      toast({ variant: "destructive", title: "Couldn't create the ZIP file" });
+    } finally {
+      setIsZipping(false);
+    }
+  };
 
-      toast({
-        title: "ZIP Archived Successfully",
-        description: "Your batch images are saved in a clean archive."
-      });
-    } catch (e) {
+  const copyText = async (text: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({ title: `${label} copied` });
+    } catch {
       toast({
         variant: "destructive",
-        title: "Archival Exception",
-        description: "Failed to zip file queue."
+        title: "Copy failed",
+        description: "Your browser blocked clipboard access.",
       });
-    } finally {
-      setIsProcessing(false);
     }
   };
 
-  // Smart Format Recommendation Utility
-  const formatRecommendation = useMemo(() => {
-    if (!metadata) return null;
-    let recommendation = "WebP";
-    let explanation = "";
+  /* ── Slider ──────────────────────────────────────────────────── */
 
-    if (metadata.hasAlpha) {
-      recommendation = "WebP (with Alpha)";
-      explanation = "WebP supports alpha transparency at 30% smaller file sizes than high-fidelity transparent PNG containers.";
-    } else if (metadata.width > 2000 || metadata.size > 1.5 * 1024 * 1024) {
-      recommendation = "WebP";
-      explanation = "Large digital canvases render flawlessly on next-generation WebP matrices, shaving off up to 80% payload overhead compared to classic flat JPG structures.";
-    } else {
-      recommendation = "WebP";
-      explanation = "WebP produces identical quality grids at minimal network footprints. This speeds up modern Next.js, WordPress, and Shopify environments.";
-    }
-
-    return { recommendation, explanation };
-  }, [metadata]);
-
-  // Image SEO Audit Engine
-  const seoAudit = useMemo(() => {
-    if (!metadata) return { score: 100, items: [] };
-
-    let score = 100;
-    const items: { label: string; passed: boolean; note: string }[] = [];
-
-    // 1. Format audit
-    if (metadata.type.includes("webp")) {
-      items.push({ label: "Next-gen WebP format", passed: true, note: "Modern WebP image format used." });
-    } else {
-      score -= 15;
-      items.push({ label: "Next-gen format recommendation", passed: false, note: "Converting from JPEG/PNG to WebP can save 30-70% bandwidth." });
-    }
-
-    // 2. Dimensions audit
-    if (metadata.width <= 2560 && metadata.height <= 2560) {
-      items.push({ label: "Web-friendly dimensions", passed: true, note: `${metadata.width}×${metadata.height}px fits standard web viewports.` });
-    } else {
-      score -= 15;
-      items.push({ label: "Oversized image dimensions", passed: false, note: `Dimensions (${metadata.width}px wide) exceed 2560px. Resize down.` });
-    }
-
-    // 3. File size audit
-    if (metadata.size <= 300 * 1024) {
-      items.push({ label: "Lightweight file payload", passed: true, note: `${(metadata.size / 1024).toFixed(0)} KB is optimal for web performance.` });
-    } else {
-      score -= 20;
-      items.push({ label: "Heavy file size payload", passed: false, note: `File size is ${(metadata.size / 1024).toFixed(0)} KB. Compress under 300 KB.` });
-    }
-
-    // 4. Filename naming audit
-    const hasCleanName = !metadata.name.includes(" ") && !metadata.name.toLowerCase().startsWith("img_") && !metadata.name.toLowerCase().startsWith("screenshot");
-    if (hasCleanName) {
-      items.push({ label: "Optimized filename structure", passed: true, note: "Clean descriptive filename without spaces or generic camera prefixes." });
-    } else {
-      score -= 10;
-      items.push({ label: "Generic or space-separated filename", passed: false, note: "Use descriptive, hyphen-separated filenames (e.g. product-hero.webp)." });
-    }
-
-    return { score: Math.max(20, score), items };
-  }, [metadata]);
-
-  // Copy helper for Base64 URL
-  const copyBase64ToClipboard = () => {
-    navigator.clipboard.writeText(base64Output);
-    setCopiedBase64(true);
-    toast({
-      title: "Copied!",
-      description: "Base64 URI copied to your clipboard.",
-    });
-    setTimeout(() => setCopiedBase64(false), 2000);
+  const moveSlider = (clientX: number) => {
+    const el = sliderRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setSplitPosition(clamp(((clientX - rect.left) / rect.width) * 100, 0, 100));
   };
 
-  // Custom Crop dragging overlay coordinate tracker
-  const handleCropDrag = (e: React.MouseEvent) => {
-    if (!cropContainerRef.current) return;
-    const rect = cropContainerRef.current.getBoundingClientRect();
-    const xPct = Math.max(0, Math.min(((e.clientX - rect.left) / rect.width) * 100, 90));
-    const yPct = Math.max(0, Math.min(((e.clientY - rect.top) / rect.height) * 100, 90));
+  /* ── Resize field handlers ───────────────────────────────────── */
 
-    setCropBox(prev => ({
-      ...prev,
-      x: Math.round(xPct),
-      y: Math.round(yPct),
-      width: Math.min(prev.width, 100 - xPct),
-      height: Math.min(prev.height, 100 - yPct)
-    }));
-  };
-
-  const handleCropResize = (widthPct: number) => {
-    setCropBox(prev => {
-      let finalW = Math.max(10, Math.min(widthPct, 100 - prev.x));
-      let finalH = prev.height;
-      if (cropAspectRatio === "1:1") {
-        finalH = finalW;
-      } else if (cropAspectRatio === "16:9") {
-        finalH = finalW * (9 / 16);
-      } else if (cropAspectRatio === "4:3") {
-        finalH = finalW * (3 / 4);
-      } else {
-        finalH = Math.max(10, Math.min(widthPct, 100 - prev.y));
-      }
-      return {
-        ...prev,
-        width: Math.round(finalW),
-        height: Math.round(finalH)
-      };
+  const setDim = (axis: "width" | "height", raw: string) => {
+    const v = parseInt(raw, 10);
+    setResize((r) => {
+      if (!v || v <= 0) return { ...r, [axis]: null };
+      if (r.lock)
+        return axis === "width"
+          ? { ...r, width: v, height: null }
+          : { ...r, height: v, width: null };
+      return { ...r, [axis]: v };
     });
   };
 
-  return (
-    <div className="space-y-4">
-      {/* Privacy Warning Header (Compact Pill) */}
-      <div className="flex items-center justify-between gap-3 bg-card/30 backdrop-blur-xl px-4 py-2.5 rounded-xl border border-border/20">
-        <div className="flex items-center gap-2 min-w-0">
-          <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
-          <p className="text-xs font-semibold text-foreground truncate">
-            <span className="font-bold">Zero-Server Sandbox</span> · Processed 100% locally in device memory.
-          </p>
-        </div>
-        <div className="text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0">
-          RAM Engine
-        </div>
-      </div>
+  const baseDims = activeItem && editing ? orientedDims(activeItem) : null;
+  const outDims = baseDims
+    ? resizeActive
+      ? calcSize(baseDims[0], baseDims[1], resize)
+      : baseDims
+    : null;
+  const outTooLarge =
+    !!outDims &&
+    (outDims[0] > MAX_SIDE ||
+      outDims[1] > MAX_SIDE ||
+      outDims[0] * outDims[1] > MAX_PIXELS);
 
-      {/* Upload Zone */}
-      {files.length === 0 ? (
+  /* ════════════════════════════════════════════════════════════════
+     RENDER PIECES
+  ════════════════════════════════════════════════════════════════ */
+
+  const previewTransform = editing
+    ? `scaleX(${flipH ? -1 : 1}) scaleY(${flipV ? -1 : 1}) rotate(${rotation}deg)`
+    : undefined;
+
+  const comparable =
+    !!activeResult &&
+    !!activeItem &&
+    activeItem.width > 0 &&
+    Math.abs(
+      activeResult.width / activeResult.height -
+        activeItem.width / activeItem.height,
+    ) < 0.01;
+
+  const renderCanvas = () => {
+    if (!activeItem) {
+      return (
         <div
           onClick={() => fileInputRef.current?.click()}
-          onDragOver={e => e.preventDefault()}
-          onDrop={e => {
-            e.preventDefault();
-            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-              const synth = { target: { files: e.dataTransfer.files } } as unknown as React.ChangeEvent<HTMLInputElement>;
-              handleFileChange(synth);
-            }
-          }}
-          className="border-2 border-dashed border-border/40 hover:border-primary/45 rounded-2xl p-16 text-center cursor-pointer bg-secondary/5 transition-all group"
+          className={`w-full max-w-xl border-2 border-dashed rounded-xl p-12 sm:p-16 flex flex-col items-center justify-center transition-all duration-300 cursor-pointer group bg-background/50 backdrop-blur-sm ${
+            isDragging
+              ? "border-primary bg-primary/10 scale-[1.02]"
+              : "border-border/60 hover:border-primary/50 hover:bg-background/80"
+          }`}
         >
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            multiple
-            accept="image/png,image/jpeg,image/webp"
-            className="hidden"
-          />
-          <div className="flex flex-col items-center gap-4">
-            <div className="p-4 bg-primary/10 rounded-2xl text-primary group-hover:scale-105 transition-transform duration-300 border border-primary/20">
+          <div
+            className={`p-4 rounded-xl mb-4 transition-transform duration-300 ${
+              isDragging
+                ? "bg-primary text-primary-foreground scale-110"
+                : "bg-secondary text-secondary-foreground group-hover:scale-110"
+            }`}
+          >
+            {isLoadingFiles ? (
+              <Loader2 className="h-8 w-8 animate-spin" />
+            ) : (
               <Upload className="h-8 w-8" />
-            </div>
-            <div>
-              <h3 className="text-sm font-extrabold uppercase tracking-tight text-foreground">Drag and drop your images</h3>
-              <p className="text-xs text-muted-foreground font-medium mt-1">Supports JPG, PNG, and WebP (Up to 50 images for bulk processing)</p>
-            </div>
+            )}
+          </div>
+          <h3 className="text-lg font-black uppercase tracking-tight mb-1 text-foreground">
+            {view === "convert" && mode.source
+              ? `Upload ${mode.source === "jpeg" ? "JPG" : mode.source.toUpperCase()} files`
+              : view === "base64"
+                ? "Upload an image"
+                : "Import images"}
+          </h3>
+          <p className="text-xs text-muted-foreground font-medium text-center max-w-sm">
+            Drag and drop, or click to browse. Up to {MAX_FILES} files,{" "}
+            {MAX_FILE_BYTES / 1024 / 1024} MB each. Files never leave your
+            device.
+          </p>
+        </div>
+      );
+    }
+
+    const frame = "shadow-2xl border border-border/50";
+
+    // ── Crop view
+    if (activeTab === "crop" && editing) {
+      const c = activeItem.crop;
+      const corner = (h: Handle, pos: string, cursor: string) => (
+        <div
+          onPointerDown={(e) => startCropDrag(e, h)}
+          style={{ touchAction: "none" }}
+          className={`absolute w-5 h-5 rounded-sm bg-primary border-2 border-background shadow z-10 ${pos} ${cursor}`}
+        />
+      );
+      return (
+        <div
+          ref={cropContainerRef}
+          className="relative inline-block select-none max-h-[60vh]"
+        >
+          <img
+            src={activeItem.url}
+            alt="Source"
+            draggable={false}
+            className={`max-h-[60vh] max-w-full object-contain pointer-events-none block ${frame}`}
+          />
+          <div
+            onPointerDown={(e) => startCropDrag(e, "move")}
+            style={{
+              left: `${c.x}%`,
+              top: `${c.y}%`,
+              width: `${c.w}%`,
+              height: `${c.h}%`,
+              touchAction: "none",
+            }}
+            className="absolute border border-primary bg-primary/10 shadow-[0_0_0_9999px_rgba(0,0,0,0.6)] cursor-move"
+          >
+            {corner("nw", "-top-2 -left-2", "cursor-nwse-resize")}
+            {corner("ne", "-top-2 -right-2", "cursor-nesw-resize")}
+            {corner("sw", "-bottom-2 -left-2", "cursor-nesw-resize")}
+            {corner("se", "-bottom-2 -right-2", "cursor-nwse-resize")}
           </div>
         </div>
-      ) : (
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-between p-4 bg-secondary/15 border border-border/35 rounded-2xl">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="p-2.5 bg-primary/10 rounded-xl text-primary border border-primary/20">
-              <FileImage className="h-5 w-5" />
+      );
+    }
+
+    // ── Result: slider (same shape) or original/result toggle (different shape)
+    if (activeResult && activeTab !== "info" && view !== "base64") {
+      if (comparable) {
+        return (
+          <div
+            ref={sliderRef}
+            style={{ touchAction: "pan-y" }}
+            className={`relative inline-block max-h-[60vh] max-w-full select-none cursor-ew-resize overflow-hidden ${frame}`}
+            onPointerDown={(e) => {
+              draggingSlider.current = true;
+              e.currentTarget.setPointerCapture(e.pointerId);
+              moveSlider(e.clientX);
+            }}
+            onPointerMove={(e) => {
+              if (draggingSlider.current) moveSlider(e.clientX);
+            }}
+            onPointerUp={() => {
+              draggingSlider.current = false;
+            }}
+            onPointerCancel={() => {
+              draggingSlider.current = false;
+            }}
+          >
+            <img
+              src={activeItem.url}
+              alt="Original"
+              draggable={false}
+              className="max-h-[60vh] max-w-full object-contain pointer-events-none block"
+            />
+            <div
+              style={{
+                clipPath: `polygon(${splitPosition}% 0, 100% 0, 100% 100%, ${splitPosition}% 100%)`,
+              }}
+              className="absolute inset-0"
+            >
+              <img
+                src={activeResult.url}
+                alt="Result"
+                draggable={false}
+                className="absolute inset-0 w-full h-full pointer-events-none"
+              />
             </div>
-            <div className="min-w-0">
-              <h4 className="text-xs font-bold text-foreground truncate">
-                {files.length === 1 ? files[0].name : `${files.length} Images Selected`}
-              </h4>
-              <p className="text-[10px] text-muted-foreground font-semibold">
-                {files.length === 1
-                  ? `${(files[0].size / 1024 / 1024).toFixed(2)} MB`
-                  : `${(files.reduce((a, f) => a + f.size, 0) / 1024 / 1024).toFixed(2)} MB total`
-                }
-              </p>
+            <div
+              style={{ left: `${splitPosition}%` }}
+              className="absolute top-0 bottom-0 w-0.5 bg-primary z-20 flex items-center justify-center"
+            >
+              <div className="w-7 h-7 rounded-full bg-primary border-2 border-background flex items-center justify-center shrink-0">
+                <ArrowRightLeft className="h-3.5 w-3.5 text-primary-foreground" />
+              </div>
+            </div>
+            <div className="absolute top-2 left-2 bg-background/90 text-foreground text-[10px] font-black px-2 py-1 rounded border border-border/50 z-10">
+              Original · {formatBytes(activeResult.originalSize)}
+            </div>
+            <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-[10px] font-black px-2 py-1 rounded z-10">
+              Result · {formatBytes(activeResult.newSize)}
             </div>
           </div>
-          <button
-            onClick={removeAllFiles}
-            className="text-xs font-bold text-rose-500 hover:bg-rose-500/10 px-4 py-2 rounded-xl border border-rose-500/15 transition-all flex items-center gap-1.5"
-          >
-            <Trash2 className="h-3.5 w-3.5" /> Clear Queue
-          </button>
+        );
+      }
+      const showOriginal = viewSide === "original";
+      return (
+        <div className="flex flex-col items-center gap-3">
+          <div className="flex bg-background/90 p-1 rounded-md border border-border/50 text-[10px] font-black">
+            {(["original", "result"] as const).map((s) => (
+              <button
+                key={s}
+                onClick={() => setViewSide(s)}
+                className={`px-3 py-1 rounded capitalize ${viewSide === s ? "bg-card text-foreground shadow border border-border/50" : "text-muted-foreground"}`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+          <img
+            src={showOriginal ? activeItem.url : activeResult.url}
+            alt={showOriginal ? "Original" : "Result"}
+            className={`max-h-[55vh] max-w-full object-contain ${frame}`}
+          />
+        </div>
+      );
+    }
+
+    // ── Plain preview (with live rotate/flip preview)
+    return (
+      <img
+        src={activeItem.url}
+        alt="Workspace"
+        className={`max-h-[60vh] max-w-full object-contain transition-transform duration-200 ${frame}`}
+        style={{ transform: previewTransform }}
+      />
+    );
+  };
+
+  const chip = (label: string, onClear: () => void) => (
+    <span
+      key={label}
+      className="inline-flex items-center gap-1 pl-2 pr-1 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold"
+    >
+      {label}
+      <button
+        onClick={onClear}
+        aria-label={`Remove ${label}`}
+        className="p-0.5 rounded-full hover:bg-primary/20"
+      >
+        <X className="h-3 w-3" />
+      </button>
+    </span>
+  );
+
+  const label =
+    "text-[9px] font-black uppercase tracking-widest text-muted-foreground";
+  const segBtn = (on: boolean) =>
+    `flex-1 py-1.5 rounded text-[10px] font-black transition-all ${on ? "bg-card text-foreground shadow border border-border/50" : "text-muted-foreground hover:text-foreground"}`;
+  const optBtn = (on: boolean) =>
+    `py-1.5 px-2 rounded border text-[10px] font-black transition-all ${on ? "border-primary bg-primary/10 text-primary" : "border-border/40 text-muted-foreground hover:text-foreground"}`;
+  const numInput =
+    "w-full h-8 px-2 bg-background border border-border/40 rounded text-[11px] font-mono text-foreground text-center";
+
+  const totalOrig = resultList.reduce((s, r) => s + r.originalSize, 0);
+  const totalNew = resultList.reduce((s, r) => s + r.newSize, 0);
+
+  /* ── Panel body per view / tab ───────────────────────────────── */
+
+  const renderEditChips = () => {
+    const chips: React.ReactNode[] = [];
+    if (cropCount > 0)
+      chips.push(
+        chip(`Crop${cropCount > 1 ? ` (${cropCount})` : ""}`, () => {
+          setItems((p) => p.map((i) => ({ ...i, crop: FULL_CROP })));
+          invalidate();
+        }),
+      );
+    if (resizeActive)
+      chips.push(chip("Resize", () => setResize(DEFAULT_RESIZE)));
+    if (rotateActive)
+      chips.push(chip(`Rotate ${rotation}°`, () => setRotation(0)));
+    if (flipActive)
+      chips.push(
+        chip("Flip", () => {
+          setFlipH(false);
+          setFlipV(false);
+        }),
+      );
+    if (chips.length === 0) return null;
+    return (
+      <div className="space-y-1.5">
+        <span className={label}>
+          Edits applied on export{items.length > 1 ? " (all images)" : ""}
+        </span>
+        <div className="flex flex-wrap gap-1.5">{chips}</div>
+      </div>
+    );
+  };
+
+  const renderCompress = () => (
+    <div className="space-y-3">
+      <div className="flex bg-background p-1 rounded-md border border-border/40">
+        <button
+          onClick={() => setCompressionMode("quality")}
+          className={segBtn(compressionMode === "quality")}
+        >
+          Quality
+        </button>
+        <button
+          onClick={() => setCompressionMode("target")}
+          className={segBtn(compressionMode === "target")}
+        >
+          Max file size
+        </button>
+      </div>
+
+      {compressionMode === "quality" ? (
+        <div className="grid grid-cols-3 gap-1.5">
+          {(Object.keys(QUALITY) as QualityPreset[]).map((p) => (
+            <button
+              key={p}
+              onClick={() => setQualityPreset(p)}
+              className={`p-2 rounded border text-left flex flex-col transition-all ${qualityPreset === p ? "border-primary bg-primary/10 text-primary" : "border-border/30 hover:border-border/60 text-foreground"}`}
+            >
+              <span className="text-[10px] font-black">{QUALITY_LABEL[p]}</span>
+              <span className="text-[9px] text-muted-foreground mt-0.5">
+                {Math.round(QUALITY[p] * 100)}%
+              </span>
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-3 p-3 bg-background rounded-md border border-border/40">
+          <div className="flex items-center justify-between">
+            <span className={label}>Keep under</span>
+            <div className="flex items-center gap-1">
+              <input
+                type="number"
+                min={5}
+                value={targetKbText}
+                onChange={(e) => setTargetKbText(e.target.value)}
+                className="w-24 h-8 px-2 bg-card border border-border/50 rounded text-[11px] font-mono font-black text-primary text-center focus:outline-none focus:border-primary"
+              />
+              <span className="text-[10px] font-bold text-muted-foreground">
+                KB
+              </span>
+            </div>
+          </div>
+          <input
+            type="range"
+            min={10}
+            max={5000}
+            step={10}
+            value={targetValid ? clamp(targetKb, 10, 5000) : 150}
+            onChange={(e) => setTargetKbText(e.target.value)}
+            className="w-full h-1 bg-border rounded-full appearance-none cursor-pointer accent-primary"
+          />
+          {!targetValid && (
+            <p className="text-[10px] text-rose-500">Enter at least 5 KB.</p>
+          )}
+          <p className="text-[10px] text-muted-foreground leading-relaxed">
+            Lowers quality first. Only if that isn't enough, dimensions are
+            reduced, and you'll be told when that happens. Files already under
+            the limit are left as they are.
+          </p>
         </div>
       )}
 
-      {/* Single Image Workflow workspace layout */}
-      {files.length === 1 && singleImageSrc && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-          {/* LEFT COLUMN: Visual Preview & Before/After slider */}
-          <div className="lg:col-span-7 space-y-4">
-            {/* Visual Workspace Canvas container */}
-            <div className="bg-card/20 rounded-xl border border-border/20 overflow-hidden">
-              <div className="px-3.5 py-2.5 border-b border-border/20 bg-card/40 flex items-center justify-between">
-                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5 text-primary" /> Visual Sandbox Canvas
-                </span>
-                <span className="text-xs font-mono font-bold text-foreground">
-                  {metadata?.width} × {metadata?.height}px
-                </span>
-              </div>
+      {anyPng && (
+        <p className="text-[10px] text-muted-foreground leading-relaxed flex gap-1.5">
+          <Info className="h-3.5 w-3.5 shrink-0 text-primary" />
+          PNG is lossless: quality settings don't change PNG output. Export as
+          WebP or JPEG for much smaller files.
+        </p>
+      )}
+      {alphaToJpeg && (
+        <p className="text-[10px] text-amber-500 leading-relaxed flex gap-1.5">
+          <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+          Some images have transparency. JPEG will fill it with white.
+        </p>
+      )}
+    </div>
+  );
 
-              {/* Crop mode interactive container */}
-              {activeTab === "crop" ? (
-                <div
-                  ref={cropContainerRef}
-                  className="relative flex items-center justify-center p-6 bg-slate-900/60 max-h-[420px] overflow-hidden select-none"
-                >
-                  <img
-                    src={singleImageSrc}
-                    alt="Source"
-                    className="max-h-[380px] max-w-full rounded border border-border/20 object-contain pointer-events-none"
-                  />
-                  {/* Aspect crop guide overlays */}
-                  <div
-                    style={{
-                      left: `${cropBox.x}%`,
-                      top: `${cropBox.y}%`,
-                      width: `${cropBox.width}%`,
-                      height: `${cropBox.height}%`
-                    }}
-                    className="absolute border-2 border-primary bg-primary/10 shadow-[0_0_0_9999px_rgba(0,0,0,0.65)] rounded cursor-move"
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      const onMove = (moveEv: MouseEvent) => {
-                        if (!cropContainerRef.current) return;
-                        const r = cropContainerRef.current.getBoundingClientRect();
-                        const x = Math.max(0, Math.min(((moveEv.clientX - r.left) / r.width) * 100, 100 - cropBox.width));
-                        const y = Math.max(0, Math.min(((moveEv.clientY - r.top) / r.height) * 100, 100 - cropBox.height));
-                        setCropBox(p => ({ ...p, x: Math.round(x), y: Math.round(y) }));
-                      };
-                      const onUp = () => {
-                        document.removeEventListener("mousemove", onMove);
-                        document.removeEventListener("mouseup", onUp);
-                      };
-                      document.addEventListener("mousemove", onMove);
-                      document.addEventListener("mouseup", onUp);
-                    }}
-                  >
-                    {/* Width handle */}
-                    <div
-                      className="absolute bottom-[-6px] right-[-6px] w-4 h-4 rounded-full bg-primary border-2 border-background cursor-se-resize flex items-center justify-center shadow"
-                      onMouseDown={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        const onMove = (moveEv: MouseEvent) => {
-                          if (!cropContainerRef.current) return;
-                          const r = cropContainerRef.current.getBoundingClientRect();
-                          const sizePct = ((moveEv.clientX - r.left) / r.width) * 100 - cropBox.x;
-                          handleCropResize(sizePct);
-                        };
-                        const onUp = () => {
-                          document.removeEventListener("mousemove", onMove);
-                          document.removeEventListener("mouseup", onUp);
-                        };
-                        document.addEventListener("mousemove", onMove);
-                        document.addEventListener("mouseup", onUp);
-                      }}
-                    />
-                  </div>
-                </div>
-              ) : processedResult ? (
-                /* Before/After comparison draggable split container */
-                <div
-                  ref={sliderContainerRef}
-                  className="relative h-[320px] sm:h-[380px] bg-slate-900 overflow-hidden select-none cursor-ew-resize"
-                  onMouseDown={onMouseDownSlider}
-                  onTouchMove={onTouchMoveSlider}
-                >
-                  {/* Left (Before) Frame */}
-                  <div className="absolute inset-0">
-                    <img
-                      src={singleImageSrc}
-                      alt="Before"
-                      className="absolute inset-0 w-full h-full object-contain pointer-events-none"
-                    />
-                    <div className="absolute top-3 left-3 bg-slate-950/80 px-2.5 py-1 rounded text-[10px] font-black uppercase tracking-widest text-muted-foreground border border-border/10 z-10">
-                      BEFORE · {((metadata?.size || 0) / 1024).toFixed(0)} KB
-                    </div>
-                  </div>
+  const renderResize = () => (
+    <div className="space-y-3">
+      <div className="flex bg-background p-1 rounded-md border border-border/40">
+        {(["pixels", "percent"] as ResizeMode[]).map((m) => (
+          <button
+            key={m}
+            onClick={() => setResize((r) => ({ ...r, mode: m }))}
+            className={`${segBtn(resize.mode === m)} capitalize`}
+          >
+            {m}
+          </button>
+        ))}
+      </div>
 
-                  {/* Right (After) Frame with width clip */}
-                  <div
-                    style={{ clipPath: `polygon(${sliderPosition}% 0, 100% 0, 100% 100%, ${sliderPosition}% 100%)` }}
-                    className="absolute inset-0 bg-slate-900"
-                  >
-                    <img
-                      src={processedResult.dataUrl}
-                      alt="After"
-                      className="absolute inset-0 w-full h-full object-contain pointer-events-none"
-                    />
-                    <div className="absolute top-3 right-3 bg-primary/90 text-primary-foreground px-2.5 py-1 rounded text-[10px] font-black uppercase tracking-widest z-10 shadow">
-                      AFTER · {((processedResult.newSize || 0) / 1024).toFixed(0)} KB
-                    </div>
-                  </div>
-
-                  {/* Slider Control Line handle */}
-                  <div
-                    style={{ left: `${sliderPosition}%` }}
-                    className="absolute top-0 bottom-0 w-1 bg-primary cursor-ew-resize z-20 flex items-center justify-center"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-primary border-2 border-primary-foreground shadow flex items-center justify-center shrink-0">
-                      <div className="flex gap-1">
-                        <div className="w-0.5 h-3 bg-primary-foreground/75 rounded-full" />
-                        <div className="w-0.5 h-3 bg-primary-foreground/75 rounded-full" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                /* Static preview representation with transforms applied */
-                <div className="relative flex items-center justify-center p-8 bg-slate-900/40 min-h-[320px]">
-                  <img
-                    src={singleImageSrc}
-                    alt="Workspace"
-                    className="max-h-[340px] max-w-full rounded border border-border/20 object-contain transition-transform duration-300"
-                    style={{
-                      transform: `rotate(${rotation}deg) scaleX(${flipH ? -1 : 1}) scaleY(${flipV ? -1 : 1})`
-                    }}
-                  />
-                  <div className="absolute top-3 left-3 bg-slate-950/80 px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest text-muted-foreground border border-border/10">
-                    Source Graphic Loaded
-                  </div>
-                </div>
-              )}
+      {resize.mode === "pixels" ? (
+        <>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <span className={`${label} block mb-1`}>Width</span>
+              <input
+                type="number"
+                min={1}
+                value={resize.width ?? outDims?.[0] ?? ""}
+                onChange={(e) => setDim("width", e.target.value)}
+                className={numInput}
+              />
             </div>
+            <div>
+              <span className={`${label} block mb-1`}>Height</span>
+              <input
+                type="number"
+                min={1}
+                value={resize.height ?? outDims?.[1] ?? ""}
+                onChange={(e) => setDim("height", e.target.value)}
+                className={numInput}
+              />
+            </div>
+          </div>
+          <label className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground cursor-pointer">
+            <input
+              type="checkbox"
+              checked={resize.lock}
+              onChange={(e) =>
+                setResize((r) => ({
+                  ...r,
+                  lock: e.target.checked,
+                  height:
+                    e.target.checked && r.width !== null ? null : r.height,
+                }))
+              }
+              className="rounded border-border/50 bg-background accent-primary"
+            />
+            Lock aspect ratio
+          </label>
+          {items.length > 1 && (
+            <p className="text-[10px] text-muted-foreground leading-relaxed">
+              {resize.lock
+                ? "Applies to every image. Each image keeps its own proportions."
+                : "Every image is forced to this exact size."}
+            </p>
+          )}
+        </>
+      ) : (
+        <div className="space-y-2 p-3 bg-background rounded-md border border-border/40">
+          <div className="flex items-center justify-between">
+            <span className={label}>Scale</span>
+            <div className="flex items-center gap-1">
+              <input
+                type="number"
+                min={1}
+                max={400}
+                value={resize.percent}
+                onChange={(e) =>
+                  setResize((r) => ({
+                    ...r,
+                    percent: clamp(parseInt(e.target.value, 10) || 100, 1, 400),
+                  }))
+                }
+                className="w-20 h-8 px-2 bg-card border border-border/50 rounded text-[11px] font-mono font-black text-primary text-center"
+              />
+              <span className="text-[10px] font-bold text-muted-foreground">
+                %
+              </span>
+            </div>
+          </div>
+          <input
+            type="range"
+            min={10}
+            max={200}
+            step={5}
+            value={clamp(resize.percent, 10, 200)}
+            onChange={(e) =>
+              setResize((r) => ({
+                ...r,
+                percent: parseInt(e.target.value, 10),
+              }))
+            }
+            className="w-full h-1 bg-border rounded-full appearance-none cursor-pointer accent-primary"
+          />
+          <div className="grid grid-cols-4 gap-1">
+            {[25, 50, 75, 100].map((p) => (
+              <button
+                key={p}
+                onClick={() => setResize((r) => ({ ...r, percent: p }))}
+                className={optBtn(resize.percent === p)}
+              >
+                {p}%
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
-            {/* Diagnostics Card */}
-            {metadata && (
-              <div className="bg-card/20 rounded-2xl border border-border/40 p-5 space-y-4 shadow-sm">
-                <h3 className="text-xs font-extrabold uppercase tracking-widest text-primary flex items-center gap-1.5">
-                  <Info className="h-4 w-4" /> Image Health & Intelligence
-                </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 font-mono text-[11px]">
-                  <div>
-                    <span className="text-[9px] font-bold text-muted-foreground block uppercase">Canvas Format</span>
-                    <span className="text-foreground font-black">{metadata.type.split("/")[1].toUpperCase()}</span>
-                  </div>
-                  <div>
-                    <span className="text-[9px] font-bold text-muted-foreground block uppercase">Alpha/Transparency</span>
-                    <span className={metadata.hasAlpha ? "text-emerald-500 font-bold" : "text-muted-foreground"}>
-                      {metadata.hasAlpha ? "✓ Transparent (Alpha)" : "× None Required"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[9px] font-bold text-muted-foreground block uppercase">Aspect Ratio</span>
-                    <span className="text-foreground font-bold">{metadata.aspectRatio}</span>
-                  </div>
-                </div>
+      {outDims && (
+        <p
+          className={`text-[10px] font-mono ${outTooLarge ? "text-rose-500" : "text-muted-foreground"}`}
+        >
+          Output: {outDims[0]} × {outDims[1]} px
+          {outTooLarge && ` (too large, max ${MAX_SIDE} px per side)`}
+        </p>
+      )}
+      {resizeActive && (
+        <button
+          onClick={() => setResize(DEFAULT_RESIZE)}
+          className="text-[10px] font-bold text-primary hover:underline"
+        >
+          Reset size
+        </button>
+      )}
+    </div>
+  );
 
-                {/* Health diagnostics items */}
-                <div className="border-t border-border/10 pt-4 space-y-2">
-                  <div className="flex items-center gap-2 text-xs">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                    <span className="text-muted-foreground">Orientation is corrected and normalized.</span>
-                  </div>
-                  {metadata.size > 1.5 * 1024 * 1024 && (
-                    <div className="flex items-center gap-2 text-xs">
-                      <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" />
-                      <span className="text-muted-foreground">Heavy payload ({(metadata.size / 1024 / 1024).toFixed(1)} MB). Compression is highly recommended.</span>
-                    </div>
+  const renderCrop = () => {
+    const px = activeItem ? cropPx(activeItem) : null;
+    return (
+      <div className="space-y-3">
+        <div className="space-y-1.5">
+          <span className={label}>Aspect ratio</span>
+          <div className="grid grid-cols-3 gap-1.5">
+            {ASPECTS.map((a) => (
+              <button
+                key={a.label}
+                onClick={() => applyAspect(a.value)}
+                className={optBtn(cropRatio === a.value)}
+              >
+                {a.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        {px && (
+          <p className="text-[10px] font-mono text-muted-foreground">
+            Selection: {px.sw} × {px.sh} px
+          </p>
+        )}
+        <div className="flex flex-wrap gap-x-4 gap-y-1">
+          <button
+            onClick={() => {
+              if (activeItem) updateCrop(activeItem.id, FULL_CROP);
+            }}
+            className="text-[10px] font-bold text-primary hover:underline"
+          >
+            Reset crop
+          </button>
+          {items.length > 1 && activeItem && (
+            <button
+              onClick={() => {
+                const c = activeItem.crop;
+                setItems((p) => p.map((i) => ({ ...i, crop: c })));
+                invalidate();
+              }}
+              className="text-[10px] font-bold text-primary hover:underline"
+            >
+              Apply this crop to all
+            </button>
+          )}
+        </div>
+        <p className="text-[10px] text-muted-foreground leading-relaxed">
+          {items.length > 1
+            ? "Crop is set per image. Select a thumbnail to adjust it. "
+            : ""}
+          Crop is applied before any rotation.
+        </p>
+      </div>
+    );
+  };
+
+  const renderRotate = () => (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-1.5">
+        <button
+          onClick={() => setRotation((r) => (r + 270) % 360)}
+          className={`${optBtn(false)} flex items-center justify-center gap-1.5`}
+        >
+          <RotateCcw className="h-3.5 w-3.5" /> 90° left
+        </button>
+        <button
+          onClick={() => setRotation((r) => (r + 90) % 360)}
+          className={`${optBtn(false)} flex items-center justify-center gap-1.5`}
+        >
+          <RotateCw className="h-3.5 w-3.5" /> 90° right
+        </button>
+      </div>
+      <div className="grid grid-cols-4 gap-1">
+        {[0, 90, 180, 270].map((deg) => (
+          <button
+            key={deg}
+            onClick={() => setRotation(deg)}
+            className={`${optBtn(rotation === deg)} font-mono`}
+          >
+            {deg}°
+          </button>
+        ))}
+      </div>
+      <div className="grid grid-cols-2 gap-1.5">
+        <button
+          onClick={() => setFlipH((v) => !v)}
+          className={`${optBtn(flipH)} flex items-center justify-center gap-1.5`}
+        >
+          <FlipHorizontal className="h-3.5 w-3.5" /> Flip horizontal
+        </button>
+        <button
+          onClick={() => setFlipV((v) => !v)}
+          className={`${optBtn(flipV)} flex items-center justify-center gap-1.5`}
+        >
+          <FlipVertical className="h-3.5 w-3.5" /> Flip vertical
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderInfo = () => (
+    <div className="space-y-3">
+      {activeItem ? (
+        <div className="p-2 bg-background rounded border border-border/30 space-y-1 font-mono text-[10px] text-muted-foreground">
+          {[
+            ["Name", activeItem.file.name],
+            ["Format", activeItem.mime || "unknown"],
+            ["Dimensions", `${activeItem.width} × ${activeItem.height} px`],
+            ["Size", formatBytes(activeItem.file.size)],
+            ["Transparency", activeItem.hasAlpha ? "Yes" : "No"],
+          ].map(([k, v]) => (
+            <div key={k} className="flex justify-between gap-3">
+              <span>{k}</span>
+              <span className="text-foreground truncate">{v}</span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-[11px] text-muted-foreground">
+          Add an image to see its details.
+        </p>
+      )}
+      <p className="text-[10px] text-muted-foreground leading-relaxed flex gap-1.5">
+        <Info className="h-3.5 w-3.5 shrink-0 text-primary" />
+        Exported files don't include the original metadata (EXIF, location,
+        camera, colour profile). Colours may shift slightly for wide-gamut
+        images.
+      </p>
+    </div>
+  );
+
+  const renderBase64 = () => {
+    const dataUri = b64 && b64.id === activeItem?.id ? b64.dataUri : null;
+    if (!activeItem)
+      return (
+        <p className="text-[11px] text-muted-foreground">
+          Add an image to generate its Base64 code.
+        </p>
+      );
+    if (b64Loading || !dataUri)
+      return (
+        <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" /> Encoding…
+        </div>
+      );
+    const raw = dataUri.slice(dataUri.indexOf(",") + 1);
+    const alt = baseName(activeItem.file.name).replace(/[-_]/g, " ");
+    const dims =
+      activeItem.width > 0
+        ? ` width="${activeItem.width}" height="${activeItem.height}"`
+        : "";
+    const blocks = [
+      { key: "Data URI", value: dataUri },
+      { key: "Raw Base64", value: raw },
+      {
+        key: "HTML <img>",
+        value: `<img src="${dataUri}" alt="${alt}"${dims} />`,
+      },
+      { key: "CSS", value: `background-image: url("${dataUri}");` },
+    ];
+    return (
+      <div className="space-y-3">
+        <div className="p-2 bg-background rounded border border-border/30 font-mono text-[10px] text-muted-foreground space-y-1">
+          <div className="flex justify-between">
+            <span>File</span>
+            <span className="text-foreground">
+              {formatBytes(activeItem.file.size)}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span>Base64 text</span>
+            <span className="text-foreground">{formatBytes(raw.length)}</span>
+          </div>
+        </div>
+        {raw.length > 100 * 1024 && (
+          <p className="text-[10px] text-amber-500 leading-relaxed flex gap-1.5">
+            <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+            Base64 is about 33% larger than the file. For images over ~100 KB, a
+            normal image file usually loads faster than inlining.
+          </p>
+        )}
+        {blocks.map((b) => (
+          <div key={b.key} className="space-y-1">
+            <span className={label}>{b.key}</span>
+            <div className="relative">
+              <textarea
+                readOnly
+                value={preview(b.value)}
+                className="w-full h-16 p-2 pr-9 bg-muted/40 border border-border/30 rounded text-[9px] font-mono resize-none"
+              />
+              <button
+                onClick={() => copyText(b.value, b.key)}
+                aria-label={`Copy ${b.key}`}
+                className="absolute top-1.5 right-1.5 p-1 bg-primary text-primary-foreground rounded shadow hover:bg-primary/90"
+              >
+                <Copy className="h-3 w-3" />
+              </button>
+            </div>
+          </div>
+        ))}
+        <p className="text-[10px] text-muted-foreground leading-relaxed">
+          Encodes your original file as-is. Nothing is re-compressed.
+        </p>
+      </div>
+    );
+  };
+
+  /* ── Action bar ──────────────────────────────────────────────── */
+
+  const renderResultCard = () => {
+    if (activeError)
+      return (
+        <div className="rounded-md border border-rose-500/40 bg-rose-500/10 p-2 text-[10px] text-rose-500 flex gap-1.5">
+          <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+          <span>{activeError}</span>
+        </div>
+      );
+    if (!activeResult) return null;
+    const delta = pctChange(activeResult.originalSize, activeResult.newSize);
+    return (
+      <div className="rounded-md border border-border/40 bg-background p-2 space-y-1 text-[10px]">
+        <div className="flex justify-between font-mono font-bold">
+          <span className="text-foreground">
+            {formatBytes(activeResult.originalSize)} →{" "}
+            {formatBytes(activeResult.newSize)}
+          </span>
+          <span className={delta > 0 ? "text-amber-500" : "text-emerald-500"}>
+            {delta > 0 ? `+${delta}%` : `${delta}%`}
+          </span>
+        </div>
+        <div className="text-muted-foreground font-mono">
+          {activeResult.width} × {activeResult.height} px ·{" "}
+          {activeResult.format}
+        </div>
+        {activeResult.kept && (
+          <div className="text-muted-foreground">
+            Already well compressed. Your original file was kept.
+          </div>
+        )}
+        {!activeResult.kept && delta > 0 && (
+          <div className="text-amber-500">
+            This result is larger than the original.
+          </div>
+        )}
+        {activeResult.warnings.map((w) => (
+          <div key={w} className="text-amber-500 flex gap-1">
+            <AlertTriangle className="h-3 w-3 shrink-0 mt-px" /> {w}
+          </div>
+        ))}
+        {resultList.length > 1 && (
+          <div className="pt-1 mt-1 border-t border-border/30 text-muted-foreground font-mono">
+            All {resultList.length}: {formatBytes(totalOrig)} →{" "}
+            {formatBytes(totalNew)} ({pctChange(totalOrig, totalNew)}%)
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  /* ════════════════════════════════════════════════════════════════
+     LAYOUT
+  ════════════════════════════════════════════════════════════════ */
+
+  const content = (
+    <div
+      className={`flex flex-col lg:flex-row bg-background overflow-hidden transition-all duration-300 ${
+        isFullscreen
+          ? "fixed inset-0 z-[99999] m-0 rounded-none w-screen h-[100dvh] border-none"
+          : "lg:h-[calc(100dvh-120px)] -m-4 sm:-m-6 rounded-xl border border-border/40"
+      }`}
+    >
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileInput}
+        multiple
+        accept={acceptAttr}
+        className="hidden"
+      />
+
+      {/* ── LEFT: canvas ── */}
+      <div
+        className="flex-1 flex flex-col relative overflow-hidden min-h-[360px]"
+        style={{
+          backgroundColor: "hsl(var(--muted) / 0.2)",
+          backgroundImage: showChecker
+            ? "conic-gradient(var(--border) 90deg, transparent 90deg 180deg, var(--border) 180deg 270deg, transparent 270deg)"
+            : "none",
+          backgroundSize: "20px 20px",
+        }}
+        onDragEnter={(e) => {
+          e.preventDefault();
+          setIsDragging(true);
+        }}
+        onDragLeave={(e) => {
+          if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+          setIsDragging(false);
+        }}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => {
+          e.preventDefault();
+          setIsDragging(false);
+          addFiles(Array.from(e.dataTransfer.files));
+        }}
+      >
+        <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 bg-background/90 backdrop-blur-md border border-border/50 rounded-md p-1 shadow-lg">
+          <button
+            aria-label="Zoom out"
+            onClick={() => setZoom((z) => Math.max(0.1, +(z - 0.1).toFixed(2)))}
+            className="p-1.5 hover:bg-secondary rounded text-muted-foreground hover:text-foreground"
+          >
+            <ZoomOut className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setZoom(1)}
+            title="Reset zoom"
+            className="text-[11px] font-mono font-bold w-12 text-center text-foreground"
+          >
+            {Math.round(zoom * 100)}%
+          </button>
+          <button
+            aria-label="Zoom in"
+            onClick={() => setZoom((z) => Math.min(5, +(z + 0.1).toFixed(2)))}
+            className="p-1.5 hover:bg-secondary rounded text-muted-foreground hover:text-foreground"
+          >
+            <ZoomIn className="h-4 w-4" />
+          </button>
+          <div className="w-px h-4 bg-border mx-1" />
+          <button
+            aria-label="Toggle transparency grid"
+            onClick={() => setShowChecker((v) => !v)}
+            className={`p-1.5 rounded ${showChecker ? "bg-primary/20 text-primary" : "hover:bg-secondary text-muted-foreground"}`}
+            title="Toggle transparency grid"
+          >
+            <Layers className="h-4 w-4" />
+          </button>
+          <div className="w-px h-4 bg-border mx-1" />
+          <button
+            aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+            onClick={() => setIsFullscreen((v) => !v)}
+            className="p-1.5 hover:bg-secondary rounded text-muted-foreground hover:text-foreground"
+          >
+            {isFullscreen ? (
+              <Minimize2 className="h-4 w-4" />
+            ) : (
+              <Maximize2 className="h-4 w-4" />
+            )}
+          </button>
+        </div>
+
+        <div className="flex-1 flex items-center justify-center p-8 pt-16 overflow-auto relative">
+          <div
+            className="relative flex items-center justify-center transition-transform duration-200"
+            style={{
+              transform: `scale(${zoom})`,
+              transformOrigin: "center center",
+            }}
+          >
+            {renderCanvas()}
+          </div>
+        </div>
+
+        {items.length > 0 && (
+          <div className="h-24 bg-background/95 backdrop-blur-md border-t border-border/40 flex items-center gap-3 px-4 overflow-x-auto shrink-0 z-30">
+            {items.map((item) => {
+              const hasResult = !!results[item.id];
+              const hasError = !!errors[item.id];
+              return (
+                <div
+                  key={item.id}
+                  onClick={() => setActiveId(item.id)}
+                  title={errors[item.id] ?? item.file.name}
+                  className={`relative w-16 h-16 rounded-lg overflow-hidden border-2 cursor-pointer group flex-shrink-0 transition-all ${
+                    activeItem?.id === item.id
+                      ? "border-primary ring-2 ring-primary/20 scale-105"
+                      : "border-transparent hover:border-border/80 opacity-80 hover:opacity-100"
+                  }`}
+                >
+                  <img
+                    src={item.url}
+                    className="w-full h-full object-cover"
+                    alt={item.file.name}
+                    draggable={false}
+                  />
+                  {(hasResult || hasError) && (
+                    <span
+                      className={`absolute bottom-1 left-1 w-2.5 h-2.5 rounded-full border border-background ${hasError ? "bg-rose-500" : "bg-emerald-500"}`}
+                    />
                   )}
-                  {formatRecommendation && (
-                    <div className="flex items-start gap-2 text-xs bg-primary/5 p-3 rounded-xl border border-primary/10">
-                      <Sparkles className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                      <div>
-                        <p className="font-extrabold text-foreground">Recommended Format: <span className="text-primary">{formatRecommendation.recommendation}</span></p>
-                        <p className="text-muted-foreground text-[11px] mt-0.5 leading-relaxed">{formatRecommendation.explanation}</p>
-                      </div>
-                    </div>
+                  {!isProcessing && (
+                    <button
+                      aria-label={`Remove ${item.file.name}`}
+                      onClick={(e) => removeItem(item.id, e)}
+                      className="absolute top-1 right-1 bg-black/60 hover:bg-rose-500 text-white rounded-full p-0.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all z-10"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+            {!isProcessing && items.length < MAX_FILES && (
+              <button
+                aria-label="Add more images"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-16 h-16 rounded-lg border-2 border-dashed border-border/60 hover:border-primary/50 hover:bg-primary/5 flex items-center justify-center flex-shrink-0 transition-all group"
+              >
+                {isLoadingFiles ? (
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                ) : (
+                  <Plus className="h-6 w-6 text-muted-foreground group-hover:text-primary" />
+                )}
+              </button>
+            )}
+          </div>
+        )}
+
+        <div className="h-8 bg-card border-t border-border/40 flex items-center px-4 justify-between shrink-0 text-[10px] text-muted-foreground font-mono z-20">
+          <div className="flex gap-4">
+            <span>
+              {activeItem
+                ? `${activeItem.width} × ${activeItem.height} px`
+                : "No image"}
+            </span>
+            {activeItem && <span>{formatBytes(activeItem.file.size)}</span>}
+            {items.length > 1 && <span>{items.length} images</span>}
+          </div>
+          <div className="flex gap-4">
+            {view !== "base64" && (
+              <span>
+                {targetFormat === "original"
+                  ? "ORIGINAL FORMAT"
+                  : targetFormat.toUpperCase()}
+              </span>
+            )}
+            <span>
+              {view === "convert"
+                ? "CONVERT"
+                : view === "base64"
+                  ? "BASE64"
+                  : activeTab.toUpperCase()}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── RIGHT: properties ── */}
+      <aside className="bg-card border-t lg:border-t-0 lg:border-l border-border/40 flex flex-col w-full lg:w-80 shrink-0 lg:h-full z-40">
+        <div className="h-10 border-b border-border/40 flex items-center justify-between px-3 shrink-0 bg-muted/20">
+          <span className="text-[10px] font-black uppercase tracking-widest text-foreground">
+            {view === "convert"
+              ? "Convert"
+              : view === "base64"
+                ? "Base64"
+                : "Properties"}
+          </span>
+          <button
+            aria-label={isFullscreen ? "Exit fullscreen" : "Maximize workspace"}
+            onClick={() => setIsFullscreen((v) => !v)}
+            className="p-1.5 text-muted-foreground hover:text-foreground rounded hover:bg-secondary"
+          >
+            {isFullscreen ? (
+              <Minimize2 className="h-3.5 w-3.5" />
+            ) : (
+              <Maximize2 className="h-3.5 w-3.5" />
+            )}
+          </button>
+        </div>
+
+        <div className="flex-1 min-h-0 lg:overflow-y-auto">
+          <fieldset
+            disabled={isProcessing}
+            className="p-3 space-y-4 min-w-0 border-0 m-0 disabled:opacity-60"
+          >
+            {view === "editor" && (
+              <>
+                <div className="flex bg-background p-1 rounded-md border border-border/40">
+                  {TAB_DEFS.map((t) => {
+                    const Icon = t.icon;
+                    return (
+                      <button
+                        key={t.id}
+                        onClick={() => setActiveTab(t.id)}
+                        className={`flex-1 min-w-0 py-1.5 rounded text-[9px] font-black flex flex-col items-center gap-1 transition-all ${
+                          activeTab === t.id
+                            ? "bg-card text-foreground shadow-sm border border-border/50"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        <Icon className="h-3.5 w-3.5" /> {t.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                {renderEditChips()}
+                {activeTab === "compress" && renderCompress()}
+                {activeTab === "resize" && renderResize()}
+                {activeTab === "crop" && renderCrop()}
+                {activeTab === "rotate" && renderRotate()}
+                {activeTab === "info" && renderInfo()}
+              </>
+            )}
+            {view === "convert" && (
+              <div className="space-y-4">
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Converting to{" "}
+                  <span className="font-black text-foreground">
+                    {targetFormat === "jpeg"
+                      ? "JPG"
+                      : targetFormat.toUpperCase()}
+                  </span>
+                  . Choose the quality, then convert.
+                </p>
+                {targetFormat !== "png" ? (
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {(Object.keys(QUALITY) as QualityPreset[]).map((p) => (
+                      <button
+                        key={p}
+                        onClick={() => setQualityPreset(p)}
+                        className={`p-2 rounded border text-left flex flex-col ${qualityPreset === p ? "border-primary bg-primary/10 text-primary" : "border-border/30 text-foreground"}`}
+                      >
+                        <span className="text-[10px] font-black">
+                          {QUALITY_LABEL[p]}
+                        </span>
+                        <span className="text-[9px] text-muted-foreground mt-0.5">
+                          {Math.round(QUALITY[p] * 100)}%
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-[10px] text-muted-foreground">
+                    PNG is lossless, so there's no quality setting.
+                  </p>
+                )}
+                {alphaToJpeg && (
+                  <p className="text-[10px] text-amber-500">
+                    Transparent areas will be filled with white.
+                  </p>
+                )}
+              </div>
+            )}
+            {view === "base64" && renderBase64()}
+          </fieldset>
+        </div>
+
+        {view !== "base64" && (
+          <div className="p-3 border-t border-border/40 bg-card lg:bg-muted/20 shrink-0 space-y-3 sticky bottom-0 lg:static z-30">
+            {renderResultCard()}
+
+            {view === "editor" && (
+              <div className="space-y-1.5">
+                <span className={label}>Output format</span>
+                <div className="grid grid-cols-4 gap-1">
+                  {(["original", "webp", "jpeg", "png"] as TargetFormat[]).map(
+                    (f) => (
+                      <button
+                        key={f}
+                        disabled={isProcessing}
+                        onClick={() => setTargetFormat(f)}
+                        className={`py-1.5 rounded border text-[10px] font-black transition-all ${targetFormat === f ? "border-primary bg-primary/10 text-primary" : "border-border/40 text-muted-foreground hover:text-foreground"}`}
+                      >
+                        {f === "original"
+                          ? "Same"
+                          : f === "jpeg"
+                            ? "JPG"
+                            : f.toUpperCase()}
+                      </button>
+                    ),
                   )}
                 </div>
               </div>
             )}
-          </div>
 
-          {/* RIGHT COLUMN: Optimization Control Parameters Panel */}
-          <div className="lg:col-span-5 space-y-4">
-            <div className="bg-card/30 backdrop-blur-xl border border-border/30 rounded-xl p-4">
-              {/* Tab Navigation header within Workspace */}
-              <div className="flex border-b border-border/20 pb-2.5 mb-4 overflow-x-auto gap-1">
-                {[
-                  { id: "compress", label: "Compress", icon: Sparkles },
-                  { id: "resize", label: "Resize", icon: Maximize2 },
-                  { id: "crop", label: "Crop", icon: Crop },
-                  { id: "rotate", label: "Rotate", icon: RotateCw },
-                  { id: "presets", label: "Presets", icon: Settings2 },
-                  { id: "responsive", label: "Srcset", icon: Maximize2 },
-                  { id: "seo", label: "SEO", icon: CheckCircle2 },
-                  { id: "base64", label: "Base64", icon: FileCode }
-                ].map(t => {
-                  const Icon = t.icon;
-                  return (
-                    <button
-                      key={t.id}
-                      onClick={() => { setActiveTab(t.id); setProcessedResult(null); }}
-                      className={`px-2.5 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center gap-1 transition-all shrink-0 ${
-                        activeTab === t.id
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "text-muted-foreground hover:bg-secondary/30 hover:text-foreground"
-                      }`}
-                    >
-                      <Icon className="h-3 w-3" />
-                      {t.label}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* TAB 1: COMPRESS SETTINGS */}
-              {activeTab === "compress" && (
-                <div className="space-y-5 animate-in fade-in duration-300">
-                  <div className="flex gap-2 p-1 bg-secondary/20 border border-border/20 rounded-xl">
-                    <button
-                      onClick={() => setCompressionType("preset")}
-                      className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
-                        compressionType === "preset" ? "bg-background text-foreground shadow" : "text-muted-foreground"
-                      }`}
-                    >
-                      Quick Presets
-                    </button>
-                    <button
-                      onClick={() => setCompressionType("target")}
-                      className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
-                        compressionType === "target" ? "bg-background text-foreground shadow" : "text-muted-foreground"
-                      }`}
-                    >
-                      Smart Target Size
-                    </button>
-                  </div>
-
-                  {compressionType === "preset" ? (
-                    <div className="space-y-4">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Select Compression Target</label>
-                      <div className="grid grid-cols-3 gap-2">
-                        {[
-                          { id: "best", label: "Best Quality", desc: "Minimal compression" },
-                          { id: "balanced", label: "Balanced", desc: "Optimal size/quality" },
-                          { id: "smallest", label: "Smallest Size", desc: "High compression" }
-                        ].map(preset => (
-                          <button
-                            key={preset.id}
-                            onClick={() => setQualityPreset(preset.id as any)}
-                            className={`p-3 rounded-xl border text-left flex flex-col justify-between transition-all ${
-                              qualityPreset === preset.id
-                                ? "border-primary bg-primary/5 text-primary"
-                                : "border-border/30 hover:border-border/60 text-foreground"
-                            }`}
-                          >
-                            <span className="text-[11px] font-black uppercase tracking-tight">{preset.label}</span>
-                            <span className="text-[9px] text-muted-foreground mt-1 block">{preset.desc}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-4 p-4 bg-secondary/10 rounded-xl border border-border/20">
-                      <div className="flex items-center justify-between mb-1">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Target File Size (KB)</label>
-                        <span className="text-xs font-mono font-black text-primary">{targetSizeKb} KB</span>
-                      </div>
-                      <p className="text-[10px] text-muted-foreground leading-relaxed mb-3">Our binary search engine automatically searches for the best quality setting to match your target file constraint.</p>
-                      <input
-                        type="range"
-                        min="20"
-                        max="2000"
-                        step="10"
-                        value={targetSizeKb}
-                        onChange={e => setTargetSizeKb(parseInt(e.target.value))}
-                        className="w-full h-1.5 bg-border rounded-full appearance-none cursor-pointer accent-primary"
-                      />
-                      <div className="flex justify-between text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
-                        <span>20 KB</span>
-                        <span>2 MB</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Format Selection Dropdown */}
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Export Target Format</label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {["png", "jpeg", "webp"].map(fmt => (
-                        <button
-                          key={fmt}
-                          onClick={() => setTargetFormat(fmt as any)}
-                          className={`py-2 px-3 rounded-xl border text-xs font-black uppercase tracking-wider transition-all ${
-                            targetFormat === fmt
-                              ? "border-primary bg-primary/5 text-primary"
-                              : "border-border/20 hover:border-border/40 text-muted-foreground"
-                          }`}
-                        >
-                          .{fmt}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* TAB 2: RESIZE SETTINGS */}
-              {activeTab === "resize" && (
-                <div className="space-y-4 animate-in fade-in duration-300">
-                  <div className="flex gap-2 p-1 bg-secondary/20 border border-border/20 rounded-xl">
-                    <button
-                      onClick={() => setResizeUnit("px")}
-                      className={`flex-1 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
-                        resizeUnit === "px" ? "bg-background text-foreground shadow" : "text-muted-foreground"
-                      }`}
-                    >
-                      Pixels
-                    </button>
-                    <button
-                      onClick={() => setResizeUnit("percent")}
-                      className={`flex-1 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
-                        resizeUnit === "percent" ? "bg-background text-foreground shadow" : "text-muted-foreground"
-                      }`}
-                    >
-                      Percentage
-                    </button>
-                  </div>
-
-                  {resizeUnit === "px" ? (
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block mb-1">Width (px)</label>
-                        <input
-                          type="number"
-                          value={resizeWidth}
-                          onChange={e => handleWidthChange(parseInt(e.target.value) || 0)}
-                          className="w-full h-10 px-3 bg-muted/40 border border-border/30 rounded-xl text-xs font-mono font-bold"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block mb-1">Height (px)</label>
-                        <input
-                          type="number"
-                          value={resizeHeight}
-                          onChange={e => handleHeightChange(parseInt(e.target.value) || 0)}
-                          className="w-full h-10 px-3 bg-muted/40 border border-border/30 rounded-xl text-xs font-mono font-bold"
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Resize Scale</label>
-                        <span className="text-xs font-mono font-bold">{resizePercent}%</span>
-                      </div>
-                      <input
-                        type="range"
-                        min="10"
-                        max="200"
-                        step="5"
-                        value={resizePercent}
-                        onChange={e => setResizePercent(parseInt(e.target.value))}
-                        className="w-full h-1.5 bg-border rounded-full appearance-none cursor-pointer accent-primary"
-                      />
-                      <div className="flex justify-between text-[9px] font-bold text-muted-foreground">
-                        <span>10% (Smaller)</span>
-                        <span>200% (Upscale)</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {resizeUnit === "px" && (
-                    <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
-                      <input
-                        type="checkbox"
-                        checked={lockAspectRatio}
-                        onChange={e => setLockAspectRatio(e.target.checked)}
-                        className="rounded border-border/30 bg-background accent-primary text-primary"
-                      />
-                      Maintain Aspect Ratio
-                    </label>
-                  )}
-                </div>
-              )}
-
-              {/* TAB 3: CROP SETTINGS */}
-              {activeTab === "crop" && (
-                <div className="space-y-4 animate-in fade-in duration-300">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Aspect Ratio Constraints</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {[
-                      { id: "custom", label: "Freeform Crop" },
-                      { id: "1:1", label: "Square (1:1)" },
-                      { id: "16:9", label: "Landscape (16:9)" },
-                      { id: "4:3", label: "Standard (4:3)" }
-                    ].map(aspect => (
-                      <button
-                        key={aspect.id}
-                        onClick={() => setCropAspectRatio(aspect.id)}
-                        className={`py-2 px-3 rounded-xl border text-xs font-black transition-all ${
-                          cropAspectRatio === aspect.id
-                            ? "border-primary bg-primary/5 text-primary"
-                            : "border-border/20 hover:border-border/40 text-muted-foreground"
-                        }`}
-                      >
-                        {aspect.label}
-                      </button>
-                    ))}
-                  </div>
-                  <p className="text-[10px] text-muted-foreground leading-relaxed mt-2 bg-secondary/10 p-3 rounded-xl border border-border/20">
-                    Drag the bounds or adjust handles on the canvas sandbox image to crop visually.
-                  </p>
-                </div>
-              )}
-
-              {/* TAB 4: ROTATE SETTINGS */}
-              {activeTab === "rotate" && (
-                <div className="space-y-4 animate-in fade-in duration-300">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Rotate Matrix</label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {[
-                      { deg: 0, label: "0°" },
-                      { deg: 90, label: "90°" },
-                      { deg: 180, label: "180°" },
-                      { deg: 270, label: "270°" }
-                    ].map(rot => (
-                      <button
-                        key={rot.deg}
-                        onClick={() => setRotation(rot.deg)}
-                        className={`py-2 px-3 rounded-xl border text-xs font-mono font-bold transition-all ${
-                          rotation === rot.deg
-                            ? "border-primary bg-primary/5 text-primary"
-                            : "border-border/20 hover:border-border/40 text-muted-foreground"
-                        }`}
-                      >
-                        {rot.label}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Flipping flips */}
-                  <div className="flex gap-2 pt-2 border-t border-border/10">
-                    <button
-                      onClick={() => setFlipH(!flipH)}
-                      className={`flex-1 py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
-                        flipH ? "border-primary bg-primary/5 text-primary" : "border-border/20 text-muted-foreground"
-                      }`}
-                    >
-                      Flip Horizontal
-                    </button>
-                    <button
-                      onClick={() => setFlipV(!flipV)}
-                      className={`flex-1 py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
-                        flipV ? "border-primary bg-primary/5 text-primary" : "border-border/20 text-muted-foreground"
-                      }`}
-                    >
-                      Flip Vertical
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* TAB 5: PRESETS SETTINGS */}
-              {activeTab === "presets" && (
-                <div className="space-y-4 animate-in fade-in duration-300">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Select Use-Case Presets</label>
-                  <div className="grid grid-cols-2 gap-2 max-h-[220px] overflow-y-auto pr-1">
-                    {[
-                      { id: "website", label: "Website Optimized", desc: "WebP / 1200px" },
-                      { id: "wordpress", label: "WordPress Banner", desc: "WebP / 1024px" },
-                      { id: "shopify", label: "Shopify Product", desc: "WebP / 2048px" },
-                      { id: "instagram", label: "Instagram Square", desc: "JPG / 1080px" },
-                      { id: "youtube", label: "YouTube Thumbnail", desc: "WebP / 1280px" },
-                      { id: "email", label: "Email Newsletter", desc: "JPG / 600px" },
-                      { id: "nextjs", label: "Next.js Hero Block", desc: "WebP / 1920px" }
-                    ].map(p => (
-                      <button
-                        key={p.id}
-                        onClick={() => applyPreset(p.id)}
-                        className={`p-3 rounded-xl border text-left transition-all ${
-                          selectedPreset === p.id
-                            ? "border-primary bg-primary/5 text-primary"
-                            : "border-border/20 hover:border-border/40 text-foreground"
-                        }`}
-                      >
-                        <span className="text-[11px] font-black uppercase tracking-tight block">{p.label}</span>
-                        <span className="text-[9px] text-muted-foreground mt-0.5 block">{p.desc}</span>
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Output naming format */}
-                  <div className="pt-2 border-t border-border/10">
-                    <label className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground block mb-1">Custom File Naming</label>
-                    <input
-                      type="text"
-                      value={namingPattern}
-                      onChange={e => setNamingPattern(e.target.value)}
-                      className="w-full h-9 px-3 bg-muted/40 border border-border/30 rounded-xl text-xs font-mono font-bold"
-                      placeholder="{name}-{width}x{height}"
-                    />
-                    <span className="text-[9px] text-muted-foreground block mt-1">Tokens: &#123;name&#125;, &#123;width&#125;, &#123;height&#125;</span>
-                  </div>
-                </div>
-              )}
-
-              {/* TAB: RESPONSIVE SRCSET GENERATOR */}
-              {activeTab === "responsive" && (
-                <div className="space-y-4 animate-in fade-in duration-300">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Responsive HTML &lt;picture&gt; Snippet</label>
-                  <div className="relative">
-                    <textarea
-                      readOnly
-                      value={responsiveCode}
-                      className="w-full h-36 p-3 bg-muted/40 border border-border/30 rounded-xl text-[10px] font-mono break-all resize-none"
-                    />
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(responsiveCode);
-                        setCopiedResponsive(true);
-                        toast({ title: "Copied!", description: "Responsive HTML snippet copied to clipboard." });
-                        setTimeout(() => setCopiedResponsive(false), 2000);
-                      }}
-                      className="absolute bottom-2 right-2 p-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg shadow-sm transition-all flex items-center gap-1 text-[10px] font-bold"
-                    >
-                      {copiedResponsive ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                      {copiedResponsive ? "Copied HTML" : "Copy HTML"}
-                    </button>
-                  </div>
-                  <p className="text-[10px] text-muted-foreground leading-relaxed bg-secondary/10 p-3 rounded-xl border border-border/20">
-                    Generates fluid srcset breakpoints for 320w, 640w, 1024w, and 1920w viewports automatically.
-                  </p>
-                </div>
-              )}
-
-              {/* TAB: IMAGE SEO AUDIT REPORT */}
-              {activeTab === "seo" && (
-                <div className="space-y-4 animate-in fade-in duration-300">
-                  <div className="flex items-center justify-between p-3.5 bg-secondary/20 rounded-xl border border-border/20">
-                    <div>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Image SEO Health Score</span>
-                      <span className="text-xl font-black text-primary">{seoAudit.score} / 100</span>
-                    </div>
-                    <div className={`px-3 py-1 rounded-full text-xs font-black uppercase ${
-                      seoAudit.score >= 80 ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                    }`}>
-                      {seoAudit.score >= 80 ? "Optimized" : "Needs Tuning"}
-                    </div>
-                  </div>
-
-                  <div className="space-y-2 max-h-[180px] overflow-y-auto pr-1">
-                    {seoAudit.items.map((item, idx) => (
-                      <div key={idx} className="p-2.5 rounded-xl border border-border/15 bg-card/20 flex items-start gap-2 text-xs">
-                        {item.passed ? <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" /> : <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />}
-                        <div>
-                          <p className="font-extrabold text-foreground">{item.label}</p>
-                          <p className="text-[10px] text-muted-foreground mt-0.5">{item.note}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* TAB 6: BASE64 SETTINGS */}
-              {activeTab === "base64" && (
-                <div className="space-y-4 animate-in fade-in duration-300">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Raw Data URL Base64 Payload</label>
-                  <div className="relative">
-                    <textarea
-                      readOnly
-                      value={base64Output}
-                      className="w-full h-32 p-3 bg-muted/40 border border-border/30 rounded-xl text-[10px] font-mono break-all resize-none"
-                    />
-                    <button
-                      onClick={copyBase64ToClipboard}
-                      disabled={!base64Output}
-                      className="absolute bottom-2 right-2 p-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg shadow-sm transition-all flex items-center gap-1 text-[10px] font-bold disabled:opacity-50"
-                    >
-                      {copiedBase64 ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                      {copiedBase64 ? "Copied" : "Copy"}
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* CORE ACTION SUBMISSION TRIGGER BUTTON */}
-              <div className="mt-6 pt-5 border-t border-border/20 space-y-3">
-                <button
-                  onClick={handleProcessWorkspace}
-                  disabled={isProcessing}
-                  className="w-full py-3 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-black uppercase tracking-widest transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
-                >
-                  {isProcessing ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Constructing Variant...
-                    </>
-                  ) : (
-                    <>
-                      <Settings2 className="h-4 w-4" /> Run Image Operations
-                    </>
-                  )}
-                </button>
-
-                {processedResult && (
-                  <button
-                    onClick={downloadProcessedSingle}
-                    className="w-full py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-primary-foreground text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5"
-                  >
-                    <Download className="h-4 w-4" /> Save Final Image
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Bulk Batch Processing Queue workflow layout */}
-      {files.length > 1 && (
-        <div className="space-y-6 animate-in fade-in duration-300">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* Batch Files Queue Table */}
-            <div className="lg:col-span-8 bg-card/20 rounded-2xl border border-border/40 p-6 space-y-4 shadow-sm">
-              <div className="flex items-center justify-between border-b border-border/10 pb-3">
-                <h3 className="text-xs font-extrabold uppercase tracking-widest text-primary">
-                  Bulk Process queue ({files.length} images)
-                </h3>
-                <span className="text-xs text-muted-foreground font-semibold">Ready for pipeline</span>
-              </div>
-
-              {/* Small Thumbnails Table Queue */}
-              <div className="space-y-2 max-h-[360px] overflow-y-auto pr-1">
-                {files.map((f, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 bg-secondary/10 border border-border/20 rounded-xl">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
-                        <FileImage className="h-4 w-4" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold truncate text-foreground">{f.name}</p>
-                        <p className="text-[10px] text-muted-foreground">{(f.size / 1024).toFixed(0)} KB</p>
-                      </div>
-                    </div>
-                    {batchResults[i] && (
-                      <span className="text-[10px] font-mono font-bold text-emerald-500">
-                        -{batchResults[i].savedPercentage}% ({(batchResults[i].newSize / 1024).toFixed(0)} KB)
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Batch Globals Configuration control parameters */}
-            <div className="lg:col-span-4 bg-card/40 backdrop-blur-xl border border-border/40 rounded-2xl p-6 space-y-5 shadow-sm">
-              <h3 className="text-xs font-extrabold uppercase tracking-widest text-primary flex items-center gap-1.5">
-                <Settings2 className="h-4 w-4" /> Global Batch settings
-              </h3>
-
-              {/* Global Output Format */}
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Global Output Format</label>
-                <div className="grid grid-cols-3 gap-1.5">
-                  {["png", "jpeg", "webp"].map(fmt => (
-                    <button
-                      key={fmt}
-                      onClick={() => setTargetFormat(fmt as any)}
-                      className={`py-1.5 px-2 rounded-xl border text-[10px] font-black uppercase tracking-wide transition-all ${
-                        targetFormat === fmt
-                          ? "border-primary bg-primary/5 text-primary"
-                          : "border-border/10 text-muted-foreground"
-                      }`}
-                    >
-                      .{fmt}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Resize Width Boundary (optional) */}
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Max Boundary Width (optional)</label>
-                <input
-                  type="number"
-                  placeholder="Keep original size"
-                  value={resizeWidth === 800 ? "" : resizeWidth}
-                  onChange={e => {
-                    const v = parseInt(e.target.value);
-                    setResizeWidth(v || 0);
-                    setActiveTab(v ? "resize" : "compress");
-                  }}
-                  className="w-full h-10 px-3 bg-muted/40 border border-border/30 rounded-xl text-xs font-bold"
+            <button
+              onClick={handleProcess}
+              disabled={!canRun}
+              className="relative overflow-hidden w-full py-2.5 rounded text-[10px] font-black uppercase tracking-widest shadow-lg transition-all flex items-center justify-center bg-primary text-primary-foreground hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:brightness-100"
+            >
+              {isProcessing && (
+                <div
+                  className="absolute inset-y-0 left-0 bg-black/30 transition-all duration-200 ease-out"
+                  style={{ width: `${progress}%` }}
                 />
-              </div>
-
-              {/* Global presets options shortcut */}
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Compression preset</label>
-                <select
-                  value={qualityPreset}
-                  onChange={e => setQualityPreset(e.target.value as any)}
-                  className="w-full h-10 px-3 bg-muted/40 border border-border/30 rounded-xl text-xs font-semibold text-foreground outline-none"
-                >
-                  <option value="best">Best quality (Low compression)</option>
-                  <option value="balanced">Balanced (Optimal)</option>
-                  <option value="smallest">Smallest file (High compression)</option>
-                </select>
-              </div>
-
-              {/* Trigger loop actions */}
-              <button
-                onClick={handleProcessWorkspace}
-                disabled={isProcessing}
-                className="w-full py-3 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-black uppercase tracking-widest transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-1.5"
-              >
+              )}
+              <div className="relative z-10 flex items-center justify-center gap-2 w-full px-2">
                 {isProcessing ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" /> Batch Processing {progress}%
+                    <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+                    <span className="truncate">
+                      {progress}% {eta && `· ${eta}`}
+                    </span>
                   </>
                 ) : (
-                  <>Compile Batch Queue</>
+                  <>
+                    <Settings2 className="h-4 w-4 shrink-0" />
+                    {items.length === 0
+                      ? "Add images first"
+                      : pendingCount === 0
+                        ? "All processed"
+                        : `${view === "convert" ? "Convert" : "Apply & export"}${pendingCount > 1 ? ` (${pendingCount})` : ""}`}
+                  </>
                 )}
-              </button>
+              </div>
+            </button>
 
-              {batchResults.length > 0 && (
-                <button
-                  onClick={downloadBatchZip}
-                  className="w-full py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-primary-foreground text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 shadow"
-                >
-                  <Download className="h-4 w-4" /> Download ZIP Package
-                </button>
-              )}
-            </div>
+            {activeResult && (
+              <button
+                onClick={downloadSingle}
+                className="w-full py-2.5 rounded bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-emerald-400 flex items-center justify-center gap-2"
+              >
+                <Download className="h-4 w-4" /> Download this image
+              </button>
+            )}
+            {resultList.length > 1 && (
+              <button
+                onClick={downloadZip}
+                disabled={isZipping}
+                className="w-full py-2.5 rounded border border-emerald-500 text-emerald-500 text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500/10 flex items-center justify-center gap-2 disabled:opacity-60"
+              >
+                {isZipping ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <FileArchive className="h-4 w-4" />
+                )}
+                Download all as ZIP ({resultList.length})
+              </button>
+            )}
           </div>
-        </div>
-      )}
+        )}
+      </aside>
     </div>
   );
+
+  if (isFullscreen && typeof document !== "undefined") {
+    return createPortal(content, document.body);
+  }
+  return content;
 }

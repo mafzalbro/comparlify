@@ -2,8 +2,18 @@
 
 import React, { useState, useEffect } from "react";
 import { PDFDocument, degrees } from "pdf-lib";
-import { Check, Copy, ArrowUp, ArrowDown, Trash2, FileText, AlertCircle, Loader2, RotateCw, LayoutGrid } from "lucide-react";
+import {
+  ArrowUp,
+  ArrowDown,
+  Trash2,
+  FileText,
+  AlertCircle,
+  Loader2,
+  RotateCw,
+  LayoutGrid,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ShieldCheck } from "lucide-react";
 
 const PDFJS_VERSION = "3.11.174";
 
@@ -13,10 +23,8 @@ interface MergableFile {
   name: string;
   size: string;
   pagesCount: number;
-  rotation: number; // 0, 90, 180, 270
+  rotation: number;
 }
-
-import { ShieldCheck, Sparkles } from "lucide-react";
 
 export function MergePDF() {
   const [files, setFiles] = useState<MergableFile[]>([]);
@@ -26,10 +34,12 @@ export function MergePDF() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      import("pdfjs-dist").then((pdfjsLib) => {
-        const v = pdfjsLib.version || PDFJS_VERSION;
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${v}/build/pdf.worker.min.mjs`;
-      }).catch((err) => console.error("Could not load pdfjs-dist", err));
+      import("pdfjs-dist")
+        .then((pdfjsLib) => {
+          const v = pdfjsLib.version || PDFJS_VERSION;
+          pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${v}/build/pdf.worker.min.mjs`;
+        })
+        .catch((err) => console.error("Could not load pdfjs-dist", err));
     }
   }, []);
 
@@ -38,9 +48,11 @@ export function MergePDF() {
     setMerging(true);
     setError(null);
 
-    try {
-      const list: MergableFile[] = [];
-      for (const f of Array.from(e.target.files)) {
+    const list: MergableFile[] = [];
+    const failedFiles: string[] = [];
+
+    for (const f of Array.from(e.target.files)) {
+      try {
         const fileBuffer = await f.arrayBuffer();
         const srcPdf = await PDFDocument.load(fileBuffer);
         const count = srcPdf.getPageCount();
@@ -53,14 +65,30 @@ export function MergePDF() {
           pagesCount: count,
           rotation: 0,
         });
+      } catch (err) {
+        // Catch individual file failures so the whole batch isn't lost
+        failedFiles.push(f.name);
       }
-
-      setFiles((prev) => [...prev, ...list]);
-    } catch (err) {
-      setError("Failed to load some PDF files. Please ensure they are standard and unencrypted.");
-    } finally {
-      setMerging(false);
     }
+
+    if (failedFiles.length > 0) {
+      setError(
+        `Failed to load ${failedFiles.length} file(s) (possibly encrypted or invalid): ${failedFiles.join(", ")}`,
+      );
+      toast({
+        variant: "destructive",
+        title: "Some files skipped",
+        description: "Encrypted or invalid PDFs were ignored.",
+      });
+    }
+
+    if (list.length > 0) {
+      setFiles((prev) => [...prev, ...list]);
+    }
+
+    // Reset the input so the same file can be selected again if needed
+    if (e.target) e.target.value = "";
+    setMerging(false);
   };
 
   const handleMove = (index: number, direction: "up" | "down") => {
@@ -77,8 +105,8 @@ export function MergePDF() {
   const handleRotateFile = (id: string) => {
     setFiles((prev) =>
       prev.map((f) =>
-        f.id === id ? { ...f, rotation: (f.rotation + 90) % 360 } : f
-      )
+        f.id === id ? { ...f, rotation: (f.rotation + 90) % 360 } : f,
+      ),
     );
   };
 
@@ -101,7 +129,10 @@ export function MergePDF() {
       for (const item of files) {
         const fileBuffer = await item.file.arrayBuffer();
         const srcPdf = await PDFDocument.load(fileBuffer);
-        const copiedPages = await mergedPdf.copyPages(srcPdf, srcPdf.getPageIndices());
+        const copiedPages = await mergedPdf.copyPages(
+          srcPdf,
+          srcPdf.getPageIndices(),
+        );
 
         copiedPages.forEach((page) => {
           if (item.rotation > 0) {
@@ -126,10 +157,13 @@ export function MergePDF() {
 
       toast({
         title: "Success!",
-        description: "PDF files merged successfully with correct rotation mapping.",
+        description: "PDF files merged successfully.",
       });
+      setFiles([]);
     } catch (err: any) {
-      setError("Failed to merge PDF files. Ensure none of the documents are encrypted or password protected.");
+      setError(
+        "Failed to merge PDF files. Ensure none of the documents are encrypted.",
+      );
     } finally {
       setMerging(false);
     }
@@ -137,7 +171,6 @@ export function MergePDF() {
 
   return (
     <div className="space-y-4 sm:space-y-5">
-      {/* Studio Header Bar */}
       <div className="flex flex-wrap items-center justify-between gap-2.5 bg-card/30 backdrop-blur-xl px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-border/20">
         <div className="flex items-center gap-2 min-w-0">
           <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
@@ -145,7 +178,8 @@ export function MergePDF() {
             <FileText className="h-3.5 w-3.5 text-primary" /> PDF Merge Studio
           </span>
           <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live Client
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />{" "}
+            Live Client
           </span>
         </div>
 
@@ -163,7 +197,6 @@ export function MergePDF() {
         <label className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground">
           Upload PDF files to merge
         </label>
-
         <div className="border-2 border-dashed border-border/40 hover:border-primary/45 rounded-2xl p-5 sm:p-8 text-center cursor-pointer relative bg-muted/20 transition-colors">
           <input
             type="file"
@@ -174,8 +207,12 @@ export function MergePDF() {
           />
           <div className="flex flex-col items-center gap-2">
             <LayoutGrid className="h-10 w-10 text-primary opacity-60" />
-            <p className="text-sm font-bold text-foreground">Click to upload or drag files here</p>
-            <p className="text-xs text-muted-foreground font-medium">Select multiple standard PDF files</p>
+            <p className="text-sm font-bold text-foreground">
+              Click to upload or drag files here
+            </p>
+            <p className="text-xs text-muted-foreground font-medium">
+              Select multiple standard PDF files
+            </p>
           </div>
         </div>
       </div>
@@ -185,7 +222,6 @@ export function MergePDF() {
           <h4 className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground">
             Merge Order & File Workspace ({files.length})
           </h4>
-
           <div className="space-y-3 max-h-96 overflow-y-auto">
             {files.map((item, idx) => (
               <div
@@ -193,23 +229,32 @@ export function MergePDF() {
                 className="flex flex-col md:flex-row md:items-center justify-between p-4 rounded-xl border border-border/10 bg-secondary/30 text-xs font-medium gap-4"
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-primary font-bold text-sm">#{idx + 1}</span>
+                  <span className="text-primary font-bold text-sm">
+                    #{idx + 1}
+                  </span>
                   <div className="max-w-xs md:max-w-md truncate">
-                    <p className="text-foreground font-bold truncate">{item.name}</p>
+                    <p className="text-foreground font-bold truncate">
+                      {item.name}
+                    </p>
                     <div className="flex items-center gap-2.5 text-[10px] text-muted-foreground mt-0.5">
-                      <span>Pages: <strong>{item.pagesCount}</strong></span>
+                      <span>
+                        Pages: <strong>{item.pagesCount}</strong>
+                      </span>
                       <span>•</span>
-                      <span>Size: <strong>{item.size}</strong></span>
+                      <span>
+                        Size: <strong>{item.size}</strong>
+                      </span>
                       {item.rotation > 0 && (
                         <>
                           <span>•</span>
-                          <span className="text-primary font-bold">Rotated {item.rotation}°</span>
+                          <span className="text-primary font-bold">
+                            Rotated {item.rotation}°
+                          </span>
                         </>
                       )}
                     </div>
                   </div>
                 </div>
-
                 <div className="flex items-center gap-1.5 self-end md:self-center">
                   <button
                     onClick={() => handleRotateFile(item.id)}
@@ -245,7 +290,6 @@ export function MergePDF() {
               </div>
             ))}
           </div>
-
           <button
             onClick={handleMerge}
             disabled={merging}

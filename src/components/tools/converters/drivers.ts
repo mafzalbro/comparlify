@@ -19,13 +19,30 @@ export const runPdfToImage = async (file: File, toFormat: Format) => {
         canvas.height = viewport.height;
         canvas.width = viewport.width;
         if (context) {
-            // @ts-ignore - Handle version-specific typing for pdfjs render
+            // @ts-ignore
             await page.render({ canvasContext: context, viewport }).promise;
             convertedImages.push(canvas.toDataURL(mime));
         }
     }
+
+    // FIX: If there are multiple pages, package into a ZIP to bypass browser multi-download block
+    if (convertedImages.length > 1) {
+        const zip = new JSZip();
+        convertedImages.forEach((dataUrl, idx) => {
+            const base64Data = dataUrl.split(",")[1];
+            zip.file(`page-${idx + 1}.${toFormat.extension}`, base64Data, { base64: true });
+        });
+        const blob = await zip.generateAsync({ type: "blob" });
+        const zipUrl = URL.createObjectURL(blob);
+        return { name: file.name.replace(/\.pdf$/i, '_pages.zip'), url: zipUrl };
+    } else if (convertedImages.length === 1) {
+        // Single page -> just return the image
+        return { name: file.name.replace(/\.pdf$/i, ''), url: convertedImages[0] };
+    }
+
     return { name: file.name.replace(/\.pdf$/i, ''), data: convertedImages };
 };
+
 
 export const runImageToPdf = async (files: File[]) => {
     const doc = new jsPDF();
@@ -177,7 +194,12 @@ export const runCompressPdf = async (file: File, compressionQuality: number, set
             
             const pageWidth = doc.internal.pageSize.getWidth();
             const pageHeight = doc.internal.pageSize.getHeight();
-            doc.addImage(dataUrl, 'JPEG', 0, 0, pageWidth, pageHeight);
+            const ratio = Math.min(pageWidth / viewport.width, pageHeight / viewport.height);
+            const scaledWidth = viewport.width * ratio;
+            const scaledHeight = viewport.height * ratio;
+            const marginX = (pageWidth - scaledWidth) / 2;
+            const marginY = (pageHeight - scaledHeight) / 2;
+            doc.addImage(dataUrl, 'JPEG', marginX, marginY, scaledWidth, scaledHeight);
         }
         setProgress(Math.round((i / numPages) * 100));
     }

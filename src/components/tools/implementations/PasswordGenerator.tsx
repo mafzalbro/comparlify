@@ -35,7 +35,7 @@ export function PasswordGenerator() {
     if (numbers) charPool += numChars;
     if (symbols) charPool += symChars;
 
-    if (!charPool) return "Please select at least one character type.";
+    if (!charPool) return "";
 
     const cryptoObj = window.crypto;
     const array = new Uint8Array(length);
@@ -49,6 +49,11 @@ export function PasswordGenerator() {
   };
 
   const handleGenerate = () => {
+    if (!lowercase && !uppercase && !numbers && !symbols) {
+      setPasswords([]);
+      return;
+    }
+
     const list: string[] = [];
     const limit = Math.max(1, Math.min(20, quantity));
     for (let i = 0; i < limit; i++) {
@@ -62,18 +67,21 @@ export function PasswordGenerator() {
     navigator.clipboard.writeText(passwords.join("\n"));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-    toast({
-      title: "Copied!",
-      description: "Passwords copied to clipboard.",
-    });
+    toast({ title: "Copied!", description: "Passwords copied to clipboard." });
   };
 
-  // Run generation on load/change
   React.useEffect(() => {
     handleGenerate();
-  }, [length, uppercase, lowercase, numbers, symbols, excludeConfusing, quantity]);
+  }, [
+    length,
+    uppercase,
+    lowercase,
+    numbers,
+    symbols,
+    excludeConfusing,
+    quantity,
+  ]);
 
-  // Calculate entropy/strength
   const getStrength = () => {
     let poolSize = 0;
     if (lowercase) poolSize += 26;
@@ -81,20 +89,43 @@ export function PasswordGenerator() {
     if (numbers) poolSize += 10;
     if (symbols) poolSize += 26;
 
-    if (poolSize === 0) return { label: "No options selected", color: "text-destructive" };
+    if (poolSize === 0)
+      return {
+        label: "Select at least one option",
+        color: "text-destructive",
+        bg: "bg-destructive/10",
+      };
 
     const entropy = Math.log2(poolSize) * length;
-    if (entropy < 40) return { label: "Weak (Easy to crack)", color: "text-destructive", bg: "bg-destructive/10" };
-    if (entropy < 60) return { label: "Moderate (Standard safety)", color: "text-amber-500", bg: "bg-amber-500/10" };
-    if (entropy < 80) return { label: "Strong (High security)", color: "text-emerald-500", bg: "bg-emerald-500/10" };
-    return { label: "Absolute Fortress (Unbreakable)", color: "text-cyan-500", bg: "bg-cyan-500/10" };
+    if (entropy < 40)
+      return {
+        label: "Weak (Easy to crack)",
+        color: "text-destructive",
+        bg: "bg-destructive/10",
+      };
+    if (entropy < 60)
+      return {
+        label: "Moderate (Standard safety)",
+        color: "text-amber-500",
+        bg: "bg-amber-500/10",
+      };
+    if (entropy < 80)
+      return {
+        label: "Strong (High security)",
+        color: "text-emerald-500",
+        bg: "bg-emerald-500/10",
+      };
+    return {
+      label: "Absolute Fortress (Unbreakable)",
+      color: "text-cyan-500",
+      bg: "bg-cyan-500/10",
+    };
   };
 
   const strength = getStrength();
 
   return (
     <div className="space-y-4 sm:space-y-5">
-      {/* Studio Header Bar */}
       <div className="flex flex-wrap items-center justify-between gap-2.5 bg-card/30 backdrop-blur-xl px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-border/20">
         <div className="flex items-center gap-2 min-w-0">
           <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
@@ -102,7 +133,8 @@ export function PasswordGenerator() {
             Password & Credentials Studio
           </span>
           <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Cryptographic RNG
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />{" "}
+            Cryptographic RNG
           </span>
         </div>
 
@@ -115,11 +147,11 @@ export function PasswordGenerator() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 items-end">
-        {/* Length Slider */}
         <div className="flex flex-col space-y-2 lg:col-span-2">
           <div className="flex justify-between items-center">
             <label className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground">
-              Password Length: <span className="text-primary text-sm font-bold">{length}</span>
+              Password Length:{" "}
+              <span className="text-primary text-sm font-bold">{length}</span>
             </label>
           </div>
           <input
@@ -132,7 +164,6 @@ export function PasswordGenerator() {
           />
         </div>
 
-        {/* Quantity */}
         <div className="flex flex-col space-y-2">
           <label className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground">
             Quantity (Bulk)
@@ -148,7 +179,6 @@ export function PasswordGenerator() {
         </div>
       </div>
 
-      {/* Character Type Checklist */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 py-2 border-y border-border/10">
         <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-foreground">
           <input
@@ -197,9 +227,10 @@ export function PasswordGenerator() {
         </label>
       </div>
 
-      {/* Password Strength Banner */}
       {strength && (
-        <div className={`p-4 rounded-xl border border-border/10 flex items-center justify-between text-xs font-bold ${strength.bg}`}>
+        <div
+          className={`p-4 rounded-xl border border-border/10 flex items-center justify-between text-xs font-bold ${strength.bg}`}
+        >
           <span className="flex items-center gap-1.5 text-foreground">
             <ShieldCheck className="h-4 w-4 text-primary" /> Security Strength:
           </span>
@@ -207,7 +238,6 @@ export function PasswordGenerator() {
         </div>
       )}
 
-      {/* Results */}
       {passwords.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
@@ -218,7 +248,11 @@ export function PasswordGenerator() {
               onClick={handleCopyAll}
               className="text-xs text-primary hover:underline font-bold flex items-center gap-1"
             >
-              {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+              {copied ? (
+                <Check className="h-3.5 w-3.5" />
+              ) : (
+                <Copy className="h-3.5 w-3.5" />
+              )}
               {copied ? "Copied!" : "Copy All"}
             </button>
           </div>
@@ -229,11 +263,16 @@ export function PasswordGenerator() {
                 className="hover:text-primary transition-colors cursor-pointer py-1.5 px-2 rounded-lg hover:bg-secondary/20 flex items-center justify-between"
                 onClick={() => {
                   navigator.clipboard.writeText(pw);
-                  toast({ title: "Copied!", description: `Password #${idx + 1} copied.` });
+                  toast({
+                    title: "Copied!",
+                    description: `Password #${idx + 1} copied.`,
+                  });
                 }}
               >
                 <span>{pw}</span>
-                <span className="text-[10px] text-muted-foreground font-semibold uppercase opacity-60 group-hover:opacity-100">Click to Copy</span>
+                <span className="text-[10px] text-muted-foreground font-semibold uppercase opacity-60 group-hover:opacity-100">
+                  Click to Copy
+                </span>
               </div>
             ))}
           </div>

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { FileText, AlertCircle, Loader2, Copy, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { PDFSession } from "./PDFSession";
+import { getCachedPdfWorkerUrl } from "./pdfWorkerLoader";
 
 const PDFJS_VERSION = "3.11.174";
 
@@ -17,23 +18,30 @@ export function PDFToText() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      import("pdfjs-dist").then((pdfjsLib) => {
+      import("pdfjs-dist").then(async (pdfjsLib) => {
         const v = pdfjsLib.version || PDFJS_VERSION;
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${v}/build/pdf.worker.min.mjs`;
+        const workerUrl = await getCachedPdfWorkerUrl(v);
+        pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
       }).catch((err) => console.error("Could not load pdfjs-dist", err));
     }
   }, []);
 
   // Check for active persistent session on mount
   useEffect(() => {
-    const session = PDFSession.get();
-    if (session) {
+    let cancelled = false;
+    const loadSession = async () => {
+      const session = await PDFSession.loadAsync();
+      if (cancelled || !session) return;
       setFile(new File([session.data as any], session.name, { type: "application/pdf" }));
       toast({
         title: "Working PDF Loaded",
         description: `Ready to extract text from "${session.name}".`,
       });
-    }
+    };
+    loadSession();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
