@@ -2,6 +2,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import type { Metadata } from "next";
 // import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { Outfit } from "next/font/google";
@@ -169,9 +170,11 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <div className="flex-1 flex flex-col" suppressHydrationWarning>
-              <Suspense fallback={null}>{children}</Suspense>
-            </div>
+            <TooltipProvider delayDuration={250}>
+              <div className="flex-1 flex flex-col" suppressHydrationWarning>
+                <Suspense fallback={null}>{children}</Suspense>
+              </div>
+            </TooltipProvider>
             <Toaster />
             {/* <CookieConsentBanner /> */}
           </AuthProvider>
