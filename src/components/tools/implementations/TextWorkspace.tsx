@@ -3899,9 +3899,9 @@ export function TextWorkspace({
       style={
         fullscreen
           ? { height: "100dvh", width: "100vw" }
-          : isDesktop
-            ? { height: "calc(100dvh - 170px)", minHeight: 560 }
-            : { minHeight: "calc(100dvh - 170px)" }
+          : { height: "100%", width: "100%", flex: 1 }
+
+
       }
     >
       <input

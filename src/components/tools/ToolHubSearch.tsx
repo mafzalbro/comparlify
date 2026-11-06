@@ -1,15 +1,20 @@
 "use client";
 
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ToolDefinition, getToolBySlug } from "@/data/tools/registry";
-import { ToolSidebarInteractive } from "./ToolSidebarInteractive";
 import {
   Terminal,
   FileText,
   Image as ImageIcon,
   Calculator as CalcIcon,
   Globe,
+  MoreVertical,
+  ArrowLeft,
+  ChevronRight,
+  ExternalLink,
 } from "lucide-react";
 
 // ── DYNAMIC IMPORTS (code-split so each tool loads on demand) ──
@@ -234,21 +239,47 @@ const CATEGORY_META: Record<
   WorkspaceCategory,
   {
     label: string;
+    description: string;
     iconName: string;
     Icon: React.ComponentType<{ className?: string }>;
   }
 > = {
-  text: { label: "Text Tools", iconName: "Terminal", Icon: Terminal },
-  // Reuses the Terminal icon so the sidebar's icon map doesn't need changes.
-  developer: { label: "Developer Tools", iconName: "Terminal", Icon: Terminal },
-  pdf: { label: "PDF Suite", iconName: "FileText", Icon: FileText },
-  image: { label: "Image Tools", iconName: "ImageIcon", Icon: ImageIcon },
+  text: {
+    label: "Text Tools",
+    description: "Word counter, case converter, diff checker, sorter & more",
+    iconName: "Terminal",
+    Icon: Terminal,
+  },
+  developer: {
+    label: "Developer Tools",
+    description: "JSON, Base64, JWT, UUID, regex, formatters & converters",
+    iconName: "Terminal",
+    Icon: Terminal,
+  },
+  pdf: {
+    label: "PDF Suite",
+    description: "Merge, split, compress, rotate, extract & convert PDFs",
+    iconName: "FileText",
+    Icon: FileText,
+  },
+  image: {
+    label: "Image Tools",
+    description: "Compress, resize, crop, rotate & convert images",
+    iconName: "ImageIcon",
+    Icon: ImageIcon,
+  },
   calculators: {
     label: "Calculators & ROI",
+    description: "Financial, date, unit, tax, loan & strategic calculators",
     iconName: "CalcIcon",
     Icon: CalcIcon,
   },
-  web: { label: "Web Diagnostics", iconName: "Globe", Icon: Globe },
+  web: {
+    label: "Web Diagnostics",
+    description: "HTTP, DNS, IP, SEO meta, robots, sitemap & schema tools",
+    iconName: "Globe",
+    Icon: Globe,
+  },
 };
 
 // ── EVERY TOOL THE HUB KNOWS ABOUT ──
@@ -512,7 +543,6 @@ const ALL_SUB_TOOLS: Record<WorkspaceCategory, SubTool[]> = {
     },
   ],
   image: [
-    // Own path (not the compressor's) so each page highlights correctly.
     {
       id: "image-studio",
       label: "Image Studio",
@@ -755,8 +785,6 @@ const ALL_SUB_TOOLS: Record<WorkspaceCategory, SubTool[]> = {
 };
 
 // ── ID → COMPONENT ──
-// Only tools that appear here are shown in the sidebar, counted in tabs and
-// routable. A tool with no real component is hidden instead of showing a dead page.
 const COMPONENT_MAP: Record<string, Renderer> = {
   // Text
   "text-studio": () => <TextWorkspace defaultMode="count" />,
@@ -766,7 +794,6 @@ const COMPONENT_MAP: Record<string, Renderer> = {
   "remove-duplicate-lines": () => <TextWorkspace defaultMode="clean" />,
   "remove-empty-lines": () => <TextWorkspace defaultMode="clean" />,
   "text-sorter": () => <TextWorkspace defaultMode="sort" />,
-  // TODO: TextWorkspace needs a real "reverse" mode. Until then this opens the sorter.
   "text-reverser": () => <TextWorkspace defaultMode="sort" />,
   "text-diff-checker": () => <TextWorkspace defaultMode="diff" />,
   "find-and-replace": () => <TextWorkspace defaultMode="replace" />,
@@ -794,7 +821,7 @@ const COMPONENT_MAP: Record<string, Renderer> = {
   "yaml-formatter": () => <YAMLFormatter />,
   "unix-timestamp-converter": () => <UnixTimestampConverter />,
 
-  // PDF (pdf-to-jpg / pdf-to-png have no implementation yet, so they're not listed)
+  // PDF
   "pdf-suite": () => (
     <PDFWorkspace processButtonLabel="Export PDF Studio" toolSlug="pdf-suite" />
   ),
@@ -813,7 +840,7 @@ const COMPONENT_MAP: Record<string, Renderer> = {
   "extract-pages-pdf": () => <PDFPageExtractor />,
   "delete-pages-pdf": () => <PDFPageDeleter />,
 
-  // Image: one workspace, the mode decides which tool it behaves as
+  // Image
   "image-studio": () => <ImageWorkspace defaultMode="compress" />,
   "image-compressor": () => <ImageWorkspace defaultMode="compress" />,
   "image-resizer": () => <ImageWorkspace defaultMode="resize" />,
@@ -834,8 +861,6 @@ const COMPONENT_MAP: Record<string, Renderer> = {
   "churn-forecaster": () => <ChurnForecaster />,
   "ad-profit-predictor": () => <AdProfitPredictor />,
   "creator-match": () => <PlatformFinder />,
-  // roi-calculator, course-revenue-calculator and stack-architect used to render
-  // PlatformFinder (the wrong tool). They're hidden until real components exist.
 };
 
 [
@@ -893,7 +918,7 @@ function resolveSelection(initialSlug?: string[]): {
   };
   if (!initialSlug || initialSlug.length === 0) return fallback;
 
-  // 1. Exact path match, e.g. /tools/developer/json/formatter
+  // 1. Exact path match
   const path = "/tools/" + initialSlug.join("/");
   for (const cat of CATEGORY_ORDER) {
     const hit = SUB_TOOLS[cat].find((t) => t.path === path);
@@ -909,7 +934,7 @@ function resolveSelection(initialSlug?: string[]): {
     }
   }
 
-  // 3. Category root (/tools/pdf) or a slug inside a category
+  // 3. Category root or slug inside category
   const [first] = initialSlug;
   if (isCategory(first)) {
     if (initialSlug.length === 1)
@@ -927,6 +952,251 @@ function resolveSelection(initialSlug?: string[]): {
   return { ...fallback, missing: true };
 }
 
+// ── THREE-DOT DROPDOWN ──
+function WorkspaceCardMenu({
+  category,
+  tools,
+  onSelectTool,
+}: {
+  category: WorkspaceCategory;
+  tools: SubTool[];
+  onSelectTool: (cat: WorkspaceCategory, toolId: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative" onClick={(e) => e.stopPropagation()}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="p-1.5 rounded-lg text-muted-foreground/60 hover:text-foreground hover:bg-border/40 transition-colors"
+        aria-label="More tools"
+      >
+        <MoreVertical className="h-4 w-4" />
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full mt-1.5 z-50 w-52 bg-card border border-border/50 rounded-xl shadow-xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100">
+          <div className="px-3 py-2 border-b border-border/30">
+            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+              Tools in this workspace
+            </p>
+          </div>
+          <div className="py-1 max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-border">
+            {tools.map((tool) => (
+              <button
+                key={tool.id}
+                onClick={() => {
+                  onSelectTool(category, tool.id);
+                  setOpen(false);
+                }}
+                className="w-full flex items-center justify-between gap-2 px-3 py-2 text-xs text-left hover:bg-secondary/60 transition-colors group"
+              >
+                <span className="font-medium text-foreground/80 group-hover:text-foreground truncate">
+                  {tool.label}
+                </span>
+                <ChevronRight className="h-3 w-3 text-muted-foreground/40 shrink-0" />
+              </button>
+            ))}
+          </div>
+          <div className="border-t border-border/30 px-3 py-2">
+            <Link
+              href={`/tools/${category}`}
+              className="flex items-center gap-1.5 text-[10px] font-bold text-primary hover:underline"
+              onClick={() => setOpen(false)}
+            >
+              <ExternalLink className="h-3 w-3" />
+              Open full page
+            </Link>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── DASHBOARD CARD ──
+function WorkspaceCard({
+  category,
+  onOpen,
+  onSelectTool,
+}: {
+  category: WorkspaceCategory;
+  onOpen: (cat: WorkspaceCategory) => void;
+  onSelectTool: (cat: WorkspaceCategory, toolId: string) => void;
+}) {
+  const meta = CATEGORY_META[category];
+  const Icon = meta.Icon;
+  const tools = SUB_TOOLS[category];
+  const count = tools.length;
+
+  return (
+    <div
+      className="group relative bg-card border border-border/40 rounded-2xl p-5 cursor-pointer hover:border-primary/40 hover:shadow-md transition-all duration-200 select-none"
+      onClick={() => onOpen(category)}
+    >
+      {/* Top row: icon + 3-dot */}
+      <div className="flex items-start justify-between mb-4">
+        <div className="p-2.5 bg-primary/8 rounded-xl text-primary group-hover:bg-primary/14 transition-colors">
+          <Icon className="h-5 w-5" />
+        </div>
+        <WorkspaceCardMenu
+          category={category}
+          tools={tools}
+          onSelectTool={onSelectTool}
+        />
+      </div>
+
+      {/* Title + description */}
+      <h3 className="text-sm font-bold text-foreground mb-1 tracking-tight">
+        {meta.label}
+      </h3>
+      <p className="text-xs text-muted-foreground leading-relaxed mb-4 line-clamp-2">
+        {meta.description}
+      </p>
+
+      {/* Footer: tool count */}
+      <div className="flex items-center justify-between">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
+          {count} tools
+        </span>
+        <span className="text-[10px] font-bold text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+          Open <ChevronRight className="h-3 w-3" />
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ── FULL-SCREEN WORKSPACE SHELL ──
+function WorkspaceShell({
+  category,
+  toolId,
+  platforms,
+}: {
+  category: WorkspaceCategory;
+  toolId: string;
+  platforms: any[];
+}) {
+  const router = useRouter();
+  const meta = CATEGORY_META[category];
+  const Icon = meta.Icon;
+  const activeTool = SUB_TOOLS[category].find((t) => t.id === toolId);
+  const render = COMPONENT_MAP[toolId];
+
+  return (
+    <div className="fixed inset-0 z-[9999] bg-background text-foreground flex flex-col overflow-hidden">
+      {/* ── Slim top bar ── */}
+      <header className="shrink-0 flex items-center gap-3 px-4 py-2.5 border-b border-border/20 bg-card/50 backdrop-blur-xl">
+        {/* Back */}
+        <button
+          onClick={() => router.push("/tools")}
+          className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors shrink-0"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">All Workspaces</span>
+        </button>
+
+        {/* Divider */}
+        <span className="text-border/60 select-none hidden sm:inline">/</span>
+
+        {/* Workspace label */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <Icon className="h-3.5 w-3.5 text-primary" />
+          <span className="text-xs font-bold text-foreground">{meta.label}</span>
+        </div>
+
+        {/* Active tool pill */}
+        {activeTool && (
+          <>
+            <span className="text-border/60 select-none">·</span>
+            <span className="text-xs font-mono text-primary truncate max-w-[180px]">
+              {activeTool.label}
+            </span>
+          </>
+        )}
+      </header>
+
+      {/* ── Tool content — fills remaining height ── */}
+      <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin scrollbar-thumb-border">
+        {render ? (
+          <div key={toolId} className="h-full flex flex-col">
+            {render({ platforms })}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full p-12 text-center">
+            <div className="p-4 bg-primary/10 rounded-full mb-4 text-primary">
+              <Terminal className="h-8 w-8" />
+            </div>
+            <h2 className="text-lg font-bold mb-1">Tool not available yet</h2>
+            <p className="text-sm text-muted-foreground">
+              Pick another tool from the bar above.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── DASHBOARD ──
+function Dashboard({
+  onOpen,
+  onSelectTool,
+}: {
+  onOpen: (cat: WorkspaceCategory) => void;
+  onSelectTool: (cat: WorkspaceCategory, toolId: string) => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-[100] bg-background text-foreground overflow-y-auto">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+        {/* Header */}
+        <div className="mb-8 sm:mb-10">
+          <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-2">
+            Tool Hub
+          </p>
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground mb-2">
+            Workspaces
+          </h1>
+          <p className="text-sm text-muted-foreground max-w-lg">
+            Pick a workspace to open it full-screen. Use the ⋯ menu on any card
+            to jump straight to a specific tool.
+          </p>
+        </div>
+
+        {/* Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {CATEGORY_ORDER.map((cat) => (
+            <WorkspaceCard
+              key={cat}
+              category={cat}
+              onOpen={onOpen}
+              onSelectTool={onSelectTool}
+            />
+          ))}
+        </div>
+
+        {/* Footer hint */}
+        <p className="mt-10 text-center text-[11px] text-muted-foreground/50">
+          All tools run entirely in your browser — nothing leaves your device.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ── MAIN EXPORT ──
 export function ToolHubSearch({
   tools,
   categories,
@@ -934,74 +1204,43 @@ export function ToolHubSearch({
   platforms = [],
 }: ToolHubSearchProps) {
   const {
-    category: selectedCategory,
-    toolId,
+    category: resolvedCategory,
+    toolId: resolvedToolId,
     missing,
   } = resolveSelection(initialSlug);
-  const activeSubTool = toolId ?? "";
 
-  const workspaceTabs = CATEGORY_ORDER.map((id) => ({
-    id,
-    label: CATEGORY_META[id].label,
-    iconName: CATEGORY_META[id].iconName,
-    count: SUB_TOOLS[id].length,
-  }));
+  // If a URL slug was provided → go straight into the workspace
+  const hasInitialTool = !!(initialSlug && initialSlug.length > 0 && resolvedToolId && !missing);
 
-  const subToolOptions = SUB_TOOLS[selectedCategory];
-  const activeTabMeta = workspaceTabs.find((t) => t.id === selectedCategory)!;
-  const IconComp = CATEGORY_META[selectedCategory].Icon;
-  const activeOption = subToolOptions.find((o) => o.id === activeSubTool);
-  const render = toolId ? COMPONENT_MAP[toolId] : undefined;
+  const [openCategory, setOpenCategory] = useState<WorkspaceCategory | null>(
+    hasInitialTool ? resolvedCategory : null,
+  );
+  const [activeToolId, setActiveToolId] = useState<string>(
+    resolvedToolId ?? SUB_TOOLS.text[0]?.id ?? "",
+  );
+
+  const handleOpenWorkspace = (cat: WorkspaceCategory) => {
+    const firstTool = SUB_TOOLS[cat][0];
+    setActiveToolId(firstTool?.id ?? "");
+    setOpenCategory(cat);
+  };
+
+  const handleSelectTool = (cat: WorkspaceCategory, toolId: string) => {
+    setActiveToolId(toolId);
+    setOpenCategory(cat);
+  };
+
+  if (openCategory) {
+    return (
+      <WorkspaceShell
+        category={openCategory}
+        toolId={activeToolId}
+        platforms={platforms}
+      />
+    );
+  }
 
   return (
-    <div className="fixed inset-0 z-[100] bg-background text-foreground h-screen w-screen flex flex-col md:flex-row overflow-hidden font-sans">
-      <ToolSidebarInteractive
-        workspaceTabs={workspaceTabs}
-        subToolOptions={subToolOptions}
-        allTools={tools}
-        selectedCategory={selectedCategory}
-        activeSubTool={activeSubTool}
-        activeCategoryLabel={activeTabMeta.label}
-        activeCategoryIconName={activeTabMeta.iconName}
-      />
-      <main className="flex-1 flex flex-col h-full overflow-hidden bg-background">
-        <header className="bg-card/40 border-b border-border/20 px-5 py-3.5 flex items-center justify-between gap-3 shrink-0 backdrop-blur-xl">
-          <div className="flex items-center gap-2.5">
-            <IconComp className="h-4 w-4 text-primary shrink-0" />
-            <h1 className="text-xs font-bold tracking-tight text-foreground flex items-center gap-2">
-              <span>{activeTabMeta.label}</span>
-              {activeOption && (
-                <>
-                  <span className="text-muted-foreground font-normal">•</span>
-                  <span className="text-primary font-mono">
-                    {activeOption.label}
-                  </span>
-                </>
-              )}
-            </h1>
-          </div>
-        </header>
-        <div className="flex-1 overflow-y-auto scroll-smooth p-2 sm:p-4 h-full scrollbar-thin scrollbar-thumb-border">
-          <div className="p-3 sm:p-5 backdrop-blur-xl min-h-full flex flex-col justify-start">
-            {render && !missing ? (
-              // key forces a clean remount when switching tools
-              <div key={activeSubTool} className="contents">
-                {render({ platforms })}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center p-12 text-center h-full">
-                <div className="p-4 bg-primary/10 rounded-full mb-4 text-primary">
-                  <Terminal className="h-8 w-8" />
-                </div>
-                <h2 className="text-lg font-bold">This tool isn't available</h2>
-                <p className="text-sm text-muted-foreground">
-                  Pick another tool from the list on the left.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      </main>
-    </div>
+    <Dashboard onOpen={handleOpenWorkspace} onSelectTool={handleSelectTool} />
   );
 }

@@ -1,3 +1,8 @@
+---
+name: "comparlify-old-version-mistakes"
+description: "Identifies and documents mistakes in older versions of Comparlify, providing guidance for migration and improvement."
+---
+
 Technical and Strategic Growth Report: Comparlify Next.js Migration and Content Evolution
 
 1. Current State Audit: Content Quality and Engagement Analysis
@@ -39,19 +44,21 @@ For a comparison-heavy platform, a hybrid rendering strategy is required:
 - Incremental Static Regeneration (ISR): Recommended for "vs" pages. This allows the site to update pricing or feature tables in the background without a full rebuild, ensuring data remains fresh (e.g., revalidate: 3600).
 - Server-Side Rendering (SSR): Reserved for dynamic search results or real-time AI-generated comparisons.
 
-  2.3 MDX and Comparison Engine Componentization
+2.3 MDX and Comparison Engine Componentization
 
 We will move away from repetitive text structures toward a structured data approach using MDX (Markdown with JSX). This allows us to embed interactive, data-driven components directly into technical articles.
 
 To ensure data consistency, all comparison components will implement a strict TypeScript Interface:
 
+```typescript
 interface ComparisonData {
-platformName: string;
-pricingTiers: { name: string; price: number; interval: 'mo' | 'yr' }[];
-transactionFees: string;
-supportChannels: ('Live Chat' | 'Email' | 'Phone')[];
-rating: number;
+  platformName: string;
+  pricingTiers: { name: string; price: number; interval: 'mo' | 'yr' }[];
+  transactionFees: string;
+  supportChannels: ('Live Chat' | 'Email' | 'Phone')[];
+  rating: number;
 }
+```
 
 3. Strategic Content and SEO Overhaul
 
@@ -62,7 +69,7 @@ We must transition from generic "Ultimate Guide" titles to versioned, data-drive
 - Current: "Podia vs Thinkific: The Ultimate Comparison for Course Creators"
 - Proposed: "Podia vs Thinkific 2024: Pricing, Transaction Fees, and LMS Infrastructure Comparison"
 
-  3.2 Professional Editorial Standards
+3.2 Professional Editorial Standards
 
 The "guru" persona must be retired in favor of a Senior Full-Stack Architect’s voice.
 
@@ -71,7 +78,7 @@ Voice Shift Example:
 - Before (Source): "Hey there! I'm M. Afzal, your comparison expert and friendly guide... I'm here to shed light on the ultimate showdown."
 - After: "This technical evaluation compares the API extensibility, pricing tiers, and server-side infrastructure of Podia and Thinkific to determine scalability for enterprise creators."
 
-  3.3 Content Variety Expansion
+3.3 Content Variety Expansion
 
 Utilizing the existing ActiveCampaign and Zoho entries, we will expand into high-value CRM and Automation clusters:
 
