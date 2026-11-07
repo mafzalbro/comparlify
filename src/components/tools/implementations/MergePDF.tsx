@@ -1,19 +1,25 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 import { PDFDocument, degrees } from "pdf-lib";
 import {
   ArrowUp,
   ArrowDown,
   Trash2,
-  FileText,
   AlertCircle,
   Loader2,
   RotateCw,
   LayoutGrid,
+  Download,
+  Upload,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { ShieldCheck } from "lucide-react";
 
 const PDFJS_VERSION = "3.11.174";
 
@@ -26,178 +32,134 @@ interface MergableFile {
   rotation: number;
 }
 
-export function MergePDF() {
-  const [files, setFiles] = useState<MergableFile[]>([]);
-  const [merging, setMerging] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const { toast } = useToast();
+export const MergePDF = forwardRef(
+  ({ initialFile }: { initialFile?: File | null }, ref) => {
+    const [files, setFiles] = useState<MergableFile[]>([]);
+    const [merging, setMerging] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const { toast } = useToast();
+    const initialized = useRef(false);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      import("pdfjs-dist")
-        .then((pdfjsLib) => {
-          const v = pdfjsLib.version || PDFJS_VERSION;
-          pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${v}/build/pdf.worker.min.mjs`;
-        })
-        .catch((err) => console.error("Could not load pdfjs-dist", err));
-    }
-  }, []);
+    useImperativeHandle(ref, () => ({
+      triggerAction: () => {
+        handleMerge();
+      },
+    }));
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
-    setMerging(true);
-    setError(null);
-
-    const list: MergableFile[] = [];
-    const failedFiles: string[] = [];
-
-    for (const f of Array.from(e.target.files)) {
-      try {
-        const fileBuffer = await f.arrayBuffer();
-        const srcPdf = await PDFDocument.load(fileBuffer);
-        const count = srcPdf.getPageCount();
-
-        list.push({
-          id: `${f.name}-${Date.now()}-${Math.random()}`,
-          file: f,
-          name: f.name,
-          size: (f.size / (1024 * 1024)).toFixed(2) + " MB",
-          pagesCount: count,
-          rotation: 0,
-        });
-      } catch (err) {
-        // Catch individual file failures so the whole batch isn't lost
-        failedFiles.push(f.name);
+    useEffect(() => {
+      if (typeof window !== "undefined") {
+        import("pdfjs-dist")
+          .then((pdfjsLib) => {
+            const v = pdfjsLib.version || PDFJS_VERSION;
+            pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${v}/build/pdf.worker.min.mjs`;
+          })
+          .catch((err) => console.error("Could not load pdfjs-dist", err));
       }
-    }
+    }, []);
 
-    if (failedFiles.length > 0) {
-      setError(
-        `Failed to load ${failedFiles.length} file(s) (possibly encrypted or invalid): ${failedFiles.join(", ")}`,
-      );
-      toast({
-        variant: "destructive",
-        title: "Some files skipped",
-        description: "Encrypted or invalid PDFs were ignored.",
-      });
-    }
+    useEffect(() => {
+      if (initialFile && !initialized.current) {
+        initialized.current = true;
+        processFiles([initialFile]);
+      }
+    }, [initialFile]);
 
-    if (list.length > 0) {
-      setFiles((prev) => [...prev, ...list]);
-    }
+    const processFiles = async (newFiles: File[]) => {
+      setMerging(true);
+      setError(null);
+      const list: MergableFile[] = [];
+      const failedFiles: string[] = [];
 
-    // Reset the input so the same file can be selected again if needed
-    if (e.target) e.target.value = "";
-    setMerging(false);
-  };
-
-  const handleMove = (index: number, direction: "up" | "down") => {
-    const targetIdx = direction === "up" ? index - 1 : index + 1;
-    if (targetIdx < 0 || targetIdx >= files.length) return;
-
-    const updated = [...files];
-    const temp = updated[index];
-    updated[index] = updated[targetIdx];
-    updated[targetIdx] = temp;
-    setFiles(updated);
-  };
-
-  const handleRotateFile = (id: string) => {
-    setFiles((prev) =>
-      prev.map((f) =>
-        f.id === id ? { ...f, rotation: (f.rotation + 90) % 360 } : f,
-      ),
-    );
-  };
-
-  const handleRemove = (index: number) => {
-    setFiles((prev) => prev.filter((_, idx) => idx !== index));
-  };
-
-  const handleMerge = async () => {
-    if (files.length < 2) {
-      setError("Please add at least 2 PDF files to merge.");
-      return;
-    }
-
-    setMerging(true);
-    setError(null);
-
-    try {
-      const mergedPdf = await PDFDocument.create();
-
-      for (const item of files) {
-        const fileBuffer = await item.file.arrayBuffer();
-        const srcPdf = await PDFDocument.load(fileBuffer);
-        const copiedPages = await mergedPdf.copyPages(
-          srcPdf,
-          srcPdf.getPageIndices(),
-        );
-
-        copiedPages.forEach((page) => {
-          if (item.rotation > 0) {
-            const currentRotation = page.getRotation().angle;
-            page.setRotation(degrees((currentRotation + item.rotation) % 360));
-          }
-          mergedPdf.addPage(page);
-        });
+      for (const f of newFiles) {
+        try {
+          const fileBuffer = await f.arrayBuffer();
+          const srcPdf = await PDFDocument.load(fileBuffer);
+          list.push({
+            id: `${f.name}-${Date.now()}-${Math.random()}`,
+            file: f,
+            name: f.name,
+            size: (f.size / (1024 * 1024)).toFixed(2) + " MB",
+            pagesCount: srcPdf.getPageCount(),
+            rotation: 0,
+          });
+        } catch (err) {
+          failedFiles.push(f.name);
+        }
       }
 
-      const pdfBytes = await mergedPdf.save();
-      const blob = new Blob([pdfBytes as any], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
-
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "merged_document.pdf";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      toast({
-        title: "Success!",
-        description: "PDF files merged successfully.",
-      });
-      setFiles([]);
-    } catch (err: any) {
-      setError(
-        "Failed to merge PDF files. Ensure none of the documents are encrypted.",
-      );
-    } finally {
+      if (failedFiles.length > 0)
+        setError(`Failed to load: ${failedFiles.join(", ")}`);
+      if (list.length > 0) setFiles((prev) => [...prev, ...list]);
       setMerging(false);
-    }
-  };
+    };
 
-  return (
-    <div className="space-y-4 sm:space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-2.5 bg-card/30 backdrop-blur-xl px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-border/20">
-        <div className="flex items-center gap-2 min-w-0">
-          <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
-          <span className="text-xs font-bold text-foreground truncate flex items-center gap-1.5">
-            <FileText className="h-3.5 w-3.5 text-primary" /> PDF Merge Studio
-          </span>
-          <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />{" "}
-            Live Client
-          </span>
-        </div>
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (!e.target.files) return;
+      await processFiles(Array.from(e.target.files));
+      if (e.target) e.target.value = "";
+    };
 
-        {files.length > 0 && (
-          <button
-            onClick={() => setFiles([])}
-            className="px-2.5 py-1 rounded-lg bg-secondary hover:bg-destructive/10 hover:text-destructive border border-border/30 text-xs font-bold flex items-center gap-1 transition-all"
-          >
-            <Trash2 className="h-3 w-3" /> Clear Queue
-          </button>
-        )}
-      </div>
+    const handleMove = (index: number, direction: "up" | "down") => {
+      const targetIdx = direction === "up" ? index - 1 : index + 1;
+      if (targetIdx < 0 || targetIdx >= files.length) return;
+      const updated = [...files];
+      const temp = updated[index];
+      updated[index] = updated[targetIdx];
+      updated[targetIdx] = temp;
+      setFiles(updated);
+    };
 
-      <div className="flex flex-col space-y-2">
-        <label className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground">
-          Upload PDF files to merge
-        </label>
-        <div className="border-2 border-dashed border-border/40 hover:border-primary/45 rounded-2xl p-5 sm:p-8 text-center cursor-pointer relative bg-muted/20 transition-colors">
+    const handleMerge = async () => {
+      if (files.length < 2)
+        return setError("Please add at least 2 PDF files to merge.");
+      setMerging(true);
+      setError(null);
+
+      try {
+        const mergedPdf = await PDFDocument.create();
+        for (const item of files) {
+          const srcPdf = await PDFDocument.load(await item.file.arrayBuffer());
+          const copiedPages = await mergedPdf.copyPages(
+            srcPdf,
+            srcPdf.getPageIndices(),
+          );
+          copiedPages.forEach((page) => {
+            if (item.rotation > 0)
+              page.setRotation(
+                degrees((page.getRotation().angle + item.rotation) % 360),
+              );
+            mergedPdf.addPage(page);
+          });
+        }
+
+        const blob = new Blob([(await mergedPdf.save()) as any], {
+          type: "application/pdf",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "merged_document.pdf";
+        a.click();
+        URL.revokeObjectURL(url);
+
+        toast({
+          title: "Success!",
+          description: "PDF files merged successfully.",
+        });
+        setFiles([]);
+      } catch (err: any) {
+        setError(
+          "Failed to merge. Ensure none of the documents are encrypted.",
+        );
+      } finally {
+        setMerging(false);
+      }
+    };
+
+    return (
+      <div className="space-y-6 h-full flex flex-col p-4">
+        {/* If files are empty, show a simplified dropzone just for "adding more" */}
+        <div className="relative border-2 border-dashed border-border/40 hover:border-primary/50 rounded-xl bg-card/20 hover:bg-card/30 transition-all cursor-pointer group flex flex-col items-center justify-center p-8 text-center shrink-0">
           <input
             type="file"
             multiple
@@ -205,113 +167,103 @@ export function MergePDF() {
             onChange={handleFileChange}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           />
-          <div className="flex flex-col items-center gap-2">
-            <LayoutGrid className="h-10 w-10 text-primary opacity-60" />
-            <p className="text-sm font-bold text-foreground">
-              Click to upload or drag files here
-            </p>
-            <p className="text-xs text-muted-foreground font-medium">
-              Select multiple standard PDF files
-            </p>
+          <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center group-hover:scale-105 transition-all mb-3 shadow-inner">
+            <Upload className="h-6 w-6" />
           </div>
+          <h3 className="text-sm font-bold text-foreground mb-1">
+            {files.length === 0 ? "Drop PDFs here to merge" : "Add more PDFs"}
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            Select multiple standard PDF files.
+          </p>
         </div>
-      </div>
 
-      {files.length > 0 && (
-        <div className="space-y-4">
-          <h4 className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground">
-            Merge Order & File Workspace ({files.length})
-          </h4>
-          <div className="space-y-3 max-h-96 overflow-y-auto">
-            {files.map((item, idx) => (
-              <div
-                key={item.id}
-                className="flex flex-col md:flex-row md:items-center justify-between p-4 rounded-xl border border-border/10 bg-secondary/30 text-xs font-medium gap-4"
+        {error && (
+          <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-xs text-destructive flex items-start gap-2 shrink-0">
+            <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />{" "}
+            <span>{error}</span>
+          </div>
+        )}
+
+        {files.length > 0 && (
+          <div className="space-y-4 flex-1 flex flex-col min-h-0">
+            <div className="flex items-center justify-between shrink-0">
+              <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                Merge Order ({files.length})
+              </h4>
+              <button
+                onClick={() => setFiles([])}
+                className="text-[10px] font-bold text-destructive hover:underline"
               >
-                <div className="flex items-center gap-3">
-                  <span className="text-primary font-bold text-sm">
-                    #{idx + 1}
-                  </span>
-                  <div className="max-w-xs md:max-w-md truncate">
-                    <p className="text-foreground font-bold truncate">
-                      {item.name}
-                    </p>
-                    <div className="flex items-center gap-2.5 text-[10px] text-muted-foreground mt-0.5">
-                      <span>
-                        Pages: <strong>{item.pagesCount}</strong>
-                      </span>
-                      <span>•</span>
-                      <span>
-                        Size: <strong>{item.size}</strong>
-                      </span>
-                      {item.rotation > 0 && (
-                        <>
-                          <span>•</span>
-                          <span className="text-primary font-bold">
-                            Rotated {item.rotation}°
-                          </span>
-                        </>
-                      )}
+                Clear Queue
+              </button>
+            </div>
+
+            <div className="space-y-2 overflow-y-auto pr-1 flex-1 min-h-0">
+              {files.map((item, idx) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between p-3 rounded-xl border border-border/30 bg-card/40 text-xs gap-3"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="text-primary font-bold shrink-0">
+                      #{idx + 1}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-foreground font-bold truncate">
+                        {item.name}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {item.pagesCount} pages • {item.size}{" "}
+                        {item.rotation > 0 && `• Rotated ${item.rotation}°`}
+                      </p>
                     </div>
                   </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      onClick={() =>
+                        setFiles((prev) =>
+                          prev.map((f) =>
+                            f.id === item.id
+                              ? { ...f, rotation: (f.rotation + 90) % 360 }
+                              : f,
+                          ),
+                        )
+                      }
+                      className="p-1.5 rounded-md hover:bg-secondary text-muted-foreground hover:text-primary transition-colors"
+                      title="Rotate"
+                    >
+                      <RotateCw className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={() => handleMove(idx, "up")}
+                      disabled={idx === 0}
+                      className="p-1.5 rounded-md hover:bg-secondary text-muted-foreground disabled:opacity-30 transition-colors"
+                    >
+                      <ArrowUp className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={() => handleMove(idx, "down")}
+                      disabled={idx === files.length - 1}
+                      className="p-1.5 rounded-md hover:bg-secondary text-muted-foreground disabled:opacity-30 transition-colors"
+                    >
+                      <ArrowDown className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={() =>
+                        setFiles((prev) => prev.filter((_, i) => i !== idx))
+                      }
+                      className="p-1.5 rounded-md hover:bg-rose-500/10 text-destructive transition-colors"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5 self-end md:self-center">
-                  <button
-                    onClick={() => handleRotateFile(item.id)}
-                    className="px-2.5 py-1.5 rounded-lg bg-background border border-border/20 hover:text-primary transition-all flex items-center gap-1 text-[10px] font-bold"
-                    title="Rotate all pages in document"
-                  >
-                    <RotateCw className="h-3 w-3" /> Rotate All
-                  </button>
-                  <button
-                    onClick={() => handleMove(idx, "up")}
-                    disabled={idx === 0}
-                    className="p-1.5 rounded-md hover:bg-secondary transition-colors text-muted-foreground disabled:opacity-30"
-                    title="Move Up"
-                  >
-                    <ArrowUp className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => handleMove(idx, "down")}
-                    disabled={idx === files.length - 1}
-                    className="p-1.5 rounded-md hover:bg-secondary transition-colors text-muted-foreground disabled:opacity-30"
-                    title="Move Down"
-                  >
-                    <ArrowDown className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => handleRemove(idx)}
-                    className="p-1.5 rounded-md hover:bg-secondary transition-colors text-destructive"
-                    title="Remove File"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-          <button
-            onClick={handleMerge}
-            disabled={merging}
-            className="w-full py-2.5 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-bold transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-1.5 disabled:opacity-50"
-          >
-            {merging ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" /> Merging Files...
-              </>
-            ) : (
-              "Merge PDF Documents"
-            )}
-          </button>
-        </div>
-      )}
-
-      {error && (
-        <div className="flex items-center gap-2.5 p-3.5 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs font-semibold leading-relaxed">
-          <AlertCircle className="h-4 w-4 shrink-0" />
-          <span>{error}</span>
-        </div>
-      )}
-    </div>
-  );
-}
+        )}
+      </div>
+    );
+  },
+);

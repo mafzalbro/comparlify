@@ -1,94 +1,184 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import {
   FileText,
   Table,
   Code,
   Send,
   Search,
-  FileCode,
   FileBox,
   Layers,
   Zap,
   Award,
-  Copy,
   Check,
   Share2,
-  Download,
-  Upload,
-  Trash2,
-  Sparkles,
-  Loader2,
-  CheckCircle2,
-  AlertTriangle,
-  Play,
-  ArrowRight,
-  Globe,
   RefreshCw,
+  Command as CommandIcon,
+  Play,
+  Loader2,
 } from "lucide-react";
 import { marked } from "marked";
 
-interface WorkflowWorkspaceProps {
-  activeToolId?: string;
-}
+// ─────────────────────────────────────────────────────────────────────────────
+// TYPES & CONSTANTS
+// ─────────────────────────────────────────────────────────────────────────────
 
 const WORKFLOW_TOOLS = [
-  { id: "universal-website-audit", name: "Universal Audit", icon: Award },
-  { id: "website-link-crawler", name: "Link Crawler", icon: Layers },
-  { id: "website-performance-analyzer", name: "Speed Audit", icon: Zap },
-  { id: "website-asset-analyzer", name: "Asset Inspector", icon: FileBox },
-  { id: "api-request-builder", name: "API Tester", icon: Send },
-  { id: "csv-data-cleaner", name: "CSV Data Cleaner", icon: Table },
-  { id: "json-csv-xml-converter", name: "Data Converter", icon: Code },
-  { id: "regex-extraction-workspace", name: "Regex Extractor", icon: Search },
-  { id: "markdown-html-workspace", name: "Markdown Workspace", icon: FileText },
+  {
+    id: "universal-website-audit",
+    name: "Universal Audit",
+    icon: Award,
+    path: "/tools/workflows/audits/universal-audit",
+  },
+  {
+    id: "website-link-crawler",
+    name: "Link Crawler",
+    icon: Layers,
+    path: "/tools/workflows/audits/link-crawler",
+  },
+  {
+    id: "website-performance-analyzer",
+    name: "Speed Audit",
+    icon: Zap,
+    path: "/tools/workflows/audits/performance-analyzer",
+  },
+  {
+    id: "website-asset-analyzer",
+    name: "Asset Inspector",
+    icon: FileBox,
+    path: "/tools/workflows/audits/asset-analyzer",
+  },
+  {
+    id: "api-request-builder",
+    name: "API Tester",
+    icon: Send,
+    path: "/tools/workflows/data/api-tester",
+  },
+  {
+    id: "csv-data-cleaner",
+    name: "CSV Data Cleaner",
+    icon: Table,
+    path: "/tools/workflows/data/csv-cleaner",
+  },
+  {
+    id: "json-csv-xml-converter",
+    name: "Data Converter",
+    icon: Code,
+    path: "/tools/workflows/data/data-converter",
+  },
+  {
+    id: "regex-extraction-workspace",
+    name: "Regex Extractor",
+    icon: Search,
+    path: "/tools/workflows/data/regex-extractor",
+  },
+  {
+    id: "markdown-html-workspace",
+    name: "Markdown Workspace",
+    icon: FileText,
+    path: "/tools/workflows/data/markdown-html",
+  },
   {
     id: "file-converter-workspace",
     name: "File Batch Converter",
     icon: RefreshCw,
+    path: "/tools/workflows/data/file-converter",
   },
 ];
 
-export function WorkflowWorkspace({ activeToolId }: WorkflowWorkspaceProps) {
-  const [selectedToolId, setSelectedToolId] = useState<string>(
+const labelCls =
+  "text-[9px] font-black uppercase tracking-widest text-muted-foreground block mb-1";
+const inputCls =
+  "h-7 w-full px-2 bg-background border border-border/40 rounded-md text-[11px] font-mono text-foreground focus:outline-none focus:border-primary";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MAIN COMPONENT
+// ─────────────────────────────────────────────────────────────────────────────
+
+export function WorkflowWorkspace({ activeToolId }: { activeToolId?: string }) {
+  const router = useRouter();
+  const [tool, setTool] = useState<string>(
     activeToolId || "universal-website-audit",
   );
-  const [targetUrlInput, setTargetUrlInput] = useState<string>(
-    "https://example.com",
-  );
-  const [loading, setLoading] = useState<boolean>(false);
-  const [copied, setCopied] = useState<boolean>(false);
-  const [shared, setShared] = useState<boolean>(false);
+
+  // Global Audit State
+  const [targetUrl, setTargetUrl] = useState("https://example.com");
   const [auditData, setAuditData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [shared, setShared] = useState(false);
+
+  // API Tester State (Lifted to parent for Inspector/Canvas sync)
+  const [apiMethod, setApiMethod] = useState("GET");
+  const [apiUrl, setApiUrl] = useState(
+    "https://jsonplaceholder.typicode.com/todos/1",
+  );
+
+  // Regex State (Lifted to parent for Inspector/Canvas sync)
+  const [regexPattern, setRegexPattern] = useState("#(\\d+)\\s*-\\s*\\$(\\d+)");
+
+  // Command Palette State
+  const [palette, setPalette] = useState(false);
+  const [paletteQuery, setPaletteQuery] = useState("");
+  const [paletteIdx, setPaletteIdx] = useState(0);
+  const paletteListRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
-    if (activeToolId) {
-      setSelectedToolId(activeToolId);
+    if (activeToolId) setTool(activeToolId);
+    if (typeof window !== "undefined") {
+      const hashStr = window.location.hash
+        ? window.location.hash.substring(1)
+        : "";
+      const queryStr = window.location.search
+        ? window.location.search.substring(1)
+        : "";
+      const params = new URLSearchParams(hashStr || queryStr);
+      const hashTool = params.get("tool");
+      const hashTarget = params.get("target");
+      if (hashTool && WORKFLOW_TOOLS.some((t) => t.id === hashTool))
+        setTool(hashTool);
+      if (hashTarget) setTargetUrl(decodeURIComponent(hashTarget));
     }
   }, [activeToolId]);
 
-  const handleCopy = (text: string) => {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPalette((p) => !p);
+        setPaletteQuery("");
+        setPaletteIdx(0);
+      }
+      if (e.key === "Escape" && palette) setPalette(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [palette]);
+
+  const copyText = (text: string) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), 1500);
   };
 
   const handleShare = () => {
     const url = new URL(window.location.href);
-    url.hash = `tool=${selectedToolId}&target=${encodeURIComponent(targetUrlInput)}`;
+    url.hash = `tool=${tool}&target=${encodeURIComponent(targetUrl)}`;
     navigator.clipboard.writeText(url.toString());
     setShared(true);
-    setTimeout(() => setShared(false), 2000);
+    setTimeout(() => setShared(false), 1500);
   };
 
   const runMasterAudit = async () => {
+    if (!targetUrl) return;
     setLoading(true);
     try {
       const res = await fetch("/api/web-diagnostics", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: targetUrlInput }),
+        body: JSON.stringify({ url: targetUrl }),
       });
       const data = await res.json();
       setAuditData(data);
@@ -99,326 +189,446 @@ export function WorkflowWorkspace({ activeToolId }: WorkflowWorkspaceProps) {
     }
   };
 
-  return (
-    <div className="w-full space-y-6">
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 shadow-sm space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-primary/10 text-primary">
-              <Award className="w-6 h-6" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                Advanced Workflows & Productivity Suite
-                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                  Batch 7 Flagship
-                </span>
-              </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Universal website audits, broken link crawlers, CSV data
-                cleaners, API testers, and Markdown publish workflows.
-              </p>
-            </div>
-          </div>
+  // Auto-run on mount if target exists
+  useEffect(() => {
+    if (targetUrl && targetUrl !== "https://example.com") {
+      runMasterAudit();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-          <div className="flex items-center gap-2">
+  const activeToolObj =
+    WORKFLOW_TOOLS.find((t) => t.id === tool) || WORKFLOW_TOOLS[0];
+  const ToolIcon = activeToolObj.icon;
+
+  const actions = WORKFLOW_TOOLS.map((t) => ({
+    id: `tool-${t.id}`,
+    label: `Open ${t.name}`,
+    group: "Workflows",
+    run: () => {
+      setTool(t.id);
+      router.push(t.path);
+    },
+  }));
+  const filteredActions = actions.filter((a) =>
+    a.label.toLowerCase().includes(paletteQuery.toLowerCase()),
+  );
+
+  // ── RENDER INSPECTOR ──
+  const renderInspector = () => {
+    switch (tool) {
+      case "universal-website-audit":
+      case "website-link-crawler":
+      case "website-performance-analyzer":
+      case "website-asset-analyzer":
+        return (
+          <div className="space-y-4">
+            <div>
+              <span className={labelCls}>Target URL</span>
+              <input
+                value={targetUrl}
+                onChange={(e) => setTargetUrl(e.target.value)}
+                className={inputCls}
+                onKeyDown={(e) => e.key === "Enter" && runMasterAudit()}
+              />
+            </div>
             <button
-              onClick={handleShare}
-              className="p-2 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-medium flex items-center gap-1.5 transition-all"
+              onClick={runMasterAudit}
+              disabled={loading}
+              className="w-full py-1.5 rounded-md bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center gap-1.5 disabled:opacity-50 transition-colors"
             >
-              {shared ? (
-                <Check className="w-4 h-4 text-emerald-500" />
+              {loading ? (
+                <RefreshCw className="h-3.5 w-3.5 animate-spin" />
               ) : (
-                <Share2 className="w-4 h-4" />
-              )}
-              <span className="hidden sm:inline">
-                {shared ? "Link Copied" : "Share Workflow"}
-              </span>
+                <Play className="h-3.5 w-3.5" />
+              )}{" "}
+              {loading ? "Auditing..." : "Run Audit"}
             </button>
           </div>
-        </div>
+        );
+      case "api-request-builder":
+        return (
+          <div className="space-y-4">
+            <div>
+              <span className={labelCls}>HTTP Method</span>
+              <select
+                value={apiMethod}
+                onChange={(e) => setApiMethod(e.target.value)}
+                className={inputCls}
+              >
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="DELETE">DELETE</option>
+              </select>
+            </div>
+            <div>
+              <span className={labelCls}>Endpoint URL</span>
+              <input
+                value={apiUrl}
+                onChange={(e) => setApiUrl(e.target.value)}
+                className={inputCls}
+              />
+            </div>
+          </div>
+        );
+      case "regex-extraction-workspace":
+        return (
+          <div>
+            <span className={labelCls}>Regex Pattern</span>
+            <input
+              value={regexPattern}
+              onChange={(e) => setRegexPattern(e.target.value)}
+              className={inputCls}
+            />
+          </div>
+        );
+      default:
+        return (
+          <p className="text-[11px] text-muted-foreground italic">
+            No extra options for this tool.
+          </p>
+        );
+    }
+  };
 
-        <div className="flex flex-col sm:flex-row items-center gap-2">
-          <input
-            type="text"
-            value={targetUrlInput}
-            onChange={(e) => setTargetUrlInput(e.target.value)}
-            placeholder="Enter web address for Universal Audit (e.g. https://example.com)"
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white font-mono"
-          />
+  return (
+    <div className="flex flex-col bg-background text-foreground overflow-hidden w-full h-full flex-1 min-h-0">
+      {/* TOP BAR */}
+      <div className="h-10 shrink-0 flex items-center justify-between px-2 border-b border-border/40 bg-card/50 overflow-x-auto">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="flex items-center gap-1.5 pr-2 border-r border-border/40 text-[11px] font-black uppercase tracking-widest text-foreground shrink-0">
+            <ToolIcon className="h-3.5 w-3.5 text-primary" />{" "}
+            {activeToolObj.name}
+          </span>
           <button
-            onClick={runMasterAudit}
-            disabled={loading}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold whitespace-nowrap flex items-center justify-center gap-2 shadow-sm transition-all hover:bg-primary/90"
+            onClick={() => setPalette(true)}
+            className="shrink-0 hidden sm:flex items-center gap-2 h-7 px-2.5 rounded-md border border-border/40 bg-background text-[11px] text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors"
           >
-            {loading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Zap className="w-4 h-4" />
-            )}
-            {loading ? "Crawling Site..." : "Execute Universal Audit"}
+            <CommandIcon className="h-3 w-3" /> Search{" "}
+            <kbd className="font-mono text-[10px] px-1 rounded bg-secondary">
+              Ctrl K
+            </kbd>
           </button>
         </div>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            onClick={handleShare}
+            className="px-2 py-1 rounded-md border border-border/40 bg-background hover:bg-secondary text-[11px] font-bold text-foreground inline-flex items-center gap-1 transition-colors"
+          >
+            {shared ? (
+              <Check className="h-3 w-3 text-emerald-500" />
+            ) : (
+              <Share2 className="h-3 w-3" />
+            )}{" "}
+            {shared ? "Copied" : "Share"}
+          </button>
+        </div>
+      </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto pt-2 no-scrollbar">
-          {WORKFLOW_TOOLS.map((tool) => {
-            const Icon = tool.icon;
-            const isActive = selectedToolId === tool.id;
+      <div className="flex-1 min-h-0 flex flex-col md:flex-row">
+        {/* LEFT RAIL */}
+        <nav className="shrink-0 gap-0.5 p-1.5 border-b md:border-b-0 md:border-r border-border/40 bg-card/30 flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto w-full md:w-52">
+          <span className="hidden md:block px-2 pt-1 pb-0.5 text-[9px] font-black uppercase tracking-widest text-muted-foreground/70">
+            Workflows Suite
+          </span>
+          {WORKFLOW_TOOLS.map((t) => {
+            const TIcon = t.icon;
             return (
               <button
-                key={tool.id}
-                onClick={() => setSelectedToolId(tool.id)}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${
-                  isActive
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "bg-background/40 text-muted-foreground hover:text-foreground border border-border/20"
-                }`}
+                key={t.id}
+                onClick={() => {
+                  setTool(t.id);
+                  router.push(t.path);
+                }}
+                className={`shrink-0 flex items-center gap-2 px-2 py-1.5 rounded-md text-[11px] font-bold transition-all whitespace-nowrap ${tool === t.id ? "bg-primary/10 text-primary ring-1 ring-primary/30" : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"}`}
               >
-                <Icon className="w-4 h-4" />
-                {tool.name}
+                <TIcon className="h-3.5 w-3.5 shrink-0" /> {t.name}
               </button>
             );
           })}
-        </div>
+        </nav>
+
+        {/* CENTER CANVAS */}
+        <main className="flex-1 min-w-0 min-h-0 bg-background overflow-y-auto p-3 sm:p-4">
+          <div className="max-w-4xl mx-auto space-y-4">
+            {tool === "universal-website-audit" && (
+              <UniversalAuditSub
+                auditData={auditData}
+                onCopy={copyText}
+                copied={copied}
+              />
+            )}
+            {tool === "website-link-crawler" && (
+              <LinkCrawlerSub auditData={auditData} />
+            )}
+            {tool === "website-performance-analyzer" && (
+              <PerformanceAnalyzerSub auditData={auditData} />
+            )}
+            {tool === "website-asset-analyzer" && (
+              <AssetAnalyzerSub auditData={auditData} />
+            )}
+            {tool === "api-request-builder" && (
+              <ApiTesterSub
+                method={apiMethod}
+                apiUrl={apiUrl}
+                onCopy={copyText}
+                copied={copied}
+              />
+            )}
+            {tool === "csv-data-cleaner" && <CsvCleanerSub onCopy={copyText} />}
+            {tool === "json-csv-xml-converter" && (
+              <DataConverterSub onCopy={copyText} />
+            )}
+            {tool === "regex-extraction-workspace" && (
+              <RegexExtractorSub pattern={regexPattern} />
+            )}
+            {tool === "markdown-html-workspace" && <MarkdownWorkspaceSub />}
+            {tool === "file-converter-workspace" && <FileConverterSub />}
+          </div>
+        </main>
+
+        {/* RIGHT INSPECTOR */}
+        <aside className="shrink-0 border-t md:border-t-0 md:border-l border-border/40 bg-card/30 flex flex-col min-h-0 w-full md:w-64 max-h-[40vh] md:max-h-none">
+          <header className="h-8 shrink-0 px-3 flex items-center border-b border-border/30 bg-muted/20">
+            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+              Options
+            </span>
+          </header>
+          <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-4">
+            {renderInspector()}
+          </div>
+        </aside>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3.5 sm:p-6 shadow-sm">
-        {selectedToolId === "universal-website-audit" && (
-          <UniversalAuditSub
-            auditData={auditData}
-            onCopy={handleCopy}
-            copied={copied}
-          />
-        )}
-        {selectedToolId === "website-link-crawler" && (
-          <LinkCrawlerSub
-            auditData={auditData}
-            onCopy={handleCopy}
-            copied={copied}
-          />
-        )}
-        {selectedToolId === "website-performance-analyzer" && (
-          <PerformanceAnalyzerSub
-            auditData={auditData}
-            onCopy={handleCopy}
-            copied={copied}
-          />
-        )}
-        {selectedToolId === "website-asset-analyzer" && (
-          <AssetAnalyzerSub
-            auditData={auditData}
-            onCopy={handleCopy}
-            copied={copied}
-          />
-        )}
-        {selectedToolId === "api-request-builder" && (
-          <ApiTesterSub onCopy={handleCopy} copied={copied} />
-        )}
-        {selectedToolId === "csv-data-cleaner" && (
-          <CsvCleanerSub onCopy={handleCopy} copied={copied} />
-        )}
-        {selectedToolId === "json-csv-xml-converter" && (
-          <DataConverterSub onCopy={handleCopy} copied={copied} />
-        )}
-        {selectedToolId === "regex-extraction-workspace" && (
-          <RegexExtractorSub onCopy={handleCopy} copied={copied} />
-        )}
-        {selectedToolId === "markdown-html-workspace" && (
-          <MarkdownWorkspaceSub onCopy={handleCopy} copied={copied} />
-        )}
-        {selectedToolId === "file-converter-workspace" && (
-          <FileConverterSub onCopy={handleCopy} copied={copied} />
-        )}
-      </div>
+      {/* STATUS BAR */}
+      <footer className="h-6 shrink-0 flex items-center gap-3 px-3 border-t border-border/40 bg-card/50 text-[10px] font-mono text-muted-foreground overflow-x-auto whitespace-nowrap">
+        <span className="flex items-center gap-1 text-emerald-500">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />{" "}
+          Engine Ready
+        </span>
+        <span>Tool: {activeToolObj.name}</span>
+        <span className="hidden sm:inline truncate">Target: {targetUrl}</span>
+        <span className="flex-1" />
+        <span>{loading ? "Processing..." : "Idle"}</span>
+      </footer>
+
+      {/* PALETTE */}
+      {palette && (
+        <div
+          className="fixed inset-0 z-[100000] flex items-start justify-center pt-[12vh] pb-4 px-2 bg-black/40 backdrop-blur-sm"
+          onMouseDown={() => setPalette(false)}
+        >
+          <div
+            className="w-[min(92vw,540px)] flex flex-col rounded-xl border border-border/50 bg-card shadow-2xl overflow-hidden"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <input
+              autoFocus
+              value={paletteQuery}
+              onChange={(e) => {
+                setPaletteQuery(e.target.value);
+                setPaletteIdx(0);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "ArrowDown") {
+                  e.preventDefault();
+                  setPaletteIdx((i) =>
+                    Math.min(filteredActions.length - 1, i + 1),
+                  );
+                } else if (e.key === "Enter") {
+                  e.preventDefault();
+                  setPalette(false);
+                  setTimeout(() => filteredActions[paletteIdx]?.run(), 0);
+                } else if (e.key === "Escape") {
+                  e.preventDefault();
+                  setPalette(false);
+                }
+              }}
+              placeholder="Search tools..."
+              className="w-full h-11 px-4 bg-transparent border-b border-border/40 text-sm outline-none"
+            />
+            <ul className="p-1">
+              {filteredActions.map((a, i) => (
+                <li
+                  key={a.id}
+                  onClick={() => {
+                    setPalette(false);
+                    setTimeout(a.run, 0);
+                  }}
+                  className={`px-3 py-2 rounded-md cursor-pointer text-xs ${i === paletteIdx ? "bg-primary/10 text-foreground" : "text-muted-foreground"}`}
+                >
+                  {a.label}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function UniversalAuditSub({ auditData, onCopy }: any) {
+// ─────────────────────────────────────────────────────────────────────────────
+// SUB-COMPONENTS (100% Original Features + Themed)
+// ─────────────────────────────────────────────────────────────────────────────
+
+function UniversalAuditSub({ auditData, onCopy, copied }: any) {
+  if (!auditData)
+    return (
+      <p className="text-xs text-muted-foreground italic p-4">
+        Enter a URL in the options panel and click "Run Audit".
+      </p>
+    );
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+    <div className="space-y-4">
+      <div className="bg-card/60 border border-border/30 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Award className="w-5 h-5 text-primary" /> Universal Technical
-            Website Audit
-          </h3>
-          <p className="text-xs text-muted-foreground">
-            All-in-one technical scorecard evaluating HTTP, DNS, SEO Meta Tags,
-            Assets, Links, and Structured Data.
-          </p>
+          <span className="text-[10px] font-black uppercase tracking-widest text-primary block mb-1">
+            Website Technical Health Score
+          </span>
+          <span className="text-4xl font-black text-emerald-500 font-mono">
+            {auditData.healthScore}{" "}
+            <span className="text-sm text-muted-foreground">/ 100</span>
+          </span>
+        </div>
+        <div className="text-right text-[11px] font-mono">
+          <span className="text-muted-foreground block mb-1">
+            HTTP Response
+          </span>
+          <span className="text-emerald-500 font-bold">
+            {auditData.status} {auditData.statusText} (
+            {auditData.responseTimeMs} ms)
+          </span>
         </div>
       </div>
-
-      {auditData ? (
-        <div className="space-y-6">
-          <div className="p-6 rounded-2xl bg-card border border-border/30 text-foreground flex items-center justify-between">
-            <div>
-              <span className="text-xs text-primary font-bold uppercase tracking-wider block">
-                Website Technical Health Score
-              </span>
-              <span className="text-4xl font-black text-emerald-400">
-                {auditData.healthScore} / 100
-              </span>
-            </div>
-            <div className="text-right text-xs font-mono">
-              <span className="text-slate-400 block">HTTP Response Status</span>
-              <span className="text-emerald-400 font-bold">
-                {auditData.status} {auditData.statusText} (
-                {auditData.responseTimeMs} ms)
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-mono">
-            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border">
-              <span className="text-slate-500 block">SEO Meta Title</span>
-              <span className="font-bold text-slate-900 dark:text-white block truncate">
-                {auditData.seo?.title || "Missing"}
-              </span>
-            </div>
-            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border">
-              <span className="text-slate-500 block">Canonical Tag</span>
-              <span className="font-bold text-emerald-500 block truncate">
-                {auditData.seo?.canonical || "Missing"}
-              </span>
-            </div>
-            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border">
-              <span className="text-muted-foreground block">
-                Discovered Links
-              </span>
-              <span className="font-bold text-primary block">
-                {auditData.discoveredUrls?.length || 0} Links
-              </span>
-            </div>
-          </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="bg-card/60 border border-border/30 rounded-lg p-3 min-w-0">
+          <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground block truncate">
+            SEO Meta Title
+          </span>
+          <span className="text-[11px] font-bold text-foreground truncate block">
+            {auditData.seo?.title || "Missing"}
+          </span>
         </div>
-      ) : (
-        <p className="text-xs text-slate-500 italic">
-          Enter a URL above and click &quot;Execute Universal Audit&quot; to run
-          the master website health evaluation.
-        </p>
-      )}
+        <div className="bg-card/60 border border-border/30 rounded-lg p-3 min-w-0">
+          <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground block truncate">
+            Canonical Tag
+          </span>
+          <span className="text-[11px] font-bold text-emerald-500 truncate block">
+            {auditData.seo?.canonical || "Missing"}
+          </span>
+        </div>
+        <div className="bg-card/60 border border-border/30 rounded-lg p-3 min-w-0">
+          <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground block truncate">
+            Discovered Links
+          </span>
+          <span className="text-[11px] font-bold text-primary block">
+            {auditData.discoveredUrls?.length || 0} Links
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
 
 function LinkCrawlerSub({ auditData }: any) {
+  if (!auditData?.discoveredUrls)
+    return (
+      <p className="text-xs text-muted-foreground italic p-4">
+        Run the audit to crawl links.
+      </p>
+    );
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
-        <div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Layers className="w-5 h-5 text-primary" /> Website Link Crawler &
-            Broken Link Detector
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Discover internal links, trace 301 redirect chains, and uncover 404
-            broken links.
-          </p>
-        </div>
+    <div className="bg-card/60 border border-border/30 rounded-xl overflow-hidden">
+      <div className="p-3 border-b border-border/30 flex items-center justify-between bg-muted/20">
+        <span className="text-[10px] font-black uppercase tracking-widest text-primary">
+          Discovered Links ({auditData.discoveredUrls.length})
+        </span>
       </div>
-      {auditData?.discoveredUrls ? (
-        <div className="space-y-2">
-          {auditData.discoveredUrls.map((item: any, i: number) => (
-            <div
-              key={i}
-              className="p-2.5 rounded-xl border bg-slate-50 dark:bg-slate-800 flex justify-between text-xs font-mono"
-            >
-              <span className="truncate max-w-md">{item.url}</span>
-              <span className="text-emerald-500 font-bold">
-                200 OK ({item.isInternal ? "Internal" : "External"})
-              </span>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-xs text-slate-500 italic">
-          Execute audit above to crawl internal website links.
-        </p>
-      )}
+      <div className="divide-y divide-border/20 max-h-[500px] overflow-y-auto">
+        {auditData.discoveredUrls.map((item: any, i: number) => (
+          <div
+            key={i}
+            className="flex justify-between items-center text-[11px] font-mono p-2 hover:bg-muted/30 transition-colors"
+          >
+            <span className="truncate max-w-sm text-foreground">
+              {item.url}
+            </span>
+            <span className="text-emerald-500 font-bold shrink-0">
+              200 OK ({item.isInternal ? "Internal" : "External"})
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
 function PerformanceAnalyzerSub({ auditData }: any) {
+  if (!auditData)
+    return (
+      <p className="text-xs text-muted-foreground italic p-4">
+        Run the audit to measure performance.
+      </p>
+    );
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
-        <div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Zap className="w-5 h-5 text-blue-500" /> Website Performance &
-            Speed Analyzer
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Audit response latency, compression headers, and HTTP cache
-            policies.
-          </p>
-        </div>
+    <div className="bg-card/60 border border-border/30 rounded-xl p-4 space-y-3 font-mono text-xs">
+      <div className="flex justify-between border-b border-border/20 pb-2">
+        <span className="text-muted-foreground">TTFB Latency</span>
+        <span className="text-foreground">{auditData.responseTimeMs} ms</span>
       </div>
-      {auditData ? (
-        <div className="p-5 rounded-2xl bg-slate-900 text-white space-y-3 font-mono text-xs">
-          <div>TTFB Latency: {auditData.responseTimeMs} ms</div>
-          <div>
-            HTML Payload Size:{" "}
-            {((auditData.assets?.htmlBytes || 0) / 1024).toFixed(1)} KB
-          </div>
-          <div>
-            Content Encoding:{" "}
-            {auditData.headers?.["content-encoding"] || "Gzip / Brotli Active"}
-          </div>
-        </div>
-      ) : (
-        <p className="text-xs text-slate-500 italic">
-          Run audit above to measure webpage load speed metrics.
-        </p>
-      )}
+      <div className="flex justify-between border-b border-border/20 pb-2">
+        <span className="text-muted-foreground">HTML Payload Size</span>
+        <span className="text-foreground">
+          {((auditData.assets?.htmlBytes || 0) / 1024).toFixed(1)} KB
+        </span>
+      </div>
+      <div className="flex justify-between">
+        <span className="text-muted-foreground">Content Encoding</span>
+        <span className="text-primary">
+          {auditData.headers?.["content-encoding"] || "Gzip / Brotli Active"}
+        </span>
+      </div>
     </div>
   );
 }
 
 function AssetAnalyzerSub({ auditData }: any) {
+  if (!auditData?.assets)
+    return (
+      <p className="text-xs text-muted-foreground italic p-4">
+        Run the audit to inspect assets.
+      </p>
+    );
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
-        <div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <FileBox className="w-5 h-5 text-blue-500" /> Website Asset
-            Inventory Inspector
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Inventory HTML, CSS, JavaScript, and Image payload weights.
-          </p>
-        </div>
+    <div className="grid grid-cols-3 gap-4 text-xs font-mono">
+      <div className="bg-card/60 border border-border/30 rounded-xl p-4 text-center">
+        <span className="text-muted-foreground block mb-2">Images</span>
+        <span className="text-2xl font-black text-foreground">
+          {auditData.assets.imagesCount}
+        </span>
       </div>
-      {auditData?.assets ? (
-        <div className="grid grid-cols-3 gap-4 text-xs font-mono">
-          <div className="p-4 rounded-xl border bg-slate-50 dark:bg-slate-800">
-            Images: {auditData.assets.imagesCount}
-          </div>
-          <div className="p-4 rounded-xl border bg-slate-50 dark:bg-slate-800">
-            Scripts: {auditData.assets.scriptsCount}
-          </div>
-          <div className="p-4 rounded-xl border bg-slate-50 dark:bg-slate-800">
-            Stylesheets: {auditData.assets.stylesheetsCount}
-          </div>
-        </div>
-      ) : (
-        <p className="text-xs text-slate-500 italic">
-          Run audit above to inventory page assets.
-        </p>
-      )}
+      <div className="bg-card/60 border border-border/30 rounded-xl p-4 text-center">
+        <span className="text-muted-foreground block mb-2">Scripts</span>
+        <span className="text-2xl font-black text-foreground">
+          {auditData.assets.scriptsCount}
+        </span>
+      </div>
+      <div className="bg-card/60 border border-border/30 rounded-xl p-4 text-center">
+        <span className="text-muted-foreground block mb-2">Stylesheets</span>
+        <span className="text-2xl font-black text-foreground">
+          {auditData.assets.stylesheetsCount}
+        </span>
+      </div>
     </div>
   );
 }
 
-function ApiTesterSub({ onCopy, copied }: any) {
-  const [method, setMethod] = useState<string>("GET");
-  const [apiUrl, setApiUrl] = useState<string>(
-    "https://jsonplaceholder.typicode.com/todos/1",
-  );
+function ApiTesterSub({ method, apiUrl, onCopy, copied }: any) {
   const [response, setResponse] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
 
   const sendRequest = async () => {
     setLoading(true);
@@ -438,52 +648,30 @@ function ApiTesterSub({ onCopy, copied }: any) {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
-        <div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Send className="w-5 h-5 text-blue-500" /> API Request Builder &
-            Tester
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Execute API endpoints, inspect JSON responses, and auto-generate
-            cURL commands.
-          </p>
-        </div>
-      </div>
-
-      <div className="flex gap-2">
-        <select
-          value={method}
-          onChange={(e) => setMethod(e.target.value)}
-          className="px-3 py-2 rounded-xl border text-xs font-bold dark:bg-slate-800"
-        >
-          <option value="GET">GET</option>
-          <option value="POST">POST</option>
-          <option value="PUT">PUT</option>
-          <option value="DELETE">DELETE</option>
-        </select>
-        <input
-          type="text"
-          value={apiUrl}
-          onChange={(e) => setApiUrl(e.target.value)}
-          className="w-full px-3.5 py-2 rounded-xl border text-xs font-mono dark:bg-slate-800 dark:text-white"
-        />
-        <button
-          onClick={sendRequest}
-          disabled={loading}
-          className="px-5 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold whitespace-nowrap"
-        >
-          {loading ? "Sending..." : "Send Request"}
-        </button>
-      </div>
-
+    <div className="space-y-4">
+      <button
+        onClick={sendRequest}
+        disabled={loading}
+        className="px-4 py-1.5 rounded-md bg-primary text-primary-foreground text-[11px] font-bold flex items-center gap-2 transition-colors"
+      >
+        <Send className="h-3.5 w-3.5" />{" "}
+        {loading ? "Sending..." : "Send Request"}
+      </button>
       {response && (
-        <div className="p-4 rounded-xl bg-slate-900 text-emerald-400 font-mono text-xs overflow-x-auto">
-          <div>
-            Status: {response.status} ({response.responseTimeMs} ms)
+        <div className="bg-card/60 border border-border/30 rounded-xl overflow-hidden">
+          <div className="p-3 border-b border-border/30 flex items-center justify-between bg-muted/20">
+            <span
+              className={`text-[11px] font-bold font-mono ${response.status >= 200 && response.status < 300 ? "text-emerald-500" : "text-rose-500"}`}
+            >
+              Status: {response.status}
+            </span>
+            <span className="text-[10px] font-mono text-muted-foreground">
+              {response.responseTimeMs} ms
+            </span>
           </div>
-          <pre className="mt-2">{response.body}</pre>
+          <pre className="p-3 text-[11px] font-mono text-foreground overflow-x-auto whitespace-pre-wrap max-h-[400px]">
+            {response.body}
+          </pre>
         </div>
       )}
     </div>
@@ -491,7 +679,7 @@ function ApiTesterSub({ onCopy, copied }: any) {
 }
 
 function CsvCleanerSub({ onCopy }: any) {
-  const [csvText, setCsvText] = useState<string>(
+  const [csvText, setCsvText] = useState(
     "name,Email,age\nJohn, JOHN@GMAIL.COM ,25\njohn,john@gmail.com,25\nSarah,,31",
   );
 
@@ -516,48 +704,29 @@ function CsvCleanerSub({ onCopy }: any) {
   }, [csvText]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
-        <div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Table className="w-5 h-5 text-blue-500" /> CSV & Spreadsheet Data
-            Cleaner
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Deduplicate rows, trim whitespace, fix email casing, and clean messy
-            spreadsheets.
-          </p>
-        </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-1">
+        <span className={labelCls}>Messy CSV Input</span>
+        <textarea
+          value={csvText}
+          onChange={(e) => setCsvText(e.target.value)}
+          className="w-full h-80 p-3 rounded-xl border border-border/40 text-[11px] font-mono bg-background focus:outline-none focus:border-primary"
+        />
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="text-xs font-medium block mb-1">
-            Messy CSV Input
-          </label>
-          <textarea
-            value={csvText}
-            onChange={(e) => setCsvText(e.target.value)}
-            className="w-full h-48 p-3 rounded-xl border text-xs font-mono dark:bg-slate-800 dark:text-white"
-          />
-        </div>
-        <div>
-          <label className="text-xs font-medium block mb-1">
-            Cleaned & Deduplicated Output
-          </label>
-          <textarea
-            readOnly
-            value={cleanedCsv}
-            className="w-full h-48 p-3 rounded-xl border text-xs font-mono bg-slate-900 text-emerald-400"
-          />
-        </div>
+      <div className="space-y-1">
+        <span className={labelCls}>Cleaned & Deduplicated Output</span>
+        <textarea
+          readOnly
+          value={cleanedCsv}
+          className="w-full h-80 p-3 rounded-xl border border-border/40 text-[11px] font-mono bg-muted/30 text-foreground"
+        />
       </div>
     </div>
   );
 }
 
 function DataConverterSub({ onCopy }: any) {
-  const [jsonInput, setJsonInput] = useState<string>(
+  const [jsonInput, setJsonInput] = useState(
     '[\n  { "id": 1, "name": "Alice" },\n  { "id": 2, "name": "Bob" }\n]',
   );
 
@@ -576,42 +745,31 @@ function DataConverterSub({ onCopy }: any) {
   }, [jsonInput]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
-        <div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Code className="w-5 h-5 text-blue-500" /> JSON ↔ CSV ↔ XML
-            Structured Data Converter
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Convert structured objects between JSON arrays, CSV spreadsheets,
-            and XML documents.
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-1">
+        <span className={labelCls}>JSON Input</span>
         <textarea
           value={jsonInput}
           onChange={(e) => setJsonInput(e.target.value)}
-          className="h-48 p-3 rounded-xl border text-xs font-mono dark:bg-slate-800 dark:text-white"
+          className="w-full h-80 p-3 rounded-xl border border-border/40 text-[11px] font-mono bg-background focus:outline-none focus:border-primary"
         />
+      </div>
+      <div className="space-y-1">
+        <span className={labelCls}>Converted CSV</span>
         <textarea
           readOnly
           value={convertedCsv}
-          className="h-48 p-3 rounded-xl border text-xs font-mono bg-slate-900 text-emerald-400"
+          className="w-full h-80 p-3 rounded-xl border border-border/40 text-[11px] font-mono bg-muted/30 text-foreground"
         />
       </div>
     </div>
   );
 }
 
-// FIXED: Infinite loop on zero-width regex
-function RegexExtractorSub({ onCopy }: any) {
-  const [text, setText] = useState<string>(
+function RegexExtractorSub({ pattern }: any) {
+  const [text, setText] = useState(
     "Order #10023 - $50\nOrder #10024 - $75\nOrder #10025 - $120",
   );
-  const [pattern, setPattern] = useState<string>("#(\\d+)\\s*-\\s*\\$(\\d+)");
 
   const extractions = useMemo(() => {
     try {
@@ -620,9 +778,7 @@ function RegexExtractorSub({ onCopy }: any) {
       let m;
       while ((m = re.exec(text)) !== null) {
         matches.push(`${m[1]} | $${m[2]}`);
-        if (m.index === re.lastIndex) {
-          re.lastIndex++;
-        }
+        if (m.index === re.lastIndex) re.lastIndex++;
       }
       return matches;
     } catch {
@@ -631,77 +787,58 @@ function RegexExtractorSub({ onCopy }: any) {
   }, [text, pattern]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
-        <div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Search className="w-5 h-5 text-blue-500" /> Regex & Text Extraction
-            Workspace
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Extract capture groups and structured columns from unstructured text
-            using V8 Regex.
-          </p>
-        </div>
-      </div>
-
-      <div className="space-y-3">
-        <input
-          type="text"
-          value={pattern}
-          onChange={(e) => setPattern(e.target.value)}
-          className="w-full p-2 border rounded-xl font-mono text-xs dark:bg-slate-800"
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-1">
+        <span className={labelCls}>Raw Text Input</span>
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          className="w-full h-80 p-3 rounded-xl border border-border/40 text-[11px] font-mono bg-background focus:outline-none focus:border-primary"
         />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            className="h-40 p-3 rounded-xl border text-xs font-mono dark:bg-slate-800"
-          />
-          <div className="p-4 rounded-xl bg-slate-900 text-emerald-400 font-mono text-xs space-y-1 overflow-y-auto max-h-40">
-            {extractions.map((ex, i) => (
-              <div key={i}>{ex}</div>
-            ))}
-          </div>
+      </div>
+      <div className="space-y-1">
+        <span className={labelCls}>Extracted Matches</span>
+        <div className="w-full h-80 p-3 rounded-xl border border-border/40 text-[11px] font-mono bg-muted/30 text-foreground overflow-y-auto space-y-1">
+          {extractions.map((ex, i) => (
+            <div
+              key={i}
+              className="px-2 py-1 bg-background rounded border border-border/20"
+            >
+              {ex}
+            </div>
+          ))}
         </div>
       </div>
     </div>
   );
 }
 
-function MarkdownWorkspaceSub({ onCopy }: any) {
-  const [md, setMd] = useState<string>(
+function MarkdownWorkspaceSub() {
+  const [md, setMd] = useState(
     "# Comparlify Guide\n\n- Fast Tools\n- Zero Server Footprint\n- 100% In-Browser Privacy",
   );
-
-  const htmlPreview = useMemo(() => {
-    const escapedMd = md.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    return marked.parse(escapedMd, { async: false }) as string;
-  }, [md]);
+  const htmlPreview = useMemo(
+    () =>
+      marked.parse(md.replace(/</g, "&lt;").replace(/>/g, "&gt;"), {
+        async: false,
+      }) as string,
+    [md],
+  );
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
-        <div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <FileText className="w-5 h-5 text-blue-500" /> Markdown / HTML
-            Document Workspace
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Bi-directional Markdown ↔ HTML editor with split-screen preview and
-            TOC generator.
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-1">
+        <span className={labelCls}>Markdown Input</span>
         <textarea
           value={md}
           onChange={(e) => setMd(e.target.value)}
-          className="h-48 p-3 rounded-xl border text-xs font-mono dark:bg-slate-800"
+          className="w-full h-80 p-3 rounded-xl border border-border/40 text-[11px] font-mono bg-background focus:outline-none focus:border-primary"
         />
+      </div>
+      <div className="space-y-1">
+        <span className={labelCls}>HTML Preview</span>
         <div
-          className="p-4 border rounded-xl prose text-xs dark:bg-slate-800"
+          className="w-full h-80 p-3 rounded-xl border border-border/40 text-[11px] bg-muted/30 overflow-y-auto prose dark:prose-invert"
           dangerouslySetInnerHTML={{ __html: htmlPreview }}
         />
       </div>
@@ -709,25 +846,11 @@ function MarkdownWorkspaceSub({ onCopy }: any) {
   );
 }
 
-function FileConverterSub({ onCopy }: any) {
+function FileConverterSub() {
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
-        <div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <RefreshCw className="w-5 h-5 text-blue-500" /> Universal File
-            Converter Workspace
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Batch convert files across PDF, DOCX, CSV, JSON, XML, Markdown, and
-            Images with ZIP export.
-          </p>
-        </div>
-      </div>
-      <div className="p-8 border-2 border-dashed rounded-2xl text-center text-xs text-slate-500">
-        Drag & drop files to queue bulk multi-format conversions locally in
-        browser RAM.
-      </div>
+    <div className="p-8 border-2 border-dashed border-border/60 rounded-xl text-center text-xs text-muted-foreground bg-muted/20">
+      Drag & drop files to queue bulk multi-format conversions locally in
+      browser RAM.
     </div>
   );
 }

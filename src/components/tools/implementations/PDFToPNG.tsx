@@ -1,8 +1,18 @@
 "use client";
 
-import React from "react";
+import React, { forwardRef } from "react";
 import { UniversalConverter } from "@/components/tools/converters/universal-converter";
 
-export function PDFToPNG() {
-  return <UniversalConverter initialFrom="pdf" initialTo="png" />;
-}
+export const PDFToPNG = forwardRef(
+  ({ initialFile }: { initialFile?: File | null }, ref) => {
+    return (
+      <UniversalConverter
+        ref={ref}
+        initialFrom="pdf"
+        initialTo="png"
+        initialFile={initialFile}
+        forceEmbedded={true}
+      />
+    );
+  },
+);

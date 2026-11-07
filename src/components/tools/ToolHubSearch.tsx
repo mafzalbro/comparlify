@@ -1,28 +1,37 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { ToolDefinition, getToolBySlug } from "@/data/tools/registry";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import {
   Terminal,
   FileText,
   Image as ImageIcon,
   Calculator as CalcIcon,
   Globe,
+  Workflow,
   MoreVertical,
   ArrowLeft,
   ChevronRight,
   ExternalLink,
 } from "lucide-react";
 
-// ── DYNAMIC IMPORTS (code-split so each tool loads on demand) ──
+// ── DYNAMIC IMPORTS ──
 const WorkspaceSkeleton = () => (
-  <div className="w-full h-full flex flex-col space-y-4 animate-pulse p-4">
+  <div className="w-full h-full flex flex-col space-y-4 animate-pulse p-4 sm:p-6">
     <div className="h-10 w-1/3 bg-muted/40 rounded-xl" />
     <div className="h-[400px] w-full bg-muted/20 rounded-2xl border border-border/10" />
-    <div className="grid grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <div className="h-24 bg-muted/20 rounded-xl" />
       <div className="h-24 bg-muted/20 rounded-xl" />
       <div className="h-24 bg-muted/20 rounded-xl" />
@@ -54,6 +63,13 @@ const WebDiagnosticsWorkspace = dynamic(
   () =>
     import("./implementations/WebDiagnosticsWorkspace").then(
       (m) => m.WebDiagnosticsWorkspace,
+    ),
+  { loading: () => <WorkspaceSkeleton />, ssr: false },
+);
+const WorkflowWorkspace = dynamic(
+  () =>
+    import("./implementations/WorkflowWorkspace").then(
+      (m) => m.WorkflowWorkspace,
     ),
   { loading: () => <WorkspaceSkeleton />, ssr: false },
 );
@@ -150,32 +166,12 @@ const MergePDF = dynamic(
   () => import("./implementations/MergePDF").then((m) => m.MergePDF),
   { loading: () => <WorkspaceSkeleton />, ssr: false },
 );
-const SplitPDF = dynamic(
-  () => import("./implementations/SplitPDF").then((m) => m.SplitPDF),
-  { loading: () => <WorkspaceSkeleton />, ssr: false },
-);
 const JPGToPDF = dynamic(
   () => import("./implementations/JPGToPDF").then((m) => m.JPGToPDF),
   { loading: () => <WorkspaceSkeleton />, ssr: false },
 );
 const PDFToText = dynamic(
   () => import("./implementations/PDFToText").then((m) => m.PDFToText),
-  { loading: () => <WorkspaceSkeleton />, ssr: false },
-);
-const PDFRotator = dynamic(
-  () => import("./implementations/PDFRotator").then((m) => m.PDFRotator),
-  { loading: () => <WorkspaceSkeleton />, ssr: false },
-);
-const PDFPageExtractor = dynamic(
-  () =>
-    import("./implementations/PDFPageExtractor").then(
-      (m) => m.PDFPageExtractor,
-    ),
-  { loading: () => <WorkspaceSkeleton />, ssr: false },
-);
-const PDFPageDeleter = dynamic(
-  () =>
-    import("./implementations/PDFPageDeleter").then((m) => m.PDFPageDeleter),
   { loading: () => <WorkspaceSkeleton />, ssr: false },
 );
 
@@ -203,7 +199,7 @@ const PlatformFinder = dynamic(
 
 // ── TYPES ──
 type WorkspaceCategory =
-  "text" | "developer" | "pdf" | "image" | "calculators" | "web";
+  "text" | "pdf" | "image" | "calculators" | "web" | "workflows";
 
 interface SubTool {
   id: string;
@@ -222,17 +218,16 @@ interface ToolHubSearchProps {
   tools: ToolDefinition[];
   categories: Record<string, any>;
   initialSlug?: string[];
-  /** Data for the Pricing Calculator. Pass real platforms from the server. */
   platforms?: any[];
 }
 
 const CATEGORY_ORDER: WorkspaceCategory[] = [
   "text",
-  "developer",
   "pdf",
   "image",
   "calculators",
   "web",
+  "workflows",
 ];
 
 const CATEGORY_META: Record<
@@ -246,13 +241,8 @@ const CATEGORY_META: Record<
 > = {
   text: {
     label: "Text Tools",
-    description: "Word counter, case converter, diff checker, sorter & more",
-    iconName: "Terminal",
-    Icon: Terminal,
-  },
-  developer: {
-    label: "Developer Tools",
-    description: "JSON, Base64, JWT, UUID, regex, formatters & converters",
+    description:
+      "Word counter, case converter, diff checker, sorter & text editors",
     iconName: "Terminal",
     Icon: Terminal,
   },
@@ -279,6 +269,13 @@ const CATEGORY_META: Record<
     description: "HTTP, DNS, IP, SEO meta, robots, sitemap & schema tools",
     iconName: "Globe",
     Icon: Globe,
+  },
+  workflows: {
+    label: "Workflows & Suite",
+    description:
+      "Website audits, link crawlers, CSV data cleaner, API tester & regex studio",
+    iconName: "Workflow",
+    Icon: Workflow,
   },
 };
 
@@ -352,128 +349,6 @@ const ALL_SUB_TOOLS: Record<WorkspaceCategory, SubTool[]> = {
       path: "/tools/text/slug-generator",
     },
   ],
-  developer: [
-    {
-      id: "json-formatter",
-      label: "JSON Formatter",
-      slug: "formatter",
-      path: "/tools/developer/json/formatter",
-    },
-    {
-      id: "json-validator",
-      label: "JSON Validator",
-      slug: "validator",
-      path: "/tools/developer/json/validator",
-    },
-    {
-      id: "json-minifier",
-      label: "JSON Minifier",
-      slug: "minifier",
-      path: "/tools/developer/json/minifier",
-    },
-    {
-      id: "json-viewer",
-      label: "JSON Viewer",
-      slug: "viewer",
-      path: "/tools/developer/json/viewer",
-    },
-    {
-      id: "base64-encoder",
-      label: "Base64 Encoder",
-      slug: "base64-encoder",
-      path: "/tools/developer/encoding/base64-encoder",
-    },
-    {
-      id: "base64-decoder",
-      label: "Base64 Decoder",
-      slug: "base64-decoder",
-      path: "/tools/developer/encoding/base64-decoder",
-    },
-    {
-      id: "url-encoder",
-      label: "URL Encoder",
-      slug: "url-encoder",
-      path: "/tools/developer/encoding/url-encoder",
-    },
-    {
-      id: "url-decoder",
-      label: "URL Decoder",
-      slug: "url-decoder",
-      path: "/tools/developer/encoding/url-decoder",
-    },
-    {
-      id: "jwt-decoder",
-      label: "JWT Decoder",
-      slug: "jwt-decoder",
-      path: "/tools/developer/encoding/jwt-decoder",
-    },
-    {
-      id: "uuid-generator",
-      label: "UUID Generator",
-      slug: "uuid-generator",
-      path: "/tools/developer/generators/uuid-generator",
-    },
-    {
-      id: "password-generator",
-      label: "Password Generator",
-      slug: "password-generator",
-      path: "/tools/developer/generators/password-generator",
-    },
-    {
-      id: "cron-expression-generator",
-      label: "Cron Generator",
-      slug: "cron-generator",
-      path: "/tools/developer/generators/cron-generator",
-    },
-    {
-      id: "regex-tester",
-      label: "Regex Tester",
-      slug: "regex-tester",
-      path: "/tools/developer/testing/regex-tester",
-    },
-    {
-      id: "html-formatter",
-      label: "HTML Formatter",
-      slug: "html-formatter",
-      path: "/tools/developer/formatters/html-formatter",
-    },
-    {
-      id: "css-formatter",
-      label: "CSS Formatter",
-      slug: "css-formatter",
-      path: "/tools/developer/formatters/css-formatter",
-    },
-    {
-      id: "javascript-formatter",
-      label: "JS Formatter",
-      slug: "javascript-formatter",
-      path: "/tools/developer/formatters/javascript-formatter",
-    },
-    {
-      id: "sql-formatter",
-      label: "SQL Formatter",
-      slug: "sql-formatter",
-      path: "/tools/developer/formatters/sql-formatter",
-    },
-    {
-      id: "xml-formatter",
-      label: "XML Formatter",
-      slug: "xml-formatter",
-      path: "/tools/developer/formatters/xml-formatter",
-    },
-    {
-      id: "yaml-formatter",
-      label: "YAML Formatter",
-      slug: "yaml-formatter",
-      path: "/tools/developer/formatters/yaml-formatter",
-    },
-    {
-      id: "unix-timestamp-converter",
-      label: "Unix Timestamp",
-      slug: "unix-timestamp-converter",
-      path: "/tools/developer/converters/unix-timestamp-converter",
-    },
-  ],
   pdf: [
     {
       id: "pdf-suite",
@@ -540,6 +415,24 @@ const ALL_SUB_TOOLS: Record<WorkspaceCategory, SubTool[]> = {
       label: "Delete Pages",
       slug: "delete-pages",
       path: "/tools/pdf/delete-pages",
+    },
+    {
+      id: "organize-pdf",
+      label: "Organize Pages",
+      slug: "organize",
+      path: "/tools/pdf/organize",
+    },
+    {
+      id: "watermark-pdf",
+      label: "Watermark",
+      slug: "watermark",
+      path: "/tools/pdf/watermark",
+    },
+    {
+      id: "page-numbers-pdf",
+      label: "Page Numbers",
+      slug: "page-numbers",
+      path: "/tools/pdf/page-numbers",
     },
   ],
   image: [
@@ -612,6 +505,12 @@ const ALL_SUB_TOOLS: Record<WorkspaceCategory, SubTool[]> = {
   ],
   calculators: [
     {
+      id: "percentage-calculator",
+      label: "Percentage",
+      slug: "percentage",
+      path: "/tools/calculators/percentage",
+    },
+    {
       id: "pricing-calculator",
       label: "Pricing Calculator",
       slug: "pricing",
@@ -658,12 +557,6 @@ const ALL_SUB_TOOLS: Record<WorkspaceCategory, SubTool[]> = {
       label: "Tech Stack Planner",
       slug: "stack-planner",
       path: "/tools/calculators/strategic/stack-planner",
-    },
-    {
-      id: "percentage-calculator",
-      label: "Percentage",
-      slug: "percentage",
-      path: "/tools/calculators/percentage",
     },
     {
       id: "age-calculator",
@@ -782,11 +675,72 @@ const ALL_SUB_TOOLS: Record<WorkspaceCategory, SubTool[]> = {
       path: "/tools/web/seo/schema-generator",
     },
   ],
+  workflows: [
+    {
+      id: "universal-website-audit",
+      label: "Universal Audit",
+      slug: "universal-audit",
+      path: "/tools/workflows/audits/universal-audit",
+    },
+    {
+      id: "website-link-crawler",
+      label: "Link Crawler",
+      slug: "link-crawler",
+      path: "/tools/workflows/audits/link-crawler",
+    },
+    {
+      id: "website-performance-analyzer",
+      label: "Speed Audit",
+      slug: "performance-analyzer",
+      path: "/tools/workflows/audits/performance-analyzer",
+    },
+    {
+      id: "website-asset-analyzer",
+      label: "Asset Inspector",
+      slug: "asset-analyzer",
+      path: "/tools/workflows/audits/asset-analyzer",
+    },
+    {
+      id: "api-request-builder",
+      label: "API Tester",
+      slug: "api-tester",
+      path: "/tools/workflows/data/api-tester",
+    },
+    {
+      id: "csv-data-cleaner",
+      label: "CSV Data Cleaner",
+      slug: "csv-cleaner",
+      path: "/tools/workflows/data/csv-cleaner",
+    },
+    {
+      id: "json-csv-xml-converter",
+      label: "Data Converter",
+      slug: "data-converter",
+      path: "/tools/workflows/data/data-converter",
+    },
+    {
+      id: "regex-extraction-workspace",
+      label: "Regex Extractor",
+      slug: "regex-extractor",
+      path: "/tools/workflows/data/regex-extractor",
+    },
+    {
+      id: "markdown-html-workspace",
+      label: "Markdown Workspace",
+      slug: "markdown-html",
+      path: "/tools/workflows/data/markdown-html",
+    },
+    {
+      id: "file-converter-workspace",
+      label: "File Batch Converter",
+      slug: "file-converter",
+      path: "/tools/workflows/data/file-converter",
+    },
+  ],
 };
 
 // ── ID → COMPONENT ──
 const COMPONENT_MAP: Record<string, Renderer> = {
-  // Text
   "text-studio": () => <TextWorkspace defaultMode="count" />,
   "word-counter": () => <TextWorkspace defaultMode="count" />,
   "character-counter": () => <TextWorkspace defaultMode="count" />,
@@ -799,7 +753,6 @@ const COMPONENT_MAP: Record<string, Renderer> = {
   "find-and-replace": () => <TextWorkspace defaultMode="replace" />,
   "slug-generator": () => <TextWorkspace defaultMode="slug" />,
 
-  // Developer
   "json-formatter": () => <JSONFormatter />,
   "json-validator": () => <JSONValidator />,
   "json-minifier": () => <JSONMinifier />,
@@ -821,12 +774,15 @@ const COMPONENT_MAP: Record<string, Renderer> = {
   "yaml-formatter": () => <YAMLFormatter />,
   "unix-timestamp-converter": () => <UnixTimestampConverter />,
 
-  // PDF
   "pdf-suite": () => (
     <PDFWorkspace processButtonLabel="Export PDF Studio" toolSlug="pdf-suite" />
   ),
-  "merge-pdf": () => <MergePDF />,
-  "split-pdf": () => <SplitPDF />,
+  "merge-pdf": () => (
+    <PDFWorkspace processButtonLabel="Merge PDFs" toolSlug="merge" />
+  ),
+  "split-pdf": () => (
+    <PDFWorkspace processButtonLabel="Split & Extract Pages" toolSlug="split" />
+  ),
   "compress-pdf": () => (
     <PDFWorkspace
       mode="compress"
@@ -834,13 +790,43 @@ const COMPONENT_MAP: Record<string, Renderer> = {
       toolSlug="compress"
     />
   ),
-  "jpg-to-pdf": () => <JPGToPDF />,
-  "pdf-to-text": () => <PDFToText />,
-  "pdf-rotator": () => <PDFRotator />,
-  "extract-pages-pdf": () => <PDFPageExtractor />,
-  "delete-pages-pdf": () => <PDFPageDeleter />,
+  "jpg-to-pdf": () => (
+    <PDFWorkspace processButtonLabel="Convert to PDF" toolSlug="jpg-to-pdf" />
+  ),
+  "pdf-to-jpg": () => (
+    <PDFWorkspace processButtonLabel="Convert to JPG" toolSlug="pdf-to-jpg" />
+  ),
+  "pdf-to-png": () => (
+    <PDFWorkspace processButtonLabel="Convert to PNG" toolSlug="pdf-to-png" />
+  ),
+  "pdf-to-text": () => (
+    <PDFWorkspace processButtonLabel="Extract Text" toolSlug="pdf-to-text" />
+  ),
+  "pdf-rotator": () => (
+    <PDFWorkspace processButtonLabel="Rotate & Export" toolSlug="rotate" />
+  ),
+  "extract-pages-pdf": () => (
+    <PDFWorkspace processButtonLabel="Extract Pages" toolSlug="extract-pages" />
+  ),
+  "delete-pages-pdf": () => (
+    <PDFWorkspace
+      processButtonLabel="Delete Pages & Export"
+      toolSlug="delete-pages"
+    />
+  ),
+  "organize-pdf": () => (
+    <PDFWorkspace processButtonLabel="Save Reordered PDF" toolSlug="organize" />
+  ),
+  "watermark-pdf": () => (
+    <PDFWorkspace processButtonLabel="Apply Watermark" toolSlug="watermark" />
+  ),
+  "page-numbers-pdf": () => (
+    <PDFWorkspace
+      processButtonLabel="Add Page Numbers"
+      toolSlug="page-numbers"
+    />
+  ),
 
-  // Image
   "image-studio": () => <ImageWorkspace defaultMode="compress" />,
   "image-compressor": () => <ImageWorkspace defaultMode="compress" />,
   "image-resizer": () => <ImageWorkspace defaultMode="resize" />,
@@ -853,7 +839,6 @@ const COMPONENT_MAP: Record<string, Renderer> = {
   "webp-to-jpg": () => <ImageWorkspace defaultMode="webp-to-jpg" />,
   "image-to-base64": () => <ImageWorkspace defaultMode="image-to-base64" />,
 
-  // Calculators
   "pricing-calculator": ({ platforms }) => (
     <PricingCalculator platforms={platforms} />
   ),
@@ -893,7 +878,21 @@ const COMPONENT_MAP: Record<string, Renderer> = {
   COMPONENT_MAP[id] = () => <WebDiagnosticsWorkspace activeToolId={id} />;
 });
 
-// Tools that are really available
+[
+  "universal-website-audit",
+  "website-link-crawler",
+  "website-performance-analyzer",
+  "website-asset-analyzer",
+  "api-request-builder",
+  "csv-data-cleaner",
+  "json-csv-xml-converter",
+  "regex-extraction-workspace",
+  "markdown-html-workspace",
+  "file-converter-workspace",
+].forEach((id) => {
+  COMPONENT_MAP[id] = () => <WorkflowWorkspace activeToolId={id} />;
+});
+
 const SUB_TOOLS = CATEGORY_ORDER.reduce(
   (acc, cat) => {
     acc[cat] = ALL_SUB_TOOLS[cat].filter((t) => t.id in COMPONENT_MAP);
@@ -905,27 +904,21 @@ const SUB_TOOLS = CATEGORY_ORDER.reduce(
 const isCategory = (s: string): s is WorkspaceCategory =>
   (CATEGORY_ORDER as string[]).includes(s);
 
-// ── URL → { category, tool } ──
 function resolveSelection(initialSlug?: string[]): {
-  category: WorkspaceCategory;
+  category: WorkspaceCategory | null;
   toolId: string | null;
   missing: boolean;
 } {
-  const fallback = {
-    category: "text" as WorkspaceCategory,
-    toolId: SUB_TOOLS.text[0]?.id ?? null,
-    missing: false,
-  };
-  if (!initialSlug || initialSlug.length === 0) return fallback;
+  if (!initialSlug || initialSlug.length === 0) {
+    return { category: null, toolId: null, missing: false };
+  }
 
-  // 1. Exact path match
   const path = "/tools/" + initialSlug.join("/");
   for (const cat of CATEGORY_ORDER) {
     const hit = SUB_TOOLS[cat].find((t) => t.path === path);
     if (hit) return { category: cat, toolId: hit.id, missing: false };
   }
 
-  // 2. Registry lookup by slug
   const matched = getToolBySlug(initialSlug);
   if (matched) {
     for (const cat of CATEGORY_ORDER) {
@@ -934,7 +927,6 @@ function resolveSelection(initialSlug?: string[]): {
     }
   }
 
-  // 3. Category root or slug inside category
   const [first] = initialSlug;
   if (isCategory(first)) {
     if (initialSlug.length === 1)
@@ -949,10 +941,9 @@ function resolveSelection(initialSlug?: string[]): {
     return { category: first, toolId: null, missing: true };
   }
 
-  return { ...fallback, missing: true };
+  return { category: null, toolId: null, missing: true };
 }
 
-// ── THREE-DOT DROPDOWN ──
 function WorkspaceCardMenu({
   category,
   tools,
@@ -960,73 +951,71 @@ function WorkspaceCardMenu({
 }: {
   category: WorkspaceCategory;
   tools: SubTool[];
-  onSelectTool: (cat: WorkspaceCategory, toolId: string) => void;
+  onSelectTool: (path: string) => void;
 }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [open]);
-
   return (
-    <div ref={ref} className="relative" onClick={(e) => e.stopPropagation()}>
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="p-1.5 rounded-lg text-muted-foreground/60 hover:text-foreground hover:bg-border/40 transition-colors"
-        aria-label="More tools"
-      >
-        <MoreVertical className="h-4 w-4" />
-      </button>
-
-      {open && (
-        <div className="absolute right-0 top-full mt-1.5 z-50 w-52 bg-card border border-border/50 rounded-xl shadow-xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100">
-          <div className="px-3 py-2 border-b border-border/30">
-            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+    <div onClick={(e) => e.stopPropagation()}>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            className="p-2 rounded-xl text-muted-foreground/70 hover:text-foreground hover:bg-secondary/80 transition-colors cursor-pointer border border-transparent hover:border-border/40 focus:outline-none"
+            aria-label="Workspace tools"
+          >
+            <MoreVertical className="h-4 w-4" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="end"
+          side="bottom"
+          sideOffset={8}
+          className="z-[99999] w-64 bg-card border border-border/80 rounded-2xl shadow-2xl p-1.5 ring-1 ring-black/10"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="px-3 py-2 flex items-center justify-between border-b border-border/40 mb-1">
+            <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
               Tools in this workspace
-            </p>
+            </span>
+            <span className="text-[10px] font-mono text-primary font-bold px-1.5 py-0.5 rounded-full bg-primary/10">
+              {tools.length}
+            </span>
           </div>
-          <div className="py-1 max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-border">
+          <div className="py-1 max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-border">
             {tools.map((tool) => (
-              <button
+              <DropdownMenuItem
                 key={tool.id}
-                onClick={() => {
-                  onSelectTool(category, tool.id);
-                  setOpen(false);
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectTool(tool.path);
                 }}
-                className="w-full flex items-center justify-between gap-2 px-3 py-2 text-xs text-left hover:bg-secondary/60 transition-colors group"
+                className="flex items-center justify-between gap-2 px-3 py-2 text-xs rounded-xl cursor-pointer hover:bg-primary/10 hover:text-primary transition-colors group focus:bg-primary/10 focus:text-primary"
               >
-                <span className="font-medium text-foreground/80 group-hover:text-foreground truncate">
+                <span className="font-medium text-foreground/90 group-hover:text-primary truncate">
                   {tool.label}
                 </span>
-                <ChevronRight className="h-3 w-3 text-muted-foreground/40 shrink-0" />
-              </button>
+                <ChevronRight className="h-3 w-3 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
+              </DropdownMenuItem>
             ))}
           </div>
-          <div className="border-t border-border/30 px-3 py-2">
+          <DropdownMenuSeparator className="my-1 border-border/40" />
+          <DropdownMenuItem
+            asChild
+            className="px-3 py-2 text-[11px] font-bold text-primary hover:bg-primary/10 cursor-pointer rounded-xl flex items-center gap-1.5 focus:bg-primary/10 focus:text-primary"
+          >
             <Link
               href={`/tools/${category}`}
-              className="flex items-center gap-1.5 text-[10px] font-bold text-primary hover:underline"
-              onClick={() => setOpen(false)}
+              onClick={(e) => e.stopPropagation()}
             >
               <ExternalLink className="h-3 w-3" />
-              Open full page
+              Open entire workspace
             </Link>
-          </div>
-        </div>
-      )}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }
 
-// ── DASHBOARD CARD ──
 function WorkspaceCard({
   category,
   onOpen,
@@ -1034,7 +1023,7 @@ function WorkspaceCard({
 }: {
   category: WorkspaceCategory;
   onOpen: (cat: WorkspaceCategory) => void;
-  onSelectTool: (cat: WorkspaceCategory, toolId: string) => void;
+  onSelectTool: (path: string) => void;
 }) {
   const meta = CATEGORY_META[category];
   const Icon = meta.Icon;
@@ -1042,141 +1031,154 @@ function WorkspaceCard({
   const count = tools.length;
 
   return (
-    <div
-      className="group relative bg-card border border-border/40 rounded-2xl p-5 cursor-pointer hover:border-primary/40 hover:shadow-md transition-all duration-200 select-none"
+    <motion.div
+      layoutId={`workspace-panel-${category}`}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
       onClick={() => onOpen(category)}
+      className="group relative bg-card/75 bg-[url('/logo.png')] bg-center bg-no-repeat bg-contain backdrop-blur-md rounded-4xl p-4 sm:p-5 cursor-pointer hover:border-primary/50 hover:shadow-xl hover:bg-card/90 transition-all select-none flex flex-col justify-between"
     >
-      {/* Top row: icon + 3-dot */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="p-2.5 bg-primary/8 rounded-xl text-primary group-hover:bg-primary/14 transition-colors">
-          <Icon className="h-5 w-5" />
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <div className="p-2.5 bg-primary/10 rounded-xl text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-200">
+            <Icon className="h-4.5 w-4.5" />
+          </div>
+          <WorkspaceCardMenu
+            category={category}
+            tools={tools}
+            onSelectTool={onSelectTool}
+          />
         </div>
-        <WorkspaceCardMenu
-          category={category}
-          tools={tools}
-          onSelectTool={onSelectTool}
-        />
+
+        <h3 className="text-sm font-bold text-foreground tracking-tight group-hover:text-primary transition-colors">
+          {meta.label}
+        </h3>
+        <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 mt-1">
+          {meta.description}
+        </p>
       </div>
 
-      {/* Title + description */}
-      <h3 className="text-sm font-bold text-foreground mb-1 tracking-tight">
-        {meta.label}
-      </h3>
-      <p className="text-xs text-muted-foreground leading-relaxed mb-4 line-clamp-2">
-        {meta.description}
-      </p>
-
-      {/* Footer: tool count */}
-      <div className="flex items-center justify-between">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
+      <div className="mt-4 pt-3 border-t border-border/30 flex items-center justify-between text-xs">
+        <span className="text-[11px] font-medium text-muted-foreground/70">
           {count} tools
         </span>
-        <span className="text-[10px] font-bold text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+        <span className="text-[11px] font-semibold text-primary flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
           Open <ChevronRight className="h-3 w-3" />
         </span>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
-// ── FULL-SCREEN WORKSPACE SHELL ──
 function WorkspaceShell({
   category,
   toolId,
   platforms,
+  onBack,
 }: {
   category: WorkspaceCategory;
   toolId: string;
   platforms: any[];
+  onBack: () => void;
 }) {
-  const router = useRouter();
   const meta = CATEGORY_META[category];
   const Icon = meta.Icon;
   const activeTool = SUB_TOOLS[category].find((t) => t.id === toolId);
   const render = COMPONENT_MAP[toolId];
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-background text-foreground flex flex-col overflow-hidden">
-      {/* ── Slim top bar ── */}
-      <header className="shrink-0 flex items-center gap-3 px-4 py-2.5 border-b border-border/20 bg-card/50 backdrop-blur-xl">
-        {/* Back */}
+    <motion.div
+      layoutId={`workspace-panel-${category}`}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      className="absolute inset-0 z-9999 bg-background text-foreground flex flex-col overflow-hidden"
+    >
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0 bg-[url('/logo.png')] bg-center bg-no-repeat bg-contain opacity-[0.02] dark:opacity-[0.03]"
+      />
+      <header className="shrink-0 h-10 flex items-center gap-3 px-3.5 border-b border-border/30 bg-card/80 backdrop-blur-xl z-20 relative">
         <button
-          onClick={() => router.push("/tools")}
-          className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors shrink-0"
+          type="button"
+          onClick={onBack}
+          className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors shrink-0 cursor-pointer px-2 py-1 rounded-lg hover:bg-secondary/60"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">All Workspaces</span>
+          <span>All Workspaces</span>
         </button>
 
-        {/* Divider */}
-        <span className="text-border/60 select-none hidden sm:inline">/</span>
+        <span className="text-border/60 select-none">/</span>
 
-        {/* Workspace label */}
         <div className="flex items-center gap-1.5 shrink-0">
           <Icon className="h-3.5 w-3.5 text-primary" />
-          <span className="text-xs font-bold text-foreground">{meta.label}</span>
+          <span className="text-xs font-bold text-foreground">
+            {meta.label}
+          </span>
         </div>
 
-        {/* Active tool pill */}
         {activeTool && (
           <>
             <span className="text-border/60 select-none">·</span>
-            <span className="text-xs font-mono text-primary truncate max-w-[180px]">
+            <span className="text-xs font-mono text-primary truncate max-w-[220px]">
               {activeTool.label}
             </span>
           </>
         )}
       </header>
-
-      {/* ── Tool content — fills remaining height ── */}
-      <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin scrollbar-thumb-border">
+      <div className="relative z-10 flex-1 min-h-0 w-full h-full overflow-hidden">
         {render ? (
-          <div key={toolId} className="h-full flex flex-col">
+          <div
+            key={toolId}
+            className="absolute inset-0 flex flex-col overflow-hidden"
+          >
             {render({ platforms })}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center h-full p-12 text-center">
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center">
             <div className="p-4 bg-primary/10 rounded-full mb-4 text-primary">
               <Terminal className="h-8 w-8" />
             </div>
             <h2 className="text-lg font-bold mb-1">Tool not available yet</h2>
-            <p className="text-sm text-muted-foreground">
-              Pick another tool from the bar above.
-            </p>
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
-// ── DASHBOARD ──
 function Dashboard({
   onOpen,
   onSelectTool,
 }: {
   onOpen: (cat: WorkspaceCategory) => void;
-  onSelectTool: (cat: WorkspaceCategory, toolId: string) => void;
+  onSelectTool: (path: string) => void;
 }) {
   return (
-    <div className="fixed inset-0 z-[100] bg-background text-foreground overflow-y-auto">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-        {/* Header */}
-        <div className="mb-8 sm:mb-10">
-          <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-2">
-            Tool Hub
-          </p>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground mb-2">
-            Workspaces
-          </h1>
-          <p className="text-sm text-muted-foreground max-w-lg">
-            Pick a workspace to open it full-screen. Use the ⋯ menu on any card
-            to jump straight to a specific tool.
+    <div className="absolute inset-0 overflow-y-auto scrollbar-thin scrollbar-thumb-border">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 z-0 bg-[url('/logo.png')] bg-center bg-no-repeat bg-contain opacity-[0.03] dark:opacity-[0.05]"
+      />
+
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <div className="mb-8 text-left">
+          <div className="flex items-center gap-3 mb-2">
+            <Link
+              href="/"
+              aria-label="Back to home"
+              className="group p-2 -ml-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/60 border border-transparent hover:border-border/40 transition-colors shrink-0"
+            >
+              <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
+            </Link>
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
+              Workspaces
+            </h1>
+          </div>
+          <p className="text-xs sm:text-sm text-muted-foreground max-w-xl leading-relaxed">
+            Click any workspace to open full-screen. Use the three dots (⋯) to
+            jump straight to a tool.
           </p>
         </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 sm:gap-4">
           {CATEGORY_ORDER.map((cat) => (
             <WorkspaceCard
               key={cat}
@@ -1187,60 +1189,93 @@ function Dashboard({
           ))}
         </div>
 
-        {/* Footer hint */}
-        <p className="mt-10 text-center text-[11px] text-muted-foreground/50">
-          All tools run entirely in your browser — nothing leaves your device.
-        </p>
+        <div className="mt-12 pt-4 border-t border-border/20 text-center text-[11px] text-muted-foreground/50">
+          Zero-server architecture. All operations process 100% locally in your
+          browser.
+        </div>
       </div>
     </div>
   );
 }
 
-// ── MAIN EXPORT ──
 export function ToolHubSearch({
   tools,
   categories,
   initialSlug,
   platforms = [],
 }: ToolHubSearchProps) {
-  const {
-    category: resolvedCategory,
-    toolId: resolvedToolId,
-    missing,
-  } = resolveSelection(initialSlug);
+  const router = useRouter();
 
-  // If a URL slug was provided → go straight into the workspace
-  const hasInitialTool = !!(initialSlug && initialSlug.length > 0 && resolvedToolId && !missing);
+  const { category: resolvedCategory, toolId: resolvedToolId } =
+    resolveSelection(initialSlug);
 
-  const [openCategory, setOpenCategory] = useState<WorkspaceCategory | null>(
-    hasInitialTool ? resolvedCategory : null,
-  );
+  const isSlugActive = resolvedCategory !== null;
+
+  const [activeCategory, setActiveCategory] =
+    useState<WorkspaceCategory | null>(resolvedCategory);
   const [activeToolId, setActiveToolId] = useState<string>(
-    resolvedToolId ?? SUB_TOOLS.text[0]?.id ?? "",
+    resolvedToolId ??
+      (resolvedCategory ? (SUB_TOOLS[resolvedCategory][0]?.id ?? "") : ""),
   );
+
+  useEffect(() => {
+    let targetToolId = resolvedToolId;
+    if (typeof window !== "undefined" && window.location.hash) {
+      const params = new URLSearchParams(window.location.hash.substring(1));
+      const hashTool = params.get("tool");
+      if (
+        hashTool &&
+        resolvedCategory &&
+        SUB_TOOLS[resolvedCategory]?.some((t) => t.id === hashTool)
+      ) {
+        targetToolId = hashTool;
+      }
+    }
+
+    setActiveCategory(resolvedCategory);
+    if (targetToolId) {
+      setActiveToolId(targetToolId);
+    } else if (resolvedCategory) {
+      setActiveToolId(SUB_TOOLS[resolvedCategory][0]?.id ?? "");
+    }
+  }, [resolvedCategory, resolvedToolId]);
 
   const handleOpenWorkspace = (cat: WorkspaceCategory) => {
     const firstTool = SUB_TOOLS[cat][0];
+    setActiveCategory(cat);
     setActiveToolId(firstTool?.id ?? "");
-    setOpenCategory(cat);
+    router.push(`/tools/${cat}`);
   };
 
-  const handleSelectTool = (cat: WorkspaceCategory, toolId: string) => {
-    setActiveToolId(toolId);
-    setOpenCategory(cat);
+  const handleSelectTool = (path: string) => {
+    router.push(path);
   };
 
-  if (openCategory) {
-    return (
-      <WorkspaceShell
-        category={openCategory}
-        toolId={activeToolId}
-        platforms={platforms}
-      />
-    );
-  }
+  const handleBack = () => {
+    setActiveCategory(null);
+    router.push("/tools");
+  };
 
   return (
-    <Dashboard onOpen={handleOpenWorkspace} onSelectTool={handleSelectTool} />
+    <LayoutGroup id="tools-workspaces-hub">
+      <div className="fixed inset-0 z-[9999] bg-background text-foreground flex flex-col overflow-hidden w-screen h-screen">
+        <Dashboard
+          onOpen={handleOpenWorkspace}
+          onSelectTool={handleSelectTool}
+        />
+
+        <AnimatePresence initial={false}>
+          {isSlugActive && activeCategory && (
+            <WorkspaceShell
+              key={`workspace-shell-${activeCategory}`}
+              category={activeCategory}
+              toolId={activeToolId}
+              platforms={platforms}
+              onBack={handleBack}
+            />
+          )}
+        </AnimatePresence>
+      </div>
+    </LayoutGroup>
   );
 }

@@ -1,8 +1,18 @@
 "use client";
 
-import React from "react";
+import React, { forwardRef } from "react";
 import { UniversalConverter } from "@/components/tools/converters/universal-converter";
 
-export function PDFToJPG() {
-  return <UniversalConverter initialFrom="pdf" initialTo="jpg" />;
-}
+export const PDFToJPG = forwardRef(
+  ({ initialFile }: { initialFile?: File | null }, ref) => {
+    return (
+      <UniversalConverter
+        ref={ref}
+        initialFrom="pdf"
+        initialTo="jpg"
+        initialFile={initialFile}
+        forceEmbedded={true}
+      />
+    );
+  },
+);

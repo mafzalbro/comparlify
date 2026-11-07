@@ -8,7 +8,6 @@ import React, {
   useReducer,
   useDeferredValue,
 } from "react";
-import { createPortal } from "react-dom";
 import {
   BarChart3,
   Type,
@@ -302,6 +301,8 @@ interface Settings {
   chain: string[];
   // diff
   diffMode: "line" | "word";
+  diffLayout: "split" | "unified";
+
   diffIgnoreWS: boolean;
   diffIgnoreCase: boolean;
   // analyze
@@ -354,6 +355,8 @@ const DEFAULT_S: Settings = {
   lSeed: 7,
   chain: ["invisible", "trim", "empty", "dedupe", "sortAsc"],
   diffMode: "line",
+  diffLayout: "split",
+
   diffIgnoreWS: false,
   diffIgnoreCase: false,
   keyword: "",
@@ -1600,6 +1603,47 @@ function diffSeq(
   return { ops: [...head, ...mid, ...tail], tooLarge: false };
 }
 
+const MAX_DIFF_ROWS = 6000;
+
+interface SideRow {
+  left: DiffOp | null;
+  right: DiffOp | null;
+  leftNo: number | null;
+  rightNo: number | null;
+}
+
+/** Pairs removed/added runs index-by-index so the two sides line up. */
+function toSideBySide(ops: DiffOp[]): SideRow[] {
+  const rows: SideRow[] = [];
+  let ln = 0;
+  let rn = 0;
+  let i = 0;
+  while (i < ops.length) {
+    if (ops[i].type === "same") {
+      const op = ops[i++];
+      rows.push({ left: op, right: op, leftNo: ++ln, rightNo: ++rn });
+      continue;
+    }
+    const removed: DiffOp[] = [];
+    const added: DiffOp[] = [];
+    while (i < ops.length && ops[i].type !== "same") {
+      if (ops[i].type === "removed") removed.push(ops[i]);
+      else added.push(ops[i]);
+      i++;
+    }
+    const n = Math.max(removed.length, added.length);
+    for (let k = 0; k < n; k++) {
+      rows.push({
+        left: removed[k] ?? null,
+        right: added[k] ?? null,
+        leftNo: removed[k] ? ++ln : null,
+        rightNo: added[k] ? ++rn : null,
+      });
+    }
+  }
+  return rows;
+}
+
 /* ════════════════════════════════════════════════════════════════
    RESULT COMPUTATION
 ════════════════════════════════════════════════════════════════ */
@@ -2211,6 +2255,7 @@ export function TextWorkspace({
 
   const mainRef = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const prevToolRef = useRef<ToolId | null>(null);
 
   const dText = useDeferredValue(text);
   const dB = useDeferredValue(diffB);
@@ -2566,8 +2611,25 @@ export function TextWorkspace({
 
   const copyOutput = () => {
     if (tool === "diff") copyValue(diffView?.exported ?? "", "out");
-    else if (tool === "analyze") copyValue(textRef.current, "out");
+    else if (tool === "analyze") copyValue(getInsightsText(), "out");
     else copyValue(result.out, "out");
+  };
+
+  const getInsightsText = () => {
+    return `Text Analysis
+-------------
+Words: ${basic.words}
+Characters: ${basic.chars}
+Characters (no spaces): ${basic.charsNoSpaces}
+Sentences: ${basic.sentences}
+Paragraphs: ${basic.paragraphs}
+Lines: ${basic.lines}
+Unique words: ${analysis?.unique ?? 0}
+Avg word length: ${analysis?.avgWord ?? 0}
+Reading time: ${basic.readTime}
+Speaking time: ${basic.speakTime}
+
+${analysis?.flesch != null ? `Readability Score: ${analysis.flesch} (${analysis.grade})\n` : ""}${s.keyword.trim() ? `Keyword "${s.keyword}": ${analysis?.kwCount ?? 0} occurrences\n` : ""}`;
   };
 
   const applyOutput = () => {
@@ -2599,8 +2661,15 @@ export function TextWorkspace({
   };
 
   const showChanges = () => {
+    if (tool !== "diff") prevToolRef.current = tool;
     setDiffB(result.out);
     setTool("diff");
+  };
+
+  const closeDiffPanel = () => {
+    const target = prevToolRef.current;
+    prevToolRef.current = null;
+    setTool(target && target !== "diff" ? target : "analyze");
   };
 
   const clearAll = () => {
@@ -2831,6 +2900,16 @@ export function TextWorkspace({
     { id: "sample", label: "Load sample text", group: "File", run: loadSample },
     { id: "clear", label: "Clear text", group: "File", run: clearAll },
     {
+      id: "diffLayout",
+      label:
+        s.diffLayout === "split"
+          ? "Diff: switch to unified view"
+          : "Diff: switch to side-by-side view",
+      group: "View",
+      run: () =>
+        patch({ diffLayout: s.diffLayout === "split" ? "unified" : "split" }),
+    },
+    {
       id: "wrap",
       label: wrap ? "Turn word wrap off" : "Turn word wrap on",
       group: "View",
@@ -2942,7 +3021,16 @@ export function TextWorkspace({
       setTool(flat[n]);
       return;
     }
-    if (e.key === "Escape" && fullscreen && !palette) setFullscreen(false);
+    if (e.key === "Escape" && !palette) {
+      if (fullscreen) {
+        setFullscreen(false);
+        return;
+      }
+      if (tool === "diff") {
+        closeDiffPanel();
+        return;
+      }
+    }
   };
 
   /* ════════════════════════════════════════════════════════════════
@@ -2954,6 +3042,232 @@ export function TextWorkspace({
   const canApplyNow =
     !NO_APPLY.has(tool) && !result.error && result.out !== text;
 
+  const diffNotes = () => {
+    if (!diffView || (!diffView.tooLarge && !diffView.identical)) return null;
+    return (
+      <div className="p-3 pb-0 space-y-1.5 font-sans">
+        {diffView.tooLarge && (
+          <p className="text-[11px] text-amber-600 dark:text-amber-400 flex gap-1.5">
+            <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+            These texts are too large and too different to match precisely, so
+            the changed middle part is shown as one replaced block.
+          </p>
+        )}
+        {diffView.identical && (
+          <p className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+            The two texts are identical.
+          </p>
+        )}
+      </div>
+    );
+  };
+
+  const renderDiffUnified = () => {
+    if (!diffView) return null;
+    const shown = diffView.ops.slice(0, MAX_DIFF_ROWS);
+    return (
+      <>
+        {diffNotes()}
+        <div className="p-3 font-mono text-xs sm:text-[13px] space-y-2">
+          {s.diffMode === "word" ? (
+            <div className="whitespace-pre-wrap break-words leading-relaxed">
+              {shown.map((o, i) =>
+                o.type === "added" ? (
+                  <span
+                    key={i}
+                    className="bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 rounded px-0.5"
+                  >
+                    {o.value}
+                  </span>
+                ) : o.type === "removed" ? (
+                  <span
+                    key={i}
+                    className="bg-rose-500/25 text-rose-700 dark:text-rose-300 line-through rounded px-0.5"
+                  >
+                    {o.value}
+                  </span>
+                ) : (
+                  <span key={i}>{o.value}</span>
+                ),
+              )}
+            </div>
+          ) : (
+            <div className="space-y-0.5">
+              {shown.map((o, i) => {
+                const body = o.value === "" ? "\u00A0" : o.value;
+                if (o.type === "added")
+                  return (
+                    <div
+                      key={i}
+                      className="bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded border-l-4 border-emerald-500 whitespace-pre-wrap break-words"
+                    >
+                      + {body}
+                    </div>
+                  );
+                if (o.type === "removed")
+                  return (
+                    <div
+                      key={i}
+                      className="bg-rose-500/20 text-rose-700 dark:text-rose-300 px-2 py-0.5 rounded border-l-4 border-rose-500 whitespace-pre-wrap break-words"
+                    >
+                      − {body}
+                    </div>
+                  );
+                return (
+                  <div
+                    key={i}
+                    className="text-muted-foreground px-2 py-0.5 whitespace-pre-wrap break-words"
+                  >
+                    {body}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {diffView.ops.length > shown.length && (
+            <p className="text-[11px] text-muted-foreground font-sans">
+              Showing the first {shown.length.toLocaleString()} rows of{" "}
+              {diffView.ops.length.toLocaleString()}. Copy or download the diff
+              for the full result.
+            </p>
+          )}
+        </div>
+      </>
+    );
+  };
+
+  const renderDiffSplit = () => {
+    if (!diffView) return null;
+
+    // Word mode: two panes, highlights inline.
+    if (s.diffMode === "word") {
+      const pane = (parts: DiffOp[]) => {
+        const shown = parts.slice(0, MAX_DIFF_ROWS);
+        return (
+          <div className="p-3 font-mono text-xs sm:text-[13px] leading-relaxed whitespace-pre-wrap break-words">
+            {shown.map((o, i) =>
+              o.type === "removed" ? (
+                <span
+                  key={i}
+                  className="bg-rose-500/25 text-rose-700 dark:text-rose-300 line-through rounded px-0.5"
+                >
+                  {o.value}
+                </span>
+              ) : o.type === "added" ? (
+                <span
+                  key={i}
+                  className="bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 rounded px-0.5"
+                >
+                  {o.value}
+                </span>
+              ) : (
+                <span key={i}>{o.value}</span>
+              ),
+            )}
+            {parts.length > shown.length && (
+              <span className="text-muted-foreground"> …</span>
+            )}
+          </div>
+        );
+      };
+      return (
+        <>
+          {diffNotes()}
+          <div className="grid grid-cols-1 md:grid-cols-2">
+            <div className="min-w-0 border-b md:border-b-0 md:border-r border-border/30">
+              <div className="px-3 py-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground bg-muted/30 border-b border-border/20">
+                Original
+              </div>
+              {pane(diffView.ops.filter((o) => o.type !== "added"))}
+            </div>
+            <div className="min-w-0">
+              <div className="px-3 py-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground bg-muted/30 border-b border-border/20">
+                Modified
+              </div>
+              {pane(diffView.ops.filter((o) => o.type !== "removed"))}
+            </div>
+          </div>
+        </>
+      );
+    }
+
+    // Line mode: aligned two-column table with line numbers.
+    const rows = toSideBySide(diffView.ops);
+    const shown = rows.slice(0, MAX_DIFF_ROWS);
+    const cell = (
+      op: DiffOp | null,
+      no: number | null,
+      side: "left" | "right",
+    ) => {
+      const text = op ? (op.value === "" ? "\u00A0" : op.value) : "\u00A0";
+      const tone = !op
+        ? "bg-muted/20"
+        : op.type === "same"
+          ? ""
+          : side === "left"
+            ? "bg-rose-500/15"
+            : "bg-emerald-500/15";
+      const fg = !op
+        ? "text-transparent"
+        : op.type === "same"
+          ? "text-muted-foreground"
+          : side === "left"
+            ? "text-rose-700 dark:text-rose-300"
+            : "text-emerald-700 dark:text-emerald-300";
+      return (
+        <div
+          className={`flex min-w-0 ${tone} ${side === "left" ? "border-r border-border/20" : ""}`}
+        >
+          <span className="w-9 shrink-0 select-none text-right pr-1.5 py-0.5 text-[10px] tabular-nums text-muted-foreground/60">
+            {no ?? ""}
+          </span>
+          <span
+            className={`flex-1 min-w-0 px-1.5 py-0.5 whitespace-pre-wrap break-words ${fg}`}
+          >
+            {text}
+          </span>
+        </div>
+      );
+    };
+    return (
+      <>
+        {diffNotes()}
+        <div className="overflow-x-auto">
+          <div className="min-w-[560px] font-mono text-xs sm:text-[13px] leading-relaxed">
+            <div
+              className="grid bg-muted/30 border-y border-border/20"
+              style={{ gridTemplateColumns: "1fr 1fr" }}
+            >
+              <div className="px-2 py-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground border-r border-border/30">
+                Original
+              </div>
+              <div className="px-2 py-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                Modified
+              </div>
+            </div>
+            {shown.map((r, i) => (
+              <div
+                key={i}
+                className="grid border-b border-border/10"
+                style={{ gridTemplateColumns: "1fr 1fr" }}
+              >
+                {cell(r.left, r.leftNo, "left")}
+                {cell(r.right, r.rightNo, "right")}
+              </div>
+            ))}
+            {rows.length > shown.length && (
+              <p className="px-3 py-2 text-[11px] text-muted-foreground font-sans">
+                Showing the first {shown.length.toLocaleString()} of{" "}
+                {rows.length.toLocaleString()} rows. Copy or download the diff
+                for the full result.
+              </p>
+            )}
+          </div>
+        </div>
+      </>
+    );
+  };
+
   const renderDiff = () => {
     if (!diffView)
       return (
@@ -2962,78 +3276,7 @@ export function TextWorkspace({
           right.
         </p>
       );
-    const { ops } = diffView;
-    return (
-      <div className="p-3 font-mono text-xs sm:text-[13px] space-y-2">
-        {diffView.tooLarge && (
-          <p className="text-[11px] text-amber-600 dark:text-amber-400 flex gap-1.5 font-sans">
-            <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-            These texts are too large and too different to match precisely, so
-            the changed middle part is shown as one replaced block.
-          </p>
-        )}
-        {diffView.identical && (
-          <p className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 font-sans">
-            The two texts are identical.
-          </p>
-        )}
-        {s.diffMode === "word" ? (
-          <div className="whitespace-pre-wrap break-words leading-relaxed">
-            {ops.map((o, i) =>
-              o.type === "added" ? (
-                <span
-                  key={i}
-                  className="bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 rounded px-0.5"
-                >
-                  {o.value}
-                </span>
-              ) : o.type === "removed" ? (
-                <span
-                  key={i}
-                  className="bg-rose-500/25 text-rose-700 dark:text-rose-300 line-through rounded px-0.5"
-                >
-                  {o.value}
-                </span>
-              ) : (
-                <span key={i}>{o.value}</span>
-              ),
-            )}
-          </div>
-        ) : (
-          <div className="space-y-0.5">
-            {ops.map((o, i) => {
-              const body = o.value === "" ? "\u00A0" : o.value;
-              if (o.type === "added")
-                return (
-                  <div
-                    key={i}
-                    className="bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded border-l-4 border-emerald-500 whitespace-pre-wrap break-words"
-                  >
-                    + {body}
-                  </div>
-                );
-              if (o.type === "removed")
-                return (
-                  <div
-                    key={i}
-                    className="bg-rose-500/20 text-rose-700 dark:text-rose-300 px-2 py-0.5 rounded border-l-4 border-rose-500 whitespace-pre-wrap break-words"
-                  >
-                    − {body}
-                  </div>
-                );
-              return (
-                <div
-                  key={i}
-                  className="text-muted-foreground px-2 py-0.5 whitespace-pre-wrap break-words"
-                >
-                  {body}
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    );
+    return s.diffLayout === "split" ? renderDiffSplit() : renderDiffUnified();
   };
 
   const renderAnalyze = () => {
@@ -3056,26 +3299,42 @@ export function TextWorkspace({
       ["SEO description", 160],
     ];
     const maxKw = analysis?.keywords[0]?.[1] ?? 1;
+
     return (
-      <div className="p-3 space-y-4 overflow-y-auto h-full">
-        <div className="grid grid-cols-2 xl:grid-cols-5 gap-2">
+      <div className="p-3 space-y-4 overflow-y-auto h-full min-w-0">
+        {/* Stat cards: auto-fill prevents squishing when the pane is narrow */}
+        <div
+          className="grid gap-2"
+          style={{
+            gridTemplateColumns: "repeat(auto-fill, minmax(95px, 1fr))",
+          }}
+        >
           {cards.map(([l, v]) => (
             <div
               key={l}
-              className="bg-card/60 border border-border/30 rounded-lg px-2.5 py-2"
+              className="bg-card/60 border border-border/30 rounded-lg px-2.5 py-2 min-w-0"
             >
-              <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground block">
+              <span
+                className="text-[9px] font-black uppercase tracking-widest text-muted-foreground block truncate"
+                title={l}
+              >
                 {l}
               </span>
-              <span className="text-base font-black text-foreground font-mono">
+              <span className="text-base font-black text-foreground font-mono block truncate">
                 {v}
               </span>
             </div>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
-          <div className="bg-card/60 border border-border/30 rounded-lg p-3 space-y-2">
+        <div
+          className="grid gap-3 min-w-0"
+          style={{
+            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+          }}
+        >
+          {/* Readability */}
+          <div className="bg-card/60 border border-border/30 rounded-lg p-3 space-y-2 min-w-0">
             <span className="text-[9px] font-black uppercase tracking-widest text-primary block">
               Readability
             </span>
@@ -3095,28 +3354,33 @@ export function TextWorkspace({
                   : "Flesch scoring works for English text only."}
               </p>
             )}
-            <div className="text-[11px] font-mono text-muted-foreground">
-              Avg sentence
-              <b className="text-foreground">{analysis?.avgSentence ?? 0}</b>
-              words · Longest
-              <b className="text-foreground">{analysis?.longest ?? 0}</b>
+            <div className="text-[11px] font-mono text-muted-foreground flex flex-wrap gap-x-2 gap-y-1">
+              <span>
+                Avg sentence{" "}
+                <b className="text-foreground">{analysis?.avgSentence ?? 0}</b>{" "}
+                words
+              </span>
+              <span>·</span>
+              <span>
+                Longest{" "}
+                <b className="text-foreground">{analysis?.longest ?? 0}</b>
+              </span>
             </div>
           </div>
 
-          <div className="bg-card/60 border border-border/30 rounded-lg p-3 space-y-2">
+          {/* Length Limits */}
+          <div className="bg-card/60 border border-border/30 rounded-lg p-3 space-y-2 min-w-0">
             <span className="text-[9px] font-black uppercase tracking-widest text-primary block">
               Length limits (approximate)
             </span>
             {limits.map(([n, max]) => {
               const over = basic.chars > max;
               return (
-                <div key={n} className="space-y-0.5">
-                  <div className="flex justify-between text-[10px] font-bold">
-                    <span className="text-muted-foreground">{n}</span>
+                <div key={n} className="space-y-0.5 min-w-0">
+                  <div className="flex justify-between text-[10px] font-bold gap-2">
+                    <span className="text-muted-foreground truncate">{n}</span>
                     <span
-                      className={
-                        over ? "text-rose-500" : "text-foreground font-mono"
-                      }
+                      className={`shrink-0 ${over ? "text-rose-500" : "text-foreground font-mono"}`}
                     >
                       {basic.chars}/{max}
                     </span>
@@ -3135,8 +3399,14 @@ export function TextWorkspace({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
-          <div className="bg-card/60 border border-border/30 rounded-lg p-3 space-y-1.5">
+        <div
+          className="grid gap-3 min-w-0"
+          style={{
+            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+          }}
+        >
+          {/* Keywords */}
+          <div className="bg-card/60 border border-border/30 rounded-lg p-3 space-y-1.5 min-w-0">
             <span className="text-[9px] font-black uppercase tracking-widest text-primary block">
               Top keywords
             </span>
@@ -3146,25 +3416,32 @@ export function TextWorkspace({
               </p>
             ) : (
               analysis.keywords.map(([w, c]) => (
-                <div key={w} className="flex items-center gap-2 text-[11px]">
-                  <span className="w-24 truncate font-mono font-bold text-foreground">
+                <div
+                  key={w}
+                  className="flex items-center gap-2 text-[11px] min-w-0"
+                >
+                  <span
+                    className="w-20 sm:w-24 truncate font-mono font-bold text-foreground shrink-0"
+                    title={w}
+                  >
                     {w}
                   </span>
-                  <div className="flex-1 h-1.5 bg-border/40 rounded-full overflow-hidden">
+                  <div className="flex-1 min-w-0 h-1.5 bg-border/40 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-primary"
                       style={{ width: `${(c / maxKw) * 100}%` }}
                     />
                   </div>
-                  <span className="w-20 text-right font-mono text-muted-foreground">
-                    {c}× ·
-                    {basic.words ? ((c / basic.words) * 100).toFixed(1) : 0}%
+                  <span className="w-14 shrink-0 text-right font-mono text-muted-foreground truncate">
+                    {c}×
                   </span>
                 </div>
               ))
             )}
           </div>
-          <div className="bg-card/60 border border-border/30 rounded-lg p-3 space-y-1.5">
+
+          {/* Phrases */}
+          <div className="bg-card/60 border border-border/30 rounded-lg p-3 space-y-1.5 min-w-0">
             <span className="text-[9px] font-black uppercase tracking-widest text-primary block">
               Repeated phrases
             </span>
@@ -3174,11 +3451,19 @@ export function TextWorkspace({
               </p>
             ) : (
               analysis.phrases.map(([p, c]) => (
-                <div key={p} className="flex justify-between text-[11px]">
-                  <span className="font-mono font-bold text-foreground">
+                <div
+                  key={p}
+                  className="flex justify-between text-[11px] gap-2 min-w-0"
+                >
+                  <span
+                    className="font-mono font-bold text-foreground truncate"
+                    title={p}
+                  >
                     {p}
                   </span>
-                  <span className="font-mono text-muted-foreground">{c}×</span>
+                  <span className="font-mono text-muted-foreground shrink-0">
+                    {c}×
+                  </span>
                 </div>
               ))
             )}
@@ -3718,6 +4003,19 @@ export function TextWorkspace({
                 ]}
               />
             </div>
+            <div>
+              <span className={labelCls}>Layout</span>
+              <Seg
+                value={s.diffLayout}
+                onChange={(v) =>
+                  patch({ diffLayout: v as Settings["diffLayout"] })
+                }
+                options={[
+                  ["split", "Side by side"],
+                  ["unified", "Unified"],
+                ]}
+              />
+            </div>
             <Opt
               label="Ignore whitespace"
               checked={s.diffIgnoreWS}
@@ -3891,18 +4189,7 @@ export function TextWorkspace({
   const ui = (
     <div
       onKeyDown={onRootKeyDown}
-      className={`flex flex-col bg-background text-foreground overflow-hidden ${
-        fullscreen
-          ? "fixed inset-0 z-[99999]"
-          : "rounded-xl border border-border/40"
-      }`}
-      style={
-        fullscreen
-          ? { height: "100dvh", width: "100vw" }
-          : { height: "100%", width: "100%", flex: 1 }
-
-
-      }
+      className="flex flex-col bg-background text-foreground overflow-hidden w-full h-full flex-1 min-h-0"
     >
       <input
         ref={fileRef}
@@ -4037,19 +4324,6 @@ export function TextWorkspace({
             <Plus className="h-3.5 w-3.5" />
           </button>
         </Tip>
-        <Tip content={fullscreen ? "Exit full screen" : "Full screen"}>
-          <button
-            onClick={() => setFullscreen((v) => !v)}
-            className={iconBtn}
-            aria-label="Toggle full screen"
-          >
-            {fullscreen ? (
-              <Minimize2 className="h-4 w-4" />
-            ) : (
-              <Maximize2 className="h-4 w-4" />
-            )}
-          </button>
-        </Tip>
       </div>
 
       <div
@@ -4100,7 +4374,11 @@ export function TextWorkspace({
                 return (
                   <Tip key={id} content={t.desc}>
                     <button
-                      onClick={() => setTool(id)}
+                      onClick={() => {
+                        if (tool === "diff" && id !== "diff")
+                          prevToolRef.current = null;
+                        setTool(id);
+                      }}
                       draggable
                       onDragStart={(e) => {
                         setDragTool(id);
@@ -4392,7 +4670,7 @@ export function TextWorkspace({
                       setSizes((s) => ({
                         ...s,
                         diffRatio: clamp(
-                          s.diffRatio + (d / Math.max(1, h)) * 100,
+                          s.diffRatio - (d / Math.max(1, h)) * 100,
                           SIZE_LIMITS.diffRatio[0],
                           SIZE_LIMITS.diffRatio[1],
                         ),
@@ -4408,7 +4686,7 @@ export function TextWorkspace({
                     borderTopWidth: isDesktop ? 0 : 1,
                   }}
                 >
-                  <header className="h-8 shrink-0 px-3 flex items-center justify-between border-b border-border/30 bg-muted/20">
+                  <header className="h-8 shrink-0 px-3 flex items-center gap-2 border-b border-border/30 bg-muted/20">
                     <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
                       Differences
                     </span>
@@ -4425,6 +4703,41 @@ export function TextWorkspace({
                         </span>
                       </div>
                     )}
+                    <div className="flex-1" />
+                    <div
+                      className="flex items-center gap-0.5 shrink-0"
+                      role="group"
+                      aria-label="Diff layout"
+                    >
+                      {(
+                        [
+                          ["split", "Side by side"],
+                          ["unified", "Unified"],
+                        ] as [Settings["diffLayout"], string][]
+                      ).map(([v, l]) => (
+                        <button
+                          key={v}
+                          onClick={() => patch({ diffLayout: v })}
+                          aria-pressed={s.diffLayout === v}
+                          className={`px-1.5 py-0.5 rounded text-[10px] font-bold border transition-colors ${
+                            s.diffLayout === v
+                              ? "border-primary bg-primary/10 text-primary"
+                              : "border-border/40 text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          {l}
+                        </button>
+                      ))}
+                    </div>
+                    <Tip content="Close differences panel (Esc)">
+                      <button
+                        onClick={closeDiffPanel}
+                        className={`${iconBtn} hover:text-rose-500`}
+                        aria-label="Close differences panel"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </Tip>
                   </header>
                   <div className="flex-1 min-h-0 overflow-y-auto">
                     {renderDiff()}
@@ -4595,7 +4908,5 @@ export function TextWorkspace({
     </div>
   );
 
-  if (fullscreen && typeof document !== "undefined")
-    return createPortal(ui, document.body);
   return ui;
 }

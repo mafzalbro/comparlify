@@ -1,7 +1,22 @@
 "use client";
 
+/**
+ * ImageWorkspace — left tool rail + top action bar + canvas.
+ *
+ * Layout:
+ *   Top bar     [tool switcher] · tool options (lg+) · format pills · result chip · Download / ZIP · Export
+ *   Left rail   Compress / Resize / Crop / Rotate / Info (lg+ vertical, otherwise a strip above the canvas)
+ *   Options     below lg the tool options sit in a thin strip under the top bar
+ *   Canvas      infinite pan/zoom workspace, floating toolbar, crop overlay, compare slider
+ *   Drawer      Info tab and Base64 output (a flex child, never covers the canvas)
+ *   Footer      one strip: thumbnails + image/format status
+ *
+ * Behaviour, export pipeline and every limit/warning are unchanged.
+ * Optional prop `toolSwitcher`: your tool dropdown, rendered at the left of the top bar.
+ * TooltipProvider lives in app/layout.tsx. Tooltips render in a portal.
+ */
+
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import JSZip from "jszip";
 import {
   Upload,
@@ -11,7 +26,6 @@ import {
   Sparkles,
   Crop,
   Maximize2,
-  Minimize2,
   RotateCw,
   RotateCcw,
   Copy,
@@ -26,8 +40,49 @@ import {
   FlipHorizontal,
   FlipVertical,
   AlertTriangle,
+  Hand,
+  MousePointer2,
+  Undo2,
+  Redo2,
+  Scan,
+  LayoutGrid,
+  Command as CommandIcon,
+  Search,
+  ChevronDown,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+/* ════════════════════════════════════════════════════════════════
+   TOOLTIP HELPER
+════════════════════════════════════════════════════════════════ */
+
+function Tip({
+  label,
+  side = "bottom",
+  className = "inline-flex",
+  children,
+}: {
+  label: React.ReactNode;
+  side?: "top" | "right" | "bottom" | "left";
+  className?: string;
+  children: React.ReactElement;
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className={className}>{children}</span>
+      </TooltipTrigger>
+      <TooltipContent side={side} sideOffset={6}>
+        {label}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
 
 /* ════════════════════════════════════════════════════════════════
    TYPES & CONSTANTS
@@ -41,9 +96,10 @@ type QualityPreset = "high" | "balanced" | "smallest";
 type CompressionMode = "quality" | "target";
 type ResizeMode = "pixels" | "percent";
 type Handle = "move" | "nw" | "ne" | "sw" | "se";
+type CanvasTool = "select" | "hand";
 
 interface CropBox {
-  x: number; // all values are % of the source image
+  x: number;
   y: number;
   w: number;
   h: number;
@@ -58,11 +114,14 @@ interface ImageItem {
   height: number;
   hasAlpha: boolean;
   crop: CropBox;
+  x: number;
+  y: number;
+  dw: number;
 }
 
 interface ResizeSettings {
   mode: ResizeMode;
-  width: number | null; // null = "not set"
+  width: number | null;
   height: number | null;
   percent: number;
   lock: boolean;
@@ -78,7 +137,7 @@ interface ProcessedResult {
   width: number;
   height: number;
   format: string;
-  kept: boolean; // original file was returned because re-encoding made it bigger
+  kept: boolean;
   warnings: string[];
 }
 
@@ -89,12 +148,49 @@ interface ParsedMode {
   target: Fmt | null;
 }
 
+interface Cam {
+  x: number;
+  y: number;
+  zoom: number;
+}
+
+interface LayoutSnap {
+  id: string;
+  x: number;
+  y: number;
+  dw: number;
+}
+
+interface Cmd {
+  id: string;
+  group: string;
+  label: string;
+  keywords?: string;
+  shortcut?: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  run: () => void;
+}
+
 const MAX_FILES = 50;
 const MAX_FILE_BYTES = 25 * 1024 * 1024;
 const MAX_SIDE = 12000;
 const MAX_PIXELS = 80_000_000;
 const MIN_CROP_PCT = 5;
 const CONCURRENCY = 2;
+
+const MIN_ZOOM = 0.05;
+const MAX_ZOOM = 6;
+const GRID_COLS = 4;
+const CELL_W = 560;
+const CELL_H = 460;
+const MAX_DISPLAY_W = 480;
+const MAX_DISPLAY_H = 360;
+const LAYOUT_EASE = "320ms cubic-bezier(0.22, 1, 0.36, 1)";
+const prefersReducedMotion = () =>
+  typeof window !== "undefined" &&
+  !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+const CHECKER =
+  "conic-gradient(rgba(128,128,128,0.22) 90deg, transparent 90deg 180deg, rgba(128,128,128,0.22) 180deg 270deg, transparent 270deg)";
 
 const MIME: Record<Fmt, string> = {
   webp: "image/webp",
@@ -260,7 +356,8 @@ function triggerDownload(href: string, filename: string, revoke = false) {
   if (revoke) setTimeout(() => URL.revokeObjectURL(href), 10_000);
 }
 
-/* ── Canvas helpers ───────────────────────────────────────────── */
+const itemH = (i: { dw: number; width: number; height: number }) =>
+  i.width > 0 ? (i.dw * i.height) / i.width : i.dw * 0.75;
 
 function makeCanvas(w: number, h: number) {
   const c = document.createElement("canvas");
@@ -273,7 +370,6 @@ function makeCanvas(w: number, h: number) {
   return { c, ctx };
 }
 
-/** Downscales in halving steps so large reductions stay sharp (no aliasing). */
 function scaleToCanvas(
   src: CanvasImageSource,
   sx: number,
@@ -363,7 +459,6 @@ async function analyzeFile(file: File, mime: string) {
   }
 }
 
-/** Highest quality (<= target bytes) via binary search. */
 async function searchQuality(
   c: HTMLCanvasElement,
   mime: string,
@@ -391,7 +486,6 @@ async function searchQuality(
   return { blob: best, smallest: lo };
 }
 
-/** Max-size compression: lowers quality first, then dimensions, and reports both. */
 async function encodeToTarget(
   canvas: HTMLCanvasElement,
   mime: string,
@@ -440,8 +534,11 @@ async function encodeToTarget(
 
 export function ImageWorkspace({
   defaultMode = "compress",
+  toolSwitcher,
 }: {
   defaultMode?: string;
+  /** Optional: your tool dropdown. Rendered at the left of the top bar. */
+  toolSwitcher?: React.ReactNode;
 }) {
   const { toast } = useToast();
   const mode = useMemo(() => parseMode(defaultMode), [defaultMode]);
@@ -450,6 +547,7 @@ export function ImageWorkspace({
   // Files
   const [items, setItems] = useState<ImageItem[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -463,13 +561,29 @@ export function ImageWorkspace({
 
   // UI
   const [activeTab, setActiveTab] = useState<Tab>(mode.tab);
-  const [zoom, setZoom] = useState(1);
+  const [cam, setCamState] = useState<Cam>({ x: 0, y: 0, zoom: 1 });
+  const [tool, setTool] = useState<CanvasTool>("select");
+  const [spaceDown, setSpaceDown] = useState(false);
+  const [viewSize, setViewSize] = useState({ w: 800, h: 500 });
+  const [marquee, setMarquee] = useState<{
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+  } | null>(null);
   const [showChecker, setShowChecker] = useState(true);
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const [splitPosition, setSplitPosition] = useState(50);
   const [viewSide, setViewSide] = useState<"original" | "result">("result");
+  const [showResult, setShowResult] = useState(false);
+  const [layoutAnim, setLayoutAnim] = useState(false);
+  const [, setTick] = useState(0);
+  const bump = () => setTick((t) => t + 1);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [paletteQuery, setPaletteQuery] = useState("");
+  const [paletteIdx, setPaletteIdx] = useState(0);
+  const paletteListRef = useRef<HTMLDivElement>(null);
 
-  // Settings (global, applied to every image)
+  // Settings
   const [targetFormat, setTargetFormat] = useState<TargetFormat>(
     mode.view === "convert" && mode.target ? mode.target : "original",
   );
@@ -491,8 +605,11 @@ export function ImageWorkspace({
 
   // Refs
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const viewRef = useRef<HTMLDivElement>(null);
   const cropContainerRef = useRef<HTMLDivElement>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
+  const chipRef = useRef<HTMLDivElement>(null);
+  const popRef = useRef<HTMLDivElement>(null);
   const draggingSlider = useRef(false);
   const startRef = useRef(0);
   const runIdRef = useRef(0);
@@ -502,6 +619,24 @@ export function ImageWorkspace({
   const resultsRef = useRef(results);
   itemsRef.current = items;
   resultsRef.current = results;
+  const camRef = useRef<Cam>(cam);
+  const animRef = useRef(0);
+  const camTargetRef = useRef<Cam | null>(null);
+  const layoutTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const spaceRef = useRef(false);
+  const pinchRef = useRef(false);
+  const pinchStart = useRef<{
+    d0: number;
+    mid: [number, number];
+    cam: Cam;
+  } | null>(null);
+  const pointersRef = useRef(new Map<number, { x: number; y: number }>());
+  const layoutPast = useRef<LayoutSnap[][]>([]);
+  const layoutFuture = useRef<LayoutSnap[][]>([]);
+  const lastNudge = useRef(0);
+  const keyRef = useRef<(e: KeyboardEvent) => void>(() => {});
+  const keyUpRef = useRef<(e: KeyboardEvent) => void>(() => {});
+  const pasteRef = useRef<(e: ClipboardEvent) => void>(() => {});
 
   /* ── Derived ─────────────────────────────────────────────────── */
 
@@ -521,6 +656,26 @@ export function ImageWorkspace({
     !isProcessing &&
     pendingCount > 0 &&
     (compressionMode !== "target" || targetValid);
+
+  const applyLabel =
+    items.length === 0
+      ? "Add images first"
+      : pendingCount === 0
+        ? "All done"
+        : compressionMode === "target" && !targetValid
+          ? "Invalid size"
+          : view === "convert"
+            ? `Convert${pendingCount > 1 ? ` (${pendingCount})` : ""}`
+            : `Export${pendingCount > 1 ? ` (${pendingCount})` : ""}`;
+
+  const applyTipLabel =
+    items.length === 0
+      ? "Add images first"
+      : pendingCount === 0
+        ? "Everything is already processed"
+        : compressionMode === "target" && !targetValid
+          ? "Enter a valid target size in the options bar"
+          : `Apply settings and export${pendingCount > 1 ? ` ${pendingCount} images` : ""}`;
 
   const allowedMimes = useMemo(
     () =>
@@ -551,6 +706,147 @@ export function ImageWorkspace({
     return rotation === 90 || rotation === 270 ? [c.sh, c.sw] : [c.sw, c.sh];
   };
 
+  /* ── Camera ──────────────────────────────────────────────────── */
+
+  /** Instant camera set. Any manual pan/zoom cancels a running glide. */
+  const setCam = (c: Cam) => {
+    cancelAnimationFrame(animRef.current);
+    camTargetRef.current = null;
+    camRef.current = c;
+    setCamState(c);
+  };
+
+  /** Smoothly glide the camera to `to` (zoom eases geometrically, so it feels even). */
+  const flyTo = (to: Cam, ms = 320) => {
+    cancelAnimationFrame(animRef.current);
+    const from = { ...camRef.current };
+    if (prefersReducedMotion() || ms <= 0) return setCam(to);
+    camTargetRef.current = to;
+    const t0 = performance.now();
+    const step = (now: number) => {
+      const k = Math.min(1, (now - t0) / ms);
+      const e = 1 - Math.pow(1 - k, 3);
+      const c: Cam =
+        k >= 1
+          ? to
+          : {
+              zoom: from.zoom * Math.pow(to.zoom / from.zoom, e),
+              x: from.x + (to.x - from.x) * e,
+              y: from.y + (to.y - from.y) * e,
+            };
+      camRef.current = c;
+      setCamState(c);
+      if (k < 1) animRef.current = requestAnimationFrame(step);
+      else camTargetRef.current = null;
+    };
+    animRef.current = requestAnimationFrame(step);
+  };
+
+  const zoomAt = (px: number, py: number, nz: number) => {
+    const c = camTargetRef.current ?? camRef.current;
+    const z = clamp(nz, MIN_ZOOM, MAX_ZOOM);
+    const wx = (px - c.x) / c.zoom;
+    const wy = (py - c.y) / c.zoom;
+    flyTo({ zoom: z, x: px - wx * z, y: py - wy * z }, 220);
+  };
+
+  const zoomBy = (f: number) =>
+    zoomAt(
+      viewSize.w / 2,
+      viewSize.h / 2,
+      (camTargetRef.current ?? camRef.current).zoom * f,
+    );
+
+  const fitView = (list: ImageItem[], maxZoom = 1.25) => {
+    if (list.length === 0) {
+      flyTo({ x: viewSize.w / 2, y: viewSize.h / 2, zoom: 1 });
+      return;
+    }
+    let x0 = Infinity;
+    let y0 = Infinity;
+    let x1 = -Infinity;
+    let y1 = -Infinity;
+    for (const i of list) {
+      x0 = Math.min(x0, i.x);
+      y0 = Math.min(y0, i.y);
+      x1 = Math.max(x1, i.x + i.dw);
+      y1 = Math.max(y1, i.y + itemH(i));
+    }
+    const pad = 64;
+    const z = clamp(
+      Math.min(
+        (viewSize.w - pad * 2) / Math.max(1, x1 - x0),
+        (viewSize.h - pad * 2) / Math.max(1, y1 - y0),
+      ),
+      MIN_ZOOM,
+      maxZoom,
+    );
+    flyTo({
+      zoom: z,
+      x: viewSize.w / 2 - ((x0 + x1) / 2) * z,
+      y: viewSize.h / 2 - ((y0 + y1) / 2) * z,
+    });
+  };
+
+  /* ── Layout history ──────────────────────────────────────────── */
+
+  const snapLayout = (): LayoutSnap[] =>
+    itemsRef.current.map((i) => ({ id: i.id, x: i.x, y: i.y, dw: i.dw }));
+
+  const pushLayout = () => {
+    layoutPast.current.push(snapLayout());
+    if (layoutPast.current.length > 50) layoutPast.current.shift();
+    layoutFuture.current = [];
+    bump();
+  };
+
+  const restoreLayout = (snap: LayoutSnap[]) =>
+    setItems((p) =>
+      p.map((i) => {
+        const s = snap.find((x) => x.id === i.id);
+        return s ? { ...i, x: s.x, y: s.y, dw: s.dw } : i;
+      }),
+    );
+
+  /** Turns on position/size transitions briefly so items glide to their new place. */
+  const animateLayout = () => {
+    if (prefersReducedMotion()) return;
+    setLayoutAnim(true);
+    if (layoutTimer.current) clearTimeout(layoutTimer.current);
+    layoutTimer.current = setTimeout(() => setLayoutAnim(false), 400);
+  };
+
+  const undoLayout = () => {
+    const prev = layoutPast.current.pop();
+    if (!prev) return;
+    animateLayout();
+    layoutFuture.current.push(snapLayout());
+    restoreLayout(prev);
+    bump();
+  };
+
+  const redoLayout = () => {
+    const next = layoutFuture.current.pop();
+    if (!next) return;
+    animateLayout();
+    layoutPast.current.push(snapLayout());
+    restoreLayout(next);
+    bump();
+  };
+
+  const arrange = () => {
+    if (items.length === 0) return;
+    animateLayout();
+    pushLayout();
+    const next = items.map((i, idx) => ({
+      ...i,
+      x: (idx % GRID_COLS) * CELL_W + (CELL_W - i.dw) / 2,
+      y: Math.floor(idx / GRID_COLS) * CELL_H + (CELL_H - itemH(i)) / 2,
+    }));
+    setItems(next);
+    fitView(next);
+  };
+
   /* ── Result bookkeeping ──────────────────────────────────────── */
 
   const invalidate = (ids?: string[]) => {
@@ -579,11 +875,13 @@ export function ImageWorkspace({
     );
     setItems([]);
     setActiveId(null);
+    setSelectedIds([]);
     setResults({});
     setErrors({});
+    layoutPast.current = [];
+    layoutFuture.current = [];
   };
 
-  // Changing any global setting makes existing results stale → drop them.
   const settingsSig = JSON.stringify({
     targetFormat,
     qualityPreset,
@@ -599,7 +897,6 @@ export function ImageWorkspace({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settingsSig]);
 
-  // Tool switched by the hub: reset everything for the new tool.
   const prevMode = useRef(defaultMode);
   useEffect(() => {
     if (prevMode.current === defaultMode) return;
@@ -617,14 +914,17 @@ export function ImageWorkspace({
     setFlipV(false);
     setCropRatio(null);
     setB64(null);
+    setShowResult(false);
+    setCam({ x: 0, y: 0, zoom: 1 });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultMode]);
 
-  // Unmount cleanup
   useEffect(() => {
     mountedRef.current = true;
     return () => {
       mountedRef.current = false;
+      cancelAnimationFrame(animRef.current);
+      if (layoutTimer.current) clearTimeout(layoutTimer.current);
       runIdRef.current++;
       itemsRef.current.forEach((i) => URL.revokeObjectURL(i.url));
       Object.values(resultsRef.current).forEach((r) =>
@@ -633,17 +933,52 @@ export function ImageWorkspace({
     };
   }, []);
 
-  // Escape closes fullscreen
   useEffect(() => {
-    if (!isFullscreen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setIsFullscreen(false);
+    const el = viewRef.current;
+    if (!el) return;
+    const measure = () => {
+      const r = el.getBoundingClientRect();
+      setViewSize({
+        w: Math.max(1, Math.round(r.width)),
+        h: Math.max(1, Math.round(r.height)),
+      });
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [isFullscreen]);
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    measure();
+    return () => ro.disconnect();
+  }, []);
 
-  // ETA
+  useEffect(() => {
+    const el = viewRef.current;
+    if (!el) return;
+    const onWheel = (ev: WheelEvent) => {
+      ev.preventDefault();
+      if (itemsRef.current.length === 0) return;
+      cancelAnimationFrame(animRef.current);
+      camTargetRef.current = null;
+      const r = el.getBoundingClientRect();
+      const c = camRef.current;
+      if (ev.ctrlKey || ev.metaKey) {
+        const px = ev.clientX - r.left;
+        const py = ev.clientY - r.top;
+        const z = clamp(
+          c.zoom * Math.exp(-ev.deltaY * 0.0125),
+          MIN_ZOOM,
+          MAX_ZOOM,
+        );
+        const wx = (px - c.x) / c.zoom;
+        const wy = (py - c.y) / c.zoom;
+        camRef.current = { zoom: z, x: px - wx * z, y: py - wy * z };
+      } else {
+        camRef.current = { ...c, x: c.x - ev.deltaX, y: c.y - ev.deltaY };
+      }
+      setCamState(camRef.current);
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
+
   useEffect(() => {
     if (!isProcessing) return;
     const t = setInterval(() => {
@@ -664,7 +999,21 @@ export function ImageWorkspace({
     return () => clearInterval(t);
   }, [isProcessing, progress]);
 
-  // Base64: read the ORIGINAL file (no re-encoding)
+  // Result popover: close on outside click, and when there is nothing to show.
+  useEffect(() => {
+    if (!showResult) return;
+    const onDown = (e: PointerEvent) => {
+      const n = e.target as Node;
+      if (chipRef.current?.contains(n) || popRef.current?.contains(n)) return;
+      setShowResult(false);
+    };
+    window.addEventListener("pointerdown", onDown);
+    return () => window.removeEventListener("pointerdown", onDown);
+  }, [showResult]);
+  useEffect(() => {
+    if (!activeResult && !activeError) setShowResult(false);
+  }, [activeResult, activeError]);
+
   useEffect(() => {
     if (view !== "base64" || !activeItem) {
       setB64(null);
@@ -694,7 +1043,7 @@ export function ImageWorkspace({
 
   /* ── File handling ───────────────────────────────────────────── */
 
-  const addFiles = async (incoming: File[]) => {
+  const addFiles = async (incoming: File[], at?: [number, number]) => {
     if (incoming.length === 0 || isProcessing) return;
     const rejected: string[] = [];
     const accepted: File[] = [];
@@ -717,6 +1066,8 @@ export function ImageWorkspace({
     }
 
     setIsLoadingFiles(true);
+    const existing = itemsRef.current;
+    const created: ImageItem[] = [];
     for (const f of accepted) {
       const mime = mimeFromFile(f);
       const meta = await analyzeFile(f, mime);
@@ -729,20 +1080,41 @@ export function ImageWorkspace({
         rejected.push(`${f.name}: more than ${MAX_PIXELS / 1e6} megapixels`);
         continue;
       }
+      const w = meta?.width ?? 0;
+      const h = meta?.height ?? 0;
+      const s = w > 0 ? Math.min(MAX_DISPLAY_W / w, MAX_DISPLAY_H / h, 1) : 1;
+      const dw = w > 0 ? Math.max(120, Math.round(w * s)) : 320;
+      const dh = w > 0 ? (dw * h) / w : dw * 0.75;
+      const idx = existing.length + created.length;
+      const single = accepted.length === 1 && at;
       const item: ImageItem = {
         id: `img-${++idRef.current}`,
         file: f,
         mime,
         url: URL.createObjectURL(f),
-        width: meta?.width ?? 0,
-        height: meta?.height ?? 0,
+        width: w,
+        height: h,
         hasAlpha: meta?.hasAlpha ?? false,
         crop: FULL_CROP,
+        x: single
+          ? at[0] - dw / 2
+          : (idx % GRID_COLS) * CELL_W + (CELL_W - dw) / 2,
+        y: single
+          ? at[1] - dh / 2
+          : Math.floor(idx / GRID_COLS) * CELL_H + (CELL_H - dh) / 2,
+        dw,
       };
+      created.push(item);
       setItems((p) => [...p, item]);
       setActiveId((cur) => cur ?? item.id);
     }
     if (mountedRef.current) setIsLoadingFiles(false);
+
+    if (created.length) {
+      setSelectedIds(created.map((i) => i.id));
+      setActiveId(created[0].id);
+      fitView([...existing, ...created]);
+    }
 
     if (rejected.length) {
       toast({
@@ -760,16 +1132,32 @@ export function ImageWorkspace({
     e.target.value = "";
   };
 
+  const removeItems = (ids: string[]) => {
+    if (ids.length === 0 || isProcessing) return;
+    invalidate(ids);
+    const set = new Set(ids);
+    const firstIdx = items.findIndex((i) => set.has(i.id));
+    items
+      .filter((i) => set.has(i.id))
+      .forEach((i) => URL.revokeObjectURL(i.url));
+    const next = items.filter((i) => !set.has(i.id));
+    setItems(next);
+    setSelectedIds((p) => p.filter((id) => !set.has(id)));
+    if (activeId && set.has(activeId))
+      setActiveId(
+        next[Math.min(Math.max(0, firstIdx), next.length - 1)]?.id ?? null,
+      );
+  };
+
   const removeItem = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    const idx = items.findIndex((i) => i.id === id);
-    if (idx < 0) return;
-    invalidate([id]);
-    URL.revokeObjectURL(items[idx].url);
-    const next = items.filter((i) => i.id !== id);
-    setItems(next);
-    if (activeId === id || !next.some((i) => i.id === activeId))
-      setActiveId(next[Math.min(idx, next.length - 1)]?.id ?? null);
+    removeItems([id]);
+  };
+
+  const focusItem = (item: ImageItem) => {
+    setActiveId(item.id);
+    setSelectedIds([item.id]);
+    fitView([item], 1);
   };
 
   /* ── Crop ────────────────────────────────────────────────────── */
@@ -834,7 +1222,7 @@ export function ImageWorkspace({
       if (handle.includes("s")) bt = clamp(bt + dy, t + MIN_CROP_PCT, 100);
 
       if (ratio) {
-        const k = W / (ratio * H); // height% per width%
+        const k = W / (ratio * H);
         const anchorBottom = handle.includes("n");
         const anchorRight = handle.includes("w");
         let w = r - l;
@@ -866,7 +1254,7 @@ export function ImageWorkspace({
     target.addEventListener("pointercancel", onUp);
   };
 
-  /* ── Processing pipeline (crop → resize → rotate/flip → encode) ─ */
+  /* ── Processing pipeline ─────────────────────────────────────── */
 
   const opsFor = (item: ImageItem): string[] => {
     const o: string[] = [];
@@ -935,7 +1323,7 @@ export function ImageWorkspace({
       if (rot !== 0 || fx || fy || fmt === "jpeg") {
         const out = makeCanvas(fw, fh);
         if (fmt === "jpeg") {
-          out.ctx.fillStyle = "#ffffff"; // JPEG has no alpha
+          out.ctx.fillStyle = "#ffffff";
           out.ctx.fillRect(0, 0, fw, fh);
         }
         out.ctx.translate(fw / 2, fh / 2);
@@ -976,7 +1364,6 @@ export function ImageWorkspace({
         );
       }
 
-      // Never hand back something bigger when nothing else was requested.
       const geometryChanged =
         crop.active ||
         rot !== 0 ||
@@ -1121,7 +1508,7 @@ export function ImageWorkspace({
     }
   };
 
-  /* ── Slider ──────────────────────────────────────────────────── */
+  /* ── Compare slider ──────────────────────────────────────────── */
 
   const moveSlider = (clientX: number) => {
     const el = sliderRef.current;
@@ -1129,6 +1516,719 @@ export function ImageWorkspace({
     const rect = el.getBoundingClientRect();
     setSplitPosition(clamp(((clientX - rect.left) / rect.width) * 100, 0, 100));
   };
+
+  /* ── Canvas interaction ──────────────────────────────────────── */
+
+  const track = (
+    e: React.PointerEvent<HTMLElement>,
+    onMove: (ev: PointerEvent) => void,
+    onEnd?: () => void,
+  ) => {
+    const target = e.currentTarget;
+    target.setPointerCapture(e.pointerId);
+    const up = () => {
+      target.removeEventListener("pointermove", onMove);
+      target.removeEventListener("pointerup", up);
+      target.removeEventListener("pointercancel", up);
+      onEnd?.();
+    };
+    target.addEventListener("pointermove", onMove);
+    target.addEventListener("pointerup", up);
+    target.addEventListener("pointercancel", up);
+  };
+
+  const startPan = (e: React.PointerEvent<HTMLElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const sx = e.clientX;
+    const sy = e.clientY;
+    const c0 = { ...camRef.current };
+    track(e, (ev) => {
+      if (pinchRef.current) return;
+      setCam({ ...c0, x: c0.x + ev.clientX - sx, y: c0.y + ev.clientY - sy });
+    });
+  };
+
+  const wantsPan = (e: React.PointerEvent) =>
+    e.button === 1 || tool === "hand" || spaceRef.current;
+
+  const onViewPointerDownCapture = (e: React.PointerEvent<HTMLDivElement>) => {
+    pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointersRef.current.size === 2 && itemsRef.current.length > 0) {
+      const pts = [...pointersRef.current.values()];
+      const r = e.currentTarget.getBoundingClientRect();
+      pinchRef.current = true;
+      pinchStart.current = {
+        d0: Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y) || 1,
+        mid: [
+          (pts[0].x + pts[1].x) / 2 - r.left,
+          (pts[0].y + pts[1].y) / 2 - r.top,
+        ],
+        cam: { ...camRef.current },
+      };
+    }
+  };
+  const onViewPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!pointersRef.current.has(e.pointerId)) return;
+    pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const ps = pinchStart.current;
+    if (
+      !pinchRef.current ||
+      !ps ||
+      pointersRef.current.size < 2 ||
+      itemsRef.current.length === 0
+    )
+      return;
+    const pts = [...pointersRef.current.values()];
+    const r = e.currentTarget.getBoundingClientRect();
+    const mx = (pts[0].x + pts[1].x) / 2 - r.left;
+    const my = (pts[0].y + pts[1].y) / 2 - r.top;
+    const z = clamp(
+      (ps.cam.zoom * Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y)) /
+        ps.d0,
+      MIN_ZOOM,
+      MAX_ZOOM,
+    );
+    const wx = (ps.mid[0] - ps.cam.x) / ps.cam.zoom;
+    const wy = (ps.mid[1] - ps.cam.y) / ps.cam.zoom;
+    setCam({ zoom: z, x: mx - wx * z, y: my - wy * z });
+  };
+  const onViewPointerEndCapture = (e: React.PointerEvent<HTMLDivElement>) => {
+    pointersRef.current.delete(e.pointerId);
+    if (pointersRef.current.size < 2) {
+      pinchRef.current = false;
+      pinchStart.current = null;
+    }
+  };
+
+  const onViewPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (pinchRef.current) return;
+    if (wantsPan(e)) return startPan(e);
+    if (e.button !== 0) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    const x0 = e.clientX - r.left;
+    const y0 = e.clientY - r.top;
+    const base = e.shiftKey ? selectedIds : [];
+    if (!e.shiftKey) setSelectedIds([]);
+    track(
+      e,
+      (ev) => {
+        if (pinchRef.current) return;
+        const x1 = ev.clientX - r.left;
+        const y1 = ev.clientY - r.top;
+        const m = {
+          x: Math.min(x0, x1),
+          y: Math.min(y0, y1),
+          w: Math.abs(x1 - x0),
+          h: Math.abs(y1 - y0),
+        };
+        setMarquee(m);
+        const c = camRef.current;
+        const wx0 = (m.x - c.x) / c.zoom;
+        const wy0 = (m.y - c.y) / c.zoom;
+        const wx1 = (m.x + m.w - c.x) / c.zoom;
+        const wy1 = (m.y + m.h - c.y) / c.zoom;
+        const hits = itemsRef.current
+          .filter(
+            (i) =>
+              i.x <= wx1 &&
+              i.x + i.dw >= wx0 &&
+              i.y <= wy1 &&
+              i.y + itemH(i) >= wy0,
+          )
+          .map((i) => i.id);
+        setSelectedIds([...new Set([...base, ...hits])]);
+        if (hits.length)
+          setActiveId((cur) => (cur && hits.includes(cur) ? cur : hits[0]));
+      },
+      () => setMarquee(null),
+    );
+  };
+
+  const onItemPointerDown = (
+    e: React.PointerEvent<HTMLDivElement>,
+    item: ImageItem,
+  ) => {
+    if (pinchRef.current) return;
+    if (wantsPan(e)) return startPan(e);
+    if (e.button !== 0) return;
+    e.stopPropagation();
+
+    let ids = selectedIds;
+    let collapse = false;
+    if (e.shiftKey) {
+      ids = ids.includes(item.id)
+        ? ids.filter((i) => i !== item.id)
+        : [...ids, item.id];
+      setSelectedIds(ids);
+      if (!ids.includes(item.id)) return;
+      setActiveId(item.id);
+    } else if (!ids.includes(item.id)) {
+      ids = [item.id];
+      setSelectedIds(ids);
+      setActiveId(item.id);
+    } else {
+      setActiveId(item.id);
+      collapse = ids.length > 1;
+    }
+
+    const sx = e.clientX;
+    const sy = e.clientY;
+    const orig = new Map(
+      itemsRef.current
+        .filter((i) => ids.includes(i.id))
+        .map((i) => [i.id, { x: i.x, y: i.y }]),
+    );
+    let moved = false;
+    track(
+      e,
+      (ev) => {
+        if (pinchRef.current) return;
+        const z = camRef.current.zoom;
+        const dx = (ev.clientX - sx) / z;
+        const dy = (ev.clientY - sy) / z;
+        if (!moved) {
+          if (Math.hypot(dx, dy) * z < 3) return;
+          moved = true;
+          pushLayout();
+        }
+        setItems((p) =>
+          p.map((i) => {
+            const o = orig.get(i.id);
+            return o ? { ...i, x: o.x + dx, y: o.y + dy } : i;
+          }),
+        );
+      },
+      () => {
+        if (!moved && collapse) setSelectedIds([item.id]);
+      },
+    );
+  };
+
+  const onResizeHandleDown = (
+    e: React.PointerEvent<HTMLDivElement>,
+    item: ImageItem,
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const sx = e.clientX;
+    const dw0 = item.dw;
+    let moved = false;
+    track(e, (ev) => {
+      if (!moved) {
+        moved = true;
+        pushLayout();
+      }
+      const nd = clamp(dw0 + (ev.clientX - sx) / camRef.current.zoom, 60, 5000);
+      setItems((p) => p.map((i) => (i.id === item.id ? { ...i, dw: nd } : i)));
+    });
+  };
+
+  /* ── Save (Ctrl+S) & command palette ─────────────────────────── */
+
+  const saveShortcut = () => {
+    if (isProcessing) return;
+    if (items.length === 0)
+      return void toast({
+        title: "Nothing to save",
+        description: "Add images first.",
+      });
+    if (canRun) return void handleProcess();
+    if (resultList.length > 1) return void downloadZip();
+    if (activeResult) return void downloadSingle();
+    if (resultList.length === 1) {
+      triggerDownload(resultList[0].url, resultList[0].name);
+      return;
+    }
+    toast({ variant: "destructive", title: "Nothing to save yet" });
+  };
+
+  const openPalette = () => {
+    setPaletteQuery("");
+    setPaletteIdx(0);
+    setPaletteOpen(true);
+  };
+
+  const buildCommands = (): Cmd[] => {
+    const has = items.length > 0;
+    const list: Cmd[] = [];
+    const add = (c: Cmd, when = true) => when && list.push(c);
+
+    // File
+    add(
+      {
+        id: "add",
+        group: "File",
+        label: "Add images…",
+        keywords: "import upload open",
+        icon: Plus,
+        run: () => fileInputRef.current?.click(),
+      },
+      !isProcessing && items.length < MAX_FILES,
+    );
+    add(
+      {
+        id: "export",
+        group: "File",
+        label: view === "convert" ? "Convert" : "Export",
+        shortcut: "Ctrl+S",
+        keywords: "save apply run process",
+        icon: Settings2,
+        run: handleProcess,
+      },
+      canRun,
+    );
+    add(
+      {
+        id: "dl",
+        group: "File",
+        label: "Download this image",
+        keywords: "save",
+        icon: Download,
+        run: downloadSingle,
+      },
+      !!activeResult,
+    );
+    add(
+      {
+        id: "zip",
+        group: "File",
+        label: `Download all ${resultList.length} as ZIP`,
+        icon: FileArchive,
+        run: downloadZip,
+      },
+      resultList.length > 1,
+    );
+    add(
+      {
+        id: "clear",
+        group: "File",
+        label: "Remove all images",
+        keywords: "clear reset",
+        icon: X,
+        run: clearAll,
+      },
+      has && !isProcessing,
+    );
+
+    // Tools
+    if (editing)
+      TAB_DEFS.forEach((t) =>
+        add({
+          id: `tab-${t.id}`,
+          group: "Tools",
+          label: `Go to ${t.label}`,
+          icon: t.icon,
+          run: () => setActiveTab(t.id),
+        }),
+      );
+
+    // Output
+    if (editing)
+      (["original", "webp", "jpeg", "png"] as TargetFormat[]).forEach((f) =>
+        add(
+          {
+            id: `fmt-${f}`,
+            group: "Format",
+            icon: Layers,
+            keywords: "export output convert",
+            label:
+              f === "original"
+                ? "Format: keep original"
+                : `Format: ${f === "jpeg" ? "JPG" : f.toUpperCase()}`,
+            run: () => setTargetFormat(f),
+          },
+          !isProcessing,
+        ),
+      );
+    if (view !== "base64" && targetFormat !== "png")
+      (Object.keys(QUALITY) as QualityPreset[]).forEach((p) =>
+        add(
+          {
+            id: `q-${p}`,
+            group: "Quality",
+            icon: Sparkles,
+            keywords: "compress",
+            label: `Quality: ${QUALITY_LABEL[p]} (${Math.round(QUALITY[p] * 100)}%)`,
+            run: () => {
+              setQualityPreset(p);
+              setCompressionMode("quality");
+            },
+          },
+          !isProcessing,
+        ),
+      );
+    add(
+      {
+        id: "q-target",
+        group: "Quality",
+        label: "Compress to a max file size",
+        icon: Sparkles,
+        keywords: "target kb limit",
+        run: () => {
+          setActiveTab("compress");
+          setCompressionMode("target");
+        },
+      },
+      editing && !isProcessing,
+    );
+
+    // Transform
+    if (editing && !isProcessing) {
+      add({
+        id: "rot-l",
+        group: "Transform",
+        label: "Rotate left 90°",
+        icon: RotateCcw,
+        run: () => setRotation((r) => (r + 270) % 360),
+      });
+      add({
+        id: "rot-r",
+        group: "Transform",
+        label: "Rotate right 90°",
+        icon: RotateCw,
+        run: () => setRotation((r) => (r + 90) % 360),
+      });
+      add({
+        id: "flip-h",
+        group: "Transform",
+        label: "Flip horizontal",
+        icon: FlipHorizontal,
+        keywords: "mirror",
+        run: () => setFlipH((v) => !v),
+      });
+      add({
+        id: "flip-v",
+        group: "Transform",
+        label: "Flip vertical",
+        icon: FlipVertical,
+        keywords: "mirror",
+        run: () => setFlipV((v) => !v),
+      });
+      add(
+        {
+          id: "reset-edits",
+          group: "Transform",
+          label: "Reset resize, rotate and flip",
+          icon: X,
+          run: () => {
+            setResize(DEFAULT_RESIZE);
+            setRotation(0);
+            setFlipH(false);
+            setFlipV(false);
+          },
+        },
+        resizeActive || rotateActive || flipActive,
+      );
+      add(
+        {
+          id: "reset-crop",
+          group: "Transform",
+          label: "Reset crop on all images",
+          icon: Crop,
+          run: () => {
+            setItems((p) => p.map((i) => ({ ...i, crop: FULL_CROP })));
+            invalidate();
+          },
+        },
+        cropCount > 0,
+      );
+    }
+
+    // View
+    add(
+      {
+        id: "zin",
+        group: "View",
+        label: "Zoom in",
+        shortcut: "+",
+        icon: ZoomIn,
+        run: () => zoomBy(1.2),
+      },
+      has,
+    );
+    add(
+      {
+        id: "zout",
+        group: "View",
+        label: "Zoom out",
+        shortcut: "-",
+        icon: ZoomOut,
+        run: () => zoomBy(1 / 1.2),
+      },
+      has,
+    );
+    add(
+      {
+        id: "z100",
+        group: "View",
+        label: "Zoom to 100%",
+        shortcut: "Ctrl+0",
+        icon: Scan,
+        run: () => zoomAt(viewSize.w / 2, viewSize.h / 2, 1),
+      },
+      has,
+    );
+    add(
+      {
+        id: "fit",
+        group: "View",
+        label: "Fit all images",
+        shortcut: "Shift+1",
+        icon: Scan,
+        run: () => fitView(items),
+      },
+      has,
+    );
+    add(
+      {
+        id: "focus",
+        group: "View",
+        label: "Focus selected image",
+        shortcut: "Shift+2",
+        icon: Scan,
+        run: () => activeItem && fitView([activeItem], 1),
+      },
+      !!activeItem,
+    );
+    add(
+      {
+        id: "grid",
+        group: "View",
+        label: "Arrange in a grid",
+        icon: LayoutGrid,
+        run: arrange,
+      },
+      items.length > 1,
+    );
+    add({
+      id: "checker",
+      group: "View",
+      label: "Toggle transparency grid",
+      icon: Layers,
+      keywords: "checkerboard",
+      run: () => setShowChecker((v) => !v),
+    });
+    add({
+      id: "t-sel",
+      group: "View",
+      label: "Select tool",
+      shortcut: "V",
+      icon: MousePointer2,
+      run: () => setTool("select"),
+    });
+    add({
+      id: "t-hand",
+      group: "View",
+      label: "Hand tool (pan)",
+      shortcut: "H",
+      icon: Hand,
+      run: () => setTool("hand"),
+    });
+
+    // Edit
+    add(
+      {
+        id: "undo",
+        group: "Edit",
+        label: "Undo move",
+        shortcut: "Ctrl+Z",
+        icon: Undo2,
+        run: undoLayout,
+      },
+      layoutPast.current.length > 0,
+    );
+    add(
+      {
+        id: "redo",
+        group: "Edit",
+        label: "Redo move",
+        shortcut: "Ctrl+Shift+Z",
+        icon: Redo2,
+        run: redoLayout,
+      },
+      layoutFuture.current.length > 0,
+    );
+    add(
+      {
+        id: "all",
+        group: "Edit",
+        label: "Select all",
+        shortcut: "Ctrl+A",
+        run: () => setSelectedIds(items.map((i) => i.id)),
+      },
+      has,
+    );
+    add(
+      {
+        id: "del",
+        group: "Edit",
+        label: `Delete selected (${selectedIds.length})`,
+        shortcut: "Del",
+        icon: X,
+        run: () => removeItems(selectedIds),
+      },
+      selectedIds.length > 0 && !isProcessing,
+    );
+
+    return list;
+  };
+
+  const paletteCmds = paletteOpen
+    ? (() => {
+        const terms = paletteQuery.toLowerCase().split(/\s+/).filter(Boolean);
+        return buildCommands().filter((c) => {
+          const hay = `${c.group} ${c.label} ${c.keywords ?? ""}`.toLowerCase();
+          return terms.every((t) => hay.includes(t));
+        });
+      })()
+    : [];
+
+  const runCommand = (c: Cmd) => {
+    setPaletteOpen(false);
+    setTimeout(c.run, 0);
+  };
+
+  useEffect(() => {
+    paletteListRef.current
+      ?.querySelector<HTMLElement>(`[data-idx="${paletteIdx}"]`)
+      ?.scrollIntoView({ block: "nearest" });
+  }, [paletteIdx, paletteOpen]);
+
+  /* ── Keyboard & paste ────────────────────────────────────────── */
+
+  keyRef.current = (ev: KeyboardEvent) => {
+    const mod = ev.ctrlKey || ev.metaKey;
+    const k =
+      mod && /^Key[A-Z]$/.test(ev.code)
+        ? ev.code.slice(3).toLowerCase()
+        : ev.key.toLowerCase();
+
+    if (mod && k === "s") {
+      ev.preventDefault();
+      if (!ev.repeat) saveShortcut();
+      return;
+    }
+    if (
+      (mod && (k === "k" || ev.code === "Slash")) ||
+      (ev.altKey && ev.code === "Slash")
+    ) {
+      ev.preventDefault();
+      if (paletteOpen) setPaletteOpen(false);
+      else openPalette();
+      return;
+    }
+    if (paletteOpen) return;
+
+    const t = ev.target as HTMLElement | null;
+    if (
+      t &&
+      (t.tagName === "INPUT" ||
+        t.tagName === "TEXTAREA" ||
+        t.tagName === "SELECT" ||
+        t.isContentEditable)
+    )
+      return;
+    if (ev.key === " ") {
+      if (t?.tagName === "BUTTON") return;
+      ev.preventDefault();
+      if (!spaceRef.current) {
+        spaceRef.current = true;
+        setSpaceDown(true);
+      }
+      return;
+    }
+    if (mod) {
+      if (k === "z") {
+        ev.preventDefault();
+        return ev.shiftKey ? redoLayout() : undoLayout();
+      }
+      if (k === "y") {
+        ev.preventDefault();
+        return redoLayout();
+      }
+      if (k === "a") {
+        ev.preventDefault();
+        return setSelectedIds(itemsRef.current.map((i) => i.id));
+      }
+      if (k === "0") {
+        ev.preventDefault();
+        return zoomAt(viewSize.w / 2, viewSize.h / 2, 1);
+      }
+      return;
+    }
+    if (ev.key === "Delete" || ev.key === "Backspace") {
+      if (selectedIds.length) {
+        ev.preventDefault();
+        removeItems(selectedIds);
+      }
+      return;
+    }
+    if (ev.key === "Escape") {
+      setShowResult(false);
+      return setSelectedIds([]);
+    }
+    if (ev.key.startsWith("Arrow") && selectedIds.length) {
+      ev.preventDefault();
+      const step = ev.shiftKey ? 10 : 1;
+      const dx =
+        ev.key === "ArrowLeft" ? -step : ev.key === "ArrowRight" ? step : 0;
+      const dy =
+        ev.key === "ArrowUp" ? -step : ev.key === "ArrowDown" ? step : 0;
+      const now = Date.now();
+      if (now - lastNudge.current > 600) pushLayout();
+      lastNudge.current = now;
+      return setItems((p) =>
+        p.map((i) =>
+          selectedIds.includes(i.id) ? { ...i, x: i.x + dx, y: i.y + dy } : i,
+        ),
+      );
+    }
+    if (ev.altKey) return;
+    if (ev.shiftKey && ev.code === "Digit1") return fitView(itemsRef.current);
+    if (ev.shiftKey && ev.code === "Digit2")
+      return activeItem ? fitView([activeItem], 1) : undefined;
+    if (itemsRef.current.length === 0) return;
+    if (k === "=" || k === "+") return zoomBy(1.2);
+    if (k === "-") return zoomBy(1 / 1.2);
+    if (k === "v") return setTool("select");
+    if (k === "h") return setTool("hand");
+  };
+  keyUpRef.current = (ev: KeyboardEvent) => {
+    if (ev.key === " " && spaceRef.current) {
+      spaceRef.current = false;
+      setSpaceDown(false);
+    }
+  };
+  pasteRef.current = (ev: ClipboardEvent) => {
+    const t = ev.target as HTMLElement | null;
+    if (
+      t &&
+      (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)
+    )
+      return;
+    const files = Array.from(ev.clipboardData?.files ?? []).filter((f) =>
+      f.type.startsWith("image/"),
+    );
+    if (files.length) {
+      ev.preventDefault();
+      addFiles(files);
+    }
+  };
+
+  useEffect(() => {
+    const kd = (e: KeyboardEvent) => keyRef.current(e);
+    const ku = (e: KeyboardEvent) => keyUpRef.current(e);
+    const pa = (e: ClipboardEvent) => pasteRef.current(e);
+    window.addEventListener("keydown", kd, true);
+    window.addEventListener("keyup", ku, true);
+    window.addEventListener("paste", pa);
+    return () => {
+      window.removeEventListener("keydown", kd, true);
+      window.removeEventListener("keyup", ku, true);
+      window.removeEventListener("paste", pa);
+    };
+  }, []);
 
   /* ── Resize field handlers ───────────────────────────────────── */
 
@@ -1160,9 +2260,19 @@ export function ImageWorkspace({
      RENDER PIECES
   ════════════════════════════════════════════════════════════════ */
 
-  const previewTransform = editing
-    ? `scaleX(${flipH ? -1 : 1}) scaleY(${flipV ? -1 : 1}) rotate(${rotation}deg)`
-    : undefined;
+  const z = cam.zoom;
+  const inv = 1 / z; // keeps handles, labels and chips a constant on-screen size
+
+  /** Live rotate/flip preview, fitted back into the item's box when turned 90°/270°. */
+  const previewFor = (item: ImageItem): string | undefined => {
+    if (!editing) return undefined;
+    const h = itemH(item);
+    const k =
+      rotation === 90 || rotation === 270
+        ? Math.min(item.dw / h, h / item.dw)
+        : 1;
+    return `scale(${k}) scaleX(${flipH ? -1 : 1}) scaleY(${flipV ? -1 : 1}) rotate(${rotation}deg)`;
+  };
 
   const comparable =
     !!activeResult &&
@@ -1173,68 +2283,48 @@ export function ImageWorkspace({
         activeItem.width / activeItem.height,
     ) < 0.01;
 
-  const renderCanvas = () => {
-    if (!activeItem) {
-      return (
-        <div
-          onClick={() => fileInputRef.current?.click()}
-          className={`w-full max-w-xl border-2 border-dashed rounded-xl p-12 sm:p-16 flex flex-col items-center justify-center transition-all duration-300 cursor-pointer group bg-background/50 backdrop-blur-sm ${
-            isDragging
-              ? "border-primary bg-primary/10 scale-[1.02]"
-              : "border-border/60 hover:border-primary/50 hover:bg-background/80"
-          }`}
-        >
-          <div
-            className={`p-4 rounded-xl mb-4 transition-transform duration-300 ${
-              isDragging
-                ? "bg-primary text-primary-foreground scale-110"
-                : "bg-secondary text-secondary-foreground group-hover:scale-110"
-            }`}
-          >
-            {isLoadingFiles ? (
-              <Loader2 className="h-8 w-8 animate-spin" />
-            ) : (
-              <Upload className="h-8 w-8" />
-            )}
-          </div>
-          <h3 className="text-lg font-black uppercase tracking-tight mb-1 text-foreground">
-            {view === "convert" && mode.source
-              ? `Upload ${mode.source === "jpeg" ? "JPG" : mode.source.toUpperCase()} files`
-              : view === "base64"
-                ? "Upload an image"
-                : "Import images"}
-          </h3>
-          <p className="text-xs text-muted-foreground font-medium text-center max-w-sm">
-            Drag and drop, or click to browse. Up to {MAX_FILES} files,{" "}
-            {MAX_FILE_BYTES / 1024 / 1024} MB each. Files never leave your
-            device.
-          </p>
-        </div>
-      );
-    }
+  const scaledChip = (origin: string): React.CSSProperties => ({
+    transform: `scale(${inv})`,
+    transformOrigin: origin,
+  });
 
-    const frame = "shadow-2xl border border-border/50";
+  const renderItemBody = (item: ImageItem) => {
+    const isActive = activeItem?.id === item.id;
+    const res = results[item.id];
+    const imgCls =
+      "absolute inset-0 w-full h-full object-contain pointer-events-none select-none";
 
-    // ── Crop view
-    if (activeTab === "crop" && editing) {
-      const c = activeItem.crop;
-      const corner = (h: Handle, pos: string, cursor: string) => (
+    // ── Crop (original image + dimmed outside + draggable crop box)
+    if (isActive && activeTab === "crop" && editing) {
+      const c = item.crop;
+      const hs = 20 * inv;
+      const corner = (h: Handle, pos: React.CSSProperties, cursor: string) => (
         <div
           onPointerDown={(e) => startCropDrag(e, h)}
-          style={{ touchAction: "none" }}
-          className={`absolute w-5 h-5 rounded-sm bg-primary border-2 border-background shadow z-10 ${pos} ${cursor}`}
+          style={{
+            touchAction: "none",
+            width: hs,
+            height: hs,
+            borderWidth: 2 * inv,
+            ...pos,
+          }}
+          className={`absolute rounded-sm bg-primary border-background shadow z-10 ${cursor}`}
         />
       );
+      const o = -hs / 2;
       return (
-        <div
-          ref={cropContainerRef}
-          className="relative inline-block select-none max-h-[60vh]"
-        >
+        <div ref={cropContainerRef} className="absolute inset-0 select-none">
           <img
-            src={activeItem.url}
+            src={item.url}
             alt="Source"
             draggable={false}
-            className={`max-h-[60vh] max-w-full object-contain pointer-events-none block ${frame}`}
+            className={imgCls}
+          />
+          <div
+            className="absolute inset-0 bg-black/60 pointer-events-none"
+            style={{
+              clipPath: `polygon(evenodd, 0 0, 100% 0, 100% 100%, 0 100%, 0 0, ${c.x}% ${c.y}%, ${c.x}% ${c.y + c.h}%, ${c.x + c.w}% ${c.y + c.h}%, ${c.x + c.w}% ${c.y}%, ${c.x}% ${c.y}%)`,
+            }}
           />
           <div
             onPointerDown={(e) => startCropDrag(e, "move")}
@@ -1244,81 +2334,123 @@ export function ImageWorkspace({
               width: `${c.w}%`,
               height: `${c.h}%`,
               touchAction: "none",
+              borderWidth: 1.5 * inv,
             }}
-            className="absolute border border-primary bg-primary/10 shadow-[0_0_0_9999px_rgba(0,0,0,0.6)] cursor-move"
+            className="absolute border border-primary bg-primary/10 cursor-move"
           >
-            {corner("nw", "-top-2 -left-2", "cursor-nwse-resize")}
-            {corner("ne", "-top-2 -right-2", "cursor-nesw-resize")}
-            {corner("sw", "-bottom-2 -left-2", "cursor-nesw-resize")}
-            {corner("se", "-bottom-2 -right-2", "cursor-nwse-resize")}
+            {corner("nw", { top: o, left: o }, "cursor-nwse-resize")}
+            {corner("ne", { top: o, right: o }, "cursor-nesw-resize")}
+            {corner("sw", { bottom: o, left: o }, "cursor-nesw-resize")}
+            {corner("se", { bottom: o, right: o }, "cursor-nwse-resize")}
           </div>
         </div>
       );
     }
 
-    // ── Result: slider (same shape) or original/result toggle (different shape)
-    if (activeResult && activeTab !== "info" && view !== "base64") {
+    // ── Result view for the active item: slider (same shape) or original/result toggle
+    if (isActive && res && activeTab !== "info" && view !== "base64") {
       if (comparable) {
+        const knob = 28 * inv;
         return (
           <div
             ref={sliderRef}
-            style={{ touchAction: "pan-y" }}
-            className={`relative inline-block max-h-[60vh] max-w-full select-none cursor-ew-resize overflow-hidden ${frame}`}
-            onPointerDown={(e) => {
-              draggingSlider.current = true;
-              e.currentTarget.setPointerCapture(e.pointerId);
-              moveSlider(e.clientX);
-            }}
-            onPointerMove={(e) => {
-              if (draggingSlider.current) moveSlider(e.clientX);
-            }}
-            onPointerUp={() => {
-              draggingSlider.current = false;
-            }}
-            onPointerCancel={() => {
-              draggingSlider.current = false;
-            }}
+            className="absolute inset-0 overflow-hidden select-none"
           >
             <img
-              src={activeItem.url}
+              src={item.url}
               alt="Original"
               draggable={false}
-              className="max-h-[60vh] max-w-full object-contain pointer-events-none block"
+              className={imgCls}
             />
             <div
               style={{
                 clipPath: `polygon(${splitPosition}% 0, 100% 0, 100% 100%, ${splitPosition}% 100%)`,
               }}
-              className="absolute inset-0"
+              className="absolute inset-0 pointer-events-none"
             >
               <img
-                src={activeResult.url}
+                src={res.url}
                 alt="Result"
                 draggable={false}
-                className="absolute inset-0 w-full h-full pointer-events-none"
+                className="absolute inset-0 w-full h-full"
               />
             </div>
             <div
-              style={{ left: `${splitPosition}%` }}
-              className="absolute top-0 bottom-0 w-0.5 bg-primary z-20 flex items-center justify-center"
+              style={{
+                left: `${splitPosition}%`,
+                width: knob,
+                marginLeft: -knob / 2,
+                touchAction: "none",
+              }}
+              className="absolute top-0 bottom-0 z-20 cursor-ew-resize flex items-center justify-center"
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                draggingSlider.current = true;
+                e.currentTarget.setPointerCapture(e.pointerId);
+                moveSlider(e.clientX);
+              }}
+              onPointerMove={(e) => {
+                if (draggingSlider.current) moveSlider(e.clientX);
+              }}
+              onPointerUp={() => {
+                draggingSlider.current = false;
+              }}
+              onPointerCancel={() => {
+                draggingSlider.current = false;
+              }}
             >
-              <div className="w-7 h-7 rounded-full bg-primary border-2 border-background flex items-center justify-center shrink-0">
-                <ArrowRightLeft className="h-3.5 w-3.5 text-primary-foreground" />
+              <div
+                style={{ width: 2 * inv }}
+                className="absolute inset-y-0 bg-primary"
+              />
+              <div
+                style={{ width: knob, height: knob, borderWidth: 2 * inv }}
+                className="relative rounded-full bg-primary border-background flex items-center justify-center shrink-0"
+              >
+                <ArrowRightLeft
+                  style={{ width: 14 * inv, height: 14 * inv }}
+                  className="text-primary-foreground"
+                />
               </div>
             </div>
-            <div className="absolute top-2 left-2 bg-background/90 text-foreground text-[10px] font-black px-2 py-1 rounded border border-border/50 z-10">
-              Original · {formatBytes(activeResult.originalSize)}
+            <div
+              style={{ ...scaledChip("top left"), top: 8 * inv, left: 8 * inv }}
+              className="absolute bg-background/90 text-foreground text-[10px] font-black px-2 py-1 rounded border border-border/50 z-10 whitespace-nowrap pointer-events-none"
+            >
+              Original · {formatBytes(res.originalSize)}
             </div>
-            <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-[10px] font-black px-2 py-1 rounded z-10">
-              Result · {formatBytes(activeResult.newSize)}
+            <div
+              style={{
+                ...scaledChip("top right"),
+                top: 8 * inv,
+                right: 8 * inv,
+              }}
+              className="absolute bg-primary text-primary-foreground text-[10px] font-black px-2 py-1 rounded z-10 whitespace-nowrap pointer-events-none"
+            >
+              Result · {formatBytes(res.newSize)}
             </div>
           </div>
         );
       }
       const showOriginal = viewSide === "original";
       return (
-        <div className="flex flex-col items-center gap-3">
-          <div className="flex bg-background/90 p-1 rounded-md border border-border/50 text-[10px] font-black">
+        <div className="absolute inset-0">
+          <img
+            src={showOriginal ? item.url : res.url}
+            alt={showOriginal ? "Original" : "Result"}
+            draggable={false}
+            className={imgCls}
+          />
+          <div
+            style={{
+              ...scaledChip("top center"),
+              top: 8 * inv,
+              left: "50%",
+              marginLeft: "-50px",
+            }}
+            className="absolute flex bg-background/90 p-1 rounded-md border border-border/50 text-[10px] font-black z-10"
+            onPointerDown={(e) => e.stopPropagation()}
+          >
             {(["original", "result"] as const).map((s) => (
               <button
                 key={s}
@@ -1329,55 +2461,341 @@ export function ImageWorkspace({
               </button>
             ))}
           </div>
-          <img
-            src={showOriginal ? activeItem.url : activeResult.url}
-            alt={showOriginal ? "Original" : "Result"}
-            className={`max-h-[55vh] max-w-full object-contain ${frame}`}
-          />
         </div>
       );
     }
 
-    // ── Plain preview (with live rotate/flip preview)
+    // ── Plain item: shows its result once processed, otherwise the original with live rotate/flip preview
     return (
       <img
-        src={activeItem.url}
-        alt="Workspace"
-        className={`max-h-[60vh] max-w-full object-contain transition-transform duration-200 ${frame}`}
-        style={{ transform: previewTransform }}
+        src={res ? res.url : item.url}
+        alt={item.file.name}
+        draggable={false}
+        className={`${imgCls} transition-transform duration-200`}
+        style={{ transform: res ? undefined : previewFor(item) }}
       />
     );
   };
 
-  const chip = (label: string, onClear: () => void) => (
-    <span
-      key={label}
-      className="inline-flex items-center gap-1 pl-2 pr-1 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold"
-    >
-      {label}
-      <button
-        onClick={onClear}
-        aria-label={`Remove ${label}`}
-        className="p-0.5 rounded-full hover:bg-primary/20"
+  const renderItem = (item: ImageItem) => {
+    const isActive = activeItem?.id === item.id;
+    const isSelected = selectedIds.includes(item.id);
+    const hasResult = !!results[item.id];
+    const hasError = !!errors[item.id];
+    const h = itemH(item);
+    const cropping = isActive && activeTab === "crop" && editing;
+    return (
+      <div
+        key={item.id}
+        onPointerDown={(e) => onItemPointerDown(e, item)}
+        style={{
+          left: item.x,
+          top: item.y,
+          width: item.dw,
+          height: h,
+          touchAction: "none",
+          backgroundImage: showChecker ? CHECKER : undefined,
+          backgroundSize: showChecker
+            ? `${16 * inv}px ${16 * inv}px`
+            : undefined,
+          cursor: tool === "hand" || spaceDown ? "grab" : "default",
+          transition: layoutAnim
+            ? `left ${LAYOUT_EASE}, top ${LAYOUT_EASE}, width ${LAYOUT_EASE}, height ${LAYOUT_EASE}`
+            : undefined,
+        }}
+        className="absolute bg-card/40 shadow-2xl"
       >
-        <X className="h-3 w-3" />
-      </button>
-    </span>
+        {/* name + status */}
+        <div
+          style={{
+            ...scaledChip("left bottom"),
+            width: item.dw * z,
+            bottom: "100%",
+            paddingBottom: 4,
+            transition: layoutAnim ? `width ${LAYOUT_EASE}` : undefined,
+          }}
+          className="absolute left-0 flex items-center gap-1.5 pointer-events-none"
+        >
+          {(hasResult || hasError) && (
+            <span
+              className={`w-2 h-2 rounded-full shrink-0 ${hasError ? "bg-rose-500" : "bg-emerald-500"}`}
+            />
+          )}
+          <span
+            className={`truncate text-[11px] font-bold ${isActive ? "text-primary" : "text-muted-foreground"}`}
+            title={errors[item.id] ?? item.file.name}
+          >
+            {item.file.name}
+          </span>
+          {item.width > 0 && (
+            <span className="text-[10px] font-mono text-muted-foreground/70 shrink-0">
+              {item.width}×{item.height}
+            </span>
+          )}
+        </div>
+
+        {renderItemBody(item)}
+
+        {/* selection outline */}
+        {(isSelected || isActive) && (
+          <div
+            className={`absolute pointer-events-none border-primary ${isSelected ? "" : "opacity-40"}`}
+            style={{
+              inset: -1.5 * inv,
+              borderWidth: 2 * inv,
+              borderStyle: isSelected ? "solid" : "dashed",
+            }}
+          />
+        )}
+
+        {/* corner handle: resize the preview on the canvas */}
+        {isActive && isSelected && !cropping && selectedIds.length === 1 && (
+          <div
+            onPointerDown={(e) => onResizeHandleDown(e, item)}
+            style={{
+              width: 12 * inv,
+              height: 12 * inv,
+              right: -6 * inv,
+              bottom: -6 * inv,
+              borderWidth: 2 * inv,
+              touchAction: "none",
+            }}
+            className="absolute rounded-sm bg-primary border-background cursor-nwse-resize z-30"
+          />
+        )}
+      </div>
+    );
+  };
+
+  const renderCanvas = () => (
+    <div
+      ref={viewRef}
+      onPointerDownCapture={onViewPointerDownCapture}
+      onPointerMove={onViewPointerMove}
+      onPointerUpCapture={onViewPointerEndCapture}
+      onPointerCancelCapture={onViewPointerEndCapture}
+      onPointerDown={onViewPointerDown}
+      className="flex-1 min-h-0 relative overflow-hidden bg-muted/20"
+      style={{
+        touchAction: "none",
+        cursor: tool === "hand" || spaceDown ? "grab" : "default",
+        backgroundImage:
+          "radial-gradient(circle, rgba(128,128,128,0.35) 1px, transparent 1.5px)",
+        backgroundSize: `${24 * z}px ${24 * z}px`,
+        backgroundPosition: `${cam.x}px ${cam.y}px`,
+      }}
+    >
+      {/* world: everything inside is positioned in canvas units */}
+      <div
+        className="absolute left-0 top-0"
+        style={{
+          transform: `translate(${cam.x}px, ${cam.y}px) scale(${z})`,
+          transformOrigin: "0 0",
+        }}
+      >
+        {items.map(renderItem)}
+      </div>
+
+      {/* empty state: upload card */}
+      {items.length === 0 && (
+        <div className="absolute inset-0 flex items-center justify-center p-6 pointer-events-none">
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            onPointerDown={(e) => e.stopPropagation()}
+            className={`pointer-events-auto w-full max-w-xl border-2 border-dashed rounded-xl p-12 sm:p-16 flex flex-col items-center justify-center transition-all duration-300 cursor-pointer group bg-background/50 backdrop-blur-sm ${
+              isDragging
+                ? "border-primary bg-primary/10 scale-[1.02]"
+                : "border-border/60 hover:border-primary/50 hover:bg-background/80"
+            }`}
+          >
+            <div
+              className={`p-4 rounded-xl mb-4 transition-transform duration-300 ${
+                isDragging
+                  ? "bg-primary text-primary-foreground scale-110"
+                  : "bg-secondary text-secondary-foreground group-hover:scale-110"
+              }`}
+            >
+              {isLoadingFiles ? (
+                <Loader2 className="h-8 w-8 animate-spin" />
+              ) : (
+                <Upload className="h-8 w-8" />
+              )}
+            </div>
+            <h3 className="text-lg font-black uppercase tracking-tight mb-1 text-foreground">
+              {view === "convert" && mode.source
+                ? `Upload ${mode.source === "jpeg" ? "JPG" : mode.source.toUpperCase()} files`
+                : view === "base64"
+                  ? "Upload an image"
+                  : "Import images"}
+            </h3>
+            <p className="text-xs text-muted-foreground font-medium text-center max-w-sm">
+              Drag and drop, paste, or click to browse. Up to {MAX_FILES} files,{" "}
+              {MAX_FILE_BYTES / 1024 / 1024} MB each. Files never leave your
+              device.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* marquee */}
+      {marquee && (
+        <div
+          className="absolute border border-primary bg-primary/10 pointer-events-none z-30"
+          style={{
+            left: marquee.x,
+            top: marquee.y,
+            width: marquee.w,
+            height: marquee.h,
+          }}
+        />
+      )}
+
+      {/* toolbar */}
+      <div
+        className="absolute top-2 left-2 z-40 flex items-center gap-0.5 bg-card/90 backdrop-blur-xl border border-border/40 rounded-xl p-1 shadow-lg max-w-[calc(100%-2rem)] overflow-x-auto ring-1 ring-black/10"
+        onPointerDown={(e) => e.stopPropagation()}
+        data-nowheel
+      >
+        <Tip label="Select (V)">
+          <button
+            aria-label="Select tool (V)"
+            onClick={() => setTool("select")}
+            className={`p-1.5 rounded-lg transition-all ${tool === "select" ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-secondary/80 text-muted-foreground hover:text-foreground"}`}
+          >
+            <MousePointer2 className="h-4 w-4" />
+          </button>
+        </Tip>
+        <Tip label="Pan (H, or hold Space)">
+          <button
+            aria-label="Hand tool (H)"
+            onClick={() => setTool("hand")}
+            className={`p-1.5 rounded-lg transition-all ${tool === "hand" ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-secondary/80 text-muted-foreground hover:text-foreground"}`}
+          >
+            <Hand className="h-4 w-4" />
+          </button>
+        </Tip>
+        <div className="w-px h-4 bg-border/40 mx-1" />
+        <Tip label="Undo move (Ctrl+Z)">
+          <button
+            aria-label="Undo move"
+            disabled={layoutPast.current.length === 0}
+            onClick={undoLayout}
+            className="p-1.5 rounded-lg hover:bg-secondary/80 text-muted-foreground hover:text-foreground disabled:opacity-30 transition-all"
+          >
+            <Undo2 className="h-4 w-4" />
+          </button>
+        </Tip>
+        <Tip label="Redo move (Ctrl+Shift+Z)">
+          <button
+            aria-label="Redo move"
+            disabled={layoutFuture.current.length === 0}
+            onClick={redoLayout}
+            className="p-1.5 rounded-lg hover:bg-secondary/80 text-muted-foreground hover:text-foreground disabled:opacity-30 transition-all"
+          >
+            <Redo2 className="h-4 w-4" />
+          </button>
+        </Tip>
+        <div className="w-px h-4 bg-border/40 mx-1" />
+        <Tip label="Zoom out">
+          <button
+            aria-label="Zoom out"
+            onClick={() => zoomBy(1 / 1.2)}
+            disabled={items.length === 0}
+            className="p-1.5 hover:bg-secondary/80 rounded-lg text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          >
+            <ZoomOut className="h-4 w-4" />
+          </button>
+        </Tip>
+        <Tip label="Reset zoom to 100%">
+          <button
+            onClick={() => zoomAt(viewSize.w / 2, viewSize.h / 2, 1)}
+            disabled={items.length === 0}
+            className="text-xs font-mono font-bold w-12 text-center text-foreground hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            {Math.round(z * 100)}%
+          </button>
+        </Tip>
+        <Tip label="Zoom in">
+          <button
+            aria-label="Zoom in"
+            onClick={() => zoomBy(1.2)}
+            disabled={items.length === 0}
+            className="p-1.5 hover:bg-secondary/80 rounded-lg text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          >
+            <ZoomIn className="h-4 w-4" />
+          </button>
+        </Tip>
+        <Tip label="Fit all (Shift+1) · Focus selected (Shift+2)">
+          <button
+            aria-label="Fit all images"
+            onClick={() => fitView(items)}
+            disabled={items.length === 0}
+            className="p-1.5 hover:bg-secondary/80 rounded-lg text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          >
+            <Scan className="h-4 w-4" />
+          </button>
+        </Tip>
+        <Tip label="Arrange in a grid">
+          <button
+            aria-label="Arrange in a grid"
+            disabled={items.length < 2}
+            onClick={arrange}
+            className="p-1.5 hover:bg-secondary/80 rounded-lg text-muted-foreground hover:text-foreground disabled:opacity-30 transition-all"
+          >
+            <LayoutGrid className="h-4 w-4" />
+          </button>
+        </Tip>
+        <div className="w-px h-4 bg-border/40 mx-1" />
+        <Tip label="Toggle transparency grid">
+          <button
+            aria-label="Toggle transparency grid"
+            onClick={() => setShowChecker((v) => !v)}
+            className={`p-1.5 rounded-lg transition-all ${showChecker ? "bg-primary/10 text-primary ring-1 ring-primary/40" : "hover:bg-secondary/80 text-muted-foreground"}`}
+          >
+            <Layers className="h-4 w-4" />
+          </button>
+        </Tip>
+      </div>
+    </div>
   );
 
+  /* ── Shared small styles ─────────────────────────────────────── */
+
   const label =
-    "text-[9px] font-black uppercase tracking-widest text-muted-foreground";
+    "text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap";
   const segBtn = (on: boolean) =>
-    `flex-1 py-1.5 rounded text-[10px] font-black transition-all ${on ? "bg-card text-foreground shadow border border-border/50" : "text-muted-foreground hover:text-foreground"}`;
+    `h-6 px-2.5 rounded-md text-[11px] font-bold whitespace-nowrap transition-all ${on ? "bg-primary/10 text-primary ring-1 ring-primary/40 font-black" : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"}`;
   const optBtn = (on: boolean) =>
-    `py-1.5 px-2 rounded border text-[10px] font-black transition-all ${on ? "border-primary bg-primary/10 text-primary" : "border-border/40 text-muted-foreground hover:text-foreground"}`;
+    `h-7 px-2.5 rounded-md border text-[11px] font-bold whitespace-nowrap transition-all ${on ? "border-primary bg-primary/10 text-primary ring-1 ring-primary/30" : "border-border/40 text-muted-foreground hover:text-foreground hover:border-border/80"}`;
   const numInput =
-    "w-full h-8 px-2 bg-background border border-border/40 rounded text-[11px] font-mono text-foreground text-center";
+    "w-16 h-7 px-1.5 bg-background border border-border/40 rounded-md text-xs font-mono text-foreground text-center focus:outline-none focus:ring-1 focus:ring-primary";
+  const group = "flex items-center gap-2 shrink-0";
+  const divider = <div className="w-px h-5 bg-border/40 shrink-0" />;
+  const segWrap =
+    "flex items-center gap-0.5 bg-secondary/30 p-0.5 rounded-xl border border-border/30 shrink-0";
 
   const totalOrig = resultList.reduce((s, r) => s + r.originalSize, 0);
   const totalNew = resultList.reduce((s, r) => s + r.newSize, 0);
 
-  /* ── Panel body per view / tab ───────────────────────────────── */
+  const chip = (text: string, onClear: () => void) => (
+    <span
+      key={text}
+      className="inline-flex items-center gap-1 pl-2 pr-1 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold whitespace-nowrap shrink-0"
+    >
+      {text}
+      <Tip label={`Clear ${text}`}>
+        <button
+          onClick={onClear}
+          aria-label={`Remove ${text}`}
+          className="p-0.5 rounded-full hover:bg-primary/20"
+        >
+          <X className="h-3 w-3" />
+        </button>
+      </Tip>
+    </span>
+  );
+
+  /* ── Options bar (horizontal, per active tool) ───────────────── */
 
   const renderEditChips = () => {
     const chips: React.ReactNode[] = [];
@@ -1401,64 +2819,73 @@ export function ImageWorkspace({
       );
     if (chips.length === 0) return null;
     return (
-      <div className="space-y-1.5">
-        <span className={label}>
-          Edits applied on export{items.length > 1 ? " (all images)" : ""}
-        </span>
-        <div className="flex flex-wrap gap-1.5">{chips}</div>
-      </div>
+      <>
+        {divider}
+        <div className={group} title="Applied on export">
+          <span className={label}>Edits</span>
+          {chips}
+        </div>
+      </>
     );
   };
 
+  const renderQualityPresets = () => (
+    <div className={group}>
+      {(Object.keys(QUALITY) as QualityPreset[]).map((p) => (
+        <Tip
+          key={p}
+          label={`${QUALITY_LABEL[p]} quality · ${Math.round(QUALITY[p] * 100)}%`}
+        >
+          <button
+            onClick={() => setQualityPreset(p)}
+            className={optBtn(qualityPreset === p)}
+          >
+            {QUALITY_LABEL[p]}
+            <span className="ml-1.5 font-mono font-normal opacity-70">
+              {Math.round(QUALITY[p] * 100)}%
+            </span>
+          </button>
+        </Tip>
+      ))}
+    </div>
+  );
+
   const renderCompress = () => (
-    <div className="space-y-3">
-      <div className="flex bg-background p-1 rounded-md border border-border/40">
-        <button
-          onClick={() => setCompressionMode("quality")}
-          className={segBtn(compressionMode === "quality")}
-        >
-          Quality
-        </button>
-        <button
-          onClick={() => setCompressionMode("target")}
-          className={segBtn(compressionMode === "target")}
-        >
-          Max file size
-        </button>
+    <>
+      <div className={segWrap}>
+        <Tip label="Choose a quality preset">
+          <button
+            onClick={() => setCompressionMode("quality")}
+            className={segBtn(compressionMode === "quality")}
+          >
+            Quality
+          </button>
+        </Tip>
+        <Tip label="Compress down to a maximum file size">
+          <button
+            onClick={() => setCompressionMode("target")}
+            className={segBtn(compressionMode === "target")}
+          >
+            Max file size
+          </button>
+        </Tip>
       </div>
 
       {compressionMode === "quality" ? (
-        <div className="grid grid-cols-3 gap-1.5">
-          {(Object.keys(QUALITY) as QualityPreset[]).map((p) => (
-            <button
-              key={p}
-              onClick={() => setQualityPreset(p)}
-              className={`p-2 rounded border text-left flex flex-col transition-all ${qualityPreset === p ? "border-primary bg-primary/10 text-primary" : "border-border/30 hover:border-border/60 text-foreground"}`}
-            >
-              <span className="text-[10px] font-black">{QUALITY_LABEL[p]}</span>
-              <span className="text-[9px] text-muted-foreground mt-0.5">
-                {Math.round(QUALITY[p] * 100)}%
-              </span>
-            </button>
-          ))}
-        </div>
+        renderQualityPresets()
       ) : (
-        <div className="space-y-3 p-3 bg-background rounded-md border border-border/40">
-          <div className="flex items-center justify-between">
-            <span className={label}>Keep under</span>
-            <div className="flex items-center gap-1">
-              <input
-                type="number"
-                min={5}
-                value={targetKbText}
-                onChange={(e) => setTargetKbText(e.target.value)}
-                className="w-24 h-8 px-2 bg-card border border-border/50 rounded text-[11px] font-mono font-black text-primary text-center focus:outline-none focus:border-primary"
-              />
-              <span className="text-[10px] font-bold text-muted-foreground">
-                KB
-              </span>
-            </div>
-          </div>
+        <div className={group}>
+          <span className={label}>Keep under</span>
+          <input
+            type="number"
+            min={5}
+            value={targetKbText}
+            onChange={(e) => setTargetKbText(e.target.value)}
+            className={`${numInput} text-primary font-bold`}
+          />
+          <span className="text-[11px] font-bold text-muted-foreground">
+            KB
+          </span>
           <input
             type="range"
             min={10}
@@ -1466,74 +2893,77 @@ export function ImageWorkspace({
             step={10}
             value={targetValid ? clamp(targetKb, 10, 5000) : 150}
             onChange={(e) => setTargetKbText(e.target.value)}
-            className="w-full h-1 bg-border rounded-full appearance-none cursor-pointer accent-primary"
+            className="w-32 h-1 bg-border rounded-full appearance-none cursor-pointer accent-primary"
           />
           {!targetValid && (
-            <p className="text-[10px] text-rose-500">Enter at least 5 KB.</p>
+            <span className="text-[10px] text-rose-500 font-semibold whitespace-nowrap">
+              Enter at least 5 KB.
+            </span>
           )}
-          <p className="text-[10px] text-muted-foreground leading-relaxed">
-            Lowers quality first. Only if that isn't enough, dimensions are
-            reduced, and you'll be told when that happens. Files already under
-            the limit are left as they are.
-          </p>
         </div>
       )}
 
+      {compressionMode === "target" && targetValid && (
+        <span className="text-[10px] text-muted-foreground whitespace-nowrap shrink-0">
+          Lowers quality first, then dimensions if needed.
+        </span>
+      )}
       {anyPng && (
-        <p className="text-[10px] text-muted-foreground leading-relaxed flex gap-1.5">
-          <Info className="h-3.5 w-3.5 shrink-0 text-primary" />
-          PNG is lossless: quality settings don't change PNG output. Export as
-          WebP or JPEG for much smaller files.
-        </p>
+        <span className="text-[10px] text-muted-foreground whitespace-nowrap shrink-0 inline-flex items-center gap-1">
+          <Info className="h-3.5 w-3.5 text-primary" />
+          PNG is lossless. Use WebP or JPG for smaller files.
+        </span>
       )}
       {alphaToJpeg && (
-        <p className="text-[10px] text-amber-500 leading-relaxed flex gap-1.5">
-          <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-          Some images have transparency. JPEG will fill it with white.
-        </p>
+        <span className="text-[10px] text-amber-500 whitespace-nowrap shrink-0 inline-flex items-center gap-1">
+          <AlertTriangle className="h-3.5 w-3.5" />
+          JPG fills transparency with white.
+        </span>
       )}
-    </div>
+    </>
   );
 
   const renderResize = () => (
-    <div className="space-y-3">
-      <div className="flex bg-background p-1 rounded-md border border-border/40">
+    <>
+      <div className={segWrap}>
         {(["pixels", "percent"] as ResizeMode[]).map((m) => (
-          <button
+          <Tip
             key={m}
-            onClick={() => setResize((r) => ({ ...r, mode: m }))}
-            className={`${segBtn(resize.mode === m)} capitalize`}
+            label={
+              m === "pixels"
+                ? "Set exact width and height in pixels"
+                : "Scale by percentage"
+            }
           >
-            {m}
-          </button>
+            <button
+              onClick={() => setResize((r) => ({ ...r, mode: m }))}
+              className={`${segBtn(resize.mode === m)} capitalize`}
+            >
+              {m}
+            </button>
+          </Tip>
         ))}
       </div>
 
       {resize.mode === "pixels" ? (
-        <>
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <span className={`${label} block mb-1`}>Width</span>
-              <input
-                type="number"
-                min={1}
-                value={resize.width ?? outDims?.[0] ?? ""}
-                onChange={(e) => setDim("width", e.target.value)}
-                className={numInput}
-              />
-            </div>
-            <div>
-              <span className={`${label} block mb-1`}>Height</span>
-              <input
-                type="number"
-                min={1}
-                value={resize.height ?? outDims?.[1] ?? ""}
-                onChange={(e) => setDim("height", e.target.value)}
-                className={numInput}
-              />
-            </div>
-          </div>
-          <label className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground cursor-pointer">
+        <div className={group}>
+          <span className={label}>W</span>
+          <input
+            type="number"
+            min={1}
+            value={resize.width ?? outDims?.[0] ?? ""}
+            onChange={(e) => setDim("width", e.target.value)}
+            className={numInput}
+          />
+          <span className={label}>H</span>
+          <input
+            type="number"
+            min={1}
+            value={resize.height ?? outDims?.[1] ?? ""}
+            onChange={(e) => setDim("height", e.target.value)}
+            className={numInput}
+          />
+          <label className="flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground cursor-pointer whitespace-nowrap">
             <input
               type="checkbox"
               checked={resize.lock}
@@ -1547,39 +2977,25 @@ export function ImageWorkspace({
               }
               className="rounded border-border/50 bg-background accent-primary"
             />
-            Lock aspect ratio
+            Lock ratio
           </label>
-          {items.length > 1 && (
-            <p className="text-[10px] text-muted-foreground leading-relaxed">
-              {resize.lock
-                ? "Applies to every image. Each image keeps its own proportions."
-                : "Every image is forced to this exact size."}
-            </p>
-          )}
-        </>
+        </div>
       ) : (
-        <div className="space-y-2 p-3 bg-background rounded-md border border-border/40">
-          <div className="flex items-center justify-between">
-            <span className={label}>Scale</span>
-            <div className="flex items-center gap-1">
-              <input
-                type="number"
-                min={1}
-                max={400}
-                value={resize.percent}
-                onChange={(e) =>
-                  setResize((r) => ({
-                    ...r,
-                    percent: clamp(parseInt(e.target.value, 10) || 100, 1, 400),
-                  }))
-                }
-                className="w-20 h-8 px-2 bg-card border border-border/50 rounded text-[11px] font-mono font-black text-primary text-center"
-              />
-              <span className="text-[10px] font-bold text-muted-foreground">
-                %
-              </span>
-            </div>
-          </div>
+        <div className={group}>
+          <input
+            type="number"
+            min={1}
+            max={400}
+            value={resize.percent}
+            onChange={(e) =>
+              setResize((r) => ({
+                ...r,
+                percent: clamp(parseInt(e.target.value, 10) || 100, 1, 400),
+              }))
+            }
+            className={`${numInput} text-primary font-bold`}
+          />
+          <span className="text-[11px] font-bold text-muted-foreground">%</span>
           <input
             type="range"
             min={10}
@@ -1592,144 +3008,224 @@ export function ImageWorkspace({
                 percent: parseInt(e.target.value, 10),
               }))
             }
-            className="w-full h-1 bg-border rounded-full appearance-none cursor-pointer accent-primary"
+            className="w-28 h-1 bg-border rounded-full appearance-none cursor-pointer accent-primary"
           />
-          <div className="grid grid-cols-4 gap-1">
-            {[25, 50, 75, 100].map((p) => (
+          {[25, 50, 75, 100].map((p) => (
+            <Tip key={p} label={`Scale to ${p}%`}>
               <button
-                key={p}
                 onClick={() => setResize((r) => ({ ...r, percent: p }))}
                 className={optBtn(resize.percent === p)}
               >
                 {p}%
               </button>
-            ))}
-          </div>
+            </Tip>
+          ))}
         </div>
       )}
 
       {outDims && (
-        <p
-          className={`text-[10px] font-mono ${outTooLarge ? "text-rose-500" : "text-muted-foreground"}`}
+        <span
+          className={`text-[10px] font-mono whitespace-nowrap shrink-0 ${outTooLarge ? "text-rose-500" : "text-muted-foreground"}`}
         >
-          Output: {outDims[0]} × {outDims[1]} px
-          {outTooLarge && ` (too large, max ${MAX_SIDE} px per side)`}
-        </p>
+          Output {outDims[0]} × {outDims[1]} px
+          {outTooLarge && ` (too large, max ${MAX_SIDE})`}
+        </span>
+      )}
+      {items.length > 1 && resize.mode === "pixels" && (
+        <span className="text-[10px] text-muted-foreground whitespace-nowrap shrink-0">
+          {resize.lock
+            ? "Applies to all images, each keeps its ratio."
+            : "Every image is forced to this size."}
+        </span>
       )}
       {resizeActive && (
-        <button
-          onClick={() => setResize(DEFAULT_RESIZE)}
-          className="text-[10px] font-bold text-primary hover:underline"
-        >
-          Reset size
-        </button>
+        <Tip label="Reset resize settings">
+          <button
+            onClick={() => setResize(DEFAULT_RESIZE)}
+            className="text-[11px] font-bold text-primary hover:underline whitespace-nowrap"
+          >
+            Reset
+          </button>
+        </Tip>
       )}
-    </div>
+    </>
   );
 
   const renderCrop = () => {
     const px = activeItem ? cropPx(activeItem) : null;
     return (
-      <div className="space-y-3">
-        <div className="space-y-1.5">
-          <span className={label}>Aspect ratio</span>
-          <div className="grid grid-cols-3 gap-1.5">
-            {ASPECTS.map((a) => (
+      <>
+        <div className={group}>
+          <span className={label}>Ratio</span>
+          {ASPECTS.map((a) => (
+            <Tip
+              key={a.label}
+              label={
+                a.value === null
+                  ? "Free-form crop (no aspect lock)"
+                  : `Lock crop to ${a.label}`
+              }
+            >
               <button
-                key={a.label}
                 onClick={() => applyAspect(a.value)}
                 className={optBtn(cropRatio === a.value)}
               >
                 {a.label}
               </button>
-            ))}
-          </div>
+            </Tip>
+          ))}
         </div>
         {px && (
-          <p className="text-[10px] font-mono text-muted-foreground">
-            Selection: {px.sw} × {px.sh} px
-          </p>
+          <span className="text-[10px] font-mono text-muted-foreground whitespace-nowrap shrink-0">
+            {px.sw} × {px.sh} px
+          </span>
         )}
-        <div className="flex flex-wrap gap-x-4 gap-y-1">
+        <Tip label="Clear the crop selection">
           <button
             onClick={() => {
               if (activeItem) updateCrop(activeItem.id, FULL_CROP);
             }}
-            className="text-[10px] font-bold text-primary hover:underline"
+            className="text-[11px] font-bold text-primary hover:underline whitespace-nowrap"
           >
             Reset crop
           </button>
-          {items.length > 1 && activeItem && (
+        </Tip>
+        {items.length > 1 && activeItem && (
+          <Tip label="Apply this crop box to every image">
             <button
               onClick={() => {
                 const c = activeItem.crop;
                 setItems((p) => p.map((i) => ({ ...i, crop: c })));
                 invalidate();
               }}
-              className="text-[10px] font-bold text-primary hover:underline"
+              className="text-[11px] font-bold text-primary hover:underline whitespace-nowrap"
             >
-              Apply this crop to all
+              Apply to all
             </button>
-          )}
-        </div>
-        <p className="text-[10px] text-muted-foreground leading-relaxed">
-          {items.length > 1
-            ? "Crop is set per image. Select a thumbnail to adjust it. "
-            : ""}
-          Crop is applied before any rotation.
-        </p>
-      </div>
+          </Tip>
+        )}
+        <span className="text-[10px] text-muted-foreground whitespace-nowrap shrink-0">
+          {items.length > 1 ? "Crop is set per image. " : ""}Applied before
+          rotation.
+        </span>
+      </>
     );
   };
 
   const renderRotate = () => (
-    <div className="space-y-3">
-      <div className="grid grid-cols-2 gap-1.5">
-        <button
-          onClick={() => setRotation((r) => (r + 270) % 360)}
-          className={`${optBtn(false)} flex items-center justify-center gap-1.5`}
-        >
-          <RotateCcw className="h-3.5 w-3.5" /> 90° left
-        </button>
-        <button
-          onClick={() => setRotation((r) => (r + 90) % 360)}
-          className={`${optBtn(false)} flex items-center justify-center gap-1.5`}
-        >
-          <RotateCw className="h-3.5 w-3.5" /> 90° right
-        </button>
-      </div>
-      <div className="grid grid-cols-4 gap-1">
-        {[0, 90, 180, 270].map((deg) => (
+    <>
+      <div className={group}>
+        <Tip label="Rotate 90° left">
           <button
-            key={deg}
-            onClick={() => setRotation(deg)}
-            className={`${optBtn(rotation === deg)} font-mono`}
+            onClick={() => setRotation((r) => (r + 270) % 360)}
+            className={`${optBtn(false)} inline-flex items-center gap-1.5`}
           >
-            {deg}°
+            <RotateCcw className="h-3.5 w-3.5" /> Left
           </button>
+        </Tip>
+        <Tip label="Rotate 90° right">
+          <button
+            onClick={() => setRotation((r) => (r + 90) % 360)}
+            className={`${optBtn(false)} inline-flex items-center gap-1.5`}
+          >
+            <RotateCw className="h-3.5 w-3.5" /> Right
+          </button>
+        </Tip>
+      </div>
+      {divider}
+      <div className={group}>
+        {[0, 90, 180, 270].map((deg) => (
+          <Tip key={deg} label={`Rotate ${deg}°`}>
+            <button
+              onClick={() => setRotation(deg)}
+              className={`${optBtn(rotation === deg)} font-mono`}
+            >
+              {deg}°
+            </button>
+          </Tip>
         ))}
       </div>
-      <div className="grid grid-cols-2 gap-1.5">
-        <button
-          onClick={() => setFlipH((v) => !v)}
-          className={`${optBtn(flipH)} flex items-center justify-center gap-1.5`}
-        >
-          <FlipHorizontal className="h-3.5 w-3.5" /> Flip horizontal
-        </button>
-        <button
-          onClick={() => setFlipV((v) => !v)}
-          className={`${optBtn(flipV)} flex items-center justify-center gap-1.5`}
-        >
-          <FlipVertical className="h-3.5 w-3.5" /> Flip vertical
-        </button>
+      {divider}
+      <div className={group}>
+        <Tip label="Mirror horizontally">
+          <button
+            onClick={() => setFlipH((v) => !v)}
+            className={`${optBtn(flipH)} inline-flex items-center gap-1.5`}
+          >
+            <FlipHorizontal className="h-3.5 w-3.5" /> Flip H
+          </button>
+        </Tip>
+        <Tip label="Mirror vertically">
+          <button
+            onClick={() => setFlipV((v) => !v)}
+            className={`${optBtn(flipV)} inline-flex items-center gap-1.5`}
+          >
+            <FlipVertical className="h-3.5 w-3.5" /> Flip V
+          </button>
+        </Tip>
       </div>
-    </div>
+    </>
   );
+
+  const renderConvertOptions = () => (
+    <>
+      <span className="text-[11px] text-muted-foreground whitespace-nowrap shrink-0">
+        Converting to{" "}
+        <span className="font-black text-foreground">
+          {targetFormat === "jpeg" ? "JPG" : targetFormat.toUpperCase()}
+        </span>
+      </span>
+      {targetFormat !== "png" ? (
+        renderQualityPresets()
+      ) : (
+        <span className="text-[10px] text-muted-foreground whitespace-nowrap shrink-0">
+          PNG is lossless, so there's no quality setting.
+        </span>
+      )}
+      {alphaToJpeg && (
+        <span className="text-[10px] text-amber-500 whitespace-nowrap shrink-0 inline-flex items-center gap-1">
+          <AlertTriangle className="h-3.5 w-3.5" />
+          Transparent areas will be filled with white.
+        </span>
+      )}
+    </>
+  );
+
+  const showOptionsBar =
+    view === "convert" || (editing && activeTab !== "info");
+
+  /** Tool settings. Shown inside the top bar on lg+, and in a strip below it on smaller screens. */
+  const renderToolOptions = () =>
+    showOptionsBar ? (
+      <fieldset
+        disabled={isProcessing}
+        className="contents disabled:opacity-60"
+      >
+        {view === "convert" && renderConvertOptions()}
+        {editing && activeTab === "compress" && renderCompress()}
+        {editing && activeTab === "resize" && renderResize()}
+        {editing && activeTab === "crop" && renderCrop()}
+        {editing && activeTab === "rotate" && renderRotate()}
+        {editing && renderEditChips()}
+      </fieldset>
+    ) : null;
+
+  const renderOptionsBar = () =>
+    showOptionsBar ? (
+      <div
+        data-nowheel
+        className="lg:hidden shrink-0 h-9 border-b border-border/40 bg-card/70 backdrop-blur-md flex items-center gap-2.5 px-2 overflow-x-auto scrollbar-none z-30"
+      >
+        {renderToolOptions()}
+      </div>
+    ) : null;
+
+  /* ── Drawer content (Info + Base64) ──────────────────────────── */
 
   const renderInfo = () => (
     <div className="space-y-3">
       {activeItem ? (
-        <div className="p-2 bg-background rounded border border-border/30 space-y-1 font-mono text-[10px] text-muted-foreground">
+        <div className="p-2.5 bg-background rounded-lg border border-border/30 space-y-1.5 font-mono text-[11px] text-muted-foreground">
           {[
             ["Name", activeItem.file.name],
             ["Format", activeItem.mime || "unknown"],
@@ -1748,12 +3244,23 @@ export function ImageWorkspace({
           Add an image to see its details.
         </p>
       )}
-      <p className="text-[10px] text-muted-foreground leading-relaxed flex gap-1.5">
-        <Info className="h-3.5 w-3.5 shrink-0 text-primary" />
+      <p className="text-[11px] text-muted-foreground leading-relaxed flex gap-1.5">
+        <Info className="h-3.5 w-3.5 shrink-0 text-primary mt-0.5" />
         Exported files don't include the original metadata (EXIF, location,
         camera, colour profile). Colours may shift slightly for wide-gamut
         images.
       </p>
+      <div className="p-2.5 bg-background rounded-lg border border-border/30 text-[11px] text-muted-foreground leading-relaxed space-y-1">
+        <p className="font-black uppercase tracking-widest text-[9px]">
+          Canvas shortcuts
+        </p>
+        <p>
+          Space-drag or Hand pans · Ctrl/⌘-scroll or pinch zooms · Shift+1 fits
+          all · Shift+2 focuses the selected image · Shift-click or drag a box
+          to multi-select · Delete removes · Arrows nudge · Ctrl+Z undoes a
+          move.
+        </p>
+      </div>
     </div>
   );
 
@@ -1788,7 +3295,7 @@ export function ImageWorkspace({
     ];
     return (
       <div className="space-y-3">
-        <div className="p-2 bg-background rounded border border-border/30 font-mono text-[10px] text-muted-foreground space-y-1">
+        <div className="p-2.5 bg-background rounded-lg border border-border/30 font-mono text-[11px] text-muted-foreground space-y-1">
           <div className="flex justify-between">
             <span>File</span>
             <span className="text-foreground">
@@ -1801,8 +3308,8 @@ export function ImageWorkspace({
           </div>
         </div>
         {raw.length > 100 * 1024 && (
-          <p className="text-[10px] text-amber-500 leading-relaxed flex gap-1.5">
-            <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+          <p className="text-[11px] text-amber-500 leading-relaxed flex gap-1.5">
+            <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
             Base64 is about 33% larger than the file. For images over ~100 KB, a
             normal image file usually loads faster than inlining.
           </p>
@@ -1814,40 +3321,118 @@ export function ImageWorkspace({
               <textarea
                 readOnly
                 value={preview(b.value)}
-                className="w-full h-16 p-2 pr-9 bg-muted/40 border border-border/30 rounded text-[9px] font-mono resize-none"
+                className="w-full h-20 p-2 pr-9 bg-muted/40 border border-border/30 rounded-lg text-[10px] font-mono resize-none"
               />
-              <button
-                onClick={() => copyText(b.value, b.key)}
-                aria-label={`Copy ${b.key}`}
-                className="absolute top-1.5 right-1.5 p-1 bg-primary text-primary-foreground rounded shadow hover:bg-primary/90"
+              <Tip
+                label={`Copy ${b.key}`}
+                className="absolute top-1.5 right-1.5"
               >
-                <Copy className="h-3 w-3" />
-              </button>
+                <button
+                  onClick={() => copyText(b.value, b.key)}
+                  aria-label={`Copy ${b.key}`}
+                  className="p-1 bg-primary text-primary-foreground rounded shadow hover:bg-primary/90"
+                >
+                  <Copy className="h-3 w-3" />
+                </button>
+              </Tip>
             </div>
           </div>
         ))}
-        <p className="text-[10px] text-muted-foreground leading-relaxed">
+        <p className="text-[11px] text-muted-foreground leading-relaxed">
           Encodes your original file as-is. Nothing is re-compressed.
         </p>
       </div>
     );
   };
 
-  /* ── Action bar ──────────────────────────────────────────────── */
+  const drawerOpen = view === "base64" || (editing && activeTab === "info");
+
+  const renderDrawer = () => {
+    if (!drawerOpen) return null;
+    return (
+      <aside
+        data-nowheel
+        className="shrink-0 flex flex-col bg-card/80 backdrop-blur-md border-t lg:border-t-0 lg:border-l border-border/40 max-h-[45vh] lg:max-h-none lg:w-64 w-full min-h-0"
+      >
+        <div className="h-10 px-3 border-b border-border/30 shrink-0 flex items-center justify-between">
+          <span className="text-[11px] font-black text-foreground">
+            {view === "base64" ? "Base64 output" : "Image info"}
+          </span>
+          {view !== "base64" && (
+            <Tip label="Close">
+              <button
+                aria-label="Close info"
+                onClick={() => setActiveTab("compress")}
+                className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </Tip>
+          )}
+        </div>
+        <div className="flex-1 min-h-0 overflow-y-auto p-3">
+          {view === "base64" ? renderBase64() : renderInfo()}
+        </div>
+      </aside>
+    );
+  };
+
+  /* ── Left rail ───────────────────────────────────────────────── */
+
+  const renderRail = () => {
+    if (!editing) return null;
+    return (
+      <nav
+        data-nowheel
+        aria-label="Tools"
+        className="shrink-0 flex flex-row lg:flex-col items-stretch gap-0.5 p-1 overflow-x-auto lg:overflow-y-auto border-b lg:border-b-0 lg:border-r border-border/40 bg-card/70 lg:w-[68px] scrollbar-none"
+      >
+        {TAB_DEFS.map((t) => {
+          const Icon = t.icon;
+          const on = activeTab === t.id;
+          return (
+            <Tip
+              key={t.id}
+              label={t.label}
+              side="right"
+              className="inline-flex flex-1 lg:flex-none"
+            >
+              <button
+                onClick={() => setActiveTab(t.id)}
+                aria-pressed={on}
+                className={`w-full min-w-[56px] flex flex-col items-center justify-center gap-1 py-2 rounded-lg transition-all ${
+                  on
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                }`}
+              >
+                <Icon className="h-[18px] w-[18px]" />
+                <span className="text-[10px] font-bold leading-none">
+                  {t.label}
+                </span>
+              </button>
+            </Tip>
+          );
+        })}
+      </nav>
+    );
+  };
+
+  /* ── Result card (opened from the top-bar chip) ──────────────── */
 
   const renderResultCard = () => {
     if (activeError)
       return (
-        <div className="rounded-md border border-rose-500/40 bg-rose-500/10 p-2 text-[10px] text-rose-500 flex gap-1.5">
-          <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+        <div className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-2.5 text-[11px] text-rose-500 flex gap-1.5">
+          <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
           <span>{activeError}</span>
         </div>
       );
     if (!activeResult) return null;
     const delta = pctChange(activeResult.originalSize, activeResult.newSize);
     return (
-      <div className="rounded-md border border-border/40 bg-background p-2 space-y-1 text-[10px]">
-        <div className="flex justify-between font-mono font-bold">
+      <div className="space-y-1.5 text-[11px]">
+        <div className="flex justify-between gap-3 font-mono font-bold">
           <span className="text-foreground">
             {formatBytes(activeResult.originalSize)} →{" "}
             {formatBytes(activeResult.newSize)}
@@ -1876,7 +3461,7 @@ export function ImageWorkspace({
           </div>
         ))}
         {resultList.length > 1 && (
-          <div className="pt-1 mt-1 border-t border-border/30 text-muted-foreground font-mono">
+          <div className="pt-1.5 mt-1.5 border-t border-border/30 text-muted-foreground font-mono">
             All {resultList.length}: {formatBytes(totalOrig)} →{" "}
             {formatBytes(totalNew)} ({pctChange(totalOrig, totalNew)}%)
           </div>
@@ -1885,18 +3470,438 @@ export function ImageWorkspace({
     );
   };
 
+  const renderResultChip = () => {
+    if (!activeError && !activeResult) return null;
+    const delta = activeResult
+      ? pctChange(activeResult.originalSize, activeResult.newSize)
+      : 0;
+    const hasWarn = !!activeResult && activeResult.warnings.length > 0;
+    return (
+      <div ref={chipRef} className="relative shrink-0">
+        <button
+          onClick={() => setShowResult((v) => !v)}
+          aria-expanded={showResult}
+          className={`h-7 px-2 rounded-md border text-[11px] font-mono font-bold inline-flex items-center gap-1.5 transition-all ${
+            activeError
+              ? "border-rose-500/50 bg-rose-500/10 text-rose-500"
+              : "border-border/40 bg-background text-foreground hover:border-border/80"
+          }`}
+        >
+          {activeError ? (
+            <>
+              <AlertTriangle className="h-3.5 w-3.5" /> Failed
+            </>
+          ) : activeResult ? (
+            <>
+              <span className="hidden md:inline">
+                {formatBytes(activeResult.originalSize)} →{" "}
+                {formatBytes(activeResult.newSize)}
+              </span>
+              <span
+                className={delta > 0 ? "text-amber-500" : "text-emerald-500"}
+              >
+                {delta > 0 ? `+${delta}%` : `${delta}%`}
+              </span>
+              {hasWarn && <AlertTriangle className="h-3 w-3 text-amber-500" />}
+            </>
+          ) : null}
+          <ChevronDown
+            className={`h-3 w-3 transition-transform ${showResult ? "rotate-180" : ""}`}
+          />
+        </button>
+        {showResult &&
+          (() => {
+            const r = chipRef.current?.getBoundingClientRect();
+            return (
+              <div
+                ref={popRef}
+                style={{
+                  top: (r?.bottom ?? 48) + 8,
+                  right: Math.max(8, window.innerWidth - (r?.right ?? 0)),
+                }}
+                className="fixed w-80 max-w-[calc(100vw-1rem)] z-50 rounded-xl border border-border/50 bg-card shadow-2xl p-3"
+              >
+                {renderResultCard()}
+              </div>
+            );
+          })()}
+      </div>
+    );
+  };
+
+  const renderPalette = () => {
+    if (!paletteOpen) return null;
+    const idx = Math.min(paletteIdx, Math.max(0, paletteCmds.length - 1));
+    return (
+      <div
+        data-nowheel
+        className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-[2px] flex items-start justify-center pt-[12vh] px-3"
+        onPointerDown={() => setPaletteOpen(false)}
+      >
+        <div
+          role="dialog"
+          aria-label="Command palette"
+          onPointerDown={(e) => e.stopPropagation()}
+          className="w-full max-w-lg rounded-xl border border-border/50 bg-card shadow-2xl overflow-hidden"
+        >
+          <div className="flex items-center gap-2 px-3 h-11 border-b border-border/40">
+            <style>{`
+    div[role="dialog"] input.cmdk-input,
+    div[role="dialog"] input.cmdk-input:hover,
+    div[role="dialog"] input.cmdk-input:focus,
+    div[role="dialog"] input.cmdk-input:focus-visible,
+    div[role="dialog"] input.cmdk-input:active,
+    div[role="dialog"] input.cmdk-input:-webkit-autofill {
+      background: transparent !important;
+      background-color: transparent !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      outline: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      height: 100% !important;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+  `}</style>
+            <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+            <input
+              autoFocus
+              type="text"
+              autoComplete="off"
+              spellCheck={false}
+              value={paletteQuery}
+              onChange={(e) => {
+                setPaletteQuery(e.target.value);
+                setPaletteIdx(0);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "ArrowDown") {
+                  e.preventDefault();
+                  setPaletteIdx((i) => Math.min(i + 1, paletteCmds.length - 1));
+                } else if (e.key === "ArrowUp") {
+                  e.preventDefault();
+                  setPaletteIdx((i) => Math.max(i - 1, 0));
+                } else if (e.key === "Enter") {
+                  e.preventDefault();
+                  const c = paletteCmds[idx];
+                  if (c) runCommand(c);
+                } else if (e.key === "Escape") {
+                  e.preventDefault();
+                  setPaletteOpen(false);
+                }
+              }}
+              placeholder="Search commands…  (resize, rotate, webp, zoom…)"
+              className="no-smooth cmdk-input flex-1 min-w-0 bg-transparent border-0 p-0 text-sm text-foreground placeholder:text-muted-foreground"
+            />
+            <kbd className="text-[10px] font-mono text-muted-foreground border border-border/50 rounded px-1.5 py-0.5">
+              Esc
+            </kbd>
+          </div>
+
+          <div
+            ref={paletteListRef}
+            className="max-h-[50vh] overflow-y-auto p-1.5"
+          >
+            {paletteCmds.length === 0 && (
+              <p className="px-3 py-6 text-center text-xs text-muted-foreground">
+                No matching commands.
+              </p>
+            )}
+            {paletteCmds.map((c, i) => {
+              const Icon = c.icon;
+              const showGroup = i === 0 || paletteCmds[i - 1].group !== c.group;
+              return (
+                <React.Fragment key={c.id}>
+                  {showGroup && (
+                    <div className="px-2.5 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      {c.group}
+                    </div>
+                  )}
+                  <button
+                    data-idx={i}
+                    onClick={() => runCommand(c)}
+                    onPointerMove={() => setPaletteIdx(i)}
+                    className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-left text-xs transition-colors ${
+                      i === idx
+                        ? "bg-primary/10 text-primary"
+                        : "text-foreground hover:bg-secondary/60"
+                    }`}
+                  >
+                    {Icon ? (
+                      <Icon className="h-4 w-4 shrink-0 opacity-80" />
+                    ) : (
+                      <span className="w-4 shrink-0" />
+                    )}
+                    <span className="flex-1 truncate font-medium">
+                      {c.label}
+                    </span>
+                    {c.shortcut && (
+                      <kbd className="text-[10px] font-mono text-muted-foreground border border-border/50 rounded px-1.5 py-0.5">
+                        {c.shortcut}
+                      </kbd>
+                    )}
+                  </button>
+                </React.Fragment>
+              );
+            })}
+          </div>
+
+          <div className="flex items-center justify-between px-3 h-8 border-t border-border/40 text-[10px] text-muted-foreground">
+            <span>↑↓ navigate · Enter run</span>
+            <span>Ctrl+S exports / downloads</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  /* ── Top bar ─────────────────────────────────────────────────── */
+
+  const modeLabel =
+    view === "convert" && mode.source && mode.target
+      ? `${mode.source === "jpeg" ? "JPG" : mode.source.toUpperCase()} → ${mode.target === "jpeg" ? "JPG" : mode.target.toUpperCase()}`
+      : view === "base64"
+        ? "Image to Base64"
+        : (TAB_DEFS.find((t) => t.id === activeTab)?.label ?? "Editor");
+
+  const renderTopBar = () => (
+    <header
+      data-nowheel
+      className="shrink-0 h-10 border-b border-border/40 bg-card flex items-center gap-2 px-2 z-40"
+    >
+      <div className="flex items-center gap-3 min-w-0 shrink">
+        {toolSwitcher}
+        <span
+          className={`hidden sm:block text-xs font-black text-foreground truncate ${showOptionsBar ? "lg:hidden 2xl:block" : ""}`}
+        >
+          {modeLabel}
+        </span>
+      </div>
+
+      <div
+        data-nowheel
+        className="hidden lg:flex flex-1 min-w-0 items-center gap-2.5 overflow-x-auto scrollbar-none px-1"
+      >
+        {renderToolOptions()}
+      </div>
+      <div className="flex-1 lg:hidden" />
+
+      <Tip label="Commands (Ctrl+K)">
+        <button
+          onClick={openPalette}
+          aria-label="Open command palette"
+          className="h-7 px-2 rounded-md border border-border/40 bg-background text-muted-foreground hover:text-foreground hover:border-border/80 inline-flex items-center gap-1.5 text-[11px] font-bold shrink-0 transition-all"
+        >
+          <CommandIcon className="h-3.5 w-3.5" />
+          <span className="hidden xl:inline">Commands</span>
+          <kbd className="hidden xl:inline font-mono text-[10px] opacity-70">
+            Ctrl K
+          </kbd>
+        </button>
+      </Tip>
+
+      {view !== "base64" && (
+        <div className="flex items-center gap-2 min-w-0 lg:shrink-0">
+          <div className="flex items-center gap-2 min-w-0 overflow-x-auto scrollbar-none">
+            {view === "editor" && (
+              <div className={segWrap}>
+                {(["original", "webp", "jpeg", "png"] as TargetFormat[]).map(
+                  (f) => {
+                    const tip =
+                      f === "original"
+                        ? "Keep the original format"
+                        : f === "jpeg"
+                          ? "Export as JPG"
+                          : `Export as ${f.toUpperCase()}`;
+                    return (
+                      <Tip key={f} label={tip}>
+                        <button
+                          disabled={isProcessing}
+                          onClick={() => setTargetFormat(f)}
+                          className={`${segBtn(targetFormat === f)} disabled:opacity-50`}
+                        >
+                          {f === "original"
+                            ? "Same"
+                            : f === "jpeg"
+                              ? "JPG"
+                              : f.toUpperCase()}
+                        </button>
+                      </Tip>
+                    );
+                  },
+                )}
+              </div>
+            )}
+
+            {renderResultChip()}
+
+            {activeResult && (
+              <Tip label="Download this image">
+                <button
+                  onClick={downloadSingle}
+                  className="h-7 px-2.5 rounded-md bg-emerald-500 text-white text-[11px] font-black shadow hover:bg-emerald-400 inline-flex items-center gap-1.5 transition-all active:scale-[0.98] shrink-0"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  <span className="hidden md:inline">Download</span>
+                </button>
+              </Tip>
+            )}
+
+            {resultList.length > 1 && (
+              <Tip
+                label={
+                  isZipping
+                    ? "Creating ZIP…"
+                    : `Download all ${resultList.length} as ZIP`
+                }
+              >
+                <button
+                  onClick={downloadZip}
+                  disabled={isZipping}
+                  className="h-7 px-2.5 rounded-md border border-emerald-500/60 text-emerald-500 text-[11px] font-black hover:bg-emerald-500/10 inline-flex items-center gap-1.5 disabled:opacity-50 transition-all active:scale-[0.98] shrink-0"
+                >
+                  {isZipping ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <FileArchive className="h-3.5 w-3.5" />
+                  )}
+                  <span className="hidden md:inline">ZIP</span> (
+                  {resultList.length})
+                </button>
+              </Tip>
+            )}
+          </div>
+
+          <Tip label={applyTipLabel}>
+            <button
+              onClick={handleProcess}
+              disabled={!canRun}
+              className="relative overflow-hidden h-7 min-w-[96px] px-3 rounded-md text-[11px] font-black tracking-wide shadow transition-all flex items-center justify-center bg-primary text-primary-foreground hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:brightness-100 shrink-0"
+            >
+              {isProcessing && (
+                <div
+                  className="absolute inset-y-0 left-0 bg-black/30 transition-all duration-200 ease-out"
+                  style={{ width: `${progress}%` }}
+                />
+              )}
+              <div className="relative z-10 flex items-center justify-center gap-1.5">
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" />
+                    <span className="whitespace-nowrap">
+                      {progress}%{eta && ` · ${eta}`}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <Settings2 className="h-3.5 w-3.5 shrink-0" />
+                    <span className="whitespace-nowrap">{applyLabel}</span>
+                  </>
+                )}
+              </div>
+            </button>
+          </Tip>
+        </div>
+      )}
+    </header>
+  );
+
+  /* ── Footer ──────────────────────────────────────────────────── */
+
+  const renderThumbs = () =>
+    items.length > 0 && (
+      <div
+        data-nowheel
+        className="h-11 bg-card/70 border-t border-border/40 flex items-center gap-3 px-2 shrink-0 z-30"
+        onWheel={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center gap-2 overflow-x-auto flex-1 min-w-0 scrollbar-none">
+          {items.map((item) => {
+            const hasResult = !!results[item.id];
+            const hasError = !!errors[item.id];
+            const isSelected = activeItem?.id === item.id;
+            return (
+              <div
+                key={item.id}
+                onClick={() => focusItem(item)}
+                title={errors[item.id] ?? item.file.name}
+                className={`relative w-8 h-8 rounded-md overflow-hidden cursor-pointer group shrink-0 transition-all ${
+                  isSelected
+                    ? "ring-2 ring-primary"
+                    : "ring-1 ring-border/50 hover:ring-primary/60 opacity-80 hover:opacity-100"
+                }`}
+              >
+                <img
+                  src={item.url}
+                  className="w-full h-full object-cover"
+                  alt={item.file.name}
+                  draggable={false}
+                />
+                {(hasResult || hasError) && (
+                  <span
+                    className={`absolute bottom-0.5 left-0.5 w-1.5 h-1.5 rounded-full ring-1 ring-background ${hasError ? "bg-rose-500" : "bg-emerald-500"}`}
+                  />
+                )}
+                {!isProcessing && (
+                  <button
+                    aria-label={`Remove ${item.file.name}`}
+                    onClick={(e) => removeItem(item.id, e)}
+                    className="absolute top-0 right-0 bg-black/70 hover:bg-rose-500 text-white rounded-bl p-px opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all"
+                  >
+                    <X className="h-2.5 w-2.5" />
+                  </button>
+                )}
+              </div>
+            );
+          })}
+          {!isProcessing && items.length < MAX_FILES && (
+            <Tip label="Add more images" side="top">
+              <button
+                aria-label="Add more images"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-8 h-8 rounded-md border border-dashed border-border/70 hover:border-primary hover:bg-primary/10 flex items-center justify-center shrink-0 transition-all group"
+              >
+                {isLoadingFiles ? (
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                ) : (
+                  <Plus className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                )}
+              </button>
+            </Tip>
+          )}
+        </div>
+        <div className="hidden md:flex gap-3 shrink-0 text-[10px] text-muted-foreground font-mono">
+          {activeItem && (
+            <span>
+              {activeItem.width} × {activeItem.height} px ·{" "}
+              {formatBytes(activeItem.file.size)}
+            </span>
+          )}
+          <span>
+            {items.length} image{items.length > 1 ? "s" : ""}
+            {selectedIds.length > 1 ? ` · ${selectedIds.length} selected` : ""}
+          </span>
+          {view !== "base64" && (
+            <span>
+              {targetFormat === "original"
+                ? "ORIGINAL"
+                : targetFormat === "jpeg"
+                  ? "JPG"
+                  : targetFormat.toUpperCase()}
+            </span>
+          )}
+        </div>
+      </div>
+    );
+
   /* ════════════════════════════════════════════════════════════════
      LAYOUT
   ════════════════════════════════════════════════════════════════ */
 
-  const content = (
-    <div
-      className={`flex flex-col lg:flex-row bg-background overflow-hidden transition-all duration-300 ${
-        isFullscreen
-          ? "fixed inset-0 z-[99999] m-0 rounded-none w-screen h-[100dvh] border-none"
-          : "lg:h-[calc(100dvh-120px)] -m-4 sm:-m-6 rounded-xl border border-border/40"
-      }`}
-    >
+  return (
+    <div className="flex flex-col bg-background overflow-hidden w-full h-full flex-1 min-h-0 border-none rounded-none">
       <input
         type="file"
         ref={fileInputRef}
@@ -1906,362 +3911,49 @@ export function ImageWorkspace({
         className="hidden"
       />
 
-      {/* ── LEFT: canvas ── */}
-      <div
-        className="flex-1 flex flex-col relative overflow-hidden min-h-[360px]"
-        style={{
-          backgroundColor: "hsl(var(--muted) / 0.2)",
-          backgroundImage: showChecker
-            ? "conic-gradient(var(--border) 90deg, transparent 90deg 180deg, var(--border) 180deg 270deg, transparent 270deg)"
-            : "none",
-          backgroundSize: "20px 20px",
-        }}
-        onDragEnter={(e) => {
-          e.preventDefault();
-          setIsDragging(true);
-        }}
-        onDragLeave={(e) => {
-          if (e.currentTarget.contains(e.relatedTarget as Node)) return;
-          setIsDragging(false);
-        }}
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={(e) => {
-          e.preventDefault();
-          setIsDragging(false);
-          addFiles(Array.from(e.dataTransfer.files));
-        }}
-      >
-        <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 bg-background/90 backdrop-blur-md border border-border/50 rounded-md p-1 shadow-lg">
-          <button
-            aria-label="Zoom out"
-            onClick={() => setZoom((z) => Math.max(0.1, +(z - 0.1).toFixed(2)))}
-            className="p-1.5 hover:bg-secondary rounded text-muted-foreground hover:text-foreground"
-          >
-            <ZoomOut className="h-4 w-4" />
-          </button>
-          <button
-            onClick={() => setZoom(1)}
-            title="Reset zoom"
-            className="text-[11px] font-mono font-bold w-12 text-center text-foreground"
-          >
-            {Math.round(zoom * 100)}%
-          </button>
-          <button
-            aria-label="Zoom in"
-            onClick={() => setZoom((z) => Math.min(5, +(z + 0.1).toFixed(2)))}
-            className="p-1.5 hover:bg-secondary rounded text-muted-foreground hover:text-foreground"
-          >
-            <ZoomIn className="h-4 w-4" />
-          </button>
-          <div className="w-px h-4 bg-border mx-1" />
-          <button
-            aria-label="Toggle transparency grid"
-            onClick={() => setShowChecker((v) => !v)}
-            className={`p-1.5 rounded ${showChecker ? "bg-primary/20 text-primary" : "hover:bg-secondary text-muted-foreground"}`}
-            title="Toggle transparency grid"
-          >
-            <Layers className="h-4 w-4" />
-          </button>
-          <div className="w-px h-4 bg-border mx-1" />
-          <button
-            aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-            onClick={() => setIsFullscreen((v) => !v)}
-            className="p-1.5 hover:bg-secondary rounded text-muted-foreground hover:text-foreground"
-          >
-            {isFullscreen ? (
-              <Minimize2 className="h-4 w-4" />
-            ) : (
-              <Maximize2 className="h-4 w-4" />
-            )}
-          </button>
+      {renderPalette()}
+
+      {renderTopBar()}
+
+      <div className="flex-1 min-h-0 flex flex-col lg:flex-row">
+        {renderRail()}
+
+        {/* canvas column: options bar → canvas → thumbnails → status */}
+        <div
+          className="flex-1 min-w-0 min-h-50 lg:min-h-80 flex flex-col relative overflow-hidden"
+          onDragEnter={(e) => {
+            e.preventDefault();
+            setIsDragging(true);
+          }}
+          onDragLeave={(e) => {
+            if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+            setIsDragging(false);
+          }}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={(e) => {
+            e.preventDefault();
+            setIsDragging(false);
+            const files = Array.from(e.dataTransfer.files);
+            const r = viewRef.current?.getBoundingClientRect();
+            const c = camRef.current;
+            addFiles(
+              files,
+              r
+                ? [
+                    (e.clientX - r.left - c.x) / c.zoom,
+                    (e.clientY - r.top - c.y) / c.zoom,
+                  ]
+                : undefined,
+            );
+          }}
+        >
+          {renderOptionsBar()}
+          {renderCanvas()}
+          {renderThumbs()}
         </div>
 
-        <div className="flex-1 flex items-center justify-center p-8 pt-16 overflow-auto relative">
-          <div
-            className="relative flex items-center justify-center transition-transform duration-200"
-            style={{
-              transform: `scale(${zoom})`,
-              transformOrigin: "center center",
-            }}
-          >
-            {renderCanvas()}
-          </div>
-        </div>
-
-        {items.length > 0 && (
-          <div className="h-24 bg-background/95 backdrop-blur-md border-t border-border/40 flex items-center gap-3 px-4 overflow-x-auto shrink-0 z-30">
-            {items.map((item) => {
-              const hasResult = !!results[item.id];
-              const hasError = !!errors[item.id];
-              return (
-                <div
-                  key={item.id}
-                  onClick={() => setActiveId(item.id)}
-                  title={errors[item.id] ?? item.file.name}
-                  className={`relative w-16 h-16 rounded-lg overflow-hidden border-2 cursor-pointer group flex-shrink-0 transition-all ${
-                    activeItem?.id === item.id
-                      ? "border-primary ring-2 ring-primary/20 scale-105"
-                      : "border-transparent hover:border-border/80 opacity-80 hover:opacity-100"
-                  }`}
-                >
-                  <img
-                    src={item.url}
-                    className="w-full h-full object-cover"
-                    alt={item.file.name}
-                    draggable={false}
-                  />
-                  {(hasResult || hasError) && (
-                    <span
-                      className={`absolute bottom-1 left-1 w-2.5 h-2.5 rounded-full border border-background ${hasError ? "bg-rose-500" : "bg-emerald-500"}`}
-                    />
-                  )}
-                  {!isProcessing && (
-                    <button
-                      aria-label={`Remove ${item.file.name}`}
-                      onClick={(e) => removeItem(item.id, e)}
-                      className="absolute top-1 right-1 bg-black/60 hover:bg-rose-500 text-white rounded-full p-0.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all z-10"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-            {!isProcessing && items.length < MAX_FILES && (
-              <button
-                aria-label="Add more images"
-                onClick={() => fileInputRef.current?.click()}
-                className="w-16 h-16 rounded-lg border-2 border-dashed border-border/60 hover:border-primary/50 hover:bg-primary/5 flex items-center justify-center flex-shrink-0 transition-all group"
-              >
-                {isLoadingFiles ? (
-                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                ) : (
-                  <Plus className="h-6 w-6 text-muted-foreground group-hover:text-primary" />
-                )}
-              </button>
-            )}
-          </div>
-        )}
-
-        <div className="h-8 bg-card border-t border-border/40 flex items-center px-4 justify-between shrink-0 text-[10px] text-muted-foreground font-mono z-20">
-          <div className="flex gap-4">
-            <span>
-              {activeItem
-                ? `${activeItem.width} × ${activeItem.height} px`
-                : "No image"}
-            </span>
-            {activeItem && <span>{formatBytes(activeItem.file.size)}</span>}
-            {items.length > 1 && <span>{items.length} images</span>}
-          </div>
-          <div className="flex gap-4">
-            {view !== "base64" && (
-              <span>
-                {targetFormat === "original"
-                  ? "ORIGINAL FORMAT"
-                  : targetFormat.toUpperCase()}
-              </span>
-            )}
-            <span>
-              {view === "convert"
-                ? "CONVERT"
-                : view === "base64"
-                  ? "BASE64"
-                  : activeTab.toUpperCase()}
-            </span>
-          </div>
-        </div>
+        {renderDrawer()}
       </div>
-
-      {/* ── RIGHT: properties ── */}
-      <aside className="bg-card border-t lg:border-t-0 lg:border-l border-border/40 flex flex-col w-full lg:w-80 shrink-0 lg:h-full z-40">
-        <div className="h-10 border-b border-border/40 flex items-center justify-between px-3 shrink-0 bg-muted/20">
-          <span className="text-[10px] font-black uppercase tracking-widest text-foreground">
-            {view === "convert"
-              ? "Convert"
-              : view === "base64"
-                ? "Base64"
-                : "Properties"}
-          </span>
-          <button
-            aria-label={isFullscreen ? "Exit fullscreen" : "Maximize workspace"}
-            onClick={() => setIsFullscreen((v) => !v)}
-            className="p-1.5 text-muted-foreground hover:text-foreground rounded hover:bg-secondary"
-          >
-            {isFullscreen ? (
-              <Minimize2 className="h-3.5 w-3.5" />
-            ) : (
-              <Maximize2 className="h-3.5 w-3.5" />
-            )}
-          </button>
-        </div>
-
-        <div className="flex-1 min-h-0 lg:overflow-y-auto">
-          <fieldset
-            disabled={isProcessing}
-            className="p-3 space-y-4 min-w-0 border-0 m-0 disabled:opacity-60"
-          >
-            {view === "editor" && (
-              <>
-                <div className="flex bg-background p-1 rounded-md border border-border/40">
-                  {TAB_DEFS.map((t) => {
-                    const Icon = t.icon;
-                    return (
-                      <button
-                        key={t.id}
-                        onClick={() => setActiveTab(t.id)}
-                        className={`flex-1 min-w-0 py-1.5 rounded text-[9px] font-black flex flex-col items-center gap-1 transition-all ${
-                          activeTab === t.id
-                            ? "bg-card text-foreground shadow-sm border border-border/50"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
-                      >
-                        <Icon className="h-3.5 w-3.5" /> {t.label}
-                      </button>
-                    );
-                  })}
-                </div>
-                {renderEditChips()}
-                {activeTab === "compress" && renderCompress()}
-                {activeTab === "resize" && renderResize()}
-                {activeTab === "crop" && renderCrop()}
-                {activeTab === "rotate" && renderRotate()}
-                {activeTab === "info" && renderInfo()}
-              </>
-            )}
-            {view === "convert" && (
-              <div className="space-y-4">
-                <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  Converting to{" "}
-                  <span className="font-black text-foreground">
-                    {targetFormat === "jpeg"
-                      ? "JPG"
-                      : targetFormat.toUpperCase()}
-                  </span>
-                  . Choose the quality, then convert.
-                </p>
-                {targetFormat !== "png" ? (
-                  <div className="grid grid-cols-3 gap-1.5">
-                    {(Object.keys(QUALITY) as QualityPreset[]).map((p) => (
-                      <button
-                        key={p}
-                        onClick={() => setQualityPreset(p)}
-                        className={`p-2 rounded border text-left flex flex-col ${qualityPreset === p ? "border-primary bg-primary/10 text-primary" : "border-border/30 text-foreground"}`}
-                      >
-                        <span className="text-[10px] font-black">
-                          {QUALITY_LABEL[p]}
-                        </span>
-                        <span className="text-[9px] text-muted-foreground mt-0.5">
-                          {Math.round(QUALITY[p] * 100)}%
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-[10px] text-muted-foreground">
-                    PNG is lossless, so there's no quality setting.
-                  </p>
-                )}
-                {alphaToJpeg && (
-                  <p className="text-[10px] text-amber-500">
-                    Transparent areas will be filled with white.
-                  </p>
-                )}
-              </div>
-            )}
-            {view === "base64" && renderBase64()}
-          </fieldset>
-        </div>
-
-        {view !== "base64" && (
-          <div className="p-3 border-t border-border/40 bg-card lg:bg-muted/20 shrink-0 space-y-3 sticky bottom-0 lg:static z-30">
-            {renderResultCard()}
-
-            {view === "editor" && (
-              <div className="space-y-1.5">
-                <span className={label}>Output format</span>
-                <div className="grid grid-cols-4 gap-1">
-                  {(["original", "webp", "jpeg", "png"] as TargetFormat[]).map(
-                    (f) => (
-                      <button
-                        key={f}
-                        disabled={isProcessing}
-                        onClick={() => setTargetFormat(f)}
-                        className={`py-1.5 rounded border text-[10px] font-black transition-all ${targetFormat === f ? "border-primary bg-primary/10 text-primary" : "border-border/40 text-muted-foreground hover:text-foreground"}`}
-                      >
-                        {f === "original"
-                          ? "Same"
-                          : f === "jpeg"
-                            ? "JPG"
-                            : f.toUpperCase()}
-                      </button>
-                    ),
-                  )}
-                </div>
-              </div>
-            )}
-
-            <button
-              onClick={handleProcess}
-              disabled={!canRun}
-              className="relative overflow-hidden w-full py-2.5 rounded text-[10px] font-black uppercase tracking-widest shadow-lg transition-all flex items-center justify-center bg-primary text-primary-foreground hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:brightness-100"
-            >
-              {isProcessing && (
-                <div
-                  className="absolute inset-y-0 left-0 bg-black/30 transition-all duration-200 ease-out"
-                  style={{ width: `${progress}%` }}
-                />
-              )}
-              <div className="relative z-10 flex items-center justify-center gap-2 w-full px-2">
-                {isProcessing ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin shrink-0" />
-                    <span className="truncate">
-                      {progress}% {eta && `· ${eta}`}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <Settings2 className="h-4 w-4 shrink-0" />
-                    {items.length === 0
-                      ? "Add images first"
-                      : pendingCount === 0
-                        ? "All processed"
-                        : `${view === "convert" ? "Convert" : "Apply & export"}${pendingCount > 1 ? ` (${pendingCount})` : ""}`}
-                  </>
-                )}
-              </div>
-            </button>
-
-            {activeResult && (
-              <button
-                onClick={downloadSingle}
-                className="w-full py-2.5 rounded bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-emerald-400 flex items-center justify-center gap-2"
-              >
-                <Download className="h-4 w-4" /> Download this image
-              </button>
-            )}
-            {resultList.length > 1 && (
-              <button
-                onClick={downloadZip}
-                disabled={isZipping}
-                className="w-full py-2.5 rounded border border-emerald-500 text-emerald-500 text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500/10 flex items-center justify-center gap-2 disabled:opacity-60"
-              >
-                {isZipping ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <FileArchive className="h-4 w-4" />
-                )}
-                Download all as ZIP ({resultList.length})
-              </button>
-            )}
-          </div>
-        )}
-      </aside>
     </div>
   );
-
-  if (isFullscreen && typeof document !== "undefined") {
-    return createPortal(content, document.body);
-  }
-  return content;
 }

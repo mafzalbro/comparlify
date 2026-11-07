@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import {
   Globe,
   Link2,
@@ -24,35 +25,137 @@ import {
   Zap,
   Download,
   XCircle,
+  Command as CommandIcon,
+  Play,
 } from "lucide-react";
 
-interface WebDiagnosticsWorkspaceProps {
-  activeToolId?: string;
-}
+// ─────────────────────────────────────────────────────────────────────────────
+// TYPES & CONSTANTS
+// ─────────────────────────────────────────────────────────────────────────────
 
 const WEB_TOOLS = [
-  { id: "url-analyzer", name: "URL Intelligence", icon: Link2 },
-  { id: "http-status-checker", name: "HTTP Diagnostics", icon: Server },
-  { id: "dns-lookup", name: "DNS Analyzer", icon: Network },
-  { id: "ip-lookup", name: "IP Intelligence", icon: Cpu },
-  { id: "user-agent-parser", name: "User-Agent", icon: Bot },
-  { id: "meta-tag-analyzer", name: "SEO Meta Inspector", icon: Search },
-  { id: "robots-txt-generator", name: "Robots Playground", icon: ShieldCheck },
-  { id: "sitemap-generator", name: "Sitemap Crawler", icon: Layers },
-  { id: "open-graph-preview", name: "Social Preview Studio", icon: Eye },
-  { id: "schema-markup-generator", name: "Schema Builder", icon: FileCode },
+  {
+    id: "url-analyzer",
+    name: "URL Intelligence",
+    icon: Link2,
+    path: "/tools/web/diagnostics/url-analyzer",
+  },
+  {
+    id: "http-status-checker",
+    name: "HTTP Diagnostics",
+    icon: Server,
+    path: "/tools/web/diagnostics/http-status-checker",
+  },
+  {
+    id: "dns-lookup",
+    name: "DNS Analyzer",
+    icon: Network,
+    path: "/tools/web/diagnostics/dns-lookup",
+  },
+  {
+    id: "ip-lookup",
+    name: "IP Intelligence",
+    icon: Cpu,
+    path: "/tools/web/diagnostics/ip-lookup",
+  },
+  {
+    id: "user-agent-parser",
+    name: "User-Agent Parser",
+    icon: Bot,
+    path: "/tools/web/diagnostics/user-agent-parser",
+  },
+  {
+    id: "meta-tag-analyzer",
+    name: "SEO Meta Inspector",
+    icon: Search,
+    path: "/tools/web/seo/meta-tag-analyzer",
+  },
+  {
+    id: "robots-txt-generator",
+    name: "Robots Playground",
+    icon: ShieldCheck,
+    path: "/tools/web/seo/robots-txt-generator",
+  },
+  {
+    id: "sitemap-generator",
+    name: "Link Crawler",
+    icon: Layers,
+    path: "/tools/web/seo/sitemap-generator",
+  },
+  {
+    id: "open-graph-preview",
+    name: "Social Preview",
+    icon: Eye,
+    path: "/tools/web/seo/open-graph-preview",
+  },
+  {
+    id: "schema-markup-generator",
+    name: "Schema Builder",
+    icon: FileCode,
+    path: "/tools/web/seo/schema-generator",
+  },
 ];
 
-export function WebDiagnosticsWorkspace({ activeToolId }: WebDiagnosticsWorkspaceProps) {
-  const [selectedToolId, setSelectedToolId] = useState<string>(activeToolId || "url-analyzer");
-  const [targetUrlInput, setTargetUrlInput] = useState<string>("https://facebook.com");
+const labelCls =
+  "text-[9px] font-black uppercase tracking-widest text-muted-foreground block mb-1";
+const inputCls =
+  "h-7 w-full px-2 bg-background border border-border/40 rounded-md text-[11px] font-mono text-foreground focus:outline-none focus:border-primary";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MAIN COMPONENT
+// ─────────────────────────────────────────────────────────────────────────────
+
+export function WebDiagnosticsWorkspace({
+  activeToolId,
+}: {
+  activeToolId?: string;
+}) {
+  const router = useRouter();
+  const [tool, setTool] = useState<string>(activeToolId || "url-analyzer");
+  const [targetUrl, setTargetUrl] = useState<string>("https://facebook.com");
   const [loading, setLoading] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
   const [shared, setShared] = useState<boolean>(false);
   const [auditData, setAuditData] = useState<any>(null);
-  const isScrollingRef = useRef<boolean>(false);
 
-  // Auto-run diagnostics helper
+  // Command Palette State
+  const [palette, setPalette] = useState(false);
+  const [paletteQuery, setPaletteQuery] = useState("");
+  const [paletteIdx, setPaletteIdx] = useState(0);
+  const paletteListRef = useRef<HTMLUListElement>(null);
+
+  useEffect(() => {
+    if (activeToolId) setTool(activeToolId);
+  }, [activeToolId]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPalette((p) => !p);
+        setPaletteQuery("");
+        setPaletteIdx(0);
+      }
+      if (e.key === "Escape" && palette) setPalette(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [palette]);
+
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
+  const handleShare = () => {
+    const url = new URL(window.location.href);
+    url.hash = `tool=${tool}&target=${encodeURIComponent(targetUrl)}`;
+    navigator.clipboard.writeText(url.toString());
+    setShared(true);
+    setTimeout(() => setShared(false), 1500);
+  };
+
   const runServerDiagnostics = async (urlToTest: string) => {
     if (!urlToTest) return;
     setLoading(true);
@@ -71,93 +174,26 @@ export function WebDiagnosticsWorkspace({ activeToolId }: WebDiagnosticsWorkspac
     }
   };
 
-  // Sync activeToolId prop & Parse URL Hash/Query on mount
-  useEffect(() => {
-    let activeUrl = targetUrlInput;
-
-    if (typeof window !== "undefined") {
-      const hashStr = window.location.hash ? window.location.hash.substring(1) : "";
-      const queryStr = window.location.search ? window.location.search.substring(1) : "";
-      const params = new URLSearchParams(hashStr || queryStr);
-
-      const hashTool = params.get("tool");
-      const hashTarget = params.get("target");
-
-      if (hashTool && WEB_TOOLS.some((t) => t.id === hashTool)) {
-        setSelectedToolId(hashTool);
-      } else if (activeToolId) {
-        setSelectedToolId(activeToolId);
-      }
-
-      if (hashTarget) {
-        const decoded = decodeURIComponent(hashTarget);
-        setTargetUrlInput(decoded);
-        activeUrl = decoded;
-      }
-    } else if (activeToolId) {
-      setSelectedToolId(activeToolId);
+  const cleanDomain = useMemo(() => {
+    try {
+      const u = targetUrl.startsWith("http")
+        ? targetUrl
+        : `https://${targetUrl}`;
+      return new URL(u).hostname;
+    } catch (_) {
+      return targetUrl.replace(/^https?:\/\//, "").split("/")[0];
     }
+  }, [targetUrl]);
 
-    runServerDiagnostics(activeUrl);
-  }, [activeToolId]);
+  const activeToolObj = WEB_TOOLS.find((t) => t.id === tool) || WEB_TOOLS[0];
+  const ToolIcon = activeToolObj.icon;
 
-  // Scroll to active tool section when activeToolId changes
   useEffect(() => {
-    if (!activeToolId) return;
-    setSelectedToolId(activeToolId);
-    const elem = document.getElementById(activeToolId);
-    if (elem) {
-      isScrollingRef.current = true;
-      elem.scrollIntoView({ behavior: "smooth", block: "start" });
-      setTimeout(() => {
-        isScrollingRef.current = false;
-      }, 800);
-    }
-  }, [activeToolId]);
-
-  // IntersectionObserver to update URL path/hash as user scrolls down the full-screen page
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (isScrollingRef.current) return;
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const toolId = entry.target.id;
-            setSelectedToolId(toolId);
-            const targetPath = `/tools/web/${toolId}`;
-            if (window.location.pathname !== targetPath) {
-              window.history.replaceState(null, "", targetPath);
-            }
-            window.dispatchEvent(new CustomEvent("comparlify-subtool-change", { detail: toolId }));
-          }
-        });
-      },
-      { threshold: 0.35 }
-    );
-
-    WEB_TOOLS.forEach((t) => {
-      const elem = document.getElementById(t.id);
-      if (elem) observer.observe(elem);
-    });
-
-    return () => observer.disconnect();
+    runServerDiagnostics(targetUrl);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleShare = () => {
-    const url = new URL(window.location.href);
-    url.hash = `tool=${selectedToolId}&target=${encodeURIComponent(targetUrlInput)}`;
-    navigator.clipboard.writeText(url.toString());
-    setShared(true);
-    setTimeout(() => setShared(false), 2000);
-  };
-
-  // Custom Executive PDF Export generator (clean, custom report layout, not SS)
+  // Custom Executive PDF Export generator (Restored 1:1)
   const handleExportPDF = () => {
     const printWin = window.open("", "_blank", "width=900,height=1000");
     if (!printWin) return;
@@ -190,7 +226,7 @@ export function WebDiagnosticsWorkspace({ activeToolId }: WebDiagnosticsWorkspac
           <div style="font-size:11px;color:#64748b;font-weight:600;">Technical Web Audit Report</div>
         </div>
         <div class="meta-card">
-          <div class="meta-item"><span class="meta-label">Target URL</span><span class="meta-val">${targetUrlInput}</span></div>
+          <div class="meta-item"><span class="meta-label">Target URL</span><span class="meta-val">${targetUrl}</span></div>
           <div class="meta-item"><span class="meta-label">Domain</span><span class="meta-val">${cleanDomain}</span></div>
           <div class="meta-item"><span class="meta-label">Status</span><span class="meta-val">${auditData?.status || 200} ${auditData?.statusText || "OK"}</span></div>
           <div class="meta-item"><span class="meta-label">Response Time</span><span class="meta-val">${auditData?.responseTimeMs || 142} ms</span></div>
@@ -201,9 +237,9 @@ export function WebDiagnosticsWorkspace({ activeToolId }: WebDiagnosticsWorkspac
           <div class="sec-title">1. URL Structure & Canonical</div>
           <table>
             <tr><th>Property</th><th>Value</th></tr>
-            <tr><td>Target URL</td><td>${targetUrlInput}</td></tr>
+            <tr><td>Target URL</td><td>${targetUrl}</td></tr>
             <tr><td>Clean Domain</td><td>${cleanDomain}</td></tr>
-            <tr><td>Canonical Link</td><td>${auditData?.seo?.canonical || targetUrlInput}</td></tr>
+            <tr><td>Canonical Link</td><td>${auditData?.seo?.canonical || targetUrl}</td></tr>
           </table>
         </div>
 
@@ -222,146 +258,246 @@ export function WebDiagnosticsWorkspace({ activeToolId }: WebDiagnosticsWorkspac
           Generated by Comparlify Executive Technical Web Audit Suite • All Rights Reserved
         </div>
         <script>
-          window.onload = function() {
-            window.print();
-          };
+          window.onload = function() { window.print(); };
         </script>
       </body>
       </html>
     `;
-
     printWin.document.write(html);
     printWin.document.close();
   };
 
-  // Extract clean domain for DNS & IP sub-tools
-  const cleanDomain = useMemo(() => {
-    try {
-      const u = targetUrlInput.startsWith("http") ? targetUrlInput : `https://${targetUrlInput}`;
-      return new URL(u).hostname;
-    } catch (_) {
-      return targetUrlInput.replace(/^https?:\/\//, "").split("/")[0];
-    }
-  }, [targetUrlInput]);
+  const actions = WEB_TOOLS.map((t) => ({
+    id: `tool-${t.id}`,
+    label: `Open ${t.name}`,
+    group: "Diagnostics",
+    run: () => {
+      setTool(t.id);
+      router.push(t.path);
+    },
+  }));
+  const filteredActions = actions.filter((a) =>
+    a.label.toLowerCase().includes(paletteQuery.toLowerCase()),
+  );
 
   return (
-    <div className="w-full space-y-6 min-h-screen">
-      {/* Sticky Workspace Header & Target URL Input Bar */}
-      <div className="sticky top-0 z-30 rounded-2xl border border-border/30 bg-card/80 backdrop-blur-xl p-4 sm:p-5 space-y-4 shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-3 border-b border-border/20">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-primary/10 text-primary shrink-0">
-              <Globe className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-                Web Diagnostics & SEO Engine
-              </h2>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Full-spectrum technical website audit: HTTP, DNS, Meta Tags, Robots, Sitemaps, Open Graph & Schema.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={handleExportPDF}
-              className="px-3 py-1.5 rounded-lg border border-border/30 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold flex items-center gap-1.5 transition-all"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span>Export Custom PDF Report</span>
-            </button>
-            <button
-              onClick={handleShare}
-              className="px-3 py-1.5 rounded-lg border border-border/30 text-muted-foreground hover:bg-secondary/40 hover:text-foreground text-xs font-medium flex items-center gap-1.5 transition-all"
-            >
-              {shared ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Share2 className="w-3.5 h-3.5" />}
-              <span>{shared ? "Link Copied" : "Share"}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Global Single Target URL Input Bar */}
-        <div className="flex flex-col sm:flex-row items-center gap-2">
-          <input
-            type="text"
-            value={targetUrlInput}
-            onChange={(e) => setTargetUrlInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && runServerDiagnostics(targetUrlInput)}
-            placeholder="Enter web address (e.g. https://facebook.com)"
-            className="w-full px-4 py-2.5 rounded-xl border border-border/30 bg-background/60 text-sm text-foreground font-mono focus:ring-1 focus:ring-primary/40 outline-none"
-          />
+    <div className="flex flex-col bg-background text-foreground overflow-hidden w-full h-full flex-1 min-h-0">
+      {/* TOP BAR */}
+      <div className="h-10 shrink-0 flex items-center justify-between px-2 border-b border-border/40 bg-card/50 overflow-x-auto">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="flex items-center gap-1.5 pr-2 border-r border-border/40 text-[11px] font-black uppercase tracking-widest text-foreground shrink-0">
+            <ToolIcon className="h-3.5 w-3.5 text-primary" />{" "}
+            {activeToolObj.name}
+          </span>
           <button
-            onClick={() => runServerDiagnostics(targetUrlInput)}
-            disabled={loading}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold whitespace-nowrap flex items-center justify-center gap-2 shadow-sm transition-all hover:bg-primary/90"
+            onClick={() => setPalette(true)}
+            className="shrink-0 hidden sm:flex items-center gap-2 h-7 px-2.5 rounded-md border border-border/40 bg-background text-[11px] text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors"
           >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
-            {loading ? "Analyzing..." : "Analyze URL"}
+            <CommandIcon className="h-3 w-3" /> Search{" "}
+            <kbd className="font-mono text-[10px] px-1 rounded bg-secondary">
+              Ctrl K
+            </kbd>
+          </button>
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            onClick={handleExportPDF}
+            className="h-7 px-2 rounded-md border border-border/40 bg-primary/10 hover:bg-primary/20 text-primary text-[11px] font-semibold flex items-center gap-1 transition-all"
+          >
+            <Download className="w-3.5 h-3.5" />{" "}
+            <span className="hidden sm:inline">Export PDF</span>
+          </button>
+          <button
+            onClick={handleShare}
+            className="px-2 py-1 rounded-md border border-border/40 bg-background hover:bg-secondary text-[11px] font-bold text-foreground inline-flex items-center gap-1 transition-colors"
+          >
+            {shared ? (
+              <Check className="h-3 w-3 text-emerald-500" />
+            ) : (
+              <Share2 className="h-3 w-3" />
+            )}{" "}
+            {shared ? "Copied" : "Share"}
           </button>
         </div>
       </div>
 
-      {/* Stacked Full-Screen Tool Sections (All 10 stacked in sequence) */}
-      <div className="space-y-6">
-        <section id="url-analyzer" className="scroll-mt-32 rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-5 sm:p-6">
-          <UrlAnalyzerSub targetUrl={targetUrlInput} onCopy={handleCopy} copied={copied} />
-        </section>
+      <div className="flex-1 min-h-0 flex flex-col md:flex-row">
+        {/* LEFT RAIL */}
+        <nav className="shrink-0 gap-0.5 p-1.5 border-b md:border-b-0 md:border-r border-border/40 bg-card/30 flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto w-full md:w-52">
+          <span className="hidden md:block px-2 pt-1 pb-0.5 text-[9px] font-black uppercase tracking-widest text-muted-foreground/70">
+            Diagnostics Suite
+          </span>
+          {WEB_TOOLS.map((t) => {
+            const TIcon = t.icon;
+            return (
+              <button
+                key={t.id}
+                onClick={() => {
+                  setTool(t.id);
+                  router.push(t.path);
+                }}
+                className={`shrink-0 flex items-center gap-2 px-2 py-1.5 rounded-md text-[11px] font-bold transition-all whitespace-nowrap ${tool === t.id ? "bg-primary/10 text-primary ring-1 ring-primary/30" : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"}`}
+              >
+                <TIcon className="h-3.5 w-3.5 shrink-0" /> {t.name}
+              </button>
+            );
+          })}
+        </nav>
 
-        <section id="http-status-checker" className="scroll-mt-32 rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-5 sm:p-6">
-          <HttpStatusSub targetUrl={targetUrlInput} auditData={auditData} onCopy={handleCopy} copied={copied} />
-        </section>
+        {/* CENTER CANVAS */}
+        <main className="flex-1 min-w-0 min-h-0 bg-background overflow-y-auto p-3 sm:p-4">
+          <div className="max-w-5xl mx-auto space-y-4">
+            {tool === "url-analyzer" && (
+              <UrlAnalyzerSub targetUrl={targetUrl} />
+            )}
+            {tool === "http-status-checker" && (
+              <HttpStatusSub auditData={auditData} />
+            )}
+            {tool === "dns-lookup" && <DnsLookupSub domain={cleanDomain} />}
+            {tool === "ip-lookup" && <IpLookupSub domain={cleanDomain} />}
+            {tool === "user-agent-parser" && <UserAgentSub />}
+            {tool === "meta-tag-analyzer" && (
+              <MetaTagSub auditData={auditData} />
+            )}
+            {tool === "robots-txt-generator" && (
+              <RobotsTxtSub domain={cleanDomain} />
+            )}
+            {tool === "sitemap-generator" && (
+              <SitemapSub auditData={auditData} />
+            )}
+            {tool === "open-graph-preview" && (
+              <OpenGraphSub
+                auditData={auditData}
+                targetUrl={targetUrl}
+                onCopy={handleCopy}
+                copied={copied}
+              />
+            )}
+            {tool === "schema-markup-generator" && (
+              <SchemaMarkupSub
+                auditData={auditData}
+                onCopy={handleCopy}
+                copied={copied}
+              />
+            )}
+          </div>
+        </main>
 
-        <section id="dns-lookup" className="scroll-mt-32 rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-5 sm:p-6">
-          <DnsLookupSub domain={cleanDomain} onCopy={handleCopy} copied={copied} />
-        </section>
-
-        <section id="ip-lookup" className="scroll-mt-32 rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-5 sm:p-6">
-          <IpLookupSub domain={cleanDomain} onCopy={handleCopy} copied={copied} />
-        </section>
-
-        <section id="user-agent-parser" className="scroll-mt-32 rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-5 sm:p-6">
-          <UserAgentSub onCopy={handleCopy} copied={copied} />
-        </section>
-
-        <section id="meta-tag-analyzer" className="scroll-mt-32 rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-5 sm:p-6">
-          <MetaTagSub auditData={auditData} onCopy={handleCopy} copied={copied} />
-        </section>
-
-        <section id="robots-txt-generator" className="scroll-mt-32 rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-5 sm:p-6">
-          <RobotsTxtSub domain={cleanDomain} onCopy={handleCopy} copied={copied} />
-        </section>
-
-        <section id="sitemap-generator" className="scroll-mt-32 rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-5 sm:p-6">
-          <SitemapSub targetUrl={targetUrlInput} auditData={auditData} onCopy={handleCopy} copied={copied} />
-        </section>
-
-        <section id="open-graph-preview" className="scroll-mt-32 rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-5 sm:p-6">
-          <OpenGraphSub targetUrl={targetUrlInput} auditData={auditData} onCopy={handleCopy} copied={copied} />
-        </section>
-
-        <section id="schema-markup-generator" className="scroll-mt-32 rounded-2xl border border-border/30 bg-card/40 backdrop-blur-md p-5 sm:p-6">
-          <SchemaMarkupSub auditData={auditData} onCopy={handleCopy} copied={copied} />
-        </section>
+        {/* RIGHT INSPECTOR */}
+        <aside className="shrink-0 border-t md:border-t-0 md:border-l border-border/40 bg-card/30 flex flex-col min-h-0 w-full md:w-64 max-h-[40vh] md:max-h-none">
+          <header className="h-8 shrink-0 px-3 flex items-center border-b border-border/30 bg-muted/20">
+            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+              Options
+            </span>
+          </header>
+          <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-4">
+            <div>
+              <span className={labelCls}>Target Website</span>
+              <input
+                value={targetUrl}
+                onChange={(e) => setTargetUrl(e.target.value)}
+                className={inputCls}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && runServerDiagnostics(targetUrl)
+                }
+              />
+            </div>
+            <button
+              onClick={() => runServerDiagnostics(targetUrl)}
+              disabled={loading}
+              className="w-full py-1.5 rounded-md bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center gap-1.5 disabled:opacity-50 transition-colors"
+            >
+              {loading ? (
+                <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Zap className="h-3.5 w-3.5" />
+              )}{" "}
+              {loading ? "Analyzing..." : "Run Diagnostics"}
+            </button>
+          </div>
+        </aside>
       </div>
+
+      {/* STATUS BAR */}
+      <footer className="h-6 shrink-0 flex items-center gap-3 px-3 border-t border-border/40 bg-card/50 text-[10px] font-mono text-muted-foreground overflow-x-auto whitespace-nowrap">
+        <span className="flex items-center gap-1 text-emerald-500">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />{" "}
+          Engine Ready
+        </span>
+        <span>Target: {cleanDomain}</span>
+        <span className="flex-1" />
+        <span>{loading ? "Processing..." : "Idle"}</span>
+      </footer>
+
+      {/* PALETTE */}
+      {palette && (
+        <div
+          className="fixed inset-0 z-[100000] flex items-start justify-center pt-[12vh] pb-4 px-2 bg-black/40 backdrop-blur-sm"
+          onMouseDown={() => setPalette(false)}
+        >
+          <div
+            className="w-[min(92vw,540px)] flex flex-col rounded-xl border border-border/50 bg-card shadow-2xl overflow-hidden"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <input
+              autoFocus
+              value={paletteQuery}
+              onChange={(e) => {
+                setPaletteQuery(e.target.value);
+                setPaletteIdx(0);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "ArrowDown") {
+                  e.preventDefault();
+                  setPaletteIdx((i) =>
+                    Math.min(filteredActions.length - 1, i + 1),
+                  );
+                } else if (e.key === "Enter") {
+                  e.preventDefault();
+                  setPalette(false);
+                  setTimeout(() => filteredActions[paletteIdx]?.run(), 0);
+                } else if (e.key === "Escape") {
+                  e.preventDefault();
+                  setPalette(false);
+                }
+              }}
+              placeholder="Search tools..."
+              className="w-full h-11 px-4 bg-transparent border-b border-border/40 text-sm outline-none"
+            />
+            <ul className="p-1">
+              {filteredActions.map((a, i) => (
+                <li
+                  key={a.id}
+                  onClick={() => {
+                    setPalette(false);
+                    setTimeout(a.run, 0);
+                  }}
+                  className={`px-3 py-2 rounded-md cursor-pointer text-xs ${i === paletteIdx ? "bg-primary/10 text-foreground" : "text-muted-foreground"}`}
+                >
+                  {a.label}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-
 // ─────────────────────────────────────────────────────────────────────────────
-// SUB-TOOL IMPLEMENTATIONS
+// SUB-COMPONENTS (100% Original Features + Semantic Theming)
 // ─────────────────────────────────────────────────────────────────────────────
 
-// 1. URL Intelligence (#61)
-function UrlAnalyzerSub({ targetUrl, onCopy, copied }: any) {
+function UrlAnalyzerSub({ targetUrl }: { targetUrl: string }) {
   const parsed = useMemo(() => {
     if (!targetUrl) return null;
     try {
-      const u = new URL(targetUrl.startsWith("http") ? targetUrl : `https://${targetUrl}`);
+      const u = new URL(
+        targetUrl.startsWith("http") ? targetUrl : `https://${targetUrl}`,
+      );
       const params: Record<string, string> = {};
       u.searchParams.forEach((v, k) => (params[k] = v));
-
       const canonicalNorm = `${u.protocol}//${u.hostname.toLowerCase()}${u.pathname.replace(/\/$/, "")}`;
       return {
         protocol: u.protocol,
@@ -378,113 +514,149 @@ function UrlAnalyzerSub({ targetUrl, onCopy, copied }: any) {
     }
   }, [targetUrl]);
 
+  if (!parsed)
+    return (
+      <p className="text-xs text-muted-foreground italic p-4">
+        Invalid URL format.
+      </p>
+    );
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between pb-3 border-b border-border/20">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="bg-card/60 border border-border/30 rounded-xl p-4 space-y-3 font-mono text-xs">
         <div>
-          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-            <Link2 className="w-4 h-4 text-primary" /> URL Structure & Query Intelligence
-          </h3>
-          <p className="text-xs text-muted-foreground">Decompose target URL into RFC 3986 protocol tokens, query parameter key-values, and canonical paths.</p>
+          <span className="text-muted-foreground block font-sans text-[10px]">
+            Protocol
+          </span>
+          <span className="font-bold text-primary">{parsed.protocol}</span>
+        </div>
+        <div>
+          <span className="text-muted-foreground block font-sans text-[10px]">
+            Hostname / FQDN
+          </span>
+          <span className="font-bold text-foreground">{parsed.hostname}</span>
+        </div>
+        <div>
+          <span className="text-muted-foreground block font-sans text-[10px]">
+            URL Path
+          </span>
+          <span className="text-foreground">{parsed.pathname}</span>
+        </div>
+        <div>
+          <span className="text-muted-foreground block font-sans text-[10px]">
+            Normalized Canonical
+          </span>
+          <span className="text-emerald-500 font-bold">
+            {parsed.canonicalNorm}
+          </span>
         </div>
       </div>
-
-      {parsed ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-4 rounded-xl bg-card border border-border/30 space-y-2.5 font-mono text-xs">
-            <div><span className="text-muted-foreground block font-sans text-[11px]">Protocol</span><span className="font-bold text-primary">{parsed.protocol}</span></div>
-            <div><span className="text-muted-foreground block font-sans text-[11px]">Hostname / FQDN</span><span className="font-bold text-foreground">{parsed.hostname}</span></div>
-            <div><span className="text-muted-foreground block font-sans text-[11px]">URL Path</span><span className="text-foreground">{parsed.pathname}</span></div>
-            <div><span className="text-muted-foreground block font-sans text-[11px]">Normalized Canonical</span><span className="text-emerald-400 font-bold">{parsed.canonicalNorm}</span></div>
-          </div>
-
-          <div className="p-4 rounded-xl bg-card border border-border/30 space-y-2.5">
-            <span className="text-xs font-bold text-primary uppercase tracking-wider block">Query Parameters ({Object.keys(parsed.params).length})</span>
-            {Object.keys(parsed.params).length === 0 ? (
-              <p className="text-xs text-muted-foreground italic">No query parameters detected in URL.</p>
-            ) : (
-              <div className="space-y-1.5 max-h-48 overflow-y-auto">
-                {Object.entries(parsed.params).map(([k, v]) => (
-                  <div key={k} className="p-2 rounded-lg bg-secondary/30 flex justify-between font-mono text-xs border border-border/20">
-                    <span className="text-emerald-400 font-bold">{k}</span>
-                    <span className="text-foreground truncate max-w-[200px]">{v}</span>
-                  </div>
-                ))}
+      <div className="bg-card/60 border border-border/30 rounded-xl p-4 space-y-3">
+        <span className="text-[10px] font-black uppercase tracking-widest text-primary block border-b border-border/20 pb-2">
+          Query Parameters ({Object.keys(parsed.params).length})
+        </span>
+        {Object.keys(parsed.params).length === 0 ? (
+          <p className="text-[11px] text-muted-foreground italic">
+            No query parameters detected.
+          </p>
+        ) : (
+          <div className="space-y-1.5 max-h-48 overflow-y-auto">
+            {Object.entries(parsed.params).map(([k, v]) => (
+              <div
+                key={k}
+                className="p-2 rounded bg-muted/40 flex justify-between font-mono text-[11px] border border-border/20"
+              >
+                <span className="text-emerald-500 font-bold">{k}</span>
+                <span className="text-foreground truncate max-w-[150px]">
+                  {v}
+                </span>
               </div>
-            )}
+            ))}
           </div>
-        </div>
-      ) : (
-        <p className="text-xs text-destructive">Invalid URL format specified.</p>
-      )}
+        )}
+      </div>
     </div>
   );
 }
 
-// 2. HTTP Status Diagnostics (#62)
-function HttpStatusSub({ targetUrl, auditData }: any) {
-  const isOk = auditData && !auditData.isUnreachable && auditData.status >= 200 && auditData.status < 400;
-  const statusDisplay = auditData ? (auditData.status === 0 ? "0" : auditData.status) : "---";
-  const statusTextDisplay = auditData ? (auditData.statusText || (isOk ? "OK" : "Error / Unreachable")) : "Analyzing...";
+function HttpStatusSub({ auditData }: any) {
+  if (!auditData)
+    return (
+      <p className="text-xs text-muted-foreground italic p-4">
+        Run diagnostics to view HTTP status.
+      </p>
+    );
+  const isOk =
+    auditData &&
+    !auditData.isUnreachable &&
+    auditData.status >= 200 &&
+    auditData.status < 400;
+  const statusDisplay = auditData
+    ? auditData.status === 0
+      ? "0"
+      : auditData.status
+    : "---";
+  const statusTextDisplay = auditData
+    ? auditData.statusText || (isOk ? "OK" : "Error / Unreachable")
+    : "Analyzing...";
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between pb-3 border-b border-border/20">
+      <div
+        className={`bg-card/60 border rounded-xl p-4 flex items-center justify-between ${isOk ? "border-border/30" : "border-destructive/30 bg-destructive/5"}`}
+      >
         <div>
-          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-            <Server className="w-4 h-4 text-primary" /> HTTP Status & Response Time
-          </h3>
-          <p className="text-xs text-muted-foreground">Inspect target endpoint HTTP response codes, latency, and redirect steps.</p>
+          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block mb-1">
+            Response Status
+          </span>
+          <span
+            className={`text-3xl font-black font-mono flex items-center gap-2 ${isOk ? "text-emerald-500" : "text-destructive"}`}
+          >
+            {!isOk && <AlertTriangle className="h-6 w-6 shrink-0" />}{" "}
+            {statusDisplay} {statusTextDisplay}
+          </span>
+        </div>
+        <div className="text-right">
+          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block mb-1">
+            Response Time
+          </span>
+          <span className="text-xl font-bold font-mono text-primary">
+            {auditData.responseTimeMs || 0} ms
+          </span>
         </div>
       </div>
-
-      {auditData ? (
-        <div className="space-y-4">
-          <div className={`p-4 rounded-xl border flex items-center justify-between ${isOk ? "bg-card border-border/30" : "bg-destructive/10 border-destructive/30"}`}>
-            <div>
-              <span className="text-[11px] text-muted-foreground uppercase block font-semibold">Response Status</span>
-              <span className={`text-2xl font-extrabold flex items-center gap-2 ${isOk ? "text-emerald-400" : "text-destructive"}`}>
-                {!isOk && <AlertTriangle className="w-5 h-5 text-destructive shrink-0" />}
-                {statusDisplay} {statusTextDisplay}
+      {auditData.error && (
+        <div className="p-3.5 rounded-xl bg-destructive/10 border border-destructive/20 text-xs text-destructive font-mono">
+          <strong>Diagnostics Warning:</strong> {auditData.error}
+        </div>
+      )}
+      {auditData.redirectChain?.length > 0 && (
+        <div className="bg-card/60 border border-border/30 rounded-xl p-4 space-y-2">
+          <span className="text-[10px] font-black uppercase tracking-widest text-primary block border-b border-border/20 pb-2">
+            Redirect Chain
+          </span>
+          {auditData.redirectChain.map((step: any, i: number) => (
+            <div
+              key={i}
+              className="flex justify-between items-center text-[11px] font-mono p-2 rounded bg-muted/30 border border-border/20"
+            >
+              <span className="text-primary font-bold">
+                Step {i + 1}: {step.status}
+              </span>
+              <span className="text-foreground truncate max-w-sm">
+                {step.url}
               </span>
             </div>
-            <div className="text-right">
-              <span className="text-[11px] text-muted-foreground block font-semibold">Server Response Time</span>
-              <span className="text-lg font-bold font-mono text-primary">{auditData.responseTimeMs || 0} ms</span>
-            </div>
-          </div>
-
-          {auditData.error && (
-            <div className="p-3.5 rounded-xl bg-destructive/10 border border-destructive/20 text-xs text-destructive font-mono">
-              <strong>Diagnostics Warning:</strong> {auditData.error}
-            </div>
-          )}
-
-          {auditData.redirectChain?.length > 0 && (
-            <div className="p-4 rounded-xl bg-card border border-border/30 space-y-2">
-              <span className="text-xs font-bold uppercase tracking-wider block text-muted-foreground">Redirect Hops</span>
-              {auditData.redirectChain.map((step: any, i: number) => (
-                <div key={i} className="p-2.5 rounded-lg bg-secondary/30 border border-border/20 flex items-center justify-between text-xs font-mono">
-                  <span className="text-primary font-bold">Step {i + 1}: {step.status}</span>
-                  <span className="text-foreground truncate max-w-sm">{step.url}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="p-4 rounded-xl bg-card border border-border/30 text-xs text-muted-foreground italic text-center">
-          Analyzing HTTP status for {targetUrl}...
+          ))}
         </div>
       )}
     </div>
   );
 }
 
-// 3. DNS Analyzer (#63)
-function DnsLookupSub({ domain, onCopy, copied }: any) {
+function DnsLookupSub({ domain }: { domain: string }) {
   const [records, setRecords] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
 
   const fetchDns = async (d: string) => {
     if (!d) return;
@@ -497,7 +669,7 @@ function DnsLookupSub({ domain, onCopy, copied }: any) {
       });
       const data = await res.json();
       setRecords(data.records);
-    } catch (_) { }
+    } catch (_) {}
     setLoading(false);
   };
 
@@ -507,218 +679,291 @@ function DnsLookupSub({ domain, onCopy, copied }: any) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between pb-3 border-b border-border/20">
-        <div>
-          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-            <Network className="w-4 h-4 text-primary" /> DNS Record Inspection ({domain})
-          </h3>
-          <p className="text-xs text-muted-foreground">Inspect A, MX, NS, and TXT DNS records for domain target.</p>
-        </div>
-        <button onClick={() => fetchDns(domain)} disabled={loading} className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-bold flex items-center gap-1.5">
-          {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
-          <span>Refresh</span>
+      <div className="flex justify-between items-center border-b border-border/20 pb-2">
+        <span className="text-[10px] font-black uppercase tracking-widest text-primary">
+          DNS Records ({domain})
+        </span>
+        <button
+          onClick={() => fetchDns(domain)}
+          disabled={loading}
+          className="text-muted-foreground hover:text-foreground"
+        >
+          {loading ? (
+            <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <RefreshCw className="h-3.5 w-3.5" />
+          )}
         </button>
       </div>
-
       {records ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="p-4 rounded-xl bg-card border border-border/30 font-mono text-xs space-y-2">
-            <span className="text-primary font-bold block uppercase text-[11px]">A Records (IPv4 Addresses)</span>
-            {records.A?.map((ip: string) => <div key={ip} className="p-2 bg-secondary/30 rounded border border-border/20">{ip}</div>) || <p className="text-muted-foreground">None found</p>}
-          </div>
-          <div className="p-4 rounded-xl bg-card border border-border/30 font-mono text-xs space-y-2">
-            <span className="text-primary font-bold block uppercase text-[11px]">MX Mail Host Records</span>
-            {records.MX?.map((mx: any) => <div key={mx.exchange} className="p-2 bg-secondary/30 rounded border border-border/20">{mx.exchange} (Priority: {mx.priority})</div>) || <p className="text-muted-foreground">None found</p>}
-          </div>
-        </div>
-      ) : (
-        <div className="p-4 rounded-xl bg-card border border-border/30 text-xs text-muted-foreground text-center flex items-center justify-center gap-2">
-          <Loader2 className="w-4 h-4 animate-spin text-primary" /> Loading DNS records for {domain}...
-        </div>
-      )}
-    </div>
-  );
-}
-
-// 4. IP Intelligence (#64)
-function IpLookupSub({ domain, onCopy, copied }: any) {
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between pb-3 border-b border-border/20">
-        <div>
-          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-            <Cpu className="w-4 h-4 text-primary" /> IP Intelligence & Host details
-          </h3>
-          <p className="text-xs text-muted-foreground">Host infrastructure information for target domain {domain}.</p>
-        </div>
-      </div>
-      <div className="p-4 rounded-xl bg-card border border-border/30 space-y-2.5 font-mono text-xs">
-        <div><span className="text-muted-foreground block font-sans text-[11px]">Target Domain</span><span className="font-bold text-foreground">{domain}</span></div>
-        <div><span className="text-muted-foreground block font-sans text-[11px]">Network Type</span><span className="text-foreground">Edge CDN / Cloud Infrastructure</span></div>
-        <div><span className="text-muted-foreground block font-sans text-[11px]">Reverse DNS (PTR)</span><span className="text-emerald-400">{domain}</span></div>
-      </div>
-    </div>
-  );
-}
-
-// 5. User-Agent Parser (#65)
-function UserAgentSub({ onCopy, copied }: any) {
-  const [uaInput, setUaInput] = useState<string>(
-    typeof navigator !== "undefined" ? navigator.userAgent : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-  );
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between pb-3 border-b border-border/20">
-        <div>
-          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-            <Bot className="w-4 h-4 text-primary" /> User-Agent Inspector
-          </h3>
-          <p className="text-xs text-muted-foreground">Inspect client and request User-Agent strings.</p>
-        </div>
-      </div>
-      <textarea value={uaInput} onChange={(e) => setUaInput(e.target.value)} className="w-full h-24 p-3 rounded-xl border border-border/30 bg-background/50 text-xs font-mono text-foreground outline-none" />
-    </div>
-  );
-}
-
-// 6. SEO Meta Inspector (#66)
-function MetaTagSub({ auditData }: any) {
-  const seo = auditData?.seo;
-  const items = useMemo(() => {
-    if (!seo) return [];
-    return [
-      { name: "Title Tag", val: seo.title, passed: !!seo.title && seo.title.length <= 60, raw: seo.rawTitleTag, note: seo.title ? `${seo.title.length} characters` : "Missing title tag" },
-      { name: "Meta Description", val: seo.description, passed: !!seo.description && seo.description.length <= 160, raw: seo.rawDescriptionTag, note: seo.description ? `${seo.description.length} characters` : "Missing meta description" },
-      { name: "Canonical Link", val: seo.canonical, passed: !!seo.canonical, raw: seo.rawCanonicalTag, note: seo.canonical ? "Canonical tag verified" : "Missing canonical tag" },
-      { name: "Robots Meta", val: seo.robots || "index, follow", passed: true, raw: seo.rawRobotsTag, note: "Robots directive active" },
-      { name: "Viewport Tag", val: seo.viewport || "width=device-width", passed: true, raw: seo.rawViewportTag, note: "Mobile viewport configuration present" },
-      { name: "Open Graph Image", val: seo.ogImage, passed: !!seo.ogImage, raw: `<meta property="og:image" content="${seo.ogImage || ""}">`, note: seo.ogImage ? "OG Image tag present" : "Missing og:image tag" },
-    ];
-  }, [seo]);
-
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between pb-3 border-b border-border/20">
-        <div>
-          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-            <Search className="w-4 h-4 text-primary" /> SEO Meta Inspector
-          </h3>
-          <p className="text-xs text-muted-foreground">Inspect page title, description, canonical link, and Open Graph tags.</p>
-        </div>
-      </div>
-
-      {seo ? (
-        <div className="space-y-2.5">
-          {items.map((item, idx) => (
-            <div key={idx} className="p-3.5 rounded-xl border border-border/30 bg-card space-y-1.5">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-foreground flex items-center gap-2">
-                  {item.passed ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <XCircle className="w-4 h-4 text-destructive" />}
-                  {item.name}
-                </span>
-                <span className="text-muted-foreground text-[11px]">{item.note}</span>
+          <div className="bg-card/60 border border-border/30 rounded-lg p-3 space-y-2 font-mono text-[11px]">
+            <span className="text-primary font-bold block uppercase text-[9px] border-b border-border/20 pb-1 mb-2">
+              A Records (IPv4)
+            </span>
+            {records.A?.map((ip: string) => (
+              <div key={ip} className="p-1.5 bg-muted/40 rounded">
+                {ip}
               </div>
-              <p className="text-xs text-foreground font-mono truncate">{item.val || "Not specified"}</p>
-            </div>
-          ))}
+            )) || <p className="text-muted-foreground">None</p>}
+          </div>
+          <div className="bg-card/60 border border-border/30 rounded-lg p-3 space-y-2 font-mono text-[11px]">
+            <span className="text-primary font-bold block uppercase text-[9px] border-b border-border/20 pb-1 mb-2">
+              MX Records
+            </span>
+            {records.MX?.map((mx: any) => (
+              <div key={mx.exchange} className="p-1.5 bg-muted/40 rounded">
+                {mx.exchange} (P:{mx.priority})
+              </div>
+            )) || <p className="text-muted-foreground">None</p>}
+          </div>
         </div>
       ) : (
-        <div className="p-4 rounded-xl bg-card border border-border/30 text-xs text-muted-foreground text-center">
-          Analyzing SEO tags...
+        <div className="p-4 text-xs text-muted-foreground text-center">
+          Loading records...
         </div>
       )}
     </div>
   );
 }
 
-// 7. Robots.txt Playground (#67)
-function RobotsTxtSub({ domain, onCopy, copied }: any) {
-  const [robotsText, setRobotsText] = useState<string>(`User-agent: *\nDisallow: /admin/\nDisallow: /private/\nAllow: /public/\nSitemap: https://${domain}/sitemap.xml`);
-  const [testPath, setTestPath] = useState<string>("/admin/dashboard");
+function IpLookupSub({ domain }: { domain: string }) {
+  return (
+    <div className="bg-card/60 border border-border/30 rounded-xl p-4 space-y-3 font-mono text-[11px]">
+      <div>
+        <span className="text-muted-foreground block font-sans text-[9px] uppercase tracking-widest mb-1">
+          Target Domain
+        </span>
+        <span className="font-bold text-foreground">{domain}</span>
+      </div>
+      <div>
+        <span className="text-muted-foreground block font-sans text-[9px] uppercase tracking-widest mb-1">
+          Infrastructure
+        </span>
+        <span className="text-foreground">Edge CDN / Cloud</span>
+      </div>
+      <div>
+        <span className="text-muted-foreground block font-sans text-[9px] uppercase tracking-widest mb-1">
+          Reverse DNS
+        </span>
+        <span className="text-emerald-500">{domain}</span>
+      </div>
+    </div>
+  );
+}
 
+function UserAgentSub() {
+  const [ua, setUa] = useState(
+    typeof navigator !== "undefined" ? navigator.userAgent : "Mozilla/5.0...",
+  );
+  return (
+    <div className="space-y-1">
+      <span className={labelCls}>Current User-Agent</span>
+      <textarea
+        value={ua}
+        onChange={(e) => setUa(e.target.value)}
+        className="w-full h-32 p-3 rounded-xl border border-border/40 text-[11px] font-mono bg-background focus:outline-none focus:border-primary"
+      />
+    </div>
+  );
+}
+
+function MetaTagSub({ auditData }: any) {
+  if (!auditData?.seo)
+    return (
+      <p className="text-xs text-muted-foreground italic p-4">
+        Run diagnostics to view SEO data.
+      </p>
+    );
+  const items = [
+    {
+      name: "Title Tag",
+      val: auditData.seo.title,
+      passed: !!auditData.seo.title && auditData.seo.title.length <= 60,
+      raw: auditData.seo.rawTitleTag,
+      note: auditData.seo.title
+        ? `${auditData.seo.title.length} characters`
+        : "Missing title tag",
+    },
+    {
+      name: "Meta Description",
+      val: auditData.seo.description,
+      passed:
+        !!auditData.seo.description && auditData.seo.description.length <= 160,
+      raw: auditData.seo.rawDescriptionTag,
+      note: auditData.seo.description
+        ? `${auditData.seo.description.length} characters`
+        : "Missing meta description",
+    },
+    {
+      name: "Canonical Link",
+      val: auditData.seo.canonical,
+      passed: !!auditData.seo.canonical,
+      raw: auditData.seo.rawCanonicalTag,
+      note: auditData.seo.canonical
+        ? "Canonical tag verified"
+        : "Missing canonical tag",
+    },
+    {
+      name: "Robots Meta",
+      val: auditData.seo.robots || "index, follow",
+      passed: true,
+      raw: auditData.seo.rawRobotsTag,
+      note: "Robots directive active",
+    },
+    {
+      name: "Viewport Tag",
+      val: auditData.seo.viewport || "width=device-width",
+      passed: true,
+      raw: auditData.seo.rawViewportTag,
+      note: "Mobile viewport configuration present",
+    },
+    {
+      name: "Open Graph Image",
+      val: auditData.seo.ogImage,
+      passed: !!auditData.seo.ogImage,
+      raw: `<meta property="og:image" content="${auditData.seo.ogImage || ""}">`,
+      note: auditData.seo.ogImage
+        ? "OG Image tag present"
+        : "Missing og:image tag",
+    },
+  ];
+  return (
+    <div className="space-y-2.5">
+      {items.map((item, idx) => (
+        <div
+          key={idx}
+          className="bg-card/60 border border-border/30 rounded-lg p-3 flex justify-between items-center"
+        >
+          <div className="min-w-0 pr-4">
+            <span className="text-[10px] font-bold text-foreground flex items-center gap-1.5 mb-1">
+              {item.passed ? (
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+              ) : (
+                <XCircle className="w-3.5 h-3.5 text-destructive" />
+              )}{" "}
+              {item.name}
+            </span>
+            <p className="text-[11px] text-muted-foreground font-mono truncate">
+              {item.val || "Not specified"}
+            </p>
+          </div>
+          <span
+            className={`text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded shrink-0 ${item.passed ? "bg-emerald-500/10 text-emerald-500" : "bg-destructive/10 text-destructive"}`}
+          >
+            {item.passed ? "Pass" : "Fail"}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function RobotsTxtSub({ domain }: { domain: string }) {
+  const [robotsText, setRobotsText] = useState(
+    `User-agent: *\nDisallow: /admin/\nDisallow: /private/\nAllow: /public/\nSitemap: https://${domain}/sitemap.xml`,
+  );
+  const [testPath, setTestPath] = useState("/admin/dashboard");
   const isBlocked = useMemo(() => {
     if (testPath.startsWith("/public/")) return false;
     return testPath.startsWith("/admin/") || testPath.startsWith("/private/");
   }, [testPath]);
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between pb-3 border-b border-border/20">
-        <div>
-          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-primary" /> Robots.txt Directives & Path Simulator
-          </h3>
-          <p className="text-xs text-muted-foreground">Configure crawler robots directives for target host {domain}.</p>
-        </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <span className={labelCls}>Robots Directives</span>
+        <textarea
+          value={robotsText}
+          onChange={(e) => setRobotsText(e.target.value)}
+          className="w-full h-48 p-3 rounded-xl border border-border/40 text-[11px] font-mono bg-background focus:outline-none focus:border-primary"
+        />
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="text-xs font-semibold text-muted-foreground block mb-1.5">Robots Directives</label>
-          <textarea value={robotsText} onChange={(e) => setRobotsText(e.target.value)} className="w-full h-44 p-3 rounded-xl border border-border/30 bg-background/50 text-xs font-mono text-foreground outline-none" />
-        </div>
-
-        <div className="p-4 rounded-xl bg-card border border-border/30 space-y-3">
-          <label className="text-xs font-bold text-foreground block">Test Path Access</label>
-          <input type="text" value={testPath} onChange={(e) => setTestPath(e.target.value)} className="w-full p-2.5 bg-background border border-border/30 rounded-lg text-xs font-mono text-foreground outline-none" />
-          <div className={`p-3 rounded-lg font-bold text-xs ${isBlocked ? "bg-destructive/10 text-destructive border border-destructive/20" : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"}`}>
-            Access: {isBlocked ? "BLOCKED by directive" : "ALLOWED by crawler"}
-          </div>
+      <div className="bg-card/60 border border-border/30 rounded-xl p-4 space-y-3">
+        <span className={labelCls}>Test Path Access</span>
+        <input
+          type="text"
+          value={testPath}
+          onChange={(e) => setTestPath(e.target.value)}
+          className={inputCls}
+        />
+        <div
+          className={`p-3 rounded-lg font-bold text-xs ${isBlocked ? "bg-destructive/10 text-destructive border border-destructive/20" : "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"}`}
+        >
+          Access: {isBlocked ? "BLOCKED by directive" : "ALLOWED by crawler"}
         </div>
       </div>
     </div>
   );
 }
 
-// 8. Sitemap Crawler (#68)
-function SitemapSub({ targetUrl, auditData, onCopy, copied }: any) {
-  const discovered = auditData?.discoveredUrls || [];
-
+function SitemapSub({ auditData }: any) {
+  if (!auditData?.discoveredUrls)
+    return (
+      <p className="text-xs text-muted-foreground italic p-4">
+        Run diagnostics to crawl links.
+      </p>
+    );
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between pb-3 border-b border-border/20">
-        <div>
-          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-            <Layers className="w-4 h-4 text-primary" /> Sitemap & Link Crawler
-          </h3>
-          <p className="text-xs text-muted-foreground">Discovered URLs and link structures for {targetUrl}.</p>
-        </div>
+    <div className="bg-card/60 border border-border/30 rounded-xl overflow-hidden">
+      <div className="p-3 border-b border-border/30 flex items-center justify-between bg-muted/20">
+        <span className="text-[10px] font-black uppercase tracking-widest text-primary">
+          Discovered Links ({auditData.discoveredUrls.length})
+        </span>
       </div>
-
-      {discovered.length > 0 ? (
-        <div className="space-y-3">
-          <div className="p-3.5 rounded-xl bg-card border border-border/30 flex items-center justify-between text-xs">
-            <span>Discovered Pages ({discovered.length})</span>
-            <span className="text-emerald-400 font-bold">Validated</span>
-          </div>
-          <div className="space-y-1.5 max-h-56 overflow-y-auto">
-            {discovered.map((item: any, i: number) => (
-              <div key={i} className="p-2 rounded-lg bg-card border border-border/20 flex justify-between text-xs font-mono">
-                <span className="truncate max-w-sm text-foreground">{item.url}</span>
-                <span className="text-primary font-bold">{item.isInternal ? "Internal" : "External"}</span>
+      <div className="divide-y divide-border/20 max-h-[400px] overflow-y-auto">
+        {auditData.discoveredUrls.map((item: any, i: number) => {
+          const isBroken = item.status >= 400 || item.status === 0;
+          return (
+            <div
+              key={i}
+              className="flex items-center justify-between p-2 text-[11px] font-mono hover:bg-muted/30"
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                {isBroken ? (
+                  <AlertTriangle className="h-3.5 w-3.5 text-rose-500 shrink-0" />
+                ) : (
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                )}
+                <span className="truncate text-foreground">{item.url}</span>
               </div>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="p-4 rounded-xl bg-card border border-border/30 text-xs text-muted-foreground text-center">
-          Analyzing sitemap links...
-        </div>
-      )}
+              <div className="flex items-center gap-2 shrink-0">
+                <span
+                  className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${item.isInternal ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}
+                >
+                  {item.isInternal ? "INT" : "EXT"}
+                </span>
+                <span
+                  className={`font-bold ${isBroken ? "text-rose-500" : "text-emerald-500"}`}
+                >
+                  {item.status || "ERR"}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
 
-// 9. Open Graph Social Studio (#69)
-function OpenGraphSub({ targetUrl, auditData, onCopy, copied }: any) {
-  const [title, setTitle] = useState<string>(auditData?.seo?.ogTitle || auditData?.seo?.title || "Web Target Title");
-  const [desc, setDesc] = useState<string>(auditData?.seo?.ogDescription || auditData?.seo?.description || "Web Target Meta Description");
-  const [imageUrl, setImageUrl] = useState<string>(auditData?.seo?.ogImage || "");
+function OpenGraphSub({ auditData, onCopy, copied }: any) {
+  const [title, setTitle] = useState(
+    auditData?.seo?.ogTitle || auditData?.seo?.title || "Web Target Title",
+  );
+  const [desc, setDesc] = useState(
+    auditData?.seo?.ogDescription ||
+      auditData?.seo?.description ||
+      "Web Target Meta Description",
+  );
+  const [imageUrl, setImageUrl] = useState(auditData?.seo?.ogImage || "");
 
   useEffect(() => {
     if (auditData?.seo) {
-      if (auditData.seo.ogTitle || auditData.seo.title) setTitle(auditData.seo.ogTitle || auditData.seo.title);
-      if (auditData.seo.ogDescription || auditData.seo.description) setDesc(auditData.seo.ogDescription || auditData.seo.description);
+      if (auditData.seo.ogTitle || auditData.seo.title)
+        setTitle(auditData.seo.ogTitle || auditData.seo.title);
+      if (auditData.seo.ogDescription || auditData.seo.description)
+        setDesc(auditData.seo.ogDescription || auditData.seo.description);
       if (auditData.seo.ogImage) setImageUrl(auditData.seo.ogImage);
     }
   }, [auditData]);
@@ -726,110 +971,163 @@ function OpenGraphSub({ targetUrl, auditData, onCopy, copied }: any) {
   const generatedTags = `<meta property="og:title" content="${title}">\n<meta property="og:description" content="${desc}">\n<meta property="og:image" content="${imageUrl}">\n<meta name="twitter:card" content="summary_large_image">`;
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between pb-3 border-b border-border/20">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-3">
         <div>
-          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-            <Eye className="w-4 h-4 text-primary" /> Open Graph Social Card Preview
-          </h3>
-          <p className="text-xs text-muted-foreground">Social media share card preview for {targetUrl}.</p>
+          <span className={labelCls}>OG Title</span>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className={inputCls}
+          />
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-3">
-          <div><label className="text-xs font-semibold text-muted-foreground block mb-1">OG Title</label><input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full p-2.5 border border-border/30 rounded-lg text-xs bg-background text-foreground outline-none" /></div>
-          <div><label className="text-xs font-semibold text-muted-foreground block mb-1">OG Description</label><textarea value={desc} onChange={(e) => setDesc(e.target.value)} className="w-full p-2.5 border border-border/30 rounded-lg text-xs bg-background text-foreground outline-none h-20" /></div>
-          <div><label className="text-xs font-semibold text-muted-foreground block mb-1">OG Image URL</label><input type="text" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="w-full p-2.5 border border-border/30 rounded-lg text-xs bg-background text-foreground font-mono outline-none" /></div>
-        </div>
-
-        <div className="space-y-3">
-          <div className="p-3.5 rounded-xl border border-border/30 bg-card space-y-2">
-            <div className="h-32 bg-secondary/50 rounded-lg overflow-hidden relative flex items-center justify-center">
-              {imageUrl ? <img src={imageUrl} alt="Social Card" className="w-full h-full object-cover" /> : <span className="text-xs text-muted-foreground">Social Card Image</span>}
-            </div>
-            <div className="font-bold text-sm text-foreground truncate">{title}</div>
-            <div className="text-xs text-muted-foreground line-clamp-2">{desc}</div>
-          </div>
-
-          <div className="p-3 bg-card border border-border/30 rounded-xl space-y-1.5">
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-primary font-bold uppercase text-[11px]">Generated Tags</span>
-              <button onClick={() => onCopy(generatedTags)} className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                {copied ? "Copied" : "Copy"}
-              </button>
-            </div>
-            <pre className="text-[10px] text-emerald-400 font-mono overflow-x-auto">{generatedTags}</pre>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// 10. Schema JSON-LD Builder (#70)
-function SchemaMarkupSub({ auditData, onCopy, copied }: any) {
-  const [schemaType, setSchemaType] = useState<string>("Article");
-  const [headline, setHeadline] = useState<string>(auditData?.seo?.title || "Web Target Article Headline");
-  const [pubDate, setPubDate] = useState<string>(new Date().toISOString().split("T")[0]);
-
-  useEffect(() => {
-    if (auditData?.seo?.title) {
-      setHeadline(auditData.seo.title);
-    }
-  }, [auditData]);
-
-  const jsonLd = useMemo(() => {
-    return JSON.stringify(
-      {
-        "@context": "https://schema.org",
-        "@type": schemaType,
-        headline,
-        datePublished: pubDate,
-      },
-      null,
-      2
-    );
-  }, [schemaType, headline, pubDate]);
-
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between pb-3 border-b border-border/20">
         <div>
-          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-            <FileCode className="w-4 h-4 text-primary" /> Schema JSON-LD Generator
-          </h3>
-          <p className="text-xs text-muted-foreground">Structured JSON-LD schema builder.</p>
+          <span className={labelCls}>OG Description</span>
+          <textarea
+            value={desc}
+            onChange={(e) => setDesc(e.target.value)}
+            className="w-full p-2.5 rounded-md border border-border/40 text-[11px] bg-background focus:outline-none focus:border-primary h-20"
+          />
+        </div>
+        <div>
+          <span className={labelCls}>OG Image URL</span>
+          <input
+            type="text"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+            className={inputCls}
+          />
         </div>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-3">
-          <div>
-            <label className="text-xs font-semibold text-muted-foreground block mb-1">Schema Type</label>
-            <select value={schemaType} onChange={(e) => setSchemaType(e.target.value)} className="w-full p-2.5 border border-border/30 rounded-lg text-xs bg-background text-foreground outline-none">
-              <option value="Article">Article</option>
-              <option value="WebPage">WebPage</option>
-              <option value="Organization">Organization</option>
-            </select>
+      <div className="space-y-3">
+        <div className="bg-card/60 border border-border/30 rounded-xl p-3 space-y-2">
+          <div className="h-32 bg-muted rounded-lg overflow-hidden relative flex items-center justify-center">
+            {imageUrl ? (
+              <img
+                src={imageUrl}
+                alt="Social Card"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-xs text-muted-foreground">
+                Social Card Image
+              </span>
+            )}
           </div>
-          <div><label className="text-xs font-semibold text-muted-foreground block mb-1">Headline</label><input type="text" value={headline} onChange={(e) => setHeadline(e.target.value)} className="w-full p-2.5 border border-border/30 rounded-lg text-xs bg-background text-foreground outline-none" /></div>
-          <div><label className="text-xs font-semibold text-muted-foreground block mb-1">Date Published</label><input type="date" value={pubDate} onChange={(e) => setPubDate(e.target.value)} className="w-full p-2.5 border border-border/30 rounded-lg text-xs bg-background text-foreground outline-none" /></div>
+          <div className="font-bold text-sm text-foreground truncate">
+            {title}
+          </div>
+          <div className="text-[11px] text-muted-foreground line-clamp-2">
+            {desc}
+          </div>
         </div>
-
-        <div className="space-y-2.5">
-          <div className="flex justify-between items-center text-xs">
-            <span className="font-bold text-foreground">JSON-LD Output</span>
-            <button onClick={() => onCopy(`<script type="application/ld+json">\n${jsonLd}\n</script>`)} className="px-2.5 py-1 rounded bg-primary text-primary-foreground text-[11px] font-bold flex items-center gap-1">
-              {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-              {copied ? "Copied" : "Copy JSON-LD"}
+        <div className="bg-card/60 border border-border/30 rounded-xl p-3 space-y-1.5">
+          <div className="flex justify-between items-center">
+            <span className="text-[9px] font-black uppercase tracking-widest text-primary">
+              Generated Tags
+            </span>
+            <button
+              onClick={() => onCopy(generatedTags)}
+              className="text-[10px] font-bold text-muted-foreground hover:text-foreground flex items-center gap-1"
+            >
+              {copied ? (
+                <Check className="w-3 h-3 text-emerald-500" />
+              ) : (
+                <Copy className="w-3 h-3" />
+              )}{" "}
+              Copy
             </button>
           </div>
-          <pre className="p-3.5 bg-card border border-border/30 text-emerald-400 font-mono text-xs rounded-xl overflow-x-auto h-48">{`<script type="application/ld+json">\n${jsonLd}\n</script>`}</pre>
+          <pre className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono overflow-x-auto bg-background p-2 rounded border border-border/40">
+            {generatedTags}
+          </pre>
         </div>
       </div>
     </div>
   );
 }
 
+function SchemaMarkupSub({ auditData, onCopy, copied }: any) {
+  const [schemaType, setSchemaType] = useState<string>("Article");
+  const [headline, setHeadline] = useState<string>(
+    auditData?.seo?.title || "Web Target Article Headline",
+  );
+  const [pubDate, setPubDate] = useState<string>(
+    new Date().toISOString().split("T")[0],
+  );
+
+  useEffect(() => {
+    if (auditData?.seo?.title) setHeadline(auditData.seo.title);
+  }, [auditData]);
+
+  const jsonLd = JSON.stringify(
+    {
+      "@context": "https://schema.org",
+      "@type": schemaType,
+      headline,
+      datePublished: pubDate,
+    },
+    null,
+    2,
+  );
+  const fullTag = `<script type="application/ld+json">\n${jsonLd}\n</script>`;
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-3">
+        <div>
+          <span className={labelCls}>Schema Type</span>
+          <select
+            value={schemaType}
+            onChange={(e) => setSchemaType(e.target.value)}
+            className={inputCls}
+          >
+            <option value="Article">Article</option>
+            <option value="WebPage">WebPage</option>
+            <option value="Organization">Organization</option>
+          </select>
+        </div>
+        <div>
+          <span className={labelCls}>Headline</span>
+          <input
+            type="text"
+            value={headline}
+            onChange={(e) => setHeadline(e.target.value)}
+            className={inputCls}
+          />
+        </div>
+        <div>
+          <span className={labelCls}>Date Published</span>
+          <input
+            type="date"
+            value={pubDate}
+            onChange={(e) => setPubDate(e.target.value)}
+            className={inputCls}
+          />
+        </div>
+      </div>
+      <div className="space-y-2">
+        <div className="flex justify-between items-center">
+          <span className="text-[9px] font-black uppercase tracking-widest text-primary">
+            JSON-LD Output
+          </span>
+          <button
+            onClick={() => onCopy(fullTag)}
+            className="px-2 py-1 rounded bg-primary text-primary-foreground text-[10px] font-bold flex items-center gap-1"
+          >
+            {copied ? (
+              <Check className="w-3 h-3" />
+            ) : (
+              <Copy className="w-3 h-3" />
+            )}{" "}
+            Copy
+          </button>
+        </div>
+        <pre className="p-3 bg-card/60 border border-border/30 rounded-lg text-[11px] font-mono text-emerald-600 dark:text-emerald-400 overflow-x-auto h-64">
+          {fullTag}
+        </pre>
+      </div>
+    </div>
+  );
+}
